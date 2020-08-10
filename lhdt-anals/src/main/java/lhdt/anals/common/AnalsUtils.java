@@ -3,29 +3,23 @@
  */
 package lhdt.anals.common;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
 import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpClient.Version;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
+import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-
-import org.apache.commons.io.IOUtils;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 
+import dev.hyunlab.core.PpTransferObject;
 import dev.hyunlab.core.util.PpDateUtil;
 import dev.hyunlab.core.util.PpUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -37,14 +31,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class AnalsUtils extends PpUtil{
-	
-	/**
-	 * unique한  long값 생성 & 리턴
-	 * @return
-	 */
-	public static Long getUniqueLong() {
-		return (new Date()).getTime();
-	}
 	
 	/**
 	 * result map 생성
@@ -73,17 +59,17 @@ public class AnalsUtils extends PpUtil{
 		return map;
 	}
 	
-	
-	
 	/**
 	 * @see lhdt.anals.common.AnalsUtils.doGet(String, Map<String, Object>, Map<String, Object>)
 	 * @param url
 	 * @return
 	 * @throws Exception
 	 */
-	public static String doGet(String url) throws Exception {
+	public static PpTransferObject doGet(String url) throws Exception {
 		return doGet(url, null, null);
 	}
+	
+	
 	
 	/**
 	 * @see lhdt.anals.common.AnalsUtils.doGet(String, Map<String, Object>, Map<String, Object>)
@@ -92,13 +78,12 @@ public class AnalsUtils extends PpUtil{
 	 * @return
 	 * @throws Exception
 	 */
-	public static String doGet(String url, Map<String,Object> param) throws Exception {
+	public static PpTransferObject doGet(String url, Map<String,Object> param) throws Exception {
 		return doGet(url, param, null);
 	}
 	
-
 	/**
-	 * http(s)를 이용해 get 방식으로 요청
+	 * get 방식으로 요청
 	 * @param url
 	 * @param param key/value
 	 * @param requestProperty 헤더 key/value
@@ -107,121 +92,153 @@ public class AnalsUtils extends PpUtil{
 	 * @history
 	 * 	1002 add requestProperty
 	 */
-	public static String doGet(String url, Map<String,Object> param, Map<String, Object> requestProperty) throws Exception {
-		log.info(">>.doGet - {} {} {}", url, param, requestProperty);
-		
-		//
-		if(url.toLowerCase().startsWith("https")) {
-			return httpsGet(url, param, requestProperty);
-		}
-		
-		//
-		System.setProperty("https.protocols", "TLSv1,TLSv1.1,TLSv1.2");
-
-		try {
-			String fullUrl = getFullUrl(url, param);			
-			
-			//
-			URL url2 = new URL(fullUrl);
-			HttpURLConnection conn = null;
-			conn = (HttpURLConnection) url2.openConnection();
-			conn.setRequestMethod("GET");
-			conn.setConnectTimeout(1000000);
-			conn.setReadTimeout(1000000);
-			
-			//
-			setRequestProperty(conn, requestProperty);
-			
-			//
-			conn.connect();
-
-			//
-			return getResponseData(conn);
-
-		} catch (Exception e) {
-			throw e;
-		}
+	public static PpTransferObject doGet(String url, Map<String,Object> param, Map<String, Object> requestProperty) throws Exception {
+		return doGetOrPost(HttpMethod.GET, url, param, requestProperty);
 	}
 	
 
 	/**
-	 * https get방식으로 호출
+	 * @see lhdt.anals.common.AnalsUtils.doPost(String, Map<String, Object>, Map<String, Object>)
+	 * @param url
+	 * @return
+	 * @throws Exception
+	 */
+	public static PpTransferObject doPost(String url) throws Exception {
+		return doPost(url, null, null);
+	}
+	
+	
+	/**
+	 * @see lhdt.anals.common.AnalsUtils.doPost(String, Map<String, Object>, Map<String, Object>)
+	 * @param url
+	 * @param param
+	 * @return
+	 * @throws Exception
+	 */
+	public static PpTransferObject doPost(String url, Map<String,Object> param) throws Exception {
+		return doPost(url, param, null);
+	}
+	
+	/**
+	 * post방식으로 요청
 	 * @param url
 	 * @param param
 	 * @param requestProperty
 	 * @return
-	 * @throws IOException
-	 * @throws NoSuchAlgorithmException
-	 * @throws KeyManagementException
-	 * @since	20191111
+	 * @throws Exception
 	 */
-	private static String httpsGet(String url, Map<String,Object> param, Map<String,Object> requestProperty) throws IOException, NoSuchAlgorithmException, KeyManagementException {
-		
+	public static PpTransferObject doPost(String url, Map<String,Object> param, Map<String, Object> requestProperty) throws Exception {
+		return doGetOrPost(HttpMethod.POST, url, param, requestProperty);
+	}
+	/**
+	 * unique한  long값 생성 & 리턴
+	 * @return
+	 */
+	public static Long getUniqueLong() {
+		return (new Date()).getTime();
+	}
+	
+	
+	/**
+	 * create HttpClient
+	 * @return
+	 */
+	private static HttpClient createHttpClient() {
 		//
-		TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
-			
-			public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			public X509Certificate[] getAcceptedIssuers() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-		}};
-		
-		//
-		SSLContext sc = SSLContext.getInstance("SSL");
-		sc.init(null, trustAllCerts, new SecureRandom());
-		HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-		
-		//
-		String fullUrl = getFullUrl(url, param);
-		
-		//
-		log.debug(".httpsGet - {}", fullUrl);
-		
+		return HttpClient.newBuilder()
+				.version(Version.HTTP_1_1)
+				.connectTimeout(Duration.ofSeconds(10))
+				.build();
+	}
+	
 
+	/**
+	 * create HttpRequest
+	 * @param httpMethod
+	 * @param url
+	 * @param param
+	 * @param requestProperty
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 */
+	private static HttpRequest createHttpRequest(HttpMethod httpMethod,  String url, Map<String,Object> param, Map<String,Object> requestProperty) throws UnsupportedEncodingException {
 		//
-		HttpsURLConnection conn = (HttpsURLConnection)new URL(fullUrl).openConnection();
-		conn.setRequestMethod("GET");
-		conn.setConnectTimeout(1000000);
-		conn.setReadTimeout(1000000);
+		HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
+				.setHeader("User-Agent", "java 11 HttpClient Bot")
+				.uri(URI.create(getFullUrl(httpMethod, url, param)));
 		
 		//
-		setRequestProperty(conn, requestProperty);		
+		switch (httpMethod) {
+		case GET:
+			requestBuilder.GET();
+			break;
+
+		default:
+			requestBuilder.POST(ofFormData(param));
+			break;
+		}
 		
 		//
-		conn.connect();
-		conn.setInstanceFollowRedirects(true);
+		if(AnalsUtils.isNotEmpty(requestProperty)) {
+			for(Map.Entry<String, Object> entry : requestProperty.entrySet()) {
+				requestBuilder.header(entry.getKey(), entry.getValue().toString());				
+			}
+		}
 		
 		//
-		return getResponseData(conn);
+		return requestBuilder.build();
+	}
+	
+	
+	
+	/**
+	 * 실제로  get/post 요청/응답하는 메소드
+	 * @param httpMethod
+	 * @param url
+	 * @param param
+	 * @param requestProperty
+	 * @return PpTransferObject	resultCode=상태코드, resultMessage=응답문자열
+	 * @throws Exception
+	 */
+	private static PpTransferObject doGetOrPost(HttpMethod httpMethod, String url, Map<String,Object> param, Map<String, Object> requestProperty) throws Exception {
+		//
+		HttpClient client = createHttpClient();
+		
+		//
+		HttpRequest request = createHttpRequest(httpMethod, url, param, requestProperty);
+		
+		//
+		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+		
+		PpTransferObject trans = new PpTransferObject();
+		trans.setResultCode(""+response.statusCode());
+		trans.setResultMessage(response.body());
+		
+		//
+		return trans;
 	}
 	
 	
 	/**
 	 * url뒤에 파라미터 추가하여 full url생성
+	 * @param httpMethod TODO
 	 * @param url
 	 * @param param
 	 * @return
 	 * @throws UnsupportedEncodingException
 	 */
-	private static String getFullUrl(String url, Map<String,Object> param) throws UnsupportedEncodingException {
+	private static String getFullUrl(HttpMethod httpMethod, String url, Map<String,Object> param) throws UnsupportedEncodingException {
 		//
 		String fullUrl = url + "?_" + PpDateUtil.getYmdhms();
 		
 		//
-		if(null != param && 0 < param.size()) {
-			for(Map.Entry<String, Object> d : param.entrySet()) {
-				fullUrl += "&" + d.getKey() + "=" + URLEncoder.encode(""+d.getValue(), "UTF-8");
-			}
+		if(AnalsUtils.isEmpty(param) || HttpMethod.POST == httpMethod){
+			return fullUrl;
+		}
+		
+		//
+		for(Map.Entry<String, Object> d : param.entrySet()) {
+			fullUrl += "&" + d.getKey() + "=" + URLEncoder.encode(""+d.getValue(), "UTF-8");
 		}
 		
 		//
@@ -229,41 +246,33 @@ public class AnalsUtils extends PpUtil{
 	}
 	
 	
-	
 	/**
-	 * response에서 데이터(문자열) 추출
-	 * @param conn
+	 * post방식으로 데이터를 전송하기 위해 데이터를 변환
+	 * @param param
 	 * @return
-	 * @throws IOException
 	 */
-	private static String getResponseData(HttpURLConnection conn) throws IOException {
-		String data = IOUtils.toString(conn.getInputStream(), StandardCharsets.UTF_8);
+	private static HttpRequest.BodyPublisher ofFormData(Map<String,Object> param){
 		
 		//
-		if (200 == conn.getResponseCode()) {
-			return data;
-		} 
-
-		//
-		throw new RuntimeException(data);
-	}
-	
-	
-	/**
-	 * conn에 request property 추가
-	 * @param conn
-	 * @param requestProperty
-	 */
-	private static void setRequestProperty(HttpURLConnection conn, Map<String,Object> requestProperty) {
-		if(AnalsUtils.isEmpty(requestProperty)) {
-			conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3851.0 Safari/537.36 Edg/77.0.223.0");
-			return;
+		if(AnalsUtils.isEmpty(param)) {
+			return HttpRequest.BodyPublishers.ofString("");
 		}
 		
 		//
-		for(Map.Entry<String,Object> d : requestProperty.entrySet()) {
-			conn.setRequestProperty(d.getKey(), d.getValue().toString());
+		StringBuffer sb = new StringBuffer();
+		
+		for(Map.Entry<String, Object> entry : param.entrySet()) {
+			if(0 < sb.length() ) {
+				sb.append("&");
+			}
+			
+			//
+			sb.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8));
+			sb.append("=");
+			sb.append(URLEncoder.encode(entry.getValue().toString(), StandardCharsets.UTF_8));
 		}
 		
+		//
+		return HttpRequest.BodyPublishers.ofString(sb.toString());
 	}
 }
