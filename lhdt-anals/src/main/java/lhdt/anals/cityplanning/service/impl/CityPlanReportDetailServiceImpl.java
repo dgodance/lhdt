@@ -21,7 +21,7 @@ public class CityPlanReportDetailServiceImpl extends CityPlanReportDetailService
 
     @Override
     public List<CityPlanReportDetail> findAll() {
-        ArrayList<CityPlanReportDetail> result = new ArrayList<CityPlanReportDetail>();
+        ArrayList<CityPlanReportDetail> result = new ArrayList<>();
         this.cityPlanReportDetailRepository.findAll().forEach(result::add);
         return result;
     }
@@ -33,7 +33,7 @@ public class CityPlanReportDetailServiceImpl extends CityPlanReportDetailService
 
     @Override
     public List<CityPlanReportDetail> findAllById(Long id) {
-        ArrayList<CityPlanReportDetail> result = new ArrayList<CityPlanReportDetail>();
+        ArrayList<CityPlanReportDetail> result = new ArrayList<>();
         this.cityPlanReportDetailRepository.findAll().forEach(result::add);
         return result;
     }

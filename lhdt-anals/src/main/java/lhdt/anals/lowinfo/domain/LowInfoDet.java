@@ -7,10 +7,14 @@ import lombok.*;
 
 import javax.persistence.*;
 
+/**
+ * 법령상세
+ * UK
+ * lowInfoDetName, lowInfoDetContents, lowInfo
+ */
 @Entity
 @Getter
 @Setter
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class LowInfoDet extends Domain {

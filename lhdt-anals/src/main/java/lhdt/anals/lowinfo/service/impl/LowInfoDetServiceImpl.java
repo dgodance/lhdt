@@ -47,24 +47,21 @@ public class LowInfoDetServiceImpl extends LowInfoDetService {
     public boolean existVoByUk(LowInfoDet vo) {
         var lowInfo = this.lowInfoRepository.findById(vo.getId()).orElse(null);
         vo.setLowInfo(lowInfo);
-        return this.lowInfoDetRepository.existsByIdAndLowInfoDetNameAndLowInfo(vo.getId(),vo.getLowInfoDetName(),
-                vo.getLowInfo());
+        return this.lowInfoDetRepository.existsByLowInfoDetNameAndLowInfo(vo.getLowInfoDetName(), vo.getLowInfo());
     }
 
     @Override
     public LowInfoDet findByUk(LowInfoDet vo) {
         var lowInfo = this.lowInfoRepository.findById(vo.getId()).orElse(null);
         vo.setLowInfo(lowInfo);
-        return this.lowInfoDetRepository.findByIdAndLowInfoDetNameAndLowInfo(vo.getId(),vo.getLowInfoDetName(),
-                vo.getLowInfo());
+        return this.lowInfoDetRepository.findByLowInfoDetNameAndLowInfo(vo.getLowInfoDetName(), vo.getLowInfo());
     }
 
     @Override
     public List<LowInfoDet> findAllByUk(LowInfoDet vo) {
         var lowInfo = this.lowInfoRepository.findById(vo.getId()).orElse(null);
         vo.setLowInfo(lowInfo);
-        return this.lowInfoDetRepository.findAllByIdAndLowInfoDetNameAndLowInfo(vo.getId(),
-                vo.getLowInfoDetName(), vo.getLowInfo());
+        return this.lowInfoDetRepository.findAllByLowInfoDetNameAndLowInfo(vo.getLowInfoDetName(), vo.getLowInfo());
     }
 
     @Override

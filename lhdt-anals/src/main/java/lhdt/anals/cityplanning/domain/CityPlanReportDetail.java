@@ -7,6 +7,11 @@ import lombok.*;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 
+/**
+ * 지구계획보고상세
+ * UK
+ * id, cityPlanId
+ */
 @Entity
 @Getter
 @Setter

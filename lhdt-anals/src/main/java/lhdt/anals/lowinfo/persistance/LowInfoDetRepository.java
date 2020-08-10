@@ -8,7 +8,7 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.List;
 
 public interface LowInfoDetRepository extends CrudRepository<LowInfoDet, Long> {
-    boolean existsByIdAndLowInfoDetNameAndLowInfo(Long id, String lowInfoDetName, LowInfo lowInfo);
-    LowInfoDet findByIdAndLowInfoDetNameAndLowInfo(Long id, String lowInfoDetName, LowInfo lowInfo);
-    List<LowInfoDet> findAllByIdAndLowInfoDetNameAndLowInfo(Long id, String lowInfoDetName, LowInfo lowInfo);
+    boolean existsByLowInfoDetNameAndLowInfo(String lowInfoDetName, LowInfo lowInfo);
+    LowInfoDet findByLowInfoDetNameAndLowInfo(String lowInfoDetName, LowInfo lowInfo);
+    List<LowInfoDet> findAllByLowInfoDetNameAndLowInfo(String lowInfoDetName, LowInfo lowInfo);
 }

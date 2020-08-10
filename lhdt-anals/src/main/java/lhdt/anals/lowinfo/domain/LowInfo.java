@@ -12,6 +12,11 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 법령마스터
+ * UK
+ * lowInfoName
+ */
 @Entity
 @Getter
 @Setter

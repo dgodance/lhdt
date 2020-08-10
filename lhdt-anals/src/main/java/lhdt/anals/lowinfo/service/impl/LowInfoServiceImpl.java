@@ -40,17 +40,17 @@ public class LowInfoServiceImpl extends LowInfoService {
 
     @Override
     public boolean existVoByUk(LowInfo vo) {
-        return this.lowInfoRepository.existsByIdAndLowInfoName(vo.getId(), vo.getLowInfoName());
+        return this.lowInfoRepository.existsByLowInfoDets(vo.getLowInfoName());
     }
 
     @Override
     public LowInfo findByUk(LowInfo vo) {
-        return this.lowInfoRepository.findByIdAndLowInfoName(vo.getId(), vo.getLowInfoName());
+        return this.lowInfoRepository.findByLowInfoDets(vo.getLowInfoName());
     }
 
     @Override
     public List<LowInfo> findAllByUk(LowInfo vo) {
-        return this.lowInfoRepository.findAllByIdAndLowInfoName(vo.getId(), vo.getLowInfoName());
+        return this.lowInfoRepository.findAllByLowInfoDets(vo.getLowInfoName());
     }
 
     @Override
