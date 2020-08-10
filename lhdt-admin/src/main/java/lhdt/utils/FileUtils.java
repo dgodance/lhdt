@@ -1,18 +1,14 @@
 package lhdt.utils;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.List;
-
-import org.springframework.web.multipart.MultipartFile;
-
-import lombok.extern.slf4j.Slf4j;
 import lhdt.domain.FileInfo;
 import lhdt.domain.UploadDirectoryType;
+import lhdt.support.LogMessageSupport;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.*;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * TODO N중화 처리를 위해 FTP 로 다른 PM 으로 전송해 줘야 하는데....
@@ -70,7 +66,7 @@ public class FileUtils {
 	public static final String EXCEL_EXTENSION_XLSX = "xlsx";
 	
 	// 업로더 가능한 파일 사이즈(2G)
-	public static final long FILE_UPLOAD_SIZE = 2_000_000_000l;
+	public static final long FILE_UPLOAD_SIZE = 2_000_000_000L;
 	// 파일 copy 시 버퍼 사이즈
 	public static final int BUFFER_SIZE = 8192;
 	
@@ -105,7 +101,7 @@ public class FileUtils {
 	 * @return
 	 */
 	private static FileInfo fileValidation(MultipartFile multipartFile, FileInfo fileInfo) {
-		return fileValidation(multipartFile, fileInfo, 0l);
+		return fileValidation(multipartFile, fileInfo, 0L);
 	}
 	
 	/**
@@ -117,7 +113,7 @@ public class FileUtils {
 	private static FileInfo fileValidation(MultipartFile multipartFile, FileInfo fileInfo, long fileUploadSize) {
 		
 		// 1 파일 공백 체크
-		if(multipartFile == null || multipartFile.getSize() == 0l) {
+		if(multipartFile == null || multipartFile.getSize() == 0L) {
 			log.info("@@ multipartFile is null");
 			fileInfo.setErrorCode("fileinfo.invalid");
 			return fileInfo;
@@ -149,7 +145,7 @@ public class FileUtils {
 			return fileInfo;
 		}
 		String extension = fileNameValues[1];
-		List<String> extList = null;
+		List<String> extList;
 		if(USER_FILE_UPLOAD.equals(fileInfo.getJobType())) {
 			extList = Arrays.asList(USER_FILE_TYPE);
 		} else if(DATA_FILE_UPLOAD.equals(fileInfo.getJobType())) {
@@ -240,7 +236,7 @@ public class FileUtils {
 		try (	InputStream inputStream = multipartFile.getInputStream();
 				OutputStream outputStream = new FileOutputStream(sourceDirectory + saveFileName)) {
 		
-			int bytesRead = 0;
+			int bytesRead;
 			byte[] buffer = new byte[BUFFER_SIZE];
 			while ((bytesRead = inputStream.read(buffer, 0, BUFFER_SIZE)) != -1) {
 				size += bytesRead;
@@ -251,10 +247,10 @@ public class FileUtils {
 			fileInfo.setFileSize(String.valueOf(size));
 			fileInfo.setFilePath(sourceDirectory);
 		} catch(IOException e) {
-			log.info("@@@@@@@@@@@@ io exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+			LogMessageSupport.printMessage(e, "@@@@@@@@@@@@ io exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
 			fileInfo.setErrorCode("io.exception");
 		} catch(Exception e) {
-			log.info("@@@@@@@@@@@@ file copy exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+			LogMessageSupport.printMessage(e, "@@@@@@@@@@@@ file copy exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
 			fileInfo.setErrorCode("file.copy.exception");
 		}
 
@@ -375,7 +371,8 @@ public class FileUtils {
 	
 	public static String getFilePath(String dataGroupPath) {
 		String[] names = dataGroupPath.split("/");
-		
+
+		// TODO SpringBuilder
 		String filePath = "";
 		for(String name : names) {
 			filePath = filePath + name + File.separator;

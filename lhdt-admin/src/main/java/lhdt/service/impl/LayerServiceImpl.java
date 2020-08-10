@@ -12,6 +12,7 @@ import lhdt.persistence.LayerMapper;
 import lhdt.security.Crypt;
 import lhdt.service.GeoPolicyService;
 import lhdt.service.LayerService;
+import lhdt.support.LogMessageSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -106,11 +107,11 @@ public class LayerServiceImpl implements LayerService {
 			geoserverLayerJson = response.getBody().toString();
 		
     	} catch(RestClientException e) {
-    		log.info("@@@ RestClientException. message = {}", e.getMessage());
+            LogMessageSupport.printMessage(e, "@@@ RestClientException. message = {}", e.getMessage());
     	} catch(RuntimeException e) {
-    		log.info("@@@ RuntimeException. message = {}", e.getMessage());
+    	    LogMessageSupport.printMessage(e, "@@@ RuntimeException. message = {}", e.getMessage());
 		} catch(Exception e) {
-			log.info("@@@ Exception. message = {}", e.getMessage());
+    	    LogMessageSupport.printMessage(e, "@@@ Exception. message = {}", e.getMessage());
 		}
     	
     	return geoserverLayerJson;
@@ -153,7 +154,7 @@ public class LayerServiceImpl implements LayerService {
     */
     @Transactional
     public Map<String, Object> insertLayer(Layer layer, List<LayerFileInfo> layerFileInfoList) {
-    	Map<String, Object> layerFileInfoGroupMap = new HashMap<>();
+    	Map<String, Object> layerFileInfoTeamMap = new HashMap<>();
 
         // layer 정보 수정
         layerMapper.insertLayer(layer);
@@ -165,18 +166,18 @@ public class LayerServiceImpl implements LayerService {
             Integer layerId = layer.getLayerId();
             String userId = layer.getUserId();
 
-            Integer layerFileInfoGroupId = 0;
-            List<Integer> layerFileInfoGroupIdList = new ArrayList<>();
+            Integer layerFileInfoTeamId = 0;
+            List<Integer> layerFileInfoTeamIdList = new ArrayList<>();
             for(LayerFileInfo layerFileInfo : layerFileInfoList) {
                 layerFileInfo.setLayerId(layerId);
                 layerFileInfo.setUserId(userId);
                 layerFileInfo.setEnableYn("Y");
 
                 layerFileInfoMapper.insertLayerFileInfoMapper(layerFileInfo);
-                layerFileInfoGroupIdList.add(layerFileInfo.getLayerFileInfoId());
+                layerFileInfoTeamIdList.add(layerFileInfo.getLayerFileInfoId());
 
                 if(LayerFileInfo.SHAPE_EXTENSION.equals(layerFileInfo.getFileExt().toLowerCase())) {
-                    layerFileInfoGroupId = layerFileInfo.getLayerFileInfoId();
+                    layerFileInfoTeamId = layerFileInfo.getLayerFileInfoId();
                     shapeFileName = layerFileInfo.getFilePath() + layerFileInfo.getFileRealName();
                     shapeEncoding = layerFileInfo.getShapeEncoding();
                 }
@@ -186,17 +187,17 @@ public class LayerServiceImpl implements LayerService {
             Integer fileVersion = layerFileInfoMapper.getMaxFileVersion(layerId);
             if(fileVersion == null) fileVersion = 0;
             fileVersion = fileVersion + 1;
-            layerFileInfoGroupMap.put("fileVersion", fileVersion);
-            layerFileInfoGroupMap.put("shapeFileName", shapeFileName);
-            layerFileInfoGroupMap.put("shapeEncoding", shapeEncoding);
-            layerFileInfoGroupMap.put("layerFileInfoGroupId", layerFileInfoGroupId);
-            layerFileInfoGroupMap.put("layerFileInfoGroupIdList", layerFileInfoGroupIdList);
-            layerFileInfoGroupMap.put("layerId", layerId);
-            log.info("+++ layerFileInfoGroupMap = {}", layerFileInfoGroupMap);
-            layerFileInfoMapper.updateLayerFileInfoGroup(layerFileInfoGroupMap);
+            layerFileInfoTeamMap.put("fileVersion", fileVersion);
+            layerFileInfoTeamMap.put("shapeFileName", shapeFileName);
+            layerFileInfoTeamMap.put("shapeEncoding", shapeEncoding);
+            layerFileInfoTeamMap.put("layerFileInfoTeamId", layerFileInfoTeamId);
+            layerFileInfoTeamMap.put("layerFileInfoTeamIdList", layerFileInfoTeamIdList);
+            layerFileInfoTeamMap.put("layerId", layerId);
+            log.info("+++ layerFileInfoTeamMap = {}", layerFileInfoTeamMap);
+            layerFileInfoMapper.updateLayerFileInfoTeam(layerFileInfoTeamMap);
         }
 
-        return layerFileInfoGroupMap;
+        return layerFileInfoTeamMap;
     }
 
     /**
@@ -210,7 +211,7 @@ public class LayerServiceImpl implements LayerService {
     @Transactional
     public Map<String, Object> updateLayer(Layer layer, boolean isLayerFileInfoExist, List<LayerFileInfo> layerFileInfoList) {
 
-        Map<String, Object> layerFileInfoGroupMap = new HashMap<>();
+        Map<String, Object> layerFileInfoTeamMap = new HashMap<>();
 
         // layer 정보 수정
         layerMapper.updateLayer(layer);
@@ -230,18 +231,18 @@ public class LayerServiceImpl implements LayerService {
                 layerFileInfoMapper.updateShapePreDataDisable(tableName);
             }
 
-            Integer layerFileInfoGroupId = 0;
-            List<Integer> layerFileInfoGroupIdList = new ArrayList<>();
+            Integer layerFileInfoTeamId = 0;
+            List<Integer> layerFileInfoTeamIdList = new ArrayList<>();
             for(LayerFileInfo layerFileInfo : layerFileInfoList) {
                 layerFileInfo.setLayerId(layerId);
                 layerFileInfo.setUserId(userId);
                 layerFileInfo.setEnableYn("Y");
 
                 layerFileInfoMapper.insertLayerFileInfoMapper(layerFileInfo);
-                layerFileInfoGroupIdList.add(layerFileInfo.getLayerFileInfoId());
+                layerFileInfoTeamIdList.add(layerFileInfo.getLayerFileInfoId());
 
                 if(LayerFileInfo.SHAPE_EXTENSION.equals(layerFileInfo.getFileExt().toLowerCase())) {
-                    layerFileInfoGroupId = layerFileInfo.getLayerFileInfoId();
+                    layerFileInfoTeamId = layerFileInfo.getLayerFileInfoId();
                     shapeFileName = layerFileInfo.getFilePath() + layerFileInfo.getFileRealName();
                     shapeEncoding = layerFileInfo.getShapeEncoding();
                 }
@@ -251,16 +252,16 @@ public class LayerServiceImpl implements LayerService {
             Integer fileVersion = layerFileInfoMapper.getMaxFileVersion(layerId);
             if(fileVersion == null) fileVersion = 0;
             fileVersion = fileVersion + 1;
-            layerFileInfoGroupMap.put("fileVersion", fileVersion);
-            layerFileInfoGroupMap.put("shapeFileName", shapeFileName);
-            layerFileInfoGroupMap.put("shapeEncoding", shapeEncoding);
-            layerFileInfoGroupMap.put("layerFileInfoGroupId", layerFileInfoGroupId);
-            layerFileInfoGroupMap.put("layerFileInfoGroupIdList", layerFileInfoGroupIdList);
-            log.info("+++ layerFileInfoGroupMap = {}", layerFileInfoGroupMap);
-            layerFileInfoMapper.updateLayerFileInfoGroup(layerFileInfoGroupMap);
+            layerFileInfoTeamMap.put("fileVersion", fileVersion);
+            layerFileInfoTeamMap.put("shapeFileName", shapeFileName);
+            layerFileInfoTeamMap.put("shapeEncoding", shapeEncoding);
+            layerFileInfoTeamMap.put("layerFileInfoTeamId", layerFileInfoTeamId);
+            layerFileInfoTeamMap.put("layerFileInfoTeamIdList", layerFileInfoTeamIdList);
+            log.info("+++ layerFileInfoTeamMap = {}", layerFileInfoTeamMap);
+            layerFileInfoMapper.updateLayerFileInfoTeam(layerFileInfoTeamMap);
         }
 
-        return layerFileInfoGroupMap;
+        return layerFileInfoTeamMap;
     }
 
     /**
@@ -281,7 +282,7 @@ public class LayerServiceImpl implements LayerService {
         String driver = "PG:host="+ogr2ogrHost + " port=" + ogr2ogrPort+ " dbname=" + dbName + " user=" + Crypt.decrypt(username) + " password=" + Crypt.decrypt(password);
         //Layer dbLayer = layerMapper.getLayer(layer.getLayerId());
 
-        String updateOption = null;
+        String updateOption;
         if(isLayerFileInfoExist) {
             // update 실행
             updateOption = "update";
@@ -329,11 +330,11 @@ public class LayerServiceImpl implements LayerService {
     /**
     * layer 를 이 shape 파일로 활성화
     * @param layerId
-    * @param layerFileInfoGroupId
+    * @param layerFileInfoTeamId
     * @return
     */
     @Transactional
-    public int updateLayerByLayerFileInfoId(Integer layerId, Integer layerFileInfoGroupId, Integer layerFileInfoId) {
+    public int updateLayerByLayerFileInfoId(Integer layerId, Integer layerFileInfoTeamId, Integer layerFileInfoId) {
         int result = 0;
         // layer 정보 수정
         Layer layer = layerMapper.getLayer(layerId);
@@ -346,9 +347,9 @@ public class LayerServiceImpl implements LayerService {
 
         LayerFileInfo layerFileInfo = new LayerFileInfo();
         layerFileInfo.setLayerId(layerId);
-        layerFileInfo.setLayerFileInfoGroupId(layerFileInfoGroupId);
+        layerFileInfo.setLayerFileInfoTeamId(layerFileInfoTeamId);
         layerFileInfo.setEnableYn("Y");
-        layerFileInfoMapper.updateLayerFileInfoByGroupId(layerFileInfo);
+        layerFileInfoMapper.updateLayerFileInfoByTeamId(layerFileInfo);
 
         Integer fileVersion = layerFileInfoMapper.getLayerShapeFileVersion(layerFileInfoId);
         Map<String, String> orgMap = new HashMap<>();
@@ -359,21 +360,20 @@ public class LayerServiceImpl implements LayerService {
 
         return result;
     }
-    
-	/**
-	 * 레이어 롤백 처리
-	 * 
-	 * @param layer
-	 * @param isLayerFileInfoExist
-	 * @param layerFileInfo
-	 * @param deleteLayerFileInfoGroupId
-	 */
+
+    /**
+     * 레이어 롤백 처리
+     * @param layer
+     * @param isLayerFileInfoExist
+     * @param layerFileInfo
+     * @param deleteLayerFileInfoTeamId
+     */
 	@Transactional
 	public void rollbackLayer(Layer layer, boolean isLayerFileInfoExist, LayerFileInfo layerFileInfo,
-			Integer deleteLayerFileInfoGroupId) {
+			Integer deleteLayerFileInfoTeamId) {
 		layerMapper.updateLayer(layer);
 		if (isLayerFileInfoExist) {
-			layerFileInfoMapper.deleteLayerFileInfoByGroupId(deleteLayerFileInfoGroupId);
+			layerFileInfoMapper.deleteLayerFileInfoByTeamId(deleteLayerFileInfoTeamId);
 
 			// 모든 layer_file_info 의 shape 상태를 비활성화로 update 함
 			layerFileInfoMapper.updateLayerFileInfoAllDisabledByLayerId(layer.getLayerId());
@@ -381,7 +381,7 @@ public class LayerServiceImpl implements LayerService {
 			layerFileInfoMapper.updateShapePreDataDisable(layer.getLayerKey());
 
 			// 이전 레이어 이력을 활성화
-			layerFileInfoMapper.updateLayerFileInfoByGroupId(layerFileInfo);
+			layerFileInfoMapper.updateLayerFileInfoByTeamId(layerFileInfo);
 			// 이전 shape 데이터를 활성화
 			Map<String, String> orgMap = new HashMap<>();
 			orgMap.put("fileVersion", layerFileInfo.getVersionId().toString());
@@ -406,7 +406,8 @@ public class LayerServiceImpl implements LayerService {
 		GeoPolicy geopolicy = geoPolicyService.getGeoPolicy();
 		Layer layer = layerMapper.getLayer(layerId);
 		// 업로드 파일 삭제
-		List<String> layerFilePath = layerFileInfoMapper.getListLayerFilePath(layerId);
+		// TODO 그냥 foreach 도 될거 같음
+        List<String> layerFilePath = layerFileInfoMapper.getListLayerFilePath(layerId);
 		layerFilePath.stream()
 					.forEach( path -> {
 						File directory = new File(path);
@@ -429,10 +430,7 @@ public class LayerServiceImpl implements LayerService {
 		return layerMapper.deleteLayer(layerId);
 	}
 
-	
-/****************geoserver rest api 관련  서비스 *********************************************/	
-	
-    /**
+	/**
     * layer 가 등록 되어 있지 않은 경우 rest api 를 이용해서 layer를 등록
     * @throws Exception
     */
@@ -558,7 +556,7 @@ public class LayerServiceImpl implements LayerService {
 			log.info("-------- layerKey = {}, statusCode = {}, body = {}", layerKey, response.getStatusCodeValue(),
 					response.getBody());
 		} catch (RestClientException e) {
-			log.info("-------- RestClientException message = {}", e.getMessage());
+		    LogMessageSupport.printMessage(e, "-------- RestClientException message = {}", e.getMessage());
 			String message = e.getMessage();
 			if (message.indexOf("404") >= 0) {
 				httpStatus = HttpStatus.NOT_FOUND;
@@ -566,7 +564,7 @@ public class LayerServiceImpl implements LayerService {
 				httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
 			}
 		} catch (Exception e) {
-			log.info("-------- exception message = {}", e.getMessage());
+		    LogMessageSupport.printMessage(e, "-------- exception message = {}", e.getMessage());
 			String message = e.getMessage();
 			if (message.indexOf("404") >= 0) {
 				httpStatus = HttpStatus.NOT_FOUND;
@@ -649,7 +647,7 @@ public class LayerServiceImpl implements LayerService {
             httpStatus = response.getStatusCode();
             log.info("-------- getLayerStyle styleName = {}, statusCode = {}, body = {}", layerKey, response.getStatusCodeValue(), response.getBody());
         } catch (RestClientException e) {
-			log.info("-------- RestClientException message = {}", e.getMessage());
+            LogMessageSupport.printMessage(e, "-------- RestClientException message = {}", e.getMessage());
 			String message = e.getMessage();
 			if (message.indexOf("404") >= 0) {
 				httpStatus = HttpStatus.NOT_FOUND;
@@ -657,7 +655,7 @@ public class LayerServiceImpl implements LayerService {
 				httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
 			}
         } catch(Exception e) {
-            log.info("-------- exception message = {}", e.getMessage());
+            LogMessageSupport.printMessage(e, "-------- exception message = {}", e.getMessage());
             String message = e.getMessage();
             if(message.indexOf("404") >= 0) {
                 httpStatus = HttpStatus.NOT_FOUND;
@@ -711,7 +709,7 @@ public class LayerServiceImpl implements LayerService {
 			log.info("-------- getLayerStyle geometry type = {}, statusCode = {}, body = {}", geometryType,
 					response.getStatusCodeValue(), response.getBody());
 		} catch (RestClientException e) {
-			log.info("-------- RestClientException message = {}", e.getMessage());
+		    LogMessageSupport.printMessage(e, "-------- RestClientException message = {}", e.getMessage());
 			String message = e.getMessage();
 			if (message.indexOf("404") >= 0) {
 				httpStatus = HttpStatus.NOT_FOUND;
@@ -721,7 +719,7 @@ public class LayerServiceImpl implements LayerService {
 				layerStyleFileData = null;
 			}
 		} catch (Exception e) {
-			log.info("-------- exception message = {}", e.getMessage());
+		    LogMessageSupport.printMessage(e, "-------- exception message = {}", e.getMessage());
 			String message = e.getMessage();
 			if (message.indexOf("404") >= 0) {
 				httpStatus = HttpStatus.NOT_FOUND;
@@ -778,7 +776,7 @@ public class LayerServiceImpl implements LayerService {
 			log.info("-------- getLayerStyle styleName = {}, statusCode = {}, body = {}", layer.getLayerKey(),
 					response.getStatusCodeValue(), response.getBody());
 		} catch (RestClientException e) {
-			log.info("-------- RestClientException message = {}", e.getMessage());
+		    LogMessageSupport.printMessage(e, "-------- RestClientException message = {}", e.getMessage());
 			String message = e.getMessage();
 			if (message.indexOf("404") >= 0) {
 				httpStatus = HttpStatus.NOT_FOUND;
@@ -788,7 +786,7 @@ public class LayerServiceImpl implements LayerService {
 				layerStyleFileData = null;
 			}
 		} catch (Exception e) {
-			log.info("-------- exception message = {}", e.getMessage());
+		    LogMessageSupport.printMessage(e, "-------- exception message = {}", e.getMessage());
 			String message = e.getMessage();
 			if (message.indexOf("404") >= 0) {
 				httpStatus = HttpStatus.NOT_FOUND;
@@ -873,10 +871,10 @@ public class LayerServiceImpl implements LayerService {
 			log.info("-------- geoserver layer delete. layerKey = {}, statusCode = {}, body = {}", layerKey,
 					response.getStatusCodeValue(), response.getBody());
 		} catch (RestClientException e) {
-			log.info("-------- RestClientException message = {}", e.getMessage());
+		    LogMessageSupport.printMessage(e, "-------- RestClientException message = {}", e.getMessage());
 			httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
 		} catch (Exception e) {
-			log.info("-------- exception message = {}", e.getMessage());
+		    LogMessageSupport.printMessage(e, "-------- exception message = {}", e.getMessage());
 			httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
 		}
 
@@ -906,10 +904,10 @@ public class LayerServiceImpl implements LayerService {
 			ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class);
 			httpStatus = response.getStatusCode();
 		} catch (RestClientException e) {
-			log.info("-------- RestClientException message = {}", e.getMessage());
+		    LogMessageSupport.printMessage(e, "-------- RestClientException message = {}", e.getMessage());
 			httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
 		} catch (Exception e) {
-			log.info("-------- exception message = {}", e.getMessage());
+		    LogMessageSupport.printMessage(e, "-------- exception message = {}", e.getMessage());
 			httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
 		}
 	}

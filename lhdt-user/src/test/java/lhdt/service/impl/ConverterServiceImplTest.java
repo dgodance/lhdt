@@ -1,26 +1,22 @@
 package lhdt.service.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lhdt.domain.DataInfo;
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import org.junit.jupiter.api.Test;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.extern.slf4j.Slf4j;
-import lhdt.domain.DataInfo;
-
 @Slf4j
 class ConverterServiceImplTest {
 
-	@Test
 	void test() throws Exception {
 		// lonsLats.json
 		
-		String targetDirectory = "C:\\data\\mago3d\\f4d\\service\\" + "admin" + File.separator;
+		String targetDirectory = "D:\\data\\mago3d\\f4d\\service\\" + "admin" + File.separator;
 		targetDirectory += "basic" + File.separator + DataInfo.F4D_PREFIX + "admin_20200317181545_364404888477400";
 		//File file = new File(targetDirectory + File.separator + "lonsLats.json");
 			

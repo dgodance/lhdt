@@ -3,7 +3,7 @@ package lhdt.support;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * profile에 따른 logMessage 출력
+ * profile 에 따른 logMessage 출력
  * @author PSH
  *
  */
@@ -16,8 +16,6 @@ public class LogMessageSupport {
 	/**
 	 * log print
 	 * @param e
-	 * @param message
-	 * @param value
 	 */
 	public static void printMessage(Exception e) {
 		if(stackTraceEnable) {
@@ -31,7 +29,6 @@ public class LogMessageSupport {
 	 * log print
 	 * @param e
 	 * @param message
-	 * @param value
 	 */
 	public static void printMessage(Exception e, String message) {
 		if(stackTraceEnable) {

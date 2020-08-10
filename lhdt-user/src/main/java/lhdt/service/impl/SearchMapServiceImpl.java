@@ -2,6 +2,7 @@ package lhdt.service.impl;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,8 +25,8 @@ public class SearchMapServiceImpl implements SearchMapService {
 	 * @return
 	 */
 	@Transactional(readOnly=true)
-	public List<SkSdo> getListSdoExceptGeom() {
-		return searchMapMapper.getListSdoExceptGeom();
+	public List<SkSdo> getListSdoExceptGeom(District district) {
+		return searchMapMapper.getListSdoExceptGeom(district);
 	}
 	
 	/**
@@ -34,8 +35,8 @@ public class SearchMapServiceImpl implements SearchMapService {
 	 * @return
 	 */
 	@Transactional(readOnly=true)
-	public List<SkSgg> getListSggBySdoExceptGeom(String sdoCode) {
-		return searchMapMapper.getListSggBySdoExceptGeom(sdoCode);
+	public List<SkSgg> getListSggBySdoExceptGeom(District district) {
+		return searchMapMapper.getListSggBySdoExceptGeom(district);
 	}
 	
 	/**

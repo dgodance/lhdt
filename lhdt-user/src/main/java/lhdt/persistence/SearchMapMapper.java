@@ -2,6 +2,7 @@ package lhdt.persistence;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import lhdt.domain.District;
@@ -16,14 +17,14 @@ public interface SearchMapMapper {
 	 * Sdo 목록(geom 은 제외)
 	 * @return
 	 */
-	List<SkSdo> getListSdoExceptGeom();
+	List<SkSdo> getListSdoExceptGeom(District district);
 	
 	/**
 	 * Sgg 목록(geom 은 제외)
 	 * @param sdo_code
 	 * @return
 	 */
-	List<SkSgg> getListSggBySdoExceptGeom(String sdoCode);
+	List<SkSgg> getListSggBySdoExceptGeom(District district);
 	
 	/**
 	 * emd 목록(geom 은 제외)

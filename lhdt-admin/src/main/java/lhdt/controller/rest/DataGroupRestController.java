@@ -1,39 +1,26 @@
 package lhdt.controller.rest;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import lhdt.domain.*;
+import lhdt.service.DataGroupService;
+import lhdt.service.DataService;
+import lhdt.support.LogMessageSupport;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-
-import lombok.extern.slf4j.Slf4j;
-import lhdt.domain.DataGroup;
-import lhdt.domain.DataInfoLegacy;
-import lhdt.domain.DataInfoLegacyWrapper;
-import lhdt.domain.DataInfoSimple;
-import lhdt.domain.Key;
-import lhdt.domain.LocationUdateType;
-import lhdt.domain.UserSession;
-import lhdt.service.DataGroupService;
-import lhdt.service.DataService;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -50,7 +37,8 @@ public class DataGroupRestController {
 
 	/**
 	 * 그룹Key 중복 체크
-	 * @param model
+	 * @param request
+	 * @param dataGroup
 	 * @return
 	 */
 	@GetMapping(value = "/duplication")
@@ -58,8 +46,7 @@ public class DataGroupRestController {
 		Map<String, Object> result = new HashMap<>();
 		String errorCode = null;
 		String message = null;
-		Boolean duplication = Boolean.TRUE;
-		
+
 		// TODO @Valid 로 구현해야 함
 		if(StringUtils.isEmpty(dataGroup.getDataGroupKey())) {
 			result.put("statusCode", HttpStatus.BAD_REQUEST.value());
@@ -67,8 +54,8 @@ public class DataGroupRestController {
 			result.put("message", message);
 			return result;
 		}
-		
-		duplication = dataGroupService.isDataGroupKeyDuplication(dataGroup);
+
+		Boolean duplication = dataGroupService.isDataGroupKeyDuplication(dataGroup);
 		log.info("@@ duplication = {}", duplication);
 		int statusCode = HttpStatus.OK.value();
 		
@@ -200,10 +187,12 @@ public class DataGroupRestController {
 		result.put("message", message);
 		return result;
 	}
-	
+
 	/**
 	 * Smart Tiling 데이터 다운로드
-	 * @param model
+	 * @param request
+	 * @param response
+	 * @param dataGroupId
 	 * @return
 	 */
 	@GetMapping(value = "/download/{dataGroupId:[0-9]+}")
@@ -228,19 +217,21 @@ public class DataGroupRestController {
 			dataJson = dataJson.replaceAll(">", "&gt;");
 			response.getWriter().write(dataJson);
 		} catch(JsonProcessingException e) {
-			log.info("@@@@@@@@@@@@ jsonProcessing exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+			LogMessageSupport.printMessage(e, "@@@@@@@@@@@@ jsonProcessing exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
 		} catch(RuntimeException e) {
-			log.info("@@@@@@@@@@@@ runtime exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+			LogMessageSupport.printMessage(e, "@@@@@@@@@@@@ runtime exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
 		} catch(Exception e) {
-			log.info("@@@@@@@@@@@@ exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+			LogMessageSupport.printMessage(e, "@@@@@@@@@@@@ exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
 		}
 			
 		return null;
 	}
-	
+
 	/**
 	 * Smart Tiling Converter용 JSON 다운로드
-	 * @param model
+	 * @param request
+	 * @param response
+	 * @param dataGroupId
 	 * @return
 	 */
 	@GetMapping(value = "/download/converter/{dataGroupId:[0-9]+}")
@@ -287,11 +278,11 @@ public class DataGroupRestController {
 			//dataJson = dataJson.replaceAll(">", "&gt;");
 			response.getWriter().write(result);
 		} catch(JsonProcessingException e) {
-			log.info("@@@@@@@@@@@@ jsonProcessing exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+			LogMessageSupport.printMessage(e, "@@@@@@@@@@@@ jsonProcessing exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
 		} catch(RuntimeException e) {
-			log.info("@@@@@@@@@@@@ runtime exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+			LogMessageSupport.printMessage(e, "@@@@@@@@@@@@ runtime exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
 		} catch(Exception e) {
-			log.info("@@@@@@@@@@@@ exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+			LogMessageSupport.printMessage(e, "@@@@@@@@@@@@ exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
 		}
 			
 		return null;

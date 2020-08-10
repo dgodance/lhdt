@@ -1,35 +1,22 @@
 package lhdt.controller.rest;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-
+import lhdt.domain.*;
+import lhdt.service.DataGroupService;
+import lhdt.support.SQLInjectSupport;
+import lhdt.utils.DateUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import lombok.extern.slf4j.Slf4j;
-import lhdt.domain.DataGroup;
-import lhdt.domain.Key;
-import lhdt.domain.LocationUdateType;
-import lhdt.domain.PageType;
-import lhdt.domain.Pagination;
-import lhdt.domain.UserSession;
-import lhdt.service.DataGroupService;
-import lhdt.support.SQLInjectSupport;
-import lhdt.utils.DateUtils;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 사용자 데이터 그룹 관리
@@ -41,8 +28,8 @@ import lhdt.utils.DateUtils;
 @RequestMapping("/data-groups")
 public class DataGroupRestController {
 
-	private static final long PAGE_ROWS = 4l;
-	private static final long PAGE_LIST_COUNT = 5l;
+	private static final long PAGE_ROWS = 4L;
+	private static final long PAGE_LIST_COUNT = 5L;
 	
 	@Autowired
 	private DataGroupService dataGroupService;
@@ -52,10 +39,11 @@ public class DataGroupRestController {
 //	private ObjectMapper objectMapper;
 //	@Autowired
 //	private PolicyService policyService;
-	
+
 	/**
 	 * 데이터 그룹 전체 목록
-	 * @param projectId
+	 * @param request
+	 * @param dataGroup
 	 * @return
 	 */
 	@GetMapping(value = "/all")
@@ -80,10 +68,12 @@ public class DataGroupRestController {
 		result.put("message", message);
 		return result;
 	}
-	
+
 	/**
 	 * 데이터 그룹 정보
-	 * @param projectId
+	 * @param request
+	 * @param dataGroup
+	 * @param pageNo
 	 * @return
 	 */
 	@GetMapping
@@ -117,7 +107,7 @@ public class DataGroupRestController {
 		dataGroup.setOffset(pagination.getOffset());
 		dataGroup.setLimit(pagination.getPageRows());
 		List<DataGroup> dataGroupList = new ArrayList<>();
-		if(totalCount > 0l) {
+		if(totalCount > 0L) {
 			dataGroupList = dataGroupService.getListDataGroup(dataGroup);
 		}
 		
@@ -144,8 +134,7 @@ public class DataGroupRestController {
 		Map<String, Object> result = new HashMap<>();
 		String errorCode = null;
 		String message = null;
-		Boolean duplication = Boolean.TRUE;
-		
+
 		// TODO @Valid 로 구현해야 함
 		if(StringUtils.isEmpty(dataGroup.getDataGroupKey())) {
 			result.put("statusCode", HttpStatus.BAD_REQUEST.value());
@@ -156,7 +145,7 @@ public class DataGroupRestController {
 		
 		UserSession userSession = (UserSession)request.getSession().getAttribute(Key.USER_SESSION.name());
 		dataGroup.setUserId(userSession.getUserId());
-		duplication = dataGroupService.isDataGroupKeyDuplication(dataGroup);
+		Boolean duplication = dataGroupService.isDataGroupKeyDuplication(dataGroup);
 		log.info("@@ duplication = {}", duplication);
 		int statusCode = HttpStatus.OK.value();
 		
@@ -323,14 +312,14 @@ public class DataGroupRestController {
 	 * @return
 	 */
 	private String getSearchParameters(PageType pageType, DataGroup dataGroup) {
-		StringBuffer buffer = new StringBuffer(dataGroup.getParameters());
+		StringBuilder builder = new StringBuilder(dataGroup.getParameters());
 //		buffer.append("&");
 //		try {
-//			buffer.append("dataName=" + URLEncoder.encode(getDefaultValue(dataInfo.getDataName()), "UTF-8"));
+//			builder.append("dataName=" + URLEncoder.encode(getDefaultValue(dataInfo.getDataName()), "UTF-8"));
 //		} catch(Exception e) {
-//			buffer.append("dataName=");
+//			builder.append("dataName=");
 //		}
-		return buffer.toString();
+		return builder.toString();
 	}
 	
 	private String getDefaultValue(String value) {

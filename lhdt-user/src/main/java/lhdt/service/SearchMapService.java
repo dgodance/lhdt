@@ -13,14 +13,14 @@ public interface SearchMapService {
 	 * Sdo 목록(geom 은 제외)
 	 * @return
 	 */
-	public List<SkSdo> getListSdoExceptGeom();
+	public List<SkSdo> getListSdoExceptGeom(District district);
 	
 	/**
 	 * Sgg 목록(geom 은 제외)
 	 * @param sdo_code
 	 * @return
 	 */
-	public List<SkSgg> getListSggBySdoExceptGeom(String sdoCode);
+	public List<SkSgg> getListSggBySdoExceptGeom(District district);
 	
 	/**
 	 * emd 목록(geom 은 제외)

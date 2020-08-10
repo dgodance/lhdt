@@ -1,5 +1,20 @@
 package lhdt.service.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lhdt.config.PropertiesConfig;
+import lhdt.domain.*;
+import lhdt.persistence.ConverterMapper;
+import lhdt.service.*;
+import lhdt.support.LogMessageSupport;
+import lhdt.utils.FileUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.AmqpException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -7,41 +22,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
-
-import org.springframework.amqp.AmqpException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.extern.slf4j.Slf4j;
-import lhdt.config.PropertiesConfig;
-import lhdt.domain.ConverterJob;
-import lhdt.domain.ConverterJobFile;
-import lhdt.domain.ConverterJobStatus;
-import lhdt.domain.ConverterTemplate;
-import lhdt.domain.DataAttribute;
-import lhdt.domain.DataGroup;
-import lhdt.domain.DataInfo;
-import lhdt.domain.DataStatus;
-import lhdt.domain.UploadDataType;
-import lhdt.domain.LocationUdateType;
-import lhdt.domain.MethodType;
-import lhdt.domain.QueueMessage;
-import lhdt.domain.ServerTarget;
-import lhdt.domain.UploadData;
-import lhdt.domain.UploadDataFile;
-import lhdt.persistence.ConverterMapper;
-import lhdt.service.AMQPPublishService;
-import lhdt.service.ConverterService;
-import lhdt.service.DataAttributeService;
-import lhdt.service.DataGroupService;
-import lhdt.service.DataService;
-import lhdt.service.UploadDataService;
-import lhdt.utils.FileUtils;
 
 /**
  * converter manager
@@ -247,8 +227,8 @@ public class ConverterServiceImpl implements ConverterService {
 			converterJob.setStatus(ConverterJobStatus.WAITING.name());
 			converterJob.setErrorCode(e.getMessage());
 			converterMapper.updateConverterJob(converterJob);
-			
-			log.info("@@@@@@@@@@@@ AmqpException. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+
+			LogMessageSupport.printMessage(e, "@@@@@@@@@@@@ AmqpException. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
 		}
 	}
 	
@@ -264,7 +244,7 @@ public class ConverterServiceImpl implements ConverterService {
 		
 		Integer dataGroupId = uploadDataFile.getDataGroupId();
 		String dataKey = uploadDataFile.getFileRealName().substring(0, uploadDataFile.getFileRealName().lastIndexOf("."));
-		String dataName = null;
+		String dataName;
 		if(converterTargetCount == 1) {
 			dataName = uploadDataFile.getDataName();
 		} else {
@@ -301,7 +281,7 @@ public class ConverterServiceImpl implements ConverterService {
 			dataInfo.setLatitude(latitude);
 			dataInfo.setLongitude(longitude);
 			dataInfo.setAltitude(altitude);
-			if(longitude != null && longitude.longValue() >0l && latitude != null && latitude.longValue() > 0l) {
+			if(longitude != null && longitude.longValue() >0L && latitude != null && latitude.longValue() > 0L) {
 				dataInfo.setLocation("POINT(" + longitude + " " + latitude + ")");
 			}
 			dataInfo.setMetainfo(metainfo);
@@ -319,7 +299,7 @@ public class ConverterServiceImpl implements ConverterService {
 			dataInfo.setLatitude(latitude);
 			dataInfo.setLongitude(longitude);
 			dataInfo.setAltitude(altitude);
-			if(longitude != null && longitude.longValue() >0l && latitude != null && latitude.longValue() > 0l) {
+			if(longitude != null && longitude.longValue() >0L && latitude != null && latitude.longValue() > 0L) {
 				dataInfo.setLocation("POINT(" + longitude + " " + latitude + ")");
 			} else {
 				dataInfo.setLocation(null);
@@ -350,7 +330,7 @@ public class ConverterServiceImpl implements ConverterService {
 		}
 
 		if(LocationUdateType.AUTO == LocationUdateType.valueOf(dbDataGroup.getLocationUpdateType().toUpperCase())) {
-			if(dataInfo.getLongitude() != null && dataInfo.getLongitude().longValue() >0l && dataInfo.getLatitude() != null && dataInfo.getLatitude().longValue() > 0l) {
+			if(dataInfo.getLongitude() != null && dataInfo.getLongitude().longValue() >0L && dataInfo.getLatitude() != null && dataInfo.getLatitude().longValue() > 0L) {
 				dataGroup.setLocation("POINT(" + dataInfo.getLongitude() + " " + dataInfo.getLatitude() + ")");
 				dataGroup.setAltitude(dataInfo.getAltitude());
 			}
@@ -459,7 +439,7 @@ public class ConverterServiceImpl implements ConverterService {
 			updateDataInfo.setStatus(DataStatus.USE.name().toLowerCase());
 		} catch(IOException e) {
 			updateDataInfo.setStatus(DataStatus.UNUSED.name().toLowerCase());
-			e.printStackTrace();
+			LogMessageSupport.printMessage(e);
 		}
 		
 		return updateDataInfo;
@@ -482,7 +462,7 @@ public class ConverterServiceImpl implements ConverterService {
 				attribute = new String(jsonData, StandardCharsets.UTF_8);
 			}
 		} catch(IOException e) {
-			e.printStackTrace();
+			LogMessageSupport.printMessage(e);
 		}
 		
 		return attribute;

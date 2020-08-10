@@ -1,50 +1,29 @@
 package lhdt.controller.rest;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-
+import lhdt.config.PropertiesConfig;
+import lhdt.domain.*;
+import lhdt.service.PolicyService;
+import lhdt.service.UploadDataService;
+import lhdt.support.LogMessageSupport;
+import lhdt.utils.DateUtils;
+import lhdt.utils.FileUtils;
+import lhdt.utils.FormatUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import lombok.extern.slf4j.Slf4j;
-import lhdt.config.PropertiesConfig;
-import lhdt.domain.UploadDataType;
-import lhdt.domain.FileType;
-import lhdt.domain.Key;
-import lhdt.domain.Policy;
-import lhdt.domain.UploadData;
-import lhdt.domain.UploadDataFile;
-import lhdt.domain.UploadDirectoryType;
-import lhdt.domain.UserSession;
-import lhdt.service.PolicyService;
-import lhdt.service.UploadDataService;
-import lhdt.utils.DateUtils;
-import lhdt.utils.FileUtils;
-import lhdt.utils.FormatUtils;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.io.*;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * 3D 데이터 파일 업로더
@@ -68,12 +47,12 @@ public class UploadDataRestController {
 	
 	@Autowired
 	private UploadDataService uploadDataService;
-	
+
 	/**
 	 * TODO 비동기로 처리해야 할듯
-	 * data upload 처리
-	 * @param model
+	 * @param request
 	 * @return
+	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
 	@PostMapping
@@ -167,7 +146,7 @@ public class UploadDataRestController {
 				log.info("@@@@@@@@@@@@@@@ name = {}, originalName = {}", multipartFile.getName(), multipartFile.getOriginalFilename());
 				
 				UploadDataFile uploadDataFile = new UploadDataFile();
-				Boolean converterTarget = false;
+				boolean converterTarget = false;
 				
 				// 파일 기본 validation 체크
 				errorCode = fileValidate(policy, uploadTypeList, multipartFile);
@@ -184,7 +163,7 @@ public class UploadDataRestController {
     			String saveFileName = originalName;
     			
     			// validation
-    			if(divideFileName == null || divideFileName.length == 0) {
+    			if(divideFileName.length == 0) {
     				log.info("@@@@@@@@@@@@ upload.file.type.invalid. originalName = {}", originalName);
 					result.put("statusCode", HttpStatus.BAD_REQUEST.value());
 					result.put("errorCode", "upload.file.type.invalid");
@@ -243,7 +222,7 @@ public class UploadDataRestController {
 				try (	InputStream inputStream = multipartFile.getInputStream();
 						OutputStream outputStream = new FileOutputStream(makedDirectory + tempDirectory + File.separator + saveFileName)) {
 				
-					int bytesRead = 0;
+					int bytesRead;
 					byte[] buffer = new byte[BUFFER_SIZE];
 					while ((bytesRead = inputStream.read(buffer, 0, BUFFER_SIZE)) != -1) {
 						size += bytesRead;
@@ -260,16 +239,16 @@ public class UploadDataRestController {
         			uploadDataFile.setConverterTarget(converterTarget);
         			uploadDataFile.setDepth(1);
 				} catch(IOException e) {
-					log.info("@@@@@@@@@@@@ io exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+					LogMessageSupport.printMessage(e, "@@@@@@@@@@@@ io exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
 					result.put("statusCode", HttpStatus.INTERNAL_SERVER_ERROR.value());
 					result.put("errorCode", "io.exception");
-					result.put("message", message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+					result.put("message", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
 		            return result;
 				} catch(Exception e) {
-					log.info("@@@@@@@@@@@@ file copy exception.");
+					LogMessageSupport.printMessage(e, "@@@@@@@@@@@@ file copy exception.");
 					result.put("statusCode", HttpStatus.INTERNAL_SERVER_ERROR.value());
 					result.put("errorCode", "file.copy.exception");
-					result.put("message", message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+					result.put("message", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
 		            return result;
 				}
 
@@ -355,7 +334,7 @@ public class UploadDataRestController {
 		// zip 파일을 압축할때 한글이나 다국어가 포함된 경우 java.lang.IllegalArgumentException: malformed input off 같은 오류가 발생. 윈도우가 CP949 인코딩으로 파일명을 저장하기 때문.
 		// Charset CP949 = Charset.forName("UTF-8");
 //		try ( ZipFile zipFile = new ZipFile(uploadedFile, CP949);) {
-		try ( ZipFile zipFile = new ZipFile(uploadedFile);) {
+		try ( ZipFile zipFile = new ZipFile(uploadedFile)) {
 			String directoryPath = targetDirectory;
 			String subDirectoryPath = "";
 			String directoryName = null;
@@ -367,7 +346,7 @@ public class UploadDataRestController {
             	
             	ZipEntry entry = entries.nextElement();
             	String unzipfileName = targetDirectory + entry.getName();
-            	Boolean converterTarget = false;
+            	boolean converterTarget = false;
             	
             	if( entry.isDirectory() ) {
             		// 디렉토리인 경우
@@ -415,7 +394,7 @@ public class UploadDataRestController {
             			fileName = entry.getName();
             			divideFileName = fileName.split("\\.");
             			saveFileName = fileName;
-            			if(divideFileName != null && divideFileName.length != 0) {
+            			if(divideFileName.length != 0) {
             				extension = divideFileName[divideFileName.length - 1];
             				if(uploadTypeList.contains(extension.toLowerCase())) {
             					if(converterTypeList.contains(extension.toLowerCase())) {
@@ -468,7 +447,7 @@ public class UploadDataRestController {
             			}
             			divideFileName = fileName.split("\\.");
             			saveFileName = fileName;
-            			if(divideFileName != null && divideFileName.length != 0) {
+            			if(divideFileName.length != 0) {
             				extension = divideFileName[divideFileName.length - 1];
             				if(uploadTypeList.contains(extension.toLowerCase())) {
             					if(converterTypeList.contains(extension.toLowerCase())) {
@@ -516,9 +495,9 @@ public class UploadDataRestController {
             		
             		long size = 0L;
                 	try ( 	InputStream inputStream = zipFile.getInputStream(entry);
-                			FileOutputStream outputStream = new FileOutputStream(directoryPath + saveFileName); ) {
+                			FileOutputStream outputStream = new FileOutputStream(directoryPath + saveFileName) ) {
                 		
-                		int bytesRead = 0;
+                		int bytesRead;
                         byte[] buffer = new byte[BUFFER_SIZE];
                         while ((bytesRead = inputStream.read(buffer, 0, BUFFER_SIZE)) != -1) {
                             size += bytesRead;
@@ -535,10 +514,10 @@ public class UploadDataRestController {
                 		uploadDataFile.setFileSize(String.valueOf(size));
                 		
                 	} catch(IOException e) {
-                		log.info("@@@@@@@@@@@@ io exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+                		LogMessageSupport.printMessage(e, "@@@@@@@@@@@@ io exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
                 		uploadDataFile.setErrorMessage(e.getMessage());
                     } catch(Exception e) {
-                    	log.info("@@@@@@@@@@@@ exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+                		LogMessageSupport.printMessage(e, "@@@@@@@@@@@@ exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
                     	uploadDataFile.setErrorMessage(e.getMessage());
                     }
                 }
@@ -548,9 +527,9 @@ public class UploadDataRestController {
             	uploadDataFileList.add(uploadDataFile);
             }
 		} catch(RuntimeException ex) {
-			log.info("@@@@@@@@@@@@ RuntimeException. message = {}", ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
+			LogMessageSupport.printMessage(ex, "@@@@@@@@@@@@ RuntimeException. message = {}", ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
 		} catch(IOException ex) {
-			log.info("@@@@@@@@@@@@ IOException. message = {}", ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
+			LogMessageSupport.printMessage(ex, "@@@@@@@@@@@@ IOException. message = {}", ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
 		}
 		
 		result.put("converterTargetCount", converterTargetCount);
@@ -570,7 +549,7 @@ public class UploadDataRestController {
 		if(fileName == null) {
 			log.info("@@ fileName is null");
 			return "file.name.invalid";
-		} else if(fileName.indexOf("..") >= 0 || fileName.indexOf("/") >= 0) {
+		} else if(fileName.contains("..") || fileName.indexOf("/") >= 0) {
 			// TODO File.seperator 정규 표현식이 안 먹혀서 이렇게 처리함
 			log.info("@@ fileName = {}", fileName);
 			return "file.name.invalid";
@@ -600,7 +579,7 @@ public class UploadDataRestController {
 		// TODO 파일은 사이즈가 커서 제한을 해야 할지 의문?
 		long fileSize = multipartFile.getSize();
 		log.info("@@@@@@@@@@@@@@@@@@@@@@@@@@ user upload file size = {} KB", (fileSize / 1000));
-		if( fileSize > (policy.getUserUploadMaxFilesize() * 1000000l)) {
+		if( fileSize > (policy.getUserUploadMaxFilesize() * 1000000L)) {
 			log.info("@@ fileSize = {}, user upload max filesize = {} M", (fileSize / 1000), policy.getUserUploadMaxFilesize());
 			return "file.size.invalid";
 		}

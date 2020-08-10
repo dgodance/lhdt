@@ -1,51 +1,49 @@
 package lhdt.controller.rest;
 
+import lhdt.domain.*;
+import lhdt.service.SearchMapService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import lombok.extern.slf4j.Slf4j;
-import lhdt.domain.District;
-import lhdt.domain.Pagination;
-import lhdt.domain.SkEmd;
-import lhdt.domain.SkSdo;
-import lhdt.domain.SkSgg;
-import lhdt.service.SearchMapService;
-
 @Slf4j
 @RequestMapping("/searchmap")
-@CrossOrigin(origins = "*")
 @RestController
 public class SearchMapRestController {
 
 	@Autowired
 	private SearchMapService searchMapService;
 
+	/*HttpServletRequest request;
+	String lang = (String)request.getSession().getAttribute(Key.LANG.name());*/
+
 	/**
 	 * 시도 목록
 	 * @return
 	 */
 	@GetMapping("/sdos")
-	public Map<String, Object> getListSdo() {
+	public Map<String, Object> getListSdo(HttpServletRequest request) {
 		Map<String, Object> result = new HashMap<>();
 		String errorCode = null;
 		String message = null;
-		
-		List<SkSdo> sdoList = searchMapService.getListSdoExceptGeom();
+		District district = new District();
+		String lang = (String)request.getSession().getAttribute(Key.LANG.name());
+		if(lang!=null) {
+			district.setKoname("enname");
+		}else {
+			district.setKoname("koname");
+		}
+		List<SkSdo> sdoList = searchMapService.getListSdoExceptGeom(district);
 		int statusCode = HttpStatus.OK.value();
 		
 		result.put("sdoList", sdoList);
@@ -61,12 +59,20 @@ public class SearchMapRestController {
 	 * @return
 	 */
 	@GetMapping("/sdos/{sdoCode:[0-9]+}/sggs")
-	public Map<String, Object> getListSggBySdo(@PathVariable String sdoCode) {
+	public Map<String, Object> getListSggBySdo(HttpServletRequest request, @PathVariable String sdoCode) {
 		Map<String, Object> result = new HashMap<>();
 		String errorCode = null;
 		String message = null;
+		District district = new District();
+		district.setSidoCd(sdoCode);
+	/*	String lang = (String)request.getSession().getAttribute(Key.LANG.name());
+		if(lang!=null) {
+			district.setName("enname");
+		}else {
+			district.setName("koname");
+		}*/
 		
-		List<SkSgg> sggList = searchMapService.getListSggBySdoExceptGeom(sdoCode);
+		List<SkSgg> sggList = searchMapService.getListSggBySdoExceptGeom(district);
 		int statusCode = HttpStatus.OK.value();
 		
 		result.put("sggList", sggList);
@@ -83,15 +89,17 @@ public class SearchMapRestController {
 	 * @return
 	 */
 	@GetMapping("/sdos/{sdoCode:[0-9]+}/sggs/{sggCode:[0-9]+}/emds")
-	public Map<String, Object> getListEmdBySdoAndSgg(@PathVariable String sdoCode, @PathVariable String sggCode) {
+	public Map<String, Object> getListEmdBySdoAndSgg(HttpServletRequest request, @PathVariable String sdoCode, @PathVariable String sggCode) {
 		Map<String, Object> result = new HashMap<>();
 		String errorCode = null;
 		String message = null;
 		
+		String lang = (String)request.getSession().getAttribute(Key.LANG.name());
+		
 		SkEmd mapEmd = new SkEmd();
 		mapEmd.setSdoCode(sdoCode);
 		mapEmd.setSggCode(sggCode);
-
+				
 		List<SkEmd> emdList = searchMapService.getListEmdBySdoAndSggExceptGeom(mapEmd);
 		int statusCode = HttpStatus.OK.value();
 		
@@ -121,14 +129,14 @@ public class SearchMapRestController {
 		if (skEmd.getLayerType() == 1) {
 			// 시도
 			SkSdo skSdo = new SkSdo();
-			skSdo.setName(skEmd.getName());
+			skSdo.setKoname(skEmd.getKoname());
 			skSdo.setBjcd(skEmd.getBjcd());
 			centerPoint = searchMapService.getCentroidSdo(skSdo);
 			log.info("@@@@ sdo center point {}", centerPoint);
 		} else if (skEmd.getLayerType() == 2) {
 			// 시군구
 			SkSgg skSgg = new SkSgg();
-			skSgg.setName(skEmd.getName());
+			skSgg.setKoname(skEmd.getKoname());
 			skSgg.setBjcd(skEmd.getBjcd());
 			centerPoint = searchMapService.getCentroidSgg(skSgg);
 			log.info("@@@@ sgg center point {}", centerPoint);
@@ -168,7 +176,7 @@ public class SearchMapRestController {
 		if (skEmd.getLayerType() == 1) {
 			// 시도
 			SkSdo skSdo = new SkSdo();
-			skSdo.setName(skEmd.getName());
+			skSdo.setKoname(skEmd.getKoname());
 			skSdo.setBjcd(skEmd.getBjcd());
 			System.out.println(skSdo.getBjcd());
 			bboxWkt = searchMapService.getEnvelopSdo(skSdo);
@@ -176,7 +184,7 @@ public class SearchMapRestController {
 		} else if (skEmd.getLayerType() == 2) {
 			// 시군구
 			SkSgg skSgg = new SkSgg();
-			skSgg.setName(skEmd.getName());
+			skSgg.setKoname(skEmd.getKoname());
 			skSgg.setBjcd(skEmd.getBjcd());
 			bboxWkt = searchMapService.getEnvelopSgg(skSgg);
 			log.info("@@@@ sgg bbox {}", bboxWkt);
@@ -223,6 +231,13 @@ public class SearchMapRestController {
 		String errorCode = null;
 		String message = null;
 		
+		String lang = (String)request.getSession().getAttribute(Key.LANG.name());
+		if(lang!=null) {
+			district.setKoname("enname");
+		}else {
+			district.setKoname("koname");
+		}
+		
 		log.info("@@ district = {}", district);
 		district.setSearchValue(district.getFullTextSearch());
 		district.setSearchWord(district.getFullTextSearch());
@@ -247,12 +262,11 @@ public class SearchMapRestController {
 		district.setOffset(pagination.getOffset());
 		district.setLimit(pagination.getPageRows());
 		List<District> districtList = new ArrayList<>();
-		if (totalCount > 0l) {
+		if (totalCount > 0L) {
 			districtList = searchMapService.getListDistrict(district);
 		}
 
 		int statusCode = HttpStatus.OK.value();
-		System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"+"district");
 		result.put("pagination", pagination);
 		result.put("totalCount", totalCount);
 		result.put("districtList", districtList);
@@ -263,14 +277,8 @@ public class SearchMapRestController {
 	}
 
 	private String getSearchParameters(String fullTextSearch) {
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("&");
-		try {
-			buffer.append("searchValue=" + URLEncoder.encode(fullTextSearch, "UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-			log.info("@@ objectMapper exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
-			buffer.append("searchValue=");
-		}
-		return buffer.toString();
+		StringBuilder builder = new StringBuilder();
+		builder.append("&searchValue=" + URLEncoder.encode(fullTextSearch, StandardCharsets.UTF_8));
+		return builder.toString();
 	}
 }

@@ -18,7 +18,9 @@ public enum UserStatus {
 	// 사용자 상태가 삭제(화면 비표시)
 	LOGICAL_DELETE("5"),
 	// 사용자 상태가 임시 비밀번호(비밀번호 찾기, 관리자 설정에 의한 임시 비밀번호 발급 시)
-	TEMP_PASSWORD("6");
+	TEMP_PASSWORD("6"),
+	// 승인 대기
+	WAITING_APPROVAL("7");
 
 	private final String value;
 
@@ -49,6 +51,6 @@ public enum UserStatus {
 	 * @return
 	 */
 	public static Map<String, Long> getStatisticsMap() {
-		return Stream.of(values()).collect(Collectors.toMap(UserStatus::getValue, t -> 0l));
+		return Stream.of(values()).collect(Collectors.toMap(UserStatus::getValue, t -> 0L));
 	}
 }
