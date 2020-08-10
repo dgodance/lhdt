@@ -10,6 +10,8 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import lhdt.anals.hello.domain.Domain;
+
 /**
  * 모든 controller  의 부모
  * @author gravity
@@ -19,20 +21,14 @@ public class AnalsController {
 
 	/**
 	 * 
-	 * @param vo
+	 * @param t Domain의 자식
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
-	protected ResponseEntity<Map<String,Object>> res(Object obj){
-		
-		//
-		if(obj.getClass() == Map.class) {
-			return new ResponseEntity<>((Map)obj, HttpStatus.OK);
-		}
+	protected <T extends Domain> ResponseEntity<Map<String,Object>> res(T t){
 		
 		//
 		Map<String,Object> map = new HashMap<>();
-		map.put(AnalsConst.DATA, obj);
+		map.put(AnalsConst.DATA, t);
 		
 		//
 		return new ResponseEntity<>(map, HttpStatus.OK);
@@ -40,23 +36,18 @@ public class AnalsController {
 	
 	/**
 	 * 
-	 * @param vo
+	 * @param t Map의 자식
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
-	protected ResponseEntity<Map<String,Object>> res(Object obj, HttpStatus hs){
-		
-		//
-		if(obj.getClass() == Map.class) {
-			return new ResponseEntity<>((Map)obj, hs);
-		}
+	@SuppressWarnings("rawtypes")
+	protected <T extends Map> ResponseEntity<Map<String,Object>> res(T t){
 		
 		//
 		Map<String,Object> map = new HashMap<>();
-		map.put(AnalsConst.DATA, obj);
+		map.put(AnalsConst.DATA, t);
 		
 		//
-		return new ResponseEntity<>(map, hs);
+		return new ResponseEntity<>(map, HttpStatus.OK);
 	}
 	
 	
@@ -65,7 +56,7 @@ public class AnalsController {
 	 * @param vo
 	 * @return
 	 */
-	protected ResponseEntity<Map<String,Object>> res(List<Object> list){
+	protected <T extends Domain> ResponseEntity<Map<String,Object>> res(List<T> list){
 		
 		Map<String,Object> map = new HashMap<>();
 		map.put(AnalsConst.DATA, list);
@@ -79,7 +70,7 @@ public class AnalsController {
 	 * @param vo
 	 * @return
 	 */
-	protected ResponseEntity<Map<String,Object>> res(List<Object> list, HttpStatus hs){
+	protected <T extends Domain> ResponseEntity<Map<String,Object>> res(List<T> list, HttpStatus hs){
 		
 		Map<String,Object> map = new HashMap<>();
 		map.put(AnalsConst.DATA, list);
