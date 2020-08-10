@@ -26,14 +26,7 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Hello extends PpVO {
-	/**
-	 * 안녕 아이디
-	 */
-	@Id
-	@Column(name = "hello_id")
-	private Long helloId;
-	
+public class Hello extends Domain {
 	/**
 	 * 안녕 명
 	 */
