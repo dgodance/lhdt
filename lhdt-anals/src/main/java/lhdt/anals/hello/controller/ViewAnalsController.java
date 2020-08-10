@@ -1,20 +1,21 @@
 package lhdt.anals.hello.controller;
 
-import lhdt.anals.hello.domain.ViewAnalsLoca;
-import lhdt.anals.hello.service.HelloService;
-import lhdt.anals.hello.service.ViewAnalsLocaService;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.geo.Point;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import lhdt.anals.common.AnalsController;
+import lhdt.anals.hello.domain.ViewAnalsLoca;
+import lhdt.anals.hello.service.ViewAnalsLocaService;
 
 @RestController
 @RequestMapping("/gis/")
-public class ViewAnalsController {
+public class ViewAnalsController extends AnalsController {
     @Autowired
     private ViewAnalsLocaService service;
 
@@ -28,7 +29,7 @@ public class ViewAnalsController {
     }
 
     @GetMapping("getItem")
-    public List<ViewAnalsLoca> getAllViewAnals() {
-        return this.service.findAll();
+    public ResponseEntity<Map<String,Object>> getAllViewAnals() {
+        return super.res( this.service.findAll());
     }
 }
