@@ -2,6 +2,7 @@ package lhdt.anals.common;
 
 import lhdt.anals.hello.domain.Domain;
 
+import java.net.InterfaceAddress;
 import java.util.List;
 
 /**
@@ -21,6 +22,15 @@ public abstract class CRUDService<T extends Domain> implements CRUDInterface<T> 
         } else {
             return save(vo);
         }
+    }
+
+    /**
+     * UK 조건에 부합하는 모든 데이터를 삭제합니다
+     * @param id
+     */
+    public void deleteAllById(Long id) {
+        var vos = findAllById(id);
+        vos.forEach(p -> deleteByVo(p));
     }
 
     /**
