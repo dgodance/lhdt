@@ -1,17 +1,20 @@
 package lhdt.anals.hello.domain;
 
-import dev.hyunlab.core.vo.PpVO;
-import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.annotation.LastModifiedBy;
-
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.Date;
 
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import dev.hyunlab.core.vo.PpVO;
+import lombok.Data;
+
+@SuppressWarnings("serial")
 @MappedSuperclass
 @Data
 public abstract class Domain extends PpVO {
