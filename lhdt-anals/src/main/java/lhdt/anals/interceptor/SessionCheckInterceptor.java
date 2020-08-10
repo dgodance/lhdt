@@ -35,6 +35,8 @@ public class SessionCheckInterceptor extends HandlerInterceptorAdapter {
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
+		
+		//TODO
 
 		return true;
 	}

@@ -3,6 +3,7 @@
  * es6 버전
  * jquery사용하지 않음
  * typescript버전을 es6로 변환
+ * origin /pp-js/src/js/pp-0.9-es6.js
  * @since
  *  2020-07-xx 바닐라js
  *  2020-07-16  pp와 ppui 분리

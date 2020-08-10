@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lhdt.anals.common.AnalsServiceImpl;
 import lhdt.anals.hello.domain.Hello;
@@ -37,16 +38,23 @@ public class HelloServiceImpl extends AnalsServiceImpl implements HelloService {
 	
 	
 	@Override
+	@Transactional
+	public Hello regist(Hello vo) {
+		return jpaRepo.save(vo);
+	}
+	
+	@Override
+	@Transactional
+	public void updt(Hello hello) {
+		jpaRepo.save(hello);
+	}
+	
+	@Override
 	public Hello findById(Long helloId) {
 		// 
 		return mapper.findById(helloId);
 	}
 
-
-	@Override
-	public Hello regist(Hello vo) {
-		return jpaRepo.save(vo);
-	}
 
 
 	@Override
@@ -54,11 +62,6 @@ public class HelloServiceImpl extends AnalsServiceImpl implements HelloService {
 		return mapper.findAll();
 	}
 
-
-	@Override
-	public void updt(Hello hello) {
-		jpaRepo.save(hello);
-	}
 
 
 	@Override

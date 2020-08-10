@@ -3,7 +3,7 @@
  */
 package lhdt.anals.hello.persistence;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import lhdt.anals.hello.domain.Hello;
 
@@ -12,6 +12,6 @@ import lhdt.anals.hello.domain.Hello;
  * @author gravity@daumsoft.com
  *
  */
-public interface HelloRepository extends CrudRepository<Hello, Long> {
+public interface HelloRepository extends JpaRepository<Hello, Long> {
 
 }

@@ -79,6 +79,6 @@ public class HelloController extends AnalsController {
 		map.put("pagingDatas", pagingDatas);
 		
 		//
-		return new ResponseEntity<>(map, HttpStatus.OK);
+		return super.res(map);
 	}
 }

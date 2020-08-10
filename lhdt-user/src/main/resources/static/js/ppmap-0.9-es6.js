@@ -96,6 +96,7 @@ class PpMap{
 	
 	
 	/**
+	 * 해당 위치로 이동
 	 * @param {Cartesian3|lonLatAlt} ctsnOrXyz
 	 * @param {HeadingPitchRoll} hpr
 	 */
@@ -118,6 +119,7 @@ class PpMap{
 	
 	/**
 	 * degree object인지 여부
+	 * obj는 json형식 && lon라는 키 존재하면 degree라고 판단
 	 * @param {any} obj
      * @returns {boolean}
 	 */
