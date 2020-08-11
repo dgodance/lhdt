@@ -1,5 +1,9 @@
 package lhdt.anals.hello.controller;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +23,7 @@ public class ViewAnalsController extends AnalsController {
     @Autowired
     private ViewAnalsLocaService service;
 
+
     @GetMapping
     public String postViewAnalsRegist() {
         ViewAnalsLoca dumi = new ViewAnalsLoca();
@@ -31,5 +36,26 @@ public class ViewAnalsController extends AnalsController {
     @GetMapping("getItem")
     public ResponseEntity<Map<String,Object>> getAllViewAnals() {
         return super.res( this.service.findAll());
+    }
+
+
+    @GetMapping("get_data_info_by_poly")
+    public String getDataInfoByPoly() {
+        String result = "";
+        try(
+            FileReader rw = new FileReader("D:\\data\\dumi_sample\\height_anals_sample.json");
+            BufferedReader br = new BufferedReader( rw );
+        ){
+
+            //읽을 라인이 없을 경우 br은 null을 리턴한다.
+            String readLine = null ;
+            while( ( readLine =  br.readLine()) != null ){
+//                System.out.println(readLine);
+                result += readLine;
+            }
+        }catch (IOException e ) {
+            System.out.println(e);
+        }
+        return result;
     }
 }

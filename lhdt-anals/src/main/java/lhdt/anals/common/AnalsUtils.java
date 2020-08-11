@@ -3,6 +3,7 @@
  */
 package lhdt.anals.common;
 
+import java.io.FileReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
