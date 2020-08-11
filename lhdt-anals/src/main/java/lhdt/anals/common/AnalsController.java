@@ -20,7 +20,7 @@ import lhdt.anals.hello.domain.Domain;
 public class AnalsController {
 
 	/**
-	 * 
+	 * ResponseEntity 생성&리턴
 	 * @param t Domain의 자식
 	 * @return
 	 */
@@ -35,7 +35,7 @@ public class AnalsController {
 	}
 	
 	/**
-	 * 
+	 * ResponseEntity 생성&리턴
 	 * @param t Map의 자식
 	 * @return
 	 */
@@ -52,7 +52,7 @@ public class AnalsController {
 	
 	
 	/**
-	 * 
+	 * ResponseEntity 생성&리턴
 	 * @param vo
 	 * @return
 	 */
@@ -66,7 +66,7 @@ public class AnalsController {
 	}
 	
 	/**
-	 * 
+	 * ResponseEntity 생성&리턴
 	 * @param vo
 	 * @return
 	 */
