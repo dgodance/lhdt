@@ -15,6 +15,8 @@
     	<typeAlias type="lhdt.domain.ConverterJobFile" alias="converterJobFile" />
 		<typeAlias type="lhdt.domain.DataAdjustLog" alias="dataAdjustLog" />
 		<typeAlias type="lhdt.domain.DataAttribute" alias="dataAttribute" />
+		<typeAlias type="lhdt.domain.DataLibraryGroup" alias="dataLibraryGroup" />
+		<typeAlias type="lhdt.domain.DataLibrary" alias="dataLibrary" />
 		<typeAlias type="lhdt.domain.DataFileInfo" alias="dataFileInfo" />
 		<typeAlias type="lhdt.domain.DataFileParseLog" alias="dataFileParseLog" />
 		<typeAlias type="lhdt.domain.DataSmartTilingFileInfo" alias="dataSmartTilingFileInfo" />
@@ -26,6 +28,10 @@
 		<typeAlias type="lhdt.domain.DataInfo" alias="dataInfo" />
 		<typeAlias type="lhdt.domain.DataInfoSimple" alias="dataInfoSimple" />
 		<typeAlias type="lhdt.domain.DataInfoLog" alias="dataInfoLog" />
+		<typeAlias type="lhdt.domain.ExtrusionModelGroup" alias="extrusionModelGroup" />
+		<typeAlias type="lhdt.domain.ExtrusionModel" alias="extrusionModel" />
+		<typeAlias type="lhdt.domain.ExtrusionModelAttribute" alias="extrusionModelAttribute" />
+		<typeAlias type="lhdt.domain.ExtrusionModelFileInfo" alias="extrusionModelFileInfo" />
 		<typeAlias type="lhdt.domain.GeoPolicy" alias="geoPolicy" />
 		<typeAlias type="lhdt.domain.Issue" alias="issue" />
     	<typeAlias type="lhdt.domain.Layer" alias="layer" />

@@ -5,6 +5,30 @@ drop table if exists extrusion_model_attribute cascade;
 drop table if exists data_library_group cascade;
 drop table if exists data_library cascade;
 
+drop table if exists extrusion_model_log cascade;
+drop table if exists extrusion_model_log_2020 cascade;
+drop table if exists extrusion_model_log_2021 cascade;
+drop table if exists extrusion_model_log_2022 cascade;
+drop table if exists extrusion_model_log_2023 cascade;
+drop table if exists extrusion_model_log_2024 cascade;
+drop table if exists extrusion_model_log_2025 cascade;
+drop table if exists extrusion_model_log_2026 cascade;
+drop table if exists extrusion_model_log_2027 cascade;
+drop table if exists extrusion_model_log_2028 cascade;
+drop table if exists extrusion_model_log_2029 cascade;
+drop table if exists extrusion_model_log_2030 cascade;
+drop table if exists extrusion_model_log_2031 cascade;
+drop table if exists extrusion_model_log_2032 cascade;
+drop table if exists extrusion_model_log_2033 cascade;
+drop table if exists extrusion_model_log_2034 cascade;
+drop table if exists extrusion_model_log_2035 cascade;
+drop table if exists extrusion_model_log_2036 cascade;
+drop table if exists extrusion_model_log_2037 cascade;
+drop table if exists extrusion_model_log_2038 cascade;
+drop table if exists extrusion_model_log_2039 cascade;
+drop table if exists extrusion_model_log_2040 cascade;
+commit;
+
 -- extrusion model 그룹
 create table extrusion_model_group (
 	extrusion_model_group_id		        integer,
@@ -205,3 +229,60 @@ comment on column data_library.available is '사용유무.';
 comment on column data_library.description is '설명';
 comment on column data_library.update_date is '수정일';
 comment on column data_library.insert_date is '등록일';
+
+
+
+-- extrusion model 사용 이력
+create table extrusion_model_log(
+	extrusion_model_log_id				bigint,
+	extrusion_model_id				    bigint,
+	user_id						        varchar(32)	 		not null,
+	user_name					        varchar(64),
+	status						        varchar(30),
+	year						        char(4)				default to_char(now(), 'YYYY'),
+	month						        varchar(2)			default to_char(now(), 'MM'),
+	day							        varchar(2)			default to_char(now(), 'DD'),
+	year_week					        varchar(2)			default to_char(now(), 'WW'),
+	week						        varchar(2)			default to_char(now(), 'W'),
+	hour						        varchar(2)			default to_char(now(), 'HH24'),
+	minute						        varchar(2)			default to_char(now(), 'MI'),
+	insert_date					        timestamp with time zone			default now()
+) partition by range(insert_date);
+
+comment on table extrusion_model_log is 'extrusion model 사용 이력';
+comment on column extrusion_model_log.extrusion_model_log_id is '고유번호';
+comment on column extrusion_model_log.extrusion_model_id is 'extrusion model 고유번호';
+comment on column extrusion_model_log.user_id is '사용자 아이디';
+comment on column extrusion_model_log.user_name is '사용자 이름';
+comment on column extrusion_model_log.status is '상태. ready : 시뮬레이션전, use : 사용중, temp : 임시저장, complete : 완료';
+comment on column extrusion_model_log.year is '년';
+comment on column extrusion_model_log.month is '월';
+comment on column extrusion_model_log.day is '일';
+comment on column extrusion_model_log.year_week is '일년중 몇주';
+comment on column extrusion_model_log.week is '이번달 몇주';
+comment on column extrusion_model_log.hour is '시간';
+comment on column extrusion_model_log.minute is '분';
+comment on column extrusion_model_log.insert_date is '등록일';
+
+
+create table extrusion_model_log_2020 partition of extrusion_model_log for values from ('2020-01-01 00:00:00.000000') to ('2021-01-01 00:00:00.000000');
+create table extrusion_model_log_2021 partition of extrusion_model_log for values from ('2021-01-01 00:00:00.000000') to ('2022-01-01 00:00:00.000000');
+create table extrusion_model_log_2022 partition of extrusion_model_log for values from ('2022-01-01 00:00:00.000000') to ('2023-01-01 00:00:00.000000');
+create table extrusion_model_log_2023 partition of extrusion_model_log for values from ('2023-01-01 00:00:00.000000') to ('2024-01-01 00:00:00.000000');
+create table extrusion_model_log_2024 partition of extrusion_model_log for values from ('2024-01-01 00:00:00.000000') to ('2025-01-01 00:00:00.000000');
+create table extrusion_model_log_2025 partition of extrusion_model_log for values from ('2025-01-01 00:00:00.000000') to ('2026-01-01 00:00:00.000000');
+create table extrusion_model_log_2026 partition of extrusion_model_log for values from ('2026-01-01 00:00:00.000000') to ('2027-01-01 00:00:00.000000');
+create table extrusion_model_log_2027 partition of extrusion_model_log for values from ('2027-01-01 00:00:00.000000') to ('2028-01-01 00:00:00.000000');
+create table extrusion_model_log_2028 partition of extrusion_model_log for values from ('2028-01-01 00:00:00.000000') to ('2029-01-01 00:00:00.000000');
+create table extrusion_model_log_2029 partition of extrusion_model_log for values from ('2029-01-01 00:00:00.000000') to ('2030-01-01 00:00:00.000000');
+create table extrusion_model_log_2030 partition of extrusion_model_log for values from ('2030-01-01 00:00:00.000000') to ('2031-01-01 00:00:00.000000');
+create table extrusion_model_log_2031 partition of extrusion_model_log for values from ('2031-01-01 00:00:00.000000') to ('2032-01-01 00:00:00.000000');
+create table extrusion_model_log_2032 partition of extrusion_model_log for values from ('2032-01-01 00:00:00.000000') to ('2033-01-01 00:00:00.000000');
+create table extrusion_model_log_2033 partition of extrusion_model_log for values from ('2033-01-01 00:00:00.000000') to ('2034-01-01 00:00:00.000000');
+create table extrusion_model_log_2034 partition of extrusion_model_log for values from ('2034-01-01 00:00:00.000000') to ('2035-01-01 00:00:00.000000');
+create table extrusion_model_log_2035 partition of extrusion_model_log for values from ('2035-01-01 00:00:00.000000') to ('2036-01-01 00:00:00.000000');
+create table extrusion_model_log_2036 partition of extrusion_model_log for values from ('2036-01-01 00:00:00.000000') to ('2037-01-01 00:00:00.000000');
+create table extrusion_model_log_2037 partition of extrusion_model_log for values from ('2037-01-01 00:00:00.000000') to ('2038-01-01 00:00:00.000000');
+create table extrusion_model_log_2038 partition of extrusion_model_log for values from ('2038-01-01 00:00:00.000000') to ('2039-01-01 00:00:00.000000');
+create table extrusion_model_log_2039 partition of extrusion_model_log for values from ('2039-01-01 00:00:00.000000') to ('2040-01-01 00:00:00.000000');
+create table extrusion_model_log_2040 partition of extrusion_model_log for values from ('2040-01-01 00:00:00.000000') to ('2041-01-01 00:00:00.000000');
