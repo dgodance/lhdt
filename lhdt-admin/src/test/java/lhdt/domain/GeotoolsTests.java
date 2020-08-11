@@ -3,6 +3,9 @@ package lhdt.domain;
 import lombok.extern.slf4j.Slf4j;
 import org.geotools.data.*;
 import org.geotools.data.shapefile.ShapefileDataStore;
+import org.geotools.data.shapefile.dbf.DbaseFileHeader;
+import org.geotools.data.shapefile.dbf.DbaseFileReader;
+import org.geotools.data.shapefile.files.ShpFiles;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.FeatureCollection;
@@ -22,6 +25,18 @@ import java.util.Map;
 
 @Slf4j
 public class GeotoolsTests {
+
+    @Test
+    void 필드_확인() throws IOException {
+        ShpFiles shpFile = new ShpFiles("D:\\test\\layer_lot_number_00000000.shp");
+        DbaseFileReader r = new DbaseFileReader(shpFile, false, Charset.forName("CP949"));
+        DbaseFileHeader header = r.getHeader();
+        int numFields = header.getNumFields();
+        for (int iField = 0; iField < numFields; ++iField) {
+            String fieldName = header.getFieldName(iField);
+            log.info("filed name ={}", fieldName);
+        }
+    }
 
     @Test
     void 필드_추가() throws IOException {
@@ -92,8 +107,8 @@ public class GeotoolsTests {
         params.put("database", "ndtp");
         params.put("user", "postgres");
         params.put("passwd", "postgres");
-        DataStore  dataStore = DataStoreFinder.getDataStore(params);
-        log.info("dataStore ===================== {} " , dataStore);
+        DataStore dataStore = DataStoreFinder.getDataStore(params);
+        log.info("dataStore ===================== {} ", dataStore);
         FeatureSource<SimpleFeatureType, SimpleFeature> shapeFeatureSource = getShape();
         FeatureCollection<SimpleFeatureType, SimpleFeature> features = shapeFeatureSource.getFeatures();
         SimpleFeatureType schema = features.getSchema();
@@ -103,7 +118,7 @@ public class GeotoolsTests {
         builder.setSuperType((SimpleFeatureType) schema.getSuper());
         builder.addAll(schema.getAttributeDescriptors());
         schema = builder.buildFeatureType();
-        log.info("schema ============== {} " , schema);
+        log.info("schema ============== {} ", schema);
 
         try {
             /*
