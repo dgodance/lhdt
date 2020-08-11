@@ -38,13 +38,32 @@ public class ViewAnalsController extends AnalsController {
         return super.res( this.service.findAll());
     }
 
-
     @GetMapping("get_data_info_by_poly")
     public String getDataInfoByPoly() {
         String result = "";
         try(
             FileReader rw = new FileReader("D:\\data\\dumi_sample\\height_anals_sample.json");
             BufferedReader br = new BufferedReader( rw );
+        ){
+
+            //읽을 라인이 없을 경우 br은 null을 리턴한다.
+            String readLine = null ;
+            while( ( readLine =  br.readLine()) != null ){
+//                System.out.println(readLine);
+                result += readLine;
+            }
+        }catch (IOException e ) {
+            System.out.println(e);
+        }
+        return result;
+    }
+
+    @GetMapping("get_cityplan_data_by_point")
+    public String getCityPlanDataByPoint() {
+        String result = "";
+        try(
+                FileReader rw = new FileReader("D:\\data\\dumi_sample\\cityplandata.json");
+                BufferedReader br = new BufferedReader( rw );
         ){
 
             //읽을 라인이 없을 경우 br은 null을 리턴한다.

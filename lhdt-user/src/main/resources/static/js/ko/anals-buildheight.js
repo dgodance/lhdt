@@ -66,7 +66,6 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
         $.ajax({
             url: "http://localhost:8090/anals/gis/get_data_info_by_poly"
         }).done(function(data) {
-            debugger;
             const jsonData = JSON.parse(data);
 
             min = 0;
@@ -78,7 +77,6 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
                 changeColorAPI(magoInstance, obj.data_group_id, obj.data_key, null,
                     'isPhysical=true', color.r + ',' + color.g + ',' + color.b)
             }
-
         })
     })
 
