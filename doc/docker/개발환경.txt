@@ -1,21 +1,4 @@
-docker image 다운로드
-    - docker image pull gaia3d/lhdt
-docker container 실행(geoserver host 경로는 각자 경로에 맞게 수정)
-    - docker container run --privileged  -d -p 15432:5432 -p 18080:8080 -v "D:\data\geoserver":"/data/geoserver_data" --name "lhdt" gaia3d/lhdt /sbin/init
-geoserver, pg, erlang, rabbitmq, 행정구역 데이터 포함 docker image
-    - docker container run --privileged  -d -p 15432:5432 -p 18080:8080 -p 15672:15672 -p 5672:5672  -v "D:\data\geoserver":"/data/geoserver_data" --name "lhdt" gaia3d/lhdt /sbin/init
+geoserver, pg, erlang, rabbitmq, 행정구역 데이터 포함 docker image(geoserver host 경로는 각자 경로에 맞게 수정)
+    - docker container run --privileged -d -p 15432:5432 -p 18080:8080 -p 15672:15672 -p 5672:5672 --name "lhdt-postgresql" gaia3d/lhdt-postgresql /sbin/init
+    - docker container run --privileged --net=container:lhdt-postgresql -d -v "D:\data\geoserver":"/data/geoserver-data" --name "lhdt" gaia3d/lhdt /sbin/init
 
-docker container run --privileged -d -p 15432:5432 --name "lhdt-postgresql" gaia3d/lhdt-postgresql /sbin/init
-
--- apache tomcat session clustering 테스트 컨테이너
-docker network create --subnet=172.18.0.0/16 mynetwork
-docker container run --privileged --net mynetwork --ip 172.18.0.10  -d --name "container-db" gaia3d/mago3d-postgresql /sbin/init
-docker container run --privileged --net mynetwork --ip 172.18.0.12  -d -p 10080:80 -p 18081:8081 -p 19090:9090 --name "apache-tomcat1" gaia3d/apache-tomcat /sbin/init
-docker container run --privileged --net mynetwork --ip 172.18.0.13  -d -p 20080:80 -p 28081:8081 -p 29090:9090 --name "apache-tomcat2" gaia3d/apache-tomcat /sbin/init
-
-systemctl start mago3d-tomcat
-systemctl stop mago3d-tomcat
-systemctl status mago3d-tomcat
-
-/etc/httpd/conf
-systemctl start httpd
