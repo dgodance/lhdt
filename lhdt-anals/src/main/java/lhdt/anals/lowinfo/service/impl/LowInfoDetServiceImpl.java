@@ -18,7 +18,6 @@ public class LowInfoDetServiceImpl extends LowInfoDetService {
     @Autowired
     LowInfoRepository lowInfoRepository;
 
-
     @Override
     public LowInfoDet save(LowInfoDet vo) {
         return this.lowInfoDetRepository.save(vo);

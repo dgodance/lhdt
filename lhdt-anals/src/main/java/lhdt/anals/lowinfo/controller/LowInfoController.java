@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/cityplanning")
+@RequestMapping("/low_info")
 public class LowInfoController extends AnalsController {
     @Autowired
     private LowInfoService lowInfoService;

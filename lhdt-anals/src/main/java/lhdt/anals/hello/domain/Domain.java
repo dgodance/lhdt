@@ -8,15 +8,18 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import dev.hyunlab.core.vo.PpVO;
-import lombok.Data;
 
 @SuppressWarnings("serial")
 @MappedSuperclass
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public abstract class Domain extends PpVO {
     /**
      * 안녕 아이디

@@ -9,11 +9,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/cityplanning")
+@RequestMapping("/low_info_det")
 public class LowInfoDetController extends AnalsController {
     @Autowired
     private LowInfoDetService lowInfoDetService;
-
 
     /**
      * 모든 LowInfo 정보를 가지고 옵니다
