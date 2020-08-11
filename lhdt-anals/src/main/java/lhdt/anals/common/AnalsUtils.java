@@ -22,14 +22,12 @@ import org.springframework.http.HttpStatus;
 import dev.hyunlab.core.PpTransferObject;
 import dev.hyunlab.core.util.PpDateUtil;
 import dev.hyunlab.core.util.PpUtil;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 이것저것 유틸리티
  * @author gravity@daumsoft.com
  *
  */
-@Slf4j
 public class AnalsUtils extends PpUtil{
 	
 	/**
@@ -139,6 +137,8 @@ public class AnalsUtils extends PpUtil{
 	}
 	
 	
+	
+	
 	/**
 	 * create HttpClient
 	 * @return
@@ -221,7 +221,7 @@ public class AnalsUtils extends PpUtil{
 	
 	/**
 	 * url뒤에 파라미터 추가하여 full url생성
-	 * @param httpMethod TODO
+	 * @param httpMethod 
 	 * @param url
 	 * @param param
 	 * @return

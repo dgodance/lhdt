@@ -3,11 +3,10 @@
  */
 package lhdt.anals.hello.service.impl;
 
-import java.util.List;
+import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import lhdt.anals.common.AnalsServiceImpl;
 import lhdt.anals.hello.domain.Hello;
@@ -21,7 +20,7 @@ import lhdt.anals.hello.service.HelloService;
  *
  */
 @Service("helloService")
-public class HelloServiceImpl extends AnalsServiceImpl implements HelloService {
+public class HelloServiceImpl extends AnalsServiceImpl<HelloRepository, HelloMapper, Hello, Long> implements HelloService {
 
 
 	/**
@@ -37,42 +36,12 @@ public class HelloServiceImpl extends AnalsServiceImpl implements HelloService {
 	private HelloMapper mapper;
 	
 	
-	@Override
-	@Transactional
-	public Hello regist(Hello vo) {
-		return jpaRepo.save(vo);
+	@PostConstruct
+	private void init() {
+		super.set(jpaRepo, mapper, Hello.builder().build());
 	}
+
 	
-	@Override
-	@Transactional
-	public void updt(Hello hello) {
-		jpaRepo.save(hello);
-	}
-	
-	@Override
-	public Hello findById(Long helloId) {
-		// 
-		return mapper.findById(helloId);
-	}
 
-
-
-	@Override
-	public List<Hello> findAll() {
-		return mapper.findAll();
-	}
-
-
-
-	@Override
-	public int findTotcnt(Hello hello) {
-		return mapper.findTotcnt(hello);
-	}
-
-
-	@Override
-	public List<Hello> findByPage(Hello hello) {
-		return mapper.findByPage(hello);
-	}
 
 }

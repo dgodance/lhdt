@@ -3,34 +3,35 @@
  */
 package lhdt.anals.hello.controller;
 
-import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import javassist.tools.rmi.Sample;
-import lhdt.anals.hello.domain.Child;
-import lhdt.anals.hello.domain.SubType0;
-import lhdt.anals.hello.service.SampleService;
-import lhdt.anals.hello.types.DefaultType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import lhdt.anals.common.AnalsConst;
+import dev.hyunlab.core.PpTransferObject;
 import lhdt.anals.common.AnalsController;
 import lhdt.anals.common.AnalsUtils;
+import lhdt.anals.hello.domain.Child;
 import lhdt.anals.hello.domain.Hello;
+import lhdt.anals.hello.domain.SubType0;
 import lhdt.anals.hello.service.HelloService;
+import lhdt.anals.hello.service.SampleService;
+import lhdt.anals.hello.types.DefaultType;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * sample controller
  * @author gravity@daumsoft.com
  *
  */
+@Slf4j
 @RestController
 @RequestMapping("/hello/")
 public class HelloController extends AnalsController {
@@ -41,52 +42,94 @@ public class HelloController extends AnalsController {
 	private SampleService sampleService;
 
 	@GetMapping()
-	public ResponseEntity<Map<String,Object>> helloWorld(){
+	public ResponseEntity<Map<String,Object>> helloWorld() throws Exception{
 		
 		//
 		Map<String,Object> map = new HashMap<>();
 		
-		//
-		Long helloId = AnalsUtils.getUniqueLong();
+		//등록
+		Hello afterRegistDomain = service.regist(Hello.builder().helloGroupId("abcd").helloGroupNo(1L) .build());
+		log.debug("afterRegistDomain:{}", afterRegistDomain);
+		
+		
+		//n건 조회
+		List<Hello> hellos = (List<Hello>) service.findAll();
+		log.debug("hellos:{} {}", hellos.size(), hellos);
+		
+		
+		//pk로 1건 조회
+		Hello hello = service.findById(41L);
+		log.debug("hello:{}", hello);
+				
+		
+		//1건 수정
+		hello.setCn("내용 내용");
+		service.update(hello.getId(), hello);
+		
+		
+		//domain을  Set에 추가. n건 수정
+		Set<Hello> domains = new HashSet<>();
+		domains.add(hello);
+		service.updateAll(domains);
+		
+		
+		//domain을 맵에 추가. n건 수정
+		Map<Long, Hello> domainMap = new HashMap<>();
+		domainMap.put(hello.getId(), hello);
+		service.updateAll(domainMap);
+		
+		
+		//업무키로 조회
+		Hello bizHello = service.findByBizKey(Hello.builder().helloGroupId("abcd").helloGroupNo(1L).build());
+		log.debug("bizHello:{}", bizHello);
 		
 		//
-		Hello h1 = Hello.builder()
-				.helloName("hello world")
-				.cn(new Date().toString())
-				.build();
+		PpTransferObject trans = AnalsUtils.doGet("http://www.daumsoft.com");
+		log.debug("{}", trans.getResultMessage());
 		
-		
-		//등록 by jpa
-		Hello saveResult = service.regist(h1);
-		map.put("saveResult", saveResult);
-		
-		//수정 by jpa
-		service.updt(h1);
-		
-		//조회 by mybatis
-		Hello data = service.findById(helloId);
-		map.put(AnalsConst.DATA, data);
-		
-		//전체목록 by mybatis
-		List<Hello> datas = service.findAll();
-		map.put(AnalsConst.DATAS, datas);
-		
-		//검색,페이징 조건
-		Hello searchHello = new Hello();
-		searchHello.setSearchHelloName("world");
-		searchHello.setOffset(0); //0부터 시작
-		searchHello.setPageSize(10);
-		
-		//검색 건수
-		int totcnt = service.findTotcnt(searchHello);
-		map.put(AnalsConst.TOTCNT, totcnt);
-		
-		//페이징
-		List<Hello> pagingDatas = service.findByPage(searchHello);
-		map.put("pagingDatas", pagingDatas);
+		return super.res(bizHello);
 		
 		//
-		return super.res(map);
+//		Long helloId = AnalsUtils.getUniqueLong();
+//		
+//		//
+//		Hello h1 = Hello.builder()
+//				.helloName("hello world")
+//				.cn(new Date().toString())
+//				.build();
+//		
+//		
+//		//등록 by jpa
+//		Hello saveResult = service.regist(h1);
+//		map.put("saveResult", saveResult);
+//		
+//		//수정 by jpa
+//		service.updt(h1);
+//		
+//		//조회 by mybatis
+//		Hello data = service.findById(helloId);
+//		map.put(AnalsConst.DATA, data);
+//		
+//		//전체목록 by mybatis
+//		List<Hello> datas = service.findAll();
+//		map.put(AnalsConst.DATAS, datas);
+//		
+//		//검색,페이징 조건
+//		Hello searchHello = new Hello();
+//		searchHello.setSearchHelloName("world");
+//		searchHello.setOffset(0); //0부터 시작
+//		searchHello.setPageSize(10);
+//		
+//		//검색 건수
+//		int totcnt = service.findTotcnt(searchHello);
+//		map.put(AnalsConst.TOTCNT, totcnt);
+//		
+//		//페이징
+//		List<Hello> pagingDatas = service.findByPage(searchHello);
+//		map.put("pagingDatas", pagingDatas);
+		
+		//
+//		return super.res(map);
 	}
 
 	/**

@@ -5,11 +5,13 @@ package lhdt.anals.hello.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 
-import dev.hyunlab.core.vo.PpVO;
+import lhdt.anals.common.AnalsField;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,6 +28,7 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 public class Hello extends Domain {
 	/**
 	 * 안녕 명
@@ -38,6 +41,20 @@ public class Hello extends Domain {
 	 */
 	@Column(name = "cn")
 	private String cn;
+	
+	/**
+	 * 업무키
+	 */
+	@Column(name="hello_group_id")
+	@AnalsField(bizKey = true, order = 0)
+	private String helloGroupId;
+	
+	/**
+	 * 업무키
+	 */
+	@Column(name="hello_group_no")
+	@AnalsField(bizKey = true, order = 1)
+	private Long helloGroupNo;
 	
 	/**
 	 * 검색조건 -  안녕 명
