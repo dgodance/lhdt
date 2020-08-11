@@ -1,5 +1,8 @@
 package lhdt.domain;
 
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Disabled;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -10,10 +13,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-import org.junit.jupiter.api.Test;
-
-import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
 class AttributeInsertSqlTest {
 
@@ -21,7 +20,7 @@ class AttributeInsertSqlTest {
 	String insertSqlFile = "C:\\data\\mago3d\\sql\\insert.txt";
 	String updateSqlFile = "C:\\data\\mago3d\\sql\\update.txt";
 	
-	@Test
+	@Disabled
 	void test() throws Exception {
 		File rootDirectory = new File(inputDirectory);
 		if(!rootDirectory.isDirectory()) {

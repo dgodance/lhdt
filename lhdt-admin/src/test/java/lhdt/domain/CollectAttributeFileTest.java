@@ -1,12 +1,11 @@
 package lhdt.domain;
 
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Disabled;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-
-import org.junit.jupiter.api.Test;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 class CollectAttributeFileTest {
@@ -14,7 +13,7 @@ class CollectAttributeFileTest {
 	String inputDirectory = "C:\\data\\lx";
 	String outDirectory = "C:\\data\\mago3d\\smart-tiling-attribute";
 	
-	@Test
+	@Disabled
 	void test() throws Exception {
 		File rootDirectory = new File(inputDirectory);
 		if(!rootDirectory.isDirectory()) {
