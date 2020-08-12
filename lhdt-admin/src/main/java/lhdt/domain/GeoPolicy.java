@@ -156,6 +156,9 @@ public class GeoPolicy {
   	private String layerSourceCoordinate;
   	// 레이어 좌표계 정의
   	private String layerTargetCoordinate;
+
+  	// extrusion model 가시화를 위한 shape 필수 속성명. 콤마로 구분
+	private String extrusionRequiredColumns;
  	
  	// 등록일
  	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
