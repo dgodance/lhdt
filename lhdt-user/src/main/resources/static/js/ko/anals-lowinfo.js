@@ -80,9 +80,8 @@ var LowInfoAnals = function(magoInstance) {
         }
         magoManager.once(Mago3D.Mago3D.MagoManager.EVENT_TYPE.CLICK, function(e) {
             deleteSolarMark();
-
         });
-    })
+    });
 
     var delteSolarMark = function() {
         var filtered = magoManager.objMarkerManager.objectMarkerArray.filter(function(om){

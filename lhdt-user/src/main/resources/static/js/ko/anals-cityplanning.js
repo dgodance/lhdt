@@ -4,21 +4,126 @@ var AnalsCityPlanning = function(viewer, magoInstance) {
     this._scene = viewer.scene;
     startDrawPolyLine();
 
+    var viewModel = {
+        standardFloorCount: 0,
+        buildingHeight: 20,
+        buildingAdjust: 0,
+    };
+    var allObject = {};
     $('#cityPlanAreaTestPoint').click(function(e) {
-    })
+    });
+
+    $("#inputBuildingHeight").change(()=> {
+        floorAreaRatioCalc();
+    });
+    $("#inputCustomizing").change(() => {
+        floorAreaRatioCalc();
+    });
 
     $('#cityPlanAreaTestBtn').click(function(e) {
-        $.ajax({
-            url: "http://localhost:8090/anals/gis/get_cityplan_data_by_point"
-        }).done(function(data) {
-            const jsonData = JSON.parse(data);
-            debugger;
-            const geojsonInfo = jsonData[0].geojson_info;
-            const geoJsonObj = JSON.parse(geojsonInfo);
-            viewer.dataSources.add(geoJsonObj);
-        })
-    })
+            const url = "http://localhost:8090/anals/gis/get_cityplan_data_by_point";
 
+            // const fileName = "schoolphill.geojson";
+            const obj = {
+                width : 5,
+                leadTime : 0,
+                trailTime : 100,
+                resolution : 5,
+                strokeWidth: 0,
+                stroke: Cesium.Color.AQUA.withAlpha(0.0),
+                fill: Cesium.Color.AQUA.withAlpha(0.8),
+                clampToGround: true
+            };
+
+        Cesium.GeoJsonDataSource.load(url, obj).then(function(dataSource) {
+            let entitis = dataSource.entities._entities._array;
+
+            for(let index in entitis) {
+                let entitiyObj = entitis[index];
+                let registeredEntity = _viewer.entities.add(entitiyObj);
+                registeredEntity.name = "sejong_church1";
+
+                // registeredEntity.polygon.extrudedHeightReference = 1;
+                registeredEntity.polygon.heightReference = 2;
+
+                Cesium.knockout.getObservable(viewModel, 'standardFloorCount').subscribe(
+                    function(newValue) {
+                        registeredEntity.polygon.extrudedHeight = newValue * 4;
+                    }
+                );
+                allObject[val].terrain = registeredEntity;
+            }
+            settingDistrictDisplay();
+            settingBuildingShadow();
+            // setTimeout(()=>{
+            _viewer.selectedEntity = allObject[pickedName].terrain;
+            // }, 500);
+            }, function(err) {
+                console.log(err);
+            });
+            settingDistrictDisplay();
+            settingBuildingShadow();
+            _viewer.selectedEntity = allObject[pickedName].terrain;
+    });
+    function settingDistrictDisplay() {
+        if (allObject[pickedName].terrain.show) {
+            $("#districtDisplay").val("enable");
+        } else {
+            $("#districtDisplay").val("disable");
+        }
+    }
+    function settingBuildingShadow() {
+        if (allObject[pickedName].shadowView) {
+            $("#buildingShadow").val("enable");
+        } else {
+            $("#buildingShadow").val("disable");
+        }
+    }
+    // 모든 빌딩들의 연면적 합
+    function totalAreaCalc(entityArray) {
+        let sum = 0;
+        entityArray.forEach(entity => {
+            sum += entity.totalBuildingFloorArea;
+        });
+        return sum;
+    }
+
+    // 건폐율 계산 및 view (건축면적 / 대지면적)
+    function buildingToLandRatioCalc() {
+        if (pickedName === "") {
+            alert("오브젝트를 먼저 선택해 주시기 바랍니다.");
+            return;
+        }
+        let plottage = parseFloat(allObject[pickedName].plottage); // 대지면적
+        let totalFloorArea = parseFloat(allObject[pickedName].totalFloorArea); // 총 건축면적
+
+        if (plottage === 0.0) {
+            return;
+        }
+        let result = (totalFloorArea / plottage) * 100.0;
+        if ($("#selectDistrict").val() === "ecodelta_district") {
+            result /= 4;
+        }
+        $("#curBuildingToLandRatio").val(result.toFixed(2));
+    }
+    // 용적율 계산 및 view (연면적 / 대지면적)
+    function floorAreaRatioCalc() {
+        if (pickedName === "") {
+            alert("오브젝트를 먼저 선택해 주시기 바랍니다.");
+            return;
+        }
+        let plottage = parseFloat(allObject[pickedName].plottage); // 대지면적
+        let totalArea = totalAreaCalc(allObject[pickedName].buildings); // 총 연면적
+
+        if (plottage === 0.0) {
+            return;
+        }
+        let result = (totalArea / plottage) * 100.0;
+        if ($("#selectDistrict").val() === "ecodelta_district") {
+            result /= 10;
+        }
+        $("#curFloorAreaRatio").val(result.toFixed(2));
+    }
     function startDrawPolyLine() {
         handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
 
