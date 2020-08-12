@@ -152,6 +152,7 @@
 <script type="text/javascript" th:src="@{/js/{lang}/simulation.js(lang=${lang})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/anals-buildheight.js(lang=${lang})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/anals-cityplanning.js(lang=${lang})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/anals-landscapedirect.js(lang=${lang})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/layer.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/map-data-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/map-init.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
@@ -433,6 +434,7 @@ document.getElementsByClassName('ds-movetop3')[0]
         Simulation(magoInstance);
 		AnalsBuildHeight(viewer, magoInstance);
 		AnalsCityPlanning(viewer, magoInstance);
+		AnalsLandScapeDirection(viewer, magoInstance);
         // 환경 설정.
         UserPolicy(magoInstance);
         // 시민참여

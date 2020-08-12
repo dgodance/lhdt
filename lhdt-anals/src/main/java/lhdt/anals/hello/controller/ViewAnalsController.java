@@ -58,6 +58,12 @@ public class ViewAnalsController extends AnalsController {
         return result;
     }
 
+    /**
+     * Test를 위한 SHP2DB 생성 Command line
+     *
+     * ogr2ogr -s_srs EPSG:4326 -t_srs EPSG:4326 --config SHAPE_ENCODING CP949 -f PostgreSQL "PG:host=localhost port=15432 dbname=lhdt user=postgres password=postgres" filePath -nlt PROMOTE_TO_MULTI -nln ggg
+     * @return
+     */
     @GetMapping("get_cityplan_data_by_point")
     public String getCityPlanDataByPoint() {
         String result = "";
