@@ -2,6 +2,7 @@ package lhdt.domain;
 
 import lombok.*;
 import org.hibernate.validator.constraints.Range;
+import org.locationtech.jts.geom.Geometry;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
@@ -85,10 +86,18 @@ public class ExtrusionModel extends Search implements Serializable {
     private String coordinate;
     // 설명
     private String description;
+
+    private Geometry theGeom;
+    private String attributes;
     
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime updateDate;
 
 	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime insertDate;
+
+	public enum RequiredColumn {
+        ATTRIBUTES,
+        THE_GEOM
+    }
 }

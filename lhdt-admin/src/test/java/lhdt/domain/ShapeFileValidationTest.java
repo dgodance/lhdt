@@ -1,30 +1,32 @@
 package lhdt.domain;
 
+import org.geotools.data.shapefile.dbf.DbaseFileHeader;
+import org.geotools.data.shapefile.dbf.DbaseFileReader;
+import org.geotools.data.shapefile.files.ShpFiles;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.geotools.data.shapefile.dbf.DbaseFileHeader;
-import org.geotools.data.shapefile.dbf.DbaseFileReader;
-import org.geotools.data.shapefile.files.ShpFiles;
-import org.junit.jupiter.api.Test;
-
 
 public class ShapeFileValidationTest {
-	
+
+	@Disabled
 	public void test() {
 		DbaseFileReader r = null;
         try {
-            ShpFiles shpFile = new ShpFiles("D:\\data\\boundary\\sk_emd\\sk_emd_20200115100910_230251955674700.shp");
+            ShpFiles shpFile = new ShpFiles("D:\\layer_lot_number_00000000.shp");
             r = new DbaseFileReader(shpFile, false, Charset.forName("CP949"));
             DbaseFileHeader header = r.getHeader();
             
             // 필드수
             int filedValidCount = 0;
             int numFields = header.getNumFields();
-            for(int iField=0; iField < numFields; ++iField) {
+            for(int iField=0; iField < numFields; iField++) {
                 String fieldName = header.getFieldName(iField);
                 System.out.println(fieldName);
                 if(ShapeFileField.findBy(fieldName) != null) filedValidCount++;
