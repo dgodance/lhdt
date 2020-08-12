@@ -3,8 +3,6 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
     this._viewer = viewer;
     this._scene = viewer.scene;
 
-    viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
-
     this._polylines = [];
     this._labels = [];
     this._polyPoint = [];

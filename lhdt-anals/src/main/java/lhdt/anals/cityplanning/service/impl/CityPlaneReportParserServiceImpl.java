@@ -22,7 +22,7 @@ public class CityPlaneReportParserServiceImpl {
                 String value = "";
                 if(cell.getCellType() == HSSFCell.CELL_TYPE_BLANK){
                     value="";
-                }else{
+                } else {
                     //타입별로 내용 읽기
                     switch (cell.getCellType()){
                         case HSSFCell.CELL_TYPE_FORMULA:
