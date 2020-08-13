@@ -6,8 +6,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum UpDownType {
-    UP(0),
-    DOWN(1);
+    이상(0),
+    이하(1);
 
     private Integer code;
 }

@@ -1,5 +1,6 @@
 package lhdt.svc.cityplanning.controller;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +11,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+
 import lhdt.svc.cityplanning.domain.CityPlanReportDetail;
 import lhdt.svc.cityplanning.service.CityPlanReportDetailService;
+import lhdt.svc.cityplanning.service.CityPlanReportParserService;
 import lhdt.svc.common.SvcController;
 
 @RestController
@@ -20,6 +24,9 @@ public class CityPlanAreaController extends SvcController {
 
     @Autowired
     private CityPlanReportDetailService cityPlanReportDetailService;
+
+    @Autowired
+    private CityPlanReportParserService cityPlanReportParserService;
 
     /**
      * 모든 LowInfo 정보를 가지고 옵니다
@@ -109,5 +116,28 @@ public class CityPlanAreaController extends SvcController {
     public boolean deleteExample(Integer id) {
         this.cityPlanReportDetailService.deleteAllById(Long.valueOf(id));
         return true;
+    }
+
+    @GetMapping("/area")
+    public Object getMockAreaByFilePath(String fileName) {
+        return super.file2Object("D:\\data\\dumi_sample\\" + fileName);
+    }
+
+    @GetMapping("cityplanExcel")
+    public List<CityPlanReportDetail> getCityPlanExcel() {
+        String fullFilePath = "D:\\Depot_Paper\\2020_LH디지털트윈1단계구축\\기본데이터셋\\sample_excel.xlsx";
+        List<CityPlanReportDetail> p = null;
+        try {
+            p = this.cityPlanReportParserService.procExcelDataByCityPlan(fullFilePath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if(p == null)
+            throw new NullPointerException();
+        for(var obj : p) {
+            obj.setCityPlanId(Long.valueOf(0));
+            this.cityPlanReportDetailService.registByUk(obj);
+        }
+        return p;
     }
 }
