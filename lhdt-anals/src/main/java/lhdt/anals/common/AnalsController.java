@@ -3,10 +3,15 @@
  */
 package lhdt.anals.common;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -79,5 +84,22 @@ public class AnalsController {
 		
 		//
 		return new ResponseEntity<>(map, hs);
+	}
+
+	/**
+	 * 파일을 Object 형태로 리턴
+	 * @param 
+	 * @return
+	 */
+	protected Object file2Object(String filePath) {
+		File fi = new File(filePath);
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			InputStream targetStream = new FileInputStream(fi);
+			return mapper.readValue(targetStream, Object.class);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

@@ -67,7 +67,7 @@ public class ViewAnalsController extends AnalsController {
         try {
             ObjectMapper mapper = new ObjectMapper();
             InputStream targetStream = new FileInputStream(fi);
-            return super.res(mapper.readValue(targetStream, Object.class));
+            var result = mapper.readValue(targetStream, Object.class);
         } catch (IOException e) {
             e.printStackTrace();
         }

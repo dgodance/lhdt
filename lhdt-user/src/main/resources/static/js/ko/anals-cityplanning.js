@@ -21,49 +21,54 @@ var AnalsCityPlanning = function(viewer, magoInstance) {
     });
 
     $('#cityPlanAreaTestBtn').click(function(e) {
-            const url = "http://localhost:8090/anals/gis/get_cityplan_data_by_point";
+        debugger;
+        const url = "http://localhost:8090/anals/cityplanning/area";
+        const obj = {
+            width : 5,
+            leadTime : 0,
+            trailTime : 100,
+            resolution : 5,
+            strokeWidth: 0,
+            stroke: Cesium.Color.AQUA.withAlpha(0.0),
+            fill: Cesium.Color.AQUA.withAlpha(0.8),
+            clampToGround: true
+        };
 
-            // const fileName = "schoolphill.geojson";
-            const obj = {
-                width : 5,
-                leadTime : 0,
-                trailTime : 100,
-                resolution : 5,
-                strokeWidth: 0,
-                stroke: Cesium.Color.AQUA.withAlpha(0.0),
-                fill: Cesium.Color.AQUA.withAlpha(0.8),
-                clampToGround: true
-            };
+        $.ajax({
+            url: url,
+            method: 'GET',
+            dataType: 'json'
+        }).done(function(datas) {
+            debugger;
+            for ( var obj of datas ) {
+                Cesium.GeoJsonDataSource.load(JSON.parse(obj.st_asgeojson))
+                    .then(dataSource => {
+                        debugger;
+                        let entitis = dataSource.entities._entities._array;
+                        for(let index in entitis) {
+                            let entitiyObj = entitis[index];
+                            let registeredEntity = _viewer.entities.add(entitiyObj);
+                            registeredEntity.name = "sejong_church1";
 
-        Cesium.GeoJsonDataSource.load(url, obj).then(function(dataSource) {
-            let entitis = dataSource.entities._entities._array;
+                            registeredEntity.polygon.extrudedHeightReference = 1;
+                            registeredEntity.polygon.heightReference = 2;
 
-            for(let index in entitis) {
-                let entitiyObj = entitis[index];
-                let registeredEntity = _viewer.entities.add(entitiyObj);
-                registeredEntity.name = "sejong_church1";
-
-                // registeredEntity.polygon.extrudedHeightReference = 1;
-                registeredEntity.polygon.heightReference = 2;
-
-                Cesium.knockout.getObservable(viewModel, 'standardFloorCount').subscribe(
-                    function(newValue) {
-                        registeredEntity.polygon.extrudedHeight = newValue * 4;
-                    }
-                );
-                allObject[val].terrain = registeredEntity;
+                            // Cesium.knockout.getObservable(viewModel, 'standardFloorCount').subscribe(
+                            //     function(newValue) {
+                            //         registeredEntity.polygon.extrudedHeight = newValue * 4;
+                            //     }
+                            // );
+                            allObject[val].terrain = registeredEntity;
+                        }
+                        // settingDistrictDisplay();
+                        // settingBuildingShadow();
+                        _viewer.selectedEntity = allObject[pickedName].terrain;
+                    });
             }
-            settingDistrictDisplay();
-            settingBuildingShadow();
-            // setTimeout(()=>{
-            _viewer.selectedEntity = allObject[pickedName].terrain;
-            // }, 500);
-            }, function(err) {
-                console.log(err);
-            });
-            settingDistrictDisplay();
-            settingBuildingShadow();
-            _viewer.selectedEntity = allObject[pickedName].terrain;
+        }).fail(function(xhr, status, errorThrown) {
+            debugger;
+            console.log(status);
+        })
     });
     function settingDistrictDisplay() {
         if (allObject[pickedName].terrain.show) {
