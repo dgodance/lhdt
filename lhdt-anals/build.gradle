@@ -116,8 +116,12 @@ dependencies {
     compile group: 'org.hibernate', name: 'hibernate-spatial', version: '5.1.0.Final'
     // https://mvnrepository.com/artifact/org.apache.poi/poi
     compile group: 'org.apache.poi', name: 'poi', version: '3.9'
+     // https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient
+	compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.12'
+	compile group: 'org.apache.httpcomponents', name: 'httpcore', version: '4.4.13'
+	compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.12'
 
-
+    //
     compile(files('libs/pp-core-1.8.2004.jar'))
 }
 
