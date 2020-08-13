@@ -171,7 +171,7 @@ public class HelloController extends AnalsController {
 	@GetMapping("/insert")
 	public SubType0 insertExample() {
 		var sp = new SubType0();
-		sp.setHelloName("a");
+		sp.setHelloName("김도현");
 		sp.setCn("a");
 		sp.setDefaultType(DefaultType.First);
 		var p = this.sampleService.registByUk(sp);

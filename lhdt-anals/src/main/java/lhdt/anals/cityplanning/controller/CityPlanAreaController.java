@@ -2,14 +2,17 @@ package lhdt.anals.cityplanning.controller;
 
 import lhdt.anals.cityplanning.domain.CityPlanReportDetail;
 import lhdt.anals.cityplanning.service.CityPlanReportDetailService;
+import lhdt.anals.cityplanning.service.CityPlanReportParserService;
 import lhdt.anals.common.AnalsController;
 import lhdt.anals.hello.domain.Child;
 import lhdt.anals.hello.domain.SubType0;
 import lhdt.anals.hello.service.SampleService;
 import lhdt.anals.hello.types.DefaultType;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -18,6 +21,9 @@ public class CityPlanAreaController extends AnalsController {
 
     @Autowired
     private CityPlanReportDetailService cityPlanReportDetailService;
+
+    @Autowired
+    private CityPlanReportParserService cityPlanReportParserService;
 
     /**
      * 모든 LowInfo 정보를 가지고 옵니다
@@ -107,5 +113,28 @@ public class CityPlanAreaController extends AnalsController {
     public boolean deleteExample(Integer id) {
         this.cityPlanReportDetailService.deleteAllById(Long.valueOf(id));
         return true;
+    }
+
+    @GetMapping("/area")
+    public Object getMockAreaByFilePath(String fileName) {
+        return super.file2Object("D:\\data\\dumi_sample\\" + fileName);
+    }
+
+    @GetMapping("cityplanExcel")
+    public List<CityPlanReportDetail> getCityPlanExcel() {
+        String fullFilePath = "D:\\Depot_Paper\\2020_LH디지털트윈1단계구축\\기본데이터셋\\sample_excel.xlsx";
+        List<CityPlanReportDetail> p = null;
+        try {
+            p = this.cityPlanReportParserService.procExcelDataByCityPlan(fullFilePath);
+        } catch (IOException | InvalidFormatException e) {
+            e.printStackTrace();
+        }
+        if(p == null)
+            throw new NullPointerException();
+        for(var obj : p) {
+            obj.setCityPlanId(Long.valueOf(0));
+            this.cityPlanReportDetailService.registByUk(obj);
+        }
+        return p;
     }
 }
