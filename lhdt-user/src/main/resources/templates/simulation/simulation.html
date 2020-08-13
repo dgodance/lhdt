@@ -132,5 +132,57 @@
 		</div>
 	</li>
 </ul>
+
+<style>
+#skylineModal > h2 {color:#333;}
+.ds-image {display: none;}
+.ds-image.on {display: block;}
+.ds-image-skyline {display: none;}
+.ds-image-skyline.on {display: block;}
+.ds-image-thumb {margin-bottom: 5px; cursor: pointer;}
+.ds-image-skyline-thumb {margin-bottom: 5px; cursor: pointer;}
+</style>
+
+<!-- skylineModal -->
+<div class="dialog" role="dialog" id="skylineModal" style="display:none;">
+	<div style="float:left; width:85%">
+		<div>
+			<img class="ds-image" data-index="0"/>
+		</div>
+		<div>
+			<img class="ds-image" data-index="1"/>
+		</div>
+		<div>
+			<img class="ds-image" data-index="2"/>
+		</div>
+		<div>
+			<img class="ds-image-skyline" data-index="0" />
+		</div>
+		<div>
+			<img class="ds-image-skyline" data-index="1" />
+		</div>
+		<div>
+			<img class="ds-image-skyline" data-index="2" />
+		</div>
+	</div>
+	
+	<div style="float:right; width:10%">
+		<div>
+			<h2>원본</h2>
+			<img class="ds-image-thumb" alt="원경 썸네일" title="원경" width="64" height="64" data-index="0">
+			<img class="ds-image-thumb" alt="중경 썸네일" title="중경" width="64" height="64" data-index="1">
+			<img class="ds-image-thumb" alt="근경 썸네일" title="근경" width="64" height="64" data-index="2">
+		</div>
+		<div>
+			<h2 style="margin-top:10px;">스카이라인</h2>
+			<img th:src="@{/images/ko/no_page.png}" class="ds-image-skyline-thumb" alt="원경 스카이라인 썸네일" title="원경 스카이라인" width="64" height="64" data-index="0">
+			<img th:src="@{/images/ko/no_page.png}" class="ds-image-skyline-thumb" alt="중경 스카이라인 썸네일" title="중경 스카이라인" width="64" height="64" data-index="1">
+			<img th:src="@{/images/ko/no_page.png}" class="ds-image-skyline-thumb" alt="근경 스카이라인 썸네일" title="근경 스카이라인" width="64" height="64" data-index="2">
+		</div>
+	</div>
+	
+</div>
+<!-- //skylineModal -->
+
 </div>
 </html>
