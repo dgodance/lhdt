@@ -2,6 +2,7 @@ package lhdt.svc.hello.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Table;
 
 import org.springframework.data.geo.Point;
 
@@ -13,6 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
+@Table(name="view_anals_loca")
 @Getter
 @Setter
 @Builder

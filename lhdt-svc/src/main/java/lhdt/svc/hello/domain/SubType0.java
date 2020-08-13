@@ -10,6 +10,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -26,6 +27,7 @@ import lombok.Setter;
  */
 @SuppressWarnings("serial")
 @Entity
+@Table(name="subtype0")
 @Getter
 @Setter
 @AllArgsConstructor

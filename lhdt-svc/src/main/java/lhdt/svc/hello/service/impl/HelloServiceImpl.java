@@ -27,7 +27,7 @@ public class HelloServiceImpl extends SvcServiceImpl<HelloRepository, HelloMappe
 	
 	@Autowired
 	private void init() {
-		super.set(jpaRepo, mapper, new Hello());
+		super.set(jpaRepo, mapper, Hello.builder().build());
 	}
 	
 

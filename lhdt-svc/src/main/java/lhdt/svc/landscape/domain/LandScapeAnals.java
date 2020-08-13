@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.Table;
 
 import org.springframework.data.geo.Point;
 
@@ -20,6 +21,7 @@ import lombok.Setter;
  * landScapeAnalsName, startLandScape, endLandScape
  */
 @Entity
+@Table(name="landscape_anals")
 @Getter
 @Setter
 @AllArgsConstructor

@@ -1,6 +1,7 @@
 package lhdt.svc.hello.domain;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Table;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
+@Table(name="subtype1")
 @Getter
 @Setter
 @Builder

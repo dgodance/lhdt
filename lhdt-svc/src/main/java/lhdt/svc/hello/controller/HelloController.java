@@ -60,8 +60,10 @@ public class HelloController extends SvcController {
 				
 		
 		//1건 수정
-		hello.setCn("내용 내용");
-		service.update(hello.getId(), hello);
+		if(null != hello) {
+			hello.setCn("내용 내용");
+			service.update(hello.getId(), hello);			
+		}
 		
 		
 		//domain을  Set에 추가. n건 수정
@@ -71,9 +73,11 @@ public class HelloController extends SvcController {
 		
 		
 		//domain을 맵에 추가. n건 수정
-		Map<Long, Hello> domainMap = new HashMap<>();
-		domainMap.put(hello.getId(), hello);
-		service.updateAll(domainMap);
+		if(null != hello) {
+			Map<Long, Hello> domainMap = new HashMap<>();
+			domainMap.put(hello.getId(), hello);
+			service.updateAll(domainMap);
+		}
 		
 		
 		//업무키로 조회

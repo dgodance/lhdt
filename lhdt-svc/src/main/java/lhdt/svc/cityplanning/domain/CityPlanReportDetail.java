@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.Table;
 
 import lhdt.svc.cityplanning.types.UpDownType;
 import lhdt.svc.common.Domain;
@@ -18,6 +19,7 @@ import lombok.Setter;
  * id, cityPlanId
  */
 @Entity
+@Table(name="city_plan_report_detail")
 @Getter
 @Setter
 @AllArgsConstructor
