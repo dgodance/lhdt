@@ -19,7 +19,6 @@ public class CityPlanAreaController extends AnalsController {
     @Autowired
     private CityPlanReportDetailService cityPlanReportDetailService;
 
-
     /**
      * 모든 LowInfo 정보를 가지고 옵니다
      * @return

@@ -79,7 +79,6 @@
 			</ul>
 		</div>
 	</li>
-
 	<li class="on">
 		<p th:text="높이시뮬레이션"><span class="collapse-icon">icon</span></p>
 		<div id="heightAnalsProcess" class="listContents">
@@ -89,6 +88,46 @@
 					<input type="checkbox" id="heightAnalsObserverPoint" value="" placeholder=""/>
 					<button type="button" id="heightAnalsObserverBtn" th:text="작동"></button>
 				</li>
+			</ul>
+		</div>
+	</li>
+	<li class="on">
+		<p th:text="용적건폐율실험"><span class="collapse-icon">icon</span></p>
+		<div id="cityPlanAreaTest" class="listContents">
+			<ul>
+				<li>
+					<label for="cityPlanAreaTestPoint" th:text="활성화"></label>
+					<input type="checkbox" id="cityPlanAreaTestPoint" value="" placeholder=""/>
+					<button type="button" id="cityPlanAreaTestBtn" th:text="작동"></button>
+				</li>
+			</ul>
+		</div>
+	</li>
+	<li class="on">
+		<p th:text="시곡면실험"><span class="collapse-icon">icon</span></p>
+		<div id="landScapeDirectionTest" class="listContents">
+			<ul>
+				<li>
+					<label for="landScapeDirectionToggle" th:text="활성화"></label>
+					<input type="checkbox" id="landScapeDirectionToggle" value="" placeholder=""/>
+					<button type="button" id="calcLandScapeDirection" th:text="작동"></button>
+				</li>
+			</ul>
+		</div>
+	</li>
+
+	<li class="on">
+		<p th:text="스카이라인"><span class="collapse-icon">icon</span></p>
+		<div id="skyline" class="listContents">
+			<ul>
+				<li><a href="#" class="ds-flyto">1. flyto(테스트 위치로 이동)</a></li>
+				<li><a href="#" class="ds-points2">2. draw 2 points(사용자가 두점 선택했다치고...)</a></li>
+				<li><a href="#" class="ds-points3">3. 3점 계산&표시</a></li>
+				<li><a href="#" class="ds-movetop1">4-1. move to 원경</a></li>
+				<li><a href="#" class="ds-movetop2">4-2. move to 중경</a></li>
+				<li><a href="#" class="ds-movetop3">4-3. move to 근경</a></li>
+				<li><a href="#" class="ds-autoall">※ 자동으로 원/중/근경 이동 & 지도 캡처 & 이미지표시</a></li>
+				<li><a href="#" class="ds-show-modal">모달 표시</a></li>
 			</ul>
 		</div>
 	</li>

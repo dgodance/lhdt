@@ -1,13 +1,11 @@
 var AnalsBuildHeight = function(viewer, magoInstance) {
-    debugger;
     var magoManager = magoInstance.getMagoManager();
     this._viewer = viewer;
     this._scene = viewer.scene;
 
-    viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
-
     this._polylines = [];
     this._labels = [];
+    this._polyPoint = [];
 
     var that = this;
     var handler = null;
@@ -43,9 +41,41 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
         }
     });
 
+    function getColor(v, min, max) {
+        function getC(f, l, r) {
+            return {
+                r: Math.floor((1 - f) * l.r + f * r.r),
+                g: Math.floor((1 - f) * l.g + f * r.g),
+                b: Math.floor((1 - f) * l.b + f * r.b),
+            };
+        }
+
+        var left = { r: 255, g: 0, b: 0 },
+            middle = { r: 0, g: 255, b: 0 },
+            right = { r: 0, g: 0, b: 255 },
+            mid = (max - min) / 2;
+
+        return v < min + mid ?
+            getC((v - min) / mid, left, middle) :
+            getC((v - min - mid) / mid, middle, right);
+    }
+
     $('#heightAnalsObserverBtn').click(function() {
-        debugger;
-        console.log(activeShapePoints);
+        $.ajax({
+            url: "http://localhost:8090/anals/gis/get_data_info_by_poly"
+        }).done(function(data) {
+            const jsonData = JSON.parse(data);
+
+            min = 0;
+            max = jsonData.length;
+            for(var p in jsonData) {
+                var obj = jsonData[p];
+                var color = getColor(p, min, max);
+                console.log(color);
+                changeColorAPI(magoInstance, obj.data_group_id, obj.data_key, null,
+                    'isPhysical=true', color.r + ',' + color.g + ',' + color.b)
+            }
+        })
     })
 
     function startDrawPolyLine() {
@@ -86,6 +116,10 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
                 else {
                     this._labels.push(drawLabel(tempPosition));
                 }
+                this._polyPoint.push({
+                    lon: Cesium.Math.toDegrees(cartographic.longitude),
+                    lat: Cesium.Math.toDegrees(cartographic.latitude)
+                });
                 this._polylines.push(createPoint(tempPosition));
             }
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK);

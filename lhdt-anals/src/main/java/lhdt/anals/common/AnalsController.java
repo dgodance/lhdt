@@ -21,10 +21,12 @@ public class AnalsController {
 
 	/**
 	 * ResponseEntity 생성&리턴
+	 * 2020/08/12 Modified - <T extend Domain> -> <T>
+	 *
 	 * @param t Domain의 자식
 	 * @return
 	 */
-	protected <T extends Domain> ResponseEntity<Map<String,Object>> res(T t){
+	protected <T> ResponseEntity<Map<String,Object>> res(T t){
 		
 		//
 		Map<String,Object> map = new HashMap<>();
