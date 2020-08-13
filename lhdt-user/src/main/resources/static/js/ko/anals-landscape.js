@@ -6,7 +6,7 @@ const ViewPoint = {'A':0, 'B':1, 'C':2};
 const xyz1 = {'lon':127.2827, 'lat':36.4780};	//시작점
 const xyz2 = {'lon':127.2925, 'lat':36.4824};	//종료점
 
-const PREDICT_SERVER_URL = 'http://localhost:8090/anals/landscape_anals/uploadFileAndGetSkylineImage';
+const PREDICT_SERVER_URL = 'http://localhost:8090/svc/landscape_anals/uploadFileAndGetSkylineImage';
 
 
 /**
@@ -97,6 +97,8 @@ SkylineObj.prototype.setEventHandler = function(){
 			the.uploadBlobAndGetSkylineImageAll(function(){
 				console.log('<<.uploadBlobAndGetSkylineImageAll');
 								
+				//
+				alert('스카이라인 분석이 완료되었습니다.');
 				document.querySelector('body').style.cursor = 'default';
 			});
 		});
