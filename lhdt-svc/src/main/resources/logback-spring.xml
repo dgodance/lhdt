@@ -30,9 +30,10 @@
 	<logger name="org.apache.commons" level="debug" additivity="false" />
 	<logger name="org.springframework" level="debug" additivity="false" />
 	<!-- <logger name="org.springframework.web" level="info" additivity="false" /> -->
-	<logger name="com.zaxxer.hikari.pool.HikariPool" level="debug" additivity="false" />
-	<logger name="org.hibernate" level="debug" additivity="false" />
-	<logger name="lhdt.svc" level="debug" additivity="false" />
+	<logger name="com.zaxxer" level="debug"  />
+	<logger name="org.hibernate" level="trace"  />
+	<logger name="org.mybatis" level="trace"  />
+	<logger name="lhdt.svc" level="debug"  />
 	
 	<root level="debug">
 		<appender-ref ref="STDOUT" />
