@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lhdt.svc.landscape.model.LandScapeAnalsParam;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
@@ -19,16 +20,10 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.geo.Point;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
@@ -58,8 +53,8 @@ public class LandScapeAnalsController extends SvcController {
 	 * 모든 LowInfo 정보를 가지고 옵니다
 	 * @return
 	 */
-	@GetMapping("/select")
-	public List<LandScapeAnals> getCityPlanReportDet() {
+	@GetMapping("/select_all")
+	public List<LandScapeAnals> getLandScapeAll() {
 		return this.landScapeAnalsService.findAll();
 	}
 
@@ -67,8 +62,8 @@ public class LandScapeAnalsController extends SvcController {
 	 * id에 부합하는 LowInfo 정보를 가지고 옵니다
 	 * @return
 	 */
-	@GetMapping("/select_one")
-	public List<LandScapeAnals> getCityPlanReportDetOne(Integer id) {
+	@GetMapping("/select")
+	public List<LandScapeAnals> getLandScapeAllById(Integer id) {
 		return this.landScapeAnalsService.findAllById(Long.valueOf(id));
 	}
 
@@ -90,8 +85,22 @@ public class LandScapeAnalsController extends SvcController {
 	 * @return
 	 */
 	@PostMapping(path = "/insert")
-	public LandScapeAnals insertCityPlanReportDet(LandScapeAnals cprd) {
-		var p = this.landScapeAnalsService.registByUk(cprd);
+	public LandScapeAnals insertCityPlanReportDet(LandScapeAnalsParam cprd) {
+		LandScapeAnals lsa = new LandScapeAnals();
+		lsa.setLandScapeAnalsName(cprd.getLandScapeAnalsName());
+
+		if(cprd.getStartPosX() != null && cprd.getStartPosY() != null) {
+			Point p0 = new Point(cprd.getStartPosX(), cprd.getStartPosY());
+			lsa.setStartLandScapePos(p0);
+			lsa.setStartAltitude(cprd.getStartPosZ());
+		}
+		if(cprd.getEndPosX() != null && cprd.getEndPosY() != null) {
+			Point p1 = new Point(cprd.getEndPosX(), cprd.getEndPosY());
+			lsa.setEndLandScapePos(p1);
+			lsa.setEndAltitude(cprd.getEndPosZ());
+		}
+		lsa.setLandScapeAnalsType(cprd.getLandScapeAnalsType());
+		var p = this.landScapeAnalsService.registByUk(lsa);
 		if (p == null) {
 			return null;
 		} else {
@@ -108,8 +117,8 @@ public class LandScapeAnalsController extends SvcController {
 	public LandScapeAnals updateCityPlanReportDet(LandScapeAnals cprdt) {
 		var p = this.landScapeAnalsService.findOneById(cprdt.getId());
 		p.setLandScapeAnalsName(cprdt.getLandScapeAnalsName());
-		p.setStartLandScape(cprdt.getStartLandScape());
-		p.setEndLandScape(cprdt.getEndLandScape());
+		p.setStartLandScapePos(cprdt.getStartLandScapePos());
+		p.setEndLandScapePos(cprdt.getEndLandScapePos());
 		p.setLandScapeAnalsType(cprdt.getLandScapeAnalsType());
 		p = this.landScapeAnalsService.update(p);
 		if(p == null) {

@@ -31,10 +31,16 @@ public class LandScapeAnals extends Domain {
     private String landScapeAnalsName;
 
     @Column(name = "start_land_scape")
-    private Point startLandScape;
+    private Point startLandScapePos;
 
     @Column(name = "end_land_scape")
-    private Point endLandScape;
+    private Point endLandScapePos;
+
+    @Column(name = "start_alt")
+    private Double startAltitude;
+
+    @Column(name = "end_alt")
+    private Double endAltitude;
 
     @Enumerated(EnumType.ORDINAL)
     LandScapeAnalsType landScapeAnalsType;

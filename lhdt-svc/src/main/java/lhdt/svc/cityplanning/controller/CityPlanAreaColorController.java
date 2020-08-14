@@ -29,9 +29,6 @@ public class CityPlanAreaColorController extends SvcController {
     @GetMapping("/init")
     public String initCityPlanAreaColorData() throws IOException {
         List<CityPlanAreaColor> result = new ArrayList<>();
-        // result.add(CityPlanAreaColor.builder().areaName("단독주택").areaNmSumy(null).color("#ffff81").build());
-//        return this.cityPlanAreaColorService.registAllByUk();
-
         ClassPathResource resource = new ClassPathResource("data/cityplanareacolor.txt");
         try {
             Path path = Paths.get(resource.getURI());

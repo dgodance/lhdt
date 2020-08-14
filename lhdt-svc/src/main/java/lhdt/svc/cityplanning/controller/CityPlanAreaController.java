@@ -141,4 +141,9 @@ public class CityPlanAreaController extends SvcController {
         }
         return this.cityPlanReportDetailService.registAllByUk(p);
     }
+
+    @PostMapping("")
+    public void postShpProcess() {
+
+    }
 }
