@@ -28,11 +28,6 @@ public class LandScapeAnalsServiceImpl extends LandScapeAnalsService {
     }
 
     @Override
-    public LandScapeAnals findById(Long id) {
-        return this.landScapeAnalsRepository.findById(id).orElse(null);
-    }
-
-    @Override
     public List<LandScapeAnals> findAllById(Long id) {
         ArrayList<LandScapeAnals> result = new ArrayList<>();
         this.landScapeAnalsRepository.findAll().forEach(result::add);

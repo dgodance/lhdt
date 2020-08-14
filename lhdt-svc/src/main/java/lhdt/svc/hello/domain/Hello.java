@@ -9,10 +9,7 @@ import javax.persistence.Table;
 
 import lhdt.svc.common.Domain;
 import lhdt.svc.common.SvcField;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 /**
  * 안녕 
@@ -21,9 +18,10 @@ import lombok.NoArgsConstructor;
  */
 @Entity
 @Table(name="hello")
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 @Builder
 public class Hello extends Domain {
 	/**

@@ -32,11 +32,6 @@ public class LowInfoDetServiceImpl extends LowInfoDetService {
     }
 
     @Override
-    public LowInfoDet findById(Long id) {
-        return this.lowInfoDetRepository.findById(id).orElse(null);
-    }
-
-    @Override
     public List<LowInfoDet> findAllById(Long id) {
         ArrayList<LowInfoDet> result = new ArrayList<LowInfoDet>();
         this.lowInfoDetRepository.findAll().forEach(result::add);

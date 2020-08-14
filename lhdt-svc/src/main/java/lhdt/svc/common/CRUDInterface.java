@@ -22,13 +22,6 @@ public interface CRUDInterface<T> {
     List<T> findAll();
 
     /**
-     * Id를 통해 VO를 가져옵니다
-     * @param id
-     * @return
-     */
-    T findById(Long id);
-
-    /**
      * Id를 통해 모든 VO를 가져옵니다
      * @param id
      * @return

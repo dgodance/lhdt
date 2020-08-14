@@ -72,7 +72,7 @@ public class LandScapeDiffController extends SvcController {
      */
     @PutMapping("/update")
     public LandScapeDiff updateCityPlanReportDet(LandScapeDiff cprdt) {
-        var p = this.landScapeDiffService.findById(cprdt.getId());
+        var p = this.landScapeDiffService.findOneById(cprdt.getId());
         p.setLandScapeDiffName(cprdt.getLandScapeDiffName());
         p = this.landScapeDiffService.update(p);
         if(p == null) {

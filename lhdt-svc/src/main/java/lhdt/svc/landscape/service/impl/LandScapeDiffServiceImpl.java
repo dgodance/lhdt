@@ -28,11 +28,6 @@ public class LandScapeDiffServiceImpl extends LandScapeDiffService {
     }
 
     @Override
-    public LandScapeDiff findById(Long id) {
-        return this.landScapeDiffRepository.findById(id).orElse(null);
-    }
-
-    @Override
     public List<LandScapeDiff> findAllById(Long id) {
         ArrayList<LandScapeDiff> result = new ArrayList<>();
         this.landScapeDiffRepository.findAll().forEach(result::add);

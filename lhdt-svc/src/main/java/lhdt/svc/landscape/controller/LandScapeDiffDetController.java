@@ -74,7 +74,7 @@ public class LandScapeDiffDetController extends SvcController {
      */
     @PutMapping("/update")
     public LandScapeDiffDet updateCityPlanReportDet(LandScapeDiffDet cprdt) {
-        var p = this.landScapeDiffDetService.findById(cprdt.getId());
+        var p = this.landScapeDiffDetService.findOneById(cprdt.getId());
         p.setFileName(cprdt.getFileName());
         p.setFilePath(cprdt.getFilePath());
         p = this.landScapeDiffDetService.update(p);

@@ -28,11 +28,6 @@ public class LowInfoServiceImpl extends LowInfoService {
     }
 
     @Override
-    public LowInfo findById(Long id) {
-        return this.lowInfoRepository.findById(id).orElse(null);
-    }
-
-    @Override
     public List<LowInfo> findAllById(Long id) {
         ArrayList<LowInfo> result = new ArrayList<LowInfo>();
         this.lowInfoRepository.findAll().forEach(result::add);

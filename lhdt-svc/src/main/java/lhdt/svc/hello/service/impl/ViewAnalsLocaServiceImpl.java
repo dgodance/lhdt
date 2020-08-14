@@ -29,11 +29,6 @@ public class ViewAnalsLocaServiceImpl extends ViewAnalsLocaService {
     }
 
     @Override
-    public ViewAnalsLoca findById(Long id) {
-        return this.viewAnalsLocaRepository.findById(id).orElse(null);
-    }
-
-    @Override
     public List<ViewAnalsLoca> findAllById(Long id) {
         ArrayList<ViewAnalsLoca> result = new ArrayList<ViewAnalsLoca>();
         this.viewAnalsLocaRepository.findAll().forEach(result::add);

@@ -29,11 +29,6 @@ public class CityPlanReportDetailServiceImpl extends CityPlanReportDetailService
     }
 
     @Override
-    public CityPlanReportDetail findById(Long id) {
-        return this.cityPlanReportDetailRepository.findById(id).orElse(null);
-    }
-
-    @Override
     public List<CityPlanReportDetail> findAllById(Long id) {
         ArrayList<CityPlanReportDetail> result = new ArrayList<>();
         this.cityPlanReportDetailRepository.findAll().forEach(result::add);
@@ -42,17 +37,21 @@ public class CityPlanReportDetailServiceImpl extends CityPlanReportDetailService
 
     @Override
     public boolean existVoByUk(CityPlanReportDetail vo) {
-        return this.cityPlanReportDetailRepository.existsByIdAndCityPlanId(vo.getId(), vo.getCityPlanId());
+        return this.cityPlanReportDetailRepository.existsByCityInfoAndDrawingIdAndHouseholdId(
+                vo.getCityInfo(), vo.getDrawingId(), vo.getHouseholdId());
     }
 
     @Override
     public CityPlanReportDetail findByUk(CityPlanReportDetail vo) {
-        return this.cityPlanReportDetailRepository.findByIdAndCityPlanId(vo.getId(), vo.getCityPlanId());
+        return this.cityPlanReportDetailRepository.findByCityInfoAndDrawingIdAndHouseholdId(
+                vo.getCityInfo(), vo.getDrawingId(), vo.getHouseholdId());
     }
 
     @Override
     public List<CityPlanReportDetail> findAllByUk(CityPlanReportDetail vo) {
-        return this.cityPlanReportDetailRepository.findAllByIdAndCityPlanId(vo.getId(), vo.getCityPlanId());
+        return this.cityPlanReportDetailRepository
+                .findAllByCityInfoAndDrawingIdAndHouseholdId(
+                        vo.getCityInfo(), vo.getDrawingId(), vo.getHouseholdId());
     }
 
     @Override

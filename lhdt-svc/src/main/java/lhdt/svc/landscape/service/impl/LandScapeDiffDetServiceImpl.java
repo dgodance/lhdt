@@ -32,11 +32,6 @@ public class LandScapeDiffDetServiceImpl extends LandScapeDiffDetService {
     }
 
     @Override
-    public LandScapeDiffDet findById(Long id) {
-        return this.landScapeDiffDetRepository.findById(id).orElse(null);
-    }
-
-    @Override
     public List<LandScapeDiffDet> findAllById(Long id) {
         ArrayList<LandScapeDiffDet> result = new ArrayList<>();
         this.landScapeDiffDetRepository.findAll().forEach(result::add);

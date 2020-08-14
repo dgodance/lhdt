@@ -83,7 +83,7 @@ public class LowInfoController extends SvcController {
      */
     @PutMapping("/update")
     public LowInfo updateCityPlanReportDet(LowInfo cprdt) {
-        var p = this.lowInfoService.findById(cprdt.getId());
+        var p = this.lowInfoService.findOneById(cprdt.getId());
         p.setLowInfoName(cprdt.getLowInfoName());
         p = this.lowInfoService.update(p);
         if(p == null) {

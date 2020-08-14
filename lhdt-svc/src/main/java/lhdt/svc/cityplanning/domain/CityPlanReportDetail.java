@@ -1,17 +1,19 @@
 package lhdt.svc.cityplanning.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Table;
+import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lhdt.svc.cityplanning.types.UpDownType;
 import lhdt.svc.common.Domain;
+import lhdt.svc.hello.domain.Child;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 지구계획보고상세
@@ -25,11 +27,11 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CityPlanReportDetail extends Domain {
-    /**
-     * 도면번호(명)
-     */
-    @Column(name = "city_plan_id")
-    private Long cityPlanId;
+
+    @JsonBackReference
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="city_info_id")
+    private CityInfo cityInfo;
 
     /**
      * 도면번호(명)
@@ -52,13 +54,13 @@ public class CityPlanReportDetail extends Domain {
     /**
      * 허용용도
      */
-    @Column(name = "allowalbe_use")
+    @Column(name = "allowalbe_use", columnDefinition="TEXT")
     private String allowableUse;
 
     /**
      * 불허용도
      */
-    @Column(name = "not_allowalbe_use")
+    @Column(name = "not_allowalbe_use", columnDefinition="TEXT")
     private String notAllowableUse;
 
     /**

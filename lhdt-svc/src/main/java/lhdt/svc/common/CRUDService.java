@@ -1,5 +1,8 @@
 package lhdt.svc.common;
 
+import lhdt.svc.cityplanning.exception.ExistingDataException;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,6 +22,22 @@ public abstract class CRUDService<T extends Domain> implements CRUDInterface<T> 
         } else {
             return save(vo);
         }
+    }
+    /**
+     *  식별자가 존재하는지 확인 후 저장합니다
+     * @param vo
+     * @return
+     */
+    public List<T> registAllByUk(List<T> vo) {
+        List<T> result = new ArrayList<>();
+        vo.forEach(p -> {
+            if(existVoByUk(p)) {
+                throw new ExistingDataException();
+            } else {
+                result.add(save(p));
+            }
+        });
+        return result;
     }
 
     /**
@@ -46,5 +65,14 @@ public abstract class CRUDService<T extends Domain> implements CRUDInterface<T> 
     public List<T> updateAll(List<T> vos) {
         vos.forEach(p -> save(p));
         return vos;
+    }
+
+    /**
+     * Id를 통해 VO를 가져옵니다
+     * @param id
+     * @return
+     */
+    public T findOneById(Long id) {
+        return findAllById(id).get(0);
     }
 }

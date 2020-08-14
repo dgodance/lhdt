@@ -3,6 +3,8 @@ package lhdt.svc.cityplanning.controller;
 import java.io.IOException;
 import java.util.List;
 
+import lhdt.svc.cityplanning.domain.CityInfo;
+import lhdt.svc.cityplanning.service.CityInfoService;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,6 +22,8 @@ import lhdt.svc.common.SvcController;
 @RestController
 @RequestMapping("/cityplanning")
 public class CityPlanAreaController extends SvcController {
+    @Autowired
+    private CityInfoService cityInfoService;
 
     @Autowired
     private CityPlanReportDetailService cityPlanReportDetailService;
@@ -50,10 +54,12 @@ public class CityPlanAreaController extends SvcController {
      * @return
      */
     @GetMapping("/exists")
-    public boolean existsCityPlanReportDet(Integer id, Integer cityPlanId) {
+    public boolean existsCityPlanReportDet(Long cityPlanId, String drawingId, String householdId) {
         var spdt = new CityPlanReportDetail();
-        spdt.setId(Long.valueOf(id));
-        spdt.setCityPlanId(Long.valueOf(cityPlanId));
+        var p = this.cityInfoService.findOneById(cityPlanId);
+        spdt.setCityInfo(p);
+        spdt.setDrawingId(drawingId);
+        spdt.setHouseholdId(householdId);
         return this.cityPlanReportDetailService.existVoByUk(spdt);
     }
 
@@ -90,7 +96,7 @@ public class CityPlanAreaController extends SvcController {
      */
     @PutMapping("/update")
     public CityPlanReportDetail updateCityPlanReportDet(CityPlanReportDetail cprdt) {
-        var p = this.cityPlanReportDetailService.findById(cprdt.getId());
+        var p = this.cityPlanReportDetailService.findOneById(cprdt.getId());
         p.setAllowableUse(cprdt.getAllowableUse());
         p.setNotAllowableUse(cprdt.getAllowableUse());
         p.setBuildingToLandRatio(cprdt.getBuildingToLandRatio());
@@ -124,15 +130,15 @@ public class CityPlanAreaController extends SvcController {
 
     @GetMapping("cityplanExcel")
     public List<CityPlanReportDetail> getCityPlanExcel() throws IOException, InvalidFormatException {
+        var cityId = this.cityInfoService.findOneById(Long.valueOf(4));
         String fullFilePath = "D:\\Depot_Paper\\2020_LH디지털트윈1단계구축\\기본데이터셋\\sample_excel.xlsx";
         List<CityPlanReportDetail> p = null;
         p = this.cityPlanReportParserService.procExcelDataByCityPlan(fullFilePath);
         if(p == null)
             throw new NullPointerException();
         for(var obj : p) {
-            obj.setCityPlanId(Long.valueOf(0));
-            this.cityPlanReportDetailService.registByUk(obj);
+            obj.setCityInfo(cityId);
         }
-        return p;
+        return this.cityPlanReportDetailService.registAllByUk(p);
     }
 }

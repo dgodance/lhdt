@@ -9,8 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import lhdt.svc.common.LhdtDomain;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 /**
  * @author gravity@daumsoft.com
@@ -20,7 +19,9 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "user_info")
 @NoArgsConstructor
-@Data
+@AllArgsConstructor
+@Getter
+@Setter
 public class UserInfo extends LhdtDomain {
 	@Id
 	@Column(name = "user_id")

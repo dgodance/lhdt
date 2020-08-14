@@ -28,11 +28,6 @@ public class SampleServiceImpl extends SampleService {
     }
 
     @Override
-    public SubType0 findById(Long id) {
-        return this.studyRepository.findById(id).orElse(null);
-    }
-
-    @Override
     public List<SubType0> findAllById(Long id) {
         ArrayList<SubType0> result = new ArrayList<SubType0>();
         this.studyRepository.findAll().forEach(result::add);

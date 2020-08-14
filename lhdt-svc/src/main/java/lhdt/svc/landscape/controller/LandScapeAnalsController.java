@@ -106,7 +106,7 @@ public class LandScapeAnalsController extends SvcController {
 	 */
 	@PutMapping("/update")
 	public LandScapeAnals updateCityPlanReportDet(LandScapeAnals cprdt) {
-		var p = this.landScapeAnalsService.findById(cprdt.getId());
+		var p = this.landScapeAnalsService.findOneById(cprdt.getId());
 		p.setLandScapeAnalsName(cprdt.getLandScapeAnalsName());
 		p.setStartLandScape(cprdt.getStartLandScape());
 		p.setEndLandScape(cprdt.getEndLandScape());
