@@ -5,9 +5,12 @@ import java.util.List;
 
 import lhdt.svc.cityplanning.domain.CityPlanReportDetail;
 import lhdt.svc.cityplanning.model.UpDownString;
+import lhdt.svc.cityplanning.service.CityPlanReportParserService;
 import lhdt.svc.cityplanning.types.UpDownType;
+import org.springframework.stereotype.Service;
 
-public class CityPlaneReportParserServiceImpl {
+@Service
+public class CityPlaneReportParserServiceImpl extends CityPlanReportParserService {
 
     @Override
     protected List<CityPlanReportDetail> procExcelDataObj(ArrayList<List<String>> excelDatas) {

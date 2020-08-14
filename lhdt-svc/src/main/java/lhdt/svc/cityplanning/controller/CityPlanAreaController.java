@@ -1,7 +1,9 @@
 package lhdt.svc.cityplanning.controller;
 
+import java.io.IOException;
 import java.util.List;
 
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,9 +23,9 @@ public class CityPlanAreaController extends SvcController {
 
     @Autowired
     private CityPlanReportDetailService cityPlanReportDetailService;
-//
-//    @Autowired
-//    private CityPlanReportParserService cityPlanReportParserService;
+
+    @Autowired
+    private CityPlanReportParserService cityPlanReportParserService;
 
     /**
      * 모든 LowInfo 정보를 가지고 옵니다
@@ -120,21 +122,17 @@ public class CityPlanAreaController extends SvcController {
         return super.file2Object("D:\\data\\dumi_sample\\" + fileName);
     }
 
-//    @GetMapping("cityplanExcel")
-//    public List<CityPlanReportDetail> getCityPlanExcel() {
-//        String fullFilePath = "D:\\Depot_Paper\\2020_LH디지털트윈1단계구축\\기본데이터셋\\sample_excel.xlsx";
-//        List<CityPlanReportDetail> p = null;
-//        try {
-//            p = this.cityPlanReportParserService.procExcelDataByCityPlan(fullFilePath);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        if(p == null)
-//            throw new NullPointerException();
-//        for(var obj : p) {
-//            obj.setCityPlanId(Long.valueOf(0));
-//            this.cityPlanReportDetailService.registByUk(obj);
-//        }
-//        return p;
-//    }
+    @GetMapping("cityplanExcel")
+    public List<CityPlanReportDetail> getCityPlanExcel() throws IOException, InvalidFormatException {
+        String fullFilePath = "D:\\Depot_Paper\\2020_LH디지털트윈1단계구축\\기본데이터셋\\sample_excel.xlsx";
+        List<CityPlanReportDetail> p = null;
+        p = this.cityPlanReportParserService.procExcelDataByCityPlan(fullFilePath);
+        if(p == null)
+            throw new NullPointerException();
+        for(var obj : p) {
+            obj.setCityPlanId(Long.valueOf(0));
+            this.cityPlanReportDetailService.registByUk(obj);
+        }
+        return p;
+    }
 }
