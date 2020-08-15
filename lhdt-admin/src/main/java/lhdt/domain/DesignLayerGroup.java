@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ExtrusionModelGroup implements Serializable {
+public class DesignLayerGroup implements Serializable {
 
 	private static final long serialVersionUID = -1480761819761262002L;
 
@@ -23,10 +23,10 @@ public class ExtrusionModelGroup implements Serializable {
 	// 그룹Key 중복 확인 hidden 값
 	private String duplicationValue;
 
-	// extrusion model 그룹 고유번호
-	private Integer extrusionModelGroupId;
-	// extrusion model 그룹 그룹명
-	private String extrusionModelGroupName;
+	// design layer 그룹 고유번호
+	private Integer designLayerGroupId;
+	// design layer 그룹 그룹명
+	private String designLayerGroupName;
 	// 사용자 아이디
 	private String userId;
 	// 조상

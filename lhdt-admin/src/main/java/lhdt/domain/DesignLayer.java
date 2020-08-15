@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * extrusion model
+ * design layer
  * @author Cheon JeongDae
  *
  */
@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ExtrusionModel extends Search implements Serializable {
+public class DesignLayer extends Search implements Serializable {
 
     private static final long serialVersionUID = -4408734451145107109L;
 
@@ -39,15 +39,15 @@ public class ExtrusionModel extends Search implements Serializable {
     private Integer depth;
 
     // 고유키
-    private Long extrusionModelId;
+    private Long designLayerId;
     // layer 그룹 아이디
-    private Integer extrusionModelGroupId;
+    private Integer designLayerGroupId;
     //
-    private String extrusionModelGroupName;
+    private String designLayerGroupName;
     // layer 키
-    private String extrusionModelKey;
+    private String designLayerKey;
     // layer 명
-    private String extrusionModelName;
+    private String designLayerName;
     
     // 업로딩 아이디
     private String userId;

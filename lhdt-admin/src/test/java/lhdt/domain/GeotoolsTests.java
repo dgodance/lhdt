@@ -68,7 +68,7 @@ public class GeotoolsTests {
         FeatureIterator<SimpleFeature> features = collection.features();
         while (features.hasNext()) {
             SimpleFeature feature = features.next();
-            ExtrusionModel extrusionModel = new ExtrusionModel();
+            DesignLayer extrusionModel = new DesignLayer();
             for (Property attribute : feature.getProperties()) {
                 boolean test = Arrays.stream(columns).anyMatch(f -> f.trim().equalsIgnoreCase(String.valueOf(attribute.getName())));
                 log.info("anyMatch ============== {} : {}", attribute.getName(), test);
@@ -78,7 +78,7 @@ public class GeotoolsTests {
 
     @Test
     void 특정필드_추출() throws IOException {
-        List<ExtrusionModel> extrusionModelList = new ArrayList<>();
+        List<DesignLayer> extrusionModelList = new ArrayList<>();
         String extrusionColumns = "the_geom, layer, angle, flnum";
         List<String> columnList = Arrays.asList(extrusionColumns.trim().toLowerCase().split(","));
         FeatureSource<SimpleFeatureType, SimpleFeature> shapeFeatureSource = getShape();
@@ -86,13 +86,13 @@ public class GeotoolsTests {
         FeatureIterator<SimpleFeature> features = collection.features();
         while (features.hasNext()) {
             SimpleFeature feature = features.next();
-            ExtrusionModel extrusionModel = new ExtrusionModel();
+            DesignLayer extrusionModel = new DesignLayer();
             for (Property attribute : feature.getProperties()) {
                 String attributeName = String.valueOf(attribute.getName()).toLowerCase();
                 if (columnList.contains(attributeName)) {
-                    if (attributeName.equalsIgnoreCase(String.valueOf(ExtrusionModel.RequiredColumn.THE_GEOM))) {
+                    if (attributeName.equalsIgnoreCase(String.valueOf(DesignLayer.RequiredColumn.THE_GEOM))) {
                         extrusionModel.setTheGeom((Geometry) attribute.getValue());
-                    } else if (attributeName.equalsIgnoreCase(String.valueOf(ExtrusionModel.RequiredColumn.ATTRIBUTES))) {
+                    } else if (attributeName.equalsIgnoreCase(String.valueOf(DesignLayer.RequiredColumn.ATTRIBUTES))) {
                         extrusionModel.setAttributes((String) attribute.getValue());
                     }
                 }

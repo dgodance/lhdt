@@ -6,7 +6,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDateTime;
 
 /**
- * extrusion model 속성
+ * design layer 속성
  * @author Cheon JeongDae
  *
  */
@@ -16,12 +16,12 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ExtrusionModelAttribute {
+public class DesignLayerAttribute {
 	
-	// extrusion model Attribute 고유번호
-	private Long extrusionModelAttributeId;
-	// extrusion model 고유번호
-	private Long extrusionModelId;
+	// design layer Attribute 고유번호
+	private Long designLayerAttributeId;
+	// design layer 고유번호
+	private Long designLayerId;
 	// 속성
 	private String attributes;
 	// 수정일 

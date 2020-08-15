@@ -14,10 +14,10 @@ drop sequence if exists data_smart_tiling_file_parse_log_seq;
 drop sequence if exists data_attribute_file_info_seq;
 drop sequence if exists data_object_attribute_file_info_seq;
 
-drop sequence if exists extrusion_model_group_seq;
-drop sequence if exists extrusion_model_seq;
-drop sequence if exists extrusion_model_attribute_seq;
-drop sequence if exists extrusion_model_file_info_seq;
+drop sequence if exists design_layer_group_seq;
+drop sequence if exists design_layer_seq;
+drop sequence if exists design_layer_attribute_seq;
+drop sequence if exists design_layer_file_info_seq;
 drop sequence if exists data_library_group_seq;
 drop sequence if exists data_library_seq;
 

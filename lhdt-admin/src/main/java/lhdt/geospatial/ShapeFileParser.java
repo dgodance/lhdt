@@ -1,6 +1,6 @@
 package lhdt.geospatial;
 
-import lhdt.domain.ExtrusionModel;
+import lhdt.domain.DesignLayer;
 import lhdt.domain.ShapeFileField;
 import lhdt.support.LogMessageSupport;
 import lombok.extern.slf4j.Slf4j;
@@ -39,8 +39,8 @@ public class ShapeFileParser {
         this.filePath = filePath;
     }
 
-    public List<ExtrusionModel> getExtrusionModelList(String extrusionColumns) {
-        List<ExtrusionModel> extrusionModelList = new ArrayList<>();
+    public List<DesignLayer> getExtrusionModelList(String extrusionColumns) {
+        List<DesignLayer> extrusionModelList = new ArrayList<>();
         List<String> columnList = Arrays.asList(extrusionColumns.trim().toLowerCase().split(","));
         try {
             ShapefileDataStore shpDataStore = new ShapefileDataStore(new File(filePath).toURI().toURL());
@@ -51,13 +51,13 @@ public class ShapeFileParser {
             FeatureIterator<SimpleFeature> features = collection.features();
             while (features.hasNext()) {
                 SimpleFeature feature = features.next();
-                ExtrusionModel extrusionModel = new ExtrusionModel();
+                DesignLayer extrusionModel = new DesignLayer();
                 for (Property attribute : feature.getProperties()) {
                     String attributeName = String.valueOf(attribute.getName()).toLowerCase();
                     if(columnList.contains(attributeName)) {
-                        if(attributeName.equalsIgnoreCase(String.valueOf(ExtrusionModel.RequiredColumn.THE_GEOM))) {
+                        if(attributeName.equalsIgnoreCase(String.valueOf(DesignLayer.RequiredColumn.THE_GEOM))) {
                             extrusionModel.setTheGeom((Geometry) attribute.getValue());
-                        } else if(attributeName.equalsIgnoreCase(String.valueOf(ExtrusionModel.RequiredColumn.ATTRIBUTES))) {
+                        } else if(attributeName.equalsIgnoreCase(String.valueOf(DesignLayer.RequiredColumn.ATTRIBUTES))) {
                             extrusionModel.setAttributes((String) attribute.getValue());
                         }
                     }
