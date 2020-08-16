@@ -55,6 +55,9 @@ public class DesignLayer extends Search implements Serializable {
     private String serviceType;
     // 도형 타입 (point, line, polygon)
     private String geometryType;
+
+    // style file 내용
+    private String styleFileContent;
     
     // 레이어 색상
     private String layerFillColor;
@@ -95,6 +98,14 @@ public class DesignLayer extends Search implements Serializable {
 
 	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime insertDate;
+
+	// shape 파일 종류
+	public enum DesignLayerType {
+	    // 토지
+	    LAND,
+        // 빌딩
+        BUILDING
+    }
 
 	public enum RequiredColumn {
         ATTRIBUTES,

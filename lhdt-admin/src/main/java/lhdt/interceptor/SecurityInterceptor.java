@@ -4,6 +4,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -142,6 +143,12 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter {
 	}
     
     private void printHead(HttpServletRequest request) {
+		Object status = request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
+		String statusMsg = status.toString();
+		HttpStatus httpStatus = HttpStatus.valueOf(Integer.valueOf(statusMsg));
+		log.info(" ================ httpStatus = {}", httpStatus);
+		log.info(" ================ message = {}", httpStatus.getReasonPhrase());
+
     	Enumeration<String> headerNames = request.getHeaderNames();
         while (headerNames.hasMoreElements()) {
         	String headerName = headerNames.nextElement();

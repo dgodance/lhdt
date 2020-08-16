@@ -5,6 +5,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @ToString
 @Builder
@@ -51,4 +52,9 @@ public class DesignLayerGroup implements Serializable {
 
 	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime insertDate;
+
+	/**
+	 * 자식 design 레이어 목록
+	 */
+	private List<DesignLayer> designLayerList;
 }

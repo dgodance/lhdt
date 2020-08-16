@@ -87,6 +87,10 @@ public class ConfigInterceptor extends HandlerInterceptorAdapter {
 //			request.setAttribute("clickDepth", clickDepth);
 			request.setAttribute("menu", menu);
 			request.setAttribute("parentMenu", parentMenu);
+
+			log.info("+++++++++++++++++++++++ clickMenuId = {}", clickMenuId);
+			log.info("+++++++++++++++++++++++ menu = {}", menu);
+			log.info("+++++++++++++++++++++++ parentMenu = {}", parentMenu);
 			
 			request.setAttribute("cacheUserGroupMenuList", userGroupMenuList);
 			request.setAttribute("cacheUserGroupMenuListSize", userGroupMenuList.size());

@@ -9,7 +9,10 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DesignLayerFileInfo extends FileInfo {
-	
+
+	public static final String ZIP_EXTENSION = "zip";
+	public static final String SHAPE_EXTENSION = "shp";
+
 	// 사용자 아이디
 	private String userId;
 	

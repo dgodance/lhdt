@@ -28,6 +28,7 @@ import java.util.List;
 
 /**
  * Shape file 관련 유틸
+ * TODO 이름을 바꾸던, 패키지를 바꾸던
  */
 @Slf4j
 public class ShapeFileParser {

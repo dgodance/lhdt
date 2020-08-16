@@ -1,17 +1,15 @@
 package lhdt.service.impl;
 
 import lhdt.config.PropertiesConfig;
-import lhdt.domain.GeoPolicy;
-import lhdt.domain.Layer;
-import lhdt.domain.LayerFileInfo;
-import lhdt.domain.ShapeFileExt;
+import lhdt.domain.*;
 import lhdt.geospatial.LayerStyleParser;
 import lhdt.geospatial.Ogr2OgrExecute;
+import lhdt.persistence.DesignLayerFileInfoMapper;
+import lhdt.persistence.DesignLayerMapper;
 import lhdt.persistence.LayerFileInfoMapper;
-import lhdt.persistence.LayerMapper;
 import lhdt.security.Crypt;
+import lhdt.service.DesignLayerService;
 import lhdt.service.GeoPolicyService;
-import lhdt.service.LayerService;
 import lhdt.support.LogMessageSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +33,7 @@ import java.util.*;
  */
 @Slf4j
 @Service
-public class LayerServiceImpl implements LayerService {
+public class DesignLayerServiceImpl implements DesignLayerService {
 
 	@Value("${spring.datasource.url}")
 	private String url;
@@ -51,35 +49,35 @@ public class LayerServiceImpl implements LayerService {
     private PropertiesConfig propertiesConfig;
 
     @Autowired
-    private LayerMapper layerMapper;
+    private DesignLayerMapper designLayerMapper;
     @Autowired
-    private LayerFileInfoMapper layerFileInfoMapper;
+    private DesignLayerFileInfoMapper designLayerFileInfoMapper;
 
     /**
-	 * Layer 총 건수
-	 * @param layer
+	 * Design Layer 총 건수
+	 * @param designLayer
 	 * @return
 	 */
     @Transactional(readOnly=true)
-	public Long getLayerTotalCount(Layer layer) {
-    	return layerMapper.getLayerTotalCount(layer);
+	public Long getDesignLayerTotalCount(DesignLayer designLayer) {
+    	return designLayerMapper.getDesignLayerTotalCount(designLayer);
     }
     
     /**
-    * layer 목록
+    * design layer 목록
     * @return
     */
     @Transactional(readOnly=true)
-    public List<Layer> getListLayer(Layer layer) {
-        return layerMapper.getListLayer(layer);
+    public List<DesignLayer> getListDesignLayer(DesignLayer designLayer) {
+        return designLayerMapper.getListDesignLayer(designLayer);
     }
     
     /**
-     * geoserver layer 목록 조회 
+     * geoserver design layer 목록 조회
      */
     @Transactional(readOnly=true)
-    public String getListGeoserverLayer(GeoPolicy geoPolicy) {
-    	String geoserverLayerJson = null;
+    public String getListGeoserverDesignLayer(GeoPolicy geoPolicy) {
+    	String geoserverDesignLayerJson = null;
     	try {
 			RestTemplate restTemplate = new RestTemplate();
 			
@@ -105,7 +103,7 @@ public class LayerServiceImpl implements LayerService {
 			String url = geoPolicy.getGeoserverDataUrl() + "/rest/workspaces/" + geoPolicy.getGeoserverDataWorkspace()+ "/layers";
 			ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 			log.info("-------- statusCode = {}, body = {}", response.getStatusCodeValue(), response.getBody());
-			geoserverLayerJson = response.getBody().toString();
+            geoserverDesignLayerJson = response.getBody().toString();
 		
     	} catch(RestClientException e) {
             LogMessageSupport.printMessage(e, "@@@ RestClientException. message = {}", e.getMessage());
@@ -115,176 +113,181 @@ public class LayerServiceImpl implements LayerService {
     	    LogMessageSupport.printMessage(e, "@@@ Exception. message = {}", e.getMessage());
 		}
     	
-    	return geoserverLayerJson;
+    	return geoserverDesignLayerJson;
     }
 
     /**
-    * layer 정보 취득
-    * @param layerId
+    * design layer 정보 취득
+    * @param designLayerId
     * @return
     */
     @Transactional(readOnly=true)
-    public Layer getLayer(Integer layerId) {
-        return layerMapper.getLayer(layerId);
+    public DesignLayer getDesignLayer(Long designLayerId) {
+        return designLayerMapper.getDesignLayer(designLayerId);
     }
     
     @Transactional(readOnly=true)
-    public Boolean isLayerKeyDuplication(String layerKey) {
-    	return layerMapper.isLayerKeyDuplication(layerKey);
+    public Boolean isDesignLayerKeyDuplication(String designLayerKey) {
+    	return designLayerMapper.isDesignLayerKeyDuplication(designLayerKey);
     }
 
     /**
-    * 레이어 테이블의 컬럼 타입이 어떤 geometry 타입인지를 구함
-    * @param layerKey
+    * design 레이어 테이블의 컬럼 타입이 어떤 geometry 타입인지를 구함
+    * @param designLayerKey
     * @return
     */
     @Transactional(readOnly=true)
-    public String getGeometryType(String layerKey) {
-        return layerMapper.getGeometryType(layerKey);
-    }
-
-    @Transactional(readOnly = true)
-    public String getLayerColumn(String layerKey) {
-    	return layerMapper.getLayerColumn(layerKey);
+    public String getGeometryType(String designLayerKey) {
+        return designLayerMapper.getGeometryType(designLayerKey);
     }
 
     /**
-    * 레이어 등록
-    * @param layer
+     *
+     * @param designLayerKey
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public String getDesignLayerColumn(String designLayerKey) {
+    	return designLayerMapper.getDesignLayerColumn(designLayerKey);
+    }
+
+    /**
+    * design 레이어 등록
+    * @param designLayer
     * @return
     */
     @Transactional
-    public Map<String, Object> insertLayer(Layer layer, List<LayerFileInfo> layerFileInfoList) {
-    	Map<String, Object> layerFileInfoTeamMap = new HashMap<>();
+    public Map<String, Object> insertDesignLayer(DesignLayer designLayer, List<DesignLayerFileInfo> designLayerFileInfoList) {
+    	Map<String, Object> designLayerFileInfoTeamMap = new HashMap<>();
 
-        // layer 정보 수정
-        layerMapper.insertLayer(layer);
+        // design layer 정보 수정
+        designLayerMapper.insertDesignLayer(designLayer);
 
         // shape 파일이 있을 경우
-        if(!layerFileInfoList.isEmpty()) {
+        if(!designLayerFileInfoList.isEmpty()) {
             String shapeFileName = null;
             String shapeEncoding = null;
-            Integer layerId = layer.getLayerId();
-            String userId = layer.getUserId();
+            Long designLayerId = designLayer.getDesignLayerId();
+            String userId = designLayer.getUserId();
 
-            Integer layerFileInfoTeamId = 0;
-            List<Integer> layerFileInfoTeamIdList = new ArrayList<>();
-            for(LayerFileInfo layerFileInfo : layerFileInfoList) {
-                layerFileInfo.setLayerId(layerId);
-                layerFileInfo.setUserId(userId);
-                layerFileInfo.setEnableYn("Y");
+            Long designLayerFileInfoTeamId = 0L;
+            List<Long> designLayerFileInfoTeamIdList = new ArrayList<>();
+            for(DesignLayerFileInfo designLayerFileInfo : designLayerFileInfoList) {
+                designLayerFileInfo.setDesignLayerId(designLayerId);
+                designLayerFileInfo.setUserId(userId);
+                designLayerFileInfo.setEnableYn("Y");
 
-                layerFileInfoMapper.insertLayerFileInfoMapper(layerFileInfo);
-                layerFileInfoTeamIdList.add(layerFileInfo.getLayerFileInfoId());
+                designLayerFileInfoMapper.insertDesignLayerFileInfoMapper(designLayerFileInfo);
+                designLayerFileInfoTeamIdList.add(designLayerFileInfo.getDesignLayerFileInfoId());
 
-                if(LayerFileInfo.SHAPE_EXTENSION.equals(layerFileInfo.getFileExt().toLowerCase())) {
-                    layerFileInfoTeamId = layerFileInfo.getLayerFileInfoId();
-                    shapeFileName = layerFileInfo.getFilePath() + layerFileInfo.getFileRealName();
-                    shapeEncoding = layerFileInfo.getShapeEncoding();
+                if(LayerFileInfo.SHAPE_EXTENSION.equals(designLayerFileInfo.getFileExt().toLowerCase())) {
+                    designLayerFileInfoTeamId = designLayerFileInfo.getDesignLayerFileInfoId();
+                    shapeFileName = designLayerFileInfo.getFilePath() + designLayerFileInfo.getFileRealName();
+                    shapeEncoding = designLayerFileInfo.getShapeEncoding();
                 }
             }
             log.info("---- shapeFileName = {}", shapeFileName);
 
-            Integer fileVersion = layerFileInfoMapper.getMaxFileVersion(layerId);
+            Integer fileVersion = designLayerFileInfoMapper.getMaxFileVersion(designLayerId);
             if(fileVersion == null) fileVersion = 0;
             fileVersion = fileVersion + 1;
-            layerFileInfoTeamMap.put("fileVersion", fileVersion);
-            layerFileInfoTeamMap.put("shapeFileName", shapeFileName);
-            layerFileInfoTeamMap.put("shapeEncoding", shapeEncoding);
-            layerFileInfoTeamMap.put("layerFileInfoTeamId", layerFileInfoTeamId);
-            layerFileInfoTeamMap.put("layerFileInfoTeamIdList", layerFileInfoTeamIdList);
-            layerFileInfoTeamMap.put("layerId", layerId);
-            log.info("+++ layerFileInfoTeamMap = {}", layerFileInfoTeamMap);
-            layerFileInfoMapper.updateLayerFileInfoTeam(layerFileInfoTeamMap);
+            designLayerFileInfoTeamMap.put("fileVersion", fileVersion);
+            designLayerFileInfoTeamMap.put("shapeFileName", shapeFileName);
+            designLayerFileInfoTeamMap.put("shapeEncoding", shapeEncoding);
+            designLayerFileInfoTeamMap.put("designLayerFileInfoTeamId", designLayerFileInfoTeamId);
+            designLayerFileInfoTeamMap.put("designLayerFileInfoTeamIdList", designLayerFileInfoTeamIdList);
+            designLayerFileInfoTeamMap.put("designLayerId", designLayerId);
+            log.info("+++ designLayerFileInfoTeamMap = {}", designLayerFileInfoTeamMap);
+            designLayerFileInfoMapper.updateDesignLayerFileInfoTeam(designLayerFileInfoTeamMap);
         }
 
-        return layerFileInfoTeamMap;
+        return designLayerFileInfoTeamMap;
     }
 
     /**
-    * shape 파일을 이용한 layer 정보 수정
-    * @param layer
-    * @param isLayerFileInfoExist
-    * @param layerFileInfoList
+    * shape 파일을 이용한 design layer 정보 수정
+    * @param designLayer
+    * @param isDesignLayerFileInfoExist
+    * @param designLayerFileInfoList
     * @return
     * @throws Exception
     */
     @Transactional
-    public Map<String, Object> updateLayer(Layer layer, boolean isLayerFileInfoExist, List<LayerFileInfo> layerFileInfoList) {
+    public Map<String, Object> updateDesignLayer(DesignLayer designLayer, boolean isDesignLayerFileInfoExist, List<DesignLayerFileInfo> designLayerFileInfoList) {
 
-        Map<String, Object> layerFileInfoTeamMap = new HashMap<>();
+        Map<String, Object> designLayerFileInfoTeamMap = new HashMap<>();
 
-        // layer 정보 수정
-        layerMapper.updateLayer(layer);
+        // design layer 정보 수정
+        designLayerMapper.updateDesignLayer(designLayer);
 
         // shape 파일이 있을 경우
-        if(!layerFileInfoList.isEmpty()) {
+        if(!designLayerFileInfoList.isEmpty()) {
             String shapeFileName = null;
             String shapeEncoding = null;
-            Integer layerId = layer.getLayerId();
-            String userId = layer.getUserId();
-            String tableName = layer.getLayerKey();
+            Long designLayerId = designLayer.getDesignLayerId();
+            String userId = designLayer.getUserId();
+            String tableName = designLayer.getDesignLayerKey();
 
-            if(isLayerFileInfoExist) {
-                // 모든 layer_file_info 의 shape 상태를 비활성화로 update 함
-                layerFileInfoMapper.updateLayerFileInfoAllDisabledByLayerId(layerId);
-                // 이 레이어의 지난 데이터를 비 활성화 상태로 update 함
-                layerFileInfoMapper.updateShapePreDataDisable(tableName);
+            if(isDesignLayerFileInfoExist) {
+                // 모든 design_layer_file_info 의 shape 상태를 비활성화로 update 함
+                designLayerFileInfoMapper.updateDesignLayerFileInfoAllDisabledByDesignLayerId(designLayerId);
+                // 이 design 레이어의 지난 데이터를 비 활성화 상태로 update 함
+                designLayerFileInfoMapper.updateShapePreDataDisable(tableName);
             }
 
-            Integer layerFileInfoTeamId = 0;
-            List<Integer> layerFileInfoTeamIdList = new ArrayList<>();
-            for(LayerFileInfo layerFileInfo : layerFileInfoList) {
-                layerFileInfo.setLayerId(layerId);
-                layerFileInfo.setUserId(userId);
-                layerFileInfo.setEnableYn("Y");
+            Long designLayerFileInfoTeamId = 0L;
+            List<Long> designLayerFileInfoTeamIdList = new ArrayList<>();
+            for(DesignLayerFileInfo designLayerFileInfo : designLayerFileInfoList) {
+                designLayerFileInfo.setDesignLayerId(designLayerId);
+                designLayerFileInfo.setUserId(userId);
+                designLayerFileInfo.setEnableYn("Y");
 
-                layerFileInfoMapper.insertLayerFileInfoMapper(layerFileInfo);
-                layerFileInfoTeamIdList.add(layerFileInfo.getLayerFileInfoId());
+                designLayerFileInfoMapper.insertDesignLayerFileInfoMapper(designLayerFileInfo);
+                designLayerFileInfoTeamIdList.add(designLayerFileInfo.getDesignLayerFileInfoId());
 
-                if(LayerFileInfo.SHAPE_EXTENSION.equals(layerFileInfo.getFileExt().toLowerCase())) {
-                    layerFileInfoTeamId = layerFileInfo.getLayerFileInfoId();
-                    shapeFileName = layerFileInfo.getFilePath() + layerFileInfo.getFileRealName();
-                    shapeEncoding = layerFileInfo.getShapeEncoding();
+                if(DesignLayerFileInfo.SHAPE_EXTENSION.equals(designLayerFileInfo.getFileExt().toLowerCase())) {
+                    designLayerFileInfoTeamId = designLayerFileInfo.getDesignLayerFileInfoId();
+                    shapeFileName = designLayerFileInfo.getFilePath() + designLayerFileInfo.getFileRealName();
+                    shapeEncoding = designLayerFileInfo.getShapeEncoding();
                 }
             }
             log.info("---- shapeFileName = {}", shapeFileName);
 
-            Integer fileVersion = layerFileInfoMapper.getMaxFileVersion(layerId);
+            Integer fileVersion = designLayerFileInfoMapper.getMaxFileVersion(designLayerId);
             if(fileVersion == null) fileVersion = 0;
             fileVersion = fileVersion + 1;
-            layerFileInfoTeamMap.put("fileVersion", fileVersion);
-            layerFileInfoTeamMap.put("shapeFileName", shapeFileName);
-            layerFileInfoTeamMap.put("shapeEncoding", shapeEncoding);
-            layerFileInfoTeamMap.put("layerFileInfoTeamId", layerFileInfoTeamId);
-            layerFileInfoTeamMap.put("layerFileInfoTeamIdList", layerFileInfoTeamIdList);
-            log.info("+++ layerFileInfoTeamMap = {}", layerFileInfoTeamMap);
-            layerFileInfoMapper.updateLayerFileInfoTeam(layerFileInfoTeamMap);
+            designLayerFileInfoTeamMap.put("fileVersion", fileVersion);
+            designLayerFileInfoTeamMap.put("shapeFileName", shapeFileName);
+            designLayerFileInfoTeamMap.put("shapeEncoding", shapeEncoding);
+            designLayerFileInfoTeamMap.put("layerFileInfoTeamId", designLayerFileInfoTeamId);
+            designLayerFileInfoTeamMap.put("layerFileInfoTeamIdList", designLayerFileInfoTeamIdList);
+            log.info("+++ designLayerFileInfoTeamMap = {}", designLayerFileInfoTeamMap);
+            designLayerFileInfoMapper.updateDesignLayerFileInfoTeam(designLayerFileInfoTeamMap);
         }
 
-        return layerFileInfoTeamMap;
+        return designLayerFileInfoTeamMap;
     }
 
     /**
     * Ogr2Ogr 실행
-    * @param layer
-    * @param isLayerFileInfoExist
+    * @param designLayer
+    * @param isDesignLayerFileInfoExist
     * @param shapeFileName
     * @param shapeEncoding
     * @throws Exception
     */
     @Transactional
-    public void insertOgr2Ogr(Layer layer, boolean isLayerFileInfoExist, String shapeFileName, String shapeEncoding) throws Exception {
+    public void insertOgr2Ogr(DesignLayer designLayer, boolean isDesignLayerFileInfoExist, String shapeFileName, String shapeEncoding) throws Exception {
         String osType = propertiesConfig.getOsType().toUpperCase();
         String ogr2ogrPort = propertiesConfig.getOgr2ogrPort();
         String ogr2ogrHost = propertiesConfig.getOgr2ogrHost();
         String dbName = Crypt.decrypt(url);
         dbName = dbName.substring(dbName.lastIndexOf("/") + 1);
         String driver = "PG:host="+ogr2ogrHost + " port=" + ogr2ogrPort+ " dbname=" + dbName + " user=" + Crypt.decrypt(username) + " password=" + Crypt.decrypt(password);
-        //Layer dbLayer = layerMapper.getLayer(layer.getLayerId());
+        //Layer dbLayer = designLayerMapper.getDesignLayer(layer.getDesignLayerId());
 
         String updateOption;
-        if(isLayerFileInfoExist) {
+        if(isDesignLayerFileInfoExist) {
             // update 실행
             updateOption = "update";
         } else {
@@ -293,12 +296,13 @@ public class LayerServiceImpl implements LayerService {
         }
 
         GeoPolicy geoPolicy = geoPolicyService.getGeoPolicy();
-        String layerSourceCoordinate = layer.getCoordinate();
-        String layerTargetCoordinate = geoPolicy.getLayerTargetCoordinate();
+        String designLayerSourceCoordinate = designLayer.getCoordinate();
+        String designLayerTargetCoordinate = geoPolicy.getLayerTargetCoordinate();
 //		ShapeFileParser shapeFileParser = new ShapeFileParser();
 //		shapeFileParser.parse(shapeFileName);
         String enviromentPath = propertiesConfig.getOgr2ogrEnviromentPath();
-        Ogr2OgrExecute ogr2OgrExecute = new Ogr2OgrExecute(osType, driver, shapeFileName, shapeEncoding, layer.getLayerKey(), updateOption, layerSourceCoordinate, layerTargetCoordinate, enviromentPath);
+        Ogr2OgrExecute ogr2OgrExecute = new Ogr2OgrExecute(osType, driver, shapeFileName, shapeEncoding,
+                designLayer.getDesignLayerKey(), updateOption, designLayerSourceCoordinate, designLayerTargetCoordinate, enviromentPath);
         ogr2OgrExecute.insert();
     }
     
@@ -306,11 +310,11 @@ public class LayerServiceImpl implements LayerService {
      * shp파일 정보를 db 정보 기준으로 export
      */
     @Transactional
-    public void exportOgr2Ogr(LayerFileInfo layerFileInfo, Layer layer) throws Exception {
-        String tableName = layer.getLayerKey();
-        Integer versionId = layerFileInfo.getVersionId();
-        String shpEncoding = layerFileInfo.getShapeEncoding();
-        String exportPath = layerFileInfo.getFilePath() + layerFileInfo.getFileRealName()+ "." + ShapeFileExt.SHP.getValue();
+    public void exportOgr2Ogr(DesignLayerFileInfo designLayerFileInfo, DesignLayer designLayer) throws Exception {
+        String tableName = designLayer.getDesignLayerKey();
+        Integer versionId = designLayerFileInfo.getVersionId();
+        String shpEncoding = designLayerFileInfo.getShapeEncoding();
+        String exportPath = designLayerFileInfo.getFilePath() + designLayerFileInfo.getFileRealName()+ "." + ShapeFileExt.SHP.getValue();
 
         String osType = propertiesConfig.getOsType().toUpperCase();
         String ogr2ogrPort = propertiesConfig.getOgr2ogrPort();
@@ -319,131 +323,127 @@ public class LayerServiceImpl implements LayerService {
         dbName = dbName.substring(dbName.lastIndexOf("/") + 1);
         String driver = "PG:host="+ogr2ogrHost + " port=" + ogr2ogrPort+ " dbname=" + dbName + " user=" + Crypt.decrypt(username) + " password=" + Crypt.decrypt(password);
         GeoPolicy geoPolicy = geoPolicyService.getGeoPolicy();
-        String layerSourceCoordinate = geoPolicy.getLayerSourceCoordinate();
-        String layerTargetCoordinate = geoPolicy.getLayerTargetCoordinate();
-        String layerColumn = getLayerColumn(tableName);
-        String sql = "SELECT "+ layerColumn + ", null::text AS enable_yn, null::int AS version_id FROM "+tableName+" WHERE version_id="+versionId;
+        String designLayerSourceCoordinate = geoPolicy.getLayerSourceCoordinate();
+        String designLayerTargetCoordinate = geoPolicy.getLayerTargetCoordinate();
+        String designLayerColumn = getDesignLayerColumn(tableName);
+        String sql = "SELECT "+ designLayer + ", null::text AS enable_yn, null::int AS version_id FROM " + tableName + " WHERE version_id=" + versionId;
 
-        Ogr2OgrExecute ogr2OgrExecute = new Ogr2OgrExecute(osType, driver, shpEncoding, exportPath, sql, layerSourceCoordinate, layerTargetCoordinate);
+        Ogr2OgrExecute ogr2OgrExecute = new Ogr2OgrExecute(osType, driver, shpEncoding, exportPath, sql, designLayerSourceCoordinate, designLayerTargetCoordinate);
         ogr2OgrExecute.export();
     }
 
     /**
-    * layer 를 이 shape 파일로 활성화
-    * @param layerId
-    * @param layerFileInfoTeamId
+    * design layer 를 이 shape 파일로 활성화
+    * @param designLayerId
+    * @param designLayerFileInfoTeamId
     * @return
     */
     @Transactional
-    public int updateLayerByLayerFileInfoId(Integer layerId, Integer layerFileInfoTeamId, Integer layerFileInfoId) {
-        int result = 0;
-        // layer 정보 수정
-        Layer layer = layerMapper.getLayer(layerId);
-        String tableName = layer.getLayerKey();
+    public int updateDesignLayerByDesignLayerFileInfoId(Long designLayerId, Long designLayerFileInfoTeamId, Long designLayerFileInfoId) {
+        // design layer 정보 수정
+        DesignLayer designLayer = designLayerMapper.getDesignLayer(designLayerId);
+        String tableName = designLayer.getDesignLayerKey();
 
-        // 모든 layer_file_info 의 shape 상태를 비활성화로 update 함
-        layerFileInfoMapper.updateLayerFileInfoAllDisabledByLayerId(layerId);
+        // 모든 design_layer_file_info 의 shape 상태를 비활성화로 update 함
+        designLayerFileInfoMapper.updateDesignLayerFileInfoAllDisabledByDesignLayerId(designLayerId);
         // shape table 모든 데이터를 비활성화 함
-        layerFileInfoMapper.updateShapePreDataDisable(tableName);
+        designLayerFileInfoMapper.updateShapePreDataDisable(tableName);
 
-        LayerFileInfo layerFileInfo = new LayerFileInfo();
-        layerFileInfo.setLayerId(layerId);
-        layerFileInfo.setLayerFileInfoTeamId(layerFileInfoTeamId);
-        layerFileInfo.setEnableYn("Y");
-        layerFileInfoMapper.updateLayerFileInfoByTeamId(layerFileInfo);
+        DesignLayerFileInfo designLayerFileInfo = new DesignLayerFileInfo();
+        designLayerFileInfo.setDesignLayerId(designLayerId);
+        designLayerFileInfo.setDesignLayerFileInfoTeamId(designLayerFileInfoTeamId);
+        designLayerFileInfo.setEnableYn("Y");
+        designLayerFileInfoMapper.updateDesignLayerFileInfoByTeamId(designLayerFileInfo);
 
-        Integer fileVersion = layerFileInfoMapper.getLayerShapeFileVersion(layerFileInfoId);
+        Integer fileVersion = designLayerFileInfoMapper.getDesignLayerShapeFileVersion(designLayerFileInfoId);
         Map<String, String> orgMap = new HashMap<>();
         orgMap.put("fileVersion", fileVersion.toString());
         orgMap.put("tableName", tableName);
         orgMap.put("enableYn", "Y");
-        result = layerFileInfoMapper.updateOgr2OgrStatus(orgMap);
 
-        return result;
+        return designLayerFileInfoMapper.updateOgr2OgrStatus(orgMap);
     }
 
     /**
-     * 레이어 롤백 처리
-     * @param layer
-     * @param isLayerFileInfoExist
-     * @param layerFileInfo
-     * @param deleteLayerFileInfoTeamId
+     * design 레이어 롤백 처리
+     * @param designLayer
+     * @param isDesignLayerFileInfoExist
+     * @param designLayerFileInfo
+     * @param deleteDesignLayerFileInfoTeamId
      */
 	@Transactional
-	public void rollbackLayer(Layer layer, boolean isLayerFileInfoExist, LayerFileInfo layerFileInfo,
-			Integer deleteLayerFileInfoTeamId) {
-		layerMapper.updateLayer(layer);
-		if (isLayerFileInfoExist) {
-			layerFileInfoMapper.deleteLayerFileInfoByTeamId(deleteLayerFileInfoTeamId);
+	public void rollbackDesignLayer(DesignLayer designLayer, boolean isDesignLayerFileInfoExist, DesignLayerFileInfo designLayerFileInfo, Long deleteDesignLayerFileInfoTeamId) {
+		designLayerMapper.updateDesignLayer(designLayer);
+		if (isDesignLayerFileInfoExist) {
+            designLayerFileInfoMapper.deleteDesignLayerFileInfoByTeamId(deleteDesignLayerFileInfoTeamId);
 
-			// 모든 layer_file_info 의 shape 상태를 비활성화로 update 함
-			layerFileInfoMapper.updateLayerFileInfoAllDisabledByLayerId(layer.getLayerId());
-			// 이 레이어의 지난 데이터를 비 활성화 상태로 update 함
-			layerFileInfoMapper.updateShapePreDataDisable(layer.getLayerKey());
+			// 모든 design_layer_file_info 의 shape 상태를 비활성화로 update 함
+            designLayerFileInfoMapper.updateDesignLayerFileInfoAllDisabledByDesignLayerId(designLayer.getDesignLayerId());
+			// 이 design 레이어의 지난 데이터를 비 활성화 상태로 update 함
+            designLayerFileInfoMapper.updateShapePreDataDisable(designLayer.getDesignLayerKey());
 
-			// 이전 레이어 이력을 활성화
-			layerFileInfoMapper.updateLayerFileInfoByTeamId(layerFileInfo);
+			// 이전 design 레이어 이력을 활성화
+            designLayerFileInfoMapper.updateDesignLayerFileInfoByTeamId(designLayerFileInfo);
 			// 이전 shape 데이터를 활성화
 			Map<String, String> orgMap = new HashMap<>();
-			orgMap.put("fileVersion", layerFileInfo.getVersionId().toString());
-			orgMap.put("tableName", layer.getLayerKey());
+			orgMap.put("fileVersion", designLayerFileInfo.getVersionId().toString());
+			orgMap.put("tableName", designLayer.getDesignLayerKey());
 			orgMap.put("enableYn", "Y");
-			layerFileInfoMapper.updateOgr2OgrStatus(orgMap);
+            designLayerFileInfoMapper.updateOgr2OgrStatus(orgMap);
 		} else {
-			layerFileInfoMapper.deleteLayerFileInfo(layer.getLayerId());
+            designLayerFileInfoMapper.deleteDesignLayerFileInfo(designLayer.getDesignLayerId());
 			// TODO shape 파일에도 이력이 있음 지워 줘야 하나?
 		}
 	}
 	
 	/**
-	 * 레이어 삭제
+	 * design 레이어 삭제
 	 * 
-	 * @param layerId
+	 * @param designLayerId
 	 * @return
 	 */
 	@Transactional
-	public int deleteLayer(Integer layerId) {
+	public int deleteDesignLayer(Long designLayerId) {
 		// geoserver layer 삭제
 		GeoPolicy geopolicy = geoPolicyService.getGeoPolicy();
-		Layer layer = layerMapper.getLayer(layerId);
+		DesignLayer designLayer = designLayerMapper.getDesignLayer(designLayerId);
 		// 업로드 파일 삭제
-		// TODO 그냥 foreach 도 될거 같음
-        List<String> layerFilePath = layerFileInfoMapper.getListLayerFilePath(layerId);
-		layerFilePath.stream()
-					.forEach( path -> {
+		List<String> designLayerFilePath = designLayerFileInfoMapper.getListDesignLayerFilePath(designLayerId);
+        designLayerFilePath.forEach( path -> {
 						File directory = new File(path);
 				        if(directory.exists()) { directory.delete();}
 					});
-		if(layerFilePath.size() > 0) {
-			// geoserver layer 삭제
-			deleteGeoserverLayer(geopolicy, layer.getLayerKey());
+		if(!designLayerFilePath.isEmpty()) {
+			// geoserver design layer 삭제
+			deleteGeoserverDesignLayer(geopolicy, designLayer.getDesignLayerKey());
 			// geoserver style 삭제
-			deleteGeoserverLayerStyle(geopolicy, layer.getLayerKey());
-			// layer_file_info 히스토리 삭제
-			layerFileInfoMapper.deleteLayerFileInfo(layerId);
+			deleteGeoserverLayerStyle(geopolicy, designLayer.getDesignLayerKey());
+			// design_layer_file_info 히스토리 삭제
+            designLayerFileInfoMapper.deleteDesignLayerFileInfo(designLayerId);
 			// 공간정보 테이블 삭제
-			String layerExists = layerMapper.isLayerExists(layer.getLayerKey());
-			if(layerExists != null) {
-				layerMapper.deleteLayerTable(layer.getLayerKey());
+			String designLayerExists = designLayerMapper.isDesignLayerExists(designLayer.getDesignLayerKey());
+			if(designLayerExists != null) {
+				designLayerMapper.deleteDesignLayerTable(designLayer.getDesignLayerKey());
 			}
 		}
-		// 레이어 메타정보 삭제 
-		return layerMapper.deleteLayer(layerId);
+
+		// design 레이어 메타정보 삭제
+		return designLayerMapper.deleteDesignLayer(designLayerId);
 	}
 
 	/**
-    * layer 가 등록 되어 있지 않은 경우 rest api 를 이용해서 layer를 등록
+    * design layer 가 등록 되어 있지 않은 경우 rest api 를 이용해서 design layer를 등록
     * @throws Exception
     */
     @Transactional
-    public void registerLayer(GeoPolicy geoPolicy, String layerKey) throws Exception {
-        HttpStatus httpStatus = getLayerStatus(geoPolicy, layerKey);
+    public void registerDesignLayer(GeoPolicy geoPolicy, String designLayerKey) throws Exception {
+        HttpStatus httpStatus = getDesignLayerStatus(geoPolicy, designLayerKey);
         if(HttpStatus.INTERNAL_SERVER_ERROR == httpStatus) {
             throw new Exception();
         }
 
         if(HttpStatus.OK == httpStatus) {
-            log.info("layerKey = {} 는 이미 존재하는 layer 입니다.", layerKey);
+            log.info("designLayerKey = {} 는 이미 존재하는 design layer 입니다.", designLayerKey);
             // 이미 등록 되어 있음
         } else if(HttpStatus.NOT_FOUND == httpStatus) {
             // 신규 등록
@@ -453,7 +453,7 @@ public class LayerServiceImpl implements LayerService {
             headers.add("Authorization", "Basic " + Base64.getEncoder().encodeToString( (geoPolicy.getGeoserverUser() + ":" + geoPolicy.getGeoserverPassword()).getBytes()));
 
             // body
-            String xmlString = "<?xml version=\"1.0\" encoding=\"utf-8\"?><featureType><name>" + layerKey + "</name></featureType>";
+            String xmlString = "<?xml version=\"1.0\" encoding=\"utf-8\"?><featureType><name>" + designLayerKey + "</name></featureType>";
 
             List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
             //Add the String Message converter
@@ -480,59 +480,59 @@ public class LayerServiceImpl implements LayerService {
     }
     
     /**
-     * 레이어의 스타일 정보를 수정
-     * @param layer
+     * design 레이어의 스타일 정보를 수정
+     * @param designLayer
      * @return
      */
      @Transactional
-     public int updateLayerStyle(Layer layer) throws Exception {
-    	 log.info("==============update layer style");
+     public int updateDesignLayerStyle(DesignLayer designLayer) throws Exception {
+    	 log.info("==============update design layer style");
          GeoPolicy geoPolicy = geoPolicyService.getGeoPolicy();
-         Layer dbLayer = layerMapper.getLayer(layer.getLayerId());
-         layer.setLayerKey(dbLayer.getLayerKey());
-         String xmlData = getLayerStyleFileData(layer.getLayerId());
-         HttpStatus httpStatus = getLayerStatus(geoPolicy, layer.getLayerKey());
+         DesignLayer dbDesignLayer = designLayerMapper.getDesignLayer(designLayer.getDesignLayerId());
+         designLayer.setDesignLayerKey(dbDesignLayer.getDesignLayerKey());
+         String xmlData = getLayerStyleFileData(designLayer.getDesignLayerId());
+         HttpStatus httpStatus = getDesignLayerStatus(geoPolicy, designLayer.getDesignLayerKey());
          if(HttpStatus.NOT_FOUND == httpStatus) {
              return httpStatus.value();
          }
-         httpStatus = getLayerStyle(geoPolicy, layer.getLayerKey());
+         httpStatus = getDesignLayerStyle(geoPolicy, designLayer.getDesignLayerKey());
          if(HttpStatus.INTERNAL_SERVER_ERROR.equals(httpStatus)) {
              throw new Exception();
          }
 
          if(HttpStatus.OK.equals(httpStatus)) {
-             log.info("styleName = {} 는 이미 존재하는 layerStyle 입니다.", layer.getLayerKey());
+             log.info("styleName = {} 는 이미 존재하는 designLayerStyle 입니다.", designLayer.getDesignLayerKey());
              // 이미 등록 되어 있음, update
          } else if(HttpStatus.NOT_FOUND.equals(httpStatus)) {
              // 신규 등록
-             insertGeoserverLayerStyle(geoPolicy, layer);
+             insertGeoserverDesignLayerStyle(geoPolicy, designLayer);
              // 기본 지오메트리타입 스타일 get
-             xmlData = getLayerDefaultStyleFileData(layer.getGeometryType());
+             xmlData = getLayerDefaultStyleFileData(designLayer.getGeometryType());
          } else {
              throw new Exception("http status code = " + httpStatus.toString());
          }
 
          LayerStyleParser layerStyleParser = new LayerStyleParser(
-                 layer.getGeometryType(), layer.getLayerFillColor(), layer.getLayerAlphaStyle(), layer.getLayerLineColor(), layer.getLayerLineStyle(), xmlData.trim());
+                 designLayer.getGeometryType(), designLayer.getLayerFillColor(), designLayer.getLayerAlphaStyle(), designLayer.getLayerLineColor(), designLayer.getLayerLineStyle(), xmlData.trim());
          layerStyleParser.updateLayerStyle();
-         layer.setStyleFileContent(layerStyleParser.getStyleData());
+         designLayer.setStyleFileContent(layerStyleParser.getStyleData());
 
-         updateGeoserverLayerStyle(geoPolicy, layer);
-         reloadGeoserverLayerStyle(geoPolicy, layer);
+         updateGeoserverLayerStyle(geoPolicy, designLayer);
+         reloadGeoserverLayerStyle(geoPolicy, designLayer);
          
          return 0;
 
      }
      
 	/**
-	 * 레이어가 존재 하는지를 검사
+	 * design 레이어가 존재 하는지를 검사
 	 * 
 	 * @param geopolicy
-	 * @param layerKey
+	 * @param designLayerKey
 	 * @return
 	 * @throws Exception
 	 */
-	private HttpStatus getLayerStatus(GeoPolicy geopolicy, String layerKey) {
+	private HttpStatus getDesignLayerStatus(GeoPolicy geopolicy, String designLayerKey) {
 		HttpStatus httpStatus = null;
 		try {
 			HttpHeaders headers = new HttpHeaders();
@@ -550,11 +550,11 @@ public class LayerServiceImpl implements LayerService {
 
 			HttpEntity<String> entity = new HttpEntity<>(headers);
 			String url = geopolicy.getGeoserverDataUrl() + "/rest/workspaces/" + geopolicy.getGeoserverDataWorkspace()
-					+ "/datastores/" + geopolicy.getGeoserverDataStore() + "/featuretypes/" + layerKey;
+					+ "/datastores/" + geopolicy.getGeoserverDataStore() + "/featuretypes/" + designLayerKey;
 			log.info("-------- url = {}", url);
 			ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 			httpStatus = response.getStatusCode();
-			log.info("-------- layerKey = {}, statusCode = {}, body = {}", layerKey, response.getStatusCodeValue(),
+			log.info("-------- designLayerKey = {}, statusCode = {}, body = {}", designLayerKey, response.getStatusCodeValue(),
 					response.getBody());
 		} catch (RestClientException e) {
 		    LogMessageSupport.printMessage(e, "-------- RestClientException message = {}", e.getMessage());
@@ -578,13 +578,13 @@ public class LayerServiceImpl implements LayerService {
 	}
      
 	/**
-	 * 레이어 스타일 정보 등록
+	 * design 레이어 스타일 정보 등록
 	 * 
 	 * @param geopolicy
-	 * @param layer
+	 * @param designLayer
 	 * @throws Exception
 	 */
-	private void insertGeoserverLayerStyle(GeoPolicy geopolicy, Layer layer) throws Exception {
+	private void insertGeoserverDesignLayerStyle(GeoPolicy geopolicy, DesignLayer designLayer) throws Exception {
 		RestTemplate restTemplate = new RestTemplate();
 
 		HttpHeaders headers = new HttpHeaders();
@@ -604,22 +604,20 @@ public class LayerServiceImpl implements LayerService {
 		// Add the message converters to the restTemplate
 		restTemplate.setMessageConverters(messageConverters);
 
-		HttpEntity<String> entity = new HttpEntity<>(getEmptyStyleFile(layer.getLayerKey()), headers);
+		HttpEntity<String> entity = new HttpEntity<>(getEmptyStyleFile(designLayer.getDesignLayerKey()), headers);
 
-		String url = geopolicy.getGeoserverDataUrl() + "/rest/workspaces/" + geopolicy.getGeoserverDataWorkspace()
-				+ "/styles";
+		String url = geopolicy.getGeoserverDataUrl() + "/rest/workspaces/" + geopolicy.getGeoserverDataWorkspace() + "/styles";
 		ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
-		log.info("-------- insertGeoserverLayerStyle statusCode = {}, body = {}", response.getStatusCodeValue(),
-				response.getBody());
+		log.info("-------- insertGeoserverDesignLayerStyle statusCode = {}, body = {}", response.getStatusCodeValue(), response.getBody());
 	}
 	
 	/**
 	 * 기존에 존재하는 스타일의 정보를 취득 
 	 * @param geopolicy
-	 * @param layerKey
+	 * @param designLayerKey
 	 * @return
 	 */
-    private HttpStatus getLayerStyle(GeoPolicy geopolicy, String layerKey) {
+    private HttpStatus getDesignLayerStyle(GeoPolicy geopolicy, String designLayerKey) {
         HttpStatus httpStatus = null;
         try {
             RestTemplate restTemplate = new RestTemplate();
@@ -642,11 +640,11 @@ public class LayerServiceImpl implements LayerService {
             restTemplate.setMessageConverters(messageConverters);
 
             HttpEntity<String> entity = new HttpEntity<>(headers);
-            String url = geopolicy.getGeoserverDataUrl() + "/rest/workspaces/" + geopolicy.getGeoserverDataWorkspace() + "/styles/" + layerKey;
+            String url = geopolicy.getGeoserverDataUrl() + "/rest/workspaces/" + geopolicy.getGeoserverDataWorkspace() + "/styles/" + designLayerKey;
 
             ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
             httpStatus = response.getStatusCode();
-            log.info("-------- getLayerStyle styleName = {}, statusCode = {}, body = {}", layerKey, response.getStatusCodeValue(), response.getBody());
+            log.info("-------- getDesignLayerStyle styleName = {}, statusCode = {}, body = {}", designLayerKey, response.getStatusCodeValue(), response.getBody());
         } catch (RestClientException e) {
             LogMessageSupport.printMessage(e, "-------- RestClientException message = {}", e.getMessage());
 			String message = e.getMessage();
@@ -665,7 +663,7 @@ public class LayerServiceImpl implements LayerService {
             }
         }
 
-        log.info("########### getLayerStyle end");
+        log.info("########### getDesignLayerStyle end");
         return httpStatus;
     }
     
@@ -707,27 +705,22 @@ public class LayerServiceImpl implements LayerService {
 			ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 			httpStatus = response.getStatusCode();
 			layerStyleFileData = response.getBody().toString();
-			log.info("-------- getLayerStyle geometry type = {}, statusCode = {}, body = {}", geometryType,
-					response.getStatusCodeValue(), response.getBody());
+			log.info("-------- getLayerDefaultStyleFileData geometry type = {}, statusCode = {}, body = {}", geometryType, response.getStatusCodeValue(), response.getBody());
 		} catch (RestClientException e) {
 		    LogMessageSupport.printMessage(e, "-------- RestClientException message = {}", e.getMessage());
 			String message = e.getMessage();
 			if (message.indexOf("404") >= 0) {
 				httpStatus = HttpStatus.NOT_FOUND;
-				layerStyleFileData = null;
 			} else {
 				httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-				layerStyleFileData = null;
 			}
 		} catch (Exception e) {
 		    LogMessageSupport.printMessage(e, "-------- exception message = {}", e.getMessage());
 			String message = e.getMessage();
 			if (message.indexOf("404") >= 0) {
 				httpStatus = HttpStatus.NOT_FOUND;
-				layerStyleFileData = null;
 			} else {
 				httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-				layerStyleFileData = null;
 			}
 		}
 
@@ -737,15 +730,15 @@ public class LayerServiceImpl implements LayerService {
 	/**
 	 * 레이어 스타일 파일을 취득
 	 * 
-	 * @param layerId
+	 * @param designLayerId
 	 * @return
 	 */
-	private String getLayerStyleFileData(Integer layerId) {
+	private String getLayerStyleFileData(Long designLayerId) {
 		String layerStyleFileData = null;
 		HttpStatus httpStatus = null;
 		try {
 			GeoPolicy geopolicy = geoPolicyService.getGeoPolicy();
-			Layer layer = layerMapper.getLayer(layerId);
+			DesignLayer designLayer = designLayerMapper.getDesignLayer(designLayerId);
 
 			RestTemplate restTemplate = new RestTemplate();
 
@@ -769,32 +762,26 @@ public class LayerServiceImpl implements LayerService {
 
 			HttpEntity<String> entity = new HttpEntity<>(headers);
 
-			String url = geopolicy.getGeoserverDataUrl() + "/rest/workspaces/" + geopolicy.getGeoserverDataWorkspace()
-					+ "/styles/" + layer.getLayerKey() + ".sld";
+			String url = geopolicy.getGeoserverDataUrl() + "/rest/workspaces/" + geopolicy.getGeoserverDataWorkspace() + "/styles/" + designLayer.getDesignLayerKey() + ".sld";
 			ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 			httpStatus = response.getStatusCode();
 			layerStyleFileData = response.getBody().toString();
-			log.info("-------- getLayerStyle styleName = {}, statusCode = {}, body = {}", layer.getLayerKey(),
-					response.getStatusCodeValue(), response.getBody());
+			log.info("-------- designLayerKey = {}, statusCode = {}, body = {}", designLayer.getDesignLayerKey(), response.getStatusCodeValue(), response.getBody());
 		} catch (RestClientException e) {
 		    LogMessageSupport.printMessage(e, "-------- RestClientException message = {}", e.getMessage());
 			String message = e.getMessage();
 			if (message.indexOf("404") >= 0) {
 				httpStatus = HttpStatus.NOT_FOUND;
-				layerStyleFileData = null;
 			} else {
 				httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-				layerStyleFileData = null;
 			}
 		} catch (Exception e) {
 		    LogMessageSupport.printMessage(e, "-------- exception message = {}", e.getMessage());
 			String message = e.getMessage();
 			if (message.indexOf("404") >= 0) {
 				httpStatus = HttpStatus.NOT_FOUND;
-				layerStyleFileData = null;
 			} else {
 				httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-				layerStyleFileData = null;
 			}
 		}
 
@@ -805,10 +792,10 @@ public class LayerServiceImpl implements LayerService {
 	 * 레이어 스타일 정보를 수정
 	 * 
 	 * @param geopolicy
-	 * @param layer
+	 * @param designLayer
 	 * @throws Exception
 	 */
-	private void updateGeoserverLayerStyle(GeoPolicy geopolicy, Layer layer) throws Exception {
+	private void updateGeoserverLayerStyle(GeoPolicy geopolicy, DesignLayer designLayer) throws Exception {
 		RestTemplate restTemplate = new RestTemplate();
 
 		HttpHeaders headers = new HttpHeaders();
@@ -828,25 +815,23 @@ public class LayerServiceImpl implements LayerService {
 		// Add the message converters to the restTemplate
 		restTemplate.setMessageConverters(messageConverters);
 
-		HttpEntity<String> entity = new HttpEntity<>(layer.getStyleFileContent().trim(), headers);
+		HttpEntity<String> entity = new HttpEntity<>(designLayer.getStyleFileContent().trim(), headers);
 
-		String url = geopolicy.getGeoserverDataUrl() + "/rest/workspaces/" + geopolicy.getGeoserverDataWorkspace()
-				+ "/styles/" + layer.getLayerKey();
-		log.info("-------- url = {}, xmlData = {}", url, layer.getStyleFileContent().trim());
+		String url = geopolicy.getGeoserverDataUrl() + "/rest/workspaces/" + geopolicy.getGeoserverDataWorkspace() + "/styles/" + designLayer.getDesignLayerKey();
+		log.info("-------- url = {}, xmlData = {}", url, designLayer.getStyleFileContent().trim());
 		ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
-		log.info("-------- updateGeoserverLayerStyle statusCode = {}, body = {}", response.getStatusCodeValue(),
-				response.getBody());
+		log.info("-------- updateGeoserverLayerStyle statusCode = {}, body = {}", response.getStatusCodeValue(), response.getBody());
 	}
        
 	/**
 	 * geoserver에 존재하는 레이어를 삭제
 	 * 
 	 * @param geopolicy
-	 * @param layerKey
+	 * @param designLayerKey
 	 * @return
 	 * @throws Exception
 	 */
-	private HttpStatus deleteGeoserverLayer(GeoPolicy geopolicy, String layerKey) {
+	private HttpStatus deleteGeoserverDesignLayer(GeoPolicy geopolicy, String designLayerKey) {
 		HttpStatus httpStatus = null;
 		try {
 			HttpHeaders headers = new HttpHeaders();
@@ -865,12 +850,11 @@ public class LayerServiceImpl implements LayerService {
 			HttpEntity<String> entity = new HttpEntity<>(headers);
 
 			String url = geopolicy.getGeoserverDataUrl() + "/rest/workspaces/" + geopolicy.getGeoserverDataWorkspace()
-					+ "/datastores/" + geopolicy.getGeoserverDataStore() + "/featuretypes/" + layerKey + "?recurse=true";
+					+ "/datastores/" + geopolicy.getGeoserverDataStore() + "/featuretypes/" + designLayerKey + "?recurse=true";
 			log.info("-------- url = {}", url);
 			ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class);
 			httpStatus = response.getStatusCode();
-			log.info("-------- geoserver layer delete. layerKey = {}, statusCode = {}, body = {}", layerKey,
-					response.getStatusCodeValue(), response.getBody());
+			log.info("-------- geoserver layer delete. designLayerKey = {}, statusCode = {}, body = {}", designLayerKey, response.getStatusCodeValue(), response.getBody());
 		} catch (RestClientException e) {
 		    LogMessageSupport.printMessage(e, "-------- RestClientException message = {}", e.getMessage());
 			httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -882,7 +866,7 @@ public class LayerServiceImpl implements LayerService {
 		return httpStatus;
 	}
 	
-	private void deleteGeoserverLayerStyle(GeoPolicy policy, String layerKey) {
+	private void deleteGeoserverLayerStyle(GeoPolicy policy, String designLayerKey) {
 		HttpStatus httpStatus = null;
 		try {
 			HttpHeaders headers = new HttpHeaders();
@@ -900,7 +884,7 @@ public class LayerServiceImpl implements LayerService {
 
 			HttpEntity<String> entity = new HttpEntity<>(headers);
 
-			String url = policy.getGeoserverDataUrl() + "/rest/workspaces/" + policy.getGeoserverDataWorkspace() + "/styles/" + layerKey + "?recurse=true";
+			String url = policy.getGeoserverDataUrl() + "/rest/workspaces/" + policy.getGeoserverDataWorkspace() + "/styles/" + designLayerKey + "?recurse=true";
 			log.info("-------- url = {}", url);
 			ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class);
 			httpStatus = response.getStatusCode();
@@ -912,8 +896,14 @@ public class LayerServiceImpl implements LayerService {
 			httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
 		}
 	}
-       
-	private void reloadGeoserverLayerStyle(GeoPolicy geopolicy, Layer layer) throws Exception {
+
+    /**
+     *
+     * @param geopolicy
+     * @param designLayer
+     * @throws Exception
+     */
+	private void reloadGeoserverLayerStyle(GeoPolicy geopolicy, DesignLayer designLayer) throws Exception {
 		RestTemplate restTemplate = new RestTemplate();
 
 		HttpHeaders headers = new HttpHeaders();
@@ -933,10 +923,8 @@ public class LayerServiceImpl implements LayerService {
 		// Add the message converters to the restTemplate
 		restTemplate.setMessageConverters(messageConverters);
 
-		HttpEntity<String> entity = new HttpEntity<>(
-				getReloadLayerStyle(geopolicy.getGeoserverDataWorkspace(), layer.getLayerKey()), headers);
-		String url = geopolicy.getGeoserverDataUrl() + "/rest/layers/" + geopolicy.getGeoserverDataWorkspace() + ":"
-				+ layer.getLayerKey();
+		HttpEntity<String> entity = new HttpEntity<>(getReloadLayerStyle(geopolicy.getGeoserverDataWorkspace(), designLayer.getDesignLayerKey()), headers);
+		String url = geopolicy.getGeoserverDataUrl() + "/rest/layers/" + geopolicy.getGeoserverDataWorkspace() + ":" + designLayer.getDesignLayerKey();
 		ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
 		log.info("-------- statusCode = {}, body = {}", response.getStatusCodeValue(), response.getBody());
 	}
@@ -944,27 +932,30 @@ public class LayerServiceImpl implements LayerService {
 	/**
 	 * geoserver rest api 가 빈 파일을 등록하고 update 해야 함
 	 * 
-	 * @param layerKey
+	 * @param designLayerKey
 	 * @return
 	 */
-	private String getEmptyStyleFile(String layerKey) {
+	private String getEmptyStyleFile(String designLayerKey) {
 		
-        String fileName = layerKey + ".sld";
+        String fileName = designLayerKey + ".sld";
         StringBuilder builder = new StringBuilder()
         		.append("<style>")
-                .append("<name>" + layerKey + "</name>")
+                .append("<name>" + designLayerKey + "</name>")
                 .append("<filename>" + fileName + "</filename>")
                 .append("</style>");
         return builder.toString();
 	}
-      
-	private String getReloadLayerStyle(String workspace, String layerKey) {
+
+	/**
+     *
+	 */
+	private String getReloadLayerStyle(String workspace, String designLayerKey) {
 		
         StringBuilder builder = new StringBuilder()
                 .append("<layer>")
                 .append("<enabled>true</enabled>")
                 .append("<defaultStyle>")
-                .append("<name>" + layerKey + "</name>")
+                .append("<name>" + designLayerKey + "</name>")
                 .append("<workspace>" + workspace + "</workspace>")
                 .append("</defaultStyle>")
                 .append("</layer>");

@@ -1,5 +1,7 @@
 drop table if exists design_layer_group cascade;
 drop table if exists design_layer cascade;
+drop table if exists design_layer_land cascade;
+drop table if exists design_layer_building cascade;
 drop table if exists design_layer_file_info cascade;
 drop table if exists design_layer_attribute cascade;
 drop table if exists data_library_group cascade;
@@ -107,6 +109,43 @@ comment on column design_layer.coordinate is '좌표계 정보';
 comment on column design_layer.description is '설명';
 comment on column design_layer.update_date is '수정일';
 comment on column design_layer.insert_date is '등록일';
+
+
+-- design layer land
+create table design_layer_land (
+	design_layer_land_id                        bigint,
+	design_layer_id					            bigint,
+	design_layer_group_id			            integer,
+    properties					                jsonb,
+	update_date					                timestamp with time zone		default now(),
+	insert_date					                timestamp with time zone 		default now(),
+	constraint design_layer_land_pk 		    primary key (design_layer_land_id)
+);
+
+comment on table design_layer_land is 'design layer land';
+comment on column design_layer_land.design_layer_land_id is 'design layer land 고유번호';
+comment on column design_layer_land.design_layer_id is 'design layer 고유번호';
+comment on column design_layer_land.design_layer_group_id is 'design layer 그룹 고유번호';
+comment on column design_layer_land.update_date is '수정일';
+comment on column design_layer_land.insert_date is '등록일';
+
+-- design layer building
+create table design_layer_building (
+	design_layer_building_id                    bigint,
+	design_layer_id					            bigint,
+	design_layer_group_id			            integer,
+    properties					                jsonb,
+	update_date					                timestamp with time zone		default now(),
+	insert_date					                timestamp with time zone 		default now(),
+	constraint design_layer_building_pk 		primary key (design_layer_building_id)
+);
+
+comment on table design_layer_building is 'design layer building';
+comment on column design_layer_building.design_layer_building_id is 'design layer building 고유번호';
+comment on column design_layer_building.design_layer_id is 'design layer 고유번호';
+comment on column design_layer_building.design_layer_group_id is 'design layer 그룹 고유번호';
+comment on column design_layer_building.update_date is '수정일';
+comment on column design_layer_building.insert_date is '등록일';
 
 
 -- design layer 속성

@@ -131,6 +131,10 @@ public class Policy {
  	private String contentLayerGroupRoot;
  	// data 그룹 최상위 그룹명
  	private String contentDataGroupRoot;
+ 	// 디자인 레이어 그룹 최상위 그룹명
+	private String contentDesignLayerGroupRoot;
+	// 데이터 라이브러리 그룹 최상위 그룹명
+	private String contentDataLibraryGroupRoot;
  	
  	// 업로딩 가능 확장자. 3ds,obj,dae,collada,ifc,las,gml,citygml,indoorgml,jpg,jpeg,gif,png,bmp,zip
  	private String userUploadType;

@@ -52,10 +52,12 @@ create table policy(
 	content_monitoring_interval				integer				default 1,
 	content_statistics_interval				char(1)				default '0',
 	content_load_balancing_interval			integer				default 10,
-	content_menu_group_root					varchar(60)			default 'mago3D',
-	content_user_group_root					varchar(60)			default 'mago3D',
-	content_layer_group_root				varchar(60)			default 'mago3D',
-	content_data_group_root					varchar(60)			default 'mago3D',
+	content_menu_group_root					varchar(60)			default 'LHDT',
+	content_user_group_root					varchar(60)			default 'LHDT',
+	content_layer_group_root				varchar(60)			default 'LHDT',
+	content_data_group_root					varchar(60)			default 'LHDT',
+	content_design_layer_group_root			varchar(60)			default 'LHDT',
+	content_data_library_group_root			varchar(60)			default 'LHDT',
 	
 	user_upload_type						varchar(256)		default '3ds,obj,dae,collada,ifc,las,gml,citygml,indoorgml,jpg,jpeg,gif,png,bmp,dds,zip,mtl,max',
 	user_converter_type						varchar(256)		default '3ds,obj,dae,collada,ifc,las,gml,citygml,indoorgml',
@@ -116,6 +118,8 @@ comment on column policy.content_menu_group_root is '메뉴 그룹 최상위 그
 comment on column policy.content_user_group_root is '사용자 그룹 최상위 그룹명';
 comment on column policy.content_layer_group_root is '레이어 그룹 최상위 그룹명';
 comment on column policy.content_data_group_root is '데이터 그룹 최상위 그룹명';
+comment on column policy.content_design_layer_group_root is '디자인 레이어 그룹 최상위 그룹명';
+comment on column policy.content_data_library_group_root is '데이터 라이브러리 그룹 최상위 그룹명';
 
 comment on column policy.user_upload_type is '업로딩 가능 확장자. 3ds,obj,dae,collada,ifc,las,gml,citygml,indoorgml,jpg,jpeg,gif,png,bmp,zip';
 comment on column policy.user_converter_type is '변환 가능 확장자. 3ds,obj,dae,collada,ifc,las,gml,citygml,indoorgml';
