@@ -16,7 +16,7 @@ import org.springframework.http.ResponseEntity;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lhdt.ds.common.domain.Domain;
+import lhdt.ds.common.domain.DsDomain;
 
 /**
  * 모든 controller  의 부모
@@ -64,7 +64,7 @@ public class DsController {
 	 * @param vo
 	 * @return
 	 */
-	protected <T extends Domain> ResponseEntity<Map<String,Object>> res(List<T> list){
+	protected <T extends DsDomain> ResponseEntity<Map<String,Object>> res(List<T> list){
 		
 		Map<String,Object> map = new HashMap<>();
 		map.put(DsConst.DATA, list);
@@ -78,7 +78,7 @@ public class DsController {
 	 * @param vo
 	 * @return
 	 */
-	protected <T extends Domain> ResponseEntity<Map<String,Object>> res(List<T> list, HttpStatus hs){
+	protected <T extends DsDomain> ResponseEntity<Map<String,Object>> res(List<T> list, HttpStatus hs){
 		
 		Map<String,Object> map = new HashMap<>();
 		map.put(DsConst.DATA, list);

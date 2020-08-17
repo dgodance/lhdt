@@ -16,7 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import lhdt.ds.common.domain.Domain;
+import lhdt.ds.common.domain.DsDomain;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 
@@ -62,7 +62,7 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 		//
 		DOMAIN domain2 = findByBizKey(domain);
 		
-		delete((IDTYPE)((Domain)domain2).getId());
+		delete((IDTYPE)((DsDomain)domain2).getId());
 	}
 	
 
@@ -190,7 +190,7 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 			}
 			
 			//
-			update((IDTYPE)((Domain)x).getId(), x);
+			update((IDTYPE)((DsDomain)x).getId(), x);
 		});
 	}
 	

@@ -23,7 +23,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public abstract class Domain extends PpVO {
+public abstract class DsDomain extends PpVO {
     /**
      * 안녕 아이디
      */
