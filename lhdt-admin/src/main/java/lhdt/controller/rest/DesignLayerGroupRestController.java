@@ -72,7 +72,7 @@ public class DesignLayerGroupRestController {
 	 * @param bindingResult
 	 * @return
 	 */
-	@PostMapping("/{designLayerGroupId:[0-9]+}")
+	@PutMapping("/{designLayerGroupId:[0-9]+}")
 	public Map<String, Object> update(HttpServletRequest request, @Valid DesignLayerGroup designLayerGroup, BindingResult bindingResult) {
 		log.info("@@ designLayerGroup = {}", designLayerGroup);
 		Map<String, Object> result = new HashMap<>();
@@ -112,13 +112,11 @@ public class DesignLayerGroupRestController {
 		String errorCode = null;
 		String message = null;
 
-		designLayerGroup.setDesignLayerGroupId(designLayerGroupId);
-
 		int updateCount = designLayerGroupService.updateDesignLayerGroupViewOrder(designLayerGroup);
 		int statusCode = HttpStatus.OK.value();
 		if(updateCount == 0) {
 			statusCode = HttpStatus.BAD_REQUEST.value();
-			errorCode = "layer.group.view-order.invalid";
+			errorCode = "design.layer.group.view-order.invalid";
 		}
 			
 		result.put("statusCode", statusCode);

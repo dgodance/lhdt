@@ -33,9 +33,13 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter {
 
 	@Autowired
 	private ObjectMapper objectMapper;
+
+//	private int count = 0;
 	
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+//		log.info("**** 버그 추적용 SecurityInterceptor count = {}", count);
+//		count++;
 
     	String uri = request.getRequestURI();
     	String requestIp = WebUtils.getClientIp(request);
@@ -51,14 +55,15 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter {
     	int exceptionURICount = URLSupport.EXCEPTION_URI.length;
     	for(int i=0 ; i<exceptionURICount; i++) {
     		if(uri.indexOf(URLSupport.EXCEPTION_URI[i]) >= 0) {
-    			isExceptionURI = true;
+//				log.info("################################### uri = {}, exception uri ={}", uri, URLSupport.EXCEPTION_URI[i]);
+				isExceptionURI = true;
     			break;
     		}
     	}
     	
     	// 예외 URL 은 통과 처리
     	if(isExceptionURI) {
-//    		log.info("################################### exception uri");
+    		log.info("################################### exception uri");
     		return true;
     	}
     	
@@ -89,7 +94,7 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter {
 	    		return false;
 			}
 		}
-		
+
 		// 임시 비밀번호 사용자는 로그인, 패스워드 변경 페이지외에 갈수 없음
 		if(UserStatus.TEMP_PASSWORD == UserStatus.findBy(userSession.getStatus())) {
 			isExceptionURI = false;
