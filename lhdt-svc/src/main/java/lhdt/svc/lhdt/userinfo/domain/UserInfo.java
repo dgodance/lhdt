@@ -8,8 +8,11 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import lhdt.svc.common.LhdtDomain;
-import lombok.*;
+import lhdt.ds.common.domain.LhdtDomain;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * @author gravity@daumsoft.com

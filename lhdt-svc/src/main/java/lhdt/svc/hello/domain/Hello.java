@@ -7,9 +7,13 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-import lhdt.svc.common.Domain;
-import lhdt.svc.common.SvcField;
-import lombok.*;
+import lhdt.ds.common.domain.DsDomain;
+import lhdt.ds.common.misc.DsField;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * 안녕 
@@ -23,7 +27,7 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-public class Hello extends Domain {
+public class Hello extends DsDomain {
 	/**
 	 * 안녕 명
 	 */
@@ -40,14 +44,14 @@ public class Hello extends Domain {
 	 * 업무키
 	 */
 	@Column(name="hello_group_id")
-	@SvcField(bizKey = true, order = 0)
+	@DsField(bizKey = true, order = 0)
 	private String helloGroupId;
 	
 	/**
 	 * 업무키
 	 */
 	@Column(name="hello_group_no")
-	@SvcField(bizKey = true, order = 1)
+	@DsField(bizKey = true, order = 1)
 	private Long helloGroupNo;
 	
 	/**

@@ -12,7 +12,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import lhdt.svc.common.interceptor.MiscInterceptor;
+import lhdt.ds.common.interceptor.DsMiscInterceptor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 	@Autowired
-	private MiscInterceptor miscInterceptor;
+	private DsMiscInterceptor miscInterceptor;
 	
 	@PostConstruct
 	private void init() {
@@ -38,7 +38,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 		//
 		registry.addInterceptor(miscInterceptor)
 			.addPathPatterns("/**")
-			.excludePathPatterns("/", "/error", "/static/**");
+			.excludePathPatterns("/", "/error", "/static/**", "/images/**", "/css/**", "/js/**");
 	}
 
 	@Override
