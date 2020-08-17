@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import lhdt.ds.common.misc.DsController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,7 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Controller
 @RequestMapping("/role")
-public class RoleController {
+public class RoleController extends DsController {
+	private static final String P = "role/";
 
 	@Autowired
 	private RoleService roleService;
@@ -64,7 +66,7 @@ public class RoleController {
 		model.addAttribute("role", role);
 		model.addAttribute("roleList", roleList);
 
-		return "/role/list";
+		return P + "list";
 	}
 
 	/**
