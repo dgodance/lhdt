@@ -5,7 +5,6 @@ package lhdt.admin.svc.hello.controller;
 
 import java.util.Date;
 
-import javax.faces.annotation.RequestMap;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +12,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import lhdt.admin.svc.common.AdminSvcController;
 import lhdt.admin.svc.hello.service.HelloService;
 import lhdt.ds.common.misc.DsConst;
-import lhdt.ds.common.misc.DsController;
 
 /**
  * @author gravity@daumsoft.com
@@ -24,7 +23,7 @@ import lhdt.ds.common.misc.DsController;
  */
 @Controller
 @RequestMapping("/hello")
-public class HelloController extends DsController {
+public class HelloController extends AdminSvcController {
 	
 	@Autowired
 	private HelloService service;

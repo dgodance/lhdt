@@ -7,7 +7,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-import lhdt.ds.common.domain.Domain;
+import lhdt.ds.common.domain.DsDomain;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,7 +26,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Hello extends Domain {
+public class Hello extends DsDomain {
 
 	@Column(name="hello_name")
 	private String helloName;

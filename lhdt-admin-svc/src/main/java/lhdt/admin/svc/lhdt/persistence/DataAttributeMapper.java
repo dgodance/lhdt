@@ -1,10 +1,8 @@
 package lhdt.admin.svc.lhdt.persistence;
 
-import org.springframework.stereotype.Repository;
-
-import lhdt.admin.svc.config.LhdtConnMapper;
 import lhdt.admin.svc.lhdt.domain.DataAttribute;
 import lhdt.admin.svc.lhdt.domain.DataAttributeFileInfo;
+import lhdt.ds.common.config.LhdtConnMapper;
 
 /**
  * 데이터 속성 파일 관리

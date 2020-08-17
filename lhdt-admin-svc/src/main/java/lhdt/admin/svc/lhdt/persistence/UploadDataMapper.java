@@ -2,11 +2,9 @@ package lhdt.admin.svc.lhdt.persistence;
 
 import java.util.List;
 
-import org.springframework.stereotype.Repository;
-
-import lhdt.admin.svc.config.LhdtConnMapper;
 import lhdt.admin.svc.lhdt.domain.UploadData;
 import lhdt.admin.svc.lhdt.domain.UploadDataFile;
+import lhdt.ds.common.config.LhdtConnMapper;
 
 @LhdtConnMapper
 public interface UploadDataMapper {

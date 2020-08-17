@@ -8,11 +8,11 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import lhdt.admin.svc.common.AdminSvcServiceImpl;
 import lhdt.admin.svc.hello.domain.Hello;
 import lhdt.admin.svc.hello.persistence.HelloMapper;
 import lhdt.admin.svc.hello.persistence.HelloRepository;
 import lhdt.admin.svc.hello.service.HelloService;
-import lhdt.ds.common.misc.DsServiceImpl;
 
 /**
  * @author gravity@daumsoft.com
@@ -20,7 +20,7 @@ import lhdt.ds.common.misc.DsServiceImpl;
  *
  */
 @Service("helloService")
-public class HelloServiceImpl extends DsServiceImpl<HelloRepository, HelloMapper, Hello, Long> implements HelloService {
+public class HelloServiceImpl extends AdminSvcServiceImpl<HelloRepository, HelloMapper, Hello, Long> implements HelloService {
 	@Autowired
 	private HelloRepository jpaRepo;
 	

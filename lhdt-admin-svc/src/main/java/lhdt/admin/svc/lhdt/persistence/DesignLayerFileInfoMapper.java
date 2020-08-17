@@ -3,10 +3,8 @@ package lhdt.admin.svc.lhdt.persistence;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.stereotype.Repository;
-
-import lhdt.admin.svc.config.LhdtConnMapper;
 import lhdt.admin.svc.lhdt.domain.DesignLayerFileInfo;
+import lhdt.ds.common.config.LhdtConnMapper;
 
 /**
  * design layer shape 파일 정보

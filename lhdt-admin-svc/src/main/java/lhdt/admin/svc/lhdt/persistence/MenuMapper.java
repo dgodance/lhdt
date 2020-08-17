@@ -3,10 +3,9 @@ package lhdt.admin.svc.lhdt.persistence;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Select;
-import org.springframework.stereotype.Repository;
 
-import lhdt.admin.svc.config.LhdtConnMapper;
 import lhdt.admin.svc.lhdt.domain.Menu;
+import lhdt.ds.common.config.LhdtConnMapper;
 
 
 /**

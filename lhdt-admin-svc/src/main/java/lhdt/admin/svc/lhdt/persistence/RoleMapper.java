@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Select;
 
-import lhdt.admin.svc.config.LhdtConnMapper;
 import lhdt.admin.svc.lhdt.domain.Role;
+import lhdt.ds.common.config.LhdtConnMapper;
 
 /**
  * Role

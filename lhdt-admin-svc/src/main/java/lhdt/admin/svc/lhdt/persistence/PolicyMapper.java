@@ -1,10 +1,9 @@
 package lhdt.admin.svc.lhdt.persistence;
 
 import org.apache.ibatis.annotations.Select;
-import org.springframework.stereotype.Repository;
 
-import lhdt.admin.svc.config.LhdtConnMapper;
 import lhdt.admin.svc.lhdt.domain.Policy;
+import lhdt.ds.common.config.LhdtConnMapper;
 
 /**
  * 운영 정책

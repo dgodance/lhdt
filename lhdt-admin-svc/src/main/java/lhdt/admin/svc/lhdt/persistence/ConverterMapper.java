@@ -2,11 +2,9 @@ package lhdt.admin.svc.lhdt.persistence;
 
 import java.util.List;
 
-import org.springframework.stereotype.Repository;
-
-import lhdt.admin.svc.config.LhdtConnMapper;
 import lhdt.admin.svc.lhdt.domain.ConverterJob;
 import lhdt.admin.svc.lhdt.domain.ConverterJobFile;
+import lhdt.ds.common.config.LhdtConnMapper;
 
 /**
  * f4d converter manager

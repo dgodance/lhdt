@@ -1,9 +1,7 @@
 package lhdt.admin.svc.lhdt.persistence;
 
-import org.springframework.stereotype.Repository;
-
-import lhdt.admin.svc.config.LhdtConnMapper;
 import lhdt.admin.svc.lhdt.domain.GeoPolicy;
+import lhdt.ds.common.config.LhdtConnMapper;
 
 /**
  * 2D, 3D 운영 정책

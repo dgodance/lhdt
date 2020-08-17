@@ -2,15 +2,13 @@ package lhdt.admin.svc.lhdt.persistence;
 
 import java.util.List;
 
-import org.springframework.stereotype.Repository;
-
-import lhdt.admin.svc.config.LhdtConnMapper;
 import lhdt.admin.svc.lhdt.domain.DataFileInfo;
 import lhdt.admin.svc.lhdt.domain.DataFileParseLog;
 import lhdt.admin.svc.lhdt.domain.DataGroup;
 import lhdt.admin.svc.lhdt.domain.DataInfo;
 import lhdt.admin.svc.lhdt.domain.DataInfoSimple;
 import lhdt.admin.svc.lhdt.domain.FileInfo;
+import lhdt.ds.common.config.LhdtConnMapper;
 
 /**
  * Data

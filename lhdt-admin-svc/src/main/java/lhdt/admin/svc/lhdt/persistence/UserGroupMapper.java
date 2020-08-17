@@ -3,12 +3,11 @@ package lhdt.admin.svc.lhdt.persistence;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Select;
-import org.springframework.stereotype.Repository;
 
-import lhdt.admin.svc.config.LhdtConnMapper;
 import lhdt.admin.svc.lhdt.domain.UserGroup;
 import lhdt.admin.svc.lhdt.domain.UserGroupMenu;
 import lhdt.admin.svc.lhdt.domain.UserGroupRole;
+import lhdt.ds.common.config.LhdtConnMapper;
 
 @LhdtConnMapper
 public interface UserGroupMapper {

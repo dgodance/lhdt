@@ -3,9 +3,9 @@
  */
 package lhdt.admin.svc.hello.persistence;
 
-import lhdt.admin.svc.config.AnalsConnMapper;
+import lhdt.admin.svc.common.AdminSvcMapper;
 import lhdt.admin.svc.hello.domain.Hello;
-import lhdt.ds.common.misc.DsMapper;
+import lhdt.ds.common.config.AnalsConnMapper;
 
 /**
  * @author gravity@daumsoft.com
@@ -13,6 +13,6 @@ import lhdt.ds.common.misc.DsMapper;
  *
  */
 @AnalsConnMapper
-public interface HelloMapper extends DsMapper<Hello, Long> {
+public interface HelloMapper extends AdminSvcMapper<Hello, Long> {
 
 }

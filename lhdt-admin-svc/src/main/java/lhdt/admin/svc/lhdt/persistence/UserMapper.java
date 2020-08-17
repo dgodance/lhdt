@@ -2,10 +2,8 @@ package lhdt.admin.svc.lhdt.persistence;
 
 import java.util.List;
 
-import org.springframework.stereotype.Repository;
-
-import lhdt.admin.svc.config.LhdtConnMapper;
 import lhdt.admin.svc.lhdt.domain.UserInfo;
+import lhdt.ds.common.config.LhdtConnMapper;
 
 /**
  * 사용자
