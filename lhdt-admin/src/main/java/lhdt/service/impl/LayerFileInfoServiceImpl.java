@@ -1,6 +1,6 @@
 package lhdt.service.impl;
 
-import lhdt.domain.LayerFileInfo;
+import lhdt.domain.layer.LayerFileInfo;
 import lhdt.persistence.LayerFileInfoMapper;
 import lhdt.service.LayerFileInfoService;
 import org.springframework.beans.factory.annotation.Autowired;

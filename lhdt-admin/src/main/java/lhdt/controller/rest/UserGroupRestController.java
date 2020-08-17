@@ -20,12 +20,12 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.extern.slf4j.Slf4j;
 import lhdt.config.CacheConfig;
 import lhdt.controller.AuthorizationController;
-import lhdt.domain.CacheName;
-import lhdt.domain.CacheParams;
-import lhdt.domain.CacheType;
-import lhdt.domain.UserGroup;
-import lhdt.domain.UserGroupMenu;
-import lhdt.domain.UserGroupRole;
+import lhdt.domain.cache.CacheName;
+import lhdt.domain.cache.CacheParams;
+import lhdt.domain.cache.CacheType;
+import lhdt.domain.user.UserGroup;
+import lhdt.domain.user.UserGroupMenu;
+import lhdt.domain.user.UserGroupRole;
 import lhdt.service.UserGroupService;
 
 @Slf4j

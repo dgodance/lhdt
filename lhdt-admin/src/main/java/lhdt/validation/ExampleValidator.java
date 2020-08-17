@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 
 import lombok.extern.slf4j.Slf4j;
-import lhdt.domain.UserInfo;
+import lhdt.domain.user.UserInfo;
 
 @Slf4j
 @Component

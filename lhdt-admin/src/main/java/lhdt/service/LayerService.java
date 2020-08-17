@@ -1,8 +1,8 @@
 package lhdt.service;
 
-import lhdt.domain.GeoPolicy;
-import lhdt.domain.Layer;
-import lhdt.domain.LayerFileInfo;
+import lhdt.domain.policy.GeoPolicy;
+import lhdt.domain.layer.Layer;
+import lhdt.domain.layer.LayerFileInfo;
 
 import java.util.List;
 import java.util.Map;

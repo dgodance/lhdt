@@ -2,7 +2,7 @@ package lhdt.persistence;
 
 import org.springframework.stereotype.Repository;
 
-import lhdt.domain.UserPolicy;
+import lhdt.domain.user.UserPolicy;
 
 @Repository
 public interface UserPolicyMapper {

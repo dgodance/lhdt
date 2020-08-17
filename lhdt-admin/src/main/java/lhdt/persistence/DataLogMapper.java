@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import lhdt.domain.DataInfoLog;
+import lhdt.domain.data.DataInfoLog;
 
 /**
  * Data Info 변경 이력

@@ -1,9 +1,9 @@
 package lhdt.service.impl;
 
 import lhdt.domain.FileType;
-import lhdt.domain.UploadData;
-import lhdt.domain.UploadDataFile;
-import lhdt.domain.UploadDataType;
+import lhdt.domain.uploaddata.UploadData;
+import lhdt.domain.uploaddata.UploadDataFile;
+import lhdt.domain.uploaddata.UploadDataType;
 import lhdt.persistence.UploadDataMapper;
 import lhdt.service.UploadDataService;
 import lhdt.support.LogMessageSupport;

@@ -1,8 +1,8 @@
 package lhdt.service;
 
-import lhdt.domain.GeoPolicy;
-import lhdt.domain.DesignLayer;
-import lhdt.domain.DesignLayerFileInfo;
+import lhdt.domain.policy.GeoPolicy;
+import lhdt.domain.extrusionmodel.DesignLayer;
+import lhdt.domain.extrusionmodel.DesignLayerFileInfo;
 
 import java.util.List;
 import java.util.Map;

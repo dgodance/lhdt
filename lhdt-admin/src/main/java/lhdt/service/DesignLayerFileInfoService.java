@@ -1,7 +1,6 @@
 package lhdt.service;
 
-import lhdt.domain.DesignLayerFileInfo;
-import lhdt.domain.LayerFileInfo;
+import lhdt.domain.extrusionmodel.DesignLayerFileInfo;
 
 import java.util.List;
 import java.util.Map;

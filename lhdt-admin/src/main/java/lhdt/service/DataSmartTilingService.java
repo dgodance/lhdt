@@ -1,6 +1,6 @@
 package lhdt.service;
 
-import lhdt.domain.DataSmartTilingFileInfo;
+import lhdt.domain.data.DataSmartTilingFileInfo;
 
 /**
  * Smart Tiling 데이터 파일 관리

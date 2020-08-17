@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import lhdt.domain.DataAdjustLog;
+import lhdt.domain.data.DataAdjustLog;
 
 /**
  * 데이터 geometry 변경 이력

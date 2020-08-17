@@ -2,7 +2,7 @@ package lhdt.service;
 
 import java.util.List;
 
-import lhdt.domain.Issue;
+import lhdt.domain.issue.Issue;
 
 /**
  * issue

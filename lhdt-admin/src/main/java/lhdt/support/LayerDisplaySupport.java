@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import lhdt.domain.Layer;
-import lhdt.domain.LayerGroup;
+import lhdt.domain.layer.Layer;
+import lhdt.domain.layer.LayerGroup;
 
 public class LayerDisplaySupport {
 	

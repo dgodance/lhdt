@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import lhdt.domain.UploadData;
-import lhdt.domain.UploadDataFile;
+import lhdt.domain.uploaddata.UploadData;
+import lhdt.domain.uploaddata.UploadDataFile;
 
 @Repository
 public interface UploadDataMapper {

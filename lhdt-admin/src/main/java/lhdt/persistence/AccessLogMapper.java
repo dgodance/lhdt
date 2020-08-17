@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import lhdt.domain.AccessLog;
+import lhdt.domain.accesslog.AccessLog;
 
 
 /**

@@ -15,9 +15,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
-import lhdt.domain.DataGroup;
-import lhdt.domain.DataInfo;
-import lhdt.domain.DataSmartTilingFileInfo;
+import lhdt.domain.data.DataGroup;
+import lhdt.domain.data.DataInfo;
+import lhdt.domain.data.DataSmartTilingFileInfo;
 import lhdt.parser.DataSmartTilingFileParser;
 
 @Slf4j

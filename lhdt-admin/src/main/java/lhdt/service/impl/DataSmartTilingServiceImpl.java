@@ -1,6 +1,7 @@
 package lhdt.service.impl;
 
 import lhdt.domain.*;
+import lhdt.domain.data.*;
 import lhdt.parser.DataSmartTilingFileParser;
 import lhdt.parser.impl.DataSmartTilingFileJsonParser;
 import lhdt.persistence.DataSmartTilingMapper;

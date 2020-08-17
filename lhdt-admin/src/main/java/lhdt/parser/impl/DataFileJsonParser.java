@@ -15,9 +15,9 @@ import org.springframework.util.StringUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lhdt.domain.DataFileInfo;
-import lhdt.domain.DataGroup;
-import lhdt.domain.DataInfo;
+import lhdt.domain.data.DataFileInfo;
+import lhdt.domain.data.DataGroup;
+import lhdt.domain.data.DataInfo;
 import lhdt.parser.DataFileParser;
 
 public class DataFileJsonParser implements DataFileParser {

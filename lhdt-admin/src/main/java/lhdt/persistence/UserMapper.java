@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import lhdt.domain.UserInfo;
+import lhdt.domain.user.UserInfo;
 
 /**
  * 사용자

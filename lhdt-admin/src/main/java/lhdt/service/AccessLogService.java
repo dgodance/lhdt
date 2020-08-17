@@ -2,7 +2,7 @@ package lhdt.service;
 
 import java.util.List;
 
-import lhdt.domain.AccessLog;
+import lhdt.domain.accesslog.AccessLog;
 
 /**
  * 로그 처리

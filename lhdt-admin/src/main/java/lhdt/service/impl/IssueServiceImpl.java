@@ -2,7 +2,7 @@ package lhdt.service.impl;
 
 import java.util.List;
 
-import lhdt.domain.Issue;
+import lhdt.domain.issue.Issue;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

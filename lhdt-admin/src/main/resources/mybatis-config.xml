@@ -10,46 +10,46 @@
     </settings>
 
     <typeAliases>
-    	<typeAlias type="lhdt.domain.AccessLog" alias="accessLog" />
-    	<typeAlias type="lhdt.domain.ConverterJob" alias="converterJob" />
-    	<typeAlias type="lhdt.domain.ConverterJobFile" alias="converterJobFile" />
-		<typeAlias type="lhdt.domain.DataAdjustLog" alias="dataAdjustLog" />
-		<typeAlias type="lhdt.domain.DataAttribute" alias="dataAttribute" />
-		<typeAlias type="lhdt.domain.DataLibraryGroup" alias="dataLibraryGroup" />
-		<typeAlias type="lhdt.domain.DataLibrary" alias="dataLibrary" />
-		<typeAlias type="lhdt.domain.DataFileInfo" alias="dataFileInfo" />
-		<typeAlias type="lhdt.domain.DataFileParseLog" alias="dataFileParseLog" />
-		<typeAlias type="lhdt.domain.DataSmartTilingFileInfo" alias="dataSmartTilingFileInfo" />
-		<typeAlias type="lhdt.domain.DataSmartTilingFileParseLog" alias="dataSmartTilingFileParseLog" />
-		<typeAlias type="lhdt.domain.DataAttributeFileInfo" alias="dataAttributeFileInfo" />
-		<typeAlias type="lhdt.domain.DataObjectAttribute" alias="dataObjectAttribute" />
-		<typeAlias type="lhdt.domain.DataObjectAttributeFileInfo" alias="dataObjectAttributeFileInfo" />
-		<typeAlias type="lhdt.domain.DataGroup" alias="dataGroup" />
-		<typeAlias type="lhdt.domain.DataInfo" alias="dataInfo" />
-		<typeAlias type="lhdt.domain.DataInfoSimple" alias="dataInfoSimple" />
-		<typeAlias type="lhdt.domain.DataInfoLog" alias="dataInfoLog" />
-		<typeAlias type="lhdt.domain.DesignLayerGroup" alias="designLayerGroup" />
-		<typeAlias type="lhdt.domain.DesignLayer" alias="designLayer" />
-		<typeAlias type="lhdt.domain.DesignLayerAttribute" alias="designLayerAttribute" />
-		<typeAlias type="lhdt.domain.DesignLayerFileInfo" alias="designLayerFileInfo" />
-		<typeAlias type="lhdt.domain.DesignLayerLog" alias="designLayerLog" />
-		<typeAlias type="lhdt.domain.GeoPolicy" alias="geoPolicy" />
-		<typeAlias type="lhdt.domain.Issue" alias="issue" />
-    	<typeAlias type="lhdt.domain.Layer" alias="layer" />
-    	<typeAlias type="lhdt.domain.LayerGroup" alias="layerGroup" />
-    	<typeAlias type="lhdt.domain.LayerFileInfo" alias="layerFileInfo" />
-    	<typeAlias type="lhdt.domain.Menu" alias="menu" />
-    	<typeAlias type="lhdt.domain.Policy" alias="policy" />
-    	<typeAlias type="lhdt.domain.Role" alias="role" />
-		<typeAlias type="lhdt.domain.UploadData" alias="uploadData" />
-		<typeAlias type="lhdt.domain.UploadDataFile" alias="uploadDataFile" />
-    	<typeAlias type="lhdt.domain.UserInfo" alias="userInfo" />
-    	<typeAlias type="lhdt.domain.UserGroup" alias="userGroup" />
-    	<typeAlias type="lhdt.domain.UserGroupMenu" alias="userGroupMenu" />
-    	<typeAlias type="lhdt.domain.UserGroupRole" alias="userGroupRole" />
-    	<typeAlias type="lhdt.domain.UserPolicy" alias="userPolicy"/>
-    	<typeAlias type="lhdt.domain.UserSession" alias="userSession" />
-    	<typeAlias type="lhdt.domain.Widget" alias="widget" />
+    	<typeAlias type="lhdt.domain.accesslog.AccessLog" alias="accessLog" />
+    	<typeAlias type="lhdt.domain.converter.ConverterJob" alias="converterJob" />
+    	<typeAlias type="lhdt.domain.converter.ConverterJobFile" alias="converterJobFile" />
+		<typeAlias type="lhdt.domain.data.DataAdjustLog" alias="dataAdjustLog" />
+		<typeAlias type="lhdt.domain.data.DataAttribute" alias="dataAttribute" />
+		<typeAlias type="lhdt.domain.data.DataLibraryGroup" alias="dataLibraryGroup" />
+		<typeAlias type="lhdt.domain.data.DataLibrary" alias="dataLibrary" />
+		<typeAlias type="lhdt.domain.data.DataFileInfo" alias="dataFileInfo" />
+		<typeAlias type="lhdt.domain.data.DataFileParseLog" alias="dataFileParseLog" />
+		<typeAlias type="lhdt.domain.data.DataSmartTilingFileInfo" alias="dataSmartTilingFileInfo" />
+		<typeAlias type="lhdt.domain.data.DataSmartTilingFileParseLog" alias="dataSmartTilingFileParseLog" />
+		<typeAlias type="lhdt.domain.data.DataAttributeFileInfo" alias="dataAttributeFileInfo" />
+		<typeAlias type="lhdt.domain.data.DataObjectAttribute" alias="dataObjectAttribute" />
+		<typeAlias type="lhdt.domain.data.DataObjectAttributeFileInfo" alias="dataObjectAttributeFileInfo" />
+		<typeAlias type="lhdt.domain.data.DataGroup" alias="dataGroup" />
+		<typeAlias type="lhdt.domain.data.DataInfo" alias="dataInfo" />
+		<typeAlias type="lhdt.domain.data.DataInfoSimple" alias="dataInfoSimple" />
+		<typeAlias type="lhdt.domain.data.DataInfoLog" alias="dataInfoLog" />
+		<typeAlias type="lhdt.domain.extrusionmodel.DesignLayerGroup" alias="designLayerGroup" />
+		<typeAlias type="lhdt.domain.extrusionmodel.DesignLayer" alias="designLayer" />
+		<typeAlias type="lhdt.domain.extrusionmodel.DesignLayerAttribute" alias="designLayerAttribute" />
+		<typeAlias type="lhdt.domain.extrusionmodel.DesignLayerFileInfo" alias="designLayerFileInfo" />
+		<typeAlias type="lhdt.domain.extrusionmodel.DesignLayerLog" alias="designLayerLog" />
+		<typeAlias type="lhdt.domain.policy.GeoPolicy" alias="geoPolicy" />
+		<typeAlias type="lhdt.domain.issue.Issue" alias="issue" />
+    	<typeAlias type="lhdt.domain.layer.Layer" alias="layer" />
+    	<typeAlias type="lhdt.domain.layer.LayerGroup" alias="layerGroup" />
+    	<typeAlias type="lhdt.domain.layer.LayerFileInfo" alias="layerFileInfo" />
+    	<typeAlias type="lhdt.domain.menu.Menu" alias="menu" />
+    	<typeAlias type="lhdt.domain.policy.Policy" alias="policy" />
+    	<typeAlias type="lhdt.domain.role.Role" alias="role" />
+		<typeAlias type="lhdt.domain.uploaddata.UploadData" alias="uploadData" />
+		<typeAlias type="lhdt.domain.uploaddata.UploadDataFile" alias="uploadDataFile" />
+    	<typeAlias type="lhdt.domain.user.UserInfo" alias="userInfo" />
+    	<typeAlias type="lhdt.domain.user.UserGroup" alias="userGroup" />
+    	<typeAlias type="lhdt.domain.user.UserGroupMenu" alias="userGroupMenu" />
+    	<typeAlias type="lhdt.domain.user.UserGroupRole" alias="userGroupRole" />
+    	<typeAlias type="lhdt.domain.user.UserPolicy" alias="userPolicy"/>
+    	<typeAlias type="lhdt.domain.user.UserSession" alias="userSession" />
+    	<typeAlias type="lhdt.domain.widget.Widget" alias="widget" />
     </typeAliases>
 
 	<typeHandlers>

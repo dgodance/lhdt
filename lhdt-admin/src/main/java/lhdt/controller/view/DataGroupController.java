@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import lombok.extern.slf4j.Slf4j;
 import lhdt.config.PropertiesConfig;
-import lhdt.domain.DataGroup;
+import lhdt.domain.data.DataGroup;
 import lhdt.domain.Key;
-import lhdt.domain.Policy;
-import lhdt.domain.UserSession;
+import lhdt.domain.policy.Policy;
+import lhdt.domain.user.UserSession;
 import lhdt.service.DataGroupService;
 import lhdt.service.PolicyService;
 import lhdt.support.SQLInjectSupport;

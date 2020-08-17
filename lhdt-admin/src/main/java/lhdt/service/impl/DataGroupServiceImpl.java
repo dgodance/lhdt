@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
 import lhdt.config.PropertiesConfig;
-import lhdt.domain.DataGroup;
+import lhdt.domain.data.DataGroup;
 import lhdt.domain.Depth;
 import lhdt.domain.Move;
 import lhdt.persistence.DataGroupMapper;

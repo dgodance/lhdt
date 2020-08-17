@@ -1,6 +1,6 @@
 package lhdt.geospatial;
 
-import lhdt.domain.DesignLayer;
+import lhdt.domain.extrusionmodel.DesignLayer;
 import lhdt.domain.ShapeFileField;
 import lhdt.support.LogMessageSupport;
 import lombok.extern.slf4j.Slf4j;

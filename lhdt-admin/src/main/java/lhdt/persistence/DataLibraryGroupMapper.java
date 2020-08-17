@@ -1,6 +1,6 @@
 package lhdt.persistence;
 
-import lhdt.domain.DataLibraryGroup;
+import lhdt.domain.data.DataLibraryGroup;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
