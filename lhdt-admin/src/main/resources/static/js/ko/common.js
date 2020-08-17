@@ -246,7 +246,6 @@ function changeLanguage(lang) {
 		});
 	} else {
 		alert(JS_MESSAGE["button.dobule.click"]);
-		return;
 	}
 }
 

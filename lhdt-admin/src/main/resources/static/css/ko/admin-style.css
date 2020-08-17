@@ -1094,7 +1094,7 @@ dl {
 
 /* local */
 .local-navigation {
-	width: 210px;
+	width: 230px;
 	padding-left: 5px;
 	padding-right: 5px;
 	box-sizing: border-box; }
@@ -1342,7 +1342,7 @@ html, body {
 	float: left; }
 
 .page-area {
-	margin-left: 230px;
+	margin-left: 250px;
 	overflow: hidden; }
 /*
 .page-header {
