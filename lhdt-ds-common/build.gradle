@@ -8,6 +8,17 @@ group = 'com.lhdt'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+bootJar {
+    enabled = false
+}
+
+
+jar {
+    enabled = true
+}
+
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
