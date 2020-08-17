@@ -1,0 +1,188 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<div id="simulationContent" class="contents yScroll fullHeight" style="display:none;">
+<ul class="listDrop">
+	<li class="on">
+		<p th:text="|#{simulation.landscape.analysis}(#{simulation.solar.analysis})|"><span class="collapse-icon">icon</span></p>
+		<div id="solarAnalysis" class="listContents">
+			<ul class="analysisGroup">
+				<li>
+					<label for="solarAnalysisObserverPoint" th:text="#{common.observer.position}"></label>
+					<input type="text" id="solarAnalysisObserverPoint" value="" placeholder=""  readonly/>
+					<button type="button" class="btnText drawObserverPoint" th:text="#{common.pick.location}"></button>
+				</li>
+				<li>
+					<label for="datepicker-input" th:text="#{common.date}"></label>
+					<!-- <input class="" type="text" id="solayDatePicker" placeholder="" value=""/> -->
+					<div class="tui-datepicker-input tui-datetime-input tui-has-focus">
+			            <input type="text" id="datepicker-input" aria-label="Date-Time">
+			            <span class="tui-ico-date"></span>
+			        </div>
+			        <div id="solayDatePicker" style="margin-top: -1px;"></div>
+				</li>
+				<li class="btns">
+					<!-- <button type="button" class="btnTextF report" title="일조분석 리포트" style="display:none;">리포트</button> -->
+					<button type="button" class="btnTextF execute" th:text="#{common.analysis}" th:title="#{common.analysis}"></button>
+					<button type="button" class="btnText reset" th:text="#{common.cancel}" th:title="#{common.cancel}"></button>
+				</li>
+			</ul>
+		</div>
+	</li>
+	<li class="on">
+		<p th:text="#{simulation.construction.process}"><span class="collapse-icon">icon</span></p>
+		<div id="constructionProcess" class="listContents">
+			<ul class="analysisGroup">
+				<li>
+					<span th:text="#{common.position}" style="display: inline-block;padding: 3px 0;margin-right: 20px;"></span>
+					<!-- <input class="" type="text" placeholder="" value=""/>
+					<button type="button" class="btnText drawObserverPoint">찾기</button> -->
+					<label for="cpSejong" th:text="#{common.sejong}" style="width:35px;"></label>
+					<input type="radio" id="cpSejong" name="cpProtoArea" value="s" style="width:20px;" checked />
+					<label for="cpBusan" th:text="#{common.busan}" style="width:35px;"></label>
+					<input type="radio" id="cpBusan"  name="cpProtoArea" value="p" style="width:20px;" />
+				</li>
+
+				<li class="btns">
+					<button type="button" class="btnTextF execute" th:text="#{common.lookup}" th:title="#{common.lookup}"></button>
+					<button type="button" class="btnText reset" th:text="#{common.cancel}" th:title="#{common.cancel}"></button>
+				</li>
+				<li class="profileInfo" style="display:none;cursor: default;">
+					<div class="legend">
+						<div class="geostats-legend">
+							<div class="geostats-legend-title">Legend</div>
+							<div class="level" data-level="1" style="width: 80px;display: inline-block;">
+								<div class="geostats-legend-block" style="background-color:#e60800"></div>
+								<span class="geostats-legend-counter" th:text="|1#{common.step}|" style="font-size: 1em;"></span>
+							</div>
+							<div class="level" data-level="2" style="width: 80px;display: inline-block;">
+								<div class="geostats-legend-block" style="background-color:#ff641c"></div>
+								<span class="geostats-legend-counter" th:text="|2#{common.step}|" style="font-size: 1em;"></span>
+							</div>
+							<div class="level" data-level="3" style="width: 80px;display: inline-block;">
+								<div class="geostats-legend-block" style="background-color:#8d1e4d"></div>
+								<span class="geostats-legend-counter" th:text="|3#{common.step}|" style="font-size: 1em;"></span>
+							</div>
+							<div class="level" data-level="4" style="width: 80px;display: inline-block;">
+								<div class="geostats-legend-block" style="background-color:#7d2c79"></div>
+								<span class="geostats-legend-counter" th:text="|4#{common.step}|" style="font-size: 1em;"></span>
+							</div>
+							<div class="level" data-level="5" style="width: 80px;display: inline-block;">
+								<div class="geostats-legend-block" style="background-color:#ffd009"></div>
+								<span class="geostats-legend-counter" th:text="|5#{common.step}|" style="font-size: 1em;"></span>
+							</div>
+							<div class="level" data-level="6" style="width: 80px;display: inline-block;">
+								<div class="geostats-legend-block" style="background-color:#00a9b6"></div>
+								<span class="geostats-legend-counter" th:text="|6#{common.step}|" style="font-size: 1em;"></span>
+							</div>
+						</div>
+					</div>
+				</li>
+			</ul>
+		</div>
+	</li>
+	<li class="on">
+		<p th:text="높이시뮬레이션"><span class="collapse-icon">icon</span></p>
+		<div id="heightAnalsProcess" class="listContents">
+			<ul>
+				<li>
+					<label for="heightAnalsObserverPoint" th:text="활성화"></label>
+					<input type="checkbox" id="heightAnalsObserverPoint" value="" placeholder=""/>
+					<button type="button" id="heightAnalsObserverBtn" th:text="작동"></button>
+				</li>
+			</ul>
+		</div>
+	</li>
+	<li class="on">
+		<p th:text="용적건폐율실험"><span class="collapse-icon">icon</span></p>
+		<div id="cityPlanAreaTest" class="listContents">
+			<ul>
+				<li>
+					<label for="cityPlanAreaTestPoint" th:text="활성화"></label>
+					<input type="checkbox" id="cityPlanAreaTestPoint" value="" placeholder=""/>
+					<button type="button" id="cityPlanAreaTestBtn" th:text="작동"></button>
+				</li>
+			</ul>
+		</div>
+	</li>
+	<li class="on">
+		<p th:text="시곡면실험"><span class="collapse-icon">icon</span></p>
+		<div id="landScapeDirectionTest" class="listContents">
+			<ul>
+				<li>
+					<label for="landScapeDirectionToggle" th:text="활성화"></label>
+					<input type="checkbox" id="landScapeDirectionToggle" value="" placeholder=""/>
+					<button type="button" id="calcLandScapeDirection" th:text="작동"></button>
+				</li>
+			</ul>
+		</div>
+	</li>
+
+	<li class="on">
+		<p th:text="스카이라인"><span class="collapse-icon">icon</span></p>
+		<div id="skyline" class="listContents">
+			<ul>
+				<li><a href="#" class="ds-flyto">1. flyto(테스트 위치로 이동)</a></li>
+				<li><a href="#" class="ds-points2">2. draw 2 points(사용자가 두점 선택했다치고...)</a></li>
+				<li><a href="#" class="ds-points3">3. 3점 계산&표시</a></li>
+				<li><a href="#" class="ds-movetop1">4-1. move to 원경</a></li>
+				<li><a href="#" class="ds-movetop2">4-2. move to 중경</a></li>
+				<li><a href="#" class="ds-movetop3">4-3. move to 근경</a></li>
+				<li><a href="#" class="ds-autoall">※ 자동으로 원/중/근경 이동 & 지도 캡처 & 이미지표시</a></li>
+				<li><a href="#" class="ds-show-modal">모달 표시</a></li>
+			</ul>
+		</div>
+	</li>
+</ul>
+
+<style>
+#skylineModal > h2 {color:#333;}
+.ds-image {display: none;}
+.ds-image.on {display: block;}
+.ds-image-skyline {display: none;}
+.ds-image-skyline.on {display: block;}
+.ds-image-thumb {margin-bottom: 5px; cursor: pointer;}
+.ds-image-skyline-thumb {margin-bottom: 5px; cursor: pointer;}
+</style>
+
+<!-- skylineModal -->
+<div class="dialog" role="dialog" id="skylineModal" style="display:none;">
+	<div style="float:left; width:85%">
+		<div>
+			<img class="ds-image" data-index="0"/>
+		</div>
+		<div>
+			<img class="ds-image" data-index="1"/>
+		</div>
+		<div>
+			<img class="ds-image" data-index="2"/>
+		</div>
+		<div>
+			<img class="ds-image-skyline" data-index="0" />
+		</div>
+		<div>
+			<img class="ds-image-skyline" data-index="1" />
+		</div>
+		<div>
+			<img class="ds-image-skyline" data-index="2" />
+		</div>
+	</div>
+	
+	<div style="float:right; width:10%">
+		<div>
+			<h2>원본</h2>
+			<img class="ds-image-thumb" alt="원경 썸네일" title="원경" width="64" height="64" data-index="0">
+			<img class="ds-image-thumb" alt="중경 썸네일" title="중경" width="64" height="64" data-index="1">
+			<img class="ds-image-thumb" alt="근경 썸네일" title="근경" width="64" height="64" data-index="2">
+		</div>
+		<div>
+			<h2 style="margin-top:10px;">스카이라인</h2>
+			<img th:src="@{/images/ko/no_page.png}" class="ds-image-skyline-thumb" alt="원경 스카이라인 썸네일" title="원경 스카이라인" width="64" height="64" data-index="0">
+			<img th:src="@{/images/ko/no_page.png}" class="ds-image-skyline-thumb" alt="중경 스카이라인 썸네일" title="중경 스카이라인" width="64" height="64" data-index="1">
+			<img th:src="@{/images/ko/no_page.png}" class="ds-image-skyline-thumb" alt="근경 스카이라인 썸네일" title="근경 스카이라인" width="64" height="64" data-index="2">
+		</div>
+	</div>
+	
+</div>
+<!-- //skylineModal -->
+
+</div>
+</html>

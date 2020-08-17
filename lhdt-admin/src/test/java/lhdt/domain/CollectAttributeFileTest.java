@@ -10,8 +10,8 @@ import java.nio.file.Files;
 @Slf4j
 class CollectAttributeFileTest {
 
-	String inputDirectory = "C:\\data\\lx";
-	String outDirectory = "C:\\data\\mago3d\\smart-tiling-attribute";
+	String inputDirectory = "D:\\data\\lx";
+	String outDirectory = "D:\\data\\mago3d\\smart-tiling-attribute";
 	
 	@Disabled
 	void test() throws Exception {

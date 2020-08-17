@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import lombok.extern.slf4j.Slf4j;
 import lhdt.domain.ConverterJob;
 import lhdt.domain.Key;
 import lhdt.domain.UserSession;
 import lhdt.service.ConverterService;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Data Converter
@@ -26,7 +26,7 @@ import lhdt.service.ConverterService;
 @Slf4j
 @RestController
 @RequestMapping("/converters")
-public class ConverterRestController {
+public class ConverterRestController{
 	
 	@Autowired
 	private ConverterService converterService;
@@ -39,7 +39,7 @@ public class ConverterRestController {
 	 */
 	@PostMapping
 	public Map<String, Object> insert(HttpServletRequest request, ConverterJob converterJob) {
-		log.info("@@@ converterJob = {}", converterJob);
+log.info("@@@ converterJob = {}", converterJob);
 		
 		Map<String, Object> result = new HashMap<>();
 		String errorCode = null;
