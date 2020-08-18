@@ -28,19 +28,4 @@ public interface DesignLayerMapper {
     * @return
     */
     DesignLayer getDesignLayer(Long designLayerId);
-    
-
-    /**
-    * Design Layer 테이블의 컬럼 타입이 어떤 geometry 타입인지를 구함
-    * @param designLayerKey
-    * @return
-    */
-    String getGeometryType(String designLayerKey);
-
-    /**
-     * Design Layer 칼럼 목록을 조회
-     * @param designLayerKey
-     * @return
-     */
-    String getDesignLayerColumn(String designLayerKey);
 }

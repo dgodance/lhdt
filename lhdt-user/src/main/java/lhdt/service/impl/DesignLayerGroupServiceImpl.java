@@ -6,7 +6,6 @@ import lhdt.persistence.DesignLayerGroupMapper;
 import lhdt.service.DesignLayerGroupService;
 import lhdt.service.DesignLayerService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,11 +15,13 @@ import java.util.List;
 @Service
 public class DesignLayerGroupServiceImpl implements DesignLayerGroupService {
 
-	@Autowired
-	private DesignLayerService designLayerService;
+	private final DesignLayerService designLayerService;
+	private final DesignLayerGroupMapper designLayerGroupMapper;
 
-	@Autowired
-	private DesignLayerGroupMapper designLayerGroupMapper;
+	public DesignLayerGroupServiceImpl(DesignLayerService designLayerService, DesignLayerGroupMapper designLayerGroupMapper) {
+		this.designLayerService = designLayerService;
+		this.designLayerGroupMapper = designLayerGroupMapper;
+	}
 
 	/**
 	 * 디자인 레이어 그룹 목록
