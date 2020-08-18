@@ -122,6 +122,9 @@ dependencies {
     compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.12'
     compile group: 'commons-dbcp', name: 'commons-dbcp', version: '1.4'
 
+    // https://mvnrepository.com/artifact/org.webjars/jquery
+    compile group: 'org.webjars', name: 'jquery', version: '3.3.1'
+
     //
     compile(files('libs/pp-core-1.8.2004.jar'))
 }
