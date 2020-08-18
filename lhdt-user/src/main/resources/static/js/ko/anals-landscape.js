@@ -212,6 +212,12 @@ SkylineObj.prototype.setEventHandler = function(){
 };
 
 
+/**
+ * base64를 blob으로 변환
+ * @param {string} base64
+ * @param {string} contentType
+ * @returns {Blob}
+ */
 function base64ToBlob(base64, contentType){
 	let byteCharacters = window.atob(base64);
 	let byteArrays=[];
@@ -237,18 +243,39 @@ function base64ToBlob(base64, contentType){
 }
 
 
+/**
+ * set 캡처 이미지(blob) 
+ * @param {number} gbn
+ * @param {Blob} blob
+ */ 
 SkylineObj.prototype.setCaptureBlob = function(gbn, blob){
 	this._captureBlob[gbn] = blob;
 };
 
+/**
+ * get 캡처 이미지(blob) 
+ * @param {number} gbn
+ * @returns {Blob} blob
+ */ 
 SkylineObj.prototype.getCaptureBlob = function(gbn){
 	return this._captureBlob[gbn];
 };
 
+/**
+ * set 스카이라인 이미지(blob) 
+ * @param {number} gbn
+ * @param {Blob} blob
+ */ 
 SkylineObj.prototype.setSkylineBlob = function(gbn, blob){
 	this._skylineBlob[gbn] = blob;
 };
 
+
+/**
+ * get 스카이라인 이미지(blob) 
+ * @param {number} gbn
+ * @returns {Blob}
+ */ 
 SkylineObj.prototype.getSkylineBlob = function(gbn){
 	return this._skylineBlob[gbn];
 };
