@@ -3,48 +3,54 @@ package lhdt.svc.cityplanning.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import lhdt.svc.cityplanning.domain.CityPlanReportDetail;
+import lhdt.svc.cityplanning.domain.CPReportDetail;
 import lhdt.svc.cityplanning.model.UpDownString;
-import lhdt.svc.cityplanning.service.CityPlanReportParserService;
+import lhdt.svc.cityplanning.service.CPReportParserService;
 import lhdt.svc.cityplanning.types.UpDownType;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CityPlaneReportParserServiceImpl extends CityPlanReportParserService {
+public class CPReportParserServiceImpl extends CPReportParserService {
 
     @Override
-    protected List<CityPlanReportDetail> procExcelDataObj(ArrayList<List<String>> excelDatas) {
-        List<CityPlanReportDetail> cprds = new ArrayList<>();
+    protected List<CPReportDetail> procExcelDataObj(ArrayList<List<String>> excelDatas) {
+        List<CPReportDetail> cprds = new ArrayList<>();
         excelDatas.forEach(p -> constructCPRD(p, cprds));
         return cprds;
     }
 
-    private void constructCPRD(List<String> p, List<CityPlanReportDetail> cprds) {
-        CityPlanReportDetail cprd = new CityPlanReportDetail();
-        var row0 = parseRowA(p.get(0));
-        var row1 = parseRowB(p.get(1));
-        var row2 = parseRowC(p.get(2));
-        var row3 = parseRowD(p.get(3));
-        var row4 = parseRowE(p.get(4));
-        var row5 = parseRowF(p.get(5));
-        var row6 = parseRowG(p.get(6));
-        var row7 = parseRowH(p.get(7));
-        var row8 = parseRowI(p.get(8));
-        var row9 = parseRowJ(p.get(9));
-        var row10 = parseRowK(p.get(10));
-
-        cprd.setDrawingId(row0.get(0));
-        cprd.setHouseholdId(row0.get(1));
-        cprd.setArea(Long.valueOf(row1));
-        cprd.setAllowableUse(row2);
-        cprd.setNotAllowableUse(row3);
-        cprd.setBuildingToLandRatio(Long.valueOf(row4.getRatio()));
-        cprd.setFloorAreaRatio(Long.valueOf(row5));
-        cprd.setAreaMaxHeight(Long.valueOf(row6));
-        cprd.setFloorMaxHeight(Long.valueOf(row7.getRatio()));
-        cprd.setAprartmentScale(Long.valueOf(row8));
-        cprd.setNumOfApartmentHouse(Long.valueOf(row9));
-        cprd.setSalesType(row10);
+    /**
+     * 수정 예정
+     * @param p
+     * @param cprds
+     */
+    @Deprecated
+    private void constructCPRD(List<String> p, List<CPReportDetail> cprds) {
+        CPReportDetail cprd = new CPReportDetail();
+//        var row0 = parseRowA(p.get(0));
+//        var row1 = parseRowB(p.get(1));
+//        var row2 = parseRowC(p.get(2));
+//        var row3 = parseRowD(p.get(3));
+//        var row4 = parseRowE(p.get(4));
+//        var row5 = parseRowF(p.get(5));
+//        var row6 = parseRowG(p.get(6));
+//        var row7 = parseRowH(p.get(7));
+//        var row8 = parseRowI(p.get(8));
+//        var row9 = parseRowJ(p.get(9));
+//        var row10 = parseRowK(p.get(10));
+//
+//        cprd.setDrawingId(row0.get(0));
+//        cprd.setHouseholdId(row0.get(1));
+//        cprd.setArea(Long.valueOf(row1));
+//        cprd.setAllowableUse(row2);
+//        cprd.setNotAllowableUse(row3);
+//        cprd.setBuildingToLandRatio(Long.valueOf(row4.getRatio()));
+//        cprd.setFloorAreaRatio(Long.valueOf(row5));
+//        cprd.setAreaMaxHeight(Long.valueOf(row6));
+//        cprd.setFloorMaxHeight(Long.valueOf(row7.getRatio()));
+//        cprd.setAprartmentScale(Long.valueOf(row8));
+//        cprd.setNumOfApartmentHouse(Long.valueOf(row9));
+//        cprd.setSalesType(row10);
 
         cprds.add(cprd);
     }

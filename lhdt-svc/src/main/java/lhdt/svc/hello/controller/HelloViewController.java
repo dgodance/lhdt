@@ -26,10 +26,10 @@ public class HelloViewController {
         Page<SubType0> noticePage =sampleService.findAllPgByStartPg(page -1, PageSize.NOTICE.getContent());
         model.addAttribute("boardPage", noticePage);
 
-        PaginatorInfo pageNav = Paginator.getPagenatorMap(noticePage, PageSize.NOTICE);
+        PaginatorInfo pageNav = Paginator.getPaginatorMap(noticePage, PageSize.NOTICE);
         model.addAttribute("pageInfo", pageNav);
 
-        return "board";
+        return "cp-local-info";
     }
 
     @GetMapping("/board/{id}")

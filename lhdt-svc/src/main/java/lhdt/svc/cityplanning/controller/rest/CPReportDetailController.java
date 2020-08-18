@@ -1,10 +1,10 @@
-package lhdt.svc.cityplanning.controller;
+package lhdt.svc.cityplanning.controller.rest;
 
 import java.io.IOException;
 import java.util.List;
 
-import lhdt.svc.cityplanning.domain.CityInfo;
-import lhdt.svc.cityplanning.service.CityInfoService;
+import lhdt.svc.cityplanning.service.CPFileInfoService;
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,30 +14,28 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import lhdt.svc.cityplanning.domain.CityPlanReportDetail;
-import lhdt.svc.cityplanning.service.CityPlanReportDetailService;
-import lhdt.svc.cityplanning.service.CityPlanReportParserService;
+import lhdt.svc.cityplanning.domain.CPReportDetail;
+import lhdt.svc.cityplanning.service.CPReportDetailService;
+import lhdt.svc.cityplanning.service.CPReportParserService;
 import lhdt.svc.common.SvcController;
 
 @RestController
 @RequestMapping("/cityplanning")
-public class CityPlanAreaController extends SvcController {
-    @Autowired
-    private CityInfoService cityInfoService;
+@RequiredArgsConstructor
+public class CPReportDetailController extends SvcController {
+    private final CPFileInfoService CPFileInfoService;
 
-    @Autowired
-    private CityPlanReportDetailService cityPlanReportDetailService;
+    private final CPReportDetailService CPReportDetailService;
 
-    @Autowired
-    private CityPlanReportParserService cityPlanReportParserService;
+    private final CPReportParserService CPReportParserService;
 
     /**
      * 모든 LowInfo 정보를 가지고 옵니다
      * @return
      */
     @GetMapping("/select")
-    public List<CityPlanReportDetail> getCityPlanReportDet() {
-        return this.cityPlanReportDetailService.findAll();
+    public List<CPReportDetail> getCityPlanReportDet() {
+        return this.CPReportDetailService.findAll();
     }
 
     /**
@@ -45,22 +43,8 @@ public class CityPlanAreaController extends SvcController {
      * @return
      */
     @GetMapping("/select_one")
-    public List<CityPlanReportDetail> getCityPlanReportDetOne(Integer id) {
-        return this.cityPlanReportDetailService.findAllById(Long.valueOf(id));
-    }
-
-    /**
-     * Uk에 대한 SubType이 존재하는지 확인합니다
-     * @return
-     */
-    @GetMapping("/exists")
-    public boolean existsCityPlanReportDet(Long cityPlanId, String drawingId, String householdId) {
-        var spdt = new CityPlanReportDetail();
-        var p = this.cityInfoService.findOneById(cityPlanId);
-        spdt.setCityInfo(p);
-        spdt.setDrawingId(drawingId);
-        spdt.setHouseholdId(householdId);
-        return this.cityPlanReportDetailService.existVoByUk(spdt);
+    public List<CPReportDetail> getCityPlanReportDetOne(Integer id) {
+        return this.CPReportDetailService.findAllById(Long.valueOf(id));
     }
 
     /**
@@ -80,8 +64,8 @@ public class CityPlanAreaController extends SvcController {
      * @return
      */
     @PostMapping(path = "/insert")
-    public CityPlanReportDetail insertCityPlanReportDet(CityPlanReportDetail cprd) {
-        var p = this.cityPlanReportDetailService.registByUk(cprd);
+    public CPReportDetail insertCityPlanReportDet(CPReportDetail cprd) {
+        var p = this.CPReportDetailService.registByUk(cprd);
         if (p == null) {
             return null;
         } else {
@@ -95,8 +79,8 @@ public class CityPlanAreaController extends SvcController {
      * @return
      */
     @PutMapping("/update")
-    public CityPlanReportDetail updateCityPlanReportDet(CityPlanReportDetail cprdt) {
-        var p = this.cityPlanReportDetailService.findOneById(cprdt.getId());
+    public CPReportDetail updateCityPlanReportDet(CPReportDetail cprdt) {
+        var p = this.CPReportDetailService.findOneById(cprdt.getId());
         p.setAllowableUse(cprdt.getAllowableUse());
         p.setNotAllowableUse(cprdt.getAllowableUse());
         p.setBuildingToLandRatio(cprdt.getBuildingToLandRatio());
@@ -105,7 +89,7 @@ public class CityPlanAreaController extends SvcController {
         p.setFloorMaxHeight(cprdt.getFloorMaxHeight());
         p.setAreaUpDownType(cprdt.getAreaUpDownType());
         p.setFloorUpDownType(cprdt.getFloorUpDownType());
-        p = this.cityPlanReportDetailService.update(p);
+        p = this.CPReportDetailService.update(p);
         if(p == null) {
             return null;
         } else {
@@ -119,7 +103,7 @@ public class CityPlanAreaController extends SvcController {
      */
     @DeleteMapping("/delete")
     public boolean deleteExample(Integer id) {
-        this.cityPlanReportDetailService.deleteAllById(Long.valueOf(id));
+        this.CPReportDetailService.deleteAllById(Long.valueOf(id));
         return true;
     }
 
@@ -129,17 +113,17 @@ public class CityPlanAreaController extends SvcController {
     }
 
     @GetMapping("cityplanExcel")
-    public List<CityPlanReportDetail> getCityPlanExcel() throws IOException, InvalidFormatException {
-        var cityId = this.cityInfoService.findOneById(Long.valueOf(4));
+    public List<CPReportDetail> getCityPlanExcel() throws IOException, InvalidFormatException {
+        var cityId = this.CPFileInfoService.findOneById(Long.valueOf(4));
         String fullFilePath = "D:\\Depot_Paper\\2020_LH디지털트윈1단계구축\\기본데이터셋\\sample_excel.xlsx";
-        List<CityPlanReportDetail> p = null;
-        p = this.cityPlanReportParserService.procExcelDataByCityPlan(fullFilePath);
+        List<CPReportDetail> p = null;
+        p = this.CPReportParserService.procExcelDataByCityPlan(fullFilePath);
         if(p == null)
             throw new NullPointerException();
         for(var obj : p) {
-            obj.setCityInfo(cityId);
+            obj.setCPFileInfo(cityId);
         }
-        return this.cityPlanReportDetailService.registAllByUk(p);
+        return this.CPReportDetailService.registAllByUk(p);
     }
 
     @PostMapping("")

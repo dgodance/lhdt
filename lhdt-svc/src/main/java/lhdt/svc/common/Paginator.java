@@ -3,7 +3,7 @@ package lhdt.svc.common;
 import org.springframework.data.domain.Page;
 
 public final class Paginator {
-    public static PaginatorInfo getPagenatorMap(Page<?> page, PageSize pageSize) {
+    public static PaginatorInfo getPaginatorMap(Page<?> page, PageSize pageSize) {
         Integer pageNavCount = pageSize.getPageNavCount();
         Integer pageNumber = page.getNumber();
 

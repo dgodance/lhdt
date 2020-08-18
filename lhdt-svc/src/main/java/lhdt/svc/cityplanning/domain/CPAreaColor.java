@@ -14,7 +14,7 @@ import javax.persistence.Table;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CityPlanAreaColor extends Domain {
+public class CPAreaColor extends Domain {
     /**
      * 토지이용분류(명)
      */

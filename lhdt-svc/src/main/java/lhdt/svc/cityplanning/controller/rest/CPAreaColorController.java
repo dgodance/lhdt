@@ -1,13 +1,10 @@
-package lhdt.svc.cityplanning.controller;
+package lhdt.svc.cityplanning.controller.rest;
 
-import lhdt.svc.cityplanning.domain.CityPlanAreaColor;
-import lhdt.svc.cityplanning.domain.CityPlanReportDetail;
-import lhdt.svc.cityplanning.service.CityPlanAreaColorService;
+import lhdt.svc.cityplanning.domain.CPAreaColor;
+import lhdt.svc.cityplanning.service.CPAreaColorService;
 import lhdt.svc.common.SvcController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.DefaultResourceLoader;
-import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,14 +18,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/cityplanareacolor")
-public class CityPlanAreaColorController extends SvcController {
+public class CPAreaColorController extends SvcController {
 
     @Autowired
-    CityPlanAreaColorService cityPlanAreaColorService;
+    CPAreaColorService CPAreaColorService;
 
     @GetMapping("/init")
     public String initCityPlanAreaColorData() throws IOException {
-        List<CityPlanAreaColor> result = new ArrayList<>();
+        List<CPAreaColor> result = new ArrayList<>();
         ClassPathResource resource = new ClassPathResource("data/cityplanareacolor.txt");
         try {
             Path path = Paths.get(resource.getURI());
@@ -36,8 +33,8 @@ public class CityPlanAreaColorController extends SvcController {
             content.forEach(System.out::println);
             for (String s : content) {
                 var contents = s.split(",");
-                var p = CityPlanAreaColor.builder().areaName(contents[0]).color(contents[1]).build();
-                this.cityPlanAreaColorService.registByUk(p);
+                var p = CPAreaColor.builder().areaName(contents[0]).color(contents[1]).build();
+                this.CPAreaColorService.registByUk(p);
             }
         } catch (IOException e) {
             e.printStackTrace();
