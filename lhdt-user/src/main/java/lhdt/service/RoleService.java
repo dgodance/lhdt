@@ -2,7 +2,7 @@ package lhdt.service;
 
 import java.util.List;
 
-import lhdt.domain.Role;
+import lhdt.domain.role.Role;
 
 public interface RoleService {
 	

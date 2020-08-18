@@ -3,7 +3,7 @@ package lhdt.utils;
 import java.io.File;
 
 import lombok.extern.slf4j.Slf4j;
-import lhdt.domain.UploadDirectoryType;
+import lhdt.domain.uploaddata.UploadDirectoryType;
 
 /**
  * TODO N중화 처리를 위해 FTP 로 다른 PM 으로 전송해 줘야 하는데....

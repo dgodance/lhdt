@@ -2,8 +2,8 @@ package lhdt.service;
 
 import java.util.List;
 
-import lhdt.domain.DataInfo;
-import lhdt.domain.DataInfoSimple;
+import lhdt.domain.data.DataInfo;
+import lhdt.domain.data.DataInfoSimple;
 
 /**
  * Data 관리

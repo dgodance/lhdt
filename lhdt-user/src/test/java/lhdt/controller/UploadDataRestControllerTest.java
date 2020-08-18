@@ -14,9 +14,9 @@ import java.util.zip.ZipFile;
 import org.junit.jupiter.api.Disabled;
 
 import lombok.extern.slf4j.Slf4j;
-import lhdt.domain.UploadDataType;
+import lhdt.domain.uploaddata.UploadDataType;
 import lhdt.domain.FileType;
-import lhdt.domain.UploadDataFile;
+import lhdt.domain.uploaddata.UploadDataFile;
 import lhdt.utils.FileUtils;
 
 @Slf4j

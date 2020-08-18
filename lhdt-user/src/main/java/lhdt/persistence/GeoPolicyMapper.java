@@ -2,7 +2,7 @@ package lhdt.persistence;
 
 import org.springframework.stereotype.Repository;
 
-import lhdt.domain.GeoPolicy;
+import lhdt.domain.policy.GeoPolicy;
 
 /**
  * 2D, 3D 운영 정책

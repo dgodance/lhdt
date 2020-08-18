@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
-import lhdt.domain.DataAdjustLog;
+import lhdt.domain.data.DataAdjustLog;
 import lhdt.service.DataAdjustLogService;
 
 /**

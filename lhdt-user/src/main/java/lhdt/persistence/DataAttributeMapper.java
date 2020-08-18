@@ -2,8 +2,8 @@ package lhdt.persistence;
 
 import org.springframework.stereotype.Repository;
 
-import lhdt.domain.DataAttribute;
-import lhdt.domain.DataAttributeFileInfo;
+import lhdt.domain.data.DataAttribute;
+import lhdt.domain.data.DataAttributeFileInfo;
 
 /**
  * 데이터 속성 파일 관리

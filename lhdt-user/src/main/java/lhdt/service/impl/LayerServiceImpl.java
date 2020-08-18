@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lhdt.domain.Layer;
+import lhdt.domain.layer.Layer;
 import lhdt.persistence.LayerMapper;
 import lhdt.service.LayerService;
 

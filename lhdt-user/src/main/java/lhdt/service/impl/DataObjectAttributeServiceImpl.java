@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
-import lhdt.domain.DataObjectAttribute;
+import lhdt.domain.data.DataObjectAttribute;
 import lhdt.persistence.DataObjectAttributeMapper;
 import lhdt.service.DataObjectAttributeService;
 import lhdt.service.DataService;

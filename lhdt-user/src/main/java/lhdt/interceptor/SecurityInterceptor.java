@@ -16,8 +16,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
 import lhdt.domain.Key;
-import lhdt.domain.UserSession;
-import lhdt.domain.UserStatus;
+import lhdt.domain.user.UserSession;
+import lhdt.domain.user.UserStatus;
 import lhdt.support.URLSupport;
 import lhdt.utils.WebUtils;
 

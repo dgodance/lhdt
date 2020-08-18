@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import lhdt.domain.DataGroup;
-import lhdt.domain.DataInfo;
-import lhdt.domain.DataInfoSimple;
+import lhdt.domain.data.DataGroup;
+import lhdt.domain.data.DataInfo;
+import lhdt.domain.data.DataInfoSimple;
 
 /**
  * Data

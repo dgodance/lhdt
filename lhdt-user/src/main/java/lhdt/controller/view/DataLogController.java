@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import lombok.extern.slf4j.Slf4j;
-import lhdt.domain.DataGroup;
-import lhdt.domain.DataInfo;
-import lhdt.domain.DataInfoLog;
+import lhdt.domain.data.DataGroup;
+import lhdt.domain.data.DataInfo;
+import lhdt.domain.data.DataInfoLog;
 import lhdt.domain.Key;
 import lhdt.domain.PageType;
 import lhdt.domain.Pagination;
-import lhdt.domain.UserSession;
+import lhdt.domain.user.UserSession;
 import lhdt.service.DataGroupService;
 import lhdt.service.DataLogService;
 import lhdt.service.DataService;
