@@ -98,23 +98,13 @@ initPolicy(function(policy, baseLayers){
 });
 var selectArea = false;
 var r;
-function magoStart() {
-	var cesiumViewerOption = {};
-	cesiumViewerOption.infoBox = false;
-	cesiumViewerOption.navigationHelpButton = false;
-	cesiumViewerOption.selectionIndicator = false;
-	cesiumViewerOption.homeButton = false;
-	cesiumViewerOption.fullscreenButton = false;
-	cesiumViewerOption.geocoder = false;
-	cesiumViewerOption.baseLayerPicker = false;
-	cesiumViewerOption.sceneModePicker = false;
-	
+function magoStart() {	
 	LHDT.policy.initLongitude = 127.007282;
 	LHDT.policy.initLatitude = 37.444507;
 	LHDT.policy.initAltitude = 3000;
-	LHDT.policy.initDuration = 0.5;
+	LHDT.policy.initDuration = 3;
 
-	LHDT.globe = new Mago3D.Mago3d('magoContainer', LHDT.policy, undefined, cesiumViewerOption);
+	LHDT.globe = new Mago3D.Mago3d('magoContainer', LHDT.policy, undefined, {});
 	
 	var area = new Cesium.WebMapServiceImageryProvider({
 	    url : 'http://192.168.10.98:18080/geoserver/lhdt/wms',
