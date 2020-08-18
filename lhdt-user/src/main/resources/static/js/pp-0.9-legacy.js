@@ -566,6 +566,65 @@ var pp = function () {
         }
 
         /**
+         * 파일 또는 blob 전송
+         * @param {string} url 
+         * @param {File|Blob} fileOrBlob 
+         * @param {Function} callbackFn 
+         * @param {Object} option 
+         */
+
+    }, {
+        key: 'submitFile',
+        value: function submitFile(url, fileOrBlob, callbackFn, option) {
+
+            //
+            var fd = new FormData();
+            fd.append('file', fileOrBlob); //TODO 파일인 경우 파싱필요?
+
+            //
+            this.submitFormData(url, fd, callbackFn, option);
+        }
+
+        /**
+         *  formdata 전송
+         * @since
+         *	20200818	init
+         */
+
+    }, {
+        key: 'submitFormData',
+        value: function submitFormData(url, formData, callbackFn, option) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', url, true);
+            xhr.setRequestHeader("Access-Control-Allow-Headers", "*");
+            xhr.onload = function (e) {}
+            //console.log(e);
+
+
+            //
+            ;xhr.onreadystatechange = function () {
+                if (4 === xhr.readyState) {
+                    var str = xhr.response;
+                    if (pp.isEmpty(str)) {
+                        str = '{}';
+                    }
+
+                    //json이면
+                    if ('{' === str.trim()[0]) {
+                        var json = JSON.parse(str);
+                        callbackFn(json);
+                    } else {
+                        //json 문자열이 아니면
+                        callbackFn(str);
+                    }
+                }
+            };
+
+            //
+            xhr.send(formData);
+        }
+
+        /**
          * 업로드 가능한 확장자인지 검사
          * @param {File} file 
          * @param {Array<Exts>} arrOfExts
