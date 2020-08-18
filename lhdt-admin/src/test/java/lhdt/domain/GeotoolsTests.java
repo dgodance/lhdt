@@ -14,7 +14,6 @@ import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.feature.type.GeometryTypeImpl;
 import org.junit.jupiter.api.Test;
-import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -92,9 +91,9 @@ public class GeotoolsTests {
                 String attributeName = String.valueOf(attribute.getName()).toLowerCase();
                 if (columnList.contains(attributeName)) {
                     if (attributeName.equalsIgnoreCase(String.valueOf(DesignLayer.RequiredColumn.THE_GEOM))) {
-                        extrusionModel.setTheGeom((Geometry) attribute.getValue());
+                        extrusionModel.setTheGeom(attribute.getValue().toString());
                     } else if (attributeName.equalsIgnoreCase(String.valueOf(DesignLayer.RequiredColumn.ATTRIBUTES))) {
-                        extrusionModel.setAttributes((String) attribute.getValue());
+                        extrusionModel.setAttributes(attribute.getValue().toString());
                     }
                 }
             }

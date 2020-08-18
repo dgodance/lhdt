@@ -3,7 +3,6 @@ package lhdt.domain.extrusionmodel;
 import lhdt.domain.common.Search;
 import lombok.*;
 import org.hibernate.validator.constraints.Range;
-import org.locationtech.jts.geom.Geometry;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
@@ -93,7 +92,7 @@ public class DesignLayer extends Search implements Serializable {
     // 설명
     private String description;
 
-    private Geometry theGeom;
+    private String theGeom;
     private String attributes;
     
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")

@@ -1,7 +1,7 @@
 package lhdt.geospatial;
 
-import lhdt.domain.extrusionmodel.DesignLayer;
 import lhdt.domain.ShapeFileField;
+import lhdt.domain.extrusionmodel.DesignLayer;
 import lhdt.support.LogMessageSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.geotools.data.FeatureSource;
@@ -12,7 +12,6 @@ import org.geotools.data.shapefile.files.ShpFileType;
 import org.geotools.data.shapefile.files.ShpFiles;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
-import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -57,9 +56,9 @@ public class ShapeFileParser {
                     String attributeName = String.valueOf(attribute.getName()).toLowerCase();
                     if(columnList.contains(attributeName)) {
                         if(attributeName.equalsIgnoreCase(String.valueOf(DesignLayer.RequiredColumn.THE_GEOM))) {
-                            extrusionModel.setTheGeom((Geometry) attribute.getValue());
+                            extrusionModel.setTheGeom(attribute.getValue().toString());
                         } else if(attributeName.equalsIgnoreCase(String.valueOf(DesignLayer.RequiredColumn.ATTRIBUTES))) {
-                            extrusionModel.setAttributes((String) attribute.getValue());
+                            extrusionModel.setAttributes(attribute.getValue().toString());
                         }
                     }
                 }
