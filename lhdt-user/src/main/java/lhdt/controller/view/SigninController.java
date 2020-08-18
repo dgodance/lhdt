@@ -1,6 +1,12 @@
 package lhdt.controller.view;
 
 import lhdt.domain.*;
+import lhdt.domain.cache.CacheManager;
+import lhdt.domain.policy.Policy;
+import lhdt.domain.role.RoleKey;
+import lhdt.domain.user.UserInfo;
+import lhdt.domain.user.UserSession;
+import lhdt.domain.user.UserStatus;
 import lhdt.listener.LhdtHttpSessionBindingListener;
 import lhdt.service.SigninService;
 import lhdt.support.PasswordSupport;

@@ -2,8 +2,8 @@ package lhdt.support;
 
 import java.util.List;
 
-import lhdt.domain.RoleKey;
-import lhdt.domain.UserGroupRole;
+import lhdt.domain.role.RoleKey;
+import lhdt.domain.user.UserGroupRole;
 
 /**
  * Role Check

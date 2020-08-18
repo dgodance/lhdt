@@ -1,6 +1,6 @@
 package lhdt.service;
 
-import lhdt.domain.QueueMessage;
+import lhdt.domain.common.QueueMessage;
 
 public interface AMQPPublishService {
 

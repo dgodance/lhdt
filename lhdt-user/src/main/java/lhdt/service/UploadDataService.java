@@ -2,8 +2,8 @@ package lhdt.service;
 
 import java.util.List;
 
-import lhdt.domain.UploadData;
-import lhdt.domain.UploadDataFile;
+import lhdt.domain.uploaddata.UploadData;
+import lhdt.domain.uploaddata.UploadDataFile;
 
 public interface UploadDataService {
 

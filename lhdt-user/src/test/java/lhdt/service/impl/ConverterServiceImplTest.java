@@ -2,7 +2,7 @@ package lhdt.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lhdt.domain.DataInfo;
+import lhdt.domain.data.DataInfo;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;

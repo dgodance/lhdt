@@ -159,6 +159,7 @@ values
 	(NEXTVAL('user_group_role_seq'), 1, 4),
 	(NEXTVAL('user_group_role_seq'), 1, 1001),
 	(NEXTVAL('user_group_role_seq'), 1, 1002),
+	(NEXTVAL('user_group_role_seq'), 1, 1003),
 	(NEXTVAL('user_group_role_seq'), 2, 1001),
 	(NEXTVAL('user_group_role_seq'), 2, 1002),
     (NEXTVAL('user_group_role_seq'), 2, 1003);

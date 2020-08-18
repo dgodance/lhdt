@@ -1,8 +1,8 @@
 package lhdt.controller.rest;
 
 import lhdt.config.CacheConfig;
-import lhdt.domain.CacheName;
-import lhdt.domain.CacheParams;
+import lhdt.domain.cache.CacheName;
+import lhdt.domain.cache.CacheParams;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;

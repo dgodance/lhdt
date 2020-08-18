@@ -1,8 +1,8 @@
 package lhdt.api;
 
-import lhdt.domain.DataAttribute;
-import lhdt.domain.DataInfo;
-import lhdt.domain.DataObjectAttribute;
+import lhdt.domain.data.DataAttribute;
+import lhdt.domain.data.DataInfo;
+import lhdt.domain.data.DataObjectAttribute;
 import lhdt.service.DataAttributeService;
 import lhdt.service.DataObjectAttributeService;
 import lhdt.service.DataService;

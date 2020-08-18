@@ -2,8 +2,8 @@ package lhdt.persistence;
 
 import org.springframework.stereotype.Repository;
 
-import lhdt.domain.UserInfo;
-import lhdt.domain.UserSession;
+import lhdt.domain.user.UserInfo;
+import lhdt.domain.user.UserSession;
 
 
 /**

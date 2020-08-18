@@ -8,10 +8,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lhdt.domain.ApprovalStatus;
 import lhdt.domain.ApprovalType;
-import lhdt.domain.CacheManager;
-import lhdt.domain.DataAdjustLog;
-import lhdt.domain.DataInfo;
-import lhdt.domain.GeoPolicy;
+import lhdt.domain.cache.CacheManager;
+import lhdt.domain.data.DataAdjustLog;
+import lhdt.domain.data.DataInfo;
+import lhdt.domain.policy.GeoPolicy;
 import lhdt.persistence.DataAdjustLogMapper;
 import lhdt.service.DataAdjustLogService;
 import lhdt.service.DataService;

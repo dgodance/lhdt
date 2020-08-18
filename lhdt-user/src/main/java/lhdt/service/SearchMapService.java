@@ -2,10 +2,10 @@ package lhdt.service;
 
 import java.util.List;
 
-import lhdt.domain.District;
-import lhdt.domain.SkEmd;
-import lhdt.domain.SkSdo;
-import lhdt.domain.SkSgg;
+import lhdt.domain.country.District;
+import lhdt.domain.country.SkEmd;
+import lhdt.domain.country.SkSdo;
+import lhdt.domain.country.SkSgg;
 
 public interface SearchMapService {
 

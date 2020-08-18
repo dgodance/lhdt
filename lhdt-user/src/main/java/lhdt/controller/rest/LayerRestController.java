@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lhdt.domain.Key;
-import lhdt.domain.LayerGroup;
-import lhdt.domain.UserSession;
+import lhdt.domain.layer.LayerGroup;
+import lhdt.domain.user.UserSession;
 import lhdt.service.LayerGroupService;
 import lhdt.service.UserPolicyService;
 import lhdt.support.LayerDisplaySupport;

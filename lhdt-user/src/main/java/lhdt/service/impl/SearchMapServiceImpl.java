@@ -2,15 +2,14 @@ package lhdt.service.impl;
 
 import java.util.List;
 
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lhdt.domain.District;
-import lhdt.domain.SkEmd;
-import lhdt.domain.SkSdo;
-import lhdt.domain.SkSgg;
+import lhdt.domain.country.District;
+import lhdt.domain.country.SkEmd;
+import lhdt.domain.country.SkSdo;
+import lhdt.domain.country.SkSgg;
 import lhdt.persistence.SearchMapMapper;
 import lhdt.service.SearchMapService;
 

@@ -1,6 +1,6 @@
 package lhdt.api;
 
-import lhdt.domain.APIHeader;
+import lhdt.domain.api.APIHeader;
 
 public interface APIController {
 	
