@@ -137,7 +137,7 @@ public class SigninController {
 			return "redirect:/user/modify-password";
 		}
 		
-		return "redirect:/test/test";
+		return "redirect:/data/map";
 	}
 	
 	/**
