@@ -72,7 +72,7 @@
 	<!-- E: GNB WRAP -->
 
 	<!-- CTRLWRAP -->
-	<div th:replace="~{/fragments/toolbar :: #toolbarWrap}"></div>
+	<!-- <div th:replace="~{/fragments/toolbar :: #toolbarWrap}"></div> -->
 	<!-- E: CTRLWRAP -->
 
 	<!-- MAP -->
@@ -150,24 +150,15 @@
 	function magoInit() {
 		var geoPolicyJson = NDTP.policy;
 
-		var cesiumViewerOption = {};
-		cesiumViewerOption.infoBox = false;
-		cesiumViewerOption.navigationHelpButton = false;
-		cesiumViewerOption.selectionIndicator = false;
-		cesiumViewerOption.homeButton = false;
-		cesiumViewerOption.fullscreenButton = false;
-		cesiumViewerOption.geocoder = false;
-		cesiumViewerOption.baseLayerPicker = false;
-		cesiumViewerOption.sceneModePicker = false;
 
 		/**
 		 * @param {Stirng} containerId container div id. required.
 		 * @param {object} serverPolicy mage3d geopolicy. required.
 		 * @param {object} callback loadstart callback, loadend callback. option.
-		 * @param {object} options Cesium viewer parameter. option.
+		 * @param {object} options  viewer parameter. option.
 		 * @param {Cesium.Viewer} legacyViewer 타 시스템과의 연동의 경우 view 객체가 생성되어서 넘어 오는 경우가 있음. option.
 		*/
-		MAGO3D_INSTANCE = new Mago3D.Mago3d('magoContainer', geoPolicyJson, {loadend : magoLoadEnd}, cesiumViewerOption);
+		MAGO3D_INSTANCE = new Mago3D.Mago3d('magoContainer', geoPolicyJson, {loadend : magoLoadEnd}, {});
 
 	}
 
@@ -187,8 +178,9 @@
 			//console.info(result);
 		});
 
-		//우측 상단 지도 컨트롤러
-		MapControll(viewer);
+		//우측 상단 지도 컨트롤러, 당분간 map-controll.js 파일 삭제하지 말아주세요 ㅠㅠ
+		//MapControll(viewer);
+		
 		// 행정 구역 이동
         DistrictControll(magoInstance);
 
