@@ -1,5 +1,6 @@
 package lhdt.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.security.KeyManagementException;
@@ -25,6 +27,7 @@ import java.time.Duration;
  *
  */
 @Slf4j
+@EnableWebMvc
 @Configuration
 @ComponentScan(basePackages = {"lhdt.config"}, includeFilters = {
 		@Filter(type = FilterType.ANNOTATION, value = Component.class),
@@ -57,4 +60,5 @@ public class ServletConfig implements WebMvcConfigurer {
     	
     	return restTemplate;
     }
+
 }
