@@ -56,6 +56,8 @@ public class HttpSessionConfig {
 			public void sessionDestroyed(HttpSessionEvent hse) {
 				log.info("<<.sessionDestroyed - {}", hse.getSession().getId());
 				
+				//TODO 필요한 작업. SSO 연결을 끊는다던가등등...
+				
 				sessions.remove(hse.getSession().getId());
 			}
 		};
