@@ -16,14 +16,15 @@ const PREDICT_SERVER_URL = 'http://localhost:8090/svc/landscape_anals/uploadFile
  * @since	20200812	init
  */
 const SkylineObj = function(){
-	//원/중/근경 캡처 이미지(blob)
-	this._blob = {};
-	
-	//스카이라인 원/중/근경 이미지(base64)
-	this._base64 = {};
 	
 	//원/중/근경 point xyz
 	this._viewPoint = {}	
+	
+	//캡처한 이미지(blob)
+	this._captureBlob = {};
+	
+	//스카이라인 이미지(blob)
+	this._skylineBlob = {};
 };
 
 
@@ -50,7 +51,7 @@ SkylineObj.prototype.setEventHandler = function(){
 	let the = this;
 	
 	//모달 표시
-	document.querySelector('.ds-show-modal').addEventListener('click', function(){
+	ppui.on(document.querySelector('.ds-show-modal'), 'click', function(){
 		the.showModal();
 	});
 	
@@ -76,7 +77,7 @@ SkylineObj.prototype.setEventHandler = function(){
 	
 	
 	//자동으로 3점 지도 캡처 & get 스카이라인 base64 & show modal
-	document.getElementsByClassName('ds-autoall')[0].addEventListener('click' ,function(){
+	ppui.on(document.getElementsByClassName('ds-autoall')[0], 'click' ,function(){
 		document.querySelector('body').style.cursor = 'wait';
 		
 		//모든 점 자동 캡처
@@ -89,8 +90,8 @@ SkylineObj.prototype.setEventHandler = function(){
 			
 			//캡처 blob <img>에 할당
 			for(let i=0; i<the.getViewPointCo(); i++){
-				the.setCaptureImgSrc(i, the.getBlob(i));
-				the.setCaptureThumbImgSrc(i, the.getBlob(i));
+				the.setCaptureImgSrc(i, the.getCaptureBlob(i));
+				the.setCaptureThumbImgSrc(i, the.getCaptureBlob(i));
 			}
 			
 			//모든 blob 업로드 & get 스카이라인 base64
@@ -111,14 +112,14 @@ SkylineObj.prototype.setEventHandler = function(){
 	
 	
 	//테스트 위치로 이동
-	document.getElementsByClassName('ds-flyto')[0].addEventListener('click', function(){
+	ppui.on(document.getElementsByClassName('ds-flyto')[0], 'click', function(){
 		//세종시청
 		gotoFly(127.2891, 36.4800, 10);
 	});
 	
 	
 	//2점 선택했다고 치고...draw 2 points
-	document.getElementsByClassName('ds-points2')[0].addEventListener('click', function(){
+	ppui.on(document.getElementsByClassName('ds-points2')[0], 'click', function(){
 		//시작점
 		the.drawPoint(xyz1.lon, xyz1.lat);
 		//끝점
@@ -131,7 +132,7 @@ SkylineObj.prototype.setEventHandler = function(){
 	
 	
 	//원/중/근경 위치 계산 & 점표시
-	document.getElementsByClassName('ds-points3')[0].addEventListener('click', function(){
+	ppui.on(document.getElementsByClassName('ds-points3')[0], 'click', function(){
 		let viewPoint = the.calcViewPoint(xyz1, xyz2);
 		
 		//점 표시
@@ -145,7 +146,7 @@ SkylineObj.prototype.setEventHandler = function(){
 
 	
 	//원경 클릭 이벤트
-	document.getElementsByClassName('ds-movetop1')[0].addEventListener('click', function(){
+	ppui.on(document.getElementsByClassName('ds-movetop1')[0], 'click', function(){
 		//
 		let heading = ppmap.getHeading(xyz1, xyz2);
 		
@@ -162,7 +163,7 @@ SkylineObj.prototype.setEventHandler = function(){
 	
 
 	//중경 클릭 이벤트
-	document.getElementsByClassName('ds-movetop2')[0].addEventListener('click', function(){
+	ppui.on(document.getElementsByClassName('ds-movetop2')[0], 'click', function(){
 		let heading = ppmap.getHeading(xyz1, xyz2);
 		
 		//
@@ -175,7 +176,7 @@ SkylineObj.prototype.setEventHandler = function(){
 		
 		
 	//근경 클릭 이벤트
-	document.getElementsByClassName('ds-movetop3')[0].addEventListener('click', function(){
+	ppui.on(document.getElementsByClassName('ds-movetop3')[0], 'click', function(){
 		let heading = ppmap.getHeading(xyz1, xyz2);
 		
 		//
@@ -185,48 +186,100 @@ SkylineObj.prototype.setEventHandler = function(){
 		ppmap.flyTo(xyz, hpr, {'duration':0.5});
 		
 	});
+	
+	
+	//저장 클릭
+	ppui.on(document.querySelector('.ds-save'), 'click', function(){
+		if(!confirm('저장하시겠습니까?')){
+			return;
+		}
+		
+		//
+		let url = 'http://localhost:8090/svc/landscape_anals/saveCaptureAndSkylineImages';
+		let fd = new FormData();
+		
+		for(let i=0; i<the.getViewPointCo(); i++){
+			fd.append('capture['+i+']', the.getCaptureBlob(i));
+			fd.append('skyline['+i+']', the.getSkylineBlob(i));
+		}
+		
+		//
+		pp.submitFormData(url, fd, function(){
+			alert('저장되었습니다.');
+		});
+	});
 		
 };
 
 
-
 /**
- * 구분자별 blob로 추출
- * @param {string} gbn 원/중/근경 구분자
+ * base64를 blob으로 변환
+ * @param {string} base64
+ * @param {string} contentType
  * @returns {Blob}
  */
-SkylineObj.prototype.getBlob = function(gbn){
-	return this._blob[gbn];
+function base64ToBlob(base64, contentType){
+	let byteCharacters = window.atob(base64);
+	let byteArrays=[];
+	let sliceSize=512;
+	
+	for(let offset=0; offset<byteCharacters.length; offset+=sliceSize){
+		let slice = byteCharacters.slice(offset, offset + sliceSize);
+		
+		//
+		let byteNumbers = new Array(slice.length);
+		for(let i=0; i<slice.length; i++){
+			byteNumbers[i] = slice.charCodeAt(i);
+		}
+		
+		//
+		let byteArray = new Uint8Array(byteNumbers);
+		byteArrays.push(byteArray);
+	}
+	
+	//
+	let blob = new Blob(byteArrays, {type:contentType});
+	return blob;
+}
+
+
+/**
+ * set 캡처 이미지(blob) 
+ * @param {number} gbn
+ * @param {Blob} blob
+ */ 
+SkylineObj.prototype.setCaptureBlob = function(gbn, blob){
+	this._captureBlob[gbn] = blob;
+};
+
+/**
+ * get 캡처 이미지(blob) 
+ * @param {number} gbn
+ * @returns {Blob} blob
+ */ 
+SkylineObj.prototype.getCaptureBlob = function(gbn){
+	return this._captureBlob[gbn];
+};
+
+/**
+ * set 스카이라인 이미지(blob) 
+ * @param {number} gbn
+ * @param {Blob} blob
+ */ 
+SkylineObj.prototype.setSkylineBlob = function(gbn, blob){
+	this._skylineBlob[gbn] = blob;
 };
 
 
 /**
- * 구분자별 blob 설정
- * @param {string} gbn 원/중/근경 구분자
- * @param {Blob} blob 
- */
-SkylineObj.prototype.setBlob = function(gbn, blob){
-	this._blob[gbn] = blob;
+ * get 스카이라인 이미지(blob) 
+ * @param {number} gbn
+ * @returns {Blob}
+ */ 
+SkylineObj.prototype.getSkylineBlob = function(gbn){
+	return this._skylineBlob[gbn];
 };
 
-
-/**
- * get 스카이라인 이미지(base64)
- * @param {ViewPoint} gbn
- */
-SkylineObj.prototype.getBase64 = function(gbn){
-	return this._base64[gbn];
-};
-
-
-/**
- * set 스카이라인 이미지(base64)
- * @param {ViewPoint} gbn
- * @param {string} base64
- */
-SkylineObj.prototype.setBase64 = function(gbn, base64){
-	this._base64[gbn] = base64;
-};
 
 
 /**
@@ -281,7 +334,7 @@ SkylineObj.prototype.autoCaptureAll = function(callbackFn){
 		//
 		the.flyToAndCapture(gbn, function(blob){
 			//
-			the.setBlob(gbn, blob);
+			the.setCaptureBlob(gbn, blob);
 			//
 			_flyToAndCapture(++gbn);
 		});
@@ -411,39 +464,13 @@ SkylineObj.prototype.uploadBlobAndGetSkylineImage = function(gbn, callbackFn){
 	}
 	
 	//
-	let xhr = new XMLHttpRequest();
-		xhr.open('POST', PREDICT_SERVER_URL, true);
-		xhr.setRequestHeader("Access-Control-Allow-Headers", "*");
-		xhr.onload = function(e){
-			//console.log(e);
-		}
-		
-		//
-		xhr.onreadystatechange = function(){
-			if(4 === xhr.readyState){
-				let str = xhr.response;
-				if(pp.isEmpty(str)){
-					str = '{}';
-				}
-				
-				//json 문자열이 아니거 같으면
-				if('{' !== str.trim()[0]){
-					console.log('warn', 'not json string', str);
-					str = '{}';
-				}
-				
-				//
-				let json = JSON.parse(str);
-				callbackFn(json.base64);
-			}	
-		}
-		
-		//
-		let fd = new FormData();
-		fd.append('blob', this.getBlob(gbn));
-		
-		//
-		xhr.send(fd);
+	let fd = new FormData();
+	fd.append('blob', this.getCaptureBlob(gbn));
+	
+	//
+	pp.submitFormData(PREDICT_SERVER_URL, fd, function(json){
+		callbackFn(json.base64)
+	}, {});
 	
 };
 
@@ -467,10 +494,10 @@ SkylineObj.prototype.uploadBlobAndGetSkylineImageAll = function(callbackFn){
 		//
 		the.uploadBlobAndGetSkylineImage(gbn, function(base64){
 			//
-			the.setBase64(gbn, base64);
+			the.setSkylineBlob(gbn, base64ToBlob(base64));
 			//화면에 표시
-			the.setSkylineImgSrc(gbn, base64);
-			the.setSkylineThumbImgSrc(gbn, base64);
+			the.setSkylineImgSrc(gbn, the.getSkylineBlob(gbn));
+			the.setSkylineThumbImgSrc(gbn, the.getSkylineBlob(gbn));
 			//
 			_upload(++gbn);
 		});
@@ -540,11 +567,11 @@ SkylineObj.prototype.setCaptureThumbImgSrc = function(gbn, blob){
 
 
 /**
- * 스카이라인 이미지(base64)를 <img>에 설정
+ * 스카이라인 이미지(blob)를 <img>에 설정
  * @param {number} gbn
- * @param {string} base64
+ * @param {Blob} blob
  */
-SkylineObj.prototype.setSkylineImgSrc = function(gbn, base64){
+SkylineObj.prototype.setSkylineImgSrc = function(gbn, blob){
 	let img = document.querySelector('.ds-image-skyline[data-index="'+gbn+'"]');
 	if(pp.isNull(img)){
 		console.log('null img');
@@ -552,15 +579,16 @@ SkylineObj.prototype.setSkylineImgSrc = function(gbn, base64){
 	}
 
 	//
-	img.src = 'data:image/png;base64,' + base64;
+	//img.src = 'data:image/png;base64,' + base64;
+	img.src = window.URL.createObjectURL(blob);
 };
 
 /**
- * 스카이라인 이미지(base64)를 thumbnail <img>에 설정
+ * 스카이라인 이미지(blob)를 thumbnail <img>에 설정
  * @param {number} gbn
- * @param {string} base64
+ * @param {Blob} blob
  */
-SkylineObj.prototype.setSkylineThumbImgSrc = function(gbn, base64){
+SkylineObj.prototype.setSkylineThumbImgSrc = function(gbn, blob){
 	let img = document.querySelector('.ds-image-skyline-thumb[data-index="'+gbn+'"]');
 	if(pp.isNull(img)){
 		console.log('null img');
@@ -568,7 +596,8 @@ SkylineObj.prototype.setSkylineThumbImgSrc = function(gbn, base64){
 	}
 
 	//
-	img.src = 'data:image/png;base64,' + base64;
+	//img.src = 'data:image/png;base64,' + base64;
+	img.src = window.URL.createObjectURL(blob);
 };
 
 
