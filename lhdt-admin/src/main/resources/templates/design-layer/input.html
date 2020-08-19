@@ -8,9 +8,9 @@
 		<link rel="stylesheet" th:href="@{/externlib/normalize/normalize.min.css(cacheVersion=${contentCacheVersion})}" />
 		<link rel="stylesheet" th:href="@{/css/fontawesome-free-5.2.0-web/css/all.min.css(cacheVersion=${contentCacheVersion})}">
 		<link rel="stylesheet" th:href="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.css(cacheVersion=${contentCacheVersion})}" />
-		<link rel="stylesheet" th:href="@{/externlib/dropzone/dropzone.min.css(cacheVersion=${contentCacheVersion})}">
+		<link rel="stylesheet" th:href="@{/externlib/dropzone-5.7.0/dropzone.min.css(cacheVersion=${contentCacheVersion})}">
 		<link rel="stylesheet" th:href="@{/css/{lang}/admin-style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}" />
-		<script type="text/javascript" th:src="@{/externlib/dropzone/dropzone.min.js(cacheVersion=${contentCacheVersion})}"></script>
+		<script type="text/javascript" th:src="@{/externlib/dropzone-5.7.0/dropzone.min.js(cacheVersion=${contentCacheVersion})}"></script>
 		<style type="text/css">
 			.dropzone .dz-preview.lp-preview {
 				width: 150px;
@@ -98,7 +98,7 @@
 			                        <span class="icon-glyph glyph-emark-dot color-warning"></span>
 			                    </th>
 								<td class="col-input">
-			                        <input type="text" id="designLayerName" name="designLayerName" class="l" maxlength="256" />
+			                        <input type="text" id="designLayerName" name="designLayerName" class="ml" maxlength="256" />
 			                    </td>
 							</tr>
 							<tr>
@@ -107,7 +107,7 @@
 			                        <span class="icon-glyph glyph-emark-dot color-warning"></span>
 			                    </th>
 			                    <td class="col-input">
-			                        <input type="text" id="designLayerKey" name="designLayerKey" class="m" maxlength="100" />
+			                        <input type="text" id="designLayerKey" name="designLayerKey" class="ml" maxlength="100" />
 									<input type="button" id="duplicationButtion" th:value="#{overlap.check}" />
 			                    </td>
 			                    <th class="col-label" scope="row">
@@ -329,7 +329,7 @@
 
 	// 도형 타입 Polygon 선택시 선택폼 변경
 	function changeGeometryType(geometryType) {
-		if(geometryType == 'Polygon') {
+		if(geometryType === 'Polygon') {
 			$('.forPolygon').attr('disabled', false);
 			$('.forPolygon').removeClass("disabled");
 			$('.picker.forPolygon').attr('disabled', false);
@@ -464,7 +464,6 @@
 	        }
 			uploadFileResultCount++;
 		}
-		return;
 	}
 
     // 업로딩 파일 개수
@@ -605,7 +604,7 @@
 	// 데이터 그룹 중복 확인
 	$( "#duplicationButtion" ).on( "click", function() {
 		var designLayerKey = $("#designLayerKey").val();
-		if (designLayerKey == "") {
+		if (designLayerKey === "") {
 			alert("디자인 레이어 키(한글불가)를 입력해 주세요.");
 			$("#designLayerKey").focus();
 			return false;
@@ -626,7 +625,7 @@
 			dataType: "json",
 			success: function(msg){
 				if(msg.statusCode <= 200) {
-					if(msg.duplication == true) {
+					if(msg.duplication === true) {
 						alert(JS_MESSAGE["data.group.key.duplication"]);
 						$("#dataGroupKey").focus();
 						return false;
