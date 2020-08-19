@@ -9,15 +9,14 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import dev.hyunlab.web.util.PpWebSessionUtil;
+import lhdt.admin.svc.common.AdminSvcUtils;
 import lhdt.admin.svc.lhdt.domain.UserSession;
 import lhdt.ds.common.interceptor.DsSessionCheckInterceptor;
-import lhdt.ds.common.misc.DsConst;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * 세션검사
- * @author gravity@daumsoft.com
+ * @author gravity
  * @since 2020. 8. 14.
  *
  */
@@ -40,10 +39,13 @@ public class SessionCheckInterceptor extends DsSessionCheckInterceptor {
 //		log.debug("{} {}", contextPath, request.getRequestURI());
 		
 		//
-		UserSession userSession = (UserSession) PpWebSessionUtil.get(request, DsConst.USER_SESSION);
+		UserSession userSession = AdminSvcUtils.getUserSession(request);
 		
 		//로그인 정보 없음
 		if(null == userSession) {
+			//TODO 세션없음 처리
+			
+			//
 			response.sendRedirect(contextPath + loginUrl);
 			return false;
 		}
