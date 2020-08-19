@@ -3,6 +3,9 @@
  */
 package lhdt.admin.svc.config;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,23 +47,43 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	}
 	
 	
+	/**
+	 * exclude path patterns
+	 * @return
+	 */
+	private List<String> excludes(){
+		List<String> patterns = new ArrayList<>();
+		
+		//
+		patterns.add("/");
+		patterns.add("/error");
+		patterns.add("/sign/**");
+		patterns.add("/images/**");
+		patterns.add("/js/**");
+		patterns.add("/externlib/**");
+		patterns.add("/css/**");
+		
+		//
+		return patterns;
+	}
+	
 	
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		//
 		registry.addInterceptor(sessionCheckInterceptor)
 			.addPathPatterns("/**")
-			.excludePathPatterns("/", "/error", "/sign/**", "/images/**", "/js/**", "/externlib/**", "/css/**");
+			.excludePathPatterns(excludes());
 
 		//
 		registry.addInterceptor(localeInterceptor)
 			.addPathPatterns("/**")
-			.excludePathPatterns("/", "/error", "/images/**", "/js/**", "/externlib/**", "/css/**");
+			.excludePathPatterns(excludes());
 
 		//
 		registry.addInterceptor(miscInterceptor)
 			.addPathPatterns("/**")
-			.excludePathPatterns("/", "/error", "/images/**", "/js/**", "/externlib/**", "/css/**");
+			.excludePathPatterns(excludes());
 		
 		//
 //		registry.addInterceptor(configInterceptor)
