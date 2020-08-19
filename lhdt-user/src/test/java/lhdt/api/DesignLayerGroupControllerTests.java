@@ -33,6 +33,6 @@ class DesignLayerGroupControllerTests extends BaseControllerTest {
                 .andExpect(jsonPath("designLayerGroupId").exists())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.profile").exists())
-                .andDo(document("get-design-layer-group"));
+                .andDo(document("design-layer-group-get"));
     }
 }

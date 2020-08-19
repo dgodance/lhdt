@@ -33,14 +33,14 @@ public class DesignLayerGroupController {
      * @return
      */
     @GetMapping
-    public ResponseEntity<CollectionModel<DesignLayerGroup>> getDesignLayersGroups() {
+    public ResponseEntity<CollectionModel<DesignLayerGroup>> getDesignLayerGroups() {
         List<DesignLayerGroup> designLayerGroupList = designLayerGroupService.getListDesignLayerGroup()
                 .stream()
-                .map(f -> f.add(linkTo(methodOn(DesignLayerGroupController.class).getDesignLayerGroupById(f.getDesignLayerGroupId())).withSelfRel()))
+                .map(f -> f.add(linkTo(DesignLayerGroupController.class).slash(f.getDesignLayerGroupId()).withSelfRel()))
                 .collect(Collectors.toList());
 
         CollectionModel<DesignLayerGroup> model = CollectionModel.of(designLayerGroupList);
-        model.add(linkTo(methodOn(DesignLayerGroupController.class).getDesignLayersGroups()).withSelfRel());
+        model.add(linkTo(methodOn(DesignLayerGroupController.class).getDesignLayerGroups()).withSelfRel());
         model.add(Link.of("/docs/index.html#resource-design-layer-group-list").withRel("profile"));
 
         return ResponseEntity.ok(model);
@@ -54,8 +54,8 @@ public class DesignLayerGroupController {
     @GetMapping("/{id}")
     public ResponseEntity<RepresentationModel<DesignLayerGroup>> getDesignLayerGroupById(@PathVariable("id") Integer id) {
         DesignLayerGroup designLayerGroup = designLayerGroupService.getDesignLayerGroup(id);
-        designLayerGroup.add(linkTo(methodOn(DesignLayerGroupController.class).getDesignLayersGroups()).withSelfRel());
-        designLayerGroup.add(Link.of("/docs/index.html#resource-design-layer-group-list").withRel("profile"));
+        designLayerGroup.add(linkTo(DesignLayerGroupController.class).slash(id).withSelfRel());
+        designLayerGroup.add(Link.of("/docs/index.html#resource-design-layer-group-get").withRel("profile"));
 
         return ResponseEntity.ok(designLayerGroup);
     }
