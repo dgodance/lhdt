@@ -79,8 +79,8 @@ public class Layer extends Search implements Serializable {
     
     // 공유 타입. 0 : 공개, 1 : 개인, 2 : 그룹
     private String sharing;
-    // 서비스 타입 (wms, wfs, wcs, wps)
-    private String serviceType;
+    // OGC Web Services (wms, wfs, wcs, wps)
+    private String ogcWebServices;
     // 레이어 타입 (Raster, Vector)	
     private String layerType;
     // 레이어 등록 타입 

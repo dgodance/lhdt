@@ -143,14 +143,14 @@
             SELECT NEXTVAL('design_layer_seq')
         </selectKey>
         INSERT INTO design_layer (
-            design_layer_id, design_layer_group_id, design_layer_name, design_layer_key, design_Layer_category service_type, geometry_type,
+            design_layer_id, design_layer_group_id, design_layer_name, design_layer_key, design_Layer_category, ogc_web_services, geometry_type,
             layer_line_color, layer_line_style, layer_fill_color, layer_alpha_style, available,
             coordinate, description, z_index, user_id, cache_available
             <if test="viewOrder != null and viewOrder gt 0">
 				, view_order
 			</if>
         ) VALUES (
-         	#{designLayerId}, #{designLayerGroupId}, #{designLayerName}, #{designLayerKey}, #{designLayerCategory}, #{serviceType}, #{geometryType},
+         	#{designLayerId}, #{designLayerGroupId}, #{designLayerName}, #{designLayerKey}, #{designLayerCategory}, #{ogcWebServices}, #{geometryType},
          	#{layerLineColor}, #{layerLineStyle}, #{layerFillColor}, #{layerAlphaStyle}, #{available},
          	#{coordinate}, #{description}, #{zIndex}, #{userId}, #{cacheAvailable}
          <if test="viewOrder != null and viewOrder gt 0">
@@ -167,7 +167,7 @@
 			design_layer_group_id = #{designLayerGroupId},
 	        design_layer_key = #{designLayerKey},
 	        design_layer_category = #{designLayerCategory},
-	        service_type = #{serviceType},
+			ogc_web_services = #{ogcWebServices},
 			design_layer_type = #{designLayerType},
 	        geometry_type = #{geometryType},
 	        layer_line_color = #{layerLineColor},

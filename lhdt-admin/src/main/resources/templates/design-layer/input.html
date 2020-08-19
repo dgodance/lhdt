@@ -98,7 +98,7 @@
 			                        <span class="icon-glyph glyph-emark-dot color-warning"></span>
 			                    </th>
 								<td class="col-input">
-			                        <input type="text" id="designLayerName" name="designLayerName" class="m" maxlength="256" />
+			                        <input type="text" id="designLayerName" name="designLayerName" class="l" maxlength="256" />
 			                    </td>
 							</tr>
 							<tr>
@@ -107,14 +107,15 @@
 			                        <span class="icon-glyph glyph-emark-dot color-warning"></span>
 			                    </th>
 			                    <td class="col-input">
-			                        <input type="text" id="designLayerKey" name="designLayerKey" class="l" maxlength="100" />
+			                        <input type="text" id="designLayerKey" name="designLayerKey" class="m" maxlength="100" />
+									<input type="button" id="duplicationButtion" th:value="#{overlap.check}" />
 			                    </td>
 			                    <th class="col-label" scope="row">
-			                        <label for="serviceType">서비스 타입</label>
+			                        <label for="ogcWebServices">OGC Web Services</label>
 			                        <span class="icon-glyph glyph-emark-dot color-warning"></span>
 			                    </th>
 			                    <td class="col-input">
-			                        <select id="serviceType" name="serviceType" class="selectBoxClass">
+			                        <select id="ogcWebServices" name="ogcWebServices" class="selectBoxClass">
 										<option value="">선택</option>
 										<option value="wms">WMS</option>
 										<option value="wfs">WFS</option>
@@ -161,7 +162,8 @@
 			                        <label for="layerLineStyle">외곽선 두께</label>
 			                    </th>
 								<td class="col-input">
-									<input type="number" id="layerLineStyle" name="layerLineStyle" class="forRaster" alt="외곽선 두께" min="0.1" max="5.0" size="3" step="0.1">
+									<input type="text" id="layerLineStyle" name="layerLineStyle" class="forRaster" alt="외곽선 두께" min="0.1" max="5.0" size="3" step="0.1">
+									&nbsp;&nbsp;&nbsp;min=0.1, max=5.0
 								</td>
 							</tr>
 			                <tr>
@@ -315,7 +317,7 @@
 	});
 
 	// wms일 경우에만 cache 설정 할 수 있도록 활성화
-	$("select[name=serviceType]").change(function(e){
+	$("select[name=ogcWebServices]").change(function(e){
 		var value = $(this).val();
 	    if(value === "wms") {
 	    	$("input[name='cacheAvailable']").attr("disabled", false);
@@ -418,9 +420,9 @@
 			$("#designLayerKey").focus();
 			return false;
 		}
-		if (!$("select[name=serviceType]").val()) {
-			alert("서비스 타입을 선택해 주십시오.");
-			$("#serviceType").focus();
+		if (!$("select[name=ogcWebServices]").val()) {
+			alert("OGC Web Services를 선택해 주십시오.");
+			$("#ogcWebServices").focus();
 			return false;
 		}
 		if (!$("select[name=geometryType]").val()) {
@@ -537,7 +539,7 @@
                 formData.append("designLayerGroupId", $("#designLayerGroupId").val());
                 formData.append("designLayerName", $("#designLayerName").val());
                 formData.append("designLayerKey", $("#designLayerKey").val());
-                formData.append("serviceType", $("select[name=serviceType]").val());
+                formData.append("ogcWebServices", $("select[name=ogcWebServices]").val());
                 formData.append("geometryType", $("select[name=geometryType]").val());
                 formData.append("layerLineColor", $("#layerLineColor").val());
                 formData.append("layerFillColor", $("#layerFillColor").val());
@@ -599,6 +601,50 @@
             }); */
         }
     };
+
+	// 데이터 그룹 중복 확인
+	$( "#duplicationButtion" ).on( "click", function() {
+		var designLayerKey = $("#designLayerKey").val();
+		if (designLayerKey == "") {
+			alert("디자인 레이어 키(한글불가)를 입력해 주세요.");
+			$("#designLayerKey").focus();
+			return false;
+		}
+
+		var regDesignLayerKey = /^[a-zA-Z0-9-_]+$/;
+		if (!regDesignLayerKey.test(document.getElementById("designLayerKey").value)) {
+			alert("디자인 레이어 키(한글불가)가 올바르지 않습니다.");
+			return false;
+		}
+
+		var formData = "designLayerKey=" + designLayerKey;
+		$.ajax({
+			url: "/design-layers/duplication",
+			type: "GET",
+			headers: {"X-Requested-With": "XMLHttpRequest"},
+			data: formData,
+			dataType: "json",
+			success: function(msg){
+				if(msg.statusCode <= 200) {
+					if(msg.duplication == true) {
+						alert(JS_MESSAGE["data.group.key.duplication"]);
+						$("#dataGroupKey").focus();
+						return false;
+					} else {
+						alert(JS_MESSAGE["data.group.key.enable"]);
+						$("#duplication").val(msg.duplication);
+					}
+				} else {
+					alert(JS_MESSAGE[msg.errorCode]);
+					console.log("---- " + msg.message);
+				}
+			},
+			error:function(request, status, error) {
+				//alert(JS_MESSAGE["ajax.error.message"]);
+				alert("code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
+			}
+		});
+	});
 </script>
 </th:block>
 </body>
