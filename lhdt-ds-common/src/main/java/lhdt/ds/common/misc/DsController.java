@@ -7,23 +7,30 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import dev.hyunlab.web.util.PpWebSessionUtil;
 import lhdt.ds.common.domain.DsDomain;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 모든 controller  의 부모
  * @author gravity
  *
  */
+@Slf4j
 public class DsController {
+	
 
 	/**
 	 * ResponseEntity 생성&리턴
@@ -93,14 +100,43 @@ public class DsController {
 	 * @return
 	 */
 	protected Object file2Object(String filePath) {
-		File fi = new File(filePath);
+		return file2Object(new File(filePath));		
+	}
+	
+	
+	/**
+	 * @param path 파일의  fullpath
+	 * @return
+	 */
+	protected Object file2Object(Path path) {
+		return file2Object(path.toFile());
+	}
+	
+	/**
+	 * object로 변환
+	 * @param path 파일 경로
+	 * @param filename 파일명
+	 * @return
+	 */
+	protected Object file2Object(Path path, String filename) {
+		return file2Object(path.resolve(filename));
+	}
+	
+	/**
+	 * file을 Object로 변환
+	 * @param file 파일
+	 * @return
+	 */
+	protected Object file2Object(File file) {
 		try {
-			ObjectMapper mapper = new ObjectMapper();
-			InputStream targetStream = new FileInputStream(fi);
-			return mapper.readValue(targetStream, Object.class);
+			try(InputStream targetStream = new FileInputStream(file)){
+				return new ObjectMapper().readValue(targetStream, Object.class);
+			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("{}",e);
 		}
+		
+		//
 		return null;
 	}
 }
