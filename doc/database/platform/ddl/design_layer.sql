@@ -70,7 +70,7 @@ create table design_layer (
 	design_layer_name				    varchar(256)					not null,
 	design_layer_category               varchar(30)                     default 'land',
 	user_id						        varchar(32),
-	service_type				        varchar(30),
+	ogc_web_services				    varchar(30),
 	geometry_type				        varchar(30),
 	layer_fill_color                    varchar(30),
 	layer_line_color			        varchar(30),
@@ -96,7 +96,7 @@ comment on column design_layer.design_layer_key is 'design layer 고유키(API�
 comment on column design_layer.design_layer_name is 'design layer 명';
 comment on column design_layer.design_layer_category is 'design layer 분류. land : 땅, building : 빌딩';
 comment on column design_layer.user_id is '사용자명';
-comment on column design_layer.service_type is '서비스 타입 (wms, wfs, wcs, wps)';
+comment on column design_layer.ogc_web_services is 'OGC Web Services (wms, wfs, wcs, wps)';
 comment on column design_layer.geometry_type is '도형 타입';
 comment on column design_layer.layer_fill_color is '외곽선 색상';
 comment on column design_layer.layer_line_color is '외곽선 두께';

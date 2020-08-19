@@ -107,7 +107,7 @@ public class DesignLayerRestController implements AuthorizationController {
 							.sharing(request.getParameter("sharing"))
 							.layerName(request.getParameter("layerName"))
 							.layerKey(request.getParameter("layerKey"))
-							.serviceType(request.getParameter("serviceType"))
+							.ogcWebServices(request.getParameter("ogcWebServices"))
 							.layerType(request.getParameter("layerType"))
 							.layerInsertType(request.getParameter("layerInsertType"))
 							.geometryType(request.getParameter("geometryType"))
@@ -442,7 +442,7 @@ public class DesignLayerRestController implements AuthorizationController {
             layer.setSharing(request.getParameter("sharing"));
             layer.setLayerName(request.getParameter("layerName"));
 			layer.setLayerKey(request.getParameter("layerKey"));
-			layer.setServiceType(request.getParameter("serviceType"));
+			layer.setOgcWebServices(request.getParameter("ogcWebServices"));
 			layer.setLayerType(request.getParameter("layerType"));
 			layer.setGeometryType(request.getParameter("geometryType"));
 			layer.setLayerLineColor(request.getParameter("layerLineColor"));

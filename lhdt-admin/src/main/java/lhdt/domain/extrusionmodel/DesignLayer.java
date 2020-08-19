@@ -53,8 +53,8 @@ public class DesignLayer extends Search implements Serializable {
     
     // 업로딩 아이디
     private String userId;
-    // 서비스 타입 (정적, 동적)
-    private String serviceType;
+    // OGC Web Services (wms, wfs, wcs, wps)
+    private String ogcWebServices;
     // 도형 타입 (point, line, polygon)
     private String geometryType;
 
