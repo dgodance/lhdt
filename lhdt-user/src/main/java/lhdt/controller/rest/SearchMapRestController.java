@@ -1,6 +1,7 @@
 package lhdt.controller.rest;
 
-import lhdt.domain.*;
+import lhdt.domain.Key;
+import lhdt.domain.common.Pagination;
 import lhdt.domain.country.District;
 import lhdt.domain.country.SkEmd;
 import lhdt.domain.country.SkSdo;

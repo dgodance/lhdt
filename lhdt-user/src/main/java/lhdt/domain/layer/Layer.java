@@ -1,6 +1,6 @@
 package lhdt.domain.layer;
 
-import lhdt.domain.Search;
+import lhdt.domain.common.Search;
 import lombok.*;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.format.annotation.DateTimeFormat;

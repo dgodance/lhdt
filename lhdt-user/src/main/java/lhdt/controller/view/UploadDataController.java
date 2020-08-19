@@ -1,30 +1,14 @@
 package lhdt.controller.view;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import lombok.extern.slf4j.Slf4j;
 import lhdt.config.PropertiesConfig;
-import lhdt.domain.cache.CacheManager;
-import lhdt.domain.converter.ConverterJob;
-import lhdt.domain.data.DataGroup;
 import lhdt.domain.Key;
 import lhdt.domain.PageType;
-import lhdt.domain.Pagination;
-import lhdt.domain.role.RoleKey;
 import lhdt.domain.SharingType;
+import lhdt.domain.cache.CacheManager;
+import lhdt.domain.common.Pagination;
+import lhdt.domain.converter.ConverterJob;
+import lhdt.domain.data.DataGroup;
+import lhdt.domain.role.RoleKey;
 import lhdt.domain.uploaddata.UploadData;
 import lhdt.domain.uploaddata.UploadDataFile;
 import lhdt.domain.user.UserSession;
@@ -35,6 +19,20 @@ import lhdt.support.RoleSupport;
 import lhdt.support.SQLInjectSupport;
 import lhdt.utils.DateUtils;
 import lhdt.utils.FileUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * 3D 데이터 파일 업로더
@@ -96,7 +94,7 @@ public class UploadDataController {
 		
 		long totalCount = uploadDataService.getUploadDataTotalCount(uploadData);
 		
-		Pagination pagination = new Pagination(	request.getRequestURI(), 
+		Pagination pagination = new Pagination(	request.getRequestURI(),
 												getSearchParameters(PageType.LIST, uploadData), 
 												totalCount, 
 												Long.parseLong(pageNo),

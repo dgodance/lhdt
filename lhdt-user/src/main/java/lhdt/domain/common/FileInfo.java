@@ -1,4 +1,4 @@
-package lhdt.domain;
+package lhdt.domain.common;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;

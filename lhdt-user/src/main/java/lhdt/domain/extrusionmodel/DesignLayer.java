@@ -3,6 +3,7 @@ package lhdt.domain.extrusionmodel;
 import lombok.*;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -18,7 +19,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DesignLayer implements Serializable {
+public class DesignLayer extends RepresentationModel<DesignLayer> implements Serializable {
 
     private static final long serialVersionUID = -4408734451145107109L;
 

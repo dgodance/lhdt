@@ -1,10 +1,6 @@
-package lhdt.domain;
+package lhdt.domain.common;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 /**
  * Service 계층에서 페이지 처리를 Controller 계층으로 전달하기 위한 도메인
