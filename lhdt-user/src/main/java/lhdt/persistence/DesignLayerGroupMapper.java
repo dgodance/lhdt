@@ -16,8 +16,8 @@ public interface DesignLayerGroupMapper {
 
     /**
      * 디자인 레이어 정보 조회
-     * @param designLayerGroup
+     * @param designLayerGroupId
      * @return
      */
-    DesignLayerGroup getDesignLayerGroup(DesignLayerGroup designLayerGroup);
+    DesignLayerGroup getDesignLayerGroup(Integer designLayerGroupId);
 }

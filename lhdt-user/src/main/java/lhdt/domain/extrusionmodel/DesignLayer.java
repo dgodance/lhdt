@@ -1,6 +1,5 @@
 package lhdt.domain.extrusionmodel;
 
-import lhdt.domain.common.Search;
 import lombok.*;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -19,7 +18,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DesignLayer extends Search implements Serializable {
+public class DesignLayer implements Serializable {
 
     private static final long serialVersionUID = -4408734451145107109L;
 

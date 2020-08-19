@@ -2,6 +2,7 @@ package lhdt.domain.extrusionmodel;
 
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -13,7 +14,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DesignLayerGroup implements Serializable {
+public class DesignLayerGroup extends RepresentationModel<DesignLayerGroup> implements Serializable {
 
 	private static final long serialVersionUID = -1480761819761262002L;
 
