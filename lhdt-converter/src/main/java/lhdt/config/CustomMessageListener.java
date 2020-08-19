@@ -1,5 +1,6 @@
 package lhdt.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lhdt.domain.ConverterJob;
 import lhdt.domain.ConverterJobStatus;
 import lhdt.domain.QueueMessage;
@@ -18,6 +19,8 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +34,7 @@ public class CustomMessageListener {
 
     @Autowired
     private PropertiesConfig propertiesConfig;
+
     @Autowired
     private RestTemplate restTemplate;
 
@@ -45,13 +49,19 @@ public class CustomMessageListener {
 		String userId = queueMessage.getUserId();
 		String serverTarget = queueMessage.getServerTarget();
 
+		String logPath = queueMessage.getLogPath();
+		String outputPath = queueMessage.getOutputFolder();
+		Path logFilePath = Paths.get(logPath);
+		Path attributeFilePath = Paths.get(outputPath, "attributes.json");
+		Path locationFilePath = Paths.get(outputPath, "lonsLats.json");
+
 		CompletableFuture.supplyAsync( () -> {
 			List<String> command = new ArrayList<>();
 			command.add(propertiesConfig.getConverterDir());
 			command.add("#inputFolder");
 			command.add(queueMessage.getInputFolder());
 			command.add("#outputFolder");
-			command.add(queueMessage.getOutputFolder());
+			command.add(outputPath);
 			command.add("#meshType");
 			command.add(queueMessage.getMeshType());
 			if (!StringUtils.isEmpty(queueMessage.getSkinLevel())) {
@@ -59,7 +69,7 @@ public class CustomMessageListener {
 				command.add(queueMessage.getSkinLevel());
 			}
 			command.add("#log");
-			command.add(queueMessage.getLogPath());
+			command.add(logPath);
 			command.add("#indexing");
 			command.add(queueMessage.getIndexing());
 			command.add("#usf");
@@ -125,6 +135,7 @@ public class CustomMessageListener {
 				uri = new URI(propertiesConfig.getCmsAdminRestServer() + "/api/converters/status");
 			}
 			restTemplate.postForEntity(uri, converterJob, Map.class);
+
 		} catch (URISyntaxException e) {
 			log.info("데이터 converter 상태 변경 api 호출 실패 = {}", e.getMessage());
 		}
