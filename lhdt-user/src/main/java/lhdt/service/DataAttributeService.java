@@ -1,6 +1,6 @@
 package lhdt.service;
 
-import lhdt.domain.DataAttribute;
+import lhdt.domain.data.DataAttribute;
 
 /**
  * 데이터 파일 속성 관리

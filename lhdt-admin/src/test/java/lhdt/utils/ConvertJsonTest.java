@@ -13,9 +13,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import lhdt.domain.DataInfo;
-import lhdt.domain.DataInfoLegacy;
-import lhdt.domain.DataInfoLegacyWrapper;
+import lhdt.domain.data.DataInfo;
+import lhdt.domain.data.DataInfoLegacy;
+import lhdt.domain.data.DataInfoLegacyWrapper;
 
 @Slf4j
 class ConvertJsonTest {

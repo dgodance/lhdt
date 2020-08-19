@@ -2,7 +2,7 @@ package lhdt.service;
 
 import java.util.List;
 
-import lhdt.domain.Menu;
+import lhdt.domain.menu.Menu;
 
 /**
  * 메뉴 관리

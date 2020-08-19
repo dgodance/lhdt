@@ -2,7 +2,7 @@ package lhdt.parser;
 
 import java.util.Map;
 
-import lhdt.domain.DataObjectAttributeFileInfo;
+import lhdt.domain.data.DataObjectAttributeFileInfo;
 
 /**
  * 데이터 속성 파일 분석

@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lhdt.domain.ApprovalStatus;
-import lhdt.domain.DataAdjustLog;
-import lhdt.domain.DataInfo;
+import lhdt.domain.data.DataAdjustLog;
+import lhdt.domain.data.DataInfo;
 import lhdt.persistence.DataAdjustLogMapper;
 import lhdt.service.DataAdjustLogService;
 import lhdt.service.DataService;

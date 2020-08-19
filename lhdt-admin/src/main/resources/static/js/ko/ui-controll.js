@@ -36,15 +36,6 @@ $(function() {
 			if( currentUrl.indexOf("#search") >= 0) {
 				$("#searchMenu").addClass('on');
 				$('#searchContent').toggle(true);
-			} else if( currentUrl.indexOf("#spatial") >= 0) {
-				$("#spatialMenu").addClass('on');
-				$('#spatialContent').toggle(true);
-			} else if( currentUrl.indexOf("#simulation") >= 0) {
-				$("#simulationMenu").addClass('on');
-				$('#simulationContent').toggle(true);
-			} else if( currentUrl.indexOf("#civilVoice") >= 0) {
-				$("#civilVoiceMenu").addClass('on');
-				$('#civilVoiceContent').toggle(true);
 			} else if( currentUrl.indexOf("#userPolicy") >= 0) {
 				$("#userPolicyMenu").addClass('on');
 				$('#userPolicyContent').toggle(true);
@@ -103,30 +94,7 @@ $(function() {
     });
 
     
-/***** Contents Wrap: 공간분석 *****/	
-	// 공간분석 그룹 클릭 시	
-	$('#spatialContent ul.listDrop li > p').click(function(e) {
-		var parentObj = $(this).parent();
-		var index = parentObj.index();
-		$('#spatialContent ul.listDrop > li').eq(index).toggleClass('on');
-	});
-	
-	// 공간분석 위치 관련 버튼 클릭 시
-	$('#spatialContent button[class*="draw"]').click(function(e) {
-		$(this).toggleClass('on');
-		
-		$('#spatialContent button[class*="draw"]').not($(this)).each(function(i,a){
-			$(this).removeClass('on');
-		});
-	});
-	
-/***** Contents Wrap: 공간분석 *****/	
-	// 시뮬레이션 그룹 클릭 시	
-	$('#simulationContent ul.listDrop li > p').click(function() {
-		var parentObj = $(this).parent();
-		var index = parentObj.index();
-		$('#simulationContent ul.listDrop > li').eq(index).toggleClass('on');
-	});
+/***** Contents Wrap: 공간분석 *****/
 	
 	// 행정구역 검색
 	$('div.district').hover(function() {

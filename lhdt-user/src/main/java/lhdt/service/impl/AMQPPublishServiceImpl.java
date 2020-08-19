@@ -1,9 +1,6 @@
 package lhdt.service.impl;
 
 import org.springframework.amqp.AmqpException;
-import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.MessageBuilder;
-import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,10 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
 import lhdt.config.PropertiesConfig;
-import lhdt.domain.QueueMessage;
+import lhdt.domain.common.QueueMessage;
 import lhdt.service.AMQPPublishService;
-
-import java.io.UnsupportedEncodingException;
 
 /**
  * @author Cheon JeongDae

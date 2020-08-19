@@ -1,6 +1,6 @@
 package lhdt.api;
 
-import lhdt.domain.ConverterJob;
+import lhdt.domain.converter.ConverterJob;
 import lhdt.service.ConverterService;
 import lhdt.support.LogMessageSupport;
 import lombok.extern.slf4j.Slf4j;

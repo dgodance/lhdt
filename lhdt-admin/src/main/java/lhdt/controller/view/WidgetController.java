@@ -2,7 +2,7 @@ package lhdt.controller.view;
 
 import javax.servlet.http.HttpServletRequest;
 
-import lhdt.domain.Widget;
+import lhdt.domain.widget.Widget;
 import lhdt.service.WidgetService;
 import lhdt.utils.DateUtils;
 import lhdt.utils.FormatUtils;

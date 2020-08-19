@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="lhdt.persistence.DesignLayerMapper">
+
+    <!-- 디자인 레이어 총 건수 -->
+    <select id="getDesignLayerTotalCount" parameterType="designLayer" resultType="long">
+        /* getDesignLayerTotalCount */
+        SELECT COUNT(design_layer_id)
+        FROM design_layer a
+        LEFT JOIN design_layer_group b
+        ON a.design_layer_group_id = b.design_layer_group_id
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="designLayerGroupId != null and designLayerGroupId gt 0">
+			AND a.design_layer_group_id = #{designLayerGroupId}
+			</if>
+			<if test="searchWord != null and searchWord != '' and searchValue != null and searchValue != '' and searchOption == '0'.toString()">
+			AND ${searchWord} = #{searchValue}
+			</if>
+			<if test="searchWord != null and searchWord != '' and searchValue != null and searchValue != '' and searchOption == '1'.toString()">
+			AND ${searchWord} LIKE '%' || #{searchValue} || '%'
+			</if>
+			<if test="startDate != null and startDate != ''">
+			<![CDATA[
+			AND a.insert_date >= TO_TIMESTAMP(#{startDate}, 'YYYYMMDDHH24MISSUS')
+			]]>
+			</if>
+			<if test="endDate != null and endDate != ''">
+			<![CDATA[
+			AND a.insert_date <= TO_TIMESTAMP(#{endDate}, 'YYYYMMDDHH24MISSUS')
+			]]>
+			</if>
+		</trim>
+    </select>
+
+    <!-- 디자인 레이어 목록 -->
+    <select id="getListDesignLayer" parameterType="designLayer" resultType="designLayer">
+        /* getListDesignLayer */
+        SELECT a.*, b.design_layer_group_name
+        FROM design_layer a
+        LEFT JOIN design_layer_group b
+        ON a.design_layer_group_id = b.design_layer_group_id
+		<trim prefix="WHERE" prefixOverrides="AND">
+        	<if test="designLayerGroupId != null and designLayerGroupId gt 0">
+			AND a.design_layer_group_id = #{designLayerGroupId}
+			</if>
+			<if test="searchWord != null and searchWord != '' and searchValue != null and searchValue != '' and searchOption == '0'.toString()">
+			AND ${searchWord} = #{searchValue}
+			</if>
+			<if test="searchWord != null and searchWord != '' and searchValue != null and searchValue != '' and searchOption == '1'.toString()">
+			AND ${searchWord} LIKE '%' || #{searchValue} || '%'
+			</if>
+			<if test="startDate != null and startDate != ''">
+			<![CDATA[
+			AND a.insert_date >= TO_TIMESTAMP(#{startDate}, 'YYYYMMDDHH24MISSUS')
+			]]>
+			</if>
+			<if test="endDate != null and endDate != ''">
+			<![CDATA[
+			AND a.insert_date <= TO_TIMESTAMP(#{endDate}, 'YYYYMMDDHH24MISSUS')
+			]]>
+			</if>
+		</trim>
+		<choose>
+		<when test="orderWord != null and orderWord != '' and orderValue != null and orderValue != ''">
+		ORDER BY a.${orderWord} ${orderValue}
+		</when>
+		<otherwise>
+		ORDER BY a.insert_date DESC, design_layer_id DESC
+		</otherwise>
+		</choose>
+		OFFSET #{offset} LIMIT #{limit}
+    </select>
+
+    <!-- 디자인 레이어 정보 취득 -->
+    <select id="getDesignLayer" parameterType="long" resultType="designLayer">
+        /* getDesignLayer */
+        SELECT A.*, B.design_layer_group_name
+        FROM design_layer A
+        LEFT JOIN design_layer_group B on B.design_layer_group_id = A.design_layer_group_id
+        WHERE A.design_layer_id = #{designLayerId}
+    </select>
+</mapper>

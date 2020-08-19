@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lhdt.domain.UserGroup;
-import lhdt.domain.UserGroupMenu;
-import lhdt.domain.UserGroupRole;
+import lhdt.domain.user.UserGroup;
+import lhdt.domain.user.UserGroupMenu;
+import lhdt.domain.user.UserGroupRole;
 import lhdt.persistence.UserGroupMapper;
 import lhdt.service.UserGroupService;
 

@@ -2,8 +2,8 @@ package lhdt.persistence;
 
 import org.springframework.stereotype.Repository;
 
-import lhdt.domain.DataSmartTilingFileInfo;
-import lhdt.domain.DataSmartTilingFileParseLog;
+import lhdt.domain.data.DataSmartTilingFileInfo;
+import lhdt.domain.data.DataSmartTilingFileParseLog;
 
 /**
  * Smart Tiling 데이터 파일 관리

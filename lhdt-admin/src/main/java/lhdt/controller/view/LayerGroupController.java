@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import lombok.extern.slf4j.Slf4j;
-import lhdt.domain.LayerGroup;
-import lhdt.domain.Policy;
+import lhdt.domain.layer.LayerGroup;
+import lhdt.domain.policy.Policy;
 import lhdt.service.LayerGroupService;
 import lhdt.service.PolicyService;
 

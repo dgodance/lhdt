@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lhdt.domain.GeoPolicy;
-import lhdt.domain.UserPolicy;
+import lhdt.domain.policy.GeoPolicy;
+import lhdt.domain.user.UserPolicy;
 import lhdt.persistence.UserPolicyMapper;
 import lhdt.service.GeoPolicyService;
 import lhdt.service.UserPolicyService;

@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import lombok.extern.slf4j.Slf4j;
-import lhdt.domain.CacheManager;
-import lhdt.domain.ConverterJob;
+import lhdt.domain.cache.CacheManager;
+import lhdt.domain.converter.ConverterJob;
 import lhdt.domain.Key;
 import lhdt.domain.PageType;
 import lhdt.domain.Pagination;
-import lhdt.domain.UserSession;
+import lhdt.domain.user.UserSession;
 import lhdt.service.ConverterService;
 import lhdt.support.RoleSupport;
 import lhdt.support.SQLInjectSupport;

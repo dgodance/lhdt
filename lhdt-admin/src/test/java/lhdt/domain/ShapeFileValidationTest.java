@@ -1,5 +1,6 @@
 package lhdt.domain;
 
+import lhdt.domain.layer.LayerFileInfo;
 import org.geotools.data.shapefile.dbf.DbaseFileHeader;
 import org.geotools.data.shapefile.dbf.DbaseFileReader;
 import org.geotools.data.shapefile.files.ShpFiles;

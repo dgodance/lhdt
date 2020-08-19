@@ -1,11 +1,9 @@
 package lhdt.controller.rest;
 
-import lhdt.domain.DesignLayerGroup;
+import lhdt.domain.extrusionmodel.DesignLayerGroup;
 import lhdt.domain.Key;
-import lhdt.domain.LayerGroup;
-import lhdt.domain.UserSession;
+import lhdt.domain.user.UserSession;
 import lhdt.service.DesignLayerGroupService;
-import lhdt.service.LayerGroupService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

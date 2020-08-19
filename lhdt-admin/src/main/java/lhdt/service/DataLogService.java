@@ -2,7 +2,7 @@ package lhdt.service;
 
 import java.util.List;
 
-import lhdt.domain.DataInfoLog;
+import lhdt.domain.data.DataInfoLog;
 
 /**
  * Data 변경 이력 관리

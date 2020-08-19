@@ -12,9 +12,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import lhdt.domain.ConverterJob;
+import lombok.extern.slf4j.Slf4j;
+import lhdt.domain.converter.ConverterJob;
 import lhdt.domain.Key;
-import lhdt.domain.UserSession;
+import lhdt.domain.user.UserSession;
 import lhdt.service.ConverterService;
 import lombok.extern.slf4j.Slf4j;
 

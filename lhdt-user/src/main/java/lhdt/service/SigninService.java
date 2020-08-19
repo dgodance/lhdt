@@ -1,7 +1,7 @@
 package lhdt.service;
 
-import lhdt.domain.UserInfo;
-import lhdt.domain.UserSession;
+import lhdt.domain.user.UserInfo;
+import lhdt.domain.user.UserSession;
 
 /**
  * Sign in 관련 처리

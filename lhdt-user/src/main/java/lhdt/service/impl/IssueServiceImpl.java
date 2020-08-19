@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lhdt.domain.Issue;
+import lhdt.domain.issue.Issue;
 import lhdt.persistence.IssueMapper;
 import lhdt.service.IssueService;
 

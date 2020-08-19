@@ -1,6 +1,6 @@
 package lhdt.persistence;
 
-import lhdt.domain.LayerFileInfo;
+import lhdt.domain.layer.LayerFileInfo;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

@@ -2,7 +2,7 @@ package lhdt.service;
 
 import java.util.List;
 
-import lhdt.domain.DataAdjustLog;
+import lhdt.domain.data.DataAdjustLog;
 
 /**
  * 데이터 geometry 변경 이력 관리

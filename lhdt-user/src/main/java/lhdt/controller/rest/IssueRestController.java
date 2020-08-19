@@ -19,11 +19,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
-import lhdt.domain.Issue;
+import lhdt.domain.issue.Issue;
 import lhdt.domain.Key;
 import lhdt.domain.PageType;
 import lhdt.domain.Pagination;
-import lhdt.domain.UserSession;
+import lhdt.domain.user.UserSession;
 import lhdt.service.IssueService;
 import lhdt.support.SQLInjectSupport;
 import lhdt.utils.WebUtils;

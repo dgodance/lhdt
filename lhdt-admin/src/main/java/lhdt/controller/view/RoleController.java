@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import lombok.extern.slf4j.Slf4j;
 import lhdt.domain.PageType;
-import lhdt.domain.Pagination;
-import lhdt.domain.Role;
+import lhdt.domain.common.Pagination;
+import lhdt.domain.role.Role;
 import lhdt.service.RoleService;
 import lhdt.support.SQLInjectSupport;
 import lhdt.utils.DateUtils;

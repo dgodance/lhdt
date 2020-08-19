@@ -2,8 +2,8 @@ package lhdt.persistence;
 
 import org.springframework.stereotype.Repository;
 
-import lhdt.domain.DataObjectAttribute;
-import lhdt.domain.DataObjectAttributeFileInfo;
+import lhdt.domain.data.DataObjectAttribute;
+import lhdt.domain.data.DataObjectAttributeFileInfo;
 
 
 /**

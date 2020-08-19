@@ -1,7 +1,7 @@
 package lhdt.utils;
 
-import lhdt.domain.FileInfo;
-import lhdt.domain.UploadDirectoryType;
+import lhdt.domain.common.FileInfo;
+import lhdt.domain.uploaddata.UploadDirectoryType;
 import lhdt.support.LogMessageSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;

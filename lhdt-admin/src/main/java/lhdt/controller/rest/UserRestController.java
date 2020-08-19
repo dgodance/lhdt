@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
 import lhdt.controller.AuthorizationController;
-import lhdt.domain.UserInfo;
+import lhdt.domain.user.UserInfo;
 import lhdt.service.UserService;
 
 /**

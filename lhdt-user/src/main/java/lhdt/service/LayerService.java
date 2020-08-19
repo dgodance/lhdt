@@ -2,7 +2,7 @@ package lhdt.service;
 
 import java.util.List;
 
-import lhdt.domain.Layer;
+import lhdt.domain.layer.Layer;
 
 public interface LayerService {
 

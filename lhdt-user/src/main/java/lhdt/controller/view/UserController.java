@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import lombok.extern.slf4j.Slf4j;
-import lhdt.domain.CacheManager;
+import lhdt.domain.cache.CacheManager;
 import lhdt.domain.Key;
-import lhdt.domain.Policy;
-import lhdt.domain.UserInfo;
-import lhdt.domain.UserSession;
-import lhdt.domain.UserStatus;
+import lhdt.domain.policy.Policy;
+import lhdt.domain.user.UserInfo;
+import lhdt.domain.user.UserSession;
+import lhdt.domain.user.UserStatus;
 import lhdt.service.UserService;
 import lhdt.support.PasswordSupport;
 

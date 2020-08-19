@@ -1,6 +1,6 @@
 package lhdt.service;
 
-import lhdt.domain.DesignLayerGroup;
+import lhdt.domain.extrusionmodel.DesignLayerGroup;
 
 import java.util.List;
 

@@ -146,8 +146,17 @@
 	    	)
     </select>
 
+	<select id="isLayerExists" parameterType="string" resultType="string">
+        /* isLayerExists */
+        SELECT tablename
+			FROM pg_tables
+		WHERE schemaname = 'public'
+		AND tablename = #{value}
+    </select>
+
     <!-- layer 등록 -->
     <insert id="insertLayer" parameterType="layer">
+		/* insertLayer */
         <selectKey keyProperty="layerId" resultType="int" order="BEFORE">
             SELECT NEXTVAL('layer_seq')
         </selectKey>
@@ -231,12 +240,4 @@
         /* deleteLayer */
         DROP TABLE ${value}
     </delete>
-    
-    <select id="isLayerExists" parameterType="string" resultType="string">
-        /* isLayerExists */
-        SELECT tablename
-			FROM pg_tables
-		WHERE schemaname = 'public'
-		AND tablename = #{value}
-    </select>
 </mapper>

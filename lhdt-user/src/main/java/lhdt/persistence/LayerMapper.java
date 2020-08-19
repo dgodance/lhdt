@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import lhdt.domain.Layer;
+import lhdt.domain.layer.Layer;
 
 @Repository
 public interface LayerMapper {

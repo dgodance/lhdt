@@ -2,11 +2,14 @@ package lhdt.service.impl;
 
 import lhdt.config.PropertiesConfig;
 import lhdt.domain.*;
+import lhdt.domain.extrusionmodel.DesignLayer;
+import lhdt.domain.extrusionmodel.DesignLayerFileInfo;
+import lhdt.domain.layer.LayerFileInfo;
+import lhdt.domain.policy.GeoPolicy;
 import lhdt.geospatial.LayerStyleParser;
 import lhdt.geospatial.Ogr2OgrExecute;
 import lhdt.persistence.DesignLayerFileInfoMapper;
 import lhdt.persistence.DesignLayerMapper;
-import lhdt.persistence.LayerFileInfoMapper;
 import lhdt.security.Crypt;
 import lhdt.service.DesignLayerService;
 import lhdt.service.GeoPolicyService;

@@ -1,7 +1,7 @@
 package lhdt.controller.view;
 
-import lhdt.domain.DesignLayerGroup;
-import lhdt.domain.Policy;
+import lhdt.domain.extrusionmodel.DesignLayerGroup;
+import lhdt.domain.policy.Policy;
 import lhdt.service.DesignLayerGroupService;
 import lhdt.service.PolicyService;
 import lombok.extern.slf4j.Slf4j;

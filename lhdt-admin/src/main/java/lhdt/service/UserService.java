@@ -2,7 +2,7 @@ package lhdt.service;
 
 import java.util.List;
 
-import lhdt.domain.UserInfo;
+import lhdt.domain.user.UserInfo;
 
 /**
  * 사용자

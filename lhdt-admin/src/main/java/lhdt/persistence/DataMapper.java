@@ -2,7 +2,8 @@ package lhdt.persistence;
 
 import java.util.List;
 
-import lhdt.domain.*;
+import lhdt.domain.common.FileInfo;
+import lhdt.domain.data.*;
 import org.springframework.stereotype.Repository;
 
 /**

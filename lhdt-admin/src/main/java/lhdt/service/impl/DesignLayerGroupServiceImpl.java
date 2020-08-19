@@ -1,6 +1,8 @@
 package lhdt.service.impl;
 
 import lhdt.domain.*;
+import lhdt.domain.extrusionmodel.DesignLayer;
+import lhdt.domain.extrusionmodel.DesignLayerGroup;
 import lhdt.persistence.DesignLayerGroupMapper;
 import lhdt.service.DesignLayerGroupService;
 import lhdt.service.DesignLayerService;

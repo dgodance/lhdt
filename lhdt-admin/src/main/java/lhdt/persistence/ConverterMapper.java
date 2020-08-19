@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import lhdt.domain.ConverterJob;
-import lhdt.domain.ConverterJobFile;
+import lhdt.domain.converter.ConverterJob;
+import lhdt.domain.converter.ConverterJobFile;
 
 /**
  * f4d converter manager

@@ -1,6 +1,6 @@
 package lhdt.service.impl;
 
-import lhdt.domain.DesignLayerFileInfo;
+import lhdt.domain.extrusionmodel.DesignLayerFileInfo;
 import lhdt.persistence.DesignLayerFileInfoMapper;
 import lhdt.service.DesignLayerFileInfoService;
 import org.springframework.beans.factory.annotation.Autowired;

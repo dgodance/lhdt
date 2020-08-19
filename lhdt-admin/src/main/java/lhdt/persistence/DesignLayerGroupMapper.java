@@ -1,6 +1,6 @@
 package lhdt.persistence;
 
-import lhdt.domain.DesignLayerGroup;
+import lhdt.domain.extrusionmodel.DesignLayerGroup;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

@@ -20,14 +20,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
-import lhdt.domain.DataAttribute;
-import lhdt.domain.DataInfo;
-import lhdt.domain.DataObjectAttribute;
+import lhdt.domain.data.DataAttribute;
+import lhdt.domain.data.DataInfo;
+import lhdt.domain.data.DataObjectAttribute;
 import lhdt.domain.Key;
 import lhdt.domain.PageType;
 import lhdt.domain.Pagination;
 import lhdt.domain.ServerTarget;
-import lhdt.domain.UserSession;
+import lhdt.domain.user.UserSession;
 import lhdt.service.DataAttributeService;
 import lhdt.service.DataObjectAttributeService;
 import lhdt.service.DataService;

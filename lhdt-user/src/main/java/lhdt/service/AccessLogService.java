@@ -1,6 +1,6 @@
 package lhdt.service;
 
-import lhdt.domain.AccessLog;
+import lhdt.domain.accesslog.AccessLog;
 
 /**
  * 로그 처리

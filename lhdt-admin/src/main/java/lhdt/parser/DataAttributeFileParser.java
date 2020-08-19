@@ -2,7 +2,7 @@ package lhdt.parser;
 
 import java.util.Map;
 
-import lhdt.domain.DataAttributeFileInfo;
+import lhdt.domain.data.DataAttributeFileInfo;
 
 /**
  * @author Cheon JeongDae
