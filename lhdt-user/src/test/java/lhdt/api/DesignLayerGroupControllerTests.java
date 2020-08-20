@@ -18,7 +18,7 @@ class DesignLayerGroupControllerTests extends BaseControllerTest {
         this.mockMvc.perform(get("/api/design-layer-groups"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("_embedded.designLayerGroupList[0]._links.self").exists())
+                .andExpect(jsonPath("_embedded.designLayerGroups[0]._links.self").exists())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.profile").exists())
                 .andDo(document("design-layer-group-list"));

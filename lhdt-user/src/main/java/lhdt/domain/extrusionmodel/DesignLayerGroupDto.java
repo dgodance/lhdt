@@ -2,6 +2,7 @@ package lhdt.domain.extrusionmodel;
 
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.hateoas.server.core.Relation;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -13,16 +14,10 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DesignLayerGroup implements Serializable {
+@Relation(collectionRelation = "designLayerGroups")
+public class DesignLayerGroupDto implements Serializable {
 
-	private static final long serialVersionUID = -1480761819761262002L;
-
-	/****** 화면 표시용 *******/
-	// up : 위로, down : 아래로
-	private String updateType;
-
-	// 그룹Key 중복 확인 hidden 값
-	private String duplicationValue;
+	private static final long serialVersionUID = 4874076788913826887L;
 
 	// design layer 그룹 고유번호
 	private Integer designLayerGroupId;

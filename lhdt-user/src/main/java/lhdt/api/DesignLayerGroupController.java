@@ -1,13 +1,14 @@
 package lhdt.api;
 
-import lhdt.domain.extrusionmodel.DesignLayerGroup;
+import lhdt.domain.extrusionmodel.DesignLayerGroupDto;
 import lhdt.service.DesignLayerGroupService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
-import org.springframework.hateoas.RepresentationModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,19 +28,23 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class DesignLayerGroupController {
 
     private final DesignLayerGroupService designLayerGroupService;
+    private final ModelMapper modelMapper = new ModelMapper();
 
     /**
      * 디자인 레이어 그룹 목록 조회
+     *
      * @return
      */
     @GetMapping
-    public ResponseEntity<CollectionModel<DesignLayerGroup>> getDesignLayerGroups() {
-        List<DesignLayerGroup> designLayerGroupList = designLayerGroupService.getListDesignLayerGroup()
+    public ResponseEntity<CollectionModel<EntityModel<DesignLayerGroupDto>>> getDesignLayerGroups() {
+        List<EntityModel<DesignLayerGroupDto>> designLayerGroupList = designLayerGroupService.getListDesignLayerGroup()
                 .stream()
-                .map(f -> f.add(linkTo(DesignLayerGroupController.class).slash(f.getDesignLayerGroupId()).withSelfRel()))
+                .map(f -> EntityModel.of(modelMapper.map(f, DesignLayerGroupDto.class))
+                        .add(linkTo(DesignLayerGroupController.class).slash(f.getDesignLayerGroupId()).withSelfRel()))
                 .collect(Collectors.toList());
 
-        CollectionModel<DesignLayerGroup> model = CollectionModel.of(designLayerGroupList);
+        CollectionModel<EntityModel<DesignLayerGroupDto>> model = CollectionModel.of(designLayerGroupList);
+
         model.add(linkTo(methodOn(DesignLayerGroupController.class).getDesignLayerGroups()).withSelfRel());
         model.add(Link.of("/docs/index.html#resource-design-layer-group-list").withRel("profile"));
 
@@ -48,12 +53,14 @@ public class DesignLayerGroupController {
 
     /**
      * 디자인 레이어 그룹 한건 조회
+     *
      * @param id 디자인 레이어 그룹 아이디
      * @return
      */
     @GetMapping("/{id}")
-    public ResponseEntity<RepresentationModel<DesignLayerGroup>> getDesignLayerGroupById(@PathVariable("id") Integer id) {
-        DesignLayerGroup designLayerGroup = designLayerGroupService.getDesignLayerGroup(id);
+    public ResponseEntity<EntityModel<DesignLayerGroupDto>> getDesignLayerGroupById(@PathVariable("id") Integer id) {
+        DesignLayerGroupDto dto = modelMapper.map(designLayerGroupService.getDesignLayerGroup(id), DesignLayerGroupDto.class);
+        EntityModel<DesignLayerGroupDto> designLayerGroup = EntityModel.of(dto);
         designLayerGroup.add(linkTo(DesignLayerGroupController.class).slash(id).withSelfRel());
         designLayerGroup.add(Link.of("/docs/index.html#resource-design-layer-group-get").withRel("profile"));
 
