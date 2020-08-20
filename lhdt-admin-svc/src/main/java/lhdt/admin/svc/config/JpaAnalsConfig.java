@@ -36,7 +36,10 @@ import lombok.extern.slf4j.Slf4j;
 @EnableJpaRepositories(
 		entityManagerFactoryRef = "entityManagerFactory",
 		basePackages = { 
-				"lhdt.admin.svc.hello.persistence" 
+				"lhdt.admin.svc.hello.persistence",
+//				"lhdt.admin.svc.cityplanning.persistence",
+//				"lhdt.admin.svc.landscape.persistence",
+				"lhdt.admin.svc.lowinfo.persistence"
 				}
 		)
 public class JpaAnalsConfig {

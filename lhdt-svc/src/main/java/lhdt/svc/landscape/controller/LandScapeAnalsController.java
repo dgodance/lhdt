@@ -146,8 +146,6 @@ public class LandScapeAnalsController extends SvcController {
 		return true;
 	}
 
-
-
 	/**
 	 * 지도 캡처 이미지 업로드 & 분석서버에 전달 & get스카이라인 이미지(base64) & 응답
 	 * @param request
