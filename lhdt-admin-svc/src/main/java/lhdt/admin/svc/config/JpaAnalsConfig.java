@@ -68,7 +68,7 @@ public class JpaAnalsConfig {
 	public LocalContainerEntityManagerFactoryBean entityManagerFactory(	EntityManagerFactoryBuilder builder,@Qualifier("dataSource") DataSource dataSource	) {
 		LocalContainerEntityManagerFactoryBean bean = builder
 				.dataSource(dataSource)
-				.packages("lhdt.admin.svc.hello")
+				.packages("lhdt.admin.svc.hello", "lhdt.admin.svc.lowinfo")
 				.persistenceUnit("foo")
 				.build();
 		
