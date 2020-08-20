@@ -21,8 +21,8 @@ public  interface DsService<DOMAIN, IDTYPE>  {
 	 * @param id
 	 * @return
 	 */
-	DOMAIN findById(IDTYPE id); 
-	
+	DOMAIN findById(IDTYPE id);
+
 	/**
 	 * 전체 데이터 조회
 	 * @return
@@ -96,9 +96,16 @@ public  interface DsService<DOMAIN, IDTYPE>  {
 	 * @return
 	 */
 	DOMAIN updateByBizKey(DOMAIN domain);
-	
-	
-	
+
+
+	/**
+	 * Pageing
+	 * @autho break8524@vaiv.com
+	 * @param startPage
+	 * @param contentsSize
+	 * @return
+	 */
+	Page<DOMAIN> findAllPgByStartPg(Integer startPage, Integer contentsSize);
 	
 	/**
 	 * 아래는 mapper사용

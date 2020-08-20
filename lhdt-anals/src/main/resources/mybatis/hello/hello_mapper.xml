@@ -53,7 +53,7 @@
 			WHERE	1=1
 			<include refid="w"/>
 			ORDER BY h.hello_name) t
-		LIMIT #{pageSize}
+		LIMIT #{DSPageSize}
 		OFFSET #{offset}			
 	</select>
 </mapper>

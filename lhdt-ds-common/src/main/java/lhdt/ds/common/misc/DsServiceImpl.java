@@ -13,7 +13,9 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import lhdt.ds.common.domain.DsDomain;
@@ -380,6 +382,19 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 		this.domain = (DOMAIN) d;
 	}
 
+	/**
+	 * 페이징을 위한 메서드
+	 * @autho break8524@vaiv.com
+	 * @return
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 */
+	public Page<DOMAIN> findAllPgByStartPg(Integer startPage, Integer contentsSize) {
+		PageRequest pageRequest =
+				PageRequest.of(startPage,
+						contentsSize, Sort.Direction.DESC, "id");
+		return this.findAll(pageRequest);
+	}
 }
 
 

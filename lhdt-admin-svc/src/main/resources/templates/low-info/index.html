@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html th:lang="${accessibility}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+</head>
+<body>
+
+<div style="padding: 50px 0">
+    <table>
+        <thead>
+        <tr>
+            <th>번호</th>
+            <th>지역명</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="lowInfo : ${lowInfoPage}">
+            <td th:text="${lowInfo.id}"></td>
+            <td><a th:href="@{'/low-info/'+${lowInfo.id}}" th:text="${lowInfo.lowInfoName}"></a></td>
+            <td th:text="${lowInfo.registDt}"></td>
+        </tr>
+        </tbody>
+    </table>
+    <div>
+        <a th:href="@{/low-info/edit}" class="">생성</a>
+    </div>
+
+    <div class="">
+        <th:block th:if="${lowInfoPageInfo.previousPaging != null}">
+            <div>
+                <a th:href="@{/cp-local-info(page=1)}">첫페이지</a>
+            </div>
+            <div>
+                <a th:href="@{/cp-local-info(page=${lowInfoPageInfo.previousPaging} + 1)}"><i class="angle double left icon"></i></a>
+            </div>
+        </th:block>
+
+        <th:block th:each="i: ${#numbers.sequence(lowInfoPageInfo.startPageNum, lowInfoPageInfo.lastPageNum)}">
+            <div th:if="${lowInfoPage.number == i}">[[${i}+1]]</div>
+            <div th:unless="${lowInfoPage.number == i}">
+                <a th:href="@{/low-info(page=${i}+1)}">[[${i}+1]]</a>
+            </div>
+        </th:block>
+        <th:block th:if="${lowInfoPageInfo.nextPaging != null}">
+            <div>
+                <a th:href="@{/cp-local-info(page=${lowInfoPageInfo.nextPaging} + 1)}"></a>
+            </div>
+            <div>
+                <a th:href="@{/cp-local-info(page=${lowInfoPage.totalPages})}">끝페이지</a>
+            </div>
+        </th:block>
+    </div>
+</div>
+</body>
+</html>
