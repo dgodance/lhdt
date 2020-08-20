@@ -27,7 +27,6 @@ import lombok.*;
 @AllArgsConstructor
 public class LowInfoDet extends DsDomain {
     @Column(name = "low_info_det_name")
-    @DsField(bizKey = true, order = 0)
     private String lowInfoDetName;
 
     @Column(name = "low_info_det_contents")

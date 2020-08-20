@@ -21,9 +21,9 @@ import java.util.HashMap;
 @Slf4j
 @Controller
 @RequestMapping("/low-info")
-@RequiredArgsConstructor
 public class LowInfoViewController {
-    private final LowInfoService lowInfoService;
+    @Autowired
+    private LowInfoService lowInfoService;
 
     @GetMapping()
     public String getNoticePage(

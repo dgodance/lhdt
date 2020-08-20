@@ -17,14 +17,17 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 
 @Slf4j
 @Controller
 @RequestMapping("/low-info-det")
-@RequiredArgsConstructor
 public class LowInfoDetViewController {
-    private final LowInfoDetService lowInfoDetService;
+    @Autowired
+    private LowInfoDetService lowInfoDetService;
+    @Autowired
+    private LowInfoService lowInfoService;
 
     @GetMapping()
     public String getNoticePage(
@@ -66,14 +69,16 @@ public class LowInfoDetViewController {
     }
 
     @GetMapping("/edit")
-    public String getEditForm() {
+    public String getEditForm(Model model) {
+        List<LowInfo> lowInfoList = lowInfoService.findAll();
+        model.addAttribute("lowInfoList", lowInfoList);
         return "/low-info-det/edit";
     }
 
     @GetMapping("/edit/{id}")
     public String getEditForm(@PathVariable(value = "id") Long id, Model model) {
         LowInfoDet board = lowInfoDetService.findById(id);
-        model.addAttribute("lowInfo", board);
+        model.addAttribute("lowInfoDet", board);
         return "/low-info-det/edit";
     }
 }
