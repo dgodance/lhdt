@@ -55,13 +55,14 @@ public class WebMvcConfig implements WebMvcConfigurer {
 		List<String> patterns = new ArrayList<>();
 		
 		//
-		patterns.add("/");
-		patterns.add("/error");
+		patterns.add("/**");
+		patterns.add("/error/**");
 		patterns.add("/sign/**");
 		patterns.add("/images/**");
 		patterns.add("/js/**");
 		patterns.add("/externlib/**");
 		patterns.add("/css/**");
+		patterns.add("/assets/**");
 		
 		//
 		return patterns;
@@ -110,6 +111,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 		registry.addResourceHandler("/externlib/**").addResourceLocations("classpath:static/externlib/");
 		registry.addResourceHandler("/images/**").addResourceLocations("classpath:static/images/");
 		registry.addResourceHandler("/js/**").addResourceLocations("classpath:static/js/");
+		registry.addResourceHandler("/assets/**").addResourceLocations("classpath:assets/");
 		
 	}
 }
