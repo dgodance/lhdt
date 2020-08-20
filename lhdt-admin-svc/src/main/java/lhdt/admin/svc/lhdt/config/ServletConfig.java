@@ -4,6 +4,8 @@ import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -14,21 +16,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
-import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.servlet.LocaleResolver;
-import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.i18n.SessionLocaleResolver;
-import org.springframework.web.servlet.support.RequestDataValueProcessor;
 
 import lhdt.admin.svc.lhdt.interceptor.CSRFHandlerInterceptor;
 import lhdt.admin.svc.lhdt.interceptor.ConfigInterceptor;
@@ -36,7 +31,6 @@ import lhdt.admin.svc.lhdt.interceptor.LocaleInterceptor;
 import lhdt.admin.svc.lhdt.interceptor.LogInterceptor;
 import lhdt.admin.svc.lhdt.interceptor.SecurityInterceptor;
 import lombok.extern.slf4j.Slf4j;
-import nz.net.ultraq.thymeleaf.LayoutDialect;
 
 @Slf4j
 @EnableWebMvc
@@ -61,10 +55,26 @@ public class ServletConfig implements WebMvcConfigurer {
 	@Autowired
 	private SecurityInterceptor securityInterceptor;
 
-	@Override
-    public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
-        configurer.enable();
-    }
+//	@Override
+//    public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
+//        configurer.enable();
+//    }
+	
+	
+	private List<String> defaultExcludes(){
+		List<String> list = new ArrayList<>();
+		
+		list.add("/index*");
+		list.add("/css/**");
+		list.add("/js/**");
+		list.add("/externlib/**");
+		list.add("/images/**");
+		list.add("/assets/**");
+		list.add("favicon*");
+		
+		//
+		return list;
+	}
 
 	/**
 	 * 내부에 List로 저장하기 때문에 순서대로 저장
@@ -75,32 +85,34 @@ public class ServletConfig implements WebMvcConfigurer {
 
 		registry.addInterceptor(localeInterceptor)
 				.addPathPatterns("/**")
-				.excludePathPatterns("/f4d/**", "/guide/**", "/sample/**", "/css/**", "/externlib/**", "favicon*", "/images/**", "/js/**");
+				.excludePathPatterns(defaultExcludes());
+		
 		registry.addInterceptor(securityInterceptor)
 				.addPathPatterns("/**")
-				.excludePathPatterns("/f4d/**",	"/sign/**", "/cache/reload", "/guide/**", "/sample/**", "/css/**", "/externlib/**", "favicon*", "/images/**", "/js/**");
+				.excludePathPatterns(defaultExcludes());
+		
 		registry.addInterceptor(cSRFHandlerInterceptor)
 				.addPathPatterns("/**")
-				.excludePathPatterns("/f4d/**",
-					"/sign/**", "/cache/reload", "/data-groups/view-order/*", "/layer-groups/view-order/*", "/layer/insert", "/layer/update/**", "/layer/**/layer-file-infos/**",
-						"/upload-datas", "/users/status", "/user-groups/role", "/guide/**", "/css/**", "/externlib/**", "favicon*", "/images/**", "/js/**");
+				.excludePathPatterns(defaultExcludes());
+		
 		registry.addInterceptor(logInterceptor)
 				.addPathPatterns("/**")
-				.excludePathPatterns("/f4d/**",	"/sign/**", "/cache/reload", "/guide/**", "/css/**", "/externlib/**", "favicon*", "/images/**", "/js/**");
+				.excludePathPatterns(defaultExcludes());
+		
 		registry.addInterceptor(configInterceptor)
 				.addPathPatterns("/**")
-				.excludePathPatterns("/f4d/**",	"/sign/**", "/cache/reload", "/guide/**", "/css/**", "/externlib/**", "favicon*", "/images/**", "/js/**");
+				.excludePathPatterns(defaultExcludes());
     }
 
-	@Bean
-	public LayoutDialect layoutDialect() {
-		return new LayoutDialect();
-	}
+//	@Bean
+//	public LayoutDialect layoutDialect() {
+//		return new LayoutDialect();
+//	}
 	
-	@Bean
-	public LocaleResolver localeResolver() {
-		return new SessionLocaleResolver();
-	}
+//	@Bean
+//	public LocaleResolver localeResolver() {
+//		return new SessionLocaleResolver();
+//	}
 
 	@Bean
 	public ReloadableResourceBundleMessageSource messageSource(){
@@ -126,34 +138,34 @@ public class ServletConfig implements WebMvcConfigurer {
         return bean;
     }
 	
-	@Override
-    public void addViewControllers(ViewControllerRegistry registry) {
-		registry.addViewController("/").setViewName("forward:/sign/signin");
-        registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
-    }
+//	@Override
+//    public void addViewControllers(ViewControllerRegistry registry) {
+//		registry.addViewController("/").setViewName("forward:/sign/signin");
+//        registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
+//    }
 	
-	@Override
-	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		log.info(" @@@ ServletConfig addResourceHandlers @@@");
-		
-		// F4D converter file 경로
-		registry.addResourceHandler("/f4d/**").addResourceLocations("file:" + propertiesConfig.getDataServiceDir());
-		registry.addResourceHandler("/f4d/sample/**").addResourceLocations("file:" + propertiesConfig.getGuideDataServiceDir());
-		registry.addResourceHandler("/sample/json/**").addResourceLocations("classpath:static/sample/json/");
-		registry.addResourceHandler("/sample/images/**").addResourceLocations("classpath:static/sample/images/");
-		registry.addResourceHandler("/css/**").addResourceLocations("classpath:static/css/");
-		registry.addResourceHandler("/externlib/**").addResourceLocations("classpath:static/externlib/");
-		registry.addResourceHandler("/images/**").addResourceLocations("classpath:static/images/");
-		registry.addResourceHandler("/js/**").addResourceLocations("classpath:static/js/");
-		
-//		registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
-	}
+//	@Override
+//	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+//		log.info(" @@@ ServletConfig addResourceHandlers @@@");
+//		
+//		// F4D converter file 경로
+//		registry.addResourceHandler("/f4d/**").addResourceLocations("file:" + propertiesConfig.getDataServiceDir());
+//		registry.addResourceHandler("/f4d/sample/**").addResourceLocations("file:" + propertiesConfig.getGuideDataServiceDir());
+//		registry.addResourceHandler("/sample/json/**").addResourceLocations("classpath:static/sample/json/");
+//		registry.addResourceHandler("/sample/images/**").addResourceLocations("classpath:static/sample/images/");
+//		registry.addResourceHandler("/css/**").addResourceLocations("classpath:static/css/");
+//		registry.addResourceHandler("/externlib/**").addResourceLocations("classpath:static/externlib/");
+//		registry.addResourceHandler("/images/**").addResourceLocations("classpath:static/images/");
+//		registry.addResourceHandler("/js/**").addResourceLocations("classpath:static/js/");
+//		
+////		registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+//	}
 	
-	@Bean
-	public RequestDataValueProcessor requestDataValueProcessor() {
-		log.info(" @@@ ServletConfig requestDataValueProcessor @@@ ");
-		return new CSRFRequestDataValueProcessor();
-	}
+//	@Bean
+//	public RequestDataValueProcessor requestDataValueProcessor() {
+//		log.info(" @@@ ServletConfig requestDataValueProcessor @@@ ");
+//		return new CSRFRequestDataValueProcessor();
+//	}
 	
 	@Bean
     public RestTemplate restTempate() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
