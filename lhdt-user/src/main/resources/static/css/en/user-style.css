@@ -221,6 +221,11 @@ background-position: -445px -590px;
 ul.nav li.layer {
 background-position: -360px -190px;
 }
+ul.nav li.landscape {
+letter-spacing: -2px;
+background-position: -445px -390px;
+}
+
 
 /* CONTENTSBTN */
 .contentsBtn {
