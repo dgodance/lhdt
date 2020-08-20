@@ -5,17 +5,17 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ConverterLocation implements Serializable {
+public class ConverterAttribute implements Serializable {
 
-    private static final long serialVersionUID = -3475237723073093024L;
+    private static final long serialVersionUID = 4038799118656987546L;
 
     private ConverterJob converterJob;
-    private String data_key;
-    private double latitude;
-    private double longitude;
+    private List<Map<String, Object>> attributes;   // 3D 데이터 속성
 
 }

@@ -154,6 +154,7 @@ public class ConverterServiceImpl implements ConverterService {
 				converterMapper.insertConverterJobFile(converterJobFile);
 
 				// 4. 데이터를 등록. 상태를 ready 로 등록해야 함
+				// TODO: 변환 결과가 Success일 경우 upsert 해야 함
 				DataInfo dataInfo = upsertData(userId, converterJobId, converterTargetCount, uploadDataFile);
 
 				// 5. 데이터 그룹 신규 생성의 경우 데이터 건수 update, location_update_type 이 auto 일 경우 dataInfo 위치 정보로 dataGroup 위치 정보 수정

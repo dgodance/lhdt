@@ -1,0 +1,26 @@
+{
+   "conversionJobResult" : [
+      {
+         "bGeoReferenced" : true,
+         "endTime" : "2020-08-11 20:05:20",
+         "fileName" : "3890_5818.gml",
+         "fullPath" : "D:/3D/test/3890_5818.gml",
+         "message" : "",
+         "resultStatus" : "success",
+         "startTime" : "2020-08-11 20:05:18"
+      },
+      {
+         "endTime" : "2020-08-11 20:05:20",
+         "fileName" : "seouluniv21centry.gml",
+         "fullPath" : "D:/3D/test/seouluniv21centry.gml",
+         "message" : "CitygmlReader::readRawDataFile : no city model in file",
+         "resultStatus" : "failure",
+         "startTime" : "2020-08-11 20:05:20"
+      }
+   ],
+   "endTime" : "2020-08-11 20:05:20",
+   "isSuccess" : true,
+   "numberOfFilesConverted" : 1,
+   "numberOfFilesToBeConverted" : 2,
+   "startTime" : "2020-08-11 20:05:18"
+}
