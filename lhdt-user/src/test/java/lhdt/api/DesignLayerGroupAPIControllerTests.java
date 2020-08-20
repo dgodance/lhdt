@@ -10,7 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class DesignLayerGroupControllerTests extends BaseControllerTest {
+class DesignLayerGroupAPIControllerTests extends BaseControllerTest {
 
     @Test
     @DisplayName("DesignLayerGroup 목록 조회 하기")
