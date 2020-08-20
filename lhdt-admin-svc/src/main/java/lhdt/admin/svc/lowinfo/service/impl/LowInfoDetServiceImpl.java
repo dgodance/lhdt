@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 
-@Service
+@Service("lowInfoDetService")
 public class LowInfoDetServiceImpl
         extends AdminSvcServiceImpl<LowInfoDetRepository, LowInfoDetMapper, LowInfoDet, Long> implements LowInfoDetService {
     @Autowired
