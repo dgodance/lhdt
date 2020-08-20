@@ -56,7 +56,10 @@ $(function() {
 				$('#dataContent').toggle(true);
 			}
 			$('#contentsWrap').toggle(true);
-		} else {
+		} else if(0 < currentUrl.indexOf('cityplan')){
+			//지구설계 gravity
+			$('#cityPlanMenu').addClass('on');
+		}else {
 			// 데이터 변환
 			$("#converterMenu").addClass('on');
 			//$('#contentsWrap').toggle(true);
@@ -106,7 +109,8 @@ $(function() {
         	|| location.href.indexOf("/data/list") > 0 
         	|| location.href.indexOf("/data/modify") > 0 
         	|| location.href.indexOf("/data-adjust-log") > 0
-        	|| location.href.indexOf("/data-log") > 0) {
+        	|| location.href.indexOf("/data-log") > 0 
+        	|| location.href.indexOf("/cityplan") > 0	/*gravity*/) {
         	$(this).removeClass('on');
         	var classId = $(this).attr('class');
         	window.location="../data/map#" + classId;
@@ -115,6 +119,11 @@ $(function() {
         // 변환 클릭 이벤트시 url 변경 
         if(active === "converterContent") {
         	window.location="../upload-data/list";
+        }
+        
+        //지구설계 클릭 이벤트시 url 변경	gravity
+        if('cityPlanContent' === active){
+        	window.location = '../cityplan/view-point';
         }
         
         //시민참여 벗어날 시 지도 클리어.
