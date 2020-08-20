@@ -2,7 +2,7 @@ package lhdt.persistence;
 
 import org.springframework.stereotype.Repository;
 
-import lhdt.domain.Policy;
+import lhdt.domain.policy.Policy;
 
 /**
  * 운영 정책

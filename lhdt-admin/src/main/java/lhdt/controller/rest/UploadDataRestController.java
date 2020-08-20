@@ -2,6 +2,12 @@ package lhdt.controller.rest;
 
 import lhdt.config.PropertiesConfig;
 import lhdt.domain.*;
+import lhdt.domain.policy.Policy;
+import lhdt.domain.uploaddata.UploadData;
+import lhdt.domain.uploaddata.UploadDataFile;
+import lhdt.domain.uploaddata.UploadDataType;
+import lhdt.domain.uploaddata.UploadDirectoryType;
+import lhdt.domain.user.UserSession;
 import lhdt.service.PolicyService;
 import lhdt.service.UploadDataService;
 import lhdt.support.LogMessageSupport;
@@ -304,7 +310,7 @@ public class UploadDataRestController {
 	 * @return
 	 * @throws Exception
 	 */
-	private Map<String, Object> unzip(	Policy policy, 
+	private Map<String, Object> unzip(	Policy policy,
 										List<String> uploadTypeList, 
 										List<String> converterTypeList, 
 										String today, 

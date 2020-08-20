@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.apache.http.HttpStatus;
 
-import lhdt.domain.CacheManager;
+import lhdt.domain.cache.CacheManager;
 import lhdt.support.RoleSupport;
 
 /**

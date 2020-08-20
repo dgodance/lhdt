@@ -1,6 +1,7 @@
 package lhdt.service.impl;
 
 import lhdt.domain.*;
+import lhdt.domain.data.*;
 import lhdt.parser.DataFileParser;
 import lhdt.parser.impl.DataFileJsonParser;
 import lhdt.persistence.DataMapper;

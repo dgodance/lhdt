@@ -1,6 +1,6 @@
 package lhdt.service;
 
-import lhdt.domain.UserPolicy;
+import lhdt.domain.user.UserPolicy;
 
 public interface UserPolicyService {
 

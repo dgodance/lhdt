@@ -2,8 +2,8 @@ package lhdt.service;
 
 import java.util.List;
 
-import lhdt.domain.ConverterJob;
-import lhdt.domain.ConverterJobFile;
+import lhdt.domain.converter.ConverterJob;
+import lhdt.domain.converter.ConverterJobFile;
 
 /**
  * f4d converting manager

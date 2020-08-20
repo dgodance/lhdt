@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import lhdt.domain.LayerGroup;
+import lhdt.domain.layer.LayerGroup;
 
 @Repository
 public interface LayerGroupMapper {

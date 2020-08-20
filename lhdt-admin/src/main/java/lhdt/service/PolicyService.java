@@ -1,6 +1,6 @@
 package lhdt.service;
 
-import lhdt.domain.Policy;
+import lhdt.domain.policy.Policy;
 
 /**
  * 위젯

@@ -2,7 +2,7 @@ package lhdt.service;
 
 import java.util.List;
 
-import lhdt.domain.DataGroup;
+import lhdt.domain.data.DataGroup;
 
 public interface DataGroupService {
 	

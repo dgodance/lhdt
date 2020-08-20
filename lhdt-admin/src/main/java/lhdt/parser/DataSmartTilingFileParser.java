@@ -2,7 +2,7 @@ package lhdt.parser;
 
 import java.util.Map;
 
-import lhdt.domain.DataSmartTilingFileInfo;
+import lhdt.domain.data.DataSmartTilingFileInfo;
 
 /**
  * @author Cheon JeongDae

@@ -8,8 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
 import lhdt.domain.Depth;
-import lhdt.domain.Layer;
-import lhdt.domain.LayerGroup;
+import lhdt.domain.layer.Layer;
+import lhdt.domain.layer.LayerGroup;
 import lhdt.domain.Move;
 import lhdt.persistence.LayerGroupMapper;
 import lhdt.service.LayerGroupService;

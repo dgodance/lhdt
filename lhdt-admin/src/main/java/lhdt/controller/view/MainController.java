@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import lombok.extern.slf4j.Slf4j;
-import lhdt.domain.Policy;
-import lhdt.domain.Widget;
+import lhdt.domain.policy.Policy;
+import lhdt.domain.widget.Widget;
 import lhdt.service.PolicyService;
 import lhdt.service.WidgetService;
 import lhdt.utils.DateUtils;

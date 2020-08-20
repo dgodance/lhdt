@@ -18,7 +18,7 @@
 			terrain_value = #{terrainValue},
 			data_api_url = #{dataApiUrl},
 			data_service_path = #{dataServicePath},
-			data_change_request_decision = #{dataChangeRequestDecision}
+			data_change_request_decision = #{dataChangeRequestDecision},
 			<!-- init_camera_enable = #{initCameraEnable},
 			init_latitude = #{initLatitude},
 			init_longitude = #{initLongitude},
@@ -58,6 +58,7 @@
 			memory_management = #{memoryManagement},
 			layer_source_coordinate = #{layerSourceCoordinate},
 			layer_target_coordinate = #{layerTargetCoordinate}, -->
+			extrusion_required_columns = #{extrusionRequiredColumns}
 		WHERE geopolicy_id = #{geoPolicyId}
 	</update>
 

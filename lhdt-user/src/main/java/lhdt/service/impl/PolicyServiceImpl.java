@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lhdt.domain.Policy;
+import lhdt.domain.policy.Policy;
 import lhdt.persistence.PolicyMapper;
 import lhdt.service.PolicyService;
 

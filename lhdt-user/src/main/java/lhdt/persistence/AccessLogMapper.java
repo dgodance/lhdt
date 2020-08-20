@@ -2,7 +2,7 @@ package lhdt.persistence;
 
 import org.springframework.stereotype.Repository;
 
-import lhdt.domain.AccessLog;
+import lhdt.domain.accesslog.AccessLog;
 
 
 /**

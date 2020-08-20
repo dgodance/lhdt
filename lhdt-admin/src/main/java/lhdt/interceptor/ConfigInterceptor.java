@@ -10,12 +10,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import lombok.extern.slf4j.Slf4j;
-import lhdt.domain.CacheManager;
+import lhdt.domain.cache.CacheManager;
 import lhdt.domain.Key;
-import lhdt.domain.Menu;
-import lhdt.domain.Policy;
-import lhdt.domain.UserGroupMenu;
-import lhdt.domain.UserSession;
+import lhdt.domain.menu.Menu;
+import lhdt.domain.policy.Policy;
+import lhdt.domain.user.UserGroupMenu;
+import lhdt.domain.user.UserSession;
 import lhdt.domain.YOrN;
 
 /**
@@ -30,6 +30,7 @@ public class ConfigInterceptor extends HandlerInterceptorAdapter {
 	
 	@Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+//		log.info("**** 버그 추적용 ConfigInterceptor ****");
     	
     	String uri = request.getRequestURI();
     	HttpSession session = request.getSession();
@@ -39,7 +40,7 @@ public class ConfigInterceptor extends HandlerInterceptorAdapter {
     	// TODO 너무 비 효율 적이다. 좋은 방법을 찾자.
     	// 세션이 존재하지 않는 경우
     	UserSession userSession = (UserSession)session.getAttribute(Key.USER_SESSION.name());
-    	if(userSession != null && userSession.getUserId() != null && !"".equals(userSession.getUserId())) {
+		if(userSession != null && userSession.getUserId() != null && !"".equals(userSession.getUserId())) {
 	    	List<UserGroupMenu> userGroupMenuList = CacheManager.getUserGroupMenuList(userSession.getUserGroupId());
 	    	Integer clickParentId = null;
 			Integer clickMenuId = null;
@@ -87,6 +88,10 @@ public class ConfigInterceptor extends HandlerInterceptorAdapter {
 //			request.setAttribute("clickDepth", clickDepth);
 			request.setAttribute("menu", menu);
 			request.setAttribute("parentMenu", parentMenu);
+
+//			log.info("+++++++++++++++++++++++ clickMenuId = {}", clickMenuId);
+//			log.info("+++++++++++++++++++++++ menu = {}", menu);
+//			log.info("+++++++++++++++++++++++ parentMenu = {}", parentMenu);
 			
 			request.setAttribute("cacheUserGroupMenuList", userGroupMenuList);
 			request.setAttribute("cacheUserGroupMenuListSize", userGroupMenuList.size());

@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
 import lhdt.config.PropertiesConfig;
-import lhdt.domain.QueueMessage;
+import lhdt.domain.common.QueueMessage;
 import lhdt.service.AMQPPublishService;
 
 /**

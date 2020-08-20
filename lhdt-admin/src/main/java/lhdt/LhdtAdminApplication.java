@@ -9,6 +9,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.filter.HiddenHttpMethodFilter;
 
 import javax.servlet.http.HttpSessionBindingListener;
 import java.util.ArrayList;
@@ -25,6 +26,16 @@ public class LhdtAdminApplication extends SpringBootServletInitializer {
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
 		return application.sources(LhdtAdminApplication.class);
+	}
+
+	@Bean
+	public FilterRegistrationBean<HiddenHttpMethodFilter> hiddenHttpMethodFilter() {
+		FilterRegistrationBean<HiddenHttpMethodFilter> registrationBean = new FilterRegistrationBean<>(new HiddenHttpMethodFilter());
+
+		//List<String> urls = getUrlList();
+		//registrationBean.setUrlPatterns(urls);
+		registrationBean.addUrlPatterns("/*");
+		return registrationBean;
 	}
 
 	@Bean
@@ -67,8 +78,6 @@ public class LhdtAdminApplication extends SpringBootServletInitializer {
 		urls.add("/layer-groups/*");
 		urls.add("/layer/*");
 		urls.add("/layers/*");
-		urls.add("/civil-voice/*");
-		urls.add("/civil-voices/*");
 		urls.add("/policy/*");
 		urls.add("/geopolicy/*");
 		urls.add("/menus/*");

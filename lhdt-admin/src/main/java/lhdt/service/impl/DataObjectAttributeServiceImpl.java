@@ -1,8 +1,8 @@
 package lhdt.service.impl;
 
-import lhdt.domain.DataInfo;
-import lhdt.domain.DataObjectAttribute;
-import lhdt.domain.DataObjectAttributeFileInfo;
+import lhdt.domain.data.DataInfo;
+import lhdt.domain.data.DataObjectAttribute;
+import lhdt.domain.data.DataObjectAttributeFileInfo;
 import lhdt.parser.DataObjectAttributeFileParser;
 import lhdt.parser.impl.DataObjectAttributeFileJsonParser;
 import lhdt.persistence.DataObjectAttributeMapper;

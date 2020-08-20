@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
 import lhdt.domain.Key;
-import lhdt.domain.UserPolicy;
-import lhdt.domain.UserSession;
+import lhdt.domain.user.UserPolicy;
+import lhdt.domain.user.UserSession;
 import lhdt.service.UserPolicyService;
 
 @Slf4j

@@ -2,7 +2,14 @@ package lhdt.controller.rest;
 
 import lhdt.config.PropertiesConfig;
 import lhdt.controller.AuthorizationController;
-import lhdt.domain.*;
+import lhdt.domain.Key;
+import lhdt.domain.ShapeFileExt;
+import lhdt.domain.layer.Layer;
+import lhdt.domain.layer.LayerFileInfo;
+import lhdt.domain.layer.LayerType;
+import lhdt.domain.policy.GeoPolicy;
+import lhdt.domain.policy.Policy;
+import lhdt.domain.user.UserSession;
 import lhdt.geospatial.ShapeFileParser;
 import lhdt.service.GeoPolicyService;
 import lhdt.service.LayerFileInfoService;
@@ -153,7 +160,7 @@ public class LayerRestController implements AuthorizationController {
 							.sharing(request.getParameter("sharing"))
 							.layerName(request.getParameter("layerName"))
 							.layerKey(request.getParameter("layerKey"))
-							.serviceType(request.getParameter("serviceType"))
+							.ogcWebServices(request.getParameter("ogcWebServices"))
 							.layerType(request.getParameter("layerType"))
 							.layerInsertType(request.getParameter("layerInsertType"))
 							.geometryType(request.getParameter("geometryType"))
@@ -513,7 +520,7 @@ public class LayerRestController implements AuthorizationController {
             layer.setSharing(request.getParameter("sharing"));
             layer.setLayerName(request.getParameter("layerName"));
 			layer.setLayerKey(request.getParameter("layerKey"));
-			layer.setServiceType(request.getParameter("serviceType"));
+			layer.setOgcWebServices(request.getParameter("ogcWebServices"));
 			layer.setLayerType(request.getParameter("layerType"));
 			layer.setGeometryType(request.getParameter("geometryType"));
 			layer.setLayerLineColor(request.getParameter("layerLineColor"));

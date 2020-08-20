@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import lombok.extern.slf4j.Slf4j;
-import lhdt.domain.AccessLog;
-import lhdt.domain.Pagination;
+import lhdt.domain.accesslog.AccessLog;
+import lhdt.domain.common.Pagination;
 import lhdt.service.AccessLogService;
 import lhdt.utils.DateUtils;
 import lhdt.utils.FormatUtils;

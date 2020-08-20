@@ -2,13 +2,12 @@ package lhdt.persistence;
 
 import java.util.List;
 
-import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
-import lhdt.domain.District;
-import lhdt.domain.SkEmd;
-import lhdt.domain.SkSdo;
-import lhdt.domain.SkSgg;
+import lhdt.domain.country.District;
+import lhdt.domain.country.SkEmd;
+import lhdt.domain.country.SkSdo;
+import lhdt.domain.country.SkSgg;
 
 @Repository
 public interface SearchMapMapper {

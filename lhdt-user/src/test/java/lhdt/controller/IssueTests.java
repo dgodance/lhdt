@@ -2,9 +2,9 @@ package lhdt.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import lhdt.common.BaseControllerTest;
-import lhdt.domain.Issue;
+import lhdt.domain.issue.Issue;
 import lhdt.domain.Key;
-import lhdt.domain.UserSession;
+import lhdt.domain.user.UserSession;
 import lhdt.persistence.IssueMapper;
 import lhdt.service.IssueService;
 import lombok.extern.slf4j.Slf4j;

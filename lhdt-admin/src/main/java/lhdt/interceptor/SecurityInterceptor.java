@@ -4,6 +4,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -16,8 +17,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
 import lhdt.domain.Key;
-import lhdt.domain.UserSession;
-import lhdt.domain.UserStatus;
+import lhdt.domain.user.UserSession;
+import lhdt.domain.user.UserStatus;
 import lhdt.support.URLSupport;
 import lhdt.utils.WebUtils;
 
@@ -32,9 +33,13 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter {
 
 	@Autowired
 	private ObjectMapper objectMapper;
+
+//	private int count = 0;
 	
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+//		log.info("**** 버그 추적용 SecurityInterceptor count = {}", count);
+//		count++;
 
     	String uri = request.getRequestURI();
     	String requestIp = WebUtils.getClientIp(request);
@@ -50,14 +55,15 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter {
     	int exceptionURICount = URLSupport.EXCEPTION_URI.length;
     	for(int i=0 ; i<exceptionURICount; i++) {
     		if(uri.indexOf(URLSupport.EXCEPTION_URI[i]) >= 0) {
-    			isExceptionURI = true;
+//				log.info("################################### uri = {}, exception uri ={}", uri, URLSupport.EXCEPTION_URI[i]);
+				isExceptionURI = true;
     			break;
     		}
     	}
     	
     	// 예외 URL 은 통과 처리
     	if(isExceptionURI) {
-//    		log.info("################################### exception uri");
+    		log.info("################################### exception uri");
     		return true;
     	}
     	
@@ -88,7 +94,7 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter {
 	    		return false;
 			}
 		}
-		
+
 		// 임시 비밀번호 사용자는 로그인, 패스워드 변경 페이지외에 갈수 없음
 		if(UserStatus.TEMP_PASSWORD == UserStatus.findBy(userSession.getStatus())) {
 			isExceptionURI = false;
@@ -142,6 +148,12 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter {
 	}
     
     private void printHead(HttpServletRequest request) {
+		Object status = request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
+		String statusMsg = status.toString();
+		HttpStatus httpStatus = HttpStatus.valueOf(Integer.valueOf(statusMsg));
+		log.info(" ================ httpStatus = {}", httpStatus);
+		log.info(" ================ message = {}", httpStatus.getReasonPhrase());
+
     	Enumeration<String> headerNames = request.getHeaderNames();
         while (headerNames.hasMoreElements()) {
         	String headerName = headerNames.nextElement();

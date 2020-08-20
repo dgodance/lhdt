@@ -1,8 +1,12 @@
 package lhdt.domain;
 
+import lhdt.domain.extrusionmodel.DesignLayer;
 import lombok.extern.slf4j.Slf4j;
 import org.geotools.data.*;
 import org.geotools.data.shapefile.ShapefileDataStore;
+import org.geotools.data.shapefile.dbf.DbaseFileHeader;
+import org.geotools.data.shapefile.dbf.DbaseFileReader;
+import org.geotools.data.shapefile.files.ShpFiles;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.FeatureCollection;
@@ -17,11 +21,86 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 @Slf4j
 public class GeotoolsTests {
+
+    @Test
+    void 필드_확인() throws IOException {
+        ShpFiles shpFile = new ShpFiles("D:\\test\\shape\\02_과천과천_시범단지샘플_1_필지.dxf(byLay)L.shp");
+        DbaseFileReader r = new DbaseFileReader(shpFile, false, Charset.forName("UTF-8"));
+        DbaseFileHeader header = r.getHeader();
+        int numFields = header.getNumFields();
+        for (int iField = 0; iField < numFields; ++iField) {
+            String fieldName = header.getFieldName(iField);
+            log.info("filed name ={}", fieldName);
+        }
+    }
+
+    @Test
+    void 필드값_확인() throws IOException {
+        FeatureSource<SimpleFeatureType, SimpleFeature> shapeFeatureSource = getShape();
+        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = shapeFeatureSource.getFeatures();
+        FeatureIterator<SimpleFeature> features = collection.features();
+        while (features.hasNext()) {
+            SimpleFeature feature = features.next();
+            log.info("feature ID ===== {}", feature.getID());
+            for (Property attribute : feature.getProperties()) {
+                // geometry 필드인 경우
+                if (attribute.getType() instanceof GeometryTypeImpl) {
+                    log.info("\t\t" + attribute.getName() + ":" + attribute.getValue());
+                    // 일반 필드
+                } else {
+                    log.info("\t" + attribute.getName() + ":" + attribute.getValue());
+                }
+            }
+        }
+    }
+
+    @Test
+    void 특정필드_필터() throws IOException {
+        String extrusionRequiredColumns = "the_geom, layer, angle, flnum";
+        String[] columns = extrusionRequiredColumns.split(",");
+        FeatureSource<SimpleFeatureType, SimpleFeature> shapeFeatureSource = getShape();
+        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = shapeFeatureSource.getFeatures();
+        FeatureIterator<SimpleFeature> features = collection.features();
+        while (features.hasNext()) {
+            SimpleFeature feature = features.next();
+            DesignLayer extrusionModel = new DesignLayer();
+            for (Property attribute : feature.getProperties()) {
+                boolean test = Arrays.stream(columns).anyMatch(f -> f.trim().equalsIgnoreCase(String.valueOf(attribute.getName())));
+                log.info("anyMatch ============== {} : {}", attribute.getName(), test);
+            }
+        }
+    }
+
+    @Test
+    void 특정필드_추출() throws IOException {
+        List<DesignLayer> extrusionModelList = new ArrayList<>();
+        String extrusionColumns = "the_geom, layer, angle, flnum";
+        List<String> columnList = Arrays.asList(extrusionColumns.trim().toLowerCase().split(","));
+        FeatureSource<SimpleFeatureType, SimpleFeature> shapeFeatureSource = getShape();
+        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = shapeFeatureSource.getFeatures();
+        FeatureIterator<SimpleFeature> features = collection.features();
+        while (features.hasNext()) {
+            SimpleFeature feature = features.next();
+            DesignLayer extrusionModel = new DesignLayer();
+            for (Property attribute : feature.getProperties()) {
+                String attributeName = String.valueOf(attribute.getName()).toLowerCase();
+                if (columnList.contains(attributeName)) {
+                    if (attributeName.equalsIgnoreCase(String.valueOf(DesignLayer.RequiredColumn.THE_GEOM))) {
+                        extrusionModel.setTheGeom(attribute.getValue().toString());
+                    } else if (attributeName.equalsIgnoreCase(String.valueOf(DesignLayer.RequiredColumn.ATTRIBUTES))) {
+                        extrusionModel.setAttributes(attribute.getValue().toString());
+                    }
+                }
+            }
+            extrusionModelList.add(extrusionModel);
+        }
+        log.info("extrutionModelList =========== {} ", extrusionModelList);
+    }
 
     @Test
     void 필드_추가() throws IOException {
@@ -87,13 +166,13 @@ public class GeotoolsTests {
         Map<String, Object> params = new HashMap<>();
         params.put("dbtype", "postgis");
         params.put("host", "localhost");
-        params.put("port", 5432);
+        params.put("port", 15432);
         params.put("schema", "public");
-        params.put("database", "ndtp");
+        params.put("database", "lhdt");
         params.put("user", "postgres");
         params.put("passwd", "postgres");
-        DataStore  dataStore = DataStoreFinder.getDataStore(params);
-        log.info("dataStore ===================== {} " , dataStore);
+        DataStore dataStore = DataStoreFinder.getDataStore(params);
+        log.info("dataStore ===================== {} ", dataStore);
         FeatureSource<SimpleFeatureType, SimpleFeature> shapeFeatureSource = getShape();
         FeatureCollection<SimpleFeatureType, SimpleFeature> features = shapeFeatureSource.getFeatures();
         SimpleFeatureType schema = features.getSchema();
@@ -103,7 +182,7 @@ public class GeotoolsTests {
         builder.setSuperType((SimpleFeatureType) schema.getSuper());
         builder.addAll(schema.getAttributeDescriptors());
         schema = builder.buildFeatureType();
-        log.info("schema ============== {} " , schema);
+        log.info("schema ============== {} ", schema);
 
         try {
             /*
@@ -145,7 +224,7 @@ public class GeotoolsTests {
                 dataStore.dispose();
             } else {
                 dataStore.dispose();
-                System.err.println("Database not writable");
+                log.error("Database not writable");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -158,14 +237,19 @@ public class GeotoolsTests {
 
     }
 
+    /**
+     * shape feature 정보 리턴
+     *
+     * @return
+     * @throws IOException
+     */
     private FeatureSource<SimpleFeatureType, SimpleFeature> getShape() throws IOException {
         // shape load
-        ShapefileDataStore shpDataStore = new ShapefileDataStore(new File("D:\\test\\layer_lot_number_00000000.shp").toURI().toURL());
-        shpDataStore.setCharset(Charset.forName("CP949"));
+        ShapefileDataStore shpDataStore = new ShapefileDataStore(new File("D:\\test\\shape\\02_과천과천_시범단지샘플_1_필지.dxf(byLay)L.shp").toURI().toURL());
+        shpDataStore.setCharset(StandardCharsets.UTF_8);
         String typeName = shpDataStore.getTypeNames()[0];
         log.info("shp[Layer) Name: {} ", typeName);
-        FeatureSource<SimpleFeatureType, SimpleFeature> shapeFeatureSource = shpDataStore.getFeatureSource(typeName);
 
-        return shapeFeatureSource;
+        return shpDataStore.getFeatureSource(typeName);
     }
 }

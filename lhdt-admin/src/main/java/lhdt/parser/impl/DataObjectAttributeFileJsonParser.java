@@ -6,7 +6,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
-import lhdt.domain.DataObjectAttributeFileInfo;
+import lhdt.domain.data.DataObjectAttributeFileInfo;
 import lhdt.parser.DataObjectAttributeFileParser;
 
 public class DataObjectAttributeFileJsonParser implements DataObjectAttributeFileParser {

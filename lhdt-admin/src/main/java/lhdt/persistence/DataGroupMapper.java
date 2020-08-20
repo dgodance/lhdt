@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import lhdt.domain.DataGroup;
+import lhdt.domain.data.DataGroup;
 
 @Repository
 public interface DataGroupMapper {

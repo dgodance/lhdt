@@ -15,12 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import lombok.extern.slf4j.Slf4j;
-import lhdt.domain.DataAdjustLog;
-import lhdt.domain.DataGroup;
+import lhdt.domain.data.DataAdjustLog;
+import lhdt.domain.data.DataGroup;
 import lhdt.domain.Key;
 import lhdt.domain.PageType;
-import lhdt.domain.Pagination;
-import lhdt.domain.UserSession;
+import lhdt.domain.common.Pagination;
+import lhdt.domain.user.UserSession;
 import lhdt.service.DataAdjustLogService;
 import lhdt.service.DataGroupService;
 import lhdt.support.SQLInjectSupport;

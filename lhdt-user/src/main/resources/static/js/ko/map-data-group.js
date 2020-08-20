@@ -234,6 +234,5 @@ function mapDataGroupList(pageNo, searchDataGroupName) {
 		});
 	} else {
 		alert(JS_MESSAGE["button.dobule.click"]);
-		return;
 	}
 }

@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import lhdt.domain.UserGroup;
-import lhdt.domain.UserGroupMenu;
-import lhdt.domain.UserGroupRole;
+import lhdt.domain.user.UserGroup;
+import lhdt.domain.user.UserGroupMenu;
+import lhdt.domain.user.UserGroupRole;
 
 @Repository
 public interface UserGroupMapper {

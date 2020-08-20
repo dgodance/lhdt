@@ -8,10 +8,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import lhdt.domain.CacheManager;
-import lhdt.domain.RoleKey;
-import lhdt.domain.UserInfo;
-import lhdt.domain.UserStatus;
+import lhdt.domain.cache.CacheManager;
+import lhdt.domain.role.RoleKey;
+import lhdt.domain.user.UserInfo;
+import lhdt.domain.user.UserStatus;
 import lhdt.persistence.UserMapper;
 import lhdt.service.DataGroupService;
 import lhdt.service.DataService;

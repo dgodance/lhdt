@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lhdt.domain.UserInfo;
-import lhdt.domain.UserSession;
+import lhdt.domain.user.UserInfo;
+import lhdt.domain.user.UserSession;
 import lhdt.persistence.SigninMapper;
 import lhdt.service.SigninService;
 

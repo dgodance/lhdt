@@ -14,9 +14,9 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import lombok.extern.slf4j.Slf4j;
-import lhdt.domain.AccessLog;
+import lhdt.domain.accesslog.AccessLog;
 import lhdt.domain.Key;
-import lhdt.domain.UserSession;
+import lhdt.domain.user.UserSession;
 import lhdt.service.AccessLogService;
 import lhdt.support.URLSupport;
 import lhdt.utils.WebUtils;

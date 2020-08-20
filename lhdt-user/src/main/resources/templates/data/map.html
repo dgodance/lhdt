@@ -7,7 +7,7 @@
     <meta name="robots" content="index,nofollow"/>
 	<title><th:block th:text="#{data.page.title}"></th:block></title>
 	<link rel="shortcut icon" th:href="@{/images/favicon.ico(cacheVersion=${contentCacheVersion})}">
-	<link rel="stylesheet" th:href="@{/externlib/cesium/Widgets/widgets.css(cacheVersion=${contentCacheVersion})}" />
+	<link rel="stylesheet" th:href="@{/externlib/CesiumUnminified/Widgets/widgets.css(cacheVersion=${contentCacheVersion})}" />
 	<link rel="stylesheet" th:href="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.css(cacheVersion=${contentCacheVersion})}" />
 	<link rel="stylesheet" th:href="@{/externlib/geostats/geostats.css(cacheVersion=${contentCacheVersion})}" />
 	<link rel="stylesheet" th:href="@{/externlib/kotSlider/range.css(cacheVersion=${contentCacheVersion})}" />
@@ -53,10 +53,6 @@
 			</div>
 			<!-- E: 데이터 -->
 
-			<div th:replace="~{/spatial/spatial :: #spatialContent}"></div>
-
-			<div th:replace="~{/simulation/simulation :: #simulationContent}"></div>
-
 			<div th:replace="~{/layer/list :: #layerContent}"></div>
 
 			<div th:replace="~{/user-policy/modify :: #userPolicyContent}"></div>
@@ -76,24 +72,11 @@
 	<!-- E: GNB WRAP -->
 
 	<!-- CTRLWRAP -->
-	<div th:replace="~{/fragments/toolbar :: #toolbarWrap}"></div>
+	<!-- <div th:replace="~{/fragments/toolbar :: #toolbarWrap}"></div> -->
 	<!-- E: CTRLWRAP -->
 
 	<!-- MAP -->
-	<div id="magoContainer" class="mapWrap">
-		<div class="analysisGraphic">
-			<canvas id="analysisGraphic"></canvas>
-			<div class="closeGraphic">X</div>
-		</div>
-		<div class="sliderWrap" id="csRange">
-			<label for="rangeInput" class="hiddenTag">caRange</label>
-			<input id="rangeInput"/>
-		</div>
-		<div class="sliderWrap" id="saRange">
-			<label for="timeInput" class="hiddenTag">saRange</label>
-			<input id="timeInput"/>
-		</div>
-	</div>
+	<div id="magoContainer" class="mapWrap"></div>
 	<canvas id="objectLabel"></canvas>
 	<!-- E: MAP -->
 </div>
@@ -106,14 +89,13 @@
 <div th:replace="~{/data/data-object-attribute-dialog :: #dataObjectAttributeDialog}"></div>
 <div th:replace="~{/data/sample-data-attribute-template :: #sampleDataAttributeDialogWrap}"></div>
 <div th:replace="~{/issue/issue-dialog :: #issueForm}"></div>
-<div th:replace="~{/simulation/simul-solar-dialog :: #simulSolarDialog}"></div>
 
 <script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/externlib/json-viewer/json-viewer.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/externlib/handlebars-4.1.2/handlebars.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/handlebars-helper.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/externlib/cesium/Cesium.js}"></script>
+<script type="text/javascript" th:src="@{/externlib/CesiumUnminified/Cesium.js}"></script>
 <script type="text/javascript" th:src="@{/externlib/cesium-geoserver-terrain-provider/GeoserverTerrainProvider.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/externlib/geostats/geostats.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/externlib/chartjs/Chart.min.js(cacheVersion=${contentCacheVersion})}"></script>
@@ -123,18 +105,14 @@
 <script type="text/javascript" th:src="@{/externlib/moment-2.22.2/moment-with-locales.min.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/externlib/tuidatepicker-4.0.3/tui-date-picker.min.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/mago3d.js(cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/mago3d_lx.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/common.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/message.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/map-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/ui-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/spatial-analysis.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/district-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/wps-request.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/search.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/data-info.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/user-policy.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/simulation.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/layer.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/map-data-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/map-init.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
@@ -159,24 +137,15 @@
 	function magoInit() {
 		var geoPolicyJson = NDTP.policy;
 
-		var cesiumViewerOption = {};
-		cesiumViewerOption.infoBox = false;
-		cesiumViewerOption.navigationHelpButton = false;
-		cesiumViewerOption.selectionIndicator = false;
-		cesiumViewerOption.homeButton = false;
-		cesiumViewerOption.fullscreenButton = false;
-		cesiumViewerOption.geocoder = false;
-		cesiumViewerOption.baseLayerPicker = false;
-		cesiumViewerOption.sceneModePicker = false;
 
 		/**
 		 * @param {Stirng} containerId container div id. required.
 		 * @param {object} serverPolicy mage3d geopolicy. required.
 		 * @param {object} callback loadstart callback, loadend callback. option.
-		 * @param {object} options Cesium viewer parameter. option.
+		 * @param {object} options  viewer parameter. option.
 		 * @param {Cesium.Viewer} legacyViewer 타 시스템과의 연동의 경우 view 객체가 생성되어서 넘어 오는 경우가 있음. option.
 		*/
-		MAGO3D_INSTANCE = new Mago3D.Mago3d('magoContainer', geoPolicyJson, {loadend : magoLoadEnd}, cesiumViewerOption);
+		MAGO3D_INSTANCE = new Mago3D.Mago3d('magoContainer', geoPolicyJson, {loadend : magoLoadEnd}, {});
 
 	}
 
@@ -196,13 +165,9 @@
 			//console.info(result);
 		});
 
-		// mago3d logo 추가
-		Mago3D.tempCredit(viewer);
-
-		//우측 상단 지도 컨트롤러
-		MapControll(viewer);
-		//공간분석 기능 수행
-		SpatialAnalysis(magoInstance);
+		//우측 상단 지도 컨트롤러, 당분간 map-controll.js 파일 삭제하지 말아주세요 ㅠㅠ
+		//MapControll(viewer);
+		
 		// 행정 구역 이동
         DistrictControll(magoInstance);
 
@@ -210,7 +175,6 @@
         mapDataGroupList(1, null);
         mapDataInfoList(1, null, null, null);
 
-        Simulation(magoInstance);
         // 환경 설정.
         UserPolicy(magoInstance);
         // 시민참여
@@ -599,7 +563,6 @@
 			});
 		} else {
 			alert(JS_MESSAGE["button.dobule.click"]);
-			return;
 		}
 	}
 

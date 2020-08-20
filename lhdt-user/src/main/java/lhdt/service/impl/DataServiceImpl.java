@@ -6,10 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lhdt.domain.DataGroup;
-import lhdt.domain.DataInfo;
-import lhdt.domain.DataInfoLog;
-import lhdt.domain.DataInfoSimple;
+import lhdt.domain.data.DataGroup;
+import lhdt.domain.data.DataInfo;
+import lhdt.domain.data.DataInfoLog;
+import lhdt.domain.data.DataInfoSimple;
 import lhdt.domain.MethodType;
 import lhdt.persistence.DataMapper;
 import lhdt.service.DataGroupService;

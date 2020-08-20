@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
 import lhdt.config.CacheConfig;
-import lhdt.domain.CacheName;
-import lhdt.domain.CacheParams;
-import lhdt.domain.CacheType;
-import lhdt.domain.Role;
+import lhdt.domain.cache.CacheName;
+import lhdt.domain.cache.CacheParams;
+import lhdt.domain.cache.CacheType;
+import lhdt.domain.role.Role;
 import lhdt.service.RoleService;
 
 @Slf4j

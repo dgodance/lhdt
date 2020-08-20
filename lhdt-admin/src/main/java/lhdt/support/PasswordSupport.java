@@ -3,8 +3,8 @@ package lhdt.support;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import lombok.extern.slf4j.Slf4j;
-import lhdt.domain.Policy;
-import lhdt.domain.UserInfo;
+import lhdt.domain.policy.Policy;
+import lhdt.domain.user.UserInfo;
 
 @Slf4j
 public class PasswordSupport {

@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import lhdt.domain.Widget;
+import lhdt.domain.widget.Widget;
 
 /**
  * 위젯

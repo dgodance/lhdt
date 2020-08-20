@@ -24,7 +24,7 @@
 
         <th:block th:if="${layerGroupList.empty}">
             <tr>
-                <td colspan="6" class="col-none">데이터 그룹이 존재하지 않습니다.</td>
+                <td colspan="6" class="col-none">레이어 그룹이 존재하지 않습니다.</td>
             </tr>
         </th:block>
         <th:block th:unless="${layerGroupList.empty}" th:each="layerGroup : ${layerGroupList}">

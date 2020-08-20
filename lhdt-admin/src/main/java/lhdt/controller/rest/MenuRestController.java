@@ -19,12 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
 import lhdt.config.CacheConfig;
-import lhdt.domain.CacheName;
-import lhdt.domain.CacheParams;
-import lhdt.domain.CacheType;
-import lhdt.domain.Menu;
-import lhdt.domain.MenuTarget;
-import lhdt.domain.MenuType;
+import lhdt.domain.cache.CacheName;
+import lhdt.domain.cache.CacheParams;
+import lhdt.domain.cache.CacheType;
+import lhdt.domain.menu.Menu;
+import lhdt.domain.menu.MenuTarget;
+import lhdt.domain.menu.MenuType;
 import lhdt.service.MenuService;
 import lhdt.utils.StringUtil;
 

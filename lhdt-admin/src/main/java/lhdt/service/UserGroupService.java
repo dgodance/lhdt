@@ -2,9 +2,9 @@ package lhdt.service;
 
 import java.util.List;
 
-import lhdt.domain.UserGroup;
-import lhdt.domain.UserGroupMenu;
-import lhdt.domain.UserGroupRole;
+import lhdt.domain.user.UserGroup;
+import lhdt.domain.user.UserGroupMenu;
+import lhdt.domain.user.UserGroupRole;
 
 public interface UserGroupService {
 

@@ -1,8 +1,8 @@
 package lhdt.controller.view;
 
-import lhdt.domain.CacheManager;
+import lhdt.domain.cache.CacheManager;
 import lhdt.domain.Key;
-import lhdt.domain.Policy;
+import lhdt.domain.policy.Policy;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;

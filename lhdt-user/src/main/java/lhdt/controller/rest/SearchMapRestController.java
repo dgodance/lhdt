@@ -1,6 +1,11 @@
 package lhdt.controller.rest;
 
-import lhdt.domain.*;
+import lhdt.domain.Key;
+import lhdt.domain.common.Pagination;
+import lhdt.domain.country.District;
+import lhdt.domain.country.SkEmd;
+import lhdt.domain.country.SkSdo;
+import lhdt.domain.country.SkSgg;
 import lhdt.service.SearchMapService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;

@@ -1,6 +1,17 @@
 package lhdt.config;
 
 import lhdt.domain.*;
+import lhdt.domain.cache.CacheManager;
+import lhdt.domain.cache.CacheName;
+import lhdt.domain.cache.CacheParams;
+import lhdt.domain.cache.CacheType;
+import lhdt.domain.menu.Menu;
+import lhdt.domain.menu.MenuTarget;
+import lhdt.domain.policy.Policy;
+import lhdt.domain.role.RoleTarget;
+import lhdt.domain.user.UserGroup;
+import lhdt.domain.user.UserGroupMenu;
+import lhdt.domain.user.UserGroupRole;
 import lhdt.service.MenuService;
 import lhdt.service.PolicyService;
 import lhdt.service.UserGroupService;

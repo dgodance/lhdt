@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="lhdt.persistence.DesignLayerMapper">
+
+    <!-- 디자인 레이어 총 건수 -->
+    <select id="getDesignLayerTotalCount" parameterType="designLayer" resultType="long">
+        /* getDesignLayerTotalCount */
+        SELECT COUNT(design_layer_id)
+        FROM design_layer a
+        LEFT JOIN design_layer_group b
+        ON a.design_layer_group_id = b.design_layer_group_id
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="designLayerGroupId != null and designLayerGroupId gt 0">
+			AND a.design_layer_group_id = #{designLayerGroupId}
+			</if>
+			<if test="searchWord != null and searchWord != '' and searchValue != null and searchValue != '' and searchOption == '0'.toString()">
+			AND ${searchWord} = #{searchValue}
+			</if>
+			<if test="searchWord != null and searchWord != '' and searchValue != null and searchValue != '' and searchOption == '1'.toString()">
+			AND ${searchWord} LIKE '%' || #{searchValue} || '%'
+			</if>
+			<if test="startDate != null and startDate != ''">
+			<![CDATA[
+			AND a.insert_date >= TO_TIMESTAMP(#{startDate}, 'YYYYMMDDHH24MISSUS')
+			]]>
+			</if>
+			<if test="endDate != null and endDate != ''">
+			<![CDATA[
+			AND a.insert_date <= TO_TIMESTAMP(#{endDate}, 'YYYYMMDDHH24MISSUS')
+			]]>
+			</if>
+		</trim>
+    </select>
+
+    <!-- 디자인 레이어 목록 -->
+    <select id="getListDesignLayer" parameterType="designLayer" resultType="designLayer">
+        /* getListDesignLayer */
+        SELECT a.*, b.design_layer_group_name
+        FROM design_layer a
+        LEFT JOIN design_layer_group b
+        ON a.design_layer_group_id = b.design_layer_group_id
+		<trim prefix="WHERE" prefixOverrides="AND">
+        	<if test="designLayerGroupId != null and designLayerGroupId gt 0">
+			AND a.design_layer_group_id = #{designLayerGroupId}
+			</if>
+			<if test="searchWord != null and searchWord != '' and searchValue != null and searchValue != '' and searchOption == '0'.toString()">
+			AND ${searchWord} = #{searchValue}
+			</if>
+			<if test="searchWord != null and searchWord != '' and searchValue != null and searchValue != '' and searchOption == '1'.toString()">
+			AND ${searchWord} LIKE '%' || #{searchValue} || '%'
+			</if>
+			<if test="startDate != null and startDate != ''">
+			<![CDATA[
+			AND a.insert_date >= TO_TIMESTAMP(#{startDate}, 'YYYYMMDDHH24MISSUS')
+			]]>
+			</if>
+			<if test="endDate != null and endDate != ''">
+			<![CDATA[
+			AND a.insert_date <= TO_TIMESTAMP(#{endDate}, 'YYYYMMDDHH24MISSUS')
+			]]>
+			</if>
+		</trim>
+		<choose>
+		<when test="orderWord != null and orderWord != '' and orderValue != null and orderValue != ''">
+		ORDER BY a.${orderWord} ${orderValue}
+		</when>
+		<otherwise>
+		ORDER BY a.insert_date DESC, design_layer_id DESC
+		</otherwise>
+		</choose>
+		OFFSET #{offset} LIMIT #{limit}
+    </select>
+
+    <!-- 디자인 레이어 정보 취득 -->
+    <select id="getDesignLayer" parameterType="long" resultType="designLayer">
+        /* getDesignLayer */
+        SELECT A.*, B.design_layer_group_name
+        FROM design_layer A
+        LEFT JOIN design_layer_group B on B.design_layer_group_id = A.design_layer_group_id
+        WHERE A.design_layer_id = #{designLayerId}
+    </select>
+
+	<!-- 디자인 레이어 Key 중복 체크 -->
+    <select id="isDesignLayerKeyDuplication" parameterType="string" resultType="boolean">
+    	/* isDesignLayerKeyDuplication */
+    	SELECT
+			CASE
+				WHEN COUNT(*) > 0 THEN true
+				ELSE false
+			END AS duplication
+		FROM design_layer
+		WHERE design_layer_key = #{value}
+    </select>
+
+    <!-- 자식 디자인 레이어 중 순서가 최대인 디자인 레이어를 검색 -->
+    <select id="getMaxViewOrderChildDesignLayer" parameterType="long" resultType="designLayer">
+        /* getMaxViewOrderChildDesignLayer */
+        SELECT * FROM design_ayer WHERE parent = #{parent} ORDER BY view_order DESC LIMIT 1
+    </select>
+
+    <!-- 자식 디자인 레이어 개수 -->
+    <select id="getChildDesignLayerCount" parameterType="long" resultType="long">
+        /* getChildDesignLayerCount */
+        SELECT COUNT(design_layer_id) FROM design_layer WHERE parent = #{designLayerId}
+    </select>
+
+    <!-- 디자인 레이어 테이블의 컬럼 타입이 어떤 geometry 타입인지를 구함 -->
+    <select id="getGeometryType" parameterType="string" resultType="string">
+        /* getGeometryType */
+        SELECT ST_GeometryType(wkb_geometry) AS geometryType
+        FROM ${value}
+        WHERE enable_yn = 'Y'
+        LIMIT 1
+    </select>
+
+	<!-- 디자인 레이어 컬럼 취득 -->
+    <select id="getDesignLayerColumn" parameterType="string" resultType="string">
+    	/* getDesignLayerColumn */
+    	SELECT ARRAY_TO_STRING(
+    		ARRAY(
+	    		SELECT ''||A.column_name||''
+	        	FROM information_schema.columns As A
+	            WHERE table_name = #{value}
+	            	AND  A.column_name NOT IN ('enable_yn', 'version_id')
+	    		), ','
+	    	)
+    </select>
+
+	<!-- 디자인 레이어 테이블이 존재 하는지 확인 -->
+	<select id="isDesignLayerExists" parameterType="string" resultType="string">
+        /* isDesignLayerExists */
+        SELECT tablename
+			FROM pg_tables
+		WHERE schemaname = 'public'
+		AND tablename = #{value}
+    </select>
+
+    <!-- 디자인 레이어 등록 -->
+    <insert id="insertDesignLayer" parameterType="designLayer">
+		/* insertDesignLayer */
+        <selectKey keyProperty="designLayerId" resultType="long" order="BEFORE">
+            SELECT NEXTVAL('design_layer_seq')
+        </selectKey>
+        INSERT INTO design_layer (
+            design_layer_id, design_layer_group_id, design_layer_name, design_layer_key, design_Layer_category, ogc_web_services, geometry_type,
+            layer_line_color, layer_line_style, layer_fill_color, layer_alpha_style, available,
+            coordinate, description, z_index, user_id, cache_available
+            <if test="viewOrder != null and viewOrder gt 0">
+				, view_order
+			</if>
+        ) VALUES (
+         	#{designLayerId}, #{designLayerGroupId}, #{designLayerName}, #{designLayerKey}, #{designLayerCategory}, #{ogcWebServices}, #{geometryType},
+         	#{layerLineColor}, #{layerLineStyle}, #{layerFillColor}, #{layerAlphaStyle}, #{available},
+         	#{coordinate}, #{description}, #{zIndex}, #{userId}, #{cacheAvailable}
+         <if test="viewOrder != null and viewOrder gt 0">
+			, #{viewOrder}
+		 </if>
+        )
+    </insert>
+
+    <!-- 디자인 레이어 정보 수정 -->
+    <update id="updateDesignLayer" parameterType="designLayer">
+        /* updateDesignLayer */
+        UPDATE design_layer SET
+			design_layer_name = #{designLayerName},
+			design_layer_group_id = #{designLayerGroupId},
+	        design_layer_key = #{designLayerKey},
+	        design_layer_category = #{designLayerCategory},
+			ogc_web_services = #{ogcWebServices},
+			design_layer_type = #{designLayerType},
+	        geometry_type = #{geometryType},
+	        layer_line_color = #{layerLineColor},
+	        layer_line_style = #{layerLineStyle},
+	        layer_fill_color = #{layerFillColor},
+	        layer_alpha_style = #{layerAlphaStyle},
+	        available = #{available},
+	        coordinate = #{coordinate},
+	        description = #{description},
+	        z_index = #{zIndex},
+	        user_id = #{userId},
+	        cache_available = #{cacheAvailable},
+	        <if test="viewOrder != null and viewOrder gt 0">
+			view_order = #{viewOrder},
+			</if>
+	        update_date = NOW()
+        WHERE design_layer_id = #{designLayerId}
+    </update>
+
+    <!-- 디자인 레이어 삭제 -->
+    <delete id="deleteDesignLayer" parameterType="long">
+        /* deleteDesignLayer */
+        DELETE FROM design_layer WHERE design_layer_id = #{designLayerId}
+    </delete>
+
+	<!-- 디자인 레이어 테이블 삭제 -->
+    <delete id="deleteDesignLayerTable" parameterType="string">
+        /* deleteDesign */
+        DROP TABLE ${value}
+    </delete>
+</mapper>

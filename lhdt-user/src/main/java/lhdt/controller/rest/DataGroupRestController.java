@@ -1,6 +1,11 @@
 package lhdt.controller.rest;
 
-import lhdt.domain.*;
+import lhdt.domain.Key;
+import lhdt.domain.LocationUdateType;
+import lhdt.domain.PageType;
+import lhdt.domain.common.Pagination;
+import lhdt.domain.data.DataGroup;
+import lhdt.domain.user.UserSession;
 import lhdt.service.DataGroupService;
 import lhdt.support.SQLInjectSupport;
 import lhdt.utils.DateUtils;
@@ -96,7 +101,7 @@ public class DataGroupRestController {
 		dataGroup.setUserGroupId(userSession.getUserGroupId());
 		long totalCount = dataGroupService.getDataGroupTotalCount(dataGroup);
 		
-		Pagination pagination = new Pagination(	request.getRequestURI(), 
+		Pagination pagination = new Pagination(	request.getRequestURI(),
 												getSearchParameters(PageType.LIST, dataGroup), 
 												totalCount, 
 												Long.parseLong(pageNo),

@@ -1,8 +1,5 @@
 package lhdt.controller.view;
 
-import java.util.ArrayList;
-import java.util.Enumeration;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.stereotype.Controller;
@@ -11,9 +8,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import lhdt.domain.CacheManager;
+import lhdt.domain.cache.CacheManager;
 import lhdt.domain.Key;
-import lhdt.domain.Policy;
+import lhdt.domain.policy.Policy;
 
 /**
  * @author hansangkim

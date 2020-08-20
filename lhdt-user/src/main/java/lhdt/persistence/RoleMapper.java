@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import lhdt.domain.Role;
+import lhdt.domain.role.Role;
 
 /**
  * Role

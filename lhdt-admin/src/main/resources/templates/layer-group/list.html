@@ -52,7 +52,7 @@
 								</thead>
 								<tbody>
 								<tr th:if="${layerGroupList.empty}">
-									<td colspan="9" class="col-none">데이터 그룹이 존재하지 않습니다.</td>
+									<td colspan="9" class="col-none">레이어 그룹이 존재하지 않습니다.</td>
 								</tr>
 								<th:block th:if="${!layerGroupList.empty}" th:each="layerGroup : ${layerGroupList}">
 									<th:block th:if="${layerGroup.depth == 1}">
