@@ -208,6 +208,7 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 		return this.jpaRepo.save(domain);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public DOMAIN update(IDTYPE id, DOMAIN domain) {
 		DOMAIN domain2 = findById(id);
@@ -216,14 +217,18 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 		}
 		
 		//domain의 값을 domain2에 overwrite하기, except id
-		DsUtils.getFieldNames(domain).forEach(x->{
-			if("id".equals(x)) {
+		DsUtils.getFieldNames(domain).forEach(fieldName->{
+			if("id".equals(fieldName)) {
+				return;
+			}
+			
+			if(hasAnyAnnotation(fieldName, OneToMany.class, ManyToOne.class)) {
 				return;
 			}
 			
 			//
-			Object value = DsUtils.getFieldValue(domain, x);
-			DsUtils.setFieldValue(domain2, x, value);
+			Object value = DsUtils.getFieldValue(domain, fieldName);
+			DsUtils.setFieldValue(domain2, fieldName, value);
 		});
 
 		//
@@ -263,6 +268,7 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 	}
 	
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public DOMAIN updateByBizKey(DOMAIN domain) {
 		//업무키 존재하지 않으면
@@ -288,14 +294,15 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 			}
 			
 			//
-			if(hasOneToMany(fieldName) || hasManyToOne(fieldName)) {
+			if(hasAnyAnnotation(fieldName, OneToMany.class, ManyToOne.class)) {
 				return;
 			}
+
 			
 			//
 			Object value = DsUtils.getFieldValue(domain, fieldName);
 			DsUtils.setFieldValue(domain2, fieldName, value);
-			log.debug("{} {} {}", fieldName, value, domain2);
+//			log.debug("{} {} {}", fieldName, value, domain2);
 		});
 
 		//
@@ -303,9 +310,14 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 	}
 	
 	
-
-
-	private boolean hasOneToMany(String fieldName) {
+	/**
+	 * Field[]에서 fieldName해당하는 필드가 classes중 하나라도 존재하는지 여부
+	 * @param fieldName
+	 * @param classes
+	 * @return
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private  boolean  hasAnyAnnotation(String fieldName, Class<? extends Annotation> ...classes) {
 		Field[] fields = domain.getClass().getDeclaredFields();
 		
 		for(Field f : fields) {
@@ -313,31 +325,18 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 				continue;
 			}
 			
-			//
-			if(f.isAnnotationPresent(OneToMany.class)){
-				return true;
+			for(Class clz : classes) {
+				if(f.isAnnotationPresent(clz)){
+					return true;
+				}				
 			}
 		}
-		// TODO Auto-generated method stub
+		
+		//
 		return false;
 	}
 
-	private boolean hasManyToOne(String fieldName) {
-		Field[] fields = domain.getClass().getDeclaredFields();
-		
-		for(Field f : fields) {
-			if(!f.getName().equals(fieldName)) {
-				continue;
-			}
-			
-			//
-			if(f.isAnnotationPresent(ManyToOne.class)){
-				return true;
-			}
-		}
-		// TODO Auto-generated method stub
-		return false;
-	}
+
 
 	/**
 	 * domain에 bizkey 존재 여부
@@ -473,54 +472,6 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 		log.debug("<<.getBizFields - {}", bizFields.size());
 		return bizFields;
 	}
-	
-	/**
-	 * @Id 어노테이션이 존재하는 필드 목록 추출
-	 * @param domain
-	 * @return
-	 */
-	private List<FieldAndOrder> getIdFields(DOMAIN domain){
-		//
-		List<FieldAndOrder> idFields = new ArrayList<>();
-		
-		//
-		if(null == domain) {
-			return idFields;
-		}
-		
-		//
-		List<Field> fields = new ArrayList<>();
-		DsUtils.getFieldsUpTo(domain.getClass(), fields);
-		
-		if(DsUtils.isEmpty(fields)) {
-			return idFields;
-		}
-		//
-		for(Field f : fields) {
-			if(!f.isAnnotationPresent(Id.class)) {
-				continue;
-			}
-		
-			
-			//
-			String column = f.getName();
-			if(f.isAnnotationPresent(Column.class)) {
-				column = f.getAnnotation(Column.class).name();
-			}
-		
-			
-			//
-			idFields.add(FieldAndOrder.builder()
-					.field(f)
-					.column(column)
-					.order(0)
-					.build());
-		}
-
-		//
-		return idFields;
-	}
-	
 	
 	/**
 	 * field명으로 메소드명(문자열) 생성 
