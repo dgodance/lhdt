@@ -3,6 +3,7 @@
  */
 package lhdt.ds.common.misc;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
 
@@ -40,8 +41,13 @@ public  interface DsService<DOMAIN, IDTYPE>  {
 	 * 업무키로 1건 조회
 	 * @param domain
 	 * @return
+	 * @throws IllegalAccessException 
+	 * @throws IllegalArgumentException 
+	 * @throws SecurityException 
+	 * @throws NoSuchMethodException 
+	 * @throws InvocationTargetException 
 	 */
-	DOMAIN findByBizKey(DOMAIN domain);
+	DOMAIN findByBizKey(DOMAIN domain) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, SecurityException;
 	
 	/**
 	 * 1건 삭제
