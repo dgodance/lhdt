@@ -25,11 +25,9 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import lhdt.admin.svc.lhdt.interceptor.CSRFHandlerInterceptor;
 import lhdt.admin.svc.lhdt.interceptor.ConfigInterceptor;
 import lhdt.admin.svc.lhdt.interceptor.LocaleInterceptor;
 import lhdt.admin.svc.lhdt.interceptor.LogInterceptor;
-import lhdt.admin.svc.lhdt.interceptor.SecurityInterceptor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -47,13 +45,9 @@ public class ServletConfig implements WebMvcConfigurer {
 	@Autowired
 	private LocaleInterceptor localeInterceptor;
 	@Autowired
-	private CSRFHandlerInterceptor cSRFHandlerInterceptor;
-	@Autowired
 	private ConfigInterceptor configInterceptor;
 	@Autowired
 	private LogInterceptor logInterceptor;
-	@Autowired
-	private SecurityInterceptor securityInterceptor;
 
 //	@Override
 //    public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
@@ -84,14 +78,6 @@ public class ServletConfig implements WebMvcConfigurer {
 		log.info(" @@@ ServletConfig addInterceptors @@@@ ");
 
 		registry.addInterceptor(localeInterceptor)
-				.addPathPatterns("/**")
-				.excludePathPatterns(defaultExcludes());
-		
-		registry.addInterceptor(securityInterceptor)
-				.addPathPatterns("/**")
-				.excludePathPatterns(defaultExcludes());
-		
-		registry.addInterceptor(cSRFHandlerInterceptor)
 				.addPathPatterns("/**")
 				.excludePathPatterns(defaultExcludes());
 		

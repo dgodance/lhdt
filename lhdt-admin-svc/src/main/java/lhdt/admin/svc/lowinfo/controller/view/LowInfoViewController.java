@@ -48,7 +48,7 @@ public class LowInfoViewController {
     @PostMapping()
     public String addNotice(@Valid @ModelAttribute LowInfo boardForm) {
         this.lowInfoService.regist(boardForm);
-        return "redirect:/low-info";
+        return "redirect:low-info";
     }
 
     @DeleteMapping("/{id}")

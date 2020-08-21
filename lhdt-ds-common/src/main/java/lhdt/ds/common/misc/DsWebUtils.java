@@ -46,4 +46,13 @@ public class DsWebUtils extends PpWebUtil {
 		log.error("<<.getSession - null request");
 		return null;
 	}
+	
+	
+	/**
+	 * @param request
+	 * @return
+	 */
+	public static boolean isAjax(HttpServletRequest request) {
+		return "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
+	}
 }
