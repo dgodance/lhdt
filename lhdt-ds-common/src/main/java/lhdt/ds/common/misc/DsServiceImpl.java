@@ -3,6 +3,7 @@
  */
 package lhdt.ds.common.misc;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -17,8 +18,13 @@ import java.util.Optional;
 import javax.persistence.Column;
 import javax.persistence.EntityManager;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -276,14 +282,20 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 		}
 
 		//domain의 값을 domain2에 overwrite하기, except id
-		DsUtils.getFieldNames(domain).forEach(x->{
-			if("id".equals(x)) {
+		DsUtils.getFieldNames(domain).forEach(fieldName->{
+			if("id".equals(fieldName)) {
 				return;
 			}
 			
 			//
-			Object value = DsUtils.getFieldValue(domain, x);
-			DsUtils.setFieldValue(domain2, x, value);
+			if(hasOneToMany(fieldName) || hasManyToOne(fieldName)) {
+				return;
+			}
+			
+			//
+			Object value = DsUtils.getFieldValue(domain, fieldName);
+			DsUtils.setFieldValue(domain2, fieldName, value);
+			log.debug("{} {} {}", fieldName, value, domain2);
 		});
 
 		//
@@ -292,6 +304,40 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 	
 	
 
+
+	private boolean hasOneToMany(String fieldName) {
+		Field[] fields = domain.getClass().getDeclaredFields();
+		
+		for(Field f : fields) {
+			if(!f.getName().equals(fieldName)) {
+				continue;
+			}
+			
+			//
+			if(f.isAnnotationPresent(OneToMany.class)){
+				return true;
+			}
+		}
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	private boolean hasManyToOne(String fieldName) {
+		Field[] fields = domain.getClass().getDeclaredFields();
+		
+		for(Field f : fields) {
+			if(!f.getName().equals(fieldName)) {
+				continue;
+			}
+			
+			//
+			if(f.isAnnotationPresent(ManyToOne.class)){
+				return true;
+			}
+		}
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 	/**
 	 * domain에 bizkey 존재 여부
@@ -336,19 +382,24 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 	 */
 	@SuppressWarnings("unchecked")
 	private DOMAIN findByBizKeyByCreateQuery(List<FieldAndOrder> bizFields, Object[] paramValues) {
-		String sql = getSql(getIdFields(domain), bizFields);
-		Query q = this.em.createQuery(sql);
+//		String sql = getSql(getIdFields(domain), bizFields);
+//		Query q = this.em.createQuery(sql);
+//		
+//		//파라미터 값 세팅
+//		if(DsUtils.isNotEmpty(bizFields)) {
+//			int i=0;
+//			for(FieldAndOrder f : bizFields) {
+//				q.setParameter(f.field.getName(), paramValues[i++]);
+//			}
+//		}
+//		
+//		//쿼리 실행
+//		List<?> list = q.getResultList();
+//		if(DsUtils.isEmpty(list)) {
+//			return null;
+//		}
 		
-		//파라미터 값 세팅
-		if(DsUtils.isNotEmpty(bizFields)) {
-			int i=0;
-			for(FieldAndOrder f : bizFields) {
-				q.setParameter(f.field.getName(), paramValues[i++]);
-			}
-		}
-		
-		//쿼리 실행
-		List<?> list = q.getResultList();
+		List<?> list = em.createQuery(getQuery(bizFields, paramValues)).getResultList();
 		if(DsUtils.isEmpty(list)) {
 			return null;
 		}
@@ -537,14 +588,50 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 		log.debug("<<.getParamValues - {}", objects);
 		return objects;
 	}
+	
+	
+	/**
+	 * 동적으로 쿼리 생성
+	 * @param bizFields
+	 * @param paramValues
+	 * @return
+	 * @since 20200821
+	 */
+	@SuppressWarnings({ "unchecked" })
+	private CriteriaQuery<DOMAIN> getQuery(List<FieldAndOrder> bizFields, Object[] paramValues) {
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<DOMAIN> q = (CriteriaQuery<DOMAIN>) builder.createQuery(domain.getClass());
+		Root<DOMAIN> root = (Root<DOMAIN>) q.from(domain.getClass());
+		q.select(root);
+		
+		//
+		if(DsUtils.isNull(bizFields)) {
+			em.createQuery(q).getResultList();
+		}
+		
+		//
+		int i=0;
+		for(FieldAndOrder f : bizFields) {
+			q.where(builder.equal(root.get(f.field.getName()), paramValues[i++]));
+		}
+		
+		//
+		return q;
+	}
 
 	/**
+	 * 정상적으로 동작하기는 하나, 어느 정도의 하드코딩이 맘에 들지 않음.
+	 * getQuery()사용하기를 추천함
 	 * 동적으로 sql문 생성
 	 * @param idFields @Id 필드 목록
 	 * @param bizFields @DsField 필드 목록
 	 * @return
 	 */
+	@Deprecated
+	@SuppressWarnings("unused")
 	private String getSql(List<FieldAndOrder> idFields, List<FieldAndOrder> bizFields) {
+		
+		
 		String sql = "";
 		
 		sql = " SELECT 1 AS dummy";
