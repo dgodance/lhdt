@@ -63,13 +63,19 @@ public class JpaAnalsConfig {
 
 
 
+	/**
+	 * @see https://medium.com/@nieldw/jpa-spring-boot-will-not-search-for-meta-inf-persistence-xml-f28f14444d6d
+	 * @param builder
+	 * @param dataSource
+	 * @return
+	 */
 	@Primary
 	@Bean(name = "entityManagerFactory")
 	public LocalContainerEntityManagerFactoryBean entityManagerFactory(	EntityManagerFactoryBuilder builder,@Qualifier("dataSource") DataSource dataSource	) {
 		LocalContainerEntityManagerFactoryBean bean = builder
 				.dataSource(dataSource)
 				.packages("lhdt.admin.svc.hello", "lhdt.admin.svc.lowinfo")
-				.persistenceUnit("foo")
+				.persistenceUnit("persistence")
 				.build();
 		
 		//
