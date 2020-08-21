@@ -1,9 +1,49 @@
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
-<div id="landscapeContent" class="contents yScroll fullHeight" style="display:none;">
-	<div class="">
-		<div>TODO 경관</div>
-		<div>메뉴 아이콘 변경하려면 user_style.css에서 lanscape찾아서 수정</div>
+<head>
+	<meta charset="utf-8">
+    <meta name="referrer" content="origin">
+    <meta name="viewport" content="width=device-width">
+    <meta name="robots" content="index,nofollow">
+    <title></title>
+    <link rel="shortcut icon" th:href="@{/images/favicon.ico(cacheVersion=${contentCacheVersion})}">
+	<link rel="stylesheet" th:href="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.css(cacheVersion=${contentCacheVersion})}">
+    <link rel="stylesheet" th:href="@{/images/{lang}/icon/glyph/glyphicon.css(lang=${lang}, cacheVersion=${contentCacheVersion})}">
+    <link rel="stylesheet" th:href="@{/css/{lang}/user-style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}">
+    <link rel="stylesheet" th:href="@{/css/{lang}/style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}">
+    <script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>    
+</head>
+<body>
+<div th:replace="~{/fragments/header :: #headerWrap}"></div>
+<div id="wrap">
+	<!-- S: NAVWRAP -->
+	<div class="navWrap">
+        <div th:replace="~{/fragments/menu :: #navWrap}"></div>
 	</div>
-	
+	<!-- E: NAVWRAP -->
+
+	<div class="container" style="float:left; width: calc(100% - 78px);">
+		<div style="padding: 20px 20px 0px 10px; font-size: 18px;"></div>
+        <!-- TAB -->
+        <div class="tabs">
+            <ul class="tab">
+				<li id="" class="on"><a href="./"><th:block th:text="가시권"></th:block></a></li>
+				<li id=""><a href="./"><th:block th:text="경관"></th:block></a></li>
+            </ul>
+        </div>
+
+		<div>TODO 경관 분석 - 가시권</div>
+
+	</div>
 </div>
+<!-- E: WRAP -->
+<script type="text/javascript" th:src="@{/js/{lang}/common.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/message.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/map-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/ui-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript">
+
+</script>
+</body>
 </html>
