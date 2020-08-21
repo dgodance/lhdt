@@ -3,6 +3,7 @@
  */
 package lhdt.admin.svc.lowinfo.persistence;
 
+import lhdt.admin.svc.lowinfo.domain.LowInfo;
 import lhdt.admin.svc.lowinfo.domain.LowInfoDet;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -12,5 +13,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  *
  */
 public interface LowInfoDetRepository extends JpaRepository<LowInfoDet, Long> {
-
+    LowInfoDet findByLowInfoDetName(String lowInfoName);
 }

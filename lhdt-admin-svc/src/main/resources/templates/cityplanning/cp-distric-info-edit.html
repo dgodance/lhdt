@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <th:block th:insert="fragments/head :: common"></th:block>
     <title>생성 하기</title>
 </head>
-<body class="ui gird" th:with="isPost=${cpFileInfo} == null ? true : false">
-
+<body>
 <div class="ui container twelve wide column" style="padding:50px 0px">
-    <form th:method="${isPost} ? 'POST' : 'PUT'" th:action="@{/cp-distric-info}" class="ui form">
+    <form th:method="post" th:action="@{/cp/distric-info-edit}" class="ui form">
         <div>
             <label>제목</label>
-            <input type="text" name="fileName" placeholder="파일명을 입력해주세요."
-                   th:value="${isPost} ? '' : ${cpFileInfo.fileName}"
+            <input type="text" name="districName" placeholder="지역명을 입력해주세요."
+                   th:value="${cpDistricInfo.districtName}"
                    required>
+            <input type="text" name="districId" placeholder="지역명을 입력해주세요."
+                   th:value="${cpDistricInfo.id}"
+                   hidden>
         </div>
-        <input type="hidden" name="id" th:value="${isPost} ? '' : ${cpFileInfo.id}"/>
         <div>
             <button type="submit">
                 <i class="icon edit"></i>

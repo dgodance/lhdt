@@ -9,6 +9,7 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
+import com.sun.istack.NotNull;
 import lhdt.svc.common.Domain;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,6 +28,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LowInfoDet extends Domain {
+    @NotNull
     @Column(name = "low_info_det_name")
     private String lowInfoDetName;
 

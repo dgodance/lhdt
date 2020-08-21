@@ -36,7 +36,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	
 	@Autowired
 	private DsLocaleInterceptor localeInterceptor;
-	
+
 	@Autowired
 	private DsCsrfInterceptor csrfInterceptor;
 	
@@ -93,7 +93,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 		registry.addInterceptor(miscInterceptor)
 			.addPathPatterns("/**")
 			.excludePathPatterns(excludes());
-		
+
 		//
 		registry.addInterceptor(csrfInterceptor)
 		.addPathPatterns("/**")

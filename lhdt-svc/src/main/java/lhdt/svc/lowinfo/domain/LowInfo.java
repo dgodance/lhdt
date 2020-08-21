@@ -12,6 +12,7 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import com.sun.istack.NotNull;
 import lhdt.svc.common.Domain;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,6 +31,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LowInfo extends Domain {
+    @NotNull
     @Column(name = "low_info_name")
     private String lowInfoName;
 
