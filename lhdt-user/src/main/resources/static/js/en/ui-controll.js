@@ -56,10 +56,24 @@ $(function() {
 				$('#dataContent').toggle(true);
 			}
 			$('#contentsWrap').toggle(true);
-		}  else if(0 < currentUrl.indexOf('cityplan')){
-			//지구설계 gravity
+		}  
+
+		//지구설계 gravity
+		if(0 < currentUrl.indexOf('cityplan')){
 			$('#cityPlanMenu').addClass('on');
-		}else {
+		}
+		
+		//경관분석 gravity
+		if(0 < currentUrl.indexOf('landscapeanals')){
+			$('#landscapeAnalsMenu').addClass('on');
+		}
+		
+		//일조분석 gravity
+		if(0 < currentUrl.indexOf('sunshineanals')){
+			$('#sunshineAnalsMenu').addClass('on');
+		}
+		
+		else {
 			// 데이터 변환
 			$("#converterMenu").addClass('on');
 			//$('#contentsWrap').toggle(true);
@@ -122,7 +136,7 @@ $(function() {
         
         //지구설계 클릭 이벤트시 url 변경	gravity
         if('cityPlanContent' === active){
-        	window.location = '../cityplan/view-point';
+        	window.location = '../cityplan/city-unit-plan-confm';
         }
                 
         //시민참여 벗어날 시 지도 클리어.
