@@ -38,7 +38,8 @@ import lombok.extern.slf4j.Slf4j;
 		basePackages = { 
 				"lhdt.admin.svc.hello.persistence",
 				"lhdt.admin.svc.cityplanning.persistence",
-				"lhdt.admin.svc.lowinfo.persistence"
+				"lhdt.admin.svc.lowinfo.persistence",
+				"lhdt.admin.svc.landscape.persistence"
 				}
 		)
 public class JpaAnalsConfig {
@@ -74,7 +75,7 @@ public class JpaAnalsConfig {
 		LocalContainerEntityManagerFactoryBean bean = builder
 				.dataSource(dataSource)
 				.packages("lhdt.admin.svc.hello", "lhdt.admin.svc.lowinfo",
-						"lhdt.admin.svc.cityplanning")
+						"lhdt.admin.svc.cityplanning", "lhdt.admin.svc.landscape")
 				.persistenceUnit("persistence")
 				.build();
 		

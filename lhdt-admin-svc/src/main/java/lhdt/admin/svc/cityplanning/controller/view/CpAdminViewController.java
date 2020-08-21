@@ -109,6 +109,7 @@ public class CpAdminViewController {
     public String modifyCPDistricInfo(@Valid @ModelAttribute CPManagedRegistParam boardForm) {
         var cpObj = new CPDistricInfo();
         cpObj.setDistrictName(boardForm.getDistricName());
+        cpObj.getCpFileInfos().clear();
         this.cpDistricInfoService.update(boardForm.getDistricId(), cpObj);
         return "redirect:/cp";
     }

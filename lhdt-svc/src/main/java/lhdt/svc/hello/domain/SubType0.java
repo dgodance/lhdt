@@ -32,7 +32,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class SubType0 extends SuperType {
+public class  SubType0 extends SuperType {
     /**
      * 안녕 명
      */
