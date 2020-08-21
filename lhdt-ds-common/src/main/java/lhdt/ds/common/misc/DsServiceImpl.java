@@ -19,6 +19,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.Id;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -336,19 +339,24 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 	 */
 	@SuppressWarnings("unchecked")
 	private DOMAIN findByBizKeyByCreateQuery(List<FieldAndOrder> bizFields, Object[] paramValues) {
-		String sql = getSql(getIdFields(domain), bizFields);
-		Query q = this.em.createQuery(sql);
+//		String sql = getSql(getIdFields(domain), bizFields);
+//		Query q = this.em.createQuery(sql);
+//		
+//		//파라미터 값 세팅
+//		if(DsUtils.isNotEmpty(bizFields)) {
+//			int i=0;
+//			for(FieldAndOrder f : bizFields) {
+//				q.setParameter(f.field.getName(), paramValues[i++]);
+//			}
+//		}
+//		
+//		//쿼리 실행
+//		List<?> list = q.getResultList();
+//		if(DsUtils.isEmpty(list)) {
+//			return null;
+//		}
 		
-		//파라미터 값 세팅
-		if(DsUtils.isNotEmpty(bizFields)) {
-			int i=0;
-			for(FieldAndOrder f : bizFields) {
-				q.setParameter(f.field.getName(), paramValues[i++]);
-			}
-		}
-		
-		//쿼리 실행
-		List<?> list = q.getResultList();
+		List<?> list = em.createQuery(getQuery(bizFields, paramValues)).getResultList();
 		if(DsUtils.isEmpty(list)) {
 			return null;
 		}
@@ -537,14 +545,50 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 		log.debug("<<.getParamValues - {}", objects);
 		return objects;
 	}
+	
+	
+	/**
+	 * 동적으로 쿼리 생성
+	 * @param bizFields
+	 * @param paramValues
+	 * @return
+	 * @since 20200821
+	 */
+	@SuppressWarnings({ "unchecked" })
+	private CriteriaQuery<DOMAIN> getQuery(List<FieldAndOrder> bizFields, Object[] paramValues) {
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<DOMAIN> q = (CriteriaQuery<DOMAIN>) builder.createQuery(domain.getClass());
+		Root<DOMAIN> root = (Root<DOMAIN>) q.from(domain.getClass());
+		q.select(root);
+		
+		//
+		if(DsUtils.isNull(bizFields)) {
+			em.createQuery(q).getResultList();
+		}
+		
+		//
+		int i=0;
+		for(FieldAndOrder f : bizFields) {
+			q.where(builder.equal(root.get(f.field.getName()), paramValues[i++]));
+		}
+		
+		//
+		return q;
+	}
 
 	/**
+	 * 정상적으로 동작하기는 하나, 어느 정도의 하드코딩이 맘에 들지 않음.
+	 * getQuery()사용하기를 추천함
 	 * 동적으로 sql문 생성
 	 * @param idFields @Id 필드 목록
 	 * @param bizFields @DsField 필드 목록
 	 * @return
 	 */
+	@Deprecated
+	@SuppressWarnings("unused")
 	private String getSql(List<FieldAndOrder> idFields, List<FieldAndOrder> bizFields) {
+		
+		
 		String sql = "";
 		
 		sql = " SELECT 1 AS dummy";
