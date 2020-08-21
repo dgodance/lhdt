@@ -2,6 +2,7 @@ package lhdt.admin.svc.cityplanning.controller.view;
 
 import lhdt.admin.svc.cityplanning.domain.CPDistricInfo;
 import lhdt.admin.svc.cityplanning.domain.CPLocalInfo;
+import lhdt.admin.svc.cityplanning.model.CPManagedRegistParam;
 import lhdt.admin.svc.cityplanning.service.CPDistricInfoService;
 import lhdt.admin.svc.cityplanning.service.CPLocalInfoService;
 import lhdt.ds.common.misc.DSPageSize;
@@ -75,8 +76,12 @@ public class CpAdminViewController {
     }
 
     @PostMapping("/distric-info")
-    public String addCPDistricInfo(@Valid @ModelAttribute CPDistricInfo boardForm) {
-        this.cpDistricInfoService.regist(boardForm);
+    public String addCPDistricInfo(@Valid @ModelAttribute CPManagedRegistParam cpManagedParam) {
+        var cdi = new CPDistricInfo();
+        cdi.setDistrictName(cpManagedParam.getDistricName());
+        var cli = this.cpLocalInfoService.findById(cpManagedParam.getLocalInfoId());
+        cdi.setCpLocalInfo(cli);
+        this.cpDistricInfoService.regist(cdi);
         return "redirect:/cp";
     }
 
@@ -92,15 +97,19 @@ public class CpAdminViewController {
         return "redirect:/cp";
     }
 
-    @PutMapping("/local-info-edit")
-    public String modifyCPLocalInfo(@Valid @ModelAttribute CPLocalInfo boardForm) {
-        this.cpLocalInfoService.update(boardForm.getId(), boardForm);
+    @PostMapping("/local-info-edit")
+    public String modifyCPLocalInfo(@Valid @ModelAttribute CPManagedRegistParam boardForm) {
+        var cpObj = new CPLocalInfo();
+        cpObj.setLocalName(boardForm.getLocalInfoName());
+        this.cpLocalInfoService.update(boardForm.getLocalInfoId(), cpObj);
         return "redirect:/cp";
     }
 
-    @PutMapping("/distric-info-edit")
-    public String modifyCPDistricInfo(@Valid @ModelAttribute CPDistricInfo boardForm) {
-        this.cpDistricInfoService.update(boardForm.getId(), boardForm);
+    @PostMapping("/distric-info-edit")
+    public String modifyCPDistricInfo(@Valid @ModelAttribute CPManagedRegistParam boardForm) {
+        var cpObj = new CPDistricInfo();
+        cpObj.setDistrictName(boardForm.getDistricName());
+        this.cpDistricInfoService.update(boardForm.getDistricId(), cpObj);
         return "redirect:/cp";
     }
 

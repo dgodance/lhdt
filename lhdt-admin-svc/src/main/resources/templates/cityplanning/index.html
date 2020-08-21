@@ -3,7 +3,7 @@
 <head>
     <title>지구게획 카테고리 관리</title>
 </head>
-<body class="ui grid">
+<body>
 
 <!-- Local Div start -->
 <div style="padding: 50px 0">
@@ -13,6 +13,7 @@
         <tr>
             <th>번호</th>
             <th>지역명</th>
+            <th>등록일</th>
         </tr>
         </thead>
         <tbody>
@@ -59,14 +60,15 @@
         <thead>
         <tr>
             <th>번호</th>
-            <th>지역명</th>
+<!--            <th>지역명</th>-->
             <th>지구명</th>
+            <th>등록일</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="cpDistricInfo : ${cpDistricInfoPage}">
             <td th:text="${cpDistricInfo.id}"></td>
-            <td th:text="${cpDistricInfo.cpLocalInfo.localName}"></td>
+            <td th:text="${cpDistricInfo.cpLocalInfo?.localName}"></td>
             <td><a th:href="@{'/cp/distric-info/'+${cpDistricInfo.id}}" th:text="${cpDistricInfo.districtName}"></a></td>
             <td th:text="${cpDistricInfo.registDt}"></td>
         </tr>

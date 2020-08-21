@@ -29,7 +29,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LowInfo extends DsDomain {
-	@DsField(bizKey = true, order = 0)
+
     @Column(name = "low_info_name")
     @DsField(bizKey = true, order = 0)
     private String lowInfoName;

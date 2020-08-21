@@ -5,12 +5,15 @@
 </head>
 <body>
 <div class="ui container twelve wide column" style="padding:50px 0px">
-    <form th:method="'PUT'" th:action="@{/cp/distric-info}" class="ui form">
+    <form th:method="post" th:action="@{/cp/distric-info-edit}" class="ui form">
         <div>
             <label>제목</label>
             <input type="text" name="districName" placeholder="지역명을 입력해주세요."
                    th:value="${cpDistricInfo.districtName}"
                    required>
+            <input type="text" name="districId" placeholder="지역명을 입력해주세요."
+                   th:value="${cpDistricInfo.id}"
+                   hidden>
         </div>
         <div>
             <button type="submit">

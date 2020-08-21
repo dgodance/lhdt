@@ -5,6 +5,8 @@ import lombok.Data;
 
 @Data
 public class CPManagedRegistParam {
-    private Long cpLocalInfoId;
-    private String cpDstricInfo;
+    private Long localInfoId;
+    private String localInfoName;
+    private Long districId;
+    private String districName;
 }
