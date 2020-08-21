@@ -98,7 +98,6 @@ public class DsCsrfInterceptor extends HandlerInterceptorAdapter {
 	 */
 	@Override
 	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler,	@Nullable Exception ex) throws Exception {
-	}
-	
+	}	
 	
 }
