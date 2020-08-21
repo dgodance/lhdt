@@ -9,6 +9,7 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -18,6 +19,7 @@ import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import lhdt.admin.svc.common.interceptor.SessionCheckInterceptor;
+import lhdt.ds.common.interceptor.DsCsrfInterceptor;
 import lhdt.ds.common.interceptor.DsLocaleInterceptor;
 import lhdt.ds.common.interceptor.DsMiscInterceptor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +38,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	private DsLocaleInterceptor localeInterceptor;
 	
 	@Autowired
+	private DsCsrfInterceptor csrfInterceptor;
+	
+	@Autowired
 	private SessionCheckInterceptor sessionCheckInterceptor;
+	
+	@Value("${app.login.uri}")
+	private String loginUri;
 	
 //	@Autowired
 //	private ConfigInterceptor configInterceptor;
@@ -87,9 +95,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
 			.excludePathPatterns(excludes());
 		
 		//
-//		registry.addInterceptor(configInterceptor)
-//			.addPathPatterns("/**")
-//			.excludePathPatterns("/f4d/**",	"/sign/**", "/cache/reload", "/guide/**", "/css/**", "/externlib/**", "favicon*", "/images/**", "/js/**");
+		registry.addInterceptor(csrfInterceptor)
+		.addPathPatterns("/**")
+		.excludePathPatterns(excludes());
 	}
 
 	@Override
@@ -99,11 +107,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	}
 	
 	
-	@Override
-    public void addViewControllers(ViewControllerRegistry registry) {
-		registry.addViewController("/").setViewName("forward:/sign/signin");
-        registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
-    }
+//	@Override
+//    public void addViewControllers(ViewControllerRegistry registry) {
+//		registry.addViewController("/").setViewName("forward:" + loginUri);
+//        registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
+//    }
 	
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
