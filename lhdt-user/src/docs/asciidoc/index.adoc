@@ -90,6 +90,7 @@ include::{snippets}/design-layer-group-list/http-response.adoc[]
 
 include::{snippets}/design-layer-group-get/curl-request.adoc[]
 include::{snippets}/design-layer-group-get/http-response.adoc[]
+include::{snippets}/design-layer-group-get/response-fields.adoc[]
 
 [[resources-design-layer]]
 == 디자인 레이어
@@ -111,4 +112,5 @@ include::{snippets}/design-layer-list/http-response.adoc[]
 
 include::{snippets}/design-layer-get/curl-request.adoc[]
 include::{snippets}/design-layer-get/http-response.adoc[]
+include::{snippets}/design-layer-get/response-fields.adoc[]
 
