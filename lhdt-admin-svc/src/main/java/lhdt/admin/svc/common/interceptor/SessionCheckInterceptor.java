@@ -44,7 +44,7 @@ public class SessionCheckInterceptor extends DsSessionCheckInterceptor {
 		//로그인 정보 없음
 		if(null == userSession) {
 			//TODO 세션없음 처리
-			
+			log.warn("<<.preHandler - LOST SESSION");
 			//
 			response.sendRedirect(contextPath + loginUrl);
 			return false;
