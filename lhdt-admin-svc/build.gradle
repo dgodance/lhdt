@@ -129,7 +129,12 @@ dependencies {
     
     //
     implementation 'commons-lang:commons-lang:2.6'
-	
+
+    compile group: 'org.apache.poi', name: 'poi', version: '3.15'
+    compile group: 'org.apache.poi', name: 'poi-ooxml', version: '3.15'
+
+    compile group: 'commons-lang',  name:'commons-lang', version:'2.6'
+    compile group: 'commons-io',  name:'commons-io', version:'2.6'
 }
 
 test {

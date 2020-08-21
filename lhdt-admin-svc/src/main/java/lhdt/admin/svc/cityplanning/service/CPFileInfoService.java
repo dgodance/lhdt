@@ -1,0 +1,8 @@
+package lhdt.admin.svc.cityplanning.service;
+
+import lhdt.admin.svc.cityplanning.domain.CPFileInfo;
+import lhdt.admin.svc.common.AdminSvcService;
+import lhdt.ds.common.misc.DsService;
+
+public interface CPFileInfoService extends AdminSvcService<CPFileInfo, Long> {
+}
