@@ -3,6 +3,7 @@
  */
 package lhdt.ds.common.misc;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -17,6 +18,8 @@ import java.util.Optional;
 import javax.persistence.Column;
 import javax.persistence.EntityManager;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -279,14 +282,20 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 		}
 
 		//domain의 값을 domain2에 overwrite하기, except id
-		DsUtils.getFieldNames(domain).forEach(x->{
-			if("id".equals(x)) {
+		DsUtils.getFieldNames(domain).forEach(fieldName->{
+			if("id".equals(fieldName)) {
 				return;
 			}
 			
 			//
-			Object value = DsUtils.getFieldValue(domain, x);
-			DsUtils.setFieldValue(domain2, x, value);
+			if(hasOneToMany(fieldName) || hasManyToOne(fieldName)) {
+				return;
+			}
+			
+			//
+			Object value = DsUtils.getFieldValue(domain, fieldName);
+			DsUtils.setFieldValue(domain2, fieldName, value);
+			log.debug("{} {} {}", fieldName, value, domain2);
 		});
 
 		//
@@ -295,6 +304,40 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 	
 	
 
+
+	private boolean hasOneToMany(String fieldName) {
+		Field[] fields = domain.getClass().getDeclaredFields();
+		
+		for(Field f : fields) {
+			if(!f.getName().equals(fieldName)) {
+				continue;
+			}
+			
+			//
+			if(f.isAnnotationPresent(OneToMany.class)){
+				return true;
+			}
+		}
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	private boolean hasManyToOne(String fieldName) {
+		Field[] fields = domain.getClass().getDeclaredFields();
+		
+		for(Field f : fields) {
+			if(!f.getName().equals(fieldName)) {
+				continue;
+			}
+			
+			//
+			if(f.isAnnotationPresent(ManyToOne.class)){
+				return true;
+			}
+		}
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 	/**
 	 * domain에 bizkey 존재 여부
