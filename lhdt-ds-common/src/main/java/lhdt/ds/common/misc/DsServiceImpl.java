@@ -6,6 +6,7 @@ package lhdt.ds.common.misc;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -256,21 +257,22 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 	 * @return true(domain에  @AnalsField(bizKey=true) 존재) / false
 	 */
 	private boolean existsBizKey(DOMAIN domain){
-		//
-		Field[] fields = domain.getClass().getDeclaredFields();
-
-		//
-		for(Field f : fields) {
-			DsField svcField = f.getAnnotation(DsField.class);
-
-			//
-			if(null != svcField && svcField.bizKey()) {
-				return true;
-			}
-		}
-
-		//
-		return false;
+		return (0 < getBizFields(domain).size());
+//		//
+//		Field[] fields = domain.getClass().getDeclaredFields();
+//
+//		//
+//		for(Field f : fields) {
+//			DsField svcField = f.getAnnotation(DsField.class);
+//
+//			//
+//			if(null != svcField && svcField.bizKey()) {
+//				return true;
+//			}
+//		}
+//
+//		//
+//		return false;
 	}
 	
 	/**
@@ -284,26 +286,44 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 		
 		//
 		if(null == domain) {
+			log.warn("<<.getBizFields - null domain");
 			return list;
 		}
 
 		//
 		Field[] fields = domain.getClass().getDeclaredFields();
+		if(DsUtils.isEmpty(fields)) {
+			log.warn("<<.getBizFields - empty fields");
+			return list;
+		}
 
 		//
-		for(Field f : fields) {
-			DsField svcField = f.getAnnotation(DsField.class);
-
-			//업무키 존재하면 추가
-			if(null != svcField && svcField.bizKey()) {
-				list.add(FieldAndOrder.builder()
-						.field(f)
-						.order(svcField.order())
-						.build());
+		Arrays.stream(fields).forEach(f->{
+			if(null == f) {
+				return;
 			}
-		}
+			
+			//
+			DsField dsField = f.getAnnotation(DsField.class);
+			
+			if(null == dsField) {
+				return;
+			}
+			
+			if(!dsField.bizKey()) {
+				return;
+			}
+			
+			//업무키 존재하면 추가
+			list.add(FieldAndOrder.builder()
+					.field(f)
+					.order(dsField.order())
+					.build());
+			
+		});
 		
 		//
+		log.debug("<<.getBizFields - {}", list.size());
 		return list;
 	}
 	
