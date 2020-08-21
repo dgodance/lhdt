@@ -13,4 +13,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface LowInfoRepository extends JpaRepository<LowInfo, Long> {
 
+	LowInfo findByLowInfoName(String lowInfoName);
 }
