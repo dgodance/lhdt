@@ -125,6 +125,7 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 			log.debug("<<.findByBizKey - {}", obj);
 			return (DOMAIN)obj;
 		} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+			log.error("CHECK YOUR METHOD - class:{}	method:{}", jpaRepo.getClass(), methodName);
 			log.error("{}", e);
 			throw new RuntimeException(e.getMessage());
 		}
