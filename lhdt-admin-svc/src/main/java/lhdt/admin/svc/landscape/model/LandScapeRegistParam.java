@@ -1,5 +1,6 @@
 package lhdt.admin.svc.landscape.model;
 
+import lhdt.admin.svc.landscape.type.LandScapeAnalsType;
 import lombok.Data;
 
 /**
@@ -7,6 +8,7 @@ import lombok.Data;
  */
 @Data
 public class LandScapeRegistParam {
+    private Long id;
     private String landScapeAnalsName;
     private Double startPosX;
     private Double startPosY;
@@ -14,5 +16,5 @@ public class LandScapeRegistParam {
     private Double endPosX;
     private Double endPosY;
     private Double endPosZ;
-//    LandScapeAnalsType landScapeAnalsType;
+    LandScapeAnalsType landScapeAnalsType;
 }

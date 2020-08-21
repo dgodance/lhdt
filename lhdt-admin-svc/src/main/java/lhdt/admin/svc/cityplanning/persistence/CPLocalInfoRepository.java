@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface CPLocalInfoRepository extends JpaRepository<CPLocalInfo, Long> {
     CPLocalInfo findByLocalName(String localName);
+    CPLocalInfo findOneById(Long id);
 }

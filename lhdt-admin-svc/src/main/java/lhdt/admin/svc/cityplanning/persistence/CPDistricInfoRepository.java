@@ -9,4 +9,5 @@ import java.util.List;
 
 public interface CPDistricInfoRepository extends JpaRepository<CPDistricInfo, Long> {
     CPDistricInfo findByDistrictNameAndCpLocalInfo(String areaName, CPLocalInfo cpLocalInfo);
+    List<CPDistricInfo> findAllByCpLocalInfo(CPLocalInfo cpLocalInfo);
 }

@@ -14,6 +14,9 @@
             <th>번호</th>
             <th>지역명</th>
             <th>등록일</th>
+            <th>확인</th>
+            <th>수정</th>
+            <th>삭제</th>
         </tr>
         </thead>
         <tbody>
@@ -21,6 +24,19 @@
             <td th:text="${cpLocalInfo.id}"></td>
             <td><a th:href="@{'/cp/local-info/'+${cpLocalInfo.id}}" th:text="${cpLocalInfo.localName}"></a></td>
             <td th:text="${cpLocalInfo.registDt}"></td>
+
+            <td>
+                <a th:href="@{'/cp/local-info/' + ${cpLocalInfo.id}}" class="right floated ui button">확인</a>
+            </td>
+            <td>
+                <a th:href="@{'/cp//local-info-edit/' + ${cpLocalInfo.id}}" class="right floated ui button">수정</a>
+            </td>
+            <td>
+                <form style="display: inline" th:method="DELETE" th:action="@{'/cp/local-info/' + ${cpLocalInfo.id}}"
+                      onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                    <button type="submit" class="right floated ui red button">삭제</button>
+                </form>
+            </td>
         </tr>
         </tbody>
     </table>
@@ -60,9 +76,12 @@
         <thead>
         <tr>
             <th>번호</th>
-<!--            <th>지역명</th>-->
+            <th>지역명</th>
             <th>지구명</th>
             <th>등록일</th>
+            <th>확인</th>
+            <th>수정</th>
+            <th>삭제</th>
         </tr>
         </thead>
         <tbody>
@@ -71,6 +90,18 @@
             <td th:text="${cpDistricInfo.cpLocalInfo?.localName}"></td>
             <td><a th:href="@{'/cp/distric-info/'+${cpDistricInfo.id}}" th:text="${cpDistricInfo.districtName}"></a></td>
             <td th:text="${cpDistricInfo.registDt}"></td>
+            <td>
+                <a th:href="@{'/cp/distric-info/' + ${cpDistricInfo.id}}" class="right floated ui button">확인</a>
+            </td>
+            <td>
+                <a th:href="@{'/cp//distric-info-edit/' + ${cpDistricInfo.id}}" class="right floated ui button">수정</a>
+            </td>
+            <td>
+                <form style="display: inline" th:method="DELETE" th:action="@{'/cp/distric-info/' + ${cpDistricInfo.id}}"
+                      onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                    <button type="submit" class="right floated ui red button">삭제</button>
+                </form>
+            </td>
         </tr>
         </tbody>
     </table>
