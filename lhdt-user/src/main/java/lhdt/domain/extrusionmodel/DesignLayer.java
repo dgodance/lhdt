@@ -49,7 +49,7 @@ public class DesignLayer extends Search implements Serializable {
     // 디자인 레이어 명
     private String designLayerName;
     // design layer 분류. land : 땅, building : 빌딩
-    private String designLayerCategory;
+    private String designLayerType;
     
     // 업로딩 아이디
     private String userId;

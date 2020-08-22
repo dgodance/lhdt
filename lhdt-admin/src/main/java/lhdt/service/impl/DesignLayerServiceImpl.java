@@ -128,10 +128,21 @@ public class DesignLayerServiceImpl implements DesignLayerService {
     public DesignLayer getDesignLayer(Long designLayerId) {
         return designLayerMapper.getDesignLayer(designLayerId);
     }
-    
+
+    /**
+     * 디자인 레이어 key 중복 확인
+     * @param designLayerKey
+     * @return
+     */
     @Transactional(readOnly=true)
     public Boolean isDesignLayerKeyDuplication(String designLayerKey) {
-    	return designLayerMapper.isDesignLayerKeyDuplication(designLayerKey);
+        GeoPolicy geoPolicy = geoPolicyService.getGeoPolicy();
+        HttpStatus httpStatus = getDesignLayerStatus(geoPolicy, designLayerKey);
+        if(HttpStatus.NOT_FOUND == httpStatus) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     /**
@@ -557,8 +568,7 @@ public class DesignLayerServiceImpl implements DesignLayerService {
 			log.info("-------- url = {}", url);
 			ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 			httpStatus = response.getStatusCode();
-			log.info("-------- designLayerKey = {}, statusCode = {}, body = {}", designLayerKey, response.getStatusCodeValue(),
-					response.getBody());
+			log.info("-------- designLayerKey = {}, statusCode = {}, body = {}", designLayerKey, response.getStatusCodeValue(), response.getBody());
 		} catch (RestClientException e) {
 		    LogMessageSupport.printMessage(e, "-------- RestClientException message = {}", e.getMessage());
 			String message = e.getMessage();

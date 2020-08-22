@@ -37,10 +37,10 @@ public interface DesignLayerService {
     
     /**
      * designLayerKey 중복 체크
-     * @param designLayerKey
+     * @param designLayer
      * @return
      */
-    Boolean isDesignLayerKeyDuplication(String designLayerKey);
+    Boolean isDesignLayerKeyDuplication(String designLayer);
     
     /**
     * design 레이어 테이블의 컬럼 타입이 어떤 geometry 타입인지를 구함

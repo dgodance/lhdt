@@ -409,8 +409,7 @@ public class LayerServiceImpl implements LayerService {
 		// 업로드 파일 삭제
 		// TODO 그냥 foreach 도 될거 같음
         List<String> layerFilePath = layerFileInfoMapper.getListLayerFilePath(layerId);
-		layerFilePath.stream()
-					.forEach( path -> {
+		layerFilePath.forEach( path -> {
 						File directory = new File(path);
 				        if(directory.exists()) { directory.delete();}
 					});

@@ -15,6 +15,7 @@ import org.geotools.feature.FeatureIterator;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +28,6 @@ import java.util.List;
 
 /**
  * Shape file 관련 유틸
- * TODO 이름을 바꾸던, 패키지를 바꾸던
  */
 @Slf4j
 public class ShapeFileParser {
@@ -39,8 +39,15 @@ public class ShapeFileParser {
         this.filePath = filePath;
     }
 
+    /**
+     * extrusion model 시뮬레이션을 위한 필수 컬럼을 shape 으로 부터 추출
+     * @param extrusionColumns
+     * @return
+     */
     public List<DesignLayer> getExtrusionModelList(String extrusionColumns) {
         List<DesignLayer> extrusionModelList = new ArrayList<>();
+        if(StringUtils.isEmpty(extrusionColumns)) return extrusionModelList;
+
         List<String> columnList = Arrays.asList(extrusionColumns.trim().toLowerCase().split(","));
         try {
             ShapefileDataStore shpDataStore = new ShapefileDataStore(new File(filePath).toURI().toURL());
@@ -51,18 +58,20 @@ public class ShapeFileParser {
             FeatureIterator<SimpleFeature> features = collection.features();
             while (features.hasNext()) {
                 SimpleFeature feature = features.next();
-                DesignLayer extrusionModel = new DesignLayer();
+                DesignLayer designLayer = new DesignLayer();
                 for (Property attribute : feature.getProperties()) {
                     String attributeName = String.valueOf(attribute.getName()).toLowerCase();
                     if(columnList.contains(attributeName)) {
                         if(attributeName.equalsIgnoreCase(String.valueOf(DesignLayer.RequiredColumn.THE_GEOM))) {
-                            extrusionModel.setTheGeom(attribute.getValue().toString());
+                            designLayer.setTheGeom(attribute.getValue().toString());
                         } else if(attributeName.equalsIgnoreCase(String.valueOf(DesignLayer.RequiredColumn.ATTRIBUTES))) {
-                            extrusionModel.setAttributes(attribute.getValue().toString());
+                            designLayer.setAttributes(attribute.getValue().toString());
                         }
+                    } else {
+
                     }
                 }
-                extrusionModelList.add(extrusionModel);
+                extrusionModelList.add(designLayer);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -101,6 +110,8 @@ public class ShapeFileParser {
             LogMessageSupport.printMessage(e, "MalformedURLException ============ {}", e.getMessage());
         } catch (IOException e) {
             LogMessageSupport.printMessage(e, "IOException ============== {} ", e.getMessage());
+        } finally {
+            if(reader != null) { try { reader.close(); } catch(Exception e) {} }
         }
 
         return fieldValid;
