@@ -3,6 +3,7 @@ package lhdt.admin.svc.landscape.controller;
 import lhdt.admin.svc.cityplanning.domain.CPLocalInfo;
 import lhdt.admin.svc.cityplanning.service.CPDistricInfoService;
 import lhdt.admin.svc.cityplanning.service.CPLocalInfoService;
+import lhdt.admin.svc.cityplanning.type.CPFileType;
 import lhdt.admin.svc.landscape.domain.LandScapeAnals;
 import lhdt.admin.svc.landscape.model.CPFullName;
 import lhdt.admin.svc.landscape.model.CPFullNameAndId;
@@ -12,6 +13,7 @@ import lhdt.admin.svc.landscape.type.LandScapeAnalsType;
 import lhdt.ds.common.misc.DSPageSize;
 import lhdt.ds.common.misc.DSPaginator;
 import lhdt.ds.common.misc.DSPaginatorInfo;
+import lhdt.ds.common.misc.DsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -56,6 +58,8 @@ public class LandScapeAnalsController {
 
     @GetMapping("/edit")
     public String addCityInfoByParam(Model model) {
+        var apara2 = DsUtils.getEnum2Map(LandScapeAnalsType.class, 0);
+        model.addAttribute("landScapeAnalsType", apara2);
         return "/landscape/edit";
     }
 
@@ -78,6 +82,7 @@ public class LandScapeAnalsController {
 
     @PostMapping("/edit")
     public String registLandScape(Model model, LandScapeRegistParam landScapeRegistParam) {
+        System.out.println(landScapeRegistParam.toString());
         LandScapeAnals landScapeAnals = new LandScapeAnals();
         landScapeAnals.setLandScapeAnalsName(landScapeRegistParam.getLandScapeAnalsName());
         if (landScapeRegistParam.getLandScapeAnalsType() == LandScapeAnalsType.점) {

@@ -6,6 +6,7 @@ plugins {
 }
 
 apply plugin: 'project-report'
+apply plugin: 'idea'
 
 group = 'com.lhdt'
 version = '0.0.1-SNAPSHOT'

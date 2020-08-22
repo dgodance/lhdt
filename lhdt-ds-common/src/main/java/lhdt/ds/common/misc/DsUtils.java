@@ -4,6 +4,7 @@
 package lhdt.ds.common.misc;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -274,5 +275,37 @@ public class DsUtils extends PpUtil{
 		
 		//
 		return HttpRequest.BodyPublishers.ofString(sb.toString());
+	}
+
+
+	/**
+	 *
+	 * @param klass Input Reflection Class
+	 * @param order Input Order, 0 or 1
+	 * @param <T>
+	 * @return
+	 */
+	public static <T extends Enum<T> & DSEnum> Map<String, String> getEnum2Map(
+			Class<T> klass, Integer order) {
+
+		Map<String, String> vals = new HashMap<String, String>(0);
+
+		try {
+			Method m = klass.getMethod("values", null);
+			Object obj = m.invoke(null, null);
+
+			for (Enum<T> enumval : (Enum<T>[]) obj) {
+				if(order == 0) {
+					vals.put(enumval.toString(), enumval.name());
+				} else {
+					vals.put(enumval.name(), enumval.toString());
+				}
+			}
+
+		} catch (Exception ex) {
+			throw new RuntimeException(ex);
+		}
+
+		return vals;
 	}
 }
