@@ -110,6 +110,29 @@
 			                        <input type="text" id="designLayerKey" name="designLayerKey" class="ml" maxlength="100" />
 									<input type="button" id="duplicationButtion" th:value="#{overlap.check}" />
 			                    </td>
+								<th class="col-label" scope="row">
+									<label for="designLayerType">디자인 레이어 유형</label>
+									<span class="icon-glyph glyph-emark-dot color-warning"></span>
+								</th>
+								<td class="col-input">
+									<select id="designLayerType" name="designLayerType" class="selectBoxClass">
+										<option value="land">토지</option>
+										<option value="building">빌딩</option>
+									</select>
+								</td>
+							</tr>
+							<tr>
+								<th class="col-label" scope="row">
+									<label>공유 유형</label>
+								</th>
+								<td class="col-input radio-set">
+									<input type="radio" id="sharingPublic" name="sharing" value="public" checked />
+									<label for="sharingPublic">공개</label>
+<!--									<input type="radio" id="sharingPrivate" name="sharing" value="private" />-->
+<!--									<label for="sharingPrivate">비공개</label>-->
+									<!--<input type="radio" id="sharingGroup" name="sharing" value="group" />
+									<label for="sharingGroup">그룹</label>-->
+								</td>
 			                    <th class="col-label" scope="row">
 			                        <label for="ogcWebServices">OGC Web Services</label>
 			                        <span class="icon-glyph glyph-emark-dot color-warning"></span>
@@ -538,7 +561,8 @@
                 formData.append("designLayerGroupId", $("#designLayerGroupId").val());
                 formData.append("designLayerName", $("#designLayerName").val());
                 formData.append("designLayerKey", $("#designLayerKey").val());
-                formData.append("ogcWebServices", $("select[name=ogcWebServices]").val());
+				formData.append("designLayerType", $("#designLayerType").val());
+				formData.append("ogcWebServices", $("select[name=ogcWebServices]").val());
                 formData.append("geometryType", $("select[name=geometryType]").val());
                 formData.append("layerLineColor", $("#layerLineColor").val());
                 formData.append("layerFillColor", $("#layerFillColor").val());
@@ -601,7 +625,7 @@
         }
     };
 
-	// 데이터 그룹 중복 확인
+	// 디자인 레이어 중복 확인
 	$( "#duplicationButtion" ).on( "click", function() {
 		var designLayerKey = $("#designLayerKey").val();
 		if (designLayerKey === "") {
@@ -626,11 +650,10 @@
 			success: function(msg){
 				if(msg.statusCode <= 200) {
 					if(msg.duplication === true) {
-						alert(JS_MESSAGE["data.group.key.duplication"]);
-						$("#dataGroupKey").focus();
-						return false;
+						alert(JS_MESSAGE["design.layer.key.duplication"]);
+						$("#designLayerKey").focus();
 					} else {
-						alert(JS_MESSAGE["data.group.key.enable"]);
+						alert(JS_MESSAGE["design.layer.key.enable"]);
 						$("#duplication").val(msg.duplication);
 					}
 				} else {

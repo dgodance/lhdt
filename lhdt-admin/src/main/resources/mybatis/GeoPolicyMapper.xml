@@ -58,7 +58,8 @@
 			memory_management = #{memoryManagement},
 			layer_source_coordinate = #{layerSourceCoordinate},
 			layer_target_coordinate = #{layerTargetCoordinate}, -->
-			extrusion_required_columns = #{extrusionRequiredColumns}
+			shape_land_required_columns = #{shapeLandRequiredColumns},
+			shape_building_required_columns = #{shapeBuildingRequiredColumns},
 		WHERE geopolicy_id = #{geoPolicyId}
 	</update>
 
