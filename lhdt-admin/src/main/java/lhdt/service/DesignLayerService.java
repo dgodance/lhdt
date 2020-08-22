@@ -81,7 +81,7 @@ public interface DesignLayerService {
     * @param shapeEncoding
     * @throws Exception
     */
-    void insertOgr2Ogr(DesignLayer designLayer, boolean isDesignLayerFileInfoExist, String shapeFileName, String shapeEncoding) throws Exception;
+    void insertOgr2Ogr(DesignLayer designLayer, boolean isDesignLayerFileInfoExist, String shapeFileName, String shapeEncoding, List<DesignLayer> shapePropertiesList) throws Exception;
 
     /**
      * shp파일 정보를 db정보를 기준으로 갱신

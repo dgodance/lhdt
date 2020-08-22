@@ -1,5 +1,6 @@
 package lhdt.controller.rest;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lhdt.config.PropertiesConfig;
 import lhdt.controller.AuthorizationController;
 import lhdt.domain.Key;
@@ -51,6 +52,8 @@ public class DesignLayerRestController implements AuthorizationController {
     private PolicyService policyService;
     @Autowired
     private PropertiesConfig propertiesConfig;
+    @Autowired
+	private ObjectMapper objectMapper;
 
     // 파일 copy 시 버퍼 사이즈
     public static final int BUFFER_SIZE = 8192;
@@ -207,12 +210,22 @@ public class DesignLayerRestController implements AuthorizationController {
 				result.put("errorCode", "upload.shpfile.requried");
 				return result;
 			}
+
+			// extrusion model 시뮬레이션에서 사용할 디자인 레이어 정보
+			String extrusionColumns = null;
+			if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerType())) {
+				extrusionColumns = geoPolicy.getShapeLandRequiredColumns();
+			} else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerType())) {
+				extrusionColumns = geoPolicy.getShapeBuildingRequiredColumns();
+			}
+			List<DesignLayer> shapePropertiesList = shapeFileParser.getExtrusionModelList(objectMapper, extrusionColumns);
+
 			// 3. 레이어 기본 정보 및 레이어 이력 정보 등록
 			updateDesignLayerMap = designLayerService.insertDesignLayer(designLayer, designLayerFileInfoList);
 			if (!designLayerFileInfoList.isEmpty()) {
 				// 4. org2ogr 실행
 				designLayerService.insertOgr2Ogr(designLayer, isDesignLayerFileInfoExist, (String) updateDesignLayerMap.get("shapeFileName"),
-						(String) updateDesignLayerMap.get("shapeEncoding"));
+						(String) updateDesignLayerMap.get("shapeEncoding"), shapePropertiesList);
 
 				// org2ogr 로 등록한 데이터의 version을 갱신
 				Map<String, String> orgMap = new HashMap<>();

@@ -72,7 +72,8 @@ create table geopolicy(
 	layer_source_coordinate								varchar(50)			default 'EPSG:4326',
 	layer_target_coordinate								varchar(50)			default 'EPSG:4326',
 
-	extrusion_required_columns                          varchar(1000),
+    shape_land_required_columns                         varchar(1000)       default 'location',
+    shape_building_required_columns                     varchar(1000)       default 'location',
 	
 	insert_date											timestamp with time zone	default now(),
 
@@ -150,6 +151,7 @@ comment on column geopolicy.memory_management is 'GPU Memory Pool 사용유무. 
 comment on column geopolicy.layer_source_coordinate is 'Layer 원본 좌표계';
 comment on column geopolicy.layer_target_coordinate is 'Layer 좌표계 정의';
 
-comment on column geopolicy.extrusion_required_columns is 'extrusion model 가시화를 위한 shape 필수 속성명. 콤마로 구분';
+comment on column geopolicy.shape_land_required_columns is '디자인 레이어 토지 타입 shape 가시화를 위한 필수 속성명. 콤마로 구분';
+comment on column geopolicy.shape_building_required_columns is '디자인 레이어 빌딩 타입 shape 가시화를 위한 필수 속성명. 콤마로 구분';
 
 comment on column geopolicy.insert_date is '등록일';

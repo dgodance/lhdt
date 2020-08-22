@@ -1,5 +1,6 @@
 package lhdt.domain.extrusionmodel;
 
+import lhdt.domain.ShapeFileField;
 import lhdt.domain.common.Search;
 import lombok.*;
 import org.hibernate.validator.constraints.Range;
@@ -7,6 +8,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * design layer
@@ -103,6 +106,17 @@ public class DesignLayer extends Search implements Serializable {
 	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime insertDate;
 
+	public List<String> getRequiredColumns(DesignLayerType designLayerType) {
+	    List<String> requiredColumnsList = new ArrayList<>();
+
+        requiredColumnsList.add(RequiredColumn.THE_GEOM.getValue());
+	    if(DesignLayerType.LAND == designLayerType) {
+        } else if(DesignLayerType.LAND == designLayerType) {
+        }
+
+	    return requiredColumnsList;
+    }
+
 	// shape 파일 종류
 	public enum DesignLayerType {
 	    // 토지
@@ -112,7 +126,23 @@ public class DesignLayer extends Search implements Serializable {
     }
 
 	public enum RequiredColumn {
-        ATTRIBUTES,
-        THE_GEOM
+        THE_GEOM("the_geom");
+
+        private String value;
+
+        RequiredColumn(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return this.value;
+        }
+
+        public static RequiredColumn findBy(String value) {
+            for(RequiredColumn requiredColumn : values()) {
+                if(requiredColumn.getValue().equals(value)) return requiredColumn;
+            }
+            return null;
+        }
     }
 }

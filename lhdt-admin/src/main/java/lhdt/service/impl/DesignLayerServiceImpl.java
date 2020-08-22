@@ -291,7 +291,21 @@ public class DesignLayerServiceImpl implements DesignLayerService {
     * @throws Exception
     */
     @Transactional
-    public void insertOgr2Ogr(DesignLayer designLayer, boolean isDesignLayerFileInfoExist, String shapeFileName, String shapeEncoding) throws Exception {
+    public void insertOgr2Ogr(DesignLayer designLayer, boolean isDesignLayerFileInfoExist, String shapeFileName, String shapeEncoding, List<DesignLayer> shapePropertiesList) throws Exception {
+
+        // TODO 박승현.... 여기서 잘 분기 태워 보세요.
+        // Long designLayerId = designLayer.getDesignLayerId();
+
+        String designLayerDetailtable = null;
+        if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerType())) {
+            designLayerDetailtable = propertiesConfig.getDesignLayerLandTable();
+        } else if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerType())) {
+            designLayerDetailtable = propertiesConfig.getDesignLayerBuildingTable();
+        }
+
+        // TODO 여기서 org2org 로 할건지, geotools로 할건지 분기 태워야 함
+
+
         String osType = propertiesConfig.getOsType().toUpperCase();
         String ogr2ogrPort = propertiesConfig.getOgr2ogrPort();
         String ogr2ogrHost = propertiesConfig.getOgr2ogrHost();
@@ -315,8 +329,8 @@ public class DesignLayerServiceImpl implements DesignLayerService {
 //		ShapeFileParser shapeFileParser = new ShapeFileParser();
 //		shapeFileParser.parse(shapeFileName);
         String enviromentPath = propertiesConfig.getOgr2ogrEnviromentPath();
-        Ogr2OgrExecute ogr2OgrExecute = new Ogr2OgrExecute(osType, driver, shapeFileName, shapeEncoding,
-                designLayer.getDesignLayerKey(), updateOption, designLayerSourceCoordinate, designLayerTargetCoordinate, enviromentPath);
+        Ogr2OgrExecute ogr2OgrExecute = new Ogr2OgrExecute(
+                osType, driver, shapeFileName, shapeEncoding, designLayer.getDesignLayerKey(), updateOption, designLayerSourceCoordinate, designLayerTargetCoordinate, enviromentPath);
         ogr2OgrExecute.insert();
     }
     

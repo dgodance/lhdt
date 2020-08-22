@@ -1,5 +1,6 @@
 package lhdt.geospatial;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lhdt.domain.ShapeFileField;
 import lhdt.domain.extrusionmodel.DesignLayer;
 import lhdt.support.LogMessageSupport;
@@ -22,9 +23,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Shape file 관련 유틸
@@ -40,11 +39,11 @@ public class ShapeFileParser {
     }
 
     /**
-     * extrusion model 시뮬레이션을 위한 필수 컬럼을 shape 으로 부터 추출
+     * shape 파일로 부터 extrusion model 시뮬레이션에 필요한 필수 컬럼(design layer) 과 옵션 컬럼 값을 추출
      * @param extrusionColumns
      * @return
      */
-    public List<DesignLayer> getExtrusionModelList(String extrusionColumns) {
+    public List<DesignLayer> getExtrusionModelList(ObjectMapper objectMapper, String extrusionColumns) {
         List<DesignLayer> extrusionModelList = new ArrayList<>();
         if(StringUtils.isEmpty(extrusionColumns)) return extrusionModelList;
 
@@ -56,21 +55,31 @@ public class ShapeFileParser {
             FeatureSource<SimpleFeatureType, SimpleFeature> shapeFeatureSource = shpDataStore.getFeatureSource(typeName);
             FeatureCollection<SimpleFeatureType, SimpleFeature> collection = shapeFeatureSource.getFeatures();
             FeatureIterator<SimpleFeature> features = collection.features();
+
+            // 이게 한 row 같음
             while (features.hasNext()) {
+                Map<String, String> attributesMap = new HashMap<>();
+
                 SimpleFeature feature = features.next();
                 DesignLayer designLayer = new DesignLayer();
+                // 한 row의 속성들
                 for (Property attribute : feature.getProperties()) {
                     String attributeName = String.valueOf(attribute.getName()).toLowerCase();
                     if(columnList.contains(attributeName)) {
+                        // 필수 속성값일 경우
                         if(attributeName.equalsIgnoreCase(String.valueOf(DesignLayer.RequiredColumn.THE_GEOM))) {
                             designLayer.setTheGeom(attribute.getValue().toString());
-                        } else if(attributeName.equalsIgnoreCase(String.valueOf(DesignLayer.RequiredColumn.ATTRIBUTES))) {
-                            designLayer.setAttributes(attribute.getValue().toString());
                         }
+//                        else if(attributeName.equalsIgnoreCase(String.valueOf(DesignLayer.RequiredColumn.ATTRIBUTES))) {
+//                            designLayer.setAttributes(attribute.getValue().toString());
+//                        }
                     } else {
-
+                        // 옵션 속성 값일 경우 json 통으로 넣음.
+                        attributesMap.put(attributeName, attribute.getValue().toString());
                     }
                 }
+
+                designLayer.setAttributes(objectMapper.writeValueAsString(attributesMap));
                 extrusionModelList.add(designLayer);
             }
         } catch (IOException e) {
