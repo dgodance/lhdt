@@ -86,7 +86,7 @@ public class ConverterServiceImpl implements ConverterService {
 
 	/**
 	 * converter job 목록
-	 * @param converterLog
+	 * @param converterJob
 	 * @return
 	 */
 	@Transactional(readOnly=true)
@@ -201,7 +201,7 @@ public class ConverterServiceImpl implements ConverterService {
 		log.info("-------------------------------------------------------");
 
 		QueueMessage queueMessage = new QueueMessage();
-		queueMessage.setServerTarget(ServerTarget.USER.name());
+		queueMessage.setServerTarget(ServerTarget.USER);
 		queueMessage.setConverterJobId(inConverterJob.getConverterJobId());
 //		queueMessage.setConverterJobFileId(inConverterJob.getConverterJobFileId());
 		queueMessage.setInputFolder(uploadDataFile.getFilePath());

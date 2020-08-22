@@ -211,7 +211,7 @@ public class ConverterServiceImpl implements ConverterService {
 		log.info("-------------------------------------------------------");
 		
 		QueueMessage queueMessage = new QueueMessage();
-		queueMessage.setServerTarget(ServerTarget.ADMIN.name());
+		queueMessage.setServerTarget(ServerTarget.ADMIN);
 		queueMessage.setConverterJobId(inConverterJob.getConverterJobId());
 //		queueMessage.setConverterJobFileId(inConverterJob.getConverterJobFileId());
 		queueMessage.setInputFolder(uploadDataFile.getFilePath());

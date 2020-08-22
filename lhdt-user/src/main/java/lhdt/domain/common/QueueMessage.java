@@ -3,6 +3,7 @@ package lhdt.domain.common;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+import lhdt.domain.ServerTarget;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,9 +23,8 @@ public class QueueMessage implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
-	// 사용자에서 호출인지, 관리자에서 호출인지 구분하기 위함, enum 귀찮아서.....
-	private String serverTarget;
+
+	private ServerTarget serverTarget;
 	private String userId;
 	
 	private Long converterJobId;
