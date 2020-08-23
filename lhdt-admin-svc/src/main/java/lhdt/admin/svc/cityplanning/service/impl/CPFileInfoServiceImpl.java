@@ -21,6 +21,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+/**
+ * 지구계획 파일 처리 서비스
+ * @author break8524
+ */
 @Service
 @RequiredArgsConstructor
 public class CPFileInfoServiceImpl
@@ -35,16 +39,26 @@ public class CPFileInfoServiceImpl
         super.set(jpaRepo, mapper, new CPFileInfo());
     }
 
+    /**
+     * MultipartStream을 파일로 저장후 리스트를 리턴합니다
+     * @param files
+     * @return
+     */
     public List<CPFileInfo> getCPFilesByMultipart(MultipartFile[] files) {
         String Path = "";
         List<CPFileInfo> result = new ArrayList<>();
         for(MultipartFile mtf : files) {
-            String Name = mtf.getOriginalFilename();
             result.add(this.multipart2CPFileInfo(mtf));
         }
         return result;
     }
 
+    /**
+     * Multipart Stream을 파일로 변환 후 지구계획 객체로 리턴합니다
+     * 파일명, 확장자, 파일경로 등이 확정됩니다.
+     * @param multipartFile
+     * @return
+     */
     private CPFileInfo multipart2CPFileInfo(MultipartFile multipartFile) {
         CPFileInfo fi = new CPFileInfo();
             // 파일 정보
@@ -67,16 +81,9 @@ public class CPFileInfoServiceImpl
         return fi;
     }
 
-    // 파일을 실제로 write 하는 메서드
-    private void writeFileByNameAndPath(MultipartFile multipartFile, String fullPath) throws IOException{
-        byte[] data = multipartFile.getBytes();
-        FileOutputStream fos = new FileOutputStream(fullPath);
-        fos.write(data);
-        fos.close();
-    }
 
     /**
-     *  Multipart Stream 2 all of File
+     *  Multipart Stream 전체를 파일로 저장 후 List 파일 정보를 리턴합니다
      * @param multipartFiles
      * @return
      */
@@ -86,7 +93,7 @@ public class CPFileInfoServiceImpl
         for(int i = 0; i < multipartFiles.length; i++) {
             var file = files.get(i);
             try {
-                writeFileByNameAndPath(multipartFiles[i], file.toString());
+                DsFileMaster.writeFileByNameAndPath(multipartFiles[i], file.toString());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

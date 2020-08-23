@@ -2,12 +2,16 @@ package lhdt.ds.common.misc;
 
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Calendar;
 
 /**
+ * 파일 처리를 위한 공통 클래스
  * @author break8524
  */
 public class DsFileMaster extends File {
@@ -49,5 +53,18 @@ public class DsFileMaster extends File {
         } catch (Exception e) {
             e.getStackTrace();
         }
+    }
+
+    /**
+     * multipart Stream을 파일로 저장합니다
+     * @param multipartFile
+     * @param fullPath
+     * @throws IOException
+     */
+        public static void writeFileByNameAndPath(MultipartFile multipartFile, String fullPath) throws IOException{
+        byte[] data = multipartFile.getBytes();
+        FileOutputStream fos = new FileOutputStream(fullPath);
+        fos.write(data);
+        fos.close();
     }
 }
