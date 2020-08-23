@@ -93,7 +93,8 @@
 			content_menu_group_root = #{contentMenuGroupRoot},
 			content_user_group_root = #{contentUserGroupRoot},
 			content_layer_group_root = #{contentLayerGroupRoot},
-			content_data_group_root = #{contentDataGroupRoot}
+			content_data_group_root = #{contentDataGroupRoot},
+			content_new_town_group_root = #{contentNewTownGroupRoot}
 		WHERE policy_id = #{policyId}
 	</update>
 

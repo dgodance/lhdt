@@ -60,7 +60,7 @@ public class LayerGroupServiceImpl implements LayerGroupService {
 	}
 
 	/**
-	 * 데이터 그룹 표시 순서 수정 (up/down)
+	 * 레이어 그룹 표시 순서 수정 (up/down)
 	 * @param layerGroup
 	 * @return
 	 */
@@ -134,7 +134,7 @@ public class LayerGroupServiceImpl implements LayerGroupService {
 	}
 
 	/**
-	 * 데이터 그룹 수정
+	 * 레이어 그룹 수정
 	 * @param layerGroup
 	 * @return
 	 */
@@ -162,7 +162,7 @@ public class LayerGroupServiceImpl implements LayerGroupService {
 	}
 
     /**
-	 * 데이터 그룹 삭제
+	 * 레이어 그룹 삭제
 	 * @param layerGroup
 	 * @return
 	 */
