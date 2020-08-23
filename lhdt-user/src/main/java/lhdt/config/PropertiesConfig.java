@@ -31,15 +31,18 @@ public class PropertiesConfig {
     
     // http, https
     private String restTemplateMode;
-    
     private String restAuthKey;
-
     private String gisRestServer;
-    
+
+    // layer 파일 업로딩 디렉토리
     private String layerUploadDir;
-    
+    // layer export 용 임시 디렉토리
     private String layerExportDir;
-    
+    // 디자인 레이어 파일 업로딩 디렉토리
+    private String designLayerUploadDir;
+    // 디자인 레이어 export 용 임시 디렉토리
+    private String deisgnLayerExportDir;
+
     private String queueServerHost;
 	private String queueServerPort;
 	private String queueUser;
@@ -52,15 +55,24 @@ public class PropertiesConfig {
     private String dataServiceDir;
     // 관리자용
     private String adminDataServiceDir;
+    private String adminDataLibraryServiceDir;
     private String adminDataServicePath;
+    private String adminDataLibraryServicePath;
     // 사용자용
     private String userDataServiceDir;
+    private String userDataLibraryServiceDir;
     private String userDataServicePath;
-    
+    private String userDataLibraryServicePath;
+
     private String dataUploadDir;
     private String dataAttributeDir;
     private String dataAttributeUploadDir;
     private String dataObjectAttributeUploadDir;
     
     private String guideDataServiceDir;
+
+    // extrusion model 시뮬레이션 토지 shape 파일 테이블 이름. design_layer_land
+    private String designLayerLandTable;
+    // extrusion model 시뮬레이션 빌딩 shape 파일 테이블 이름. design_layer_building
+    private String designLayerBuildingTable;
 }

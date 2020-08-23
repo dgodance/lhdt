@@ -1015,7 +1015,7 @@ dl {
 	border-right: 1px solid #b9b9b9;
 	margin: 3rem 0;
 	/*padding: 0 3rem;*/
-	width: 170px;
+	width: 180px;
 	text-align: center; }
 
 .site-navigation .main-menu li:last-child {
@@ -1065,7 +1065,7 @@ dl {
 	position: absolute;
 	list-style: none;
 	z-index: 100;
-	width: 170px;
+	width: 180px;
 	box-sizing: border-box;
 	padding: 2.3rem 2rem;
 	border-right: 1px solid #d9d9d9; }

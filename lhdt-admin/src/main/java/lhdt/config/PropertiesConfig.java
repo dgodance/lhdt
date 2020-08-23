@@ -53,15 +53,20 @@ public class PropertiesConfig {
 	private String queuePassword;
 	private String queueName;
 	private String exchange;
-    
+	private String routingKey;
+
     // F4D 파일이 변환되는 Root 경로 이자, mago3DJS 에서 요청되는 파일의 Root 경로. ServletConfig 에서 매핑
     private String dataServiceDir;
     // 관리자용
     private String adminDataServiceDir;
+    private String adminDataLibraryServiceDir;
     private String adminDataServicePath;
+    private String adminDataLibraryServicePath;
     // 사용자용
     private String userDataServiceDir;
+    private String userDataLibraryServiceDir;
     private String userDataServicePath;
+    private String userDataLibraryServicePath;
     
     private String dataUploadDir;
     private String dataBulkUploadDir;
