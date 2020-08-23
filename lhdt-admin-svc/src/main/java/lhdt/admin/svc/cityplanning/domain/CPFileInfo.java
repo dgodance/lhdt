@@ -6,10 +6,11 @@ import lhdt.admin.svc.cityplanning.domain.listener.CPFileInfoListener;
 import lhdt.admin.svc.cityplanning.type.CPFileType;
 import lhdt.ds.common.domain.DsDomain;
 import lhdt.ds.common.misc.DsField;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lhdt.ds.common.misc.DsFile;
+import lhdt.ds.common.misc.DsFileMaster;
+import lombok.*;
+import lombok.extern.java.Log;
+import lombok.extern.log4j.Log4j;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -28,7 +29,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CPFileInfo extends DsDomain {
+public class CPFileInfo extends DsDomain implements DsFile {
     /**
      * 파일명
      */
@@ -90,5 +91,15 @@ public class CPFileInfo extends DsDomain {
                 p.setCPFileInfo(this);
             this.CPReportDetails.add(p);
         });
+    }
+
+    @Override
+    public String toString() {
+        return this.getFilePath() + "/" + this.getFileName() + "." + this.getFileExtention();
+    }
+
+    @Override
+    public void delete() {
+        new DsFileMaster(this.toString()).delete();
     }
 }

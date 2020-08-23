@@ -24,120 +24,163 @@ import javax.persistence.*;
 @NoArgsConstructor
 public class CPReportDetail extends DsDomain {
     /**
-     * 지역명
+     * 식별키
      */
-    @Column(name = "local_name")
-    @DsField(bizKey = true, order = 0)
-    private String localName;
-
-    /**
-     * 지구명
-     */
-    @Column(name = "district_name")
+    @Column(name = "cp_id")
     @DsField(bizKey = true, order = 1)
-    private String districtName;
+    private Long lotId;
 
     /**
-     * 사업방식
+     * 사업유형
      */
-    @Column(name = "business_way")
+    @Column(name = "project-type")
+    private String projectTypeString;
+
+    /**
+     * 사업지구
+     */
+    @Column(name = "project-title")
     @DsField(bizKey = true, order = 2)
-    private String bussinessWay;
+    private String projectTitle;
 
     /**
-     * 용지명
+     * 가구번호
      */
-    @Column(name = "paper_name")
+    @Column(name = "block-code")
     @DsField(bizKey = true, order = 3)
-    private String paperName;
+    private String blockCode;
 
     /**
-     * 획지명
+     * 획지번호
      */
-    @Column(name = "nomination")
+    @Column(name = "lot-code")
     @DsField(bizKey = true, order = 4)
-    private String nomination;
+    private String lotCode;
 
     /**
-     * 토지이용구분정보
+     * 획지면적
      */
-    @Column(name = "lnd_use_cls_info")
-    private String lndUseClsInfo;
+    @Column(name = "lot-area")
+    private Long lotArea;
 
     /**
-     * 면적
+     * 용도지역
      */
-    @Column(name = "area")
-    private Long Area;
+    @Column(name = "land-use-zon")
+    private String landUseZoning;
 
     /**
-     * 허용용도
+     * 토지이용
      */
-    @Column(name = "allowalbe_use", columnDefinition="TEXT")
-    private String allowableUse;
+    @Column(name = "land-use-plan")
+    private String landUsePlan;
 
     /**
-     * 불허용도
+     * 대지분할합필
      */
-    @Column(name = "not_allowalbe_use", columnDefinition="TEXT")
-    private String notAllowableUse;
+    @Column(name = "lot-div-merge")
+    private String lotDivideMarge;
+
+    /**
+     * 용도
+     */
+    @Column(name = "building-use")
+    private String buildingUse;
+
+    /**
+     * 용도-지정
+     */
+    @Column(name = "building-use-defin")
+    private String buildingUseDefined;
+
+    /**
+     * 용도-권장
+     */
+    @Column(name = "building-use-recomd")
+    private String buildingUseRecommended;
+
+    /**
+     * 용도-허용
+     */
+    @Column(name = "building-use-allowd")
+    private String buildingUseAllowed;
+
+    /**
+     * 용도-제한
+     */
+    @Column(name = "building-use-condi")
+    private String buildingUseConditional;
+
+    /**
+     * 용도-불허
+     */
+    @Column(name = "building-use-fobidn")
+    private String buildingUseForbidden;
 
     /**
      * 건폐율
      */
-    @Column(name = "building_to_land_ratio")
-    private Long buildingToLandRatio;
+    @Column(name = "building-cov-ratio")
+    private Long buildingCoverageRatio;
 
     /**
      * 용적률
      */
-    @Column(name = "fllor_area_ratio")
+    @Column(name = "floor-area-ratio")
     private Long floorAreaRatio;
+
+    /**
+     * 용적률-기준
+     */
+    @Column(name = "floor-area-ratio-std")
+    private Long floorAreaRatioStandard;
+
+    /**
+     * 용적률-허용
+     */
+    @Column(name = "floor-area-ratio-allowd")
+    private Long floorAreaRatioAllowed;
+
+    /**
+     * 용적률-상한
+     */
+    @Column(name = "floor-area-ratio-maximum")
+    private Long floorAreaRatioMaximum;
 
     /**
      * 최고높이
      */
-    @Column(name = "area_max_height")
-    private Long areaMaxHeight;
+    @Column(name = "maximun-build-height")
+    private Long maximunBuildingHeight;
 
     /**
      * 최고층수
      */
-    @Column(name = "floor_max_height")
-    private Long floorMaxHeight;
+    @Column(name = "maximun-build-floors")
+    private Long maximunBuildingFloors;
 
     /**
-     * 공동주택규모
+     * 주택유형
      */
-    @Column(name = "aprt_scale")
-    private Long aprartmentScale;
+    @Column(name = "housing-type")
+    private String housingTypeString;
 
     /**
-     * 공동주택세대수
+     * 세대수
      */
-    @Column(name = "num_scale_aprt_house")
-    private Long numOfApartmentHouse;
+    @Column(name = "num-of-household")
+    private Long numberOfHouseholds;
 
     /**
-     * 분양형태
+     * 자료기준
      */
-    @Column(name = "sales_type")
-    private String salesType;
+    @Column(name = "reference")
+    private String reference;
 
-    /**
-     * 필지이상이하구분
-     */
-    @Enumerated(EnumType.ORDINAL)
-    private UpDownType areaUpDownType;
-
-    /**
-     * 층수이상이하구분
-     */
-    @Enumerated(EnumType.ORDINAL)
-    private UpDownType floorUpDownType;
 
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="file_id")
+    @DsField(bizKey = true, order = 5)
     private CPFileInfo CPFileInfo;
 }

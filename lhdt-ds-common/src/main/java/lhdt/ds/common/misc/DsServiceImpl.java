@@ -35,6 +35,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import lhdt.ds.common.domain.DsDomain;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 모든 service impl 의 부모
@@ -102,7 +103,6 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 	public Page<DOMAIN> findAll(Pageable pageable){
 		return this.jpaRepo.findAll(pageable);
 	}
-	
 	
 
 	/**
@@ -207,6 +207,40 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 		//insert
 		return this.jpaRepo.save(domain);
 	}
+
+	/**
+	 * Transaction을 보장하면서 모든 데이터를 한번에 Insert
+	 * @autho break8524@vaiv.com
+	 * @param domain
+	 * @return
+	 */
+	@Override
+	@Transactional
+	public List<DOMAIN> registAll(List<DOMAIN> domain) {
+		List<DOMAIN> domains = new ArrayList<>();
+		//domain에 업무키 존재하면
+		for (DOMAIN domain1 : domain) {
+			if(existsBizKey(domain1)) {
+				try {
+					//테이블에서 업무키로 조회
+					DOMAIN domain2 = findByBizKey(domain1);
+
+					//데이터 존재하면 업무키로  update
+					if(null != domain2) {
+						var obj = updateByBizKey(domain1);
+						domains.add(obj);
+					}
+				} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+					throw new RuntimeException(e);
+				}
+			}
+			//insert
+			this.jpaRepo.save(domain1);
+			domains.add(domain1);
+		}
+		return domains;
+	}
+
 
 	@SuppressWarnings("unchecked")
 	@Override

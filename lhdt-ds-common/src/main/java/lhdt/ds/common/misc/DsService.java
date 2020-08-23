@@ -116,8 +116,8 @@ public  interface DsService<DOMAIN, IDTYPE>  {
 	/**
 	 * 아래는 mapper사용
 	 */
-	
-	
+
+	List<DOMAIN> registAll(List<DOMAIN> domain);
 	
 	/**
 	 * 전체 건수 조회

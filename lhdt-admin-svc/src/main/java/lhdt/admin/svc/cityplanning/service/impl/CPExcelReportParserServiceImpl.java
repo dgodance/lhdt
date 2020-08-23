@@ -3,21 +3,27 @@ package lhdt.admin.svc.cityplanning.service.impl;
 import lhdt.admin.svc.cityplanning.domain.CPReportDetail;
 import lhdt.admin.svc.cityplanning.model.UpDownString;
 import lhdt.admin.svc.cityplanning.service.CPReportParserService;
+import lhdt.admin.svc.cityplanning.service.CPReportProc;
 import lhdt.admin.svc.cityplanning.type.UpDownType;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
-public class CPReportParserServiceImpl extends CPReportParserService {
-
-    @Override
-    protected List<CPReportDetail> procExcelDataObj(ArrayList<List<String>> excelDatas) {
-        List<CPReportDetail> cprds = new ArrayList<>();
-        excelDatas.forEach(p -> constructCPRD(p, cprds));
-        return cprds;
-    }
+/**
+ * 지구계획 Excel 레포트 파싱 모듈
+ * 추후 Excel 지원시 호라용 예정
+ * @author break8524@vaiv.com
+ */
+@Deprecated
+public class CPExcelReportParserServiceImpl implements CPReportProc {
 
     /**
      * 수정 예정
@@ -209,5 +215,32 @@ public class CPReportParserServiceImpl extends CPReportParserService {
     private Integer string2Int(String s) {
         String intStr = s.replaceAll("[^0-9]", "");
         return Integer.parseInt(intStr);
+    }
+
+    @Override
+    public List<List<String>> readData(String fileName) throws IOException, InvalidFormatException {
+        ArrayList<List<String>> resultCol = new ArrayList<>();
+
+        Workbook wb = WorkbookFactory.create(new File(fileName)); // Or .xlsx
+        Sheet s = wb.getSheetAt(0);
+        Integer lastRowNum = s.getLastRowNum();
+        for(int i = 1; i < lastRowNum; i++) {
+            Row r1 = s.getRow(i);
+            Short lastCelNum = r1.getLastCellNum();
+            List<String> row = new ArrayList<>();
+            for(int j = 0; j < lastCelNum; j++) {
+                var p = r1.getCell(j).toString();
+                row.add(p);
+            }
+            resultCol.add(row);
+        }
+        return resultCol;
+    }
+
+    @Override
+    public List<CPReportDetail> procDataObj(List<List<String>> excelDatas) {
+        List<CPReportDetail> cprds = new ArrayList<>();
+        excelDatas.forEach(p -> constructCPRD(p, cprds));
+        return cprds;
     }
 }

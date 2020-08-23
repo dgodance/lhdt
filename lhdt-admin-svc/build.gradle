@@ -137,6 +137,9 @@ dependencies {
 
     compile group: 'commons-lang',  name:'commons-lang', version:'2.6'
     compile group: 'commons-io',  name:'commons-io', version:'2.6'
+
+    // https://mvnrepository.com/artifact/com.opencsv/opencsv
+    compile group: 'com.opencsv', name: 'opencsv', version: '3.7'
 }
 
 test {

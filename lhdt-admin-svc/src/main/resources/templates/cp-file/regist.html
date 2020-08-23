@@ -6,13 +6,7 @@
 <body class="ui gird">
 <div class="ui container twelve wide column" style="padding:50px 0px">
     <form th:method="POST" th:action="@{/cp-file/regist}" class="ui form">
-        <div>
-            <label>제목</label>
-            <input type="text" name="lowInfoName" placeholder="지역명을 입력해주세요."
-                   th:value="${isPost} ? '' : ${lowInfo.lowInfoName}"
-                   required>
-        </div>
-        <input type="hidden" name="id" th:value="${isPost} ? '' : ${lowInfo.id}"/>
+        <input type="file" name="files" style="width:80%" multiple>
         <div>
             <button type="submit">
                 <i class="icon edit"></i>
