@@ -2,6 +2,7 @@ package lhdt.admin.svc.cityplanning.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import lhdt.admin.svc.cityplanning.domain.listener.CPFileInfoListener;
 import lhdt.admin.svc.cityplanning.type.CPFileType;
 import lhdt.ds.common.domain.DsDomain;
 import lhdt.ds.common.misc.DsField;
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +22,7 @@ import java.util.List;
  * id, cityPlanId
  */
 @Entity
+@EntityListeners(CPFileInfoListener.class)
 @Table(name="cp_file_info")
 @Getter
 @Setter
@@ -29,6 +32,7 @@ public class CPFileInfo extends DsDomain {
     /**
      * 파일명
      */
+    @NotNull
     @Column(name = "file_name")
     @DsField(bizKey = true, order = 0)
     private String fileName;
@@ -36,6 +40,7 @@ public class CPFileInfo extends DsDomain {
     /**
      * 파일경로
      */
+    @NotNull
     @Column(name = "file_path")
     @DsField(bizKey = true, order = 1)
     private String filePath;
@@ -43,6 +48,7 @@ public class CPFileInfo extends DsDomain {
     /**
      * 파일경로
      */
+    @NotNull
     @Column(name = "origin_file_name")
     private String originFileName;
 
@@ -51,6 +57,14 @@ public class CPFileInfo extends DsDomain {
      */
     @Column(name = "file_type")
     private CPFileType cpFileType;
+
+    /**
+     * 확장자
+     */
+    @NotNull
+    @Column(name = "file_ext")
+    @DsField(bizKey = true, order = 3)
+    private String fileExtention;
 
     /**
      * 지구번호

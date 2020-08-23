@@ -5,4 +5,5 @@ import lhdt.admin.svc.common.AdminSvcService;
 import lhdt.ds.common.misc.DsService;
 
 public interface CPFileInfoService extends AdminSvcService<CPFileInfo, Long> {
+
 }

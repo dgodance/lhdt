@@ -3,11 +3,12 @@ plugins {
 	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
 	id 'java'
 	id 'war'
+    id("com.github.ManifestClasspath") version "0.1.0-RELEASE"
 }
 
 apply plugin: 'project-report'
 apply plugin: 'idea'
-
+springBoot.mainClassName = "lhdt.admin.svc.LhdtAdminSvcApplication"
 group = 'com.lhdt'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'

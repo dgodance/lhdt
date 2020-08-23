@@ -45,28 +45,28 @@ public class CpAdminViewController {
         DSPaginatorInfo cpDistricPageNav = DSPaginator.getPaginatorMap(cpDistricInfoPage, DSPageSize.NOTICE);
         model.addAttribute("cpDistricInfoPageInfo", cpDistricPageNav);
 
-        return "/cityplanning/index";
+        return "/cp/index";
     }
 
     @GetMapping("/local-info/{id}")
     public String getCPLocalInfo(@PathVariable(value = "id") Long id, Model model) {
         CPLocalInfo board = cpLocalInfoService.findById(id);
         model.addAttribute("cpLocalInfo", board);
-        return "/cityplanning/cp-local-content";
+        return "/cp/cp-local-content";
     }
 
     @GetMapping("/distric-info/{id}")
     public String getCPDistricInfo(@PathVariable(value = "id") Long id, Model model) {
         CPDistricInfo board = cpDistricInfoService.findById(id);
         model.addAttribute("cpDistricInfo", board);
-        return "/cityplanning/cp-distric-content";
+        return "/cp/cp-distric-content";
     }
 
     @GetMapping("/regist")
     public String addCityInfo(Model model) {
         var board = cpLocalInfoService.findAll();
         model.addAttribute("cpLocalInfoList", board);
-        return "/cityplanning/cp-info-regist";
+        return "/cp/cp-info-regist";
     }
 
     @PostMapping("/local-info")
@@ -85,13 +85,13 @@ public class CpAdminViewController {
         return "redirect:/cp";
     }
 
-    @DeleteMapping("/local-info/{id}")
+    @PostMapping("/local-info/{id}")
     public String deleteCPLocalInfo(@PathVariable(value = "id") Long id) {
         this.cpLocalInfoService.delete(id);
         return "redirect:/cp";
     }
 
-    @DeleteMapping("/distric-info/{id}")
+    @PostMapping("/distric-info/{id}")
     public String deleteCPDistricInfo(@PathVariable(value = "id") Long id) {
         this.cpDistricInfoService.delete(id);
         return "redirect:/cp";
@@ -118,13 +118,13 @@ public class CpAdminViewController {
     public String getLocalInfoEdit(@PathVariable(value = "id") Long id, Model model) {
         var board = cpLocalInfoService.findById(id);
         model.addAttribute("cpLocalInfo", board);
-        return "/cityplanning/cp-local-info-edit";
+        return "/cp/cp-local-info-edit";
     }
 
     @GetMapping("/distric-info-edit/{id}")
     public String getDistricInfoEdit(@PathVariable(value = "id") Long id, Model model) {
         var board = cpDistricInfoService.findById(id);
         model.addAttribute("cpDistricInfo", board);
-        return "/cityplanning/cp-distric-info-edit";
+        return "/cp/cp-distric-info-edit";
     }
 }

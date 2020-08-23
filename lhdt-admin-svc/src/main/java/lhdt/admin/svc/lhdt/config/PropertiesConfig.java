@@ -71,4 +71,8 @@ public class PropertiesConfig {
     private String ogr2ogrEnviromentPath;
     private String ogr2ogrHost;
     private String ogr2ogrPort;
+
+    // 지구단위 계획 파일 업로드 디렉토리
+    private String cpFileUploadDir;
+    private String cpFileDir;
 }
