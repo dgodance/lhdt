@@ -1,4 +1,4 @@
-package lhdt.domain.newtown;
+package lhdt.domain.urban;
 
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 뉴타운 그룹
+ * 도시 그룹
  * @author jeongdae
  *
  */
@@ -18,7 +18,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class NewTownGroup {
+public class UrbanGroup {
 
 	/****** 화면 표시용 *******/
 	private String open;
@@ -33,12 +33,12 @@ public class NewTownGroup {
 	private String duplicationValue;
 
 	// 고유번호
-	private Integer newTownGroupId;
+	private Integer urbanGroupId;
 	// 링크 활용 등을 위한 확장 컬럼
-	private String newTownGroupKey;
-	// 뉴타운 그룹명
+	private String urbanGroupKey;
+	// 도시 그룹명
 	@Size(max = 100)
-	private String newTownGroupName;
+	private String urbanGroupName;
 	// 사용자 아이디
 	private String userId;
 
@@ -79,8 +79,8 @@ public class NewTownGroup {
 	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime insertDate;
 
-	/**
-	 * 자식 뉴타운 목록
-	 */
-	private List<NewTown> newTownList;
+//	/**
+//	 * 자식 도시 목록
+//	 */
+//	private List<Urban> urbanList;
 }
