@@ -1,37 +1,42 @@
 package lhdt.ds.common.misc;
 
-import lombok.Builder;
-import lombok.Data;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Calendar;
+
+import org.springframework.web.multipart.MultipartFile;
+
+import dev.hyunlab.core.util.PpDateUtil;
 
 /**
  * 파일 처리를 위한 공통 클래스
  * @author break8524
  */
+@SuppressWarnings("serial")
 public class DsFileMaster extends File {
     public DsFileMaster(String pathname) {
         super(pathname);
     }
 
+    /**
+     * @return
+     * @since
+     * 	20200824	refactoring
+     */
     public static String genFileNameByFullTime() {
-        String fileName = "";
-
-        Calendar calendar = Calendar.getInstance();
-        fileName += calendar.get(Calendar.YEAR);
-        fileName += calendar.get(Calendar.MONTH);
-        fileName += calendar.get(Calendar.DATE);
-        fileName += calendar.get(Calendar.HOUR);
-        fileName += calendar.get(Calendar.MINUTE);
-        fileName += calendar.get(Calendar.SECOND);
-        fileName += calendar.get(Calendar.MILLISECOND);
-
-        return fileName;
+    	return PpDateUtil.getYmdhmssss();
+//        String fileName = "";
+//
+//        Calendar calendar = Calendar.getInstance();
+//        fileName += calendar.get(Calendar.YEAR);
+//        fileName += calendar.get(Calendar.MONTH);
+//        fileName += calendar.get(Calendar.DATE);
+//        fileName += calendar.get(Calendar.HOUR);
+//        fileName += calendar.get(Calendar.MINUTE);
+//        fileName += calendar.get(Calendar.SECOND);
+//        fileName += calendar.get(Calendar.MILLISECOND);
+//
+//        return fileName;
     }
 
     public static void deleteFolderByPath(String path) {
