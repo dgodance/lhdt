@@ -1,7 +1,7 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
 <div id="simulationContent" class="contents yScroll fullHeight" style="display:none;">
 <ul class="listDrop">
-	<li class="on">
+	<li class="off">
 		<p th:text="|#{simulation.landscape.analysis}(#{simulation.solar.analysis})|"><span class="collapse-icon">icon</span></p>
 		<div id="solarAnalysis" class="listContents">
 			<ul class="analysisGroup">
@@ -27,7 +27,7 @@
 			</ul>
 		</div>
 	</li>
-	<li class="on">
+	<li class="off">
 		<p th:text="#{simulation.construction.process}"><span class="collapse-icon">icon</span></p>
 		<div id="constructionProcess" class="listContents">
 			<ul class="analysisGroup">

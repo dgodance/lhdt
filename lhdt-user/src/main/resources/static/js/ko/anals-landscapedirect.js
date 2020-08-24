@@ -4,6 +4,7 @@ var AnalsLandScapeDirection = function(viewer, magoInstance) {
     this._scene = viewer.scene;
     let workingMode;
     let realtimeMousePos;
+    let pointEntitiy = [];
     let polylineEntitiy;
     let polyLinelastPos;
     let polygonEntitiy;
@@ -30,34 +31,28 @@ var AnalsLandScapeDirection = function(viewer, magoInstance) {
 
     let mouseType = MouseEvtEnum.NONE;
     let landScapeDirectType = LandsacpeDirectEnum.WAIT;
-    $('#landScapeDirectionToggle').click(function() {
-        const statusChecked = $("#landScapeDirectionToggle").is(":checked");
+    $('#landscapeDirectToggle').click(function() {
+        const statusChecked = $("#landscapeDirectToggle").is(":checked");
         if(statusChecked) {
             workingMode = 'landscapedirect';
-            var camera = viewer.scene.camera;
-            camera.flyTo({
-                destination: camera.positionWC,
-                duration : 0
-            });
-
-            $(this).css({
-                '-webkit-transform': 'rotate(0)',
-                '-moz-transform': 'rotate(0)',
-                '-ms-transform': 'rotate(0)',
-                'transform': 'rotate(0)'
-            });
-            $('#pitchInput').val(-90);
+            viewer.camera.lookAt(viewer.scene.camera.position,
+                new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-90.0),
+                    viewer.scene.camera.positionCartographic.height));
+            viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
         } else {
             workingMode = undefined;
         }
     });
-
 
     landscapeDirectionEvt();
 
     function landscapeDirectionEvt() {
         leftMouseDoubleClick();
         mouseMove()
+    }
+
+    function clearPointEntitiy() {
+        pointEntitiy.forEach( p => viewer.entities.remove(p))
     }
 
     function getPositionByCesiumEvt(e) {
@@ -97,11 +92,11 @@ var AnalsLandScapeDirection = function(viewer, magoInstance) {
         }
         const pointResultRight = {
             alt: endWorldPos.alt,
-            long: resultX.long,
-            lat: resultY.lat
+            long: resultX,
+            lat: resultY
         }
-        drawLandScapePoint(pointResultLeft);
-        drawLandScapePoint(pointResultRight);
+        pointEntitiy.push(drawLandScapePoint(pointResultLeft));
+        pointEntitiy.push(drawLandScapePoint(pointResultRight));
         drawLandScapePolygon(polygonResult);
         if(polylineEntitiy !== undefined){
             viewer.entities.remove(polylineEntitiy);
@@ -152,7 +147,7 @@ var AnalsLandScapeDirection = function(viewer, magoInstance) {
 
 
     function drawLandScapePoint(pos) {
-        viewer.entities.add({
+        return viewer.entities.add({
             position: new Cesium.Cartesian3.fromDegrees(pos.long, pos.lat, pos.alt),
             ellipsoid: {
                 radii: new Cesium.Cartesian3(10, 10, 10),
@@ -179,6 +174,8 @@ var AnalsLandScapeDirection = function(viewer, magoInstance) {
             polyline: {
                 // This callback updates positions each frame.
                 positions: new Cesium.CallbackProperty(() => {
+                    if(workingMode !== 'landscapedirect')
+                        return;
                     let p;
                     if (landScapeDirectType === LandsacpeDirectEnum.FINISH) {
                         p = Cesium.Cartesian3.fromDegreesArrayHeights(polyLinelastPos);
@@ -207,8 +204,9 @@ var AnalsLandScapeDirection = function(viewer, magoInstance) {
                     const pos = getPositionByCesiumEvt(click.position);
                     switch (landScapeDirectType) {
                         case LandsacpeDirectEnum.WAIT:
+                            clearPointEntitiy();
                             initDrawInfo();
-                            drawLandScapePoint(pos);
+                            pointEntitiy.push(drawLandScapePoint(pos));
                             drawLandScapePolyLine(pos);
                             landScapPos.startLocalPosition = {...click.position};
                             landScapPos.startWorldPosition = pos;
@@ -216,7 +214,7 @@ var AnalsLandScapeDirection = function(viewer, magoInstance) {
                             break;
                         case LandsacpeDirectEnum.RUN:
                             landScapeDirectType = LandsacpeDirectEnum.FINISH;
-                            drawLandScapePoint(pos);
+                            pointEntitiy.push(drawLandScapePoint(pos));
                             landScapPos.endLocalPosition = {...click.position};
                             landScapPos.endWorldPosition = pos;
                             break;

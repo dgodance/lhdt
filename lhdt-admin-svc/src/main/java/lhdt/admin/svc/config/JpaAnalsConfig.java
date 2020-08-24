@@ -61,8 +61,6 @@ public class JpaAnalsConfig {
 		return ds;
 	}
 
-
-
 	/**
 	 * @see https://medium.com/@nieldw/jpa-spring-boot-will-not-search-for-meta-inf-persistence-xml-f28f14444d6d
 	 * @param builder

@@ -133,12 +133,12 @@ $(function() {
         if(active === "converterContent") {
         	window.location="../upload-data/list";
         }
-        
+
         //지구설계 클릭 이벤트시 url 변경	gravity
-        if('cityPlanContent' === active){
-        	window.location = '../cityplan/city-unit-plan-confm';
-        }
-                
+        // if('cityPlanContent' === active){
+        // 	window.location = '../cityplan/city-unit-plan-confm';
+        // }
+
         //시민참여 벗어날 시 지도 클리어.
         if(active !== 'civilVoiceContent') {
         	if(window.civilVoice) {

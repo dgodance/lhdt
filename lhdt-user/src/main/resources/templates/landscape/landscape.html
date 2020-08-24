@@ -1,49 +1,92 @@
-<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
-<head>
-	<meta charset="utf-8">
-    <meta name="referrer" content="origin">
-    <meta name="viewport" content="width=device-width">
-    <meta name="robots" content="index,nofollow">
-    <title></title>
-    <link rel="shortcut icon" th:href="@{/images/favicon.ico(cacheVersion=${contentCacheVersion})}">
-	<link rel="stylesheet" th:href="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.css(cacheVersion=${contentCacheVersion})}">
-    <link rel="stylesheet" th:href="@{/images/{lang}/icon/glyph/glyphicon.css(lang=${lang}, cacheVersion=${contentCacheVersion})}">
-    <link rel="stylesheet" th:href="@{/css/{lang}/user-style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}">
-    <link rel="stylesheet" th:href="@{/css/{lang}/style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}">
-    <script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
-    <script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>    
-</head>
-<body>
-<div th:replace="~{/fragments/header :: #headerWrap}"></div>
-<div id="wrap">
-	<!-- S: NAVWRAP -->
-	<div class="navWrap">
-        <div th:replace="~{/fragments/menu :: #navWrap}"></div>
-	</div>
-	<!-- E: NAVWRAP -->
+<div id="landscapeContent" class="contents yScroll fullHeight" style="display:none;">
+    <ul class="listDrop">
+        <li class="on">
+            <p th:text="가시권분석"><span class="collapse-icon">icon</span></p>
+            <div id="visibilityProcess" class="listContents">
+                <ul>
+                    <li>
+                        <label for="visibilityToggle" th:text="활성화"></label>
+                        <input type="checkbox" id="visibilityToggle" value="" placeholder=""/>
+                        <button type="button" id="visibilityBtn" th:text="작동"></button>
+                    </li>
+                </ul>
+            </div>
+        </li>
+        <li class="on">
+            <p th:text="경관분석"><span class="collapse-icon">icon</span></p>
+            <div id="landScapeAnalsProcess" class="listContents">
+                <ul>
+                    <li>
+                        <label for="landScapeAnalsToggle" th:text="활성화"></label>
+                        <input type="checkbox" id="landScapeAnalsToggle" value="" placeholder=""/>
+                        <button type="button" id="landScapeAnalsBtn" th:text="작동"></button>
+                    </li>
+                </ul>
+            </div>
+        </li>
+        <li class="on">
+            <p th:text="경관비교"><span class="collapse-icon">icon</span></p>
+            <form id="searchDataForm" method="post" onsubmit="return false;" style="
+                display: block;
+                padding: 10px;
+                border: 1px solid #e0e0e0;
+                background-color: #fff;">
+                <div class="form-group form-group-data">
+                    <label for="searchDataGroup">경관그룹</label>
+                    <select id="searchDataGroup" name="searchDataGroup">
+                        <option value="">전체</option>
+                        <option value="1">
+                            경관1
+                        </option>
+                        <option value="10000">
+                            경관2
+                        </option>
+                    </select>
+                </div>
+                <div class="form-group form-group-data">
+                    <label for="searchDataName">경관명</label>
+                    <input type="text" id="searchDataName" name="searchDataName" placeholder="데이터명을 입력하여 주십시오." size="30">
+                </div>
+                <div class="form-group form-group-data">
+                    <button type="submit" id="mapDataSearch" class="btnTextF search-text" title="검색">저장</button>
+                </div>
 
-	<div class="container" style="float:left; width: calc(100% - 78px);">
-		<div style="padding: 20px 20px 0px 10px; font-size: 18px;"></div>
-        <!-- TAB -->
-        <div class="tabs">
-            <ul class="tab">
-				<li id="" class="on"><a href="./"><th:block th:text="가시권"></th:block></a></li>
-				<li id=""><a href="./"><th:block th:text="경관"></th:block></a></li>
-            </ul>
-        </div>
-
-		<div>TODO 경관 분석 - 가시권</div>
-
-	</div>
+                <div class="tableList marT10 yScroll" style="height: calc(100% - 43px)">
+                    <table>
+                        <colgroup>
+                            <col class="col-width-12"/>
+                            <col class="col-width-12"/>
+                            <col/>
+                            <col class="col-width-12"/>
+                            <col class="col-width-12"/>
+                        </colgroup>
+                        <thead>
+                        <tr>
+                            <th th:text="번호"></th>
+                            <th th:text="경관명"></th>
+                            <th th:text="캡처확인"></th>
+                            <th th:text="저장일시"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td rowspan="2"><span class="no">1</span></td>
+                            <td rowspan="2">
+                                <span class="no"></span>
+                            </td>
+                            <td rowspan="2" class="alignLeft ellipsis" style="max-width:100px;">
+                                <span class="no"></span>
+                            </td>
+                            <td rowspan="2">
+                                <span class="no"></span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+        </li>
+    </ul>
 </div>
-<!-- E: WRAP -->
-<script type="text/javascript" th:src="@{/js/{lang}/common.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/message.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/map-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/ui-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript">
-
-</script>
-</body>
 </html>
