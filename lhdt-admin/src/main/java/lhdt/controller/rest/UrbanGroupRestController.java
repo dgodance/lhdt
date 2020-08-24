@@ -1,9 +1,9 @@
 package lhdt.controller.rest;
 
 import lhdt.domain.Key;
-import lhdt.domain.newtown.NewTownGroup;
+import lhdt.domain.urban.UrbanGroup;
 import lhdt.domain.user.UserSession;
-import lhdt.service.NewTownGroupService;
+import lhdt.service.UrbanGroupService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,26 +16,26 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 뉴타운 ajax 처리 관리
+ * 도시 ajax 처리 관리
  */
 @Slf4j
 @RestController
-@RequestMapping("/new-town-groups")
-public class NewTownGroupRestController {
+@RequestMapping("/urban-groups")
+public class UrbanGroupRestController {
 
 	@Autowired
-	private NewTownGroupService newTownGroupService;
+	private UrbanGroupService urbanGroupService;
 
 	/**
-	 * 뉴타운 그룹 등록
+	 * 도시 그룹 등록
 	 * @param request
-	 * @param newTownGroup
+	 * @param urbanGroup
 	 * @param bindingResult
 	 * @return
 	 */
 	@PostMapping(value = "/insert")
-	public Map<String, Object> insert(HttpServletRequest request, @Valid @ModelAttribute NewTownGroup newTownGroup, BindingResult bindingResult) {
-		log.info("@@@@@ insert newTownGroup = {}", newTownGroup);
+	public Map<String, Object> insert(HttpServletRequest request, @Valid @ModelAttribute UrbanGroup urbanGroup, BindingResult bindingResult) {
+		log.info("@@@@@ insert urbanGroup = {}", urbanGroup);
 
 		Map<String, Object> result = new HashMap<>();
 		String errorCode = null;
@@ -52,9 +52,9 @@ public class NewTownGroupRestController {
             return result;
 		}
 
-		newTownGroup.setUserId(userSession.getUserId());
+		urbanGroup.setUserId(userSession.getUserId());
 
-		newTownGroupService.insertNewTownGroup(newTownGroup);
+		urbanGroupService.insertUrbanGroup(urbanGroup);
 		int statusCode = HttpStatus.OK.value();
 			
 		result.put("statusCode", statusCode);
@@ -64,15 +64,15 @@ public class NewTownGroupRestController {
 	}
 
 	/**
-	 * 뉴타운 그룹 수정
+	 * 도시 그룹 수정
 	 * @param request
-	 * @param newTownGroup
+	 * @param urbanGroup
 	 * @param bindingResult
 	 * @return
 	 */
 	@PostMapping(value = "/update")
-	public Map<String, Object> update(HttpServletRequest request, @Valid NewTownGroup newTownGroup, BindingResult bindingResult) {
-		log.info("@@ newTownGroup = {}", newTownGroup);
+	public Map<String, Object> update(HttpServletRequest request, @Valid UrbanGroup urbanGroup, BindingResult bindingResult) {
+		log.info("@@ urbanGroup = {}", urbanGroup);
 		Map<String, Object> result = new HashMap<>();
 		String errorCode = null;
 		String message = null;
@@ -86,7 +86,7 @@ public class NewTownGroupRestController {
             return result;
 		}
 
-		newTownGroupService.updateNewTownGroup(newTownGroup);
+		urbanGroupService.updateUrbanGroup(urbanGroup);
 		int statusCode = HttpStatus.OK.value();
 
 		result.put("statusCode", statusCode);
@@ -96,23 +96,23 @@ public class NewTownGroupRestController {
 	}
 
 	/**
-	 * 뉴타운 그룹 트리 순서 수정 (up/down)
+	 * 도시 그룹 트리 순서 수정 (up/down)
 	 * @param request
-	 * @param newTownGroupId
-	 * @param newTownGroup
+	 * @param urbanGroupId
+	 * @param urbanGroup
 	 * @return
 	 */
-	@PostMapping(value = "/view-order/{newTownGroupId:[0-9]+}")
-	public Map<String, Object> moveNewTownGroup(HttpServletRequest request, @PathVariable Integer newTownGroupId, @ModelAttribute NewTownGroup newTownGroup) {
-		log.info("@@ newTownGroup = {}", newTownGroup);
+	@PostMapping(value = "/view-order/{urbanGroupId:[0-9]+}")
+	public Map<String, Object> moveUrbanGroup(HttpServletRequest request, @PathVariable Integer urbanGroupId, @ModelAttribute UrbanGroup urbanGroup) {
+		log.info("@@ urbanGroup = {}", urbanGroup);
 
 		Map<String, Object> result = new HashMap<>();
 		String errorCode = null;
 		String message = null;
 		
-		newTownGroup.setNewTownGroupId(newTownGroupId);
+		urbanGroup.setUrbanGroupId(urbanGroupId);
 
-		int updateCount = newTownGroupService.updateNewTownGroupViewOrder(newTownGroup);
+		int updateCount = urbanGroupService.updateUrbanGroupViewOrder(urbanGroup);
 		int statusCode = HttpStatus.OK.value();
 		if(updateCount == 0) {
 			statusCode = HttpStatus.BAD_REQUEST.value();

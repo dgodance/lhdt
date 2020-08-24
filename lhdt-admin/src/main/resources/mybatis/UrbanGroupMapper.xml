@@ -1,55 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="lhdt.persistence.NewTownGroupMapper">
+<mapper namespace="lhdt.persistence.UrbanGroupMapper">
 
-	<!-- 뉴타운 그룹 목록 조회 -->
-	<select id="getListNewTownGroup" resultType="newTownGroup">
-		/* getListNewTownGroup */
-		WITH RECURSIVE new_town_group_tree (
-			new_town_group_id, new_town_group_name, user_id, ancestor, parent, depth, view_order, children, available,
+	<!-- 도시 그룹 목록 조회 -->
+	<select id="getListUrbanGroup" resultType="urbanGroup">
+		/* getListUrbanGroup */
+		WITH RECURSIVE urban_group_tree (
+			urban_group_id, urban_group_name, user_id, ancestor, parent, depth, view_order, children, available,
 			start_date, end_date, location, area, receiving_population, receiving_household, project_operator, transfer_local_government,
 			description, insert_date, path, cycle
 		) AS (
-		SELECT A.new_town_group_id, A.new_town_group_name, A.user_id, A.ancestor, A.parent, A.depth, A.view_order, A.children, A.available,
+		SELECT A.urban_group_id, A.urban_group_name, A.user_id, A.ancestor, A.parent, A.depth, A.view_order, A.children, A.available,
 			A.start_date, A.end_date, A.location, A.area, A.receiving_population, A.receiving_household, A.project_operator, A.transfer_local_government,
 			A.description, A.insert_date, ARRAY[A.view_order], false
-		FROM new_town_group A
+		FROM urban_group A
 		WHERE A.parent = 0
 		<if test="available != null">
 			AND A.available = #{available}
 		</if>
 		UNION ALL
-		SELECT A.new_town_group_id, A.new_town_group_name, A.user_id, A.ancestor, A.parent, A.depth, A.view_order, A.children, A.available,
+		SELECT A.urban_group_id, A.urban_group_name, A.user_id, A.ancestor, A.parent, A.depth, A.view_order, A.children, A.available,
 			A.start_date, A.end_date, A.location, A.area, A.receiving_population, A.receiving_household, A.project_operator, A.transfer_local_government,
-			A.description, A.insert_date, path || A.view_order, A.new_town_group_id = ANY(path)
-		FROM new_town_group A, new_town_group_tree B
-		WHERE A.parent = B.new_town_group_id AND not cycle
+			A.description, A.insert_date, path || A.view_order, A.urban_group_id = ANY(path)
+		FROM urban_group A, urban_group_tree B
+		WHERE A.parent = B.urban_group_id AND not cycle
 		)
-		SELECT new_town_group_id, new_town_group_name, user_id, ancestor, parent, depth, view_order, children, available,
+		SELECT urban_group_id, urban_group_name, user_id, ancestor, parent, depth, view_order, children, available,
 			start_date, end_date, location, area, receiving_population, receiving_household, project_operator, transfer_local_government,
 			description, insert_date, path
-		FROM new_town_group_tree
+		FROM urban_group_tree
 		ORDER BY path
 	</select>
 
-	<!-- 뉴타운 그룹 정보 -->
-	<select id="getNewTownGroup" parameterType="int" resultType="newTownGroup">
-		/* getNewTownGroup */
+	<!-- 도시 그룹 정보 -->
+	<select id="getUrbanGroup" parameterType="int" resultType="urbanGroup">
+		/* getUrbanGroup */
 		SELECT A.*,
 			CASE
-				WHEN parent > 0 THEN ( SELECT new_town_group_name FROM new_town_group WHERE new_town_group_id = A.parent )
+				WHEN parent > 0 THEN ( SELECT urban_group_name FROM urban_group WHERE urban_group_id = A.parent )
 				ELSE null
 			END AS parentName
-		FROM new_town_group A
-		WHERE new_town_group_id = #{newTownGroupId}
+		FROM urban_group A
+		WHERE urban_group_id = #{urbanGroupId}
 	</select>
 
-	<!-- 부모와 순서를 가지고 뉴타운 그룹 정보를 취득 -->
-	<select id="getNewTownGroupByParentAndViewOrder" parameterType="newTownGroup" resultType="newTownGroup">
-		/* getNewTownGroupByParentAndViewOrder */
+	<!-- 부모와 순서를 가지고 도시 그룹 정보를 취득 -->
+	<select id="getUrbanGroupByParentAndViewOrder" parameterType="urbanGroup" resultType="urbanGroup">
+		/* getUrbanGroupByParentAndViewOrder */
 		SELECT *
-		FROM new_town_group
+		FROM urban_group
 		WHERE parent = #{parent}
 		<if test="updateType == 'UP'.toString()">
 			<![CDATA[
@@ -66,14 +66,14 @@
 		LIMIT 1
 	</select>
 
-	<!-- 뉴타운 그룹 등록 -->
-	<insert id="insertNewTownGroup" parameterType="newTownGroup">
-		/* insertNewTownGroup */
-		<selectKey keyProperty="newTownGroupId" resultType="int" order="BEFORE">
-			SELECT NEXTVAL('new_town_group_seq')
+	<!-- 도시 그룹 등록 -->
+	<insert id="insertUrbanGroup" parameterType="urbanGroup">
+		/* insertUrbanGroup */
+		<selectKey keyProperty="urbanGroupId" resultType="int" order="BEFORE">
+			SELECT NEXTVAL('urban_group_seq')
 		</selectKey>
-		INSERT INTO new_town_group (
-			new_town_group_id, new_town_group_name, user_id, ancestor, parent, depth, view_order, children, available,
+		INSERT INTO urban_group (
+			urban_group_id, urban_group_name, user_id, ancestor, parent, depth, view_order, children, available,
 			start_date, end_date,
 			<if test="location != null">
 				location,
@@ -81,28 +81,28 @@
 			area, receiving_population, receiving_household, project_operator, transfer_local_government,
 			description
 		) VALUES (
-			#{newTownGroupId}, #{newTownGroupName}, #{userId},
+			#{urbanGroupId}, #{urbanGroupName}, #{userId},
 			(
-				SELECT COALESCE(MAX(ancestor), #{newTownGroupId})
-				FROM new_town_group
-				WHERE new_town_group_id = #{parent}
-				AND new_town_group_id != 0
+				SELECT COALESCE(MAX(ancestor), #{urbanGroupId})
+				FROM urban_group
+				WHERE urban_group_id = #{parent}
+				AND urban_group_id != 0
 			),
 			#{parent},
 			(
 				SELECT COALESCE(MAX(depth),  0 ) + 1
-				FROM new_town_group
-				WHERE new_town_group_id = #{parent}
+				FROM urban_group
+				WHERE urban_group_id = #{parent}
 			),
 			(
 				SELECT COALESCE(MAX(view_order), 0) + 1
-				FROM new_town_group
+				FROM urban_group
 				WHERE parent = #{parent}
 			),
 			(
 				SELECT COUNT(*)
-				FROM new_town_group
-				WHERE parent = #{newTownGroupId}
+				FROM urban_group
+				WHERE parent = #{urbanGroupId}
 			),
 			#{available},
 			#{startDate}, #{endDate},
@@ -114,21 +114,21 @@
 		)
 	</insert>
 
-	<!-- 뉴타운 그룹 순서 수정 -->
-	<update id="updateNewTownGroupViewOrder" parameterType="newTownGroup">
-		/* updateNewTownGroupViewOrder */
-		UPDATE new_town_group
+	<!-- 도시 그룹 순서 수정 -->
+	<update id="updateUrbanGroupViewOrder" parameterType="urbanGroup">
+		/* updateUrbanGroupViewOrder */
+		UPDATE urban_group
 		SET view_order = #{viewOrder}
-		WHERE new_town_group_id = #{newTownGroupId}
+		WHERE urban_group_id = #{urbanGroupId}
 	</update>
 
 	<!-- 데이터 그룹 수정 -->
-	<update id="updateNewTownGroup" parameterType="newTownGroup">
-		/* updateNewTownGroup */
-		UPDATE new_town_group
+	<update id="updateUrbanGroup" parameterType="urbanGroup">
+		/* updateUrbanGroup */
+		UPDATE urban_group
 		SET
-		<if test="newTownGroupName != null and newTownGroupName != ''">
-			new_town_group_name = #{newTownGroupName},
+		<if test="urbanGroupName != null and urbanGroupName != ''">
+			urban_group_name = #{urbanGroupName},
 		</if>
 		<if test="userId != null and userId != ''">
 			user_id = #{userId},
@@ -179,42 +179,42 @@
 			transfer_local_government = #{transferLocalGovernment},
 		</if>
 		update_date = NOW()
-		WHERE new_town_group_id = #{newTownGroupId}
+		WHERE urban_group_id = #{urbanGroupId}
 		<if test="userId != null and userId != ''">
 			AND user_id = #{userId}
 		</if>
 	</update>
 
-	<!-- 뉴타운 그룹 삭제 -->
-	<delete id="deleteNewTownGroup" parameterType="newTownGroup">
-		/* deleteNewTownGroup */
+	<!-- 도시 그룹 삭제 -->
+	<delete id="deleteUrbanGroup" parameterType="urbanGroup">
+		/* deleteUrbanGroup */
 		DELETE
-		FROM new_town_group
-		WHERE new_town_group_id = #{newTownGroupId}
+		FROM urban_group
+		WHERE urban_group_id = #{urbanGroupId}
 		<if test="userId != null and userId != ''">
 			AND user_id = #{userId}
 		</if>
 	</delete>
 
-	<!-- ancestor를 이용하여 뉴타운 그룹 삭제 -->
-	<delete id="deleteNewTownGroupByAncestor" parameterType="newTownGroup">
-		/* deleteNewTownGroupByAncestor */
+	<!-- ancestor를 이용하여 도시 그룹 삭제 -->
+	<delete id="deleteUrbanGroupByAncestor" parameterType="urbanGroup">
+		/* deleteUrbanGroupByAncestor */
 		DELETE
-		FROM new_town_group
-		WHERE ancestor = #{newTownGroupId}
-		OR new_town_group_id = #{newTownGroupId}
+		FROM urban_group
+		WHERE ancestor = #{urbanGroupId}
+		OR urban_group_id = #{urbanGroupId}
 		<if test="userId != null and userId != ''">
 			AND user_id = #{userId}
 		</if>
 	</delete>
 
-	<!-- parent를 이용하여 뉴타운 그룹 삭제 -->
-	<delete id="deleteNewTownGroupByParent" parameterType="newTownGroup">
-		/* deleteNewTownGroupByParent */
+	<!-- parent를 이용하여 도시 그룹 삭제 -->
+	<delete id="deleteUrbanGroupByParent" parameterType="urbanGroup">
+		/* deleteUrbanGroupByParent */
 		DELETE
-		FROM new_town_group
-		WHERE parent = #{newTownGroupId}
-		OR new_town_group_id = #{newTownGroupId}
+		FROM urban_group
+		WHERE parent = #{urbanGroupId}
+		OR urban_group_id = #{urbanGroupId}
 		<if test="userId != null and userId != ''">
 			AND user_id = #{userId}
 		</if>

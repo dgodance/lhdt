@@ -85,7 +85,7 @@ create table design_layer (
 	
 	coordinate					        varchar(256),
 	description					        varchar(256),
-	update_date					        timestamp with time zone		default now(),
+	update_date					        timestamp with time zone,
 	insert_date					        timestamp with time zone 		default now(),
 	constraint design_layer_pk 		    primary key (design_layer_id)
 );
@@ -120,7 +120,7 @@ create table design_layer_land (
 	design_layer_id					            bigint,
 	design_layer_group_id			            integer,
     properties					                jsonb,
-	update_date					                timestamp with time zone		default now(),
+	update_date					                timestamp with time zone,
 	insert_date					                timestamp with time zone 		default now(),
 	constraint design_layer_land_pk 		    primary key (design_layer_land_id)
 );
@@ -138,7 +138,7 @@ create table design_layer_building (
 	design_layer_id					            bigint,
 	design_layer_group_id			            integer,
     properties					                jsonb,
-	update_date					                timestamp with time zone		default now(),
+	update_date					                timestamp with time zone,
 	insert_date					                timestamp with time zone 		default now(),
 	constraint design_layer_building_pk 		primary key (design_layer_building_id)
 );
@@ -264,7 +264,7 @@ create table data_library (
 	available					        boolean							default true,
 
 	description					        varchar(256),
-	update_date					        timestamp with time zone		default now(),
+	update_date					        timestamp with time zone,
 	insert_date					        timestamp with time zone 		default now(),
 	constraint data_library_pk 		    primary key (data_library_id)
 );
