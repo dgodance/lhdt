@@ -44,6 +44,8 @@ public class DesignLayerDto extends Search implements Serializable {
 
     // 업로딩 아이디
     private String userId;
+    // 공유 타입. 0 : 공개, 1 : 개인, 2 : 그룹
+    private String sharing;
     // OGC Web Services (정적, 동적)
     private String ogcWebServices;
     // 도형 타입 (point, line, polygon)

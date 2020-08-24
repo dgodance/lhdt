@@ -1,19 +1,44 @@
 package lhdt.api;
 
 import lhdt.common.BaseControllerTest;
+import lhdt.domain.extrusionmodel.DesignLayer;
+import lhdt.persistence.DesignLayerMapper;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 
+import java.util.stream.IntStream;
+
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.relaxedResponseFields;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DesignLayerAPIControllerTests extends BaseControllerTest {
+
+    @Autowired
+    private DesignLayerMapper designLayerMapper;
+
+    @BeforeAll
+    public void insert() {
+        designLayerMapper.deleteAllDesignLayer();
+        IntStream.range(0,5).forEach(i -> {
+            var designLayer = DesignLayer.builder()
+                    .designLayerGroupId(1)
+                    .designLayerKey("test"+i)
+                    .designLayerName("testName"+i)
+                    .build();
+            designLayerMapper.insertDesignLayer(designLayer);
+        });
+    }
 
     @Test
     @DisplayName("DesignLayer 목록 조회 하기")
@@ -25,7 +50,7 @@ class DesignLayerAPIControllerTests extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaTypes.HAL_JSON)
 //                .content(objectMapper.writeValueAsString(designLayer))
-                .param("pageNo", "2"))
+                .param("pageNo", "1"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 //.andExpect(jsonPath("page").exists())
@@ -38,7 +63,8 @@ class DesignLayerAPIControllerTests extends BaseControllerTest {
     @Test
     @DisplayName("DesignLayer 단일 조회 하기")
     public void getDesignLayerById() throws Exception {
-        this.mockMvc.perform(get("/api/design-layers/{id}", 1))
+        var designLayer = designLayerMapper.getListDesignLayer(new DesignLayer());
+        this.mockMvc.perform(get("/api/design-layers/{id}", designLayer.get(0).getDesignLayerId()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("designLayerId").exists())

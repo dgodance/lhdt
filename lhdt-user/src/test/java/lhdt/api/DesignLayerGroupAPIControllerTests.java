@@ -1,8 +1,15 @@
 package lhdt.api;
 
 import lhdt.common.BaseControllerTest;
+import lhdt.domain.extrusionmodel.DesignLayerGroup;
+import lhdt.persistence.DesignLayerGroupMapper;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.stream.IntStream;
 
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -12,7 +19,23 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DesignLayerGroupAPIControllerTests extends BaseControllerTest {
+
+    @Autowired
+    private DesignLayerGroupMapper designLayerGroupMapper;
+
+    @BeforeAll
+    public void insert() {
+        designLayerGroupMapper.deleteAllDesignLayerGroup();
+        IntStream.range(0,5).forEach(i -> {
+            var group = DesignLayerGroup.builder()
+                    .designLayerGroupName("groupName"+i)
+                    .parent(0)
+                    .build();
+            designLayerGroupMapper.insertDesignLayerGroup(group);
+        });
+    }
 
     @Test
     @DisplayName("DesignLayerGroup 목록 조회 하기")
@@ -29,7 +52,8 @@ class DesignLayerGroupAPIControllerTests extends BaseControllerTest {
     @Test
     @DisplayName("DesignLayerGroup 단일 조회 하기")
     public void getDesignLayerGroupById() throws Exception {
-        this.mockMvc.perform(get("/api/design-layer-groups/{id}", 1))
+        var group = designLayerGroupMapper.getListDesignLayerGroup();
+        this.mockMvc.perform(get("/api/design-layer-groups/{id}", group.get(0).getDesignLayerGroupId()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("designLayerGroupId").exists())
