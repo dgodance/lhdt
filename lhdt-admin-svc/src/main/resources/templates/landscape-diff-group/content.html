@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>경관 정보 수정</title>
+</head>
+<body class="ui gird" th:with="isPost=${lsGroup} == null ? true : false">
+<!-- Local Div start -->
+<div style="padding: 50px 0">
+    <div>
+        <label>경관명</label>
+        <div type="text" name="landScapeAnalsName"
+             th:value="${isPost} ? '' : ${lsGroup.lsDiffGrupName}">
+        </div>
+    </div>
+    <div>
+        지도 표출
+    </div>
+    <div>
+        <button id="back">이전으로</button>
+    </div>
+</div>
+
+</body>
+</html>
