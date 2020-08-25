@@ -7,37 +7,24 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
     this._labels = [];
     this._polyPoint = [];
 
-    var that = this;
     var handler = null;
 
-    var drawingMode = 'line';
+    var drawingMode = undefined;
     var activeShapePoints = [];
     var activeShape;
     var activeLabel;
 
-    var ellipsoid = viewer.scene.globe.ellipsoid;
-
-    var flags = {
-        looking : false,
-        moveForward : false,
-        moveBackward : false,
-        moveUp : false,
-        moveDown : false,
-        moveLeft : false,
-        moveRight : false
-    };
-
-    // magoManager.on(Mago3D.MagoManager.EVENT_TYPE.SMARTTILELOADEND, smartTileLoaEndCallbak);
-    // magoManager.on(Mago3D.MagoManager.EVENT_TYPE.F4DLOADEND, echoLoadEndCallback);
     // 	면적 측정 버튼
-    $('#heightAnalsObserverPoint').click(function() {
-        var statusChecked = $("#heightAnalsObserverPoint").is(":checked");
+    $('#heightAvgToggle').click(function() {
+        debugger;
+        var statusChecked = $("#heightAvgToggle").is(":checked");
         if(statusChecked) {
-            drawingMode = 'polygon';
+            drawingMode = 'heightAvgAnals';
 
             startDrawPolyLine();
         } else {
-            drawingMode = undefined;
+            drawingMode = "line";
+
         }
     });
 
@@ -81,51 +68,55 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
     function startDrawPolyLine() {
         handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
         var dynamicPositions = new Cesium.CallbackProperty(function () {
-            if(drawingMode === 'polygon') {
+            if(drawingMode === 'heightAvgAnals') {
                 return new Cesium.PolygonHierarchy(activeShapePoints);
             } else {
                 return activeShapePoints;
             }
         }, false);
 
-        handler.setInputAction(function (event) {
-            var earthPosition = viewer.scene.pickPosition(event.position);
-            if (Cesium.defined(earthPosition)) {
-                var cartographic = Cesium.Cartographic.fromCartesian(earthPosition);
-                var tempPosition = Cesium.Cartesian3.fromDegrees(Cesium.Math.toDegrees(cartographic.longitude), Cesium.Math.toDegrees(cartographic.latitude));
-                activeShapePoints.push(tempPosition);
+        handler.setInputAction(function(event) {
+            if(drawingMode === 'heightAvgAnals') {
+                var earthPosition = viewer.scene.pickPosition(event.position);
+                if (Cesium.defined(earthPosition)) {
+                    var cartographic = Cesium.Cartographic.fromCartesian(earthPosition);
+                    var tempPosition = Cesium.Cartesian3.fromDegrees(Cesium.Math.toDegrees(cartographic.longitude), Cesium.Math.toDegrees(cartographic.latitude));
+                    activeShapePoints.push(tempPosition);
 
-                if (activeShapePoints.length === 1) {
-                    activeShape = drawShape(dynamicPositions);
-                    if (drawingMode === 'polygon') {
-                        activeLabel = viewer.entities.add({
-                            name     : "TempLabel for area measurement",
-                            position: dynamicCenter,
-                            label: {
-                                text: dynamicLabel,
-                                font: 'bold 20px sans-serif',
-                                fillColor: Cesium.Color.BLUE,
-                                style: Cesium.LabelStyle.FILL,
-                                verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-                                disableDepthTestDistance: Number.POSITIVE_INFINITY,
-                                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
-                            }
-                        });
+                    if (activeShapePoints.length === 1) {
+                        activeShape = drawShape(dynamicPositions);
+                        if (drawingMode === 'heightAvgAnals') {
+                            activeLabel = viewer.entities.add({
+                                name     : "TempLabel for area measurement",
+                                position: dynamicCenter,
+                                label: {
+                                    text: dynamicLabel,
+                                    font: 'bold 20px sans-serif',
+                                    fillColor: Cesium.Color.BLUE,
+                                    style: Cesium.LabelStyle.FILL,
+                                    verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                                    disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                                    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
+                                }
+                            });
+                        }
                     }
+                    else {
+                        this._labels.push(drawLabel(tempPosition));
+                    }
+                    this._polyPoint.push({
+                        lon: Cesium.Math.toDegrees(cartographic.longitude),
+                        lat: Cesium.Math.toDegrees(cartographic.latitude)
+                    });
+                    this._polylines.push(createPoint(tempPosition));
                 }
-                else {
-                    this._labels.push(drawLabel(tempPosition));
-                }
-                this._polyPoint.push({
-                    lon: Cesium.Math.toDegrees(cartographic.longitude),
-                    lat: Cesium.Math.toDegrees(cartographic.latitude)
-                });
-                this._polylines.push(createPoint(tempPosition));
             }
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
         handler.setInputAction(function (event) {
-            terminateShape();
+            if(drawingMode === 'heightAvgAnals') {
+                terminateShape();
+            }
         }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
     }
 
@@ -135,7 +126,7 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
         lengthInMeters = 0;
         areaInMeters = 0
         this._polylines.push(drawShape(activeShapePoints));
-        if (drawingMode === 'polygon')  this._labels.push(drawAreaLabel());
+        if (drawingMode === 'heightAvgAnals')  this._labels.push(drawAreaLabel());
 
         viewer.entities.remove(activeShape);
         viewer.entities.remove(activeLabel);
@@ -170,20 +161,7 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
 
     function drawShape(positionData) {
         var shape;
-        if (drawingMode === 'line') {
-            shape = viewer.entities.add({
-                corridor: {
-                    // polyline: {
-                    positions: positionData,
-                    material: new Cesium.ColorMaterialProperty(Cesium.Color.YELLOW),
-                    //heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-                    // followSurface: true,
-                    // clampToGround : true,
-                    width: 3
-                }
-            });
-        }
-        else if (drawingMode === 'polygon') {
+        if (drawingMode === 'heightAvgAnals') {
             shape = viewer.entities.add({
                 name     : "Polygon for area measurement",
                 polygon: {

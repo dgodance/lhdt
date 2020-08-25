@@ -6,6 +6,9 @@ plugins {
     id 'war'
 }
 
+apply plugin: 'application'
+mainClassName = 'lhdt.LhdtUserApplication'
+
 apply plugin: 'project-report'
 
 group = 'com.lhdt'

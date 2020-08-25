@@ -4,6 +4,8 @@ plugins {
 	id 'java'
 	id 'war'
 }
+apply plugin: 'application'
+mainClassName = 'lhdt.svc.LhdtSvcApplication'
 
 apply plugin: 'project-report'
 

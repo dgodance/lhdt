@@ -51,9 +51,13 @@
 				<div th:replace="~{/data/map-data :: #dataInfoContent}"></div>
 				<div th:replace="~{/data/map-data-group :: #dataGroupInfoContent}"></div>
 			</div>
-			
+
 			<div th:replace="~{/simulation/simulation :: #simulationContent}"></div>
 			<div th:replace="~{/simulation/modeler :: #modelerContent}"></div>
+
+			<div th:replace="~{/cityplan/cityplan :: #cityPlanContent}"></div>
+			<div th:replace="~{/landscape/landscape :: #landscapeContent}"></div>
+			<div th:replace="~{/sunshine/sunshine :: #sunshineContent}"></div>
 
 			<!-- E: 데이터 -->
 
@@ -128,7 +132,11 @@
 <script type="text/javascript" th:src="@{/js/{lang}/search.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/data-info.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/user-policy.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/simulation.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<!--DS lib-->
+<script type="text/javascript" th:src="@{/js/{lang}/anals-buildheight.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/anals-landscapedirect.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/anals-landscapediff.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+
 <script type="text/javascript" th:src="@{/js/{lang}/anals-buildheight.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/anals-landscape.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/layer.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
@@ -206,6 +214,9 @@
         UserPolicy(magoInstance);
         // 시민참여
         // CivilVoice(magoInstance);
+		AnalsBuildHeight(viewer, magoInstance);
+		AnalsLandScapeDirection(viewer, magoInstance);
+
         // 기본 레이어 랜더링
         setTimeout(function(){
         	NDTP.map = new mapInit(magoInstance, NDTP.baseLayers, geoPolicyJson);

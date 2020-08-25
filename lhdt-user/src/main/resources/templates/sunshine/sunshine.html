@@ -1,0 +1,30 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<div id="sunshineContent" class="contents yScroll fullHeight" style="display:none;">
+    <ul class="listDrop">
+        <li class="on">
+            <p th:text="점분석"><span class="collapse-icon">icon</span></p>
+            <div id="sunshineDotProcess" class="listContents">
+                <ul>
+                    <li>
+                        <label for="sunshoneDotToggle" th:text="활성화"></label>
+                        <input type="checkbox" id="sunshoneDotToggle" value="" placeholder=""/>
+                        <button type="button" id="sunshoneDotBtn" th:text="작동"></button>
+                    </li>
+                </ul>
+            </div>
+        </li>
+        <li class="on">
+            <p th:text="면분석"><span class="collapse-icon">icon</span></p>
+            <div id="sunshineAreaProcess" class="listContents">
+                <ul>
+                    <li>
+                        <label for="sunshineAreaToggle"  th:text="활성화"></label>
+                        <input type="checkbox" id="sunshineAreaToggle" value="" placeholder=""/>
+                        <button type="button" id="sunshineAreaBtn" th:text="작동"></button>
+                    </li>
+                </ul>
+            </div>
+        </li>
+    </ul>
+</div>
+</html>
