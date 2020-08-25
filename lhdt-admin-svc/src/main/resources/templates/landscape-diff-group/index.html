@@ -17,21 +17,23 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="landScape : ${lsGroupPage}">
-            <td th:text="${landScape.id}"></td>
-            <td><a th:href="@{'/ls-diff-group/'+${landScape.id}}" th:text="${landScape.lsDiffGrupName}"></a></td>
-            <td th:text="${landScape.registDt}"></td>
+        <tr th:each="landScapeGroup : ${lsGroupPage}">
+            <td th:text="${landScapeGroup.id}"></td>
+            <td><a th:href="@{'/ls-diff-group/'+${landScapeGroup.id}}" th:text="${landScapeGroup.lsDiffGrupName}"></a></td>
+            <td th:text="${landScapeGroup.registDt}"></td>
             <td>
-                <a th:href="@{'/ls-diff-group/' + ${landScape.id}}" class="right floated ui button">확인</a>
+                <a th:href="@{'/ls-diff-group/' + ${landScapeGroup.id}}" class="right floated ui button">확인</a>
             </td>
             <td>
-                <a th:href="@{'/ls-diff-group/edit/' + ${landScape.id}}" class="right floated ui button">수정</a>
+                <a th:href="@{'/ls-diff-group/edit/' + ${landScapeGroup.id}}" class="right floated ui button">수정</a>
             </td>
             <td>
-                <form style="display: inline" th:method="DELETE" th:action="@{'/ls-diff-group/' + ${landScape.id}}"
+                <form style="display: inline" th:method="DELETE"
+                      th:action="@{'/ls-diff-group/' + ${landScapeGroup.id}}"
                       onsubmit="return confirm('정말 삭제하시겠습니까?');">
                     <button type="submit" class="right floated ui red button">삭제</button>
                 </form>
+
             </td>
         </tr>
         </tbody>

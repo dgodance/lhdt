@@ -11,7 +11,6 @@ const LandScapeCameraStatus = function() {
     this._captureIdx = 0;
     this._blob = undefined;
 }
-
 /**
  * 경관 비교
  * @dependency pp, ppmap
@@ -23,18 +22,17 @@ const AnalsLandScapeDiff = function() {
     this._landScapDiffStatList = [];
 };
 
+AnalsLandScapeDiff.prototype.init = function() {
+}
+
 AnalsLandScapeDiff.prototype.setEventHandler = function() {
     //
     let the = this;
-    $('#landScapeDiffBtn').click(function() {
-        alert(1);
+    $('#landscapeSaveBtn').click(function() {
+        $('')
         the.captureMap(function(blob) {
             the.captureScreenProc(blob);
         })
-    })
-
-    $('#landscapeDiffGroup').change(function() {
-        console.log(this.value);
     })
 
 }
@@ -80,7 +78,40 @@ AnalsLandScapeDiff.prototype.captureCameraState = function() {
     }
     return store;
 }
+AnalsLandScapeDiff.prototype.renderDiffDropdown = function() {
+    debugger;
+    const html = $('#landscapeDiffSource').html();
+    const template_html = Handlebars.compile(html);
+    $.get('http://localhost:9091/adminsvc/ls-diff/group').done(function(data) {
+        const lsGroupData = {
+            landscapeGroupList: data
+        }
+        debugger;
 
+        $('#landscapeDiffDataDiv').append(template_html(lsGroupData));
+        $('#landscapeDiffDataDiv').find('#landscapeGroup').change(function() {
+            console.log(this.value);
+        })
+    })
 
-const analsLandScapeDiff = new AnalsLandScapeDiff();
-analsLandScapeDiff.setEventHandler();
+}
+
+AnalsLandScapeDiff.prototype.renderDiffContent = function() {
+    var source = $('#landscapeDiffContentSource').html();
+    var template = Handlebars.compile(source);
+    var data = {
+        landscapeDiffList: [
+            {landScapeDiffNum: 1, landscapeDiffName: '결과1'},
+            {landScapeDiffNum: 2, landscapeDiffName: '결과2'},
+            {landScapeDiffNum: 3, landscapeDiffName: '결과3'},
+        ]
+    }
+    $('#landscapeDiffDetDataDiv').append(template(data));
+}
+
+$(document).ready(function() {
+    const analsLandScapeDiff = new AnalsLandScapeDiff();
+    analsLandScapeDiff.renderDiffDropdown();
+    analsLandScapeDiff.init();
+    analsLandScapeDiff.setEventHandler();
+})

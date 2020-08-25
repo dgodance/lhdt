@@ -48,19 +48,24 @@ public class LandScapeDiffGroupController {
     @PostMapping()
     public String addCityInfoByParam(Model model, LandScapeDiffGroup landScapeDiffGroup) {
         this.landScapeDiffGroupService.regist(landScapeDiffGroup);
-        return "/landscape-diff-group/index";
+        return "redirect:/ls-diff-group";
     }
 
     @DeleteMapping("/{id}")
     public String deleteNotice(@PathVariable(value = "id") Long id) {
         landScapeDiffGroupService.delete(id);
-        return "/landscape-diff-group/index";
+        return "redirect:/ls-diff-group";
     }
 
     @PutMapping()
     public String modifyNotice(@Valid @ModelAttribute LandScapeDiffGroup boardForm) {
         landScapeDiffGroupService.update(boardForm.getId(), boardForm);
-        return "/landscape-diff-group/index";
+        return "redirect:/ls-diff-group";
+    }
+
+    @GetMapping("/edit")
+    public String rgistDiffGroup(Model model) {
+        return "/landscape-diff-group/edit";
     }
 
     @GetMapping("/edit/{id}")
