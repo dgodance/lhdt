@@ -56,29 +56,29 @@
                     </thead>
                     <tbody>
                     {{#greaterThan landscapeDiffList.length 0}}
-                    {{#each landscapeDiffList}}
-                        <tr>
-                            <td><span class="no">{{landScapeDiffNum}}</span></td>
-                            <td>
-                                <span class="no">asdgasdg</span>
-                            </td>
-                            <td class="alignLeft ellipsis">
-                                <span class="no">{{landscapeDiffName}}</span>
-                            </td>
-                            <td>
-                                <span class="no">asdgasdg</span>
-                            </td>
-                            <td>
-                                <span class="no">asdgadsg</span>
-                            </td>
-                        </tr>
-                    {{/each}}
-                    </tbody>
+                        {{#each landscapeDiffList}}
+                            <tr>
+                                <td><span class="no">{{id}}</span></td>
+                                <td>
+                                    <span class="no">{{lsDiffName}}</span>
+                                </td>
+                                <td class="alignLeft ellipsis">
+                                    <span class="no"></span>
+                                </td>
+                                <td>
+                                    <span class="no">asdgasdg</span>
+                                </td>
+                                <td>
+                                    <span class="no">asdgadsg</span>
+                                </td>
+                            </tr>
+                        {{/each}}
                     {{else}}
-                    <tr>
-                        <td colspan="5" style="height: 30px;">데이터가 존재하지 않습니다.</td>
-                    </tr>
+                        <tr>
+                            <td colspan="5" style="height: 30px;">데이터가 존재하지 않습니다.</td>
+                        </tr>
                     {{/greaterThan}}
+                    </tbody>
                 </table>
             </div>
 

@@ -11,6 +11,11 @@ const LandScapeCameraStatus = function() {
     this._captureIdx = 0;
     this._blob = undefined;
 }
+
+const source = $('#landscapeDiffContentSource').html();
+const template = Handlebars.compile(source);
+
+
 /**
  * 경관 비교
  * @dependency pp, ppmap
@@ -23,18 +28,6 @@ const AnalsLandScapeDiff = function() {
 };
 
 AnalsLandScapeDiff.prototype.init = function() {
-}
-
-AnalsLandScapeDiff.prototype.setEventHandler = function() {
-    //
-    let the = this;
-    $('#landscapeSaveBtn').click(function() {
-        $('')
-        the.captureMap(function(blob) {
-            the.captureScreenProc(blob);
-        })
-    })
-
 }
 
 AnalsLandScapeDiff.prototype.captureScreenProc = function(blob) {
@@ -82,36 +75,62 @@ AnalsLandScapeDiff.prototype.renderDiffDropdown = function() {
     debugger;
     const html = $('#landscapeDiffSource').html();
     const template_html = Handlebars.compile(html);
+    let the = this;
     $.get('http://localhost:9091/adminsvc/ls-diff/group').done(function(data) {
         const lsGroupData = {
             landscapeGroupList: data
         }
-        debugger;
+        new AnalsLandScapeDiff().renderDiffContent();
 
         $('#landscapeDiffDataDiv').append(template_html(lsGroupData));
         $('#landscapeDiffDataDiv').find('#landscapeGroup').change(function() {
-            console.log(this.value);
+            const groupId = $('#landscapeGroup').val();
+            new AnalsLandScapeDiff().renderDiffContent(groupId);
+        })
+
+        $('#landscapeDiffDataDiv').find('#landscapeSaveBtn').click(function() {
+            the.captureMap(function(blob) {
+                debugger;
+                const formData = new FormData();
+
+
+                formData.append("captureCameraState", JSON.stringify(the.captureCameraState()));
+                formData.append('landScapeDiffGroupId', parseInt($('#landscapeGroup').val()));
+                formData.append('landscapeName', $('#landscapeName').val());
+                formData.append('image', blob);
+                $.ajax({
+                    type: 'POST',
+                    url: 'http://localhost:9091/adminsvc/ls-diff',
+                    data: formData,
+                    processData: false,
+                    contentType: false
+                }).done(function(data) {
+                    console.log(data);
+                    new AnalsLandScapeDiff().renderDiffContent($('#landscapeGroup').val());
+                });
+
+                // the.captureScreenProc(blob); //drawing
+            })
         })
     })
 
 }
 
-AnalsLandScapeDiff.prototype.renderDiffContent = function() {
-    var source = $('#landscapeDiffContentSource').html();
-    var template = Handlebars.compile(source);
-    var data = {
-        landscapeDiffList: [
-            {landScapeDiffNum: 1, landscapeDiffName: '결과1'},
-            {landScapeDiffNum: 2, landscapeDiffName: '결과2'},
-            {landScapeDiffNum: 3, landscapeDiffName: '결과3'},
-        ]
-    }
-    $('#landscapeDiffDetDataDiv').append(template(data));
+AnalsLandScapeDiff.prototype.renderDiffContent = function(groupId) {
+    if(groupId === undefined)
+        groupId = 1;
+    $.get('http://localhost:9091/adminsvc/ls-diff/'+groupId).done(function(diffObj) {
+        const data = {
+            landscapeDiffList: diffObj
+        }
+        $('#landscapeDiffDetDataDiv').empty();
+        $('#landscapeDiffDetDataDiv').append(template(data));
+        $('#landscapeName').val("");
+    });
 }
 
 $(document).ready(function() {
     const analsLandScapeDiff = new AnalsLandScapeDiff();
     analsLandScapeDiff.renderDiffDropdown();
     analsLandScapeDiff.init();
-    analsLandScapeDiff.setEventHandler();
 })

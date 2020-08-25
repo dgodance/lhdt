@@ -27,6 +27,10 @@
 <body>
 
 <div th:replace="~{/fragments/header :: #headerWrap}"></div>
+<!--	탬플릿 Warp		-->
+<div id="template-warp">
+	<div th:replace="~{/landscape-widget/landscape-widget :: #landscapeDiffWarp}"></div>
+</div>
 <div id="loadingWrap">
 	<div class="loading">
 		<span class="spinner"></span>
@@ -90,10 +94,6 @@
 	<canvas id="objectLabel"></canvas>
 	<!-- E: MAP -->
 
-	<!--	탬플릿 Warp		-->
-	<div id="template-warp">
-		<div th:replace="~{/landscape-widget/landscape-widget :: #landscapeDiffWarp}"></div>
-	</div>
 </div>
 <!-- E: WRAP -->
 <div th:replace="~{/data/data-dialog-template :: #dataDialogWrap}"></div>

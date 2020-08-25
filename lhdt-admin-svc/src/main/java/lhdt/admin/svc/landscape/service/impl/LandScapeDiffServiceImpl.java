@@ -3,6 +3,7 @@ package lhdt.admin.svc.landscape.service.impl;
 import lhdt.admin.svc.common.AdminSvcServiceImpl;
 import lhdt.admin.svc.landscape.domain.LandScapeAnals;
 import lhdt.admin.svc.landscape.domain.LandScapeDiff;
+import lhdt.admin.svc.landscape.domain.LandScapeDiffGroup;
 import lhdt.admin.svc.landscape.persistence.LandScapeAnalsMapper;
 import lhdt.admin.svc.landscape.persistence.LandScapeAnalsRepository;
 import lhdt.admin.svc.landscape.persistence.LandScapeDiffMapper;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -26,5 +28,10 @@ public class LandScapeDiffServiceImpl
     @PostConstruct
     private void init() {
         super.set(jpaRepo, mapper, new LandScapeDiff());
+    }
+
+    @Override
+    public List<LandScapeDiff> findAllByLandScapeDiffGroup(LandScapeDiffGroup landScapeDiffGroup) {
+        return this.jpaRepo.findAllByLandScapeDiffGroup(landScapeDiffGroup);
     }
 }

@@ -27,15 +27,17 @@ public class LandScapeDiff extends DsDomain {
     @Column(name = "ls_diff_name")
     private String lsDiffName;
 
-    @NotNull
-    @Lob
-    @Basic(fetch = FetchType.LAZY)
-    @Column(name = "landScapeDiff")
-    private byte[] image;
+    @Column(name = "ls_camera_state", columnDefinition = "json")
+    private String captureCameraState;
+
+    @Column(name = "ls_file_name")
+    private String fileName;
+
+    @Column(name = "ls_file_path")
+    private String filePath;
 
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="ls_diff_group_id")
-    @DsField(bizKey = true, order = 1)
     private LandScapeDiffGroup landScapeDiffGroup;
 }
