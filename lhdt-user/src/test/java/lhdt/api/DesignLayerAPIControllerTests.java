@@ -14,8 +14,7 @@ import org.springframework.http.MediaType;
 import java.util.stream.IntStream;
 
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.payload.PayloadDocumentation.relaxedResponseFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -35,6 +34,20 @@ class DesignLayerAPIControllerTests extends BaseControllerTest {
                     .designLayerGroupId(1)
                     .designLayerKey("test"+i)
                     .designLayerName("testName"+i)
+                    .designLayerType("land")
+                    .userId("admin")
+                    .ogcWebServices("wms")
+                    .geometryType("polygon")
+                    .layerFillColor("#000000")
+                    .layerLineColor("#000000")
+                    .layerLineStyle(1F)
+                    .layerAlphaStyle(1F)
+                    .viewOrder(1)
+                    .zIndex(1)
+                    .available(true)
+                    .cacheAvailable(true)
+                    .coordinate("EPSG:4326")
+                    .description("test")
                     .build();
             designLayerMapper.insertDesignLayer(designLayer);
         });
@@ -45,6 +58,7 @@ class DesignLayerAPIControllerTests extends BaseControllerTest {
     public void getDesignLayer() throws Exception {
         DesignLayer designLayer = new DesignLayer();
         designLayer.setListCounter(3L);
+        designLayer.setDesignLayerGroupId(1);
 
         this.mockMvc.perform(get("/api/design-layers")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -57,7 +71,12 @@ class DesignLayerAPIControllerTests extends BaseControllerTest {
                 .andExpect(jsonPath("_embedded.designLayers[0]._links.self").exists())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.profile").exists())
-                .andDo(document("design-layer-list"));
+                .andDo(document("design-layer-list",
+                        relaxedRequestFields(
+                                fieldWithPath("designLayerGroupId").description("design layer 그룹 고유번호"),
+                                fieldWithPath("listCounter").description("페이지 row 갯수")
+                        )
+                    ));
     }
 
     @Test
@@ -81,7 +100,7 @@ class DesignLayerAPIControllerTests extends BaseControllerTest {
                                 fieldWithPath("designLayerGroupId").description("design layer 그룹 고유번호"),
                                 fieldWithPath("designLayerKey").description("design layer 고유키(API용)"),
                                 fieldWithPath("designLayerName").description("design layer 명"),
-                                fieldWithPath("designLayerCategory").description("design layer 분류. land : 땅, building : 빌딩"),
+                                fieldWithPath("designLayerType").description("design layer 분류. land : 땅, building : 빌딩"),
                                 fieldWithPath("userId").description("사용자명"),
                                 fieldWithPath("ogcWebServices").description("OGC Web Services (wms, wfs, wcs, wps)"),
                                 fieldWithPath("geometryType").description("도형 타입"),

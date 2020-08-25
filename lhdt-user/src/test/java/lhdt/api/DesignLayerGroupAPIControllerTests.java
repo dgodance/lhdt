@@ -31,7 +31,15 @@ class DesignLayerGroupAPIControllerTests extends BaseControllerTest {
         IntStream.range(0,5).forEach(i -> {
             var group = DesignLayerGroup.builder()
                     .designLayerGroupName("groupName"+i)
+                    .userId("admin")
+                    .ancestor(1)
                     .parent(0)
+                    .parentName("parentName")
+                    .depth(1)
+                    .viewOrder(1)
+                    .children(1)
+                    .available(true)
+                    .description("test")
                     .build();
             designLayerGroupMapper.insertDesignLayerGroup(group);
         });
