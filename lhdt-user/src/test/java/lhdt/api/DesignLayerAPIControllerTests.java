@@ -43,13 +43,13 @@ class DesignLayerAPIControllerTests extends BaseControllerTest {
     @Test
     @DisplayName("DesignLayer 목록 조회 하기")
     public void getDesignLayer() throws Exception {
-//        DesignLayer designLayer = new DesignLayer();
-//        designLayer.setListCounter(10L);
+        DesignLayer designLayer = new DesignLayer();
+        designLayer.setListCounter(3L);
 
         this.mockMvc.perform(get("/api/design-layers")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaTypes.HAL_JSON)
-//                .content(objectMapper.writeValueAsString(designLayer))
+                .content(objectMapper.writeValueAsString(designLayer))
                 .param("pageNo", "1"))
                 .andDo(print())
                 .andExpect(status().isOk())

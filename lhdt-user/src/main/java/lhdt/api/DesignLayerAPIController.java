@@ -24,7 +24,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 public class DesignLayerAPIController {
 
     private final DesignLayerService designLayerService;
-    private final ModelMapper modelMapper = new ModelMapper();
+    private final ModelMapper modelMapper;
 
     /**
      * 디자인 레이어 목록 조회
@@ -32,7 +32,7 @@ public class DesignLayerAPIController {
      * @return
      */
     @GetMapping
-    public ResponseEntity<CollectionModel<EntityModel<DesignLayerDto>>> getDesignLayers(@RequestParam(defaultValue = "1") String pageNo, DesignLayer designLayer) {
+    public ResponseEntity<CollectionModel<EntityModel<DesignLayerDto>>> getDesignLayers(@RequestParam(defaultValue = "1") String pageNo, @RequestBody DesignLayer designLayer) {
 
         Long totalCount = designLayerService.getDesignLayerTotalCount(designLayer);
         Pagination pagination = new Pagination(null, designLayer.getParameters(), totalCount, Long.parseLong(pageNo), designLayer.getListCounter());
