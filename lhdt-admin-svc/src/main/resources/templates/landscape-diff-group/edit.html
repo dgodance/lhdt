@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <th:block th:insert="fragments/head :: common"></th:block>
     <title>글 작성하기</title>
 </head>
 <body class="ui gird" th:with="isPost=${lsGroup} == null ? true : false">
@@ -10,7 +9,7 @@
     <form th:method="${isPost} ? 'POST' : 'PUT'" th:action="@{/ls-diff-group}" class="ui form">
         <div>
             <label>제목</label>
-            <input type="text" name="title" placeholder="제목을 입력해주세요."
+            <input type="text" name="lsDiffGrupName" placeholder="제목을 입력해주세요."
                    th:value="${isPost} ? '' : ${lsGroup.lsDiffGrupName}"
                    required>
         </div>

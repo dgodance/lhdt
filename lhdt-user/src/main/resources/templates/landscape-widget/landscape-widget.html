@@ -1,0 +1,87 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<div id="landscapeDiffWarp">
+    <script id="landscapeDiffSource" type="text/x-handlebars-template">
+        <form id="landscapeDataForm" method="post" onsubmit="return false;">
+            <div class="form-group form-group-data">
+                <label for="landscapeGroup">경관그룹</label>
+                <select id="landscapeGroup" name="landscapeGroup">
+                    {{#landscapeGroupList}}
+                    <option value="{{id}}">
+                        {{lsDiffGrupName}}
+                    </option>
+                    {{/landscapeGroupList}}
+                </select>
+            </div>
+            <div class="form-group form-group-data">
+                <label for="landscapeName">경관명</label>
+                <input type="text" id="landscapeName" name="landscapeName" placeholder="데이터명을 입력하여 주십시오." size="30">
+            </div>
+            <div class="form-group form-group-data">
+                <button type="submit" id="landscapeSaveBtn" class="btnTextF search-text" title="검색">저장</button>
+            </div>
+        </form>
+    </script>
+    <script id="landscapeDiffContentSource" type="text/x-handlebars-template">
+        <div id="dataListDHTML" style="height:calc(100% - 255px)">
+            <div>
+		<span>
+			전체
+			<span class="totalCount">0</span>
+			건
+		</span>
+                <span class="float-right">0 / 0
+			페이지
+		</span>
+                <input type="hidden" name="pageNo" value="0">
+            </div>
+            <div class="dataBtns"></div>
+            <div class="tableList marT10 yScroll" style="height: calc(100% - 43px)">
+                <table summary="데이터 목록">
+                    <caption class="hiddenTag">데이터 목록</caption>
+                    <colgroup>
+                        <col class="col-width-12">
+                        <col class="col-width-12">
+                        <col>
+                        <col class="col-width-12">
+                        <col class="col-width-12">
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        <th>번호</th>
+                        <th>공유 유형</th>
+                        <th>데이터명</th>
+                        <th>표시</th>
+                        <th>이동</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {{#greaterThan landscapeDiffList.length 0}}
+                    {{#each landscapeDiffList}}
+                        <tr>
+                            <td><span class="no">{{landScapeDiffNum}}</span></td>
+                            <td>
+                                <span class="no">asdgasdg</span>
+                            </td>
+                            <td class="alignLeft ellipsis">
+                                <span class="no">{{landscapeDiffName}}</span>
+                            </td>
+                            <td>
+                                <span class="no">asdgasdg</span>
+                            </td>
+                            <td>
+                                <span class="no">asdgadsg</span>
+                            </td>
+                        </tr>
+                    {{/each}}
+                    </tbody>
+                    {{else}}
+                    <tr>
+                        <td colspan="5" style="height: 30px;">데이터가 존재하지 않습니다.</td>
+                    </tr>
+                    {{/greaterThan}}
+                </table>
+            </div>
+
+        </div>
+    </script>
+</div>

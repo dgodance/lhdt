@@ -32,6 +32,7 @@
 		<span class="spinner"></span>
 	</div>
 </div>
+
 <div id="wrap" style="min-height: 560px;"> <!-- 왼쪽 메뉴 높이에 맞춰서 설정해 줘야함 -->
 	<!-- S: NAVWRAP -->
 	<div class="navWrap">
@@ -53,7 +54,7 @@
 			</div>
 
 			<div th:replace="~{/simulation/simulation :: #simulationContent}"></div>
-			<div th:replace="~{/simulation/modeler :: #modelerContent}"></div>
+<!--			<div th:replace="~{/simulation/modeler :: #modelerContent}"></div>-->
 
 			<div th:replace="~{/cityplan/cityplan :: #cityPlanContent}"></div>
 			<div th:replace="~{/landscape/landscape :: #landscapeContent}"></div>
@@ -88,8 +89,11 @@
 	<div id="magoContainer" class="mapWrap"></div>
 	<canvas id="objectLabel"></canvas>
 	<!-- E: MAP -->
-	
-	
+
+	<!--	탬플릿 Warp		-->
+	<div id="template-warp">
+		<div th:replace="~{/landscape-widget/landscape-widget :: #landscapeDiffWarp}"></div>
+	</div>
 </div>
 <!-- E: WRAP -->
 <div th:replace="~{/data/data-dialog-template :: #dataDialogWrap}"></div>

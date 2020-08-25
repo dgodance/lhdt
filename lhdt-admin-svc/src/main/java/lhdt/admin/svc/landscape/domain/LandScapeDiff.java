@@ -8,8 +8,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.Hibernate;
 
 import javax.persistence.*;
+import java.io.InputStream;
+import java.sql.Blob;
+import java.sql.SQLException;
 
 @Entity
 @Table(name="ls_diff")
@@ -22,6 +26,12 @@ public class LandScapeDiff extends DsDomain {
     @DsField(bizKey = true, order = 0)
     @Column(name = "ls_diff_name")
     private String lsDiffName;
+
+    @NotNull
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "landScapeDiff")
+    private byte[] image;
 
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
