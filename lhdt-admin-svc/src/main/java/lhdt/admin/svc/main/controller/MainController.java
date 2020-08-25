@@ -27,12 +27,12 @@ public class MainController extends DsController {
 	@Autowired
 	private HelloService service;
 	
-	@RequestMapping("/index")
+	@RequestMapping("/dashboard")
 	public String index(Model model) {
 		
 		model.addAttribute(DsConst.DATAS, service.findAll());
 		log.debug("{}", model);
 		
-		return P + "index";
+		return P + "dashboard";
 	}
 }

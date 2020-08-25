@@ -144,7 +144,7 @@ public class SigninController extends DsController {
 		DsSessionUtils.set(request, DsConst.USER_SESSION, userSession);
 		
 		//
-		return new RedirectView("../main/index");
+		return new RedirectView("../main/dashboard");
 	}
 	
 	
