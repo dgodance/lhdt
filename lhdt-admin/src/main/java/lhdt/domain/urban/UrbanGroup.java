@@ -77,6 +77,9 @@ public class UrbanGroup {
 	private String description;
 
 	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+	private LocalDateTime updateDate;
+
+	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime insertDate;
 
 //	/**

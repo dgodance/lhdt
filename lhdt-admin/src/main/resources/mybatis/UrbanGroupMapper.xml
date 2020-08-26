@@ -66,6 +66,18 @@
 		LIMIT 1
 	</select>
 
+	<!-- 도시 그룹 Key 중복 확인 -->
+	<select id="isUrbanGroupKeyDuplication" parameterType="urbanGroup" resultType="boolean">
+		/* isUrbanGroupKeyDuplication */
+		SELECT
+			CASE
+				WHEN COUNT(*) > 0 THEN true
+				ELSE false
+			END AS duplication
+		FROM urban_group
+		WHERE urban_group_key = #{urbanGroupKey}
+	</select>
+
 	<!-- 도시 그룹 등록 -->
 	<insert id="insertUrbanGroup" parameterType="urbanGroup">
 		/* insertUrbanGroup */
@@ -73,7 +85,7 @@
 			SELECT NEXTVAL('urban_group_seq')
 		</selectKey>
 		INSERT INTO urban_group (
-			urban_group_id, urban_group_name, user_id, ancestor, parent, depth, view_order, children, available,
+			urban_group_id, urban_group_key, urban_group_name, user_id, ancestor, parent, depth, view_order, children, available,
 			start_date, end_date,
 			<if test="location != null and location != ''">
 				location,
@@ -81,7 +93,7 @@
 			area, receiving_population, receiving_household, project_operator, transfer_local_government,
 			description
 		) VALUES (
-			#{urbanGroupId}, #{urbanGroupName}, #{userId},
+			#{urbanGroupId}, #{urbanGroupKey}, #{urbanGroupName}, #{userId},
 			(
 				SELECT COALESCE(MAX(ancestor), #{urbanGroupId})
 				FROM urban_group

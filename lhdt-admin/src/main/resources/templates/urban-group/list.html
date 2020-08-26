@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html th:lang="${accessibility}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="/layouts/default">
 <head>
-	<title>Layer 그룹</title>
+	<title>도시 그룹</title>
 	<th:block layout:fragment="pageCustomStyle">
 		<link rel="stylesheet" th:href="@{/css/{lang}/font/font.css(lang=${lang},cacheVersion=${contentCacheVersion})}" />
 		<link rel="stylesheet" th:href="@{/images/{lang}/icon/glyph/glyphicon.css(lang=${lang},cacheVersion=${contentCacheVersion})}" />
@@ -30,10 +30,15 @@
 									</div>
 								</div>
 							</div>
-							<table class="list-table scope-col" summary="2D 레이어 그룹 리스트">
-								<caption class="hiddenTag">2D 레이어 그룹</caption>
+							<table class="list-table scope-col" summary="도시 그룹 리스트">
+								<caption class="hiddenTag">도시 그룹</caption>
 								<col class="col-name"/>
 								<col class="col-toggle"/>
+								<col class="col-name"/>
+								<col class="col-name"/>
+								<col class="col-name"/>
+								<col class="col-name"/>
+								<col class="col-name"/>
 								<col class="col-name"/>
 								<col class="col-functions"/>
 								<col class="col-functions"/>
@@ -42,8 +47,13 @@
 								<thead>
 								<tr>
 									<th scope="col">그룹명</th>
+									<th scope="col">기간</th>
+									<th scope="col">위치</th>
+									<th scope="col">면적</th>
+									<th scope="col">수용 인구</th>
+									<th scope="col">수용 세대</th>
+									<th scope="col">양도 시기</th>
 									<th scope="col">사용 여부</th>
-									<th scope="col">등록자</th>
 									<th scope="col">레이어</th>
 									<th scope="col">순서</th>
 									<th scope="col">편집</th>
@@ -51,83 +61,83 @@
 								</tr>
 								</thead>
 								<tbody>
-								<tr th:if="${layerGroupList.empty}">
-									<td colspan="9" class="col-none">레이어 그룹이 존재하지 않습니다.</td>
+								<tr th:if="${urbanGroupList.empty}">
+									<td colspan="9" class="col-none">도시 그룹이 존재하지 않습니다.</td>
 								</tr>
-								<th:block th:if="${!layerGroupList.empty}" th:each="layerGroup : ${layerGroupList}">
-									<th:block th:if="${layerGroup.depth == 1}">
+								<th:block th:if="${!urbanGroupList.empty}" th:each="urbanGroup : ${urbanGroupList}">
+									<th:block th:if="${urbanGroup.depth == 1}">
 										<tr class="oneDepthClass">
 											<td class="col-key ellipsis" style="max-width: 300px;">
-									<span th:onclick="childrenDisplayToggle([[${layerGroup.depth}]], [[${layerGroup.layerGroupId}]], [[${layerGroup.ancestor}]]);"
+									<span th:onclick="childrenDisplayToggle([[${urbanGroup.depth}]], [[${urbanGroup.urbanGroupId}]], [[${urbanGroup.ancestor}]]);"
 										  style="padding-left: 0px; font-size: 1.6em;">
-										<i th:id="|oneDepthArrow-${layerGroup.layerGroupId}|"
+										<i th:id="|oneDepthArrow-${urbanGroup.urbanGroupId}|"
 										   class="fa fa-caret-right oneArrow" aria-hidden="true"></i>
 									</span>&nbsp;
 												<span style="font-size: 1.5em; color: Dodgerblue;">
-										<i th:id="|oneDepthFolder-${layerGroup.layerGroupId}|"
+										<i th:id="|oneDepthFolder-${urbanGroup.urbanGroupId}|"
 										   class="fa fa-folder oneFolder" aria-hidden="true"></i>
 									</span>
-												<span th:text="${layerGroup.layerGroupName}"></span>
+												<span th:text="${urbanGroup.urbanGroupName}"></span>
 											</td>
 									</th:block>
-									<th:block th:if="${layerGroup.depth == 2} ">
-										<tr th:class="|twoDepthClass oneDepthParent-${layerGroup.parent}|"
+									<th:block th:if="${urbanGroup.depth == 2} ">
+										<tr th:class="|twoDepthClass oneDepthParent-${urbanGroup.parent}|"
 											style="display: none;">
 											<td class="col-key ellipsis" style="max-width: 300px;">
-										<span th:onclick="childrenDisplayToggle([[${layerGroup.depth}]], [[${layerGroup.layerGroupId}]], [[${layerGroup.ancestor}]]);"
+										<span th:onclick="childrenDisplayToggle([[${urbanGroup.depth}]], [[${urbanGroup.urbanGroupId}]], [[${urbanGroup.ancestor}]]);"
 											  style="padding-left: 40px; font-size: 1.6em;">
-											<i th:id="|twoDepthArrow-${layerGroup.layerGroupId}|"
-											   th:class="|fa fa-caret-right twoArrow ancestorArrow-${layerGroup.ancestor}|"
+											<i th:id="|twoDepthArrow-${urbanGroup.urbanGroupId}|"
+											   th:class="|fa fa-caret-right twoArrow ancestorArrow-${urbanGroup.ancestor}|"
 											   aria-hidden="true"></i>
 										</span>&nbsp;
 												<span style="font-size: 1.5em; color: Mediumslateblue;">
-											<i th:id="|twoDepthArrow-${layerGroup.layerGroupId}|"
-											   th:class="|fa fa-folder twoFolder ancestorFolder-${layerGroup.ancestor}|"
+											<i th:id="|twoDepthArrow-${urbanGroup.urbanGroupId}|"
+											   th:class="|fa fa-folder twoFolder ancestorFolder-${urbanGroup.ancestor}|"
 											   aria-hidden="true"></i>
 										</span>
-												<span th:text="${layerGroup.layerGroupName}"></span>
+												<span th:text="${urbanGroup.urbanGroupName}"></span>
 											</td>
 									</th:block>
-									<th:block th:if="${layerGroup.depth == 3}">
-										<tr th:class="|threeDepthClass twoDepthParent-${layerGroup.parent} ancestor-${layerGroup.ancestor}|"
+									<th:block th:if="${urbanGroup.depth == 3}">
+										<tr th:class="|threeDepthClass twoDepthParent-${urbanGroup.parent} ancestor-${urbanGroup.ancestor}|"
 											style="display: none;">
 											<td class="col-key ellipsis" style="max-width: 300px;">
 										<span style="padding-left: 80px; font-size: 1.5em; color: Tomato;">
-											<i th:id="|threeDepthFolder-${layerGroup.layerGroupId}|"
-											   th:class="|fa fa-folder threeFolder ancestorFolder-${layerGroup.ancestor}|"
+											<i th:id="|threeDepthFolder-${urbanGroup.urbanGroupId}|"
+											   th:class="|fa fa-folder threeFolder ancestorFolder-${urbanGroup.ancestor}|"
 											   aria-hidden="true"></i>
 										</span>
-												<span th:text="${layerGroup.layerGroupName}"></span>
+												<span th:text="${urbanGroup.urbanGroupName}"></span>
 											</td>
 									</th:block>
 									<td class="col-type">
-										<th:block th:if="${#bools.isTrue(layerGroup.available)}" th:text="사용"></th:block>
-										<th:block th:if="${#bools.isFalse(layerGroup.available)}" th:text="미사용"></th:block>
+										<th:block th:if="${#bools.isTrue(urbanGroup.available)}">사용</th:block>
+										<th:block th:if="${#bools.isFalse(urbanGroup.available)}">미사용</th:block>
 									</td>
-									<td class="col-type" th:text="${layerGroup.userId}"></td>
+									<td class="col-type" th:text="${urbanGroup.userId}"></td>
 									<td class="col-type">
-										<a th:href="@{/layer/list(searchOption=0,searchWord=layer_group_name,searchValue=${layerGroup.layerGroupName})}"
+										<a th:href="@{/urban/list(searchOption=0,searchWord=urban_group_name,searchValue=${urbanGroup.urbanGroupName})}"
 										   class="linkButton">보기</a>
 									</td>
 									<td class="col-type">
 										<div class="button-group">
 											<a href="#"
-											   th:onclick="moveUp([[${layerGroup.layerGroupId}]], [[${layerGroup.viewOrder}]]); return false;"
+											   th:onclick="moveUp([[${urbanGroup.urbanGroupId}]], [[${urbanGroup.viewOrder}]]); return false;"
 											   class="button" style="text-decoration:none;">위로</a>
 											<a href="#"
-											   th:onclick="moveDown([[${layerGroup.layerGroupId}]], [[${layerGroup.viewOrder}]]); return false;"
+											   th:onclick="moveDown([[${urbanGroup.urbanGroupId}]], [[${urbanGroup.viewOrder}]]); return false;"
 											   class="button" style="text-decoration:none;">아래로</a>
 										</div>
 									</td>
 									<td class="col-type">
-										<a th:href="@{/layer-group/modify(layerGroupId=${layerGroup.layerGroupId})}"
+										<a th:href="@{/urban-group/modify(urbanGroupId=${urbanGroup.urbanGroupId})}"
 										   class="image-button button-edit" th:text="#{modified}"></a>&nbsp;&nbsp;
-										<a th:href="@{/layer-group/delete(layerGroupId=${layerGroup.layerGroupId})}"
+										<a th:href="@{/urban-group/delete(urbanGroupId=${urbanGroup.urbanGroupId})}"
 										   class="image-button button-delete" th:text="#{delete}"
 										   onclick="return deleteWarning();"></a>
 									</td>
 									<td class="col-date"
-										th:text="${#temporals.format(layerGroup.insertDate, 'yyyy-MM-dd HH:mm:ss')}">
+										th:text="${#temporals.format(urbanGroup.insertDate, 'yyyy-MM-dd HH:mm:ss')}">
 									</td>
 									</tr>
 								</th:block>
@@ -257,7 +267,6 @@
 
 	// 위로 이동
 	var upFlag = true;
-
 	function moveUp(id, viewOrder) {
 		if (upFlag) {
 			upFlag = false;
@@ -269,7 +278,7 @@
 
 			var formData = "updateType=UP";
 			$.ajax({
-				url: "/layer-groups/view-order/" + id,
+				url: "/urban-groups/view-order/" + id,
 				type: "POST",
 				headers: {"X-Requested-With": "XMLHttpRequest"},
 				data: formData,
@@ -280,7 +289,7 @@
 						upFlag = true;
 						openAll();
 					} else {
-						if (msg.errorCode === "data.group.view-order.invalid") {
+						if (msg.errorCode === "urban.group.view-order.invalid") {
 							alert("순서를 변경할 수 없습니다.");
 						} else {
 							alert(JS_MESSAGE[msg.errorCode]);
@@ -302,13 +311,12 @@
 
 	// 아래로 이동
 	var downFlag = true;
-
 	function moveDown(id, viewOrder) {
 		if (downFlag) {
 			downFlag = false;
 			var formData = "updateType=DOWN";
 			$.ajax({
-				url: "/layer-groups/view-order/" + id,
+				url: "/urban-groups/view-order/" + id,
 				type: "POST",
 				headers: {"X-Requested-With": "XMLHttpRequest"},
 				data: formData,
@@ -319,7 +327,7 @@
 						downFlag = true;
 						openAll();
 					} else {
-						if (msg.errorCode === "layer.group.view-order.invalid") {
+						if (msg.errorCode === "urban.group.view-order.invalid") {
 							alert("순서를 변경할 수 없습니다.");
 						} else {
 							alert(JS_MESSAGE[msg.errorCode]);
