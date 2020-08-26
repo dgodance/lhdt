@@ -32,10 +32,11 @@ public class DesignLayerAPIController {
      * @return
      */
     @GetMapping
-    public ResponseEntity<CollectionModel<EntityModel<DesignLayerDto>>> getDesignLayers(@RequestParam(defaultValue = "1") String pageNo, @RequestBody DesignLayer designLayer) {
-
+    public ResponseEntity<CollectionModel<EntityModel<DesignLayerDto>>> getDesignLayers(@RequestParam(defaultValue = "1") Long page,
+                                                                                        @RequestParam(defaultValue = "10") Long size) {
+        DesignLayer designLayer = new DesignLayer();
         Long totalCount = designLayerService.getDesignLayerTotalCount(designLayer);
-        Pagination pagination = new Pagination(null, designLayer.getParameters(), totalCount, Long.parseLong(pageNo), designLayer.getListCounter());
+        Pagination pagination = new Pagination(null, null, totalCount, page, size);
         designLayer.setOffset(pagination.getOffset());
         designLayer.setLimit(pagination.getPageRows());
 

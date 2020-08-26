@@ -56,27 +56,19 @@ class DesignLayerAPIControllerTests extends BaseControllerTest {
     @Test
     @DisplayName("DesignLayer 목록 조회 하기")
     public void getDesignLayer() throws Exception {
-        DesignLayer designLayer = new DesignLayer();
-        designLayer.setListCounter(3L);
-        designLayer.setDesignLayerGroupId(1);
 
         this.mockMvc.perform(get("/api/design-layers")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaTypes.HAL_JSON)
-                .content(objectMapper.writeValueAsString(designLayer))
-                .param("pageNo", "1"))
+                .param("page", "1")
+                .param("size", "3"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 //.andExpect(jsonPath("page").exists())
                 .andExpect(jsonPath("_embedded.designLayers[0]._links.self").exists())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.profile").exists())
-                .andDo(document("design-layer-list",
-                        relaxedRequestFields(
-                                fieldWithPath("designLayerGroupId").description("design layer 그룹 고유번호"),
-                                fieldWithPath("listCounter").description("페이지 row 갯수")
-                        )
-                    ));
+                .andDo(document("design-layer-list"));
     }
 
     @Test
