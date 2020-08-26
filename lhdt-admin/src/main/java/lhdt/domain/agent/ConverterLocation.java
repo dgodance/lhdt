@@ -1,6 +1,7 @@
-package lhdt.domain;
+package lhdt.domain.agent;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lhdt.domain.converter.ConverterJob;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -89,6 +89,17 @@ public class UploadDataServiceImpl implements UploadDataService {
 	}
 
 	/**
+	 * 업로딩 데이터 파일
+	 * @param uploadDataFile
+	 * @return	업로딩 데이터 파일
+	 */
+	@Transactional(readOnly=true)
+	public UploadDataFile getUploadDataFile(UploadDataFile uploadDataFile) {
+		return uploadDataMapper.getUploadDataFile(uploadDataFile);
+	}
+
+
+	/**
 	 * 업로드 데이터 타입 집계
 	 * @return
 	 */

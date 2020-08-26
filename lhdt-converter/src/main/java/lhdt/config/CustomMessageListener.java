@@ -1,10 +1,7 @@
 package lhdt.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lhdt.domain.ConverterJob;
-import lhdt.domain.ConverterJobStatus;
-import lhdt.domain.QueueMessage;
-import lhdt.domain.ServerTarget;
+import lhdt.domain.*;
 import lhdt.sender.ResultSender;
 import lhdt.support.LogMessageSupport;
 import lhdt.support.ProcessBuilderSupport;
@@ -46,7 +43,7 @@ public class CustomMessageListener {
 		Long converterJobId = queueMessage.getConverterJobId();
 		log.info(" @@@@@@ handleMessage start. converterJobId = {}", converterJobId);
 
-		Long converterJobFileId = queueMessage.getConverterJobFileId();
+		//Long converterJobFileId = queueMessage.getConverterJobFileId();
 		String userId = queueMessage.getUserId();
 
 		String logPath = queueMessage.getLogPath();
@@ -55,7 +52,8 @@ public class CustomMessageListener {
 		String attributeFilePath = outputPath + "/attributes.json";
 
 		ConverterJob converterJob = new ConverterJob();
-		converterJob.setConverterJobFileId(converterJobFileId);
+		//converterJob.setConverterJobFileId(converterJobFileId);
+		//log.info(" >>>>>> converterJobFileId = {}", converterJobFileId);
 		converterJob.setUserId(userId);
 		converterJob.setConverterJobId(converterJobId);
 		ServerTarget target = queueMessage.getServerTarget();
@@ -113,7 +111,6 @@ public class CustomMessageListener {
 		// 앞의 비동기 작업의 결과를 받아 사용하며 return이 없다.
 		.thenAccept(status -> {
 			log.info("thenAccept result = {}", status);
-			converterJob.setConverterJobId(converterJobId);
 			converterJob.setStatus(status);
 			converterJob.setErrorCode(null);
 
@@ -122,22 +119,25 @@ public class CustomMessageListener {
 				ResultSender.sendLog(converterJob, objectMapper, propertiesConfig, restTemplate, target, logPath);
 			} catch (IOException | URISyntaxException e) {
 				// 로그파일 전송 오류 시 변환 실패 전송
-				converterJob.setStatus(ConverterJobStatus.FAIL.name().toLowerCase());
-				converterJob.setErrorCode(e.getMessage());
-				ResultSender.sendConverterJobStatus(converterJob, propertiesConfig, restTemplate, target);
+//				converterJob.setStatus(ConverterJobStatus.FAIL.name().toLowerCase());
+//				converterJob.setErrorCode(e.getMessage());
+//				ResultSender.sendConverterJobStatus(converterJob, propertiesConfig, restTemplate, target);
 				LogMessageSupport.printMessage(e);
 			}
 
 			try {
 				// 위치, 속성파일 전송
-				ResultSender.sendLocation(converterJob, objectMapper, propertiesConfig, restTemplate, target, locationFilePath);
-				ResultSender.sendAttribute(converterJob, objectMapper, propertiesConfig, restTemplate, target, attributeFilePath);
+				UploadDataType uploadDataType = queueMessage.getUploadDataType();
+				if (UploadDataType.CITYGML == uploadDataType || UploadDataType.INDOORGML == uploadDataType) {
+					ResultSender.sendLocation(converterJob, objectMapper, propertiesConfig, restTemplate, target, locationFilePath);
+					ResultSender.sendAttribute(converterJob, propertiesConfig, restTemplate, target, attributeFilePath);
+				}
 			} catch (IOException | URISyntaxException e) {
 				LogMessageSupport.printMessage(e);
 			}
 
 			// 변환결과 전송
-			ResultSender.sendConverterJobStatus(converterJob, propertiesConfig, restTemplate, target);
+//			ResultSender.sendConverterJobStatus(converterJob, propertiesConfig, restTemplate, target);
 			log.info("thenAccept end");
 		});
 		log.info("receiveMessage end");

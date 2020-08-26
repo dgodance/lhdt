@@ -50,6 +50,8 @@ public class PropertiesConfig {
     
     // F4D 파일이 변환되는 Root 경로 이자, mago3DJS 에서 요청되는 파일의 Root 경로. ServletConfig 에서 매핑
     private String dataServiceDir;
+    // F4D 변환 결과 로그 저장 경로
+    private String dataServiceLogDir;
     // 관리자용
     private String adminDataServiceDir;
     private String adminDataServicePath;
@@ -58,6 +60,9 @@ public class PropertiesConfig {
     private String userDataServicePath;
     
     private String dataUploadDir;
+    private String dataBulkUploadDir;
+    // smart tiling 데이터 업로드 디렉토리
+    private String dataSmartTilingDir;
     private String dataAttributeDir;
     private String dataAttributeUploadDir;
     private String dataObjectAttributeUploadDir;

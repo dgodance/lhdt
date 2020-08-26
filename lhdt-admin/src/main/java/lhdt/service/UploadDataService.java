@@ -48,6 +48,13 @@ public interface UploadDataService {
 	 * @return
 	 */
 	List<UploadDataFile> getListUploadDataFile(UploadData uploadData);
+
+	/**
+	 * 업로딩 데이터 파일
+	 * @param uploadDataFile
+	 * @return	업로딩 데이터 파일
+	 */
+	UploadDataFile getUploadDataFile(UploadDataFile uploadDataFile);
 	
 	/**
 	 * 업로드 데이터 타입 집계

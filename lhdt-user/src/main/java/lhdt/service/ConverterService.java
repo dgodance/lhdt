@@ -1,9 +1,12 @@
 package lhdt.service;
 
-import java.util.List;
-
+import lhdt.domain.agent.ConverterAttribute;
+import lhdt.domain.agent.ConverterLocation;
+import lhdt.domain.agent.ConverterResultLog;
 import lhdt.domain.converter.ConverterJob;
 import lhdt.domain.converter.ConverterJobFile;
+
+import java.util.List;
 
 /**
  * f4d converting manager
@@ -14,43 +17,61 @@ public interface ConverterService {
 	
 	/**
 	 * converter job 총 건수
-	 * @param converterJob
-	 * @return
+	 * @param converterJob converterJob
+	 * @return converter job 총 건수
 	 */
-	public Long getConverterJobTotalCount(ConverterJob converterJob);
+	Long getConverterJobTotalCount(ConverterJob converterJob);
 	
 	/**
 	 * converter job file 총 건수
-	 * @param converterJobFile
-	 * @return
+	 * @param converterJobFile converterJobFile
+	 * @return converter job file 총 건수
 	 */
-	public Long getConverterJobFileTotalCount(ConverterJobFile converterJobFile);
+	Long getConverterJobFileTotalCount(ConverterJobFile converterJobFile);
 	
 	/**
 	 * f4d converter job 목록
-	 * @param converterJob
-	 * @return
+	 * @param converterJob converterJob
+	 * @return f4d converter job 목록
 	 */
-	public List<ConverterJob> getListConverterJob(ConverterJob converterJob);
+	List<ConverterJob> getListConverterJob(ConverterJob converterJob);
 	
 	/**
-	 * f4d converter job 목록
-	 * @param converterJob
-	 * @return
+	 * f4d converter job file 목록
+	 * @param converterJobFile converterJobFile
+	 * @return f4d converter job file 목록
 	 */
-	public List<ConverterJobFile> getListConverterJobFile(ConverterJobFile converterJobFile);
-	
+	List<ConverterJobFile> getListConverterJobFile(ConverterJobFile converterJobFile);
+
 	/**
 	 * f4d converter 변환 job 등록
-	 * @param converterJob
-	 * @return
+	 * @param converterJob    converterJob
 	 */
-	public int insertConverter(ConverterJob converterJob);
-	
-	/**
-	 * 데이터 변환 작업 상태를 변경
-	 * @param converterJob
-	 * @return
-	 */
+	void insertConverter(ConverterJob converterJob);
+
 	public int updateConverterJob(ConverterJob converterJob);
+
+	/**
+	 * 로그파일을 통한 데이터 변환 작업 상태를 갱신
+	 * @param converterResultLog converterResultLog
+	 * @return 갱신된 데이터 변환 갯수
+	 */
+	int updateConverterJobStatus(ConverterResultLog converterResultLog);
+
+	/**
+	 * 위치파일(LonsLats.json)을 통한 데이터 Longitude, Latitude 갱신
+	 * (CityGML, IndoorGML 파일에 한함)
+	 * @param converterLocation converterLocation
+	 * @return 갱신된 데이터 변환 갯수
+	 */
+	int updateConverterLocation(ConverterLocation converterLocation);
+
+	/**
+	 * 속성파일(attributes.json) 을 통한 데이터 Attribute 갱신
+	 * (CityGML, IndoorGML 파일에 한함)
+	 * @param converterAttribute converterAttribute
+	 * @return 갱신된 데이터 변환 갯수
+	 */
+	int updateConverterAttribute(ConverterAttribute converterAttribute);
+
 }

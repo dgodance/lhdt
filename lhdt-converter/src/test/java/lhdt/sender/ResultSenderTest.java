@@ -17,8 +17,6 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = LhdtConverterApplication.class)
 @SpringBootTest
@@ -48,7 +46,7 @@ class ResultSenderTest {
     @Test
     void sendLog() throws IOException, URISyntaxException {
         String logPath = "src/test/resources/log.txt";
-        ServerTarget target = ServerTarget.USER;
+        ServerTarget target = ServerTarget.ADMIN;
         // 생성자 대신 정적 팩터리 매서드를 고려하라. (EffectiveJava 8page)
         // static 메서드와 인스턴스 메서드. (Java의 정석 1, 188~191page)
         ResultSender.sendLog(converterJob, objectMapper, propertiesConfig, restTemplate, target, logPath);
@@ -65,7 +63,7 @@ class ResultSenderTest {
     void sendAttribute() throws IOException, URISyntaxException {
         String attributePath = "src/test/resources/attributes.json";
         ServerTarget target = ServerTarget.USER;
-        ResultSender.sendAttribute(converterJob, objectMapper, propertiesConfig, restTemplate, target, attributePath);
+        ResultSender.sendAttribute(converterJob, propertiesConfig, restTemplate, target, attributePath);
     }
 
     @Test

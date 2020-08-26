@@ -133,6 +133,7 @@
                                             <td class="col-type" th:if="${#strings.equals(converterJob.status, 'success')}" th:text="성공"></td>
                                             <td class="col-type" th:if="${#strings.equals(converterJob.status, 'waiting')}" th:text="승인대기"></td>
                                             <td class="col-type" th:if="${#strings.equals(converterJob.status, 'fail')}" th:text="실패"></td>
+                                            <td class="col-type" th:if="${#strings.equals(converterJob.status, 'partial_success')}" th:text="부분성공"></td>
                                             
                                             <td class="col-count" th:text="|${converterJob.fileCount}개|"></td>
                                             <td class="col-type" th:if="${#strings.isEmpty(converterJob.errorCode)}" th:text="없음">
