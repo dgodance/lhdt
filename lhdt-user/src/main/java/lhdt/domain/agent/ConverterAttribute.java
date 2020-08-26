@@ -1,12 +1,11 @@
-package lhdt.domain;
+package lhdt.domain.agent;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lhdt.domain.converter.ConverterJob;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
 
 @Getter
 @Setter

@@ -11,6 +11,8 @@ public enum ConverterJobStatus {
 	READY("ready"),
 	// 성공
 	SUCCESS("success"),
+	// 부분 성공
+	PARTIAL_SUCCESS("partial_success"),
 	// 승인 대기
 	WAITING("waiting"),
 	// 실패
