@@ -141,6 +141,7 @@ dependencies {
     // https://mvnrepository.com/artifact/com.opencsv/opencsv
     compile group: 'com.opencsv', name: 'opencsv', version: '3.7'
 	compile group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.9.13'
+    compile "org.springframework.boot:spring-boot-configuration-processor"
     
 }
 

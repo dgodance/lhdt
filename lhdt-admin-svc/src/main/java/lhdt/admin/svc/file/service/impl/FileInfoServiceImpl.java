@@ -1,24 +1,20 @@
-package lhdt.admin.svc.cityplanning.service.impl;
+package lhdt.admin.svc.file.service.impl;
 
-import lhdt.admin.svc.cityplanning.domain.CPFileInfo;
-import lhdt.admin.svc.cityplanning.persistence.CPFileInfoRepository;
-import lhdt.admin.svc.cityplanning.persistence.CPFileInfoMapper;
-import lhdt.admin.svc.cityplanning.service.CPFileInfoService;
+import lhdt.admin.svc.file.domain.FileInfo;
+import lhdt.admin.svc.file.persistence.FileInfoRepository;
+import lhdt.admin.svc.file.persistence.FileInfoMapper;
+import lhdt.admin.svc.file.service.FileInfoService;
 import lhdt.admin.svc.common.AdminSvcServiceImpl;
 import lhdt.admin.svc.lhdt.config.PropertiesConfig;
-import lhdt.ds.common.misc.DsFile;
 import lhdt.ds.common.misc.DsFileMaster;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -27,16 +23,18 @@ import java.util.List;
  */
 @Service
 @RequiredArgsConstructor
-public class CPFileInfoServiceImpl
-        extends AdminSvcServiceImpl<CPFileInfoRepository, CPFileInfoMapper, CPFileInfo, Long>
-        implements CPFileInfoService {
-    private final CPFileInfoRepository jpaRepo;
-    private final CPFileInfoMapper mapper;
-    private final PropertiesConfig propertiesConfig;
+public class FileInfoServiceImpl
+        extends AdminSvcServiceImpl<FileInfoRepository, FileInfoMapper, FileInfo, Long>
+        implements FileInfoService {
+    private final FileInfoRepository jpaRepo;
+    private final FileInfoMapper mapper;
+
+    @Value("${app.file.upload.path}")
+    private String fileUploadPath = "";
 
     @PostConstruct
     private void init() {
-        super.set(jpaRepo, mapper, new CPFileInfo());
+        super.set(jpaRepo, mapper, new FileInfo());
     }
 
     /**
@@ -44,9 +42,9 @@ public class CPFileInfoServiceImpl
      * @param files
      * @return
      */
-    public List<CPFileInfo> getCPFilesByMultipart(MultipartFile[] files) {
+    public List<FileInfo> getCPFilesByMultipart(MultipartFile[] files) {
         String Path = "";
-        List<CPFileInfo> result = new ArrayList<>();
+        List<FileInfo> result = new ArrayList<>();
         for(MultipartFile mtf : files) {
             result.add(this.multipart2CPFileInfo(mtf));
         }
@@ -59,12 +57,20 @@ public class CPFileInfoServiceImpl
      * @param multipartFile
      * @return
      */
-    private CPFileInfo multipart2CPFileInfo(MultipartFile multipartFile) {
-        CPFileInfo fi = new CPFileInfo();
+    private FileInfo multipart2CPFileInfo(MultipartFile multipartFile) {
+        FileInfo fi = new FileInfo();
             // 파일 정보
-            String uploadDir = propertiesConfig.getCpFileUploadDir();
-            String originFilename = multipartFile.getOriginalFilename().split(".")[0];
-            String extName = originFilename.substring(originFilename.lastIndexOf("."), originFilename.length());
+            String uploadDir = fileUploadPath;
+            String originFilename = "";
+            String extName = "";
+            if(multipartFile.getOriginalFilename().equals("blob")) {
+                originFilename = multipartFile.getOriginalFilename();
+                extName = "png";
+            } else {
+                var splitInfo = multipartFile.getOriginalFilename().split(".");
+                originFilename = splitInfo[0];
+                extName = splitInfo[1];
+            }
             Long size = multipartFile.getSize();
 
             // 서버에서 저장 할 파일 이름
@@ -88,7 +94,7 @@ public class CPFileInfoServiceImpl
      * @return
      */
     @Override
-    public List<CPFileInfo> procCPFiles(MultipartFile[] multipartFiles) {
+    public List<FileInfo> procCPFiles(MultipartFile[] multipartFiles) {
         var files = getCPFilesByMultipart(multipartFiles);
         for(int i = 0; i < multipartFiles.length; i++) {
             var file = files.get(i);

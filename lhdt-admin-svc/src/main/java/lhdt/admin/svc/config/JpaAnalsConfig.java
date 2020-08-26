@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package lhdt.admin.svc.config;
 
@@ -35,11 +35,12 @@ import lombok.extern.slf4j.Slf4j;
 @EnableTransactionManagement
 @EnableJpaRepositories(
 		entityManagerFactoryRef = "entityManagerFactory",
-		basePackages = { 
+		basePackages = {
 				"lhdt.admin.svc.hello.persistence",
+				"lhdt.admin.svc.file.persistence",
 				"lhdt.admin.svc.cityplanning.persistence",
 				"lhdt.admin.svc.lowinfo.persistence",
-				"lhdt.admin.svc.landscape.persistence"
+				"lhdt.admin.svc.landscape.persistence",
 				}
 		)
 public class JpaAnalsConfig {
@@ -55,7 +56,7 @@ public class JpaAnalsConfig {
 	@ConfigurationProperties(prefix = "app.datasource.anals")
 	public DataSource dataSource() {
 		DataSource ds = DataSourceBuilder.create().build();
-		
+
 		//
 		log.info("<<.dataSource - {}", ToStringBuilder.reflectionToString(ds));
 		return ds;
@@ -73,12 +74,13 @@ public class JpaAnalsConfig {
 		LocalContainerEntityManagerFactoryBean bean = builder
 				.dataSource(dataSource)
 				.packages("lhdt.admin.svc.hello",
+						"lhdt.admin.svc.file",
 						"lhdt.admin.svc.lowinfo",
 						"lhdt.admin.svc.cityplanning",
 						"lhdt.admin.svc.landscape")
 				.persistenceUnit("persistence")
 				.build();
-		
+
 		//
 		log.info("<<.entityManagerFactory - {}", ToStringBuilder.reflectionToString(bean));
 		return bean;
@@ -89,7 +91,7 @@ public class JpaAnalsConfig {
 	@Bean(name = "transactionManager")
 	public PlatformTransactionManager transactionManager(@Qualifier("entityManagerFactory") EntityManagerFactory entityManagerFactory) {
 		PlatformTransactionManager manager = new JpaTransactionManager(entityManagerFactory);
-		
+
 		//
 		log.info("<<.transactionManager - {}", ToStringBuilder.reflectionToString(manager));
 		return manager;

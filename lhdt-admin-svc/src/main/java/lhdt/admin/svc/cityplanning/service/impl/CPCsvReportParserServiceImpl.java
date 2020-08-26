@@ -4,12 +4,9 @@ import com.opencsv.CSVReader;
 import lhdt.admin.svc.cityplanning.domain.CPReportDetail;
 import lhdt.admin.svc.cityplanning.exception.NotSupportCsvFileException;
 import lhdt.admin.svc.cityplanning.service.CPReportProc;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.geotools.xml.xsi.XSISimpleTypes;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.InterfaceAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

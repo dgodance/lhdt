@@ -1,9 +1,7 @@
 package lhdt.admin.svc.landscape.controller;
 
-import lhdt.admin.svc.cityplanning.domain.CPLocalInfo;
 import lhdt.admin.svc.cityplanning.service.CPDistricInfoService;
 import lhdt.admin.svc.cityplanning.service.CPLocalInfoService;
-import lhdt.admin.svc.cityplanning.type.CPFileType;
 import lhdt.admin.svc.landscape.domain.LandScapeAnals;
 import lhdt.admin.svc.landscape.model.CPFullName;
 import lhdt.admin.svc.landscape.model.CPFullNameAndId;

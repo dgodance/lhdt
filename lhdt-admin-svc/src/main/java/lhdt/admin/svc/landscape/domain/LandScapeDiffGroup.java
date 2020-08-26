@@ -27,7 +27,6 @@ public class LandScapeDiffGroup extends DsDomain {
     private String lsDiffGrupName;
 
 
-    @JsonManagedReference
     @OneToMany(mappedBy = "landScapeDiffGroup", fetch= FetchType.LAZY, cascade = CascadeType.ALL,
             orphanRemoval = true)
     private List<LandScapeDiff> lsDiffs = new ArrayList<>();

@@ -1,14 +1,9 @@
 package lhdt.admin.svc.cityplanning.service.impl;
 
-import lhdt.admin.svc.cityplanning.domain.CPFileInfo;
 import lhdt.admin.svc.cityplanning.domain.CPReportDetail;
-import lhdt.admin.svc.cityplanning.persistence.CPFileInfoMapper;
-import lhdt.admin.svc.cityplanning.persistence.CPFileInfoRepository;
 import lhdt.admin.svc.cityplanning.persistence.CPReportDetailMapper;
 import lhdt.admin.svc.cityplanning.persistence.CPReportDetailRepository;
-import lhdt.admin.svc.cityplanning.service.CPFileInfoService;
 import lhdt.admin.svc.cityplanning.service.CPReportDetailService;
-import lhdt.admin.svc.common.AdminSvcService;
 import lhdt.admin.svc.common.AdminSvcServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

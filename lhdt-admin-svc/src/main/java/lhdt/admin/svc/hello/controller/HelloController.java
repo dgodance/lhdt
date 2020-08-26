@@ -28,7 +28,6 @@ public class HelloController extends AdminSvcController {
 	@Autowired
 	private HelloService service;
 
-	
 	@RequestMapping("/helloList.do")
 	public String helloList(HttpServletRequest request, Model model) {
 		

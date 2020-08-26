@@ -3,6 +3,7 @@ package lhdt.admin.svc.cityplanning.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import lhdt.admin.svc.file.domain.FileInfo;
 import lhdt.ds.common.domain.DsDomain;
 import lhdt.ds.common.misc.DsField;
 import lombok.AllArgsConstructor;
@@ -45,18 +46,18 @@ public class CPDistricInfo extends DsDomain {
     @JsonManagedReference
     @OneToMany(mappedBy = "cpDistricInfo", fetch= FetchType.LAZY, cascade = CascadeType.ALL,
             orphanRemoval = true)
-    private List<CPFileInfo> cpFileInfos = new ArrayList<>();
+    private List<FileInfo> fileInfos = new ArrayList<>();
 
-    public void addCityInfo(CPFileInfo cpFileInfo) {
-        if(cpFileInfo.getCpDistricInfo() != this)
-            cpFileInfo.setCpDistricInfo(this);
-        this.cpFileInfos.add(cpFileInfo);
+    public void addCityInfo(FileInfo fileInfo) {
+        if(fileInfo.getCpDistricInfo() != this)
+            fileInfo.setCpDistricInfo(this);
+        this.fileInfos.add(fileInfo);
     }
-    public void addCityInfos(List<CPFileInfo> cpFileInfos) {
-        cpFileInfos.forEach(p -> {
+    public void addCityInfos(List<FileInfo> fileInfos) {
+        fileInfos.forEach(p -> {
             if(p.getCpDistricInfo() != this)
                 p.setCpDistricInfo(this);
-            this.cpFileInfos.add(p);
+            this.fileInfos.add(p);
         });
     }
 }

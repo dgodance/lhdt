@@ -41,17 +41,17 @@
                     <colgroup>
                         <col class="col-width-12">
                         <col class="col-width-12">
-                        <col>
+                        <col class="col-width-12">
                         <col class="col-width-12">
                         <col class="col-width-12">
                     </colgroup>
                     <thead>
                     <tr>
                         <th>번호</th>
-                        <th>공유 유형</th>
-                        <th>데이터명</th>
-                        <th>표시</th>
+                        <th>경관명</th>
                         <th>이동</th>
+                        <th>확인</th>
+                        <th>삭제</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -62,14 +62,24 @@
                                 <td>
                                     <span class="no">{{lsDiffName}}</span>
                                 </td>
-                                <td class="alignLeft ellipsis">
-                                    <span class="no"></span>
+                                <td>
+                                    <button type="button" class="goto" th:text="이동"
+                                            th:title="이동" style="margin: 0px; padding: 0px;"
+                                            onclick="gotoScene('{{id}}')">
+                                    </button>
                                 </td>
                                 <td>
-                                    <span class="no">asdgasdg</span>
+                                    <button type="button" class="showHideButton show"
+                                            th:text="조회" onclick="showData('{{id}}')">
+                                    </button>
                                 </td>
                                 <td>
-                                    <span class="no">asdgadsg</span>
+                                    <form method="post" action="">
+                                        <button type="button" class="showHideButton delete"
+                                                th:text="삭제" onclick="deleteData('{{id}}')">
+                                        </button>
+                                    </form>
+
                                 </td>
                             </tr>
                         {{/each}}

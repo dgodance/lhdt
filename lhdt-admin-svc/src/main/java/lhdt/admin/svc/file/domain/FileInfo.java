@@ -1,19 +1,22 @@
-package lhdt.admin.svc.cityplanning.domain;
+package lhdt.admin.svc.file.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import lhdt.admin.svc.cityplanning.domain.listener.CPFileInfoListener;
-import lhdt.admin.svc.cityplanning.type.CPFileType;
+import lhdt.admin.svc.cityplanning.domain.CPDistricInfo;
+import lhdt.admin.svc.cityplanning.domain.CPReportDetail;
+import lhdt.admin.svc.file.domain.listener.FileInfoListener;
+import lhdt.admin.svc.file.type.FileClsType;
+import lhdt.admin.svc.file.type.FileType;
+import lhdt.admin.svc.landscape.domain.LandScapeDiff;
 import lhdt.ds.common.domain.DsDomain;
 import lhdt.ds.common.misc.DsField;
 import lhdt.ds.common.misc.DsFile;
 import lhdt.ds.common.misc.DsFileMaster;
 import lombok.*;
-import lombok.extern.java.Log;
-import lombok.extern.log4j.Log4j;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,13 +26,13 @@ import java.util.List;
  * id, cityPlanId
  */
 @Entity
-@EntityListeners(CPFileInfoListener.class)
-@Table(name="cp_file_info")
+@EntityListeners(FileInfoListener.class)
+@Table(name="file_info")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CPFileInfo extends DsDomain implements DsFile {
+public class FileInfo extends DsDomain implements DsFile {
     /**
      * 파일명
      */
@@ -57,7 +60,12 @@ public class CPFileInfo extends DsDomain implements DsFile {
      * 파일종류
      */
     @Column(name = "file_type")
-    private CPFileType cpFileType;
+    private FileType fileType;
+    /**
+     * 파일종류
+     */
+    @Column(name = "file_cls_type")
+    private FileClsType fileClsType;
 
     /**
      * 확장자
@@ -75,21 +83,38 @@ public class CPFileInfo extends DsDomain implements DsFile {
     @JoinColumn(name="district_id")
     private CPDistricInfo cpDistricInfo;
 
-    @JsonManagedReference
-    @OneToMany(mappedBy = "CPFileInfo", fetch=FetchType.LAZY, cascade = CascadeType.ALL,
+    @OneToMany(mappedBy = "cpfileInfo", fetch=FetchType.LAZY, cascade = CascadeType.ALL,
             orphanRemoval = true)
     private List<CPReportDetail> CPReportDetails = new ArrayList<>();
 
     public void addCityInfo(CPReportDetail CPReportDetail) {
-        if(CPReportDetail.getCPFileInfo() != this)
-            CPReportDetail.setCPFileInfo(this);
+        if(CPReportDetail.getCpfileInfo() != this)
+            CPReportDetail.setCpfileInfo(this);
         this.CPReportDetails.add(CPReportDetail);
     }
+
     public void addCityInfos(List<CPReportDetail> CPReportDetail) {
         CPReportDetail.forEach(p -> {
-            if(p.getCPFileInfo() != this)
-                p.setCPFileInfo(this);
+            if(p.getCpfileInfo() != this)
+                p.setCpfileInfo(this);
             this.CPReportDetails.add(p);
+        });
+    }
+
+    @OneToMany(mappedBy = "lsDiffImgInfo", fetch=FetchType.LAZY, cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private List<LandScapeDiff> landScapeDiffList = new ArrayList<>();
+
+    public void addLsScapeDiffInfo(LandScapeDiff landScapeDiff) {
+        if(landScapeDiff.getLsDiffImgInfo() != this)
+            landScapeDiff.setLsDiffImgInfo(this);
+        this.landScapeDiffList.add(landScapeDiff);
+    }
+    public void addLsScapeDiffs(List<LandScapeDiff> landScapeDiffList) {
+        landScapeDiffList.forEach(p -> {
+            if(p.getLsDiffImgInfo() != this)
+                p.setLsDiffImgInfo(this);
+            this.landScapeDiffList.add(p);
         });
     }
 
@@ -100,6 +125,8 @@ public class CPFileInfo extends DsDomain implements DsFile {
 
     @Override
     public void delete() {
-        new DsFileMaster(this.toString()).delete();
+        var file = new File(this.toString());
+        if(file.exists())
+            file.delete();
     }
 }
