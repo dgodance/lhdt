@@ -1,6 +1,7 @@
 package lhdt.admin.svc.file.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lhdt.admin.svc.cityplanning.domain.CPDistricInfo;
 import lhdt.admin.svc.cityplanning.domain.CPReportDetail;
@@ -72,13 +73,13 @@ public class FileInfo extends DsDomain implements DsFile {
      */
     @NotNull
     @Column(name = "file_ext")
-    @DsField(bizKey = true, order = 3)
+    @DsField(bizKey = true, order = 2)
     private String fileExtention;
 
     /**
      * 지구번호
      */
-    @JsonBackReference
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="district_id")
     private CPDistricInfo cpDistricInfo;

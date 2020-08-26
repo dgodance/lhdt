@@ -2,6 +2,7 @@ package lhdt.admin.svc.cityplanning.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lhdt.admin.svc.file.domain.FileInfo;
 import lhdt.ds.common.domain.DsDomain;
@@ -37,13 +38,12 @@ public class CPDistricInfo extends DsDomain {
     @DsField(bizKey = true, order = 0)
     private String districtName;
 
-    @JsonBackReference
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="local_id")
     @DsField(bizKey = true, order = 1)
     private CPLocalInfo cpLocalInfo;
 
-    @JsonManagedReference
     @OneToMany(mappedBy = "cpDistricInfo", fetch= FetchType.LAZY, cascade = CascadeType.ALL,
             orphanRemoval = true)
     private List<FileInfo> fileInfos = new ArrayList<>();

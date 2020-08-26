@@ -181,6 +181,5 @@ public class CPReportDetail extends DsDomain {
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="cp_file_id")
-    @DsField(bizKey = true, order = 5)
     private FileInfo cpfileInfo;
 }
