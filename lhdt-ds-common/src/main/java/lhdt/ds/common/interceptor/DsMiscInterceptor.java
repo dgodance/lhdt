@@ -51,7 +51,7 @@ public class DsMiscInterceptor extends HandlerInterceptorAdapter {
 		Date endDt = new Date();
 		
 		//
-		log.debug("<< {}	DURATION:{}ms	mem(MB):{}/{}", request.getRequestURI()
+		log.debug("<< DURATION:{}ms	mem(MB):{}/{}"
 				, (endDt.getTime() - beginDt.getTime())
 				, DsUtils.getFreeMemory(), DsUtils.getTotalMemory());
 		
