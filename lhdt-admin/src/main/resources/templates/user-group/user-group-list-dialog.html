@@ -56,7 +56,7 @@
 					</th:block>
 					<td class="col-type">
 						<th:block th:if="${#bools.isTrue(userGroup.available)}" th:text="사용"></th:block>
-						<th:block th:if="${#bools.isFalse(userGroup.available)}" th:text="사용"></th:block>
+						<th:block th:if="${#bools.isFalse(userGroup.available)}" th:text="미사용"></th:block>
 					</td>
 					<td class="col-key" th:text="${userGroup.description}"></td>
 					<td class="col-date">
