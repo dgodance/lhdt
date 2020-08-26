@@ -146,7 +146,6 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 		
 		//
 		String methodName = getMethodName("findBy", bizFields);
-		log.debug(".findByBizKey - methodName:{}", methodName);
 		
 		//
 		Class<?>[] paramTypes = getParamTypes(bizFields);
@@ -401,6 +400,7 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 							.findFirst()
 							.orElse(null);
 		
+		log.debug("<<.existsMethod - {}", (null != method));
 		return (null != method);
 	}
 	
@@ -526,6 +526,7 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 		}
 
 		//
+		log.debug("<<.getMethodName - {}", pre+str);
 		return pre + str;		
 	}
 	/**
@@ -546,7 +547,7 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 		}
 
 		//
-//		log.debug("<<.getParamTypes - {}", classes);
+		log.debug("<<.getParamTypes - {}", classes);
 		return classes;
 	}
 	/**
@@ -601,6 +602,7 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 		}
 		
 		//
+		log.debug("<<.getQuery - {}", q);
 		return q;
 	}
 
