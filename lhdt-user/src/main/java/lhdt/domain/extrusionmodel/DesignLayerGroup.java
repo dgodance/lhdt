@@ -52,7 +52,6 @@ public class DesignLayerGroup implements Serializable {
 
 	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime insertDate;
-
 	/**
 	 * 자식 design 레이어 목록
 	 */

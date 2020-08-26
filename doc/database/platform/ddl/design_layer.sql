@@ -68,9 +68,10 @@ create table design_layer (
 	design_layer_group_id			    integer,
 	design_layer_key					varchar(100)					not null,
 	design_layer_name				    varchar(256)					not null,
-	design_layer_category               varchar(30)                     default 'land',
+	design_layer_type                   varchar(30)                     default 'land',
 	user_id						        varchar(32),
-	service_type				        varchar(30),
+	sharing						        varchar(30)						default 'public',
+	ogc_web_services				    varchar(30),
 	geometry_type				        varchar(30),
 	layer_fill_color                    varchar(30),
 	layer_line_color			        varchar(30),
@@ -84,7 +85,7 @@ create table design_layer (
 	
 	coordinate					        varchar(256),
 	description					        varchar(256),
-	update_date					        timestamp with time zone		default now(),
+	update_date					        timestamp with time zone,
 	insert_date					        timestamp with time zone 		default now(),
 	constraint design_layer_pk 		    primary key (design_layer_id)
 );
@@ -94,9 +95,10 @@ comment on column design_layer.design_layer_id is 'design layer 고유번호';
 comment on column design_layer.design_layer_group_id is 'design layer 그룹 고유번호';
 comment on column design_layer.design_layer_key is 'design layer 고유키(API용)';
 comment on column design_layer.design_layer_name is 'design layer 명';
-comment on column design_layer.design_layer_category is 'design layer 분류. land : 땅, building : 빌딩';
-comment on column design_layer.user_id is '사용자명';
-comment on column design_layer.service_type is '서비스 타입 (wms, wfs, wcs, wps)';
+comment on column design_layer.design_layer_type is 'design layer 분류. land : 땅, building : 빌딩';
+comment on column design_layer.user_id is '사용자 아이디';
+comment on column design_layer.sharing is '공유 유형. common : 공통, public : 공개, private : 개인, group : 그룹';
+comment on column design_layer.ogc_web_services is 'OGC Web Services (wms, wfs, wcs, wps)';
 comment on column design_layer.geometry_type is '도형 타입';
 comment on column design_layer.layer_fill_color is '외곽선 색상';
 comment on column design_layer.layer_line_color is '외곽선 두께';
@@ -118,7 +120,7 @@ create table design_layer_land (
 	design_layer_id					            bigint,
 	design_layer_group_id			            integer,
     properties					                jsonb,
-	update_date					                timestamp with time zone		default now(),
+	update_date					                timestamp with time zone,
 	insert_date					                timestamp with time zone 		default now(),
 	constraint design_layer_land_pk 		    primary key (design_layer_land_id)
 );
@@ -136,7 +138,7 @@ create table design_layer_building (
 	design_layer_id					            bigint,
 	design_layer_group_id			            integer,
     properties					                jsonb,
-	update_date					                timestamp with time zone		default now(),
+	update_date					                timestamp with time zone,
 	insert_date					                timestamp with time zone 		default now(),
 	constraint design_layer_building_pk 		primary key (design_layer_building_id)
 );
@@ -262,7 +264,7 @@ create table data_library (
 	available					        boolean							default true,
 
 	description					        varchar(256),
-	update_date					        timestamp with time zone		default now(),
+	update_date					        timestamp with time zone,
 	insert_date					        timestamp with time zone 		default now(),
 	constraint data_library_pk 		    primary key (data_library_id)
 );

@@ -33,12 +33,12 @@ public class DesignLayerGroupServiceImpl implements DesignLayerGroupService {
 
 	/**
      * 디자인 레이어 그룹 정보 조회
-     * @param designLayerGroup
+     * @param designLayerGroupId
      * @return
      */
 	@Transactional(readOnly = true)
-    public DesignLayerGroup getDesignLayerGroup(DesignLayerGroup designLayerGroup) {
-		return designLayerGroupMapper.getDesignLayerGroup(designLayerGroup);
+    public DesignLayerGroup getDesignLayerGroup(Integer designLayerGroupId) {
+		return designLayerGroupMapper.getDesignLayerGroup(designLayerGroupId);
 	}
 
 	/**

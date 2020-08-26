@@ -1,27 +1,13 @@
 package lhdt.controller.view;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import lombok.extern.slf4j.Slf4j;
-import lhdt.domain.cache.CacheManager;
-import lhdt.domain.data.DataGroup;
-import lhdt.domain.data.DataInfo;
 import lhdt.domain.Key;
 import lhdt.domain.PageType;
-import lhdt.domain.Pagination;
-import lhdt.domain.role.RoleKey;
 import lhdt.domain.SharingType;
+import lhdt.domain.cache.CacheManager;
+import lhdt.domain.common.Pagination;
+import lhdt.domain.data.DataGroup;
+import lhdt.domain.data.DataInfo;
+import lhdt.domain.role.RoleKey;
 import lhdt.domain.user.UserPolicy;
 import lhdt.domain.user.UserSession;
 import lhdt.service.DataGroupService;
@@ -30,6 +16,18 @@ import lhdt.service.UserPolicyService;
 import lhdt.support.RoleSupport;
 import lhdt.support.SQLInjectSupport;
 import lhdt.utils.DateUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Controller
@@ -75,7 +73,7 @@ public class DataController {
 
 		long totalCount = dataService.getDataTotalCount(dataInfo);
 
-		Pagination pagination = new Pagination(	request.getRequestURI(), 
+		Pagination pagination = new Pagination(	request.getRequestURI(),
 												getSearchParameters(PageType.LIST, dataInfo), 
 												totalCount, 
 												Long.parseLong(pageNo),

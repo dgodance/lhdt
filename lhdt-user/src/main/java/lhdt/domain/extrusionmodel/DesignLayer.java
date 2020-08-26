@@ -49,12 +49,14 @@ public class DesignLayer extends Search implements Serializable {
     // 디자인 레이어 명
     private String designLayerName;
     // design layer 분류. land : 땅, building : 빌딩
-    private String designLayerCategory;
+    private String designLayerType;
     
     // 업로딩 아이디
     private String userId;
-    // 서비스 타입 (정적, 동적)
-    private String serviceType;
+    // 공유 타입. 0 : 공개, 1 : 개인, 2 : 그룹
+    private String sharing;
+    // OGC Web Services (정적, 동적)
+    private String ogcWebServices;
     // 도형 타입 (point, line, polygon)
     private String geometryType;
 
