@@ -74,7 +74,7 @@
 					<div th:replace="~{/fragments/page-header :: #pageHeaderWrap}"></div>
 					<div class="page-content">
 						<div class="input-header row">
-							<div class="content-desc u-pull-right"><span class="icon-glyph glyph-emark-dot color-warning"></span><spring:message code='check'/></div>
+							<div class="content-desc u-pull-right"><span class="icon-glyph glyph-emark-dot color-warning"></span><th:block th:text="#{check}"></th:block></div>
 						</div>
 						<form id="layer" th:object="${layer}" method="post" th:action="@{#}" onsubmit="return false;">
 						<table class="input-table scope-row" summary="upload 레이어 수정 테이블">
@@ -96,7 +96,7 @@
 									<input type="button" id="layerGroupButtion" value="Layer 그룹 찾기" />
 								</td>
 								<th class="col-label" scope="row">
-			                        <label for="sharing">공유 유형</label>
+			                        <label for="sharingPublic">공유 유형</label>
 			                    </th>
 			                    <td class="col-input radio-set">
 									<input type="radio" id="sharingPublic" name="sharing" th:field="*{sharing}" value="public" />
@@ -264,7 +264,7 @@
 			                </tr>
 			                <tr>
 			                	<th class="col-label" scope="row">
-			                        <form:label path="coordinate">좌표계</form:label>
+			                        <label for="coordinate">좌표계</label>
 			                    </th>
 			                    <td class="col-input">
 			                        <select id="coordinate" name="coordinate" th:field="*{coordinate}" class="selectBoxClass">

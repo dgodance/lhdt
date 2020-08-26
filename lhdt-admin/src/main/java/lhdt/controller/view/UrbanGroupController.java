@@ -90,21 +90,4 @@ public class UrbanGroupController {
 
 		return "/urban-group/modify";
 	}
-
-	/**
-	 * 도시 그룹 삭제
-	 * @param urbanGroupId
-	 * @param model
-	 * @return
-	 */
-	@GetMapping(value = "/delete")
-	public String delete(@RequestParam("urbanGroupId") Integer urbanGroupId, Model model) {
-		// TODO validation 체크 해야 함
-		UrbanGroup urbanGroup = new UrbanGroup();
-		urbanGroup.setUrbanGroupId(urbanGroupId);
-
-		urbanGroupService.deleteUrbanGroup(urbanGroup);
-
-		return "redirect:/urban-group/list";
-	}
 }

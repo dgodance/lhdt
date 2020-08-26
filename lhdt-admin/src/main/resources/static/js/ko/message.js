@@ -192,3 +192,5 @@ JS_MESSAGE["already.agreed"] = "이미 동의하였습니다.";
 JS_MESSAGE["design.layer.key.duplication"] = "사용중인 디자인 레이어 Key 입니다. 다른 이름을 사용해 주십시오.";
 JS_MESSAGE["design.layer.key.enable"] = "사용 가능한 디자인 레이어 Key 입니다.";
 JS_MESSAGE["design.layer.key.duplication.check"] = "디자인 레이어 Key 중복 확인이 필요 합니다.";
+
+JS_MESSAGE["urban.group.key.empty"] = "도시 그룹 Key 를 입력하여 주십시오.";

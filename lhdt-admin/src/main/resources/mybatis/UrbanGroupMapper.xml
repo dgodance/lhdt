@@ -75,7 +75,7 @@
 		INSERT INTO urban_group (
 			urban_group_id, urban_group_name, user_id, ancestor, parent, depth, view_order, children, available,
 			start_date, end_date,
-			<if test="location != null">
+			<if test="location != null and location != ''">
 				location,
 			</if>
 			area, receiving_population, receiving_household, project_operator, transfer_local_government,
@@ -106,7 +106,7 @@
 			),
 			#{available},
 			#{startDate}, #{endDate},
-			<if test="location != null">
+			<if test="location != null and location != ''">
 			ST_GeomFromText(#{location}, 4326),
 			</if>
 			#{area}, #{receivingPopulation}, #{receivingHousehold}, #{projectOperator}, #{transferLocalGovernment},

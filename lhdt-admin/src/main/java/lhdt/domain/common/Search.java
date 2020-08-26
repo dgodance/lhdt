@@ -118,14 +118,14 @@ public class Search {
 	 */
 	public String getParameters() {
 		// TODO append 사용해서 변경
-		return "&searchWord=" + getDefaultValue(this.searchWord)
-				+ "&searchOption=" + getDefaultValue(this.searchOption)
-				+ "&searchValue=" + getDefaultValue(this.searchValue)
-				+ "&startDate=" + getDefaultValue(this.startDate)
-				+ "&endDate=" + getDefaultValue(this.endDate)
-				+ "&orderWord=" + getDefaultValue(this.orderWord)
-				+ "&orderValue=" + getDefaultValue(this.orderValue)
-				+ "&listCounter=" + this.listCounter;
+		return "&amp;searchWord=" + getDefaultValue(this.searchWord)
+				+ "&amp;searchOption=" + getDefaultValue(this.searchOption)
+				+ "&amp;searchValue=" + getDefaultValue(this.searchValue)
+				+ "&amp;startDate=" + getDefaultValue(this.startDate)
+				+ "&amp;endDate=" + getDefaultValue(this.endDate)
+				+ "&amp;orderWord=" + getDefaultValue(this.orderWord)
+				+ "&amp;orderValue=" + getDefaultValue(this.orderValue)
+				+ "&amp;listCounter=" + this.listCounter;
 	}
 
 	private String getDefaultValue(String value) {

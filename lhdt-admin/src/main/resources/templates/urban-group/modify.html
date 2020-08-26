@@ -132,7 +132,7 @@
 
 	$( "#rootParentSelect" ).on( "click", function() {
 		$("#parent").val(0);
-		$("#parentName").val("${layerGroup.parentName}");
+		$("#parentName").val([[${layerGroup.parentName}]]);
 		layerGroupDialog.dialog( "close" );
 	});
 

@@ -1,6 +1,7 @@
 package lhdt.service;
 
 import lhdt.domain.urban.UrbanGroup;
+import lhdt.domain.user.UserGroup;
 
 import java.util.List;
 
@@ -18,6 +19,13 @@ public interface UrbanGroupService {
 	 * @return
 	 */
 	UrbanGroup getUrbanGroup(UrbanGroup urbanGroup);
+
+	/**
+	 * 도시 그룹 Key 중복 확인
+	 * @param urbanGroup
+	 * @return
+	 */
+	Boolean isUrbanGroupKeyDuplication(UrbanGroup urbanGroup);
 
 	/**
 	 * 도시 그룹 등록

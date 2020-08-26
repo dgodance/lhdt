@@ -2,10 +2,10 @@
 drop table if exists urban_group cascade;
 drop table if exists urban cascade;
 
--- 신도시 그룹
+-- 도시 그룹
 create table urban_group (
-	urban_group_id				integer,
-	urban_group_key				varchar(60)							not null ,
+	urban_group_id				    integer,
+	urban_group_key				    varchar(60)							not null ,
 	urban_group_name				varchar(100)						not null,
 	user_id						    varchar(32),
 	ancestor					    integer								default 0,
