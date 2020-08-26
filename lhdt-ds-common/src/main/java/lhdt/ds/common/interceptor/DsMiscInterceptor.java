@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
+import lhdt.ds.common.misc.DsUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -50,7 +51,9 @@ public class DsMiscInterceptor extends HandlerInterceptorAdapter {
 		Date endDt = new Date();
 		
 		//
-		log.debug("<< {}	DURATION:{}ms", request.getRequestURI(),  (endDt.getTime() - beginDt.getTime()));
+		log.debug("<< DURATION:{}ms	mem(MB):{}/{}"
+				, (endDt.getTime() - beginDt.getTime())
+				, DsUtils.getFreeMemory(), DsUtils.getTotalMemory());
 		
 	}
 
