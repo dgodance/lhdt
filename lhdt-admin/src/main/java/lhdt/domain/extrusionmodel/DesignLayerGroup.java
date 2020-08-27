@@ -42,6 +42,8 @@ public class DesignLayerGroup implements Serializable {
 	private Integer viewOrder;
 	// 자식 존재 유무
 	private Integer children;
+	// true : 기본(초기 등록), false : 선택
+	private Boolean basic;
 	// 사용 유무
 	private Boolean available;
 	// 설명

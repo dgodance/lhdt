@@ -41,6 +41,7 @@ create table design_layer_group (
 	depth                	  	            integer							default 1,
 	view_order					            integer							default 1,
 	children					            integer							default 0,
+	basic						            boolean							default false,
 	available					            boolean							default true,
 	description					            varchar(256),
 	update_date             	            timestamp with time zone,
@@ -57,6 +58,7 @@ comment on column design_layer_group.parent is '부모';
 comment on column design_layer_group.depth is '깊이';
 comment on column design_layer_group.view_order is '나열 순서';
 comment on column design_layer_group.children is '자식 존재 개수';
+comment on column design_layer_group.basic is 'true : 기본(초기 등록), false : 선택';
 comment on column design_layer_group.available is '사용 여부';
 comment on column design_layer_group.description is '설명';
 comment on column design_layer_group.update_date is '수정일';
@@ -65,6 +67,7 @@ comment on column design_layer_group.insert_date is '등록일';
 -- design layer
 create table design_layer (
 	design_layer_id					    bigint,
+	urban_group_id                      integer,
 	design_layer_group_id			    integer,
 	design_layer_key					varchar(100)					not null,
 	design_layer_name				    varchar(256)					not null,
@@ -92,6 +95,7 @@ create table design_layer (
 
 comment on table design_layer is 'design layer';
 comment on column design_layer.design_layer_id is 'design layer 고유번호';
+comment on column design_layer.urban_group_id is '도시 그룹 고유번호';
 comment on column design_layer.design_layer_group_id is 'design layer 그룹 고유번호';
 comment on column design_layer.design_layer_key is 'design layer 고유키(API용)';
 comment on column design_layer.design_layer_name is 'design layer 명';

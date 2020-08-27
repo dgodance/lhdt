@@ -11,6 +11,7 @@ import lhdt.domain.extrusionmodel.DesignLayerGroup;
 import lhdt.domain.policy.GeoPolicy;
 import lhdt.domain.policy.Policy;
 import lhdt.domain.role.RoleKey;
+import lhdt.domain.urban.UrbanGroup;
 import lhdt.domain.user.UserSession;
 import lhdt.service.*;
 import lhdt.support.LogMessageSupport;
@@ -51,6 +52,8 @@ public class DesignLayerController implements AuthorizationController {
     private GeoPolicyService geoPolicyService;
     @Autowired
     private PolicyService policyService;
+    @Autowired
+    private UrbanGroupService urbanGroupService;
 
     /**
      * 디자인 레이어 목록
@@ -108,10 +111,12 @@ public class DesignLayerController implements AuthorizationController {
         if (roleValidate(request) != null) return roleCheckResult;
 
         Policy policy = policyService.getPolicy();
+        List<UrbanGroup> urbanGroupList = urbanGroupService.getListUrbanGroup();
         List<DesignLayerGroup> designLayerGroupList = designLayerGroupService.getListDesignLayerGroup();
 
         model.addAttribute("policy", policy);
         model.addAttribute("designLayer", new DesignLayer());
+        model.addAttribute("urbanGroupList", urbanGroupList);
         model.addAttribute("designLayerGroupList", designLayerGroupList);
 
         return "/design-layer/input";

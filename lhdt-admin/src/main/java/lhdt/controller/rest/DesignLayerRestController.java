@@ -283,6 +283,7 @@ public class DesignLayerRestController implements AuthorizationController {
 
 	private DesignLayer getDesignLayerFromRequest(MultipartHttpServletRequest request, String userId) {
 		return DesignLayer.builder()
+				.urbanGroupId(Integer.valueOf(request.getParameter("urbanGroupId")))
 				.designLayerGroupId(Integer.valueOf(request.getParameter("designLayerGroupId")))
 				.designLayerName(request.getParameter("designLayerName"))
 				.designLayerKey(request.getParameter("designLayerKey"))

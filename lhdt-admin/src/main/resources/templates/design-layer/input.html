@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html th:lang="${accessibility}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="/layouts/default">
 <head>
+	<meta charset="utf-8">
 	<title>디자인 레이어 등록</title>
 	<th:block layout:fragment="pageCustomStyle">
 		<link rel="stylesheet" th:href="@{/css/{lang}/font/font.css(lang=${lang},cacheVersion=${contentCacheVersion})}" />
@@ -85,13 +86,13 @@
 			                </colgroup>
 			                <tr>
 								<th class="col-label" scope="row">
-									<label for="designLayerGroupName">디자인 레이어 그룹명</label>
+									<label for="urbanGroupName">도시 그룹명</label>
 									<span class="icon-glyph glyph-emark-dot color-warning"></span>
 								</th>
 								<td class="col-input">
-									<input type="hidden" id="designLayerGroupId" name="designLayerGroupId" />
-									<input type="text" id="designLayerGroupName" name="designLayerGroupName" class="m" th:readonly="true" />
-									<input type="button" id="designLayerGroupButton" value="디자인 레이어 그룹 선택" />
+									<input type="hidden" id="urbanGroupNameId" name="designLayerGroupId" />
+									<input type="text" id="urbanGroupName" name="urbanGroupName" class="m" th:readonly="true" />
+									<input type="button" id="urbanGroupButton" value="도시 그룹 선택" />
 								</td>
 								<th class="col-label" scope="row">
 			                        <label for="designLayerName">디자인 레이어명</label>
@@ -111,6 +112,15 @@
 									<input type="button" id="duplicationButtion" th:value="#{overlap.check}" />
 			                    </td>
 								<th class="col-label" scope="row">
+									<label for="designLayerGroupName">디자인 레이어 그룹명</label>
+									<span class="icon-glyph glyph-emark-dot color-warning"></span>
+								</th>
+								<td class="col-input">
+									<input type="hidden" id="designLayerGroupId" name="designLayerGroupId" />
+									<input type="text" id="designLayerGroupName" name="designLayerGroupName" class="m" th:readonly="true" />
+									<input type="button" id="designLayerGroupButton" value="디자인 레이어 그룹 선택" />
+								</td>
+								<!--<th class="col-label" scope="row">
 									<label for="designLayerType">디자인 레이어 유형</label>
 									<span class="icon-glyph glyph-emark-dot color-warning"></span>
 								</th>
@@ -119,7 +129,7 @@
 										<option value="land">토지</option>
 										<option value="building">빌딩</option>
 									</select>
-								</td>
+								</td>-->
 							</tr>
 							<tr>
 								<th class="col-label" scope="row">
@@ -312,6 +322,7 @@
 	</div>
 
 	<div th:replace="~{/design-layer/spinner-dialog :: #fileUploadDialog}"></div>
+	<div th:replace="~{/design-layer/urban-group-dialog :: #urbanGroupDialog}"></div>
 	<div th:replace="~{/design-layer/design-layer-group-dialog :: #designLayerGroupDialog}"></div>
 </th:block>
 
@@ -403,6 +414,34 @@
 	}
 	pickerColor();
 
+	// 도시 그룹 선택
+	var urbanGroupDialog = $( ".urbanDialog" ).dialog({
+		autoOpen: false,
+		height: 600,
+		width: 1200,
+		modal: true,
+		overflow : "auto",
+		resizable: false
+	});
+	// 도시 그룹 선택 버튼
+	$( "#urbanGroupButton" ).on( "click", function() {
+		urbanGroupDialog.dialog( "open" );
+		urbanGroupDialog.dialog( "option", "title", "도시 그룹 선택");
+	});
+	// 상위 Node
+	function urbanConfirmParent(parent, parentName) {
+		$("#urbanGroupId").val(parent);
+		$("#urbanGroupName").val(parentName);
+		urbanGroupDialog.dialog( "close" );
+	}
+
+	// 상위 Node
+	function confirmParent(parent, parentName) {
+		$("#designLayerGroupId").val(parent);
+		$("#designLayerGroupName").val(parentName);
+		designLayerGroupDialog.dialog( "close" );
+	}
+
 	var designLayerGroupDialog = $( ".dialog" ).dialog({
 		autoOpen: false,
 		height: 600,
@@ -428,9 +467,12 @@
 	function check() {
 		var number = /^[0-9]+$/;
 
+		if(!$("#urbanGroupId").val() || !number.test($("#urbanGroupId").val())) {
+			alert("디자인 레이어 그룹을 선택해 주세요.");
+			return false;
+		}
 		if(!$("#designLayerGroupId").val() || !number.test($("#designLayerGroupId").val())) {
 			alert("디자인 레이어 그룹을 선택해 주세요.");
-			$("#designLayerGroupName").focus();
 			return false;
 		}
 		if (!$("#designLayerName").val()) {
@@ -558,6 +600,7 @@
             });
 
             this.on("sending", function(file, xhr, formData) {
+				formData.append("urbanGroupId", $("#urbanGroupId").val());
                 formData.append("designLayerGroupId", $("#designLayerGroupId").val());
                 formData.append("designLayerName", $("#designLayerName").val());
                 formData.append("designLayerKey", $("#designLayerKey").val());

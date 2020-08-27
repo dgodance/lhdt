@@ -75,6 +75,8 @@ public class UrbanGroup {
 	// 자식 존재 유무
 	private Integer children;
 
+	// true : 기본(초기 등록), false : 선택
+	private Boolean basic;
 	// true : 사용, false : 사용안함
 	private Boolean available;
 

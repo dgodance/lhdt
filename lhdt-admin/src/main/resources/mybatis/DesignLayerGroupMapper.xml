@@ -7,9 +7,9 @@
 	<select id="getListDesignLayerGroup" resultType="designLayerGroup">
 		/* getListDesignLayerGroup */
 		WITH RECURSIVE design_layer_group_tree (
-			design_layer_group_id, design_layer_group_name, user_id, ancestor, parent, depth, view_order, children, available, description, insert_date, path, cycle
+			design_layer_group_id, design_layer_group_name, user_id, ancestor, parent, depth, view_order, children, basic, available, description, insert_date, path, cycle
 		) AS (
-	        SELECT A.design_layer_group_id, A.design_layer_group_name, A.user_id, A.ancestor, A.parent, A.depth, A.view_order, A.children, A.available,
+	        SELECT A.design_layer_group_id, A.design_layer_group_name, A.user_id, A.ancestor, A.parent, A.depth, A.view_order, A.children, A.basic, A.available,
 	        	A.description, A.insert_date, ARRAY[A.view_order], false
 			FROM design_layer_group A
 			WHERE A.parent = 0
@@ -17,12 +17,12 @@
 				AND A.available = #{available}
 			</if>
 			UNION ALL
-	        SELECT A.design_layer_group_id, A.design_layer_group_name, A.user_id, A.ancestor, A.parent, A.depth, A.view_order, A.children, A.available,
+	        SELECT A.design_layer_group_id, A.design_layer_group_name, A.user_id, A.ancestor, A.parent, A.depth, A.view_order, A.children, A.basic, A.available,
 	        	A.description, A.insert_date, path || A.view_order, A.design_layer_group_id = ANY(path)
 	        FROM design_layer_group A, design_layer_group_tree B
 	        WHERE A.parent = B.design_layer_group_id AND not cycle
 		)
-	    SELECT design_layer_group_id, design_layer_group_name, user_id, ancestor, parent, depth, view_order, children, available, description, insert_date, path
+	    SELECT design_layer_group_id, design_layer_group_name, user_id, ancestor, parent, depth, view_order, children, basic, available, description, insert_date, path
 	    FROM design_layer_group_tree
 	    ORDER BY path
 	</select>
@@ -67,7 +67,7 @@
     		SELECT NEXTVAL('design_layer_group_seq')
   		</selectKey>
 		INSERT INTO design_layer_group (
-			design_layer_group_id, design_layer_group_name, user_id, ancestor, parent, depth, view_order, children, available, description
+			design_layer_group_id, design_layer_group_name, user_id, ancestor, parent, depth, view_order, children, basic, available, description
 		) VALUES (
 			#{designLayerGroupId}, #{designLayerGroupName}, #{userId},
 			(
@@ -92,6 +92,7 @@
 				FROM design_layer_group
 				WHERE parent = #{designLayerGroupId}
 			),
+			#{basic},
 			#{available},
 			trim(#{description})
 		)
@@ -133,6 +134,9 @@
 			</if>
 			<if test="description != null and description != ''">
 			description = #{description},
+			</if>
+			<if test="basic != null">
+				basic = #{basic},
 			</if>
 			<if test="available != null">
             available = #{available},

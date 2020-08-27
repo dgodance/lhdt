@@ -43,6 +43,10 @@ public class DesignLayer extends Search implements Serializable {
 
     // 고유키
     private Long designLayerId;
+    // 도시 그룹 고유 번호
+    private Integer urbanGroupId;
+    // 도시 그룹명
+    private String urbanGroupName;
     // 디자인 레이어 그룹 아이디
     private Integer designLayerGroupId;
     // 디자인 레이어 그룹명
