@@ -24,6 +24,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.data.domain.Page;
@@ -580,16 +581,19 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 	
 	/**
 	 * 동적으로 쿼리 생성
-	 * @param bizFields
-	 * @param paramValues
-	 * @return
+	 * @param bizFields 업무필드 목록
+	 * @param paramValues 각 업무필드별 값
+	 * @return 쿼리
 	 * @since 20200821
+	 * 	20200827	bug fix
 	 */
 	@SuppressWarnings({ "unchecked" })
 	private CriteriaQuery<DOMAIN> getQuery(List<FieldAndOrder> bizFields, Object[] paramValues) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<DOMAIN> q = (CriteriaQuery<DOMAIN>) builder.createQuery(domain.getClass());
 		Root<DOMAIN> root = (Root<DOMAIN>) q.from(domain.getClass());
+		
+		//
 		q.select(root);
 		
 		//
@@ -597,27 +601,19 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 			em.createQuery(q).getResultList();
 		}
 		
-		//
-		if(1 == bizFields.size()) {
-			q.where(builder.equal(root.get(bizFields.get(0).field.getName()), paramValues[0]));			
-		}
-		if(2 == bizFields.size()) {
-			q.where(builder.equal(root.get(bizFields.get(0).field.getName()), paramValues[0])
-					, builder.equal(root.get(bizFields.get(1).field.getName()), paramValues[1]));
-		}
-		if(3 == bizFields.size()) {
-			q.where(builder.equal(root.get(bizFields.get(0).field.getName()), paramValues[0])
-					,builder.equal(root.get(bizFields.get(1).field.getName()), paramValues[1])	
-					,builder.equal(root.get(bizFields.get(2).field.getName()), paramValues[2]));			
+		//where조건 갯수
+		Predicate[] predicates = new Predicate[bizFields.size()];
+		
+		for(int i=0; i<bizFields.size(); i++) {
+			FieldAndOrder f = bizFields.get(i);
+			
+			//
+			log.debug("+.getQuery - field:{}	value:{}", f.field.getName(), paramValues[i]);
+			predicates[i] = builder.equal(root.get(f.field.getName()), paramValues[i]);			
 		}
 		
 		//
-//		int i=0;
-//		for(FieldAndOrder f : bizFields) {
-//			log.debug("+.getQuery field:{}	value:{}", f.field.getName(), paramValues[i]);
-//			//
-//			q.where(builder.equal(root.get(f.field.getName()), paramValues[i++]));
-//		}
+		q.where(predicates);
 		
 		//
 		log.debug("<<.getQuery - {}", q);
