@@ -1,5 +1,6 @@
 package lhdt.domain.urban;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -42,9 +43,13 @@ public class UrbanGroup {
 	// 사용자 아이디
 	private String userId;
 
+	private String viewStartDate;
+	private String viewEndDate;
 	// 시작일
+	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime startDate;
 	// 종료일
+	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime endDate;
 	// POINT(위도, 경도)
 	private String location;

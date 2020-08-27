@@ -152,6 +152,7 @@ public class UrbanGroupServiceImpl implements UrbanGroupService {
 
     /**
 	 * 도시 그룹 삭제
+	 * TODO 넘 무식하다. recusive 로 바꿔라.
 	 * @param urbanGroup
 	 * @return
 	 */

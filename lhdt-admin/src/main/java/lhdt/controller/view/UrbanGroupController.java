@@ -1,5 +1,6 @@
 package lhdt.controller.view;
 
+import lhdt.domain.layer.LayerGroup;
 import lhdt.domain.urban.UrbanGroup;
 import lhdt.domain.policy.Policy;
 import lhdt.service.UrbanGroupService;
@@ -89,5 +90,22 @@ public class UrbanGroupController {
 		model.addAttribute("urbanGroupList", urbanGroupList);
 
 		return "/urban-group/modify";
+	}
+
+	/**
+	 * 도시 그룹 삭제
+	 * @param urbanGroupId
+	 * @param model
+	 * @return
+	 */
+	@GetMapping(value = "/delete")
+	public String delete(@RequestParam("urbanGroupId") Integer urbanGroupId, Model model) {
+		// TODO validation 체크 해야 함
+		UrbanGroup urbanGroup = new UrbanGroup();
+		urbanGroup.setUrbanGroupId(urbanGroupId);
+
+		urbanGroupService.deleteUrbanGroup(urbanGroup);
+
+		return "redirect:/urban-group/list";
 	}
 }

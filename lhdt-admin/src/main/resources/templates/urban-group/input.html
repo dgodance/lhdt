@@ -76,12 +76,12 @@
 								</tr>
 								<tr>
 									<th class="col-label" scope="row">
-										<label for="startDate">기간</label>
+										<label for="viewStartDate">기간</label>
 									</th>
 									<td class="col-input">
-										<span style="margin: 3px;"><input type="text" id="startDate" name="startDate" class="s date" autocomplete="off" /></span>
+										<span style="margin: 3px;"><input type="text" id="viewStartDate" name="viewStartDate" class="s date" autocomplete="off" /></span>
 										<span> ~ </span>
-										<span style="margin: 3px;"><input type="text" id="endDate" name="endDate" class="s date" autocomplete="off" /></span>
+										<span style="margin: 3px;"><input type="text" id="viewEndDate" name="viewEndDate" class="s date" autocomplete="off" /></span>
 									</td>
 								</tr>
 								<tr>
@@ -153,7 +153,6 @@
 	</div>
 	<div th:replace="~{/urban-group/urban-group-dialog :: #urbanGroupDialog}"></div>
 </th:block>
-
 <th:block layout:fragment="pageCustomScript">
 	<script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
 	<script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>

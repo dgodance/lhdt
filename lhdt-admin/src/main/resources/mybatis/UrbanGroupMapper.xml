@@ -8,11 +8,13 @@
 		/* getListUrbanGroup */
 		WITH RECURSIVE urban_group_tree (
 			urban_group_id, urban_group_name, user_id, ancestor, parent, depth, view_order, children, available,
-			start_date, end_date, location, area, receiving_population, receiving_household, project_operator, transfer_local_government,
+			start_date, end_date, viewStartDate, viewEndDate,
+			location, area, receiving_population, receiving_household, project_operator, transfer_local_government,
 			description, insert_date, path, cycle
 		) AS (
 		SELECT A.urban_group_id, A.urban_group_name, A.user_id, A.ancestor, A.parent, A.depth, A.view_order, A.children, A.available,
-			A.start_date, A.end_date, A.location, A.area, A.receiving_population, A.receiving_household, A.project_operator, A.transfer_local_government,
+			A.start_date, A.end_date, TO_CHAR(A.start_date, 'YYYY-MM-DD') AS viewStartDate, TO_CHAR(A.end_date, 'YYYY-MM-DD') AS viewEndDate,
+			A.location, A.area, A.receiving_population, A.receiving_household, A.project_operator, A.transfer_local_government,
 			A.description, A.insert_date, ARRAY[A.view_order], false
 		FROM urban_group A
 		WHERE A.parent = 0
@@ -21,13 +23,15 @@
 		</if>
 		UNION ALL
 		SELECT A.urban_group_id, A.urban_group_name, A.user_id, A.ancestor, A.parent, A.depth, A.view_order, A.children, A.available,
-			A.start_date, A.end_date, A.location, A.area, A.receiving_population, A.receiving_household, A.project_operator, A.transfer_local_government,
+			A.start_date, A.end_date, TO_CHAR(A.start_date, 'YYYY-MM-DD') AS viewStartDate, TO_CHAR(A.end_date, 'YYYY-MM-DD') AS viewEndDate,
+		 	A.location, A.area, A.receiving_population, A.receiving_household, A.project_operator, A.transfer_local_government,
 			A.description, A.insert_date, path || A.view_order, A.urban_group_id = ANY(path)
 		FROM urban_group A, urban_group_tree B
 		WHERE A.parent = B.urban_group_id AND not cycle
 		)
 		SELECT urban_group_id, urban_group_name, user_id, ancestor, parent, depth, view_order, children, available,
-			start_date, end_date, location, area, receiving_population, receiving_household, project_operator, transfer_local_government,
+			start_date, end_date, viewStartDate, viewEndDate,
+			location, area, receiving_population, receiving_household, project_operator, transfer_local_government,
 			description, insert_date, path
 		FROM urban_group_tree
 		ORDER BY path
@@ -117,7 +121,7 @@
 				WHERE parent = #{urbanGroupId}
 			),
 			#{available},
-			#{startDate}, #{endDate},
+			TO_TIMESTAMP(#{viewStartDate}, 'YYYYMMDD'), TO_TIMESTAMP(#{viewEndDate}, 'YYYYMMDD'),
 			<if test="location != null and location != ''">
 			ST_GeomFromText(#{location}, 4326),
 			</if>
@@ -166,11 +170,11 @@
 		<if test="available != null">
 			available = #{available},
 		</if>
-		<if test="startDate != null">
-			start_date = #{startDate},
+		<if test="viewStartDate != null">
+			start_date = TO_TIMESTAMP(#{viewStartDate}, 'YYYYMMDDHH24MISSUS'),
 		</if>
-		<if test="endDate != null">
-			end_date = #{endDate},
+		<if test="viewEndDate != null">
+			end_date = TO_TIMESTAMP(#{viewEndDate}, 'YYYYMMDDHH24MISSUS'),
 		</if>
 		<if test="location != null">
 			location = ST_GeomFromText(#{location}, 4326),
