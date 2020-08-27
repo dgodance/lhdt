@@ -581,9 +581,9 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 	
 	/**
 	 * 동적으로 쿼리 생성
-	 * @param bizFields
-	 * @param paramValues
-	 * @return
+	 * @param bizFields 업무필드 목록
+	 * @param paramValues 각 업무필드별 값
+	 * @return 쿼리
 	 * @since 20200821
 	 * 	20200827	bug fix
 	 */
@@ -592,6 +592,8 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<DOMAIN> q = (CriteriaQuery<DOMAIN>) builder.createQuery(domain.getClass());
 		Root<DOMAIN> root = (Root<DOMAIN>) q.from(domain.getClass());
+		
+		//
 		q.select(root);
 		
 		//
