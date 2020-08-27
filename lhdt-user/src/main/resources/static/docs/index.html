@@ -580,108 +580,108 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
 Content-Type: application/hal+json;charset=UTF-8
-Content-Length: 3057
+Content-Length: 2962
 
 {
   "_embedded" : {
     "designLayerGroups" : [ {
-      "designLayerGroupId" : 31,
-      "designLayerGroupName" : "groupName0",
-      "userId" : "admin",
-      "ancestor" : 31,
-      "parent" : 0,
-      "parentName" : null,
-      "depth" : 1,
-      "viewOrder" : 1,
-      "children" : 0,
-      "available" : true,
-      "description" : "test",
-      "updateDate" : null,
-      "insertDate" : "2020-08-26T11:11:21.387601",
-      "designLayerList" : null,
-      "_links" : {
-        "self" : {
-          "href" : "http://localhost:8080/api/design-layer-groups/31"
-        }
-      }
-    }, {
-      "designLayerGroupId" : 32,
+      "designLayerGroupId" : 1,
       "designLayerGroupName" : "groupName1",
       "userId" : "admin",
-      "ancestor" : 32,
+      "ancestor" : 1,
       "parent" : 0,
-      "parentName" : null,
+      "parentName" : "parentName",
       "depth" : 1,
-      "viewOrder" : 2,
-      "children" : 0,
+      "viewOrder" : 1,
+      "children" : 1,
       "available" : true,
       "description" : "test",
       "updateDate" : null,
-      "insertDate" : "2020-08-26T11:11:21.402913",
+      "insertDate" : null,
       "designLayerList" : null,
       "_links" : {
         "self" : {
-          "href" : "http://localhost:8080/api/design-layer-groups/32"
+          "href" : "http://localhost:8080/api/design-layer-groups/1"
         }
       }
     }, {
-      "designLayerGroupId" : 33,
+      "designLayerGroupId" : 2,
       "designLayerGroupName" : "groupName2",
       "userId" : "admin",
-      "ancestor" : 33,
+      "ancestor" : 1,
       "parent" : 0,
-      "parentName" : null,
+      "parentName" : "parentName",
       "depth" : 1,
-      "viewOrder" : 3,
-      "children" : 0,
+      "viewOrder" : 1,
+      "children" : 1,
       "available" : true,
       "description" : "test",
       "updateDate" : null,
-      "insertDate" : "2020-08-26T11:11:21.414845",
+      "insertDate" : null,
       "designLayerList" : null,
       "_links" : {
         "self" : {
-          "href" : "http://localhost:8080/api/design-layer-groups/33"
+          "href" : "http://localhost:8080/api/design-layer-groups/2"
         }
       }
     }, {
-      "designLayerGroupId" : 34,
+      "designLayerGroupId" : 3,
       "designLayerGroupName" : "groupName3",
       "userId" : "admin",
-      "ancestor" : 34,
+      "ancestor" : 1,
       "parent" : 0,
-      "parentName" : null,
+      "parentName" : "parentName",
       "depth" : 1,
-      "viewOrder" : 4,
-      "children" : 0,
+      "viewOrder" : 1,
+      "children" : 1,
       "available" : true,
       "description" : "test",
       "updateDate" : null,
-      "insertDate" : "2020-08-26T11:11:21.432805",
+      "insertDate" : null,
       "designLayerList" : null,
       "_links" : {
         "self" : {
-          "href" : "http://localhost:8080/api/design-layer-groups/34"
+          "href" : "http://localhost:8080/api/design-layer-groups/3"
         }
       }
     }, {
-      "designLayerGroupId" : 35,
+      "designLayerGroupId" : 4,
       "designLayerGroupName" : "groupName4",
       "userId" : "admin",
-      "ancestor" : 35,
+      "ancestor" : 1,
       "parent" : 0,
-      "parentName" : null,
+      "parentName" : "parentName",
       "depth" : 1,
-      "viewOrder" : 5,
-      "children" : 0,
+      "viewOrder" : 1,
+      "children" : 1,
       "available" : true,
       "description" : "test",
       "updateDate" : null,
-      "insertDate" : "2020-08-26T11:11:21.460979",
+      "insertDate" : null,
       "designLayerList" : null,
       "_links" : {
         "self" : {
-          "href" : "http://localhost:8080/api/design-layer-groups/35"
+          "href" : "http://localhost:8080/api/design-layer-groups/4"
+        }
+      }
+    }, {
+      "designLayerGroupId" : 5,
+      "designLayerGroupName" : "groupName5",
+      "userId" : "admin",
+      "ancestor" : 1,
+      "parent" : 0,
+      "parentName" : "parentName",
+      "depth" : 1,
+      "viewOrder" : 1,
+      "children" : 1,
+      "available" : true,
+      "description" : "test",
+      "updateDate" : null,
+      "insertDate" : null,
+      "designLayerList" : null,
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/api/design-layer-groups/5"
         }
       }
     } ]
@@ -705,33 +705,33 @@ Content-Length: 3057
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/design-layer-groups/31' -i -X GET</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/design-layer-groups/1' -i -X GET</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
 Content-Type: application/hal+json;charset=UTF-8
-Content-Length: 571
+Content-Length: 551
 
 {
-  "designLayerGroupId" : 31,
-  "designLayerGroupName" : "groupName0",
+  "designLayerGroupId" : 1,
+  "designLayerGroupName" : "groupName",
   "userId" : "admin",
-  "ancestor" : 31,
+  "ancestor" : 1,
   "parent" : 0,
-  "parentName" : null,
+  "parentName" : "parentName",
   "depth" : 1,
   "viewOrder" : 1,
-  "children" : 0,
+  "children" : 1,
   "available" : true,
   "description" : "test",
   "updateDate" : null,
-  "insertDate" : "2020-08-26T11:11:21.387601",
+  "insertDate" : null,
   "designLayerList" : null,
   "_links" : {
     "self" : {
-      "href" : "http://localhost:8080/api/design-layer-groups/31"
+      "href" : "http://localhost:8080/api/design-layer-groups/1"
     },
     "profile" : {
       "href" : "/docs/index.html#resource-design-layer-group-get"
@@ -781,7 +781,7 @@ Content-Length: 571
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>parentName</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">부모명</p></td>
 </tr>
 <tr>
@@ -816,7 +816,7 @@ Content-Length: 571
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>insertDate</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">등록일</p></td>
 </tr>
 <tr>
@@ -851,7 +851,7 @@ Content-Length: 571
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
 Content-Type: application/hal+json;charset=UTF-8
-Content-Length: 4715
+Content-Length: 7555
 
 {
   "_embedded" : {
@@ -870,11 +870,11 @@ Content-Length: 4715
       "parent" : null,
       "parentName" : null,
       "depth" : null,
-      "designLayerId" : 115,
+      "designLayerId" : 1,
       "designLayerGroupId" : 1,
       "designLayerGroupName" : null,
-      "designLayerKey" : "test4",
-      "designLayerName" : "testName4",
+      "designLayerKey" : "test1",
+      "designLayerName" : "testName1",
       "designLayerType" : "land",
       "userId" : "admin",
       "sharing" : null,
@@ -894,13 +894,13 @@ Content-Length: 4715
       "theGeom" : null,
       "attributes" : null,
       "updateDate" : null,
-      "insertDate" : "2020-08-26T11:11:19.853017",
+      "insertDate" : null,
       "zindex" : 1,
       "viewZIndex" : 1,
       "parameters" : "&amp;searchWord=&amp;searchOption=&amp;searchValue=&amp;startDate=&amp;endDate=&amp;orderWord=&amp;orderValue=&amp;listCounter=10",
       "_links" : {
         "self" : {
-          "href" : "http://localhost:8080/api/design-layers/115"
+          "href" : "http://localhost:8080/api/design-layers/1"
         }
       }
     }, {
@@ -918,55 +918,7 @@ Content-Length: 4715
       "parent" : null,
       "parentName" : null,
       "depth" : null,
-      "designLayerId" : 114,
-      "designLayerGroupId" : 1,
-      "designLayerGroupName" : null,
-      "designLayerKey" : "test3",
-      "designLayerName" : "testName3",
-      "designLayerType" : "land",
-      "userId" : "admin",
-      "sharing" : null,
-      "ogcWebServices" : "wms",
-      "geometryType" : "polygon",
-      "styleFileContent" : null,
-      "layerFillColor" : "#000000",
-      "layerLineColor" : "#000000",
-      "layerLineStyle" : 1.0,
-      "layerAlphaStyle" : 1.0,
-      "viewOrder" : 1,
-      "available" : true,
-      "labelDisplay" : null,
-      "cacheAvailable" : true,
-      "coordinate" : "EPSG:4326",
-      "description" : "test",
-      "theGeom" : null,
-      "attributes" : null,
-      "updateDate" : null,
-      "insertDate" : "2020-08-26T11:11:19.830611",
-      "zindex" : 1,
-      "viewZIndex" : 1,
-      "parameters" : "&amp;searchWord=&amp;searchOption=&amp;searchValue=&amp;startDate=&amp;endDate=&amp;orderWord=&amp;orderValue=&amp;listCounter=10",
-      "_links" : {
-        "self" : {
-          "href" : "http://localhost:8080/api/design-layers/114"
-        }
-      }
-    }, {
-      "totalCount" : null,
-      "offset" : null,
-      "limit" : null,
-      "searchWord" : null,
-      "searchOption" : null,
-      "searchValue" : null,
-      "startDate" : null,
-      "endDate" : null,
-      "orderWord" : null,
-      "orderValue" : null,
-      "listCounter" : 10,
-      "parent" : null,
-      "parentName" : null,
-      "depth" : null,
-      "designLayerId" : 113,
+      "designLayerId" : 2,
       "designLayerGroupId" : 1,
       "designLayerGroupName" : null,
       "designLayerKey" : "test2",
@@ -990,13 +942,157 @@ Content-Length: 4715
       "theGeom" : null,
       "attributes" : null,
       "updateDate" : null,
-      "insertDate" : "2020-08-26T11:11:19.805845",
+      "insertDate" : null,
       "zindex" : 1,
       "viewZIndex" : 1,
       "parameters" : "&amp;searchWord=&amp;searchOption=&amp;searchValue=&amp;startDate=&amp;endDate=&amp;orderWord=&amp;orderValue=&amp;listCounter=10",
       "_links" : {
         "self" : {
-          "href" : "http://localhost:8080/api/design-layers/113"
+          "href" : "http://localhost:8080/api/design-layers/2"
+        }
+      }
+    }, {
+      "totalCount" : null,
+      "offset" : null,
+      "limit" : null,
+      "searchWord" : null,
+      "searchOption" : null,
+      "searchValue" : null,
+      "startDate" : null,
+      "endDate" : null,
+      "orderWord" : null,
+      "orderValue" : null,
+      "listCounter" : 10,
+      "parent" : null,
+      "parentName" : null,
+      "depth" : null,
+      "designLayerId" : 3,
+      "designLayerGroupId" : 1,
+      "designLayerGroupName" : null,
+      "designLayerKey" : "test3",
+      "designLayerName" : "testName3",
+      "designLayerType" : "land",
+      "userId" : "admin",
+      "sharing" : null,
+      "ogcWebServices" : "wms",
+      "geometryType" : "polygon",
+      "styleFileContent" : null,
+      "layerFillColor" : "#000000",
+      "layerLineColor" : "#000000",
+      "layerLineStyle" : 1.0,
+      "layerAlphaStyle" : 1.0,
+      "viewOrder" : 1,
+      "available" : true,
+      "labelDisplay" : null,
+      "cacheAvailable" : true,
+      "coordinate" : "EPSG:4326",
+      "description" : "test",
+      "theGeom" : null,
+      "attributes" : null,
+      "updateDate" : null,
+      "insertDate" : null,
+      "zindex" : 1,
+      "viewZIndex" : 1,
+      "parameters" : "&amp;searchWord=&amp;searchOption=&amp;searchValue=&amp;startDate=&amp;endDate=&amp;orderWord=&amp;orderValue=&amp;listCounter=10",
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/api/design-layers/3"
+        }
+      }
+    }, {
+      "totalCount" : null,
+      "offset" : null,
+      "limit" : null,
+      "searchWord" : null,
+      "searchOption" : null,
+      "searchValue" : null,
+      "startDate" : null,
+      "endDate" : null,
+      "orderWord" : null,
+      "orderValue" : null,
+      "listCounter" : 10,
+      "parent" : null,
+      "parentName" : null,
+      "depth" : null,
+      "designLayerId" : 4,
+      "designLayerGroupId" : 1,
+      "designLayerGroupName" : null,
+      "designLayerKey" : "test4",
+      "designLayerName" : "testName4",
+      "designLayerType" : "land",
+      "userId" : "admin",
+      "sharing" : null,
+      "ogcWebServices" : "wms",
+      "geometryType" : "polygon",
+      "styleFileContent" : null,
+      "layerFillColor" : "#000000",
+      "layerLineColor" : "#000000",
+      "layerLineStyle" : 1.0,
+      "layerAlphaStyle" : 1.0,
+      "viewOrder" : 1,
+      "available" : true,
+      "labelDisplay" : null,
+      "cacheAvailable" : true,
+      "coordinate" : "EPSG:4326",
+      "description" : "test",
+      "theGeom" : null,
+      "attributes" : null,
+      "updateDate" : null,
+      "insertDate" : null,
+      "zindex" : 1,
+      "viewZIndex" : 1,
+      "parameters" : "&amp;searchWord=&amp;searchOption=&amp;searchValue=&amp;startDate=&amp;endDate=&amp;orderWord=&amp;orderValue=&amp;listCounter=10",
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/api/design-layers/4"
+        }
+      }
+    }, {
+      "totalCount" : null,
+      "offset" : null,
+      "limit" : null,
+      "searchWord" : null,
+      "searchOption" : null,
+      "searchValue" : null,
+      "startDate" : null,
+      "endDate" : null,
+      "orderWord" : null,
+      "orderValue" : null,
+      "listCounter" : 10,
+      "parent" : null,
+      "parentName" : null,
+      "depth" : null,
+      "designLayerId" : 5,
+      "designLayerGroupId" : 1,
+      "designLayerGroupName" : null,
+      "designLayerKey" : "test5",
+      "designLayerName" : "testName5",
+      "designLayerType" : "land",
+      "userId" : "admin",
+      "sharing" : null,
+      "ogcWebServices" : "wms",
+      "geometryType" : "polygon",
+      "styleFileContent" : null,
+      "layerFillColor" : "#000000",
+      "layerLineColor" : "#000000",
+      "layerLineStyle" : 1.0,
+      "layerAlphaStyle" : 1.0,
+      "viewOrder" : 1,
+      "available" : true,
+      "labelDisplay" : null,
+      "cacheAvailable" : true,
+      "coordinate" : "EPSG:4326",
+      "description" : "test",
+      "theGeom" : null,
+      "attributes" : null,
+      "updateDate" : null,
+      "insertDate" : null,
+      "zindex" : 1,
+      "viewZIndex" : 1,
+      "parameters" : "&amp;searchWord=&amp;searchOption=&amp;searchValue=&amp;startDate=&amp;endDate=&amp;orderWord=&amp;orderValue=&amp;listCounter=10",
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/api/design-layers/5"
         }
       }
     } ]
@@ -1020,14 +1116,14 @@ Content-Length: 4715
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/design-layers/115' -i -X GET</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/design-layers/1' -i -X GET</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
 Content-Type: application/hal+json;charset=UTF-8
-Content-Length: 1384
+Content-Length: 1354
 
 {
   "totalCount" : null,
@@ -1044,11 +1140,11 @@ Content-Length: 1384
   "parent" : null,
   "parentName" : null,
   "depth" : null,
-  "designLayerId" : 115,
+  "designLayerId" : 1,
   "designLayerGroupId" : 1,
   "designLayerGroupName" : null,
-  "designLayerKey" : "test4",
-  "designLayerName" : "testName4",
+  "designLayerKey" : "test",
+  "designLayerName" : "testName",
   "designLayerType" : "land",
   "userId" : "admin",
   "sharing" : null,
@@ -1068,13 +1164,13 @@ Content-Length: 1384
   "theGeom" : null,
   "attributes" : null,
   "updateDate" : null,
-  "insertDate" : "2020-08-26T11:11:19.853017",
+  "insertDate" : null,
   "zindex" : 1,
   "viewZIndex" : 1,
   "parameters" : "&amp;searchWord=&amp;searchOption=&amp;searchValue=&amp;startDate=&amp;endDate=&amp;orderWord=&amp;orderValue=&amp;listCounter=10",
   "_links" : {
     "self" : {
-      "href" : "http://localhost:8080/api/design-layers/115"
+      "href" : "http://localhost:8080/api/design-layers/1"
     },
     "profile" : {
       "href" : "/docs/index.html#resource-design-layer-get"
@@ -1194,7 +1290,7 @@ Content-Length: 1384
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>insertDate</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">등록일</p></td>
 </tr>
 </tbody>
@@ -1205,7 +1301,7 @@ Content-Length: 1384
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-08-26 10:42:09 +0900
+Last updated 2020-08-26 11:15:35 +0900
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/github.min.css">

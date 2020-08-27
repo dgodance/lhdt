@@ -2,60 +2,42 @@ package lhdt.api;
 
 import lhdt.common.BaseControllerTest;
 import lhdt.domain.extrusionmodel.DesignLayer;
-import lhdt.persistence.DesignLayerMapper;
-import org.junit.jupiter.api.BeforeAll;
+import lhdt.service.DesignLayerService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.IntStream;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.relaxedResponseFields;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@WebMvcTest(DesignLayerAPIController.class)
 class DesignLayerAPIControllerTests extends BaseControllerTest {
 
-    @Autowired
-    private DesignLayerMapper designLayerMapper;
-
-    @BeforeAll
-    public void insert() {
-        designLayerMapper.deleteAllDesignLayer();
-        IntStream.range(0,5).forEach(i -> {
-            var designLayer = DesignLayer.builder()
-                    .designLayerGroupId(1)
-                    .designLayerKey("test"+i)
-                    .designLayerName("testName"+i)
-                    .designLayerType("land")
-                    .userId("admin")
-                    .ogcWebServices("wms")
-                    .geometryType("polygon")
-                    .layerFillColor("#000000")
-                    .layerLineColor("#000000")
-                    .layerLineStyle(1F)
-                    .layerAlphaStyle(1F)
-                    .viewOrder(1)
-                    .zIndex(1)
-                    .available(true)
-                    .cacheAvailable(true)
-                    .coordinate("EPSG:4326")
-                    .description("test")
-                    .build();
-            designLayerMapper.insertDesignLayer(designLayer);
-        });
-    }
+    @MockBean
+    private DesignLayerService designLayerService;
 
     @Test
     @DisplayName("DesignLayer 목록 조회 하기")
-    public void getDesignLayer() throws Exception {
+    public void getDesignLayers() throws Exception {
+        // mock 데이터 add
+        getDesignLayerList();
+        // given
+        given(designLayerService.getDesignLayerTotalCount(any())).willReturn(5L);
+        given(designLayerService.getListDesignLayer(any())).willReturn(getDesignLayerList());
 
         this.mockMvc.perform(get("/api/design-layers")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -73,9 +55,11 @@ class DesignLayerAPIControllerTests extends BaseControllerTest {
 
     @Test
     @DisplayName("DesignLayer 단일 조회 하기")
-    public void getDesignLayerById() throws Exception {
-        var designLayer = designLayerMapper.getListDesignLayer(new DesignLayer());
-        this.mockMvc.perform(get("/api/design-layers/{id}", designLayer.get(0).getDesignLayerId()))
+    public void getDesignLayer() throws Exception {
+        DesignLayer mock = getDesignLayerById();
+        given(designLayerService.getDesignLayer(any())).willReturn(mock);
+
+        this.mockMvc.perform(get("/api/design-layers/{id}", mock.getDesignLayerId()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("designLayerId").exists())
@@ -109,6 +93,56 @@ class DesignLayerAPIControllerTests extends BaseControllerTest {
                                 fieldWithPath("updateDate").description("수정일"),
                                 fieldWithPath("insertDate").description("등록일")
                         )
-                    ));
+                ));
+    }
+
+    private List<DesignLayer> getDesignLayerList() {
+        List<DesignLayer> mockList = new ArrayList<>();
+        IntStream.range(1, 6).forEach(i -> {
+            mockList.add(DesignLayer.builder()
+                    .designLayerId((long) i)
+                    .designLayerGroupId(1)
+                    .designLayerKey("test" + i)
+                    .designLayerName("testName" + i)
+                    .designLayerType("land")
+                    .userId("admin")
+                    .ogcWebServices("wms")
+                    .geometryType("polygon")
+                    .layerFillColor("#000000")
+                    .layerLineColor("#000000")
+                    .layerLineStyle(1F)
+                    .layerAlphaStyle(1F)
+                    .viewOrder(1)
+                    .zIndex(1)
+                    .available(true)
+                    .cacheAvailable(true)
+                    .coordinate("EPSG:4326")
+                    .description("test")
+                    .build());
+        });
+        return mockList;
+    }
+
+    private DesignLayer getDesignLayerById() {
+        return DesignLayer.builder()
+                .designLayerId(1L)
+                .designLayerGroupId(1)
+                .designLayerKey("test")
+                .designLayerName("testName")
+                .designLayerType("land")
+                .userId("admin")
+                .ogcWebServices("wms")
+                .geometryType("polygon")
+                .layerFillColor("#000000")
+                .layerLineColor("#000000")
+                .layerLineStyle(1F)
+                .layerAlphaStyle(1F)
+                .viewOrder(1)
+                .zIndex(1)
+                .available(true)
+                .cacheAvailable(true)
+                .coordinate("EPSG:4326")
+                .description("test")
+                .build();
     }
 }

@@ -80,33 +80,4 @@
         LEFT JOIN design_layer_group B on B.design_layer_group_id = A.design_layer_group_id
         WHERE A.design_layer_id = #{designLayerId}
     </select>
-
-	<!-- 디자인 레이어 등록 -->
-	<insert id="insertDesignLayer" parameterType="designLayer">
-		/* insertDesignLayer */
-		<selectKey keyProperty="designLayerId" resultType="long" order="BEFORE">
-			SELECT NEXTVAL('design_layer_seq')
-		</selectKey>
-		INSERT INTO design_layer (
-		design_layer_id, design_layer_group_id, design_layer_name, design_layer_key, design_Layer_type, sharing, ogc_web_services, geometry_type,
-		layer_line_color, layer_line_style, layer_fill_color, layer_alpha_style, available,
-		coordinate, description, z_index, user_id, cache_available
-		<if test="viewOrder != null and viewOrder gt 0">
-			, view_order
-		</if>
-		) VALUES (
-		#{designLayerId}, #{designLayerGroupId}, #{designLayerName}, #{designLayerKey}, #{designLayerType}, #{sharing}, #{ogcWebServices}, #{geometryType},
-		#{layerLineColor}, #{layerLineStyle}, #{layerFillColor}, #{layerAlphaStyle}, #{available},
-		#{coordinate}, #{description}, #{zIndex}, #{userId}, #{cacheAvailable}
-		<if test="viewOrder != null and viewOrder gt 0">
-			, #{viewOrder}
-		</if>
-		)
-	</insert>
-
-	<!-- 디자인 레이어 삭제 -->
-	<delete id="deleteAllDesignLayer">
-		/* deleteAllDesignLayer */
-		DELETE FROM design_layer
-	</delete>
 </mapper>

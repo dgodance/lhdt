@@ -28,17 +28,4 @@ public interface DesignLayerMapper {
     * @return
     */
     DesignLayer getDesignLayer(Long designLayerId);
-
-	/**
-	 * Design Layer 등록
-	 * @param designLayer
-	 * @return
-	 */
-	int insertDesignLayer(DesignLayer designLayer);
-
-	/**
-	 * Design Layer 삭제
-	 * @return
-	 */
-	int deleteAllDesignLayer();
 }
