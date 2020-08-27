@@ -47,7 +47,7 @@ public class DataGroupRestController {
 	 * @return
 	 */
 	@GetMapping(value = "/duplication")
-	public Map<String, Object> ajaxKeyDuplicationCheck(HttpServletRequest request, DataGroup dataGroup) {
+	public Map<String, Object> dataGroupKeyDuplicationCheck(HttpServletRequest request, DataGroup dataGroup) {
 		Map<String, Object> result = new HashMap<>();
 		String errorCode = null;
 		String message = null;

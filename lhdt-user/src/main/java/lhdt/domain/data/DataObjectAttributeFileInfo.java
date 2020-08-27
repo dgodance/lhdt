@@ -1,6 +1,6 @@
 package lhdt.domain.data;
 
-import lhdt.domain.FileInfo;
+import lhdt.domain.common.FileInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

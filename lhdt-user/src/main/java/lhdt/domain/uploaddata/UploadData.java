@@ -1,6 +1,6 @@
 package lhdt.domain.uploaddata;
 
-import lhdt.domain.Search;
+import lhdt.domain.common.Search;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 

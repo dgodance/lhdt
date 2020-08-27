@@ -1,10 +1,10 @@
 package lhdt.admin.svc.cityplanning.controller.view;
 
-import lhdt.admin.svc.cityplanning.domain.CPFileInfo;
+import lhdt.admin.svc.file.domain.FileInfo;
 import lhdt.admin.svc.cityplanning.domain.CPReportDetail;
 import lhdt.admin.svc.cityplanning.exception.NotSupportCsvFileException;
 import lhdt.admin.svc.cityplanning.model.CPFileRegistParam;
-import lhdt.admin.svc.cityplanning.service.CPFileInfoService;
+import lhdt.admin.svc.file.service.FileInfoService;
 import lhdt.admin.svc.cityplanning.service.CPReportDetailService;
 import lhdt.admin.svc.cityplanning.service.CPReportParserService;
 import lhdt.admin.svc.cityplanning.service.impl.CPCsvReportParserServiceImpl;
@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -30,7 +29,7 @@ import java.util.List;
 @RequestMapping("/cp-file")
 public class CPFileViewController {
     @Autowired
-    private CPFileInfoService cpFileInfoService;
+    private FileInfoService fileInfoService;
 
     @Autowired
     private CPReportDetailService cpReportDetailService;
@@ -43,7 +42,7 @@ public class CPFileViewController {
     public String getCPFile(
             @RequestParam(value = "filePage", defaultValue = "1") Integer file_page,
             Model model) {
-        Page<CPFileInfo> cpLocalInfoPage = cpFileInfoService
+        Page<FileInfo> cpLocalInfoPage = fileInfoService
                 .findAllPgByStartPg(file_page -1, DSPageSize.NOTICE.getContent());
         model.addAttribute("cpLocalInfoPage", cpLocalInfoPage);
 
@@ -55,7 +54,7 @@ public class CPFileViewController {
 
     @GetMapping("/{id}")
     public String getCPFileById(@PathVariable(value = "id") Long id, Model model) {
-        var board = cpFileInfoService.findById(id);
+        var board = fileInfoService.findById(id);
         model.addAttribute("cpFileInfo", board);
         return "/cp-file/content";
     }
@@ -67,24 +66,24 @@ public class CPFileViewController {
 
     @PostMapping("/regist")
     public String addCPFile(Model model, CPFileRegistParam cpFileRegistParam) {
-        List<CPFileInfo> cpFileInfos = this.cpFileInfoService.procCPFiles(cpFileRegistParam.getFiles());
-        procAddCPFile(cpFileInfos);
+        List<FileInfo> fileInfos = this.fileInfoService.procCPFiles(cpFileRegistParam.getFiles());
+        procAddCPFile(fileInfos);
         return "/cp-file/regist";
     }
 
     @Transactional
-    public void procAddCPFile(List<CPFileInfo> cpFileInfos) {
+    public void procAddCPFile(List<FileInfo> fileInfos) {
         List<CPReportDetail> cpReportDetailList = null;
         try {
-            for (CPFileInfo cpFileInfo : cpFileInfos) {
+            for (FileInfo fileInfo : fileInfos) {
                 cpReportDetailList = this.cpReportParserService.procDataByCityPlanReport
-                        (new CPCsvReportParserServiceImpl(), cpFileInfo.toString());
-                var cpFileInfoObj = this.cpFileInfoService.regist(cpFileInfo);
-                cpReportDetailList.forEach(p -> p.setCPFileInfo(cpFileInfoObj));
+                        (new CPCsvReportParserServiceImpl(), fileInfo.toString());
+                var cpFileInfoObj = this.fileInfoService.regist(fileInfo);
+                cpReportDetailList.forEach(p -> p.setCpfileInfo(cpFileInfoObj));
                 this.cpReportDetailService.registAll(cpReportDetailList);
             }
         } catch (NotSupportCsvFileException e) {
-            cpFileInfos.forEach(p -> new DsFileMaster(p.toString()).delete());
+            fileInfos.forEach(p -> new DsFileMaster(p.toString()).delete());
             e.printStackTrace();
         } catch (InvalidFormatException e) {
             e.printStackTrace();
@@ -95,14 +94,14 @@ public class CPFileViewController {
 
     @GetMapping("/edit/{id}")
     public String editCPFile(@PathVariable(value = "id") Long id, Model model) {
-        var board = cpFileInfoService.findById(id);
+        var board = fileInfoService.findById(id);
         model.addAttribute("cpFileInfo", board);
         return "/cp-file/edit";
     }
 
     @PostMapping("/{id}")
     public String deleteCPFile(@PathVariable(value = "id") Long id) {
-        this.cpFileInfoService.delete(id);
+        this.fileInfoService.delete(id);
         return "redirect:/cp-file";
     }
 }

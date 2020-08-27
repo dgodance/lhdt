@@ -48,24 +48,6 @@ public class DsFileMaster extends File {
      */
     public static void deleteFolderByPath(String path) throws IOException {
     	DsUtils.forceDelete(Paths.get(path));
-//        File folder = new File(path);
-//        try {
-//            if(folder.exists()){
-//                File[] folder_list = folder.listFiles(); //파일리스트 얻어오기
-//
-//                for (int i = 0; i < folder_list.length; i++) {
-//                    if(folder_list[i].isFile()) {
-//                        folder_list[i].delete();
-//                    }else {
-//                        deleteFolderByPath(folder_list[i].getPath()); //재귀함수호출
-//                    }
-//                    folder_list[i].delete();
-//                }
-//                folder.delete(); //폴더 삭제
-//            }
-//        } catch (Exception e) {
-//            e.getStackTrace();
-//        }
     }
 
     /**

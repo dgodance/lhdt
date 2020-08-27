@@ -1,7 +1,11 @@
 package lhdt.admin.svc.landscape.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+
+import lhdt.admin.svc.file.domain.FileInfo;
 import lhdt.ds.common.domain.DsDomain;
 import lhdt.ds.common.misc.DsField;
 import lombok.AllArgsConstructor;
@@ -9,6 +13,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
 import java.io.InputStream;
@@ -21,23 +27,27 @@ import java.sql.SQLException;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@TypeDef(name="jsonb", typeClass=JsonBinaryType.class)
 public class LandScapeDiff extends DsDomain {
     @NotNull
     @DsField(bizKey = true, order = 0)
     @Column(name = "ls_diff_name")
     private String lsDiffName;
 
-    @Column(name = "ls_camera_state", columnDefinition = "json")
+
+    @Type(type = "jsonb")
+    @Column(name = "ls_camera_state", columnDefinition = "jsonb")
     private String captureCameraState;
 
-    @Column(name = "ls_file_name")
-    private String fileName;
-
-    @Column(name = "ls_file_path")
-    private String filePath;
-
-    @JsonBackReference
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="ls_diff_group_id")
+    @DsField(bizKey = true, order = 1)
     private LandScapeDiffGroup landScapeDiffGroup;
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="ls_diff_img_id")
+    @DsField(bizKey = true, order = 2)
+    private FileInfo lsDiffImgInfo;
 }

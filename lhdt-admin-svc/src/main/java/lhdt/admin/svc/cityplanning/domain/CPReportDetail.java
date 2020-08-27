@@ -1,7 +1,8 @@
 package lhdt.admin.svc.cityplanning.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import lhdt.admin.svc.cityplanning.type.UpDownType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lhdt.admin.svc.file.domain.FileInfo;
 import lhdt.ds.common.domain.DsDomain;
 import lhdt.ds.common.misc.DsField;
 import lombok.AllArgsConstructor;
@@ -177,10 +178,8 @@ public class CPReportDetail extends DsDomain {
     @Column(name = "reference")
     private String reference;
 
-
-    @JsonBackReference
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="file_id")
-    @DsField(bizKey = true, order = 5)
-    private CPFileInfo CPFileInfo;
+    @JoinColumn(name="cp_file_id")
+    private FileInfo cpfileInfo;
 }

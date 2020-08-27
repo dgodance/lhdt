@@ -1,6 +1,6 @@
 package lhdt.domain.role;
 
-import lhdt.domain.Search;
+import lhdt.domain.common.Search;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -20,8 +20,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class Role extends Search {
 	
-	private Search search;
-
 	/****** validator ********/
 	private String methodMode;
 	

@@ -1,7 +1,9 @@
 package lhdt.config;
 
 import lhdt.interceptor.*;
+import lombok.extern.slf4j.Slf4j;
 import nz.net.ultraq.thymeleaf.LayoutDialect;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -16,16 +18,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.LocaleResolver;
-import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import org.springframework.web.servlet.support.RequestDataValueProcessor;
-
-import lombok.extern.slf4j.Slf4j;
 //import nz.net.ultraq.thymeleaf.LayoutDialect;
 
 @Slf4j
@@ -140,5 +135,9 @@ public class ServletConfig implements WebMvcConfigurer {
 		log.info(" @@@ ServletConfig requestDataValueProcessor @@@ ");
 		return new CSRFRequestDataValueProcessor();
 	}
-	
+
+	@Bean
+	public ModelMapper modelMapper() {
+		return new ModelMapper();
+	}
 }

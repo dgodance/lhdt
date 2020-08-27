@@ -92,9 +92,10 @@ public class GeotoolsTests {
                 if (columnList.contains(attributeName)) {
                     if (attributeName.equalsIgnoreCase(String.valueOf(DesignLayer.RequiredColumn.THE_GEOM))) {
                         extrusionModel.setTheGeom(attribute.getValue().toString());
-                    } else if (attributeName.equalsIgnoreCase(String.valueOf(DesignLayer.RequiredColumn.ATTRIBUTES))) {
-                        extrusionModel.setAttributes(attribute.getValue().toString());
                     }
+//                    else if (attributeName.equalsIgnoreCase(String.valueOf(DesignLayer.RequiredColumn.ATTRIBUTES))) {
+//                        extrusionModel.setAttributes(attribute.getValue().toString());
+//                    }
                 }
             }
             extrusionModelList.add(extrusionModel);

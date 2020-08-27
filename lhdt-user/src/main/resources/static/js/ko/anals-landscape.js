@@ -77,7 +77,7 @@ SkylineObj.prototype.setEventHandler = function(){
 	
 	
 	//자동으로 3점 지도 캡처 & get 스카이라인 base64 & show modal
-	ppui.on(document.getElementsByClassName('ds-autoall')[0], 'click' ,function(){
+	ppui.on(document.querySelector('.ds-autoall'), 'click' ,function(){
 		document.querySelector('body').style.cursor = 'wait';
 		
 		//모든 점 자동 캡처
@@ -112,14 +112,27 @@ SkylineObj.prototype.setEventHandler = function(){
 	
 	
 	//테스트 위치로 이동
-	ppui.on(document.getElementsByClassName('ds-flyto')[0], 'click', function(){
+	ppui.on(document.querySelector('.ds-flyto'), 'click', function(){
 		//세종시청
 		gotoFly(127.2891, 36.4800, 10);
+		
+		//TODO 지도위에 HTML 표시하기. 성공
+		let div = document.createElement('div');
+		div.style.backgroundColor = '#efefef';
+		div.style.position = 'absolute';
+		div.style.zIndex = '0';	
+		div.style.width = '200px';
+		div.style.height = '200px';
+		div.style.bottom = '0px';
+		div.style.float = 'bottom';
+		
+		//
+		MAGO3D_INSTANCE.getMagoManager().overlayContainer.appendChild(div);
 	});
 	
 	
 	//2점 선택했다고 치고...draw 2 points
-	ppui.on(document.getElementsByClassName('ds-points2')[0], 'click', function(){
+	ppui.on(document.querySelector('.ds-points2'), 'click', function(){
 		//시작점
 		the.drawPoint(xyz1.lon, xyz1.lat);
 		//끝점
@@ -132,7 +145,7 @@ SkylineObj.prototype.setEventHandler = function(){
 	
 	
 	//원/중/근경 위치 계산 & 점표시
-	ppui.on(document.getElementsByClassName('ds-points3')[0], 'click', function(){
+	ppui.on(document.querySelector('.ds-points3'), 'click', function(){
 		let viewPoint = the.calcViewPoint(xyz1, xyz2);
 		
 		//점 표시
@@ -146,7 +159,7 @@ SkylineObj.prototype.setEventHandler = function(){
 
 	
 	//원경 클릭 이벤트
-	ppui.on(document.getElementsByClassName('ds-movetop1')[0], 'click', function(){
+	ppui.on(document.querySelector('.ds-movetop1'), 'click', function(){
 		//
 		let heading = ppmap.getHeading(xyz1, xyz2);
 		
@@ -163,7 +176,7 @@ SkylineObj.prototype.setEventHandler = function(){
 	
 
 	//중경 클릭 이벤트
-	ppui.on(document.getElementsByClassName('ds-movetop2')[0], 'click', function(){
+	ppui.on(document.querySelector('.ds-movetop2'), 'click', function(){
 		let heading = ppmap.getHeading(xyz1, xyz2);
 		
 		//
@@ -176,7 +189,7 @@ SkylineObj.prototype.setEventHandler = function(){
 		
 		
 	//근경 클릭 이벤트
-	ppui.on(document.getElementsByClassName('ds-movetop3')[0], 'click', function(){
+	ppui.on(document.querySelector('.ds-movetop3'), 'click', function(){
 		let heading = ppmap.getHeading(xyz1, xyz2);
 		
 		//

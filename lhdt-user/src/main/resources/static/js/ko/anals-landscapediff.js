@@ -15,6 +15,8 @@ const LandScapeCameraStatus = function() {
 const source = $('#landscapeDiffContentSource').html();
 const template = Handlebars.compile(source);
 
+let analsLandScapeDiff = undefined;
+
 
 /**
  * 경관 비교
@@ -71,6 +73,18 @@ AnalsLandScapeDiff.prototype.captureCameraState = function() {
     }
     return store;
 }
+
+AnalsLandScapeDiff.prototype.moveCameraByStatus = function(status) {
+    ppmap.viewer.camera.flyTo({
+        destination : status.position,
+        orientation : {
+            direction : status.direction,
+            up : status.up,
+            right : status.right,
+        }
+    });
+}
+
 AnalsLandScapeDiff.prototype.renderDiffDropdown = function() {
     debugger;
     const html = $('#landscapeDiffSource').html();
@@ -105,15 +119,13 @@ AnalsLandScapeDiff.prototype.renderDiffDropdown = function() {
                     processData: false,
                     contentType: false
                 }).done(function(data) {
-                    console.log(data);
-                    new AnalsLandScapeDiff().renderDiffContent($('#landscapeGroup').val());
+                    renderDiffContent();
                 });
 
                 // the.captureScreenProc(blob); //drawing
             })
         })
     })
-
 }
 
 AnalsLandScapeDiff.prototype.renderDiffContent = function(groupId) {
@@ -127,6 +139,34 @@ AnalsLandScapeDiff.prototype.renderDiffContent = function(groupId) {
         $('#landscapeDiffDetDataDiv').append(template(data));
         $('#landscapeName').val("");
     });
+}
+
+function renderDiffContent() {
+    new AnalsLandScapeDiff().renderDiffContent($('#landscapeGroup').val());
+}
+
+function gotoScene(id) {
+    $.get('http://localhost:9091/adminsvc/ls-diff/scene/'+id).done(function(diffObj) {
+        const analsLandScapeDiff = new AnalsLandScapeDiff();
+        analsLandScapeDiff.moveCameraByStatus(JSON.parse(diffObj.captureCameraState));
+    });
+}
+
+function showData(id) {
+    $.get('http://localhost:9091/adminsvc/ls-diff/info/'+id).done(function(diffObj) {
+
+    });
+}
+
+function deleteData(id) {
+    $.ajax({
+        url : 'http://localhost:9091/adminsvc/ls-diff/scene/'+id,
+        type : "DELETE",
+        success: function() {
+            renderDiffContent();
+        }
+    });
+
 }
 
 $(document).ready(function() {

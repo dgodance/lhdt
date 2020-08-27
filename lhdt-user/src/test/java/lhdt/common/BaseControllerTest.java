@@ -2,28 +2,51 @@ package lhdt.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lhdt.LhdtUserApplication;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.restdocs.RestDocumentationContextProvider;
+import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.filter.CharacterEncodingFilter;
 
-@ExtendWith(SpringExtension.class)
+import java.nio.charset.StandardCharsets;
+
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
+
+@ExtendWith({RestDocumentationExtension.class, SpringExtension.class})
 @ContextConfiguration(classes = LhdtUserApplication.class)
-@Import(RestdocsConfiguration.class)
 @SpringBootTest
-@AutoConfigureMockMvc
-@AutoConfigureRestDocs
 public class BaseControllerTest {
-	@Autowired
+
 	protected MockMvc mockMvc;
+	@Autowired
+	protected WebApplicationContext ctx;
 	@Autowired
 	protected MockHttpSession session;
 	@Autowired
 	protected ObjectMapper objectMapper;
+	@Autowired
+	protected ModelMapper modelMapper;
+
+	@BeforeEach
+	public void setup(RestDocumentationContextProvider restDocumentation) {
+		this.mockMvc = MockMvcBuilders.webAppContextSetup(ctx)
+				.addFilter(new CharacterEncodingFilter(StandardCharsets.UTF_8.name(), true))
+				.apply(
+						documentationConfiguration(restDocumentation)
+						.operationPreprocessors()
+						.withRequestDefaults(prettyPrint())
+						.withResponseDefaults(prettyPrint())
+				)
+				.build();
+	}
 }

@@ -1,6 +1,6 @@
 package lhdt.domain.issue;
 
-import lhdt.domain.Search;
+import lhdt.domain.common.Search;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;

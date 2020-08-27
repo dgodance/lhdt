@@ -37,10 +37,10 @@ public interface DesignLayerService {
     
     /**
      * designLayerKey 중복 체크
-     * @param designLayerKey
+     * @param designLayer
      * @return
      */
-    Boolean isDesignLayerKeyDuplication(String designLayerKey);
+    Boolean isDesignLayerKeyDuplication(String designLayer);
     
     /**
     * design 레이어 테이블의 컬럼 타입이 어떤 geometry 타입인지를 구함
@@ -81,7 +81,7 @@ public interface DesignLayerService {
     * @param shapeEncoding
     * @throws Exception
     */
-    void insertOgr2Ogr(DesignLayer designLayer, boolean isDesignLayerFileInfoExist, String shapeFileName, String shapeEncoding) throws Exception;
+    void insertOgr2Ogr(DesignLayer designLayer, boolean isDesignLayerFileInfoExist, String shapeFileName, String shapeEncoding, List<DesignLayer> shapePropertiesList) throws Exception;
 
     /**
      * shp파일 정보를 db정보를 기준으로 갱신
