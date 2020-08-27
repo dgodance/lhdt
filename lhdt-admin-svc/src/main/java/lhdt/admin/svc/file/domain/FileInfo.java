@@ -84,8 +84,11 @@ public class FileInfo extends DsDomain implements DsFile {
     @JoinColumn(name="district_id")
     private CPDistricInfo cpDistricInfo;
 
-    @OneToMany(mappedBy = "cpfileInfo", fetch=FetchType.LAZY, cascade = CascadeType.ALL,
-            orphanRemoval = true)
+    /**
+     * CSV 레포트
+     */
+    @OneToMany(mappedBy = "cpfileInfo", fetch=FetchType.LAZY,
+            cascade = CascadeType.ALL,orphanRemoval = true)
     private List<CPReportDetail> CPReportDetails = new ArrayList<>();
 
     public void addCityInfo(CPReportDetail CPReportDetail) {
@@ -102,8 +105,11 @@ public class FileInfo extends DsDomain implements DsFile {
         });
     }
 
-    @OneToMany(mappedBy = "lsDiffImgInfo", fetch=FetchType.LAZY, cascade = CascadeType.ALL,
-            orphanRemoval = true)
+    /**
+     * 이미지
+     */
+    @OneToMany(mappedBy = "lsDiffImgInfo", fetch=FetchType.LAZY,
+            cascade = CascadeType.ALL,orphanRemoval = true)
     private List<LandScapeDiff> landScapeDiffList = new ArrayList<>();
 
     public void addLsScapeDiffInfo(LandScapeDiff landScapeDiff) {

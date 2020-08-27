@@ -34,142 +34,139 @@ public class CPReportDetail extends DsDomain {
     /**
      * 사업유형
      */
-    @Column(name = "project-type")
+    @Column(name = "project_type")
     private String projectTypeString;
 
     /**
      * 사업지구
      */
-    @Column(name = "project-title")
-    @DsField(bizKey = true, order = 2)
+    @Column(name = "project_title")
     private String projectTitle;
 
     /**
      * 가구번호
      */
-    @Column(name = "block-code")
-    @DsField(bizKey = true, order = 3)
+    @Column(name = "block_code")
     private String blockCode;
 
     /**
      * 획지번호
      */
-    @Column(name = "lot-code")
-    @DsField(bizKey = true, order = 4)
+    @Column(name = "lot_code")
     private String lotCode;
 
     /**
      * 획지면적
      */
-    @Column(name = "lot-area")
+    @Column(name = "lot_area")
     private Long lotArea;
 
     /**
      * 용도지역
      */
-    @Column(name = "land-use-zon")
+    @Column(name = "land_use_zon")
     private String landUseZoning;
 
     /**
      * 토지이용
      */
-    @Column(name = "land-use-plan")
+    @Column(name = "land_use_plan")
     private String landUsePlan;
 
     /**
      * 대지분할합필
      */
-    @Column(name = "lot-div-merge")
+    @Column(name = "lot_div_merge")
     private String lotDivideMarge;
 
     /**
      * 용도
      */
-    @Column(name = "building-use")
+    @Column(name = "building_use")
     private String buildingUse;
 
     /**
-     * 용도-지정
+     * 용도_지정
      */
-    @Column(name = "building-use-defin")
+    @Column(name = "building_use_defin")
     private String buildingUseDefined;
 
     /**
-     * 용도-권장
+     * 용도_권장
      */
-    @Column(name = "building-use-recomd")
+    @Column(name = "building_use_recomd")
     private String buildingUseRecommended;
 
     /**
-     * 용도-허용
+     * 용도_허용
      */
-    @Column(name = "building-use-allowd")
+    @Column(name = "building_use_allowd")
     private String buildingUseAllowed;
 
     /**
-     * 용도-제한
+     * 용도_제한
      */
-    @Column(name = "building-use-condi")
+    @Column(name = "building_use_condi")
     private String buildingUseConditional;
 
     /**
-     * 용도-불허
+     * 용도_불허
      */
-    @Column(name = "building-use-fobidn")
+    @Column(name = "building_use_fobidn")
     private String buildingUseForbidden;
 
     /**
      * 건폐율
      */
-    @Column(name = "building-cov-ratio")
+    @Column(name = "building_cov_ratio")
     private Long buildingCoverageRatio;
 
     /**
      * 용적률
      */
-    @Column(name = "floor-area-ratio")
+    @Column(name = "floor_area_ratio")
     private Long floorAreaRatio;
 
     /**
-     * 용적률-기준
+     * 용적률_기준
      */
-    @Column(name = "floor-area-ratio-std")
+    @Column(name = "floor_area_ratio_std")
     private Long floorAreaRatioStandard;
 
     /**
-     * 용적률-허용
+     * 용적률_허용
      */
-    @Column(name = "floor-area-ratio-allowd")
+    @Column(name = "floor_area_ratio_allowd")
     private Long floorAreaRatioAllowed;
 
     /**
-     * 용적률-상한
+     * 용적률_상한
      */
-    @Column(name = "floor-area-ratio-maximum")
+    @Column(name = "floor_area_ratio_maximum")
     private Long floorAreaRatioMaximum;
 
     /**
      * 최고높이
      */
-    @Column(name = "maximun-build-height")
+    @Column(name = "maximun_build_height")
     private Long maximunBuildingHeight;
 
     /**
      * 최고층수
      */
-    @Column(name = "maximun-build-floors")
+    @Column(name = "maximun_build_floors")
     private Long maximunBuildingFloors;
 
     /**
      * 주택유형
      */
-    @Column(name = "housing-type")
+    @Column(name = "housing_type")
     private String housingTypeString;
 
     /**
      * 세대수
      */
-    @Column(name = "num-of-household")
+    @Column(name = "num_of_household")
     private Long numberOfHouseholds;
 
     /**
