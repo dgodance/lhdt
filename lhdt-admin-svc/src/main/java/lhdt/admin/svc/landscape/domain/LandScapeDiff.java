@@ -35,18 +35,21 @@ public class LandScapeDiff extends DsDomain {
     private String lsDiffName;
 
 
+    @NotNull
     @Type(type = "jsonb")
     @Column(name = "ls_camera_state", columnDefinition = "jsonb")
     private String captureCameraState;
 
     @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name="ls_diff_group_id")
     @DsField(bizKey = true, order = 1)
     private LandScapeDiffGroup landScapeDiffGroup;
 
     @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name="ls_diff_img_id")
     @DsField(bizKey = true, order = 2)
     private FileInfo lsDiffImgInfo;

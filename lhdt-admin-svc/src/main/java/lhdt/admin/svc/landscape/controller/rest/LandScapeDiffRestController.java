@@ -32,18 +32,6 @@ public class LandScapeDiffRestController {
     @Autowired
     private LandScapeBizService landScapeBizService;
 
-    @GetMapping("/fileInfo/{id}")
-    private List<FileInfo> fileInfo(@PathVariable(value = "id") Long id) {
-        var aa = new FileInfo();
-        aa.setFileName("asdgasdgadg" + id);
-        aa.setFilePath("365236");
-        aa.setOriginFileName("365236");
-        aa.setFileExtention("dfhdfh");
-        this.fileInfoService.regist(aa);
-        return this.fileInfoService.findAll();
-    };
-
-
     @GetMapping("/group")
     private List<LandScapeDiffGroup> getLSDiffGroup() {
         return this.landScapeDiffGroupService.findAll();
@@ -75,10 +63,6 @@ public class LandScapeDiffRestController {
 
     @PostMapping()
     private LandScapeDiff addLSDiff(LandScapeDiffParam landScapeDiff) throws IOException {
-        var id = landScapeDiff.getLandScapeDiffGroupId();
-        var name = landScapeDiff.getLandscapeName();
-        var cameraStat = landScapeDiff.getCaptureCameraState();
-
         MultipartFile[] multipartFileList = new MultipartFile[]{
             landScapeDiff.getImage()
         };
@@ -86,12 +70,7 @@ public class LandScapeDiffRestController {
         List<FileInfo> fileInfos = null;
         try {
             fileInfos = fileInfoService.procCPFiles(multipartFileList);
-            var obj = new LandScapeDiff();
-            var group = this.landScapeDiffGroupService.findById(id);
-            obj.setLandScapeDiffGroup(group);
-            obj.setLsDiffName(name);
-            obj.setCaptureCameraState(cameraStat);
-            result = landScapeBizService.registDiffAndFileInfo(fileInfos, obj);
+            result = landScapeBizService.registDiffAndFileInfo(fileInfos, landScapeDiff);
 
         } catch (Exception e) {
             fileInfos.forEach(p -> p.delete());

@@ -1,4 +1,4 @@
-package lhdt.admin.svc.landscape.controller;
+package lhdt.admin.svc.landscape.controller.view;
 
 import lhdt.admin.svc.cityplanning.service.CPDistricInfoService;
 import lhdt.admin.svc.cityplanning.service.CPLocalInfoService;
@@ -22,6 +22,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.stream.Collectors;
 
+/**
+ * 조망점 관리 Controller
+ */
 @Slf4j
 @Controller
 @RequestMapping("/landscape-anals")
@@ -51,7 +54,7 @@ public class LandScapeAnalsController {
     public String getCPLocalInfo(@PathVariable(value = "id") Long id, Model model) {
         LandScapeAnals board = landScapeService.findById(id);
         model.addAttribute("landScapeInfo", board);
-        return "/landscape/content";
+        return "content.back";
     }
 
     @GetMapping("/edit")
