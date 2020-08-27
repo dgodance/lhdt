@@ -25,6 +25,7 @@ create table urban_group (
     transfer_local_government       varchar(30),
 
     description					    varchar(256),
+    update_date             	    timestamp with time zone,
 	insert_date					    timestamp with time zone			default now(),
 	constraint urban_group_pk 	    primary key (urban_group_id)
 );
