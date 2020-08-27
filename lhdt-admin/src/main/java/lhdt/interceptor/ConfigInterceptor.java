@@ -76,6 +76,7 @@ public class ConfigInterceptor extends HandlerInterceptorAdapter {
 					Integer aliasMenuId = CacheManager.getMenuUrlMap().get(menu.getUrlAlias());
 					Menu aliasMenu = CacheManager.getMenuMap().get(aliasMenuId);
 					menu.setAliasName(aliasMenu.getName());
+					menu.setAliasMenuId(aliasMenuId);
 					parentMenu.setAliasName(aliasMenu.getName());
 				}
 			}
