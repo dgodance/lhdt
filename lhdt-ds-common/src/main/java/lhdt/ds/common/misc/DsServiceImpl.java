@@ -434,10 +434,12 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 		
 		List<?> list = em.createQuery(getQuery(bizFields, paramValues)).getResultList();
 		if(DsUtils.isEmpty(list)) {
+			log.debug("<<.findByBizKeyByCreateQuery - empty list");
 			return null;
 		}
 		
 		//
+		log.debug("<<.findByBizKeyByCreateQuery - {}", list.get(0));
 		return (DOMAIN) list.get(0);
 	}
 	
@@ -596,10 +598,26 @@ public  class DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements DsService<DO
 		}
 		
 		//
-		int i=0;
-		for(FieldAndOrder f : bizFields) {
-			q.where(builder.equal(root.get(f.field.getName()), paramValues[i++]));
+		if(1 == bizFields.size()) {
+			q.where(builder.equal(root.get(bizFields.get(0).field.getName()), paramValues[0]));			
 		}
+		if(2 == bizFields.size()) {
+			q.where(builder.equal(root.get(bizFields.get(0).field.getName()), paramValues[0])
+					, builder.equal(root.get(bizFields.get(1).field.getName()), paramValues[1]));
+		}
+		if(3 == bizFields.size()) {
+			q.where(builder.equal(root.get(bizFields.get(0).field.getName()), paramValues[0])
+					,builder.equal(root.get(bizFields.get(1).field.getName()), paramValues[1])	
+					,builder.equal(root.get(bizFields.get(2).field.getName()), paramValues[2]));			
+		}
+		
+		//
+//		int i=0;
+//		for(FieldAndOrder f : bizFields) {
+//			log.debug("+.getQuery field:{}	value:{}", f.field.getName(), paramValues[i]);
+//			//
+//			q.where(builder.equal(root.get(f.field.getName()), paramValues[i++]));
+//		}
 		
 		//
 		log.debug("<<.getQuery - {}", q);
