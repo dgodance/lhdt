@@ -90,17 +90,18 @@ AnalsLandScapeDiff.prototype.renderDiffDropdown = function() {
     const html = $('#landscapeDiffSource').html();
     const template_html = Handlebars.compile(html);
     let the = this;
-    $.get('http://localhost:9091/adminsvc/ls-diff/group').done(function(data) {
+    $.get('http://localhost:9091/adminsvc/ls-diff-rest/group').done(function(data) {
+        debugger;
         const lsGroupData = {
             landscapeGroupList: data
         }
-        new AnalsLandScapeDiff().renderDiffContent();
 
         $('#landscapeDiffDataDiv').append(template_html(lsGroupData));
         $('#landscapeDiffDataDiv').find('#landscapeGroup').change(function() {
-            const groupId = $('#landscapeGroup').val();
-            new AnalsLandScapeDiff().renderDiffContent(groupId);
+            renderDiffContentDefault();
         })
+
+        renderDiffContentDefault();
 
         $('#landscapeDiffDataDiv').find('#landscapeSaveBtn').click(function() {
             the.captureMap(function(blob) {
@@ -114,12 +115,12 @@ AnalsLandScapeDiff.prototype.renderDiffDropdown = function() {
                 formData.append('image', blob);
                 $.ajax({
                     type: 'POST',
-                    url: 'http://localhost:9091/adminsvc/ls-diff',
+                    url: 'http://localhost:9091/adminsvc/ls-diff-rest',
                     data: formData,
                     processData: false,
                     contentType: false
                 }).done(function(data) {
-                    renderDiffContent();
+                    renderDiffContentDefault();
                 });
 
                 // the.captureScreenProc(blob); //drawing
@@ -128,45 +129,53 @@ AnalsLandScapeDiff.prototype.renderDiffDropdown = function() {
     })
 }
 
-AnalsLandScapeDiff.prototype.renderDiffContent = function(groupId) {
-    if(groupId === undefined)
-        groupId = 1;
-    $.get('http://localhost:9091/adminsvc/ls-diff/'+groupId).done(function(diffObj) {
-        const data = {
-            landscapeDiffList: diffObj
-        }
+AnalsLandScapeDiff.prototype.renderDiffContent = function(groupId, pageNum) {
+    if(pageNum === undefined)
+        pageNum = 1;
+    $.get('http://localhost:9091/adminsvc/ls-diff-rest/'+groupId+'?lsDiffPage='+pageNum).done(function(diffObj) {
+        debugger;
         $('#landscapeDiffDetDataDiv').empty();
-        $('#landscapeDiffDetDataDiv').append(template(data));
+        $('#landscapeDiffDetDataDiv').append(template(diffObj));
         $('#landscapeName').val("");
     });
 }
 
-function renderDiffContent() {
+function renderDiffContentDefault() {
     new AnalsLandScapeDiff().renderDiffContent($('#landscapeGroup').val());
+}
+function renderDiffContentDefaultWithPage(pageNum) {
+    new AnalsLandScapeDiff().renderDiffContent($('#landscapeGroup').val(), pageNum);
 }
 
 function gotoScene(id) {
-    $.get('http://localhost:9091/adminsvc/ls-diff/scene/'+id).done(function(diffObj) {
+    $.get('http://localhost:9091/adminsvc/ls-diff-rest/scene/'+id).done(function(diffObj) {
         const analsLandScapeDiff = new AnalsLandScapeDiff();
         analsLandScapeDiff.moveCameraByStatus(JSON.parse(diffObj.captureCameraState));
     });
 }
 
 function showData(id) {
-    $.get('http://localhost:9091/adminsvc/ls-diff/info/'+id).done(function(diffObj) {
+    $.get('http://localhost:9091/adminsvc/ls-diff-rest/info/'+id).done(function(diffObj) {
 
     });
 }
 
 function deleteData(id) {
     $.ajax({
-        url : 'http://localhost:9091/adminsvc/ls-diff/scene/'+id,
+        url : 'http://localhost:9091/adminsvc/ls-diff-rest/scene/'+id,
         type : "DELETE",
         success: function() {
             renderDiffContent();
         }
     });
+}
 
+/**
+ * 값이 들어왔을시 해당 페이지로 이당하는 query를 보낸다.
+ * @param paginNum
+ */
+function paginLandScapeList(paginNum) {
+    renderDiffContentDefaultWithPage(paginNum);
 }
 
 $(document).ready(function() {

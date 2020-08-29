@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.stream.Collectors;
 
 /**
- * 조망점 관리 Controller
+ * 조망점 관리 View
  */
 @Slf4j
 @Controller

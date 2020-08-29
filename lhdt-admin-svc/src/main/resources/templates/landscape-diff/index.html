@@ -231,13 +231,14 @@ License: You must have a valid license purchased only from themeforest(the above
                                     <!--begin::Widget -->
                                     <div class="kt-widget kt-widget--user-profile-2">
                                         <div class="kt-widget__head">
-                                            <div class="kt-widget__media">
-                                                <img class="kt-widget__img kt-hidden"
-                                                     th:src="@{/ls-diff/img(id=${diffInfo.id})}" alt="image">
+                                            <div class="kt-widget__media" style="width: 100%; height: 200px;
+                                            margin-top: 10px; margin-bottom: 10px;">
+                                                <img th:src="@{/ls-diff/img/{id}(id=${diffInfo.id})}"
+                                                style="width: 100%;height: auto;display: block;">
                                             </div>
                                         </div>
                                         <div class="kt-widget__body">
-                                            <div type="hidden" name="id" th:text="${diffInfo.id}"></div>
+                                            <div name="id" th:text="${diffInfo.id}" hidden></div>
                                             <div class="kt-widget__item">
                                                 <div class="kt-widget__contact">
                                                     <span class="kt-widget__label">내용:</span>

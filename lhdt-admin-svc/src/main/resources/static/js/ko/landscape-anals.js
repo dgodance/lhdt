@@ -2,6 +2,8 @@ $(()=> {
     const cesiumObj = cesiumInit.init();
     cesiumMouseEvt.init(cesiumObj);
     render.init();
+    lsDropDownList.init();
+    lsDropDownList.initDropDownVal();
 });
 
 const landScapeTypeSelect = {
@@ -13,10 +15,110 @@ const landScapeTypeSelect = {
             } else {
                 render.renderType = RenderType.LINE
             }
-
         });
     }
 };
+
+const landScapeNameInput = {
+    id: '#landScapeNameInput',
+    getLandScapeName: function() {
+        return $(this.id).val();
+    }
+}
+
+const lsDropDownList = {
+    ele: '#lsDropDownMenuButton',
+    subEle: '#lsDropDownMenu',
+    init: function() {
+        $(this.subEle+' a').click(function() {
+            const thisVal = $(this).attr('value');
+            lsDropDownList.setDropDownVal(thisVal);
+        })
+    },
+    initDropDownVal() {
+        $(lsDropDownList.ele).val('점');
+        $(lsDropDownList.ele).text('점');
+        render.renderType = RenderType.DOT;
+    },
+    setDropDownVal(EnumVal) {
+        $(lsDropDownList.ele).val(EnumVal);
+        $(lsDropDownList.ele).text(EnumVal);
+        if(EnumVal === '점') {
+            render.renderType = RenderType.DOT;
+        } else {
+            render.renderType = RenderType.LINE;
+        }
+    }
+}
+
+function checkform() {
+    var form = $('#lsAnalsForm')[0];
+
+    // Create an FormData object
+    var data = new FormData(form);
+    let renderTypeParam = undefined;
+    if(render.renderType === RenderType.DOT) {
+        renderTypeParam = "점";
+    } else {
+        renderTypeParam = "선";
+    }
+    if(landScapeNameInput.getLandScapeName() === ''){
+        alert('경관명을 입력해주세요');
+        return;
+    }
+
+    let sendParam = undefined;
+    if(render.renderType === RenderType.DOT) {
+        if(cesiumMouseEvt.pos.start === undefined) {
+            alert('경관 점을 선택해주세요!')
+            return;
+        }
+        sendParam = {
+            landScapeAnalsName: landScapeNameInput.getLandScapeName(),
+            landScapeAnalsType: renderTypeParam,
+            startPosX: cesiumMouseEvt.pos.start.long,
+            startPosY: cesiumMouseEvt.pos.start.lat,
+            startPosZ: cesiumMouseEvt.pos.start.alt,
+        }
+    } else {
+        if(cesiumMouseEvt.pos.start === undefined) {
+            alert('경관 시작 점을 선택해주세요!')
+            return;
+        }
+        if(cesiumMouseEvt.pos.end === undefined) {
+            alert('경관 종료 점을 선택해주세요!')
+            return;
+        }
+        sendParam = {
+            landScapeAnalsName: landScapeNameInput.getLandScapeName(),
+            landScapeAnalsType: renderTypeParam,
+            startPosX: cesiumMouseEvt.pos.start.long,
+            startPosY: cesiumMouseEvt.pos.start.lat,
+            startPosZ: cesiumMouseEvt.pos.start.alt,
+            endPosX: cesiumMouseEvt.pos.end.long,
+            endPosY: cesiumMouseEvt.pos.end.lat,
+            endPosZ: cesiumMouseEvt.pos.end.alt,
+        }
+    }
+    if(sendParam === undefined) {
+        alert('파라미터를 확인해주세요!');
+        return;
+    }
+
+    $.ajax({
+        type: "POST",
+        url: "/adminsvc/landscape-anals-rest/edit",
+        data: sendParam,
+        success: function (data) {
+            window.location.href = data.redirect;
+            debugger;
+        },
+        error: function (e) {
+            console.log("ERROR : ", e);
+            alert("fail");
+        }
+    });
+}
 
 const cesiumInit = {
     ele: 'cesiumContainer',

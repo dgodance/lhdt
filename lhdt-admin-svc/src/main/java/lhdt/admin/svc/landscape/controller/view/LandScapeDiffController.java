@@ -18,6 +18,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -45,13 +47,22 @@ public class LandScapeDiffController {
             value = "/img/{id}",
             produces = MediaType.IMAGE_PNG_VALUE
     )
-    public byte[] getImageWithMediaType(@RequestParam(value = "id") Integer id) throws IOException{
+    public @ResponseBody byte[] getImageWithMediaType(@PathVariable String id) throws IOException{
         var lsDiff = landScapeDiffService.findById(Long.valueOf(id));
         String fileName = lsDiff.getLsDiffImgInfo().getFileName();
         String filePath = lsDiff.getLsDiffImgInfo().getFilePath();
         String fileExt = lsDiff.getLsDiffImgInfo().getFileExtention();
         String fullPath = filePath + "/" + fileName + "." + fileExt;
-        InputStream in = getClass().getResourceAsStream(fullPath);
-        return IOUtils.toByteArray(in);
+        FileInputStream fis = new FileInputStream(fullPath);
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+        int nRead;
+        byte[] data = new byte[16384];
+
+        while ((nRead = fis.read(data, 0, data.length)) != -1) {
+            buffer.write(data, 0, nRead);
+        }
+
+        return buffer.toByteArray();
     }
 }

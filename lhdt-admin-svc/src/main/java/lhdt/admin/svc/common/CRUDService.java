@@ -32,7 +32,7 @@ public abstract class CRUDService<T extends Domain> implements CRUDInterface<T> 
      * @param startPage
      * @return
      */
-    public Page<T> findAllPgByStartPg(Integer startPage, Integer contentsSize) {
+    public Page<T> landScapeGroup(Integer startPage, Integer contentsSize) {
         PageRequest pageRequest =
                 PageRequest.of(startPage,
                         contentsSize, Sort.Direction.DESC, "id");

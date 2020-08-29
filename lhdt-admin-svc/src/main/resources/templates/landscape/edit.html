@@ -47,7 +47,7 @@ License: You must have a valid license purchased only from themeforest(the above
             <!-- begin:: Header -->
             <div th:insert="~{fragments/header :: header}"/>
             <!-- end:: Header -->
-            <form th:method="${isPost} ? 'POST' : 'PUT'" th:action="@{/landscape-anals/edit}" class="ui form">
+            <form id="lsAnalsForm" class="ui form">
                 <div class="kt-content  kt-grid__item kt-grid__item--fluid kt-grid kt-grid--hor" id="kt_content">
                     <!-- Top Nav Bar -->
                     <div class="kt-subheader   kt-grid__item" id="kt_subheader">
@@ -71,20 +71,40 @@ License: You must have a valid license purchased only from themeforest(the above
                                 </div>
                             </div>
                             <div class="kt-subheader__toolbar">
+                                <div class="dropdown">
+                                    <button class="btn btn-secondary dropdown-toggle"
+                                            name="landScapeAnalsType"
+                                            type="button"
+                                            id="lsDropDownMenuButton" data-toggle="dropdown" aria-haspopup="true"
+                                            aria-expanded="false">
+                                    </button>
+                                    <div id="lsDropDownMenu" class="dropdown-menu" aria-labelledby="dropdownMenuButton"
+                                         x-placement="bottom-start" style="position: absolute;
+                                         will-change: transform; top: 0px; left: 0px;
+                                         transform: translate3d(0px, 38px, 0px);">
+                                        <a class="dropdown-item"
+                                           th:each="key : ${landScapeAnalsType.keySet()}"
+                                           th:value="${landScapeAnalsType.get(key)}"
+                                           th:text="${landScapeAnalsType.get(key)}"></a>
+                                    </div>
+                                </div>
                                 <div class="kt-input-icon kt-input-icon--right kt-subheader__search">
-                                    <input type="text" class="form-control" name="landScapeTypeSelect"
+                                    <input type="text" class="form-control"
+                                           id="landScapeNameInput"
+                                           name="landScapeAnalsName"
                                            th:value="${isPost} ? '' : ${landScapeInfo.landScapeAnalsName}"
                                            placeholder="경관명을 입력해주세요." required>
                                     <span class="kt-input-icon__icon kt-input-icon__icon--right">
-											<span><i class="flaticon2-save-1"></i></span>
-										</span>
+                                        <span><i class="flaticon2-save-1"></i></span>
+                                    </span>
                                 </div>
                                 <input type="text" name="id"
                                        th:value="${isPost} ? '' : ${landScapeInfo.id}"
                                        hidden>
                                 <div class="kt-subheader__wrapper">
-                                    <input type="submit" class="btn kt-subheader__btn-primary">
-                                    저장 &nbsp;
+                                    <input type="button" value="저장"
+                                           onclick="checkform()"
+                                           class="btn kt-subheader__btn-primary">
                                     <!--<i class="flaticon2-calendar-1"></i>-->
                                     </input>
                                 </div>
@@ -99,54 +119,9 @@ License: You must have a valid license purchased only from themeforest(the above
                         <div class="row">
                             <div class="col-xl-12 order-lg-12 order-xl-12">
                                 <div class="kt-portlet kt-portlet--height-fluid kt-portlet--mobile ">
-                                    <div class="kt-portlet__head kt-portlet__head--lg kt-portlet__head--noborder kt-portlet__head--break-sm">
-                                        <div class="kt-portlet__head-label">
-                                            <h3 class="kt-portlet__head-title">
-
-                                            </h3>
-                                        </div>
-                                        <div class="kt-portlet__head-toolbar">
-                                            <div class="kt-portlet__head-toolbar">
-                                                <a href="#" class="btn btn-clean btn-sm btn-icon btn-icon-md" data-toggle="dropdown" aria-expanded="false">
-                                                    <i class="flaticon-more-1"></i>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-right dropdown-menu-fit dropdown-menu-md" x-placement="bottom-end" style="position: absolute; transform: translate3d(65px, 46px, 0px); top: 0px; left: 0px; will-change: transform;">
-
-                                                    <!--begin::Nav-->
-                                                    <ul class="kt-nav">
-                                                        <li class="kt-nav__head">
-                                                            설정
-                                                            <span data-toggle="kt-tooltip" data-placement="right" title="" data-original-title="Click to learn more...">
-																<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" class="kt-svg-icon kt-svg-icon--brand kt-svg-icon--md1">
-																	<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-																		<rect id="bound" x="0" y="0" width="24" height="24"></rect>
-																		<circle id="Oval-5" fill="#000000" opacity="0.3" cx="12" cy="12" r="10"></circle>
-																		<rect id="Rectangle-9" fill="#000000" x="11" y="10" width="2" height="7" rx="1"></rect>
-																		<rect id="Rectangle-9-Copy" fill="#000000" x="11" y="7" width="2" height="2" rx="1"></rect>
-																	</g>
-																</svg>
-                                                            </span>
-                                                        </li>
-                                                        <li class="kt-nav__separator"></li>
-                                                        <li class="kt-nav__item"
-                                                            th:each="key : ${landScapeAnalsType.keySet()}">
-                                                            <a href="#" class="kt-nav__link">
-                                                                <i class="kt-nav__link-icon flaticon2-drop"></i>
-                                                                <span class="kt-nav__link-text"
-                                                                      th:value="${landScapeAnalsType.get(key)}"
-                                                                      th:text="${landScapeAnalsType.get(key)}"></span>
-                                                            </a>
-                                                        </li>
-                                                    </ul>
-
-                                                    <!--end::Nav-->
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
                                     <div class="kt-portlet__body kt-portlet__body--fit">
                                         <!--begin: Datatable -->
-                                        <div id="cesiumContainer" style="width: 100%; height:70vh;"></div>
+                                        <div id="cesiumContainer" style="width: 100%; height:75vh;"></div>
                                         <!--end: Datatable -->
                                     </div>
                                 </div>
