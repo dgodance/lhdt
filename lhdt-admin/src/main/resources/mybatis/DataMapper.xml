@@ -9,7 +9,7 @@
 		SELECT COUNT(data_id)
 		FROM data_info A
         LEFT JOIN data_group B
-        ON a.data_group_id = B.data_group_id
+        ON A.data_group_id = B.data_group_id
 		<trim prefix="WHERE" prefixOverrides="AND">
 			<if test="dataGroupId != null and dataGroupId > 0">
 			AND A.data_group_id = #{dataGroupId}
@@ -425,7 +425,8 @@
 			AND data_id = #{dataId}
 			</if>
 	</delete>
-	
+
+	<!-- 사용자 아이디를 이용한 데이터 정보 삭제 -->
 	<delete id="deleteDataByUserId" parameterType="string">
 		/* deleteDataByProjectId */
 		DELETE

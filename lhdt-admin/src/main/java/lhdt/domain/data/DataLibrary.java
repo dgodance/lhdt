@@ -38,16 +38,26 @@ public class DataLibrary extends Search implements Serializable {
 	private Long dataLibraryId;
 	// data libray Group 고유번호
 	private Integer dataLibraryGroupId;
+	// converter job 고유번호
+	private Long converterJobId;
 	// data library key
 	private String dataLibraryKey;
 	// data library name
 	private String dataLibraryName;
+	// data library 경로
+	private String dataLibraryPath;
+
+	// 데이터 타입(중복). 3ds,obj,dae,collada,ifc,las,citygml,indoorgml,etc
+	private String dataType;
+
 	// 서비스 타입(정적, primitive)
 	private String serviceType;
 	// 순서
 	private Integer viewOrder;
 	// 사용 유무
 	private Boolean available;
+	// data 상태. processing : 변환중, use : 사용중, unused : 사용중지(관리자), delete : 삭제(비표시)
+	private String status;
 
 	// 설명
 	private String description;
