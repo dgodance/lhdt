@@ -165,9 +165,9 @@
 			SELECT NEXTVAL('design_layer_land_seq')
 		</selectKey>
 		INSERT INTO design_layer_land (
-		design_layer_land_id, design_layer_id, design_layer_group_id, shape_id, the_geom, enable_yn, version_id
+		design_layer_land_id, design_layer_id, design_layer_group_id, shape_id, the_geom
 		) VALUES (
-		#{designLayerLandId}, #{designLayerId}, #{designLayerGroupId}, #{shapeId}, st_transform(ST_GeomFromText(#{theGeom},#{coordinate}),4326), 'Y', 1
+		#{designLayerLandId}, #{designLayerId}, #{designLayerGroupId}, #{shapeId}, st_transform(ST_GeomFromText(#{theGeom},#{coordinate}),4326)
 		)
 	</insert>
 
@@ -177,9 +177,9 @@
 			SELECT NEXTVAL('design_layer_building_seq')
 		</selectKey>
 		INSERT INTO design_layer_building (
-		design_layer_building_id, design_layer_id, design_layer_group_id, shape_id, the_geom, enable_yn, version_id
+		design_layer_building_id, design_layer_id, design_layer_group_id, shape_id, the_geom
 		) VALUES (
-		#{designLayerBuildingId}, #{designLayerId}, #{designLayerGroupId}, #{shapeId}, st_transform(ST_GeomFromText(#{theGeom},#{coordinate}),4326), 'Y', 1
+		#{designLayerBuildingId}, #{designLayerId}, #{designLayerGroupId}, #{shapeId}, st_transform(ST_GeomFromText(#{theGeom},#{coordinate}),4326)
 		)
 	</insert>
 

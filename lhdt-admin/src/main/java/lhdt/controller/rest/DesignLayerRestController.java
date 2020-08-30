@@ -103,9 +103,7 @@ public class DesignLayerRestController implements AuthorizationController {
 		int statusCode = 0;
 		String errorCode = null;
 		String message = null;
-		boolean isDesignLayerFileInfoExist = false;
 		Map<String, Object> updateDesignLayerMap = new HashMap<>();
-
 		try {
 			errorCode = validate(request);
 			if (!StringUtils.isEmpty(errorCode)) {
@@ -211,7 +209,7 @@ public class DesignLayerRestController implements AuthorizationController {
 //				return result;
 //			}
 
-			// extrusion model 시뮬레이션에서 사용할 디자인 레이어 정보
+			// 1. extrusion model 시뮬레이션에서 사용할 디자인 레이어 정보 parsing
 			String extrusionColumns = null;
 			if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
 				extrusionColumns = geoPolicy.getShapeLandRequiredColumns();
@@ -220,19 +218,18 @@ public class DesignLayerRestController implements AuthorizationController {
 			}
 			List<DesignLayer> shapePropertiesList = shapeFileParser.getExtrusionModelList(objectMapper, extrusionColumns);
 
-			// 3. 레이어 기본 정보 및 레이어 이력 정보 등록
+			// 2. 레이어 기본 정보 및 레이어 이력 정보 등록
 			updateDesignLayerMap = designLayerService.insertDesignLayer(designLayer, designLayerFileInfoList);
 			if (!designLayerFileInfoList.isEmpty()) {
-				// geometry 정보 insert
+				// 3. geometry 정보 insert
 				designLayerService.insertShapeInfo(designLayer, shapePropertiesList);
 				// org2ogr 로 등록한 데이터의 version을 갱신
 				Map<String, String> orgMap = new HashMap<>();
-				orgMap.put("fileVersion", ((Integer) updateDesignLayerMap.get("fileVersion")).toString());
-				orgMap.put("tableName", designLayer.getDesignLayerKey());
-				orgMap.put("enableYn", "Y");
-				// 5. shape 파일 테이블의 현재 데이터의 활성화 하고 날짜를 업데이트
-				//designLayerFileInfoService.updateOgr2OgrDataFileVersion(orgMap);
-				// 6. geoserver에 신규 등록일 경우 등록, 아닐경우 레이어 정보 갱신
+				orgMap.put("fileVersion", ((Integer)updateDesignLayerMap.get("fileVersion")).toString());
+				orgMap.put("designLayerGroupType", designLayer.getDesignLayerGroupType());
+				// 4. shape 파일 테이블의 현재 데이터의 활성화 하고 날짜를 업데이트
+				designLayerFileInfoService.updateDataFileVersion(orgMap);
+				// 5. geoserver에 신규 등록일 경우 등록, 아닐경우 통과
 				designLayerService.registerDesignLayer(geoPolicy, designLayer);
 				designLayerService.updateDesignLayerStyle(designLayer);
 			}
