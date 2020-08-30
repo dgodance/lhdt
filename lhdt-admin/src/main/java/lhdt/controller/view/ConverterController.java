@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import lombok.extern.slf4j.Slf4j;
 import lhdt.domain.converter.ConverterJob;
+import lhdt.domain.converter.ConverterJobFile;
+import lhdt.domain.data.DataInfo;
 import lhdt.domain.PageType;
 import lhdt.domain.common.Pagination;
 import lhdt.service.ConverterService;
@@ -72,6 +74,46 @@ public class ConverterController {
 		model.addAttribute(pagination);
 		model.addAttribute("converterJobList", converterJobList);
 		return "/converter/list";
+	}
+	
+	
+	@GetMapping(value = "/converter-job-file-list")
+	public String converterJob(HttpServletRequest request, ConverterJob converterJob, @RequestParam(defaultValue="1") String pageNo,ConverterJobFile converterJobFile, @RequestParam("converterJobId") Long converterJobId, Model model) {
+		//UserSession userSession = (UserSession)request.getSession().getAttribute(Key.USER_SESSION.name());
+		List<ConverterJobFile> converterJobFileList = new ArrayList<>();
+		List<ConverterJob> converterJobList = new ArrayList();
+		
+		//long totalJobFileCount = converterService.getConverterJobFileTotalCount(converterJobFile);
+		converterJobFileList = converterService.getListConverterJobFile(converterJobFile);
+		converterJobList = converterService.getListConverterJob(converterJob);
+		List<ConverterJobFile> selectedConverterJobFile = new ArrayList<>();
+		
+		for(int i = 0 ; i < converterJobFileList.size(); i++) {
+			if(converterJobFileList.get(i).getConverterJobId() == converterJobId) {
+				selectedConverterJobFile.add(converterJobFileList.get(i));
+			}
+		}
+		ConverterJob selectedConverterJob = new ConverterJob();
+		for(int i = 0 ; i < converterJobList.size(); i++) {
+			if(converterJobList.get(i).getConverterJobId() == converterJobId) {
+				selectedConverterJob = converterJobList.get(i);
+				break;
+			}
+		}
+		
+		
+		long totalCount = selectedConverterJobFile.size();
+		Pagination pagination = new Pagination(request.getRequestURI(), getSearchParameters(PageType.LIST, selectedConverterJob),
+				totalCount, Long.parseLong(pageNo), converterJob.getListCounter());
+		System.out.println(pagination);
+		converterJob.setOffset(pagination.getOffset());
+		converterJob.setLimit(pagination.getPageRows());
+		
+		System.out.println(selectedConverterJob);
+		model.addAttribute("converterJob", selectedConverterJob);
+		model.addAttribute(pagination);
+		model.addAttribute("converterJobFileList", selectedConverterJobFile);
+		return "/converter/converter-job-file-list";
 	}
 
 //	/**
@@ -132,4 +174,5 @@ public class ConverterController {
 		
 		return buffer.toString();
 	}
+	
 }

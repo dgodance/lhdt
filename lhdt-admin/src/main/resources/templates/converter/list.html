@@ -119,7 +119,9 @@
                                             <td class="col-type" th:if="${#strings.equals(converterJob.converterTemplate, 'building')}" th:text="빌딩"></td>
                                             <td class="col-type" th:if="${#strings.equals(converterJob.converterTemplate, 'extra-big-building')}" th:text="초대형 빌딩"></td>
                                             <td class="col-type" th:if="${#strings.equals(converterJob.converterTemplate, 'point-cloud')}" th:text="point cloud"></td>
-                                            <td class="col-name ellipsis" th:text="${converterJob.title}" style="min-width:200px;max-width:200px;"></td>
+                                            <td class="col-name ellipsis" style="min-width:200px;max-width:200px;">
+                                            <a th:text="${converterJob.title}"  th:href="@{/converter/converter-job-file-list(converterJobId=${converterJob.converterJobId})}"></a>
+                                            </td>
                                             
                                             <td class="col-count" th:if="${converterJob.usf >= 1 and converterJob.usf < 10}" th:text="|${converterJob.usf}m|">
                                             <td class="col-count" th:if="${converterJob.usf >= 0.1 and converterJob.usf < 1}" th:text="|${converterJob.usf}cm|">
