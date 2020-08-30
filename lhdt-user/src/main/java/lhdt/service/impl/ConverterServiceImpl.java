@@ -453,7 +453,7 @@ public class ConverterServiceImpl implements ConverterService {
 		String dataGroupFilePath = FileUtils.getFilePath(dataGroup.getDataGroupPath());
 
 		// 로그파일을 ConverterJobId로 분리하여 쓰도록 수정
-		String makedDirectory = FileUtils.makeDirectory(userId, UploadDirectoryType.YEAR_MONTH, propertiesConfig.getDataServiceLogDir());
+		String makedDirectory = FileUtils.makeDirectory(userId, UploadDirectoryType.YEAR_MONTH, propertiesConfig.getDataConverterLogDir());
 		String logFilePath = makedDirectory + "logTest_" + converterJobId + ".txt";
 
 		log.info("-------------------------------------------------------");
