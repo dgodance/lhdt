@@ -110,8 +110,7 @@ function checkform() {
         url: "/adminsvc/landscape-anals-rest/edit",
         data: sendParam,
         success: function (data) {
-            window.location.href = data.redirect;
-            debugger;
+            window.location.href = data;
         },
         error: function (e) {
             console.log("ERROR : ", e);

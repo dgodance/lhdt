@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Controller
-@RequestMapping("/landscape-anals")
+@RequestMapping("/ls-anals")
 public class LandScapeAnalsController {
     @Autowired
     private LandScapeAnalsService landScapeService;
@@ -99,7 +99,7 @@ public class LandScapeAnalsController {
         var localInfo = landScapeService.regist(landScapeAnals);
         model.addAttribute("localInfo", localInfo);
 
-        return "redirect:/landscape-anals";
+        return "redirect:/ls-anals";
     }
 
     @PutMapping("/edit")
@@ -118,7 +118,7 @@ public class LandScapeAnalsController {
         var localInfo = landScapeService.update(landScapeRegistParam.getId(), landScapeAnals);
         model.addAttribute("localInfo", localInfo);
 
-        return "redirect:/landscape-anals";
+        return "redirect:/ls-anals";
     }
 
 }

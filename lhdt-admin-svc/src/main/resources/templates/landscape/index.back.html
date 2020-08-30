@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>경관 목록</title>
+</head>
+<body>
+<!-- Local Div start -->
+<div style="padding: 50px 0">
+    <h3>경관 목록 확인</h3>
+    <table>
+        <thead>
+        <tr>
+            <th>번호</th>
+            <th>경관 명</th>
+            <th>등록 경관 종류</th>
+            <th>등록일</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="landScape : ${landScapePage}">
+            <td th:text="${landScape.id}"></td>
+            <td><a th:href="@{'/cp/local-info/'+${landScape.id}}" th:text="${landScape.landScapeAnalsName}"></a></td>
+            <td th:text="${landScape.landScapeAnalsType}"></td>
+            <td th:text="${landScape.registDt}"></td>
+            <td>
+                <a th:href="@{'/landscape-anals/' + ${landScape.id}}" class="right floated ui button">확인</a>
+            </td>
+            <td>
+                <a th:href="@{'/landscape-anals/edit/' + ${landScape.id}}" class="right floated ui button">수정</a>
+            </td>
+            <td>
+                <form style="display: inline" th:method="DELETE" th:action="@{'/landscape-anals/' + ${landScape.id}}"
+                      onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                    <button type="submit" class="right floated ui red button">삭제</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="">
+        <th:block th:if="${landScapePageInfo.previousPaging != null}">
+            <div>
+                <a th:href="@{/landscape-anals(landScapePage=1)}">첫페이지</a>
+            </div>
+            <div>
+                <a th:href="@{/landscape-anals(landScapePage=${landScapePageInfo.previousPaging} + 1)}"><i class="angle double left icon"></i></a>
+            </div>
+        </th:block>
+
+        <th:block th:each="i: ${#numbers.sequence(landScapePageInfo.startPageNum, landScapePageInfo.lastPageNum)}">
+            <div th:if="${landScapePage.number == i}">[[${i}+1]]</div>
+            <div th:unless="${landScapePage.number == i}">
+                <a th:href="@{/landscape-anals(landScapePage=${i}+1)}">[[${i}+1]]</a>
+            </div>
+        </th:block>
+        <th:block th:if="${landScapePageInfo.nextPaging != null}">
+            <div>
+                <a th:href="@{/landscape-anals(landScapePage=${landScapePageInfo.nextPaging} + 1)}"></a>
+            </div>
+            <div>
+                <a th:href="@{/local-info(localPage=${landScapePage.totalPages})}">끝페이지</a>
+            </div>
+        </th:block>
+    </div>
+</div>
+
+</body>
+</html>
