@@ -1,7 +1,9 @@
 package lhdt.persistence;
 
-import lhdt.domain.common.FileInfo;
-import lhdt.domain.data.*;
+import lhdt.domain.extrusionmodel.DataLibrary;
+import lhdt.domain.extrusionmodel.DataLibraryGroup;
+import lhdt.domain.extrusionmodel.DataLibraryUpload;
+import lhdt.domain.extrusionmodel.DataLibraryUploadFile;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -69,6 +71,20 @@ public interface DataLibraryMapper {
 	 * @return
 	 */
 	List<DataLibrary> getDataLibraryByConverterJob(DataLibrary dataLibrary);
+
+	/**
+	 * 데이터 라이브러리 업로딩 정보 입력
+	 * @param dataLibraryUpload
+	 * @return
+	 */
+	int insertDataLibraryUpload(DataLibraryUpload dataLibraryUpload);
+
+	/**
+	 * 데이터 라이브러리 업로딩 파일 정보 입력
+	 * @param dataLibraryUploadFile
+	 * @return
+	 */
+	int insertDataLibraryUploadFile(DataLibraryUploadFile dataLibraryUploadFile);
 	
 	/**
 	 * 데이터 라이브러리 등록

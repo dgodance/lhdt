@@ -159,7 +159,7 @@ public class UploadDataController {
 	
 	/**
 	 * 검색 조건
-	 * @param search
+	 * @param uploadData
 	 * @return
 	 */
 	private String getSearchParameters(PageType pageType, UploadData uploadData) {

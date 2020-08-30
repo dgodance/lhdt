@@ -14,7 +14,6 @@ public class ConverterLocation implements Serializable {
 
     private static final long serialVersionUID = -3475237723073093024L;
 
-    private ConverterJob converterJob;
     // 데이터 키
     private String data_key;
     // 위도

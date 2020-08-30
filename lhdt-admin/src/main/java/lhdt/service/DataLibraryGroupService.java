@@ -1,6 +1,6 @@
 package lhdt.service;
 
-import lhdt.domain.data.DataLibraryGroup;
+import lhdt.domain.extrusionmodel.DataLibraryGroup;
 
 import java.util.List;
 
@@ -19,6 +19,12 @@ public interface DataLibraryGroupService {
      * @return
      */
     DataLibraryGroup getDataLibraryGroup(DataLibraryGroup dataLibraryGroup);
+
+	/**
+	 * 기본 데이터 라이브러리 그룹 정보 조회
+	 * @return
+	 */
+	DataLibraryGroup getBasicDataLibraryGroup();
     
     /**
      * 부모와 표시 순서로 데이터 라이브러리 그룹 조회
@@ -40,6 +46,13 @@ public interface DataLibraryGroupService {
      * @return
      */
     int insertDataLibraryGroup(DataLibraryGroup dataLibraryGroup);
+
+	/**
+	 * 기본 데이터 라이브러리 등록
+	 * @param dataLibraryGroup
+	 * @return
+	 */
+	int insertBasicDataLibraryGroup(DataLibraryGroup dataLibraryGroup);
     
     /**
 	 * 데이터 라이브러리 그룹 수정

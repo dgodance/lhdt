@@ -1,7 +1,6 @@
 package lhdt.domain.agent;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lhdt.domain.converter.ConverterJob;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,9 +12,8 @@ import java.math.BigDecimal;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ConverterLocation implements Serializable {
 
-    private static final long serialVersionUID = -3475237723073093024L;
+    private static final long serialVersionUID = 467269131451829359L;
 
-    private ConverterJob converterJob;
     // 데이터 키
     private String data_key;
     // 위도

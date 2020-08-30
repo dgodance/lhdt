@@ -1,7 +1,5 @@
 package lhdt.service;
 
-import lhdt.domain.agent.ConverterAttribute;
-import lhdt.domain.agent.ConverterLocation;
 import lhdt.domain.agent.ConverterResultLog;
 import lhdt.domain.converter.ConverterJob;
 import lhdt.domain.converter.ConverterJobFile;
@@ -49,29 +47,12 @@ public interface ConverterService {
 	 */
 	void insertConverter(ConverterJob converterJob);
 
-	public int updateConverterJob(ConverterJob converterJob);
+	void updateConverterJob(ConverterJob converterJob);
 
 	/**
 	 * 로그파일을 통한 데이터 변환 작업 상태를 갱신
 	 * @param converterResultLog converterResultLog
-	 * @return 갱신된 데이터 변환 갯수
 	 */
-	int updateConverterJobStatus(ConverterResultLog converterResultLog);
-
-	/**
-	 * 위치파일(LonsLats.json)을 통한 데이터 Longitude, Latitude 갱신
-	 * (CityGML, IndoorGML 파일에 한함)
-	 * @param converterLocation converterLocation
-	 * @return 갱신된 데이터 변환 갯수
-	 */
-	int updateConverterLocation(ConverterLocation converterLocation);
-
-	/**
-	 * 속성파일(attributes.json) 을 통한 데이터 Attribute 갱신
-	 * (CityGML, IndoorGML 파일에 한함)
-	 * @param converterAttribute converterAttribute
-	 * @return 갱신된 데이터 변환 갯수
-	 */
-	int updateConverterAttribute(ConverterAttribute converterAttribute);
+	void updateConverterJobStatus(ConverterResultLog converterResultLog);
 
 }

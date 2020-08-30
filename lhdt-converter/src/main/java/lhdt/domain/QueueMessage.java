@@ -17,6 +17,7 @@ public class QueueMessage implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	public static final String F4D_PREFIX = "F4D_";
 
 	private ServerTarget serverTarget;
 	private String userId;
