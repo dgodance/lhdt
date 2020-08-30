@@ -63,7 +63,7 @@ public class DataLibraryRestController {
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
-	@PostMapping
+	@PostMapping(value = "/upload")
 	public Map<String, Object> insert(MultipartHttpServletRequest request) throws Exception {
 		
 		Map<String, Object> result = new HashMap<>();
@@ -280,9 +280,15 @@ public class DataLibraryRestController {
 		dataLibraryUpload.setUserId(userId);
 		dataLibraryUpload.setFileCount(dataLibraryUploadFileList.size());
 		dataLibraryUpload.setConverterTargetCount(converterTargetCount);
-		dataLibraryUpload.setBasicWidth(Integer.valueOf(request.getParameter("basicWidth")));
-		dataLibraryUpload.setBasicDepth(Integer.valueOf(request.getParameter("basicDepth")));
-		dataLibraryUpload.setBasicHeight(Integer.valueOf(request.getParameter("basicHeight")));
+		if(!StringUtils.isEmpty(request.getParameter("basicWidth").replace("undefined", ""))) {
+			dataLibraryUpload.setBasicWidth(Integer.valueOf(request.getParameter("basicWidth")));
+		}
+		if(!StringUtils.isEmpty(request.getParameter("basicDepth").replace("undefined", ""))) {
+			dataLibraryUpload.setBasicDepth(Integer.valueOf(request.getParameter("basicDepth")));
+		}
+		if(!StringUtils.isEmpty(request.getParameter("basicHeight").replace("undefined", ""))) {
+			dataLibraryUpload.setBasicHeight(Integer.valueOf(request.getParameter("basicHeight")));
+		}
 		dataLibraryUpload.setDescription(request.getParameter("description"));
 		
 		log.info("@@@@@@@@@@@@ dataLibraryUpload = {}", dataLibraryUpload);
