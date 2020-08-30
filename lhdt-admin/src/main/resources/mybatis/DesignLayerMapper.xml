@@ -200,4 +200,15 @@
         /* deleteDesign */
         DROP TABLE ${value}
     </delete>
+
+	<!-- 디자인 레이어 그룹 고유번호를 이용한 삭제 -->
+	<delete id="deleteDesignLayerByDesignLayerGroupId" parameterType="designLayerGroup">
+		/* deleteDesignLayerByDesignLayerGroupId */
+		DELETE
+		FROM design_layer
+		WHERE design_layer_group_id = #{designLayerGroupId}
+		<if test="userId != null and userId != ''">
+			AND user_id = #{userId}
+		</if>
+	</delete>
 </mapper>

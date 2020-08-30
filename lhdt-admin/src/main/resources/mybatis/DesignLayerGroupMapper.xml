@@ -60,6 +60,17 @@
 		LIMIT 1
 	</select>
 
+	<!-- 나를 부모로 가지는 자식 데이터 그룹 목록을 취득 -->
+	<select id="getChildrenDesignLayerGroupListByParent" parameterType="designLayerGroup" resultType="designLayerGroup">
+		/* getChildrenDesignLayerGroupListByParent */
+		SELECT *
+		FROM design_layer_group
+		WHERE parent = #{designLayerGroupId}
+		<if test="userId != null and userId != ''">
+			AND user_id = #{userId}
+		</if>
+	</select>
+
 	<!-- design layer 그룹 등록 -->
 	<insert id="insertDesignLayerGroup" parameterType="designLayerGroup">
 		/* insertDesignLayerGroup */
@@ -142,6 +153,17 @@
             available = #{available},
             </if>
 			update_date = NOW()
+		WHERE design_layer_group_id = #{designLayerGroupId}
+		<if test="userId != null and userId != ''">
+			AND user_id = #{userId}
+		</if>
+	</update>
+
+	<!-- 자식의 수를 + 또는 - 연산. dataLibraryCount 변수에는 자식 수를 증가 하거나 감소 시키는 값이 들어옴 -->
+	<update id="updateDesignLayerGroupChildren" parameterType="designLayerGroup">
+		/* updateDesignLayerGroupChildren */
+		UPDATE design_layer_group
+		SET children = children + #{children}
 		WHERE design_layer_group_id = #{designLayerGroupId}
 		<if test="userId != null and userId != ''">
 			AND user_id = #{userId}

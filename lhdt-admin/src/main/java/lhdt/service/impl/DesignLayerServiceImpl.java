@@ -1,9 +1,10 @@
 package lhdt.service.impl;
 
 import lhdt.config.PropertiesConfig;
-import lhdt.domain.*;
+import lhdt.domain.ShapeFileExt;
 import lhdt.domain.extrusionmodel.DesignLayer;
 import lhdt.domain.extrusionmodel.DesignLayerFileInfo;
+import lhdt.domain.extrusionmodel.DesignLayerGroup;
 import lhdt.domain.layer.LayerFileInfo;
 import lhdt.domain.policy.GeoPolicy;
 import lhdt.geospatial.LayerStyleParser;
@@ -458,6 +459,18 @@ public class DesignLayerServiceImpl implements DesignLayerService {
 		// design 레이어 메타정보 삭제
 		return designLayerMapper.deleteDesignLayer(designLayerId);
 	}
+
+    /**
+     * 디자인 레이어 그룹 고유번호를 이용한 삭제
+     * @param designLayerGroup
+     * @return
+     */
+    @Transactional
+    public int deleteDesignLayerByDesignLayerGroupId(DesignLayerGroup designLayerGroup) {
+        // TODO geoserver layer 도 삭제해 줘야 함
+        // design_layer detail 도 삭제해야 함
+        return designLayerMapper.deleteDesignLayerByDesignLayerGroupId(designLayerGroup);
+    }
 
 	/**
     * design layer 가 등록 되어 있지 않은 경우 rest api 를 이용해서 design layer를 등록
