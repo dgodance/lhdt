@@ -75,15 +75,12 @@ public interface DesignLayerService {
     Map<String, Object> updateDesignLayer(DesignLayer designLayer, boolean isDesignLayerFileInfoExist, List<DesignLayerFileInfo> designLayerFileInfoList);
 
     /**
-    * Ogr2Ogr 실행
-    * @param designLayer
-    * @param isDesignLayerFileInfoExist
-    * @param shapeFileName
-    * @param shapeEncoding
-    * @throws Exception
-    */
-    void insertOgr2Ogr(DesignLayer designLayer, boolean isDesignLayerFileInfoExist, String shapeFileName, String shapeEncoding, List<DesignLayer> shapePropertiesList) throws Exception;
-
+     * shapeInfo insert
+     * @param designLayer
+     * @param shapePropertiesList
+     * @throws Exception
+     */
+    void insertShapeInfo(DesignLayer designLayer, List<DesignLayer> shapePropertiesList) throws Exception;
     /**
      * shp파일 정보를 db정보를 기준으로 갱신
      * @param designLayerFileInfo

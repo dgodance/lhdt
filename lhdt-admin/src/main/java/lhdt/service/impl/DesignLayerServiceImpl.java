@@ -2,9 +2,7 @@ package lhdt.service.impl;
 
 import lhdt.config.PropertiesConfig;
 import lhdt.domain.ShapeFileExt;
-import lhdt.domain.extrusionmodel.DesignLayer;
-import lhdt.domain.extrusionmodel.DesignLayerFileInfo;
-import lhdt.domain.extrusionmodel.DesignLayerGroup;
+import lhdt.domain.extrusionmodel.*;
 import lhdt.domain.layer.LayerFileInfo;
 import lhdt.domain.policy.GeoPolicy;
 import lhdt.geospatial.LayerStyleParser;
@@ -16,6 +14,7 @@ import lhdt.service.DesignLayerService;
 import lhdt.service.GeoPolicyService;
 import lhdt.support.LogMessageSupport;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -56,6 +55,9 @@ public class DesignLayerServiceImpl implements DesignLayerService {
     private DesignLayerMapper designLayerMapper;
     @Autowired
     private DesignLayerFileInfoMapper designLayerFileInfoMapper;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     /**
 	 * Design Layer 총 건수
@@ -137,13 +139,10 @@ public class DesignLayerServiceImpl implements DesignLayerService {
      */
     @Transactional(readOnly=true)
     public Boolean isDesignLayerKeyDuplication(String designLayerKey) {
+        //return designLayerMapper.isDesignLayerKeyDuplication(designLayerKey);
         GeoPolicy geoPolicy = geoPolicyService.getGeoPolicy();
         HttpStatus httpStatus = getDesignLayerStatus(geoPolicy, designLayerKey);
-        if(HttpStatus.NOT_FOUND == httpStatus) {
-            return false;
-        } else {
-            return true;
-        }
+        return HttpStatus.NOT_FOUND != httpStatus;
     }
 
     /**
@@ -177,7 +176,6 @@ public class DesignLayerServiceImpl implements DesignLayerService {
 
         // design layer 정보 수정
         designLayerMapper.insertDesignLayer(designLayer);
-
         // shape 파일이 있을 경우
         if(!designLayerFileInfoList.isEmpty()) {
             String shapeFileName = null;
@@ -283,58 +281,32 @@ public class DesignLayerServiceImpl implements DesignLayerService {
         return designLayerFileInfoTeamMap;
     }
 
+
     /**
-    * Ogr2Ogr 실행
-    * @param designLayer
-    * @param isDesignLayerFileInfoExist
-    * @param shapeFileName
-    * @param shapeEncoding
-    * @throws Exception
-    */
+     * shapeInfo info insert
+     * @param designLayer
+     * @param shapeInfoList
+     * @throws Exception
+     */
     @Transactional
-    public void insertOgr2Ogr(DesignLayer designLayer, boolean isDesignLayerFileInfoExist, String shapeFileName, String shapeEncoding, List<DesignLayer> shapePropertiesList) throws Exception {
-
-        // TODO 박승현.... 여기서 잘 분기 태워 보세요.
-        // Long designLayerId = designLayer.getDesignLayerId();
-
-        String designLayerDetailtable = null;
-        if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerType())) {
-            designLayerDetailtable = propertiesConfig.getDesignLayerLandTable();
-        } else if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerType())) {
-            designLayerDetailtable = propertiesConfig.getDesignLayerBuildingTable();
+    public void insertShapeInfo(DesignLayer designLayer, List<DesignLayer> shapeInfoList) throws Exception {
+        if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
+            shapeInfoList.forEach(f -> {
+                f.setDesignLayerId(designLayer.getDesignLayerId());
+                f.setDesignLayerGroupId(designLayer.getDesignLayerGroupId());
+                f.setCoordinate(designLayer.getCoordinate().split(":")[1]);
+                designLayerMapper.insertGeometryLand(modelMapper.map(f, DesignLayerLand.class));
+            });
+        } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toLowerCase())) {
+            shapeInfoList.forEach(f -> {
+                f.setDesignLayerId(designLayer.getDesignLayerId());
+                f.setDesignLayerGroupId(designLayer.getDesignLayerGroupId());
+                f.setCoordinate(designLayer.getCoordinate().split(":")[1]);
+                designLayerMapper.insertGeometryBuilding(modelMapper.map(f, DesignLayerBuilding.class));
+            });
         }
-
-        // TODO 여기서 org2org 로 할건지, geotools로 할건지 분기 태워야 함
-
-
-        String osType = propertiesConfig.getOsType().toUpperCase();
-        String ogr2ogrPort = propertiesConfig.getOgr2ogrPort();
-        String ogr2ogrHost = propertiesConfig.getOgr2ogrHost();
-        String dbName = Crypt.decrypt(url);
-        dbName = dbName.substring(dbName.lastIndexOf("/") + 1);
-        String driver = "PG:host="+ogr2ogrHost + " port=" + ogr2ogrPort+ " dbname=" + dbName + " user=" + Crypt.decrypt(username) + " password=" + Crypt.decrypt(password);
-        //Layer dbLayer = designLayerMapper.getDesignLayer(layer.getDesignLayerId());
-
-        String updateOption;
-        if(isDesignLayerFileInfoExist) {
-            // update 실행
-            updateOption = "update";
-        } else {
-            // insert 실행
-            updateOption = "insert";
-        }
-
-        GeoPolicy geoPolicy = geoPolicyService.getGeoPolicy();
-        String designLayerSourceCoordinate = designLayer.getCoordinate();
-        String designLayerTargetCoordinate = geoPolicy.getLayerTargetCoordinate();
-//		ShapeFileParser shapeFileParser = new ShapeFileParser();
-//		shapeFileParser.parse(shapeFileName);
-        String enviromentPath = propertiesConfig.getOgr2ogrEnviromentPath();
-        Ogr2OgrExecute ogr2OgrExecute = new Ogr2OgrExecute(
-                osType, driver, shapeFileName, shapeEncoding, designLayer.getDesignLayerKey(), updateOption, designLayerSourceCoordinate, designLayerTargetCoordinate, enviromentPath);
-        ogr2OgrExecute.insert();
     }
-    
+
     /**
      * shp파일 정보를 db 정보 기준으로 export
      */
@@ -494,7 +466,8 @@ public class DesignLayerServiceImpl implements DesignLayerService {
             headers.add("Authorization", "Basic " + Base64.getEncoder().encodeToString( (geoPolicy.getGeoserverUser() + ":" + geoPolicy.getGeoserverPassword()).getBytes()));
 
             // body
-            String xmlString = "<?xml version=\"1.0\" encoding=\"utf-8\"?><featureType><name>" + designLayerKey + "</name></featureType>";
+            String tableName = propertiesConfig.getDesignLayerLandTable();
+            String xmlString = "<?xml version=\"1.0\" encoding=\"utf-8\"?><featureType><name>" + designLayerKey + "</name><nativeName>"+tableName+"</nativeName></featureType>";
 
             List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
             //Add the String Message converter

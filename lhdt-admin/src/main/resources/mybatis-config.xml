@@ -30,6 +30,8 @@
 		<typeAlias type="lhdt.domain.data.DataInfoLog" alias="dataInfoLog" />
 		<typeAlias type="lhdt.domain.extrusionmodel.DesignLayerGroup" alias="designLayerGroup" />
 		<typeAlias type="lhdt.domain.extrusionmodel.DesignLayer" alias="designLayer" />
+		<typeAlias type="lhdt.domain.extrusionmodel.DesignLayerLand" alias="designLayerLand" />
+		<typeAlias type="lhdt.domain.extrusionmodel.DesignLayerBuilding" alias="designLayerBuilding" />
 		<typeAlias type="lhdt.domain.extrusionmodel.DesignLayerAttribute" alias="designLayerAttribute" />
 		<typeAlias type="lhdt.domain.extrusionmodel.DesignLayerFileInfo" alias="designLayerFileInfo" />
 		<typeAlias type="lhdt.domain.extrusionmodel.DesignLayerLog" alias="designLayerLog" />

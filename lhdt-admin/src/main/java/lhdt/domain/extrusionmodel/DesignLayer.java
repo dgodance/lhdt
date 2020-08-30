@@ -39,6 +39,7 @@ public class DesignLayer extends Search implements Serializable {
     private Integer parent;
     private String parentName;
     private Integer depth;
+    private String designLayerGroupType;
 
     // 고유키
     private Long designLayerId;
@@ -131,7 +132,7 @@ public class DesignLayer extends Search implements Serializable {
     }
 
 	public enum RequiredColumn {
-        SHAPE_ID("shape_id"),
+        SHAPE_ID("id"),
 	    THE_GEOM("the_geom");
 
         private String value;

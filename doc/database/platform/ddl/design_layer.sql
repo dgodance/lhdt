@@ -151,7 +151,7 @@ create table design_layer_land (
     properties					                jsonb,
 	update_date					                timestamp with time zone,
 	insert_date					                timestamp with time zone 		default now(),
-    the_geom                                    geometry(POLYGON,4326),
+    the_geom                                    geometry(MultiPolygon,4326),
     enable_yn                                   char(1),
     version_id                                  integer,
 	constraint design_layer_land_pk 		    primary key (design_layer_land_id)
@@ -203,7 +203,7 @@ create table design_layer_building (
     properties					                jsonb,
 	update_date					                timestamp with time zone,
 	insert_date					                timestamp with time zone 		default now(),
-    the_geom                                    geometry(POLYGON,4326),
+    the_geom                                    geometry(MultiPolygon,4326),
     enable_yn                                   char(1),
     version_id                                  integer,
 	constraint design_layer_building_pk 		primary key (design_layer_building_id)

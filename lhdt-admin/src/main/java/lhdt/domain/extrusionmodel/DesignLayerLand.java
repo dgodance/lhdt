@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class designLayerLand {
+public class DesignLayerLand {
 
     // design layer lnad 고유 번호
     private Long designLayerLandId;
@@ -74,8 +74,13 @@ public class designLayerLand {
     private LocalDateTime updateDate;
     // 등록일
     private LocalDateTime insertDate;
+    // wkt
     private String theGeom;
+    // 활성화 여부 'Y', 'N'
     private String enableYn;
+    // shape 버전 아이디
     private Integer versionId;
+    // 좌표계
+    private Integer coordinate;
 
 }

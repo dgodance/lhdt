@@ -45,4 +45,6 @@ public class DesignLayerBuilding {
     private String enableYn;
     // shape 버전 아이디
     private Integer versionId;
+    // 좌표계
+    private Integer coordinate;
 }

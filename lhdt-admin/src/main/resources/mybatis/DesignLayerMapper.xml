@@ -96,7 +96,7 @@
     <!-- 자식 디자인 레이어 중 순서가 최대인 디자인 레이어를 검색 -->
     <select id="getMaxViewOrderChildDesignLayer" parameterType="long" resultType="designLayer">
         /* getMaxViewOrderChildDesignLayer */
-        SELECT * FROM design_ayer WHERE parent = #{parent} ORDER BY view_order DESC LIMIT 1
+        SELECT * FROM design_layer WHERE parent = #{parent} ORDER BY view_order DESC LIMIT 1
     </select>
 
     <!-- 자식 디자인 레이어 개수 -->
@@ -158,6 +158,30 @@
 		 </if>
         )
     </insert>
+
+	<insert id="insertGeometryLand" parameterType="designLayerLand">
+		/* insertGeometryLand */
+		<selectKey keyProperty="designLayerLandId" resultType="long" order="BEFORE">
+			SELECT NEXTVAL('design_layer_land_seq')
+		</selectKey>
+		INSERT INTO design_layer_land (
+		design_layer_land_id, design_layer_id, design_layer_group_id, shape_id, the_geom, enable_yn, version_id
+		) VALUES (
+		#{designLayerLandId}, #{designLayerId}, #{designLayerGroupId}, #{shapeId}, st_transform(ST_GeomFromText(#{theGeom},#{coordinate}),4326), 'Y', 1
+		)
+	</insert>
+
+	<insert id="insertGeometryBuilding" parameterType="designLayerBuilding">
+		/* insertGeometryBuilding */
+		<selectKey keyProperty="designLayerBuildingId" resultType="long" order="BEFORE">
+			SELECT NEXTVAL('design_layer_building_seq')
+		</selectKey>
+		INSERT INTO design_layer_building (
+		design_layer_building_id, design_layer_id, design_layer_group_id, shape_id, the_geom, enable_yn, version_id
+		) VALUES (
+		#{designLayerBuildingId}, #{designLayerId}, #{designLayerGroupId}, #{shapeId}, st_transform(ST_GeomFromText(#{theGeom},#{coordinate}),4326), 'Y', 1
+		)
+	</insert>
 
     <!-- 디자인 레이어 정보 수정 -->
     <update id="updateDesignLayer" parameterType="designLayer">

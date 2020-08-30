@@ -48,7 +48,7 @@
     </select>
 
     <!-- design 레이어별 shape 파일 version 최대값 + 1 을 취득 -->
-    <select id="getMaxFileVersion" parameterType="int" resultType="long">
+    <select id="getMaxFileVersion" parameterType="long" resultType="int">
         /* getMaxFileVersion */
         SELECT MAX(version_id) FROM design_layer_file_info WHERE design_layer_id = #{designLayerId}
     </select>
