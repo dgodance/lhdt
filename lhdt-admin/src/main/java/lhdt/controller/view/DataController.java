@@ -179,7 +179,8 @@ public class DataController {
 
 	/**
 	 * 검색 조건
-	 * @param search
+	 * @param pageType
+	 * @param dataInfo
 	 * @return
 	 */
 	private String getSearchParameters(PageType pageType, DataInfo dataInfo) {

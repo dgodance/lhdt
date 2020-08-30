@@ -7,9 +7,9 @@
 	<select id="getListDesignLayerGroup" resultType="designLayerGroup">
 		/* getListDesignLayerGroup */
 		WITH RECURSIVE design_layer_group_tree (
-			design_layer_group_id, design_layer_group_name, user_id, ancestor, parent, depth, view_order, children, basic, available, description, insert_date, path, cycle
+			design_layer_group_id, design_layer_group_name, design_layer_group_type, user_id, ancestor, parent, depth, view_order, children, basic, available, description, insert_date, path, cycle
 		) AS (
-	        SELECT A.design_layer_group_id, A.design_layer_group_name, A.user_id, A.ancestor, A.parent, A.depth, A.view_order, A.children, A.basic, A.available,
+	        SELECT A.design_layer_group_id, A.design_layer_group_name, A.design_layer_group_type, A.user_id, A.ancestor, A.parent, A.depth, A.view_order, A.children, A.basic, A.available,
 	        	A.description, A.insert_date, ARRAY[A.view_order], false
 			FROM design_layer_group A
 			WHERE A.parent = 0
@@ -17,12 +17,12 @@
 				AND A.available = #{available}
 			</if>
 			UNION ALL
-	        SELECT A.design_layer_group_id, A.design_layer_group_name, A.user_id, A.ancestor, A.parent, A.depth, A.view_order, A.children, A.basic, A.available,
+	        SELECT A.design_layer_group_id, A.design_layer_group_name, A.design_layer_group_type, A.user_id, A.ancestor, A.parent, A.depth, A.view_order, A.children, A.basic, A.available,
 	        	A.description, A.insert_date, path || A.view_order, A.design_layer_group_id = ANY(path)
 	        FROM design_layer_group A, design_layer_group_tree B
 	        WHERE A.parent = B.design_layer_group_id AND not cycle
 		)
-	    SELECT design_layer_group_id, design_layer_group_name, user_id, ancestor, parent, depth, view_order, children, basic, available, description, insert_date, path
+	    SELECT design_layer_group_id, design_layer_group_name, design_layer_group_type, user_id, ancestor, parent, depth, view_order, children, basic, available, description, insert_date, path
 	    FROM design_layer_group_tree
 	    ORDER BY path
 	</select>
@@ -60,6 +60,17 @@
 		LIMIT 1
 	</select>
 
+	<!-- 나를 부모로 가지는 자식 데이터 그룹 목록을 취득 -->
+	<select id="getChildrenDesignLayerGroupListByParent" parameterType="designLayerGroup" resultType="designLayerGroup">
+		/* getChildrenDesignLayerGroupListByParent */
+		SELECT *
+		FROM design_layer_group
+		WHERE parent = #{designLayerGroupId}
+		<if test="userId != null and userId != ''">
+			AND user_id = #{userId}
+		</if>
+	</select>
+
 	<!-- design layer 그룹 등록 -->
 	<insert id="insertDesignLayerGroup" parameterType="designLayerGroup">
 		/* insertDesignLayerGroup */
@@ -67,9 +78,9 @@
     		SELECT NEXTVAL('design_layer_group_seq')
   		</selectKey>
 		INSERT INTO design_layer_group (
-			design_layer_group_id, design_layer_group_name, user_id, ancestor, parent, depth, view_order, children, basic, available, description
+			design_layer_group_id, design_layer_group_name, design_layer_group_type, user_id, ancestor, parent, depth, view_order, children, basic, available, description
 		) VALUES (
-			#{designLayerGroupId}, #{designLayerGroupName}, #{userId},
+			#{designLayerGroupId}, #{designLayerGroupName}, #{designLayerGroupType}, #{userId},
 			(
 				SELECT COALESCE(MAX(ancestor), #{designLayerGroupId})
 				FROM design_layer_group
@@ -114,6 +125,9 @@
 			<if test="designLayerGroupName != null and designLayerGroupName != ''">
 			design_layer_group_name = #{designLayerGroupName},
 			</if>
+			<if test="designLayerGroupType != null and designLayerGroupType != ''">
+				design_layer_group_type = #{designLayerGroupType},
+			</if>
 			<if test="userId != null and userId != ''">
 			user_id = #{userId},
 			</if>
@@ -142,6 +156,17 @@
             available = #{available},
             </if>
 			update_date = NOW()
+		WHERE design_layer_group_id = #{designLayerGroupId}
+		<if test="userId != null and userId != ''">
+			AND user_id = #{userId}
+		</if>
+	</update>
+
+	<!-- 자식의 수를 + 또는 - 연산. dataLibraryCount 변수에는 자식 수를 증가 하거나 감소 시키는 값이 들어옴 -->
+	<update id="updateDesignLayerGroupChildren" parameterType="designLayerGroup">
+		/* updateDesignLayerGroupChildren */
+		UPDATE design_layer_group
+		SET children = children + #{children}
 		WHERE design_layer_group_id = #{designLayerGroupId}
 		<if test="userId != null and userId != ''">
 			AND user_id = #{userId}

@@ -1,5 +1,6 @@
 package lhdt.service;
 
+import lhdt.domain.extrusionmodel.DesignLayerGroup;
 import lhdt.domain.policy.GeoPolicy;
 import lhdt.domain.extrusionmodel.DesignLayer;
 import lhdt.domain.extrusionmodel.DesignLayerFileInfo;
@@ -130,4 +131,11 @@ public interface DesignLayerService {
     * @return
     */
     int deleteDesignLayer(Long designLayerId);
+
+    /**
+     * 디자인 레이어 그룹 고유번호를 이용한 삭제
+     * @param designLayerGroup
+     * @return
+     */
+    int deleteDesignLayerByDesignLayerGroupId(DesignLayerGroup designLayerGroup);
 }
