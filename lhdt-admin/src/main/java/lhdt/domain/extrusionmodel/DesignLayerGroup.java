@@ -28,6 +28,8 @@ public class DesignLayerGroup implements Serializable {
 	private Integer designLayerGroupId;
 	// design layer 그룹 그룹명
 	private String designLayerGroupName;
+	// design layer 그룹 분류. land : 땅, building : 빌딩'
+	private String designLayerGroupType;
 	// 사용자 아이디
 	private String userId;
 	// 조상

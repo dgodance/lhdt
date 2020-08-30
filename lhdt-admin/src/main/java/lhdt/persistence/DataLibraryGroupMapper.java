@@ -1,6 +1,6 @@
 package lhdt.persistence;
 
-import lhdt.domain.data.DataLibraryGroup;
+import lhdt.domain.extrusionmodel.DataLibraryGroup;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,6 +20,12 @@ public interface DataLibraryGroupMapper {
      * @return
      */
     DataLibraryGroup getDataLibraryGroup(DataLibraryGroup dataLibraryGroup);
+
+	/**
+	 * 기본 데이터 라이브러리 그룹 정보 조회
+	 * @return
+	 */
+	DataLibraryGroup getBasicDataLibraryGroup();
 
     /**
      * 부모와 순서를 가지고 데이터 라이브러리 그룹 정보를 취득
@@ -48,6 +54,13 @@ public interface DataLibraryGroupMapper {
      * @return
      */
     int insertDataLibraryGroup(DataLibraryGroup dataLibraryGroup);
+
+	/**
+	 * 기본 데이터 라이브러리 등록
+	 * @param dataLibraryGroup
+	 * @return
+	 */
+	int insertBasicDataLibraryGroup(DataLibraryGroup dataLibraryGroup);
     
     /**
 	 * 데이터 라이브러리 그룹 수정

@@ -1,13 +1,15 @@
 package lhdt.controller.rest;
 
 import lhdt.config.PropertiesConfig;
-import lhdt.domain.*;
-import lhdt.domain.policy.Policy;
-import lhdt.domain.uploaddata.UploadData;
-import lhdt.domain.uploaddata.UploadDataFile;
+import lhdt.domain.FileType;
+import lhdt.domain.Key;
 import lhdt.domain.UploadDataType;
 import lhdt.domain.UploadDirectoryType;
+import lhdt.domain.extrusionmodel.DataLibraryUpload;
+import lhdt.domain.policy.Policy;
+import lhdt.domain.extrusionmodel.DataLibraryUploadFile;
 import lhdt.domain.user.UserSession;
+import lhdt.service.DataLibraryService;
 import lhdt.service.PolicyService;
 import lhdt.service.UploadDataService;
 import lhdt.support.LogMessageSupport;
@@ -32,15 +34,15 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 /**
- * 3D 데이터 파일 업로더
+ * 데이터 라이브러리 파일 업로더
  * TODO 설계 파일 안의 texture 의 경우 설계 파일에서 참조하는 경우가 있으므로 이름 변경 불가.
  * @author jeongdae
  *
  */
 @Slf4j
 @RestController
-@RequestMapping("/upload-datas")
-public class UploadDataRestController {
+@RequestMapping("/data-librarys")
+public class DataLibraryRestController {
 	
 	// 파일 copy 시 버퍼 사이즈
 	public static final int BUFFER_SIZE = 8192;
@@ -52,7 +54,7 @@ public class UploadDataRestController {
 	private PropertiesConfig propertiesConfig;
 	
 	@Autowired
-	private UploadDataService uploadDataService;
+	private DataLibraryService dataLibraryService;
 
 	/**
 	 * TODO 비동기로 처리해야 할듯
@@ -81,7 +83,7 @@ public class UploadDataRestController {
 		List<String> uploadTypeList = Arrays.asList(uploadTypes);
 		List<String> converterTypeList = Arrays.asList(converterTypes);
 		
-		errorCode = dataValidate(request);
+		errorCode = dataLibraryValidate(request);
 		if(!StringUtils.isEmpty(errorCode)) {
 			log.info("@@@@@@@@@@@@ errorCode = {}", errorCode);
 			result.put("statusCode", HttpStatus.BAD_REQUEST.value());
@@ -92,14 +94,14 @@ public class UploadDataRestController {
 		
 		UserSession userSession = (UserSession)request.getSession().getAttribute(Key.USER_SESSION.name());
 		String userId = userSession.getUserId();
-		List<UploadDataFile> uploadDataFileList = new ArrayList<>();
+		List<DataLibraryUploadFile> dataLibraryUploadFileList = new ArrayList<>();
 		Map<String, MultipartFile> fileMap = request.getFileMap();
 		
 		Map<String, Object> uploadMap = null;
 		String today = DateUtils.getToday(FormatUtils.YEAR_MONTH_DAY_TIME14);
 		
 		// 1 directory 생성
-		String makedDirectory = FileUtils.makeDirectory(userId, UploadDirectoryType.YEAR_MONTH, propertiesConfig.getDataUploadDir());
+		String makedDirectory = FileUtils.makeDirectory(userId, UploadDirectoryType.YEAR_MONTH, propertiesConfig.getDataLibraryUploadDir());
 		log.info("@@@@@@@ = {}", makedDirectory);
 		
 		// 2 한건이면서 zip 의 경우
@@ -110,7 +112,7 @@ public class UploadDataRestController {
 			for (MultipartFile multipartFile : fileMap.values()) {
 				String[] divideNames = multipartFile.getOriginalFilename().split("\\.");
 				String fileExtension = divideNames[divideNames.length - 1];
-				if(UploadData.ZIP_EXTENSION.equalsIgnoreCase(fileExtension)) {
+				if(DataLibraryUpload.ZIP_EXTENSION.equalsIgnoreCase(fileExtension)) {
 					isZipFile = true;
 					// zip 파일
 					uploadMap = unzip(policy, uploadTypeList, converterTypeList, today, userId, multipartFile, makedDirectory, dataType);
@@ -136,7 +138,7 @@ public class UploadDataRestController {
 			            return result;
 					}
 					
-					uploadDataFileList = (List<UploadDataFile>)uploadMap.get("uploadDataFileList");
+					dataLibraryUploadFileList = (List<DataLibraryUploadFile>)uploadMap.get("dataLibraryUploadFileList");
 				}
 			}
 		}
@@ -151,7 +153,7 @@ public class UploadDataRestController {
 			for (MultipartFile multipartFile : fileMap.values()) {
 				log.info("@@@@@@@@@@@@@@@ name = {}, originalName = {}", multipartFile.getName(), multipartFile.getOriginalFilename());
 				
-				UploadDataFile uploadDataFile = new UploadDataFile();
+				DataLibraryUploadFile dataLibraryUploadFile = new DataLibraryUploadFile();
 				boolean converterTarget = false;
 				
 				// 파일 기본 validation 체크
@@ -179,7 +181,7 @@ public class UploadDataRestController {
 				
     			String extension = divideFileName[divideFileName.length - 1];
     			// !extList.contains(extension.toLowerCase())
-				if(UploadData.ZIP_EXTENSION.equalsIgnoreCase(extension) || !uploadTypeList.contains(extension.toLowerCase())) {
+				if(DataLibraryUpload.ZIP_EXTENSION.equalsIgnoreCase(extension) || !uploadTypeList.contains(extension.toLowerCase())) {
 					log.info("@@@@@@@@@@@@ upload.file.type.invalid. originalName = {}", originalName);
 					result.put("statusCode", HttpStatus.BAD_REQUEST.value());
 					result.put("errorCode", "upload.file.type.invalid");
@@ -235,15 +237,15 @@ public class UploadDataRestController {
 						outputStream.write(buffer, 0, bytesRead);
 					}
 				
-					uploadDataFile.setFileType(FileType.FILE.name());
-					uploadDataFile.setFileExt(extension);
-        			uploadDataFile.setFileName(multipartFile.getOriginalFilename());
-        			uploadDataFile.setFileRealName(saveFileName);
-        			uploadDataFile.setFilePath(makedDirectory + tempDirectory + File.separator);
-        			uploadDataFile.setFileSubPath(tempDirectory);
-        			uploadDataFile.setFileSize(String.valueOf(size));
-        			uploadDataFile.setConverterTarget(converterTarget);
-        			uploadDataFile.setDepth(1);
+					dataLibraryUploadFile.setFileType(FileType.FILE.name());
+					dataLibraryUploadFile.setFileExt(extension);
+        			dataLibraryUploadFile.setFileName(multipartFile.getOriginalFilename());
+        			dataLibraryUploadFile.setFileRealName(saveFileName);
+        			dataLibraryUploadFile.setFilePath(makedDirectory + tempDirectory + File.separator);
+        			dataLibraryUploadFile.setFileSubPath(tempDirectory);
+        			dataLibraryUploadFile.setFileSize(String.valueOf(size));
+        			dataLibraryUploadFile.setConverterTarget(converterTarget);
+        			dataLibraryUploadFile.setDepth(1);
 				} catch(IOException e) {
 					LogMessageSupport.printMessage(e, "@@@@@@@@@@@@ io exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
 					result.put("statusCode", HttpStatus.INTERNAL_SERVER_ERROR.value());
@@ -258,7 +260,7 @@ public class UploadDataRestController {
 		            return result;
 				}
 
-				uploadDataFileList.add(uploadDataFile);
+				dataLibraryUploadFileList.add(dataLibraryUploadFile);
 			}
 		}
 		
@@ -270,26 +272,21 @@ public class UploadDataRestController {
             return result;
 		}
 
-		UploadData uploadData = new UploadData();
-		uploadData.setDataName(request.getParameter("dataName"));
-		uploadData.setDataGroupId(Integer.valueOf(request.getParameter("dataGroupId")));
-		uploadData.setSharing(request.getParameter("sharing"));
-		uploadData.setDataType(dataType);
-		uploadData.setUserId(userId);
-		// citygml 인 경우 converter 에서 자동 추출
-		if(	UploadDataType.CITYGML != UploadDataType.findBy(dataType)) {
-			uploadData.setLongitude(new BigDecimal(request.getParameter("longitude")) );
-			uploadData.setLatitude(new BigDecimal(request.getParameter("latitude")) );
-			uploadData.setAltitude(new BigDecimal(request.getParameter("altitude")) );
-			uploadData.setLocation("POINT(" + request.getParameter("longitude") + " " + request.getParameter("latitude") + ")");
-		}
+		DataLibraryUpload dataLibraryUpload = new DataLibraryUpload();
+		dataLibraryUpload.setDataLibraryName(request.getParameter("dataLibraryName"));
+		dataLibraryUpload.setDataLibraryGroupId(Integer.valueOf(request.getParameter("dataLibraryGroupId")));
+		dataLibraryUpload.setSharing(request.getParameter("sharing"));
+		dataLibraryUpload.setDataType(dataType);
+		dataLibraryUpload.setUserId(userId);
+		dataLibraryUpload.setFileCount(dataLibraryUploadFileList.size());
+		dataLibraryUpload.setConverterTargetCount(converterTargetCount);
+		dataLibraryUpload.setBasicWidth(Integer.valueOf(request.getParameter("basicWidth")));
+		dataLibraryUpload.setBasicDepth(Integer.valueOf(request.getParameter("basicDepth")));
+		dataLibraryUpload.setBasicHeight(Integer.valueOf(request.getParameter("basicHeight")));
+		dataLibraryUpload.setDescription(request.getParameter("description"));
 		
-		uploadData.setFileCount(uploadDataFileList.size());
-		uploadData.setConverterTargetCount(converterTargetCount);
-		uploadData.setDescription(request.getParameter("description"));
-		
-		log.info("@@@@@@@@@@@@ uploadData = {}", uploadData);
-		uploadDataService.insertUploadData(uploadData, uploadDataFileList);       
+		log.info("@@@@@@@@@@@@ dataLibraryUpload = {}", dataLibraryUpload);
+		dataLibraryService.insertDataLibraryUpload(dataLibraryUpload, dataLibraryUploadFileList);
 		int statusCode = HttpStatus.OK.value();
 		
 		result.put("statusCode", statusCode);
@@ -336,8 +333,9 @@ public class UploadDataRestController {
 		File uploadedFile = new File(targetDirectory + multipartFile.getOriginalFilename());
 		multipartFile.transferTo(uploadedFile);
 		
-		List<UploadDataFile> uploadDataFileList = new ArrayList<>();
-		// zip 파일을 압축할때 한글이나 다국어가 포함된 경우 java.lang.IllegalArgumentException: malformed input off 같은 오류가 발생. 윈도우가 CP949 인코딩으로 파일명을 저장하기 때문.
+		List<DataLibraryUploadFile> dataLibraryUploadFileList = new ArrayList<>();
+		// zip 파일을 압축할때 한글이나 다국어가 포함된 경우 java.lang.IllegalArgumentException: malformed input off 같은 오류가 발생.
+		// 윈도우가 CP949 인코딩으로 파일명을 저장하기 때문.
 		// Charset CP949 = Charset.forName("UTF-8");
 //		try ( ZipFile zipFile = new ZipFile(uploadedFile, CP949);) {
 		try ( ZipFile zipFile = new ZipFile(uploadedFile)) {
@@ -348,7 +346,7 @@ public class UploadDataRestController {
 			Enumeration<? extends ZipEntry> entries = zipFile.entries();
 			
 			while( entries.hasMoreElements() ) {
-            	UploadDataFile uploadDataFile = new UploadDataFile();
+            	DataLibraryUploadFile dataLibraryUploadFile = new DataLibraryUploadFile();
             	
             	ZipEntry entry = entries.nextElement();
             	String unzipfileName = targetDirectory + entry.getName();
@@ -356,10 +354,10 @@ public class UploadDataRestController {
             	
             	if( entry.isDirectory() ) {
             		// 디렉토리인 경우
-            		uploadDataFile.setFileType(FileType.DIRECTORY.name());
+            		dataLibraryUploadFile.setFileType(FileType.DIRECTORY.name());
             		if(directoryName == null) {
-            			uploadDataFile.setFileName(entry.getName());
-            			uploadDataFile.setFileRealName(entry.getName());
+            			dataLibraryUploadFile.setFileName(entry.getName());
+            			dataLibraryUploadFile.setFileRealName(entry.getName());
             			directoryName = entry.getName();
             			directoryPath = directoryPath + directoryName;
             			//subDirectoryPath = directoryName;
@@ -375,8 +373,8 @@ public class UploadDataRestController {
             				}
             				fileName = entry.getName();
             			}
-            			uploadDataFile.setFileName(fileName);
-            			uploadDataFile.setFileRealName(fileName);
+            			dataLibraryUploadFile.setFileName(fileName);
+            			dataLibraryUploadFile.setFileRealName(fileName);
             			directoryName = fileName;
             			directoryPath = directoryPath + fileName;
             			subDirectoryPath = fileName;
@@ -384,9 +382,9 @@ public class UploadDataRestController {
             		
                 	File file = new File(unzipfileName);
                     file.mkdirs();
-                    uploadDataFile.setFilePath(directoryPath);
-                    uploadDataFile.setFileSubPath(subDirectoryPath);
-                    uploadDataFile.setDepth(depth);
+                    dataLibraryUploadFile.setFilePath(directoryPath);
+                    dataLibraryUploadFile.setFileSubPath(subDirectoryPath);
+                    dataLibraryUploadFile.setDepth(depth);
                     depth++;
             	} else {
             		// 파일인 경우
@@ -510,27 +508,27 @@ public class UploadDataRestController {
                             outputStream.write(buffer, 0, bytesRead);
                         }
                         
-                		uploadDataFile.setFileType(FileType.FILE.name());
-                		uploadDataFile.setFileExt(extension);
-                		uploadDataFile.setFileName(fileName);
-                		uploadDataFile.setFileRealName(saveFileName);
-                		uploadDataFile.setFilePath(directoryPath);
-                		uploadDataFile.setFileSubPath(subDirectoryPath);
-                		uploadDataFile.setDepth(depth);
-                		uploadDataFile.setFileSize(String.valueOf(size));
+                		dataLibraryUploadFile.setFileType(FileType.FILE.name());
+                		dataLibraryUploadFile.setFileExt(extension);
+                		dataLibraryUploadFile.setFileName(fileName);
+                		dataLibraryUploadFile.setFileRealName(saveFileName);
+                		dataLibraryUploadFile.setFilePath(directoryPath);
+                		dataLibraryUploadFile.setFileSubPath(subDirectoryPath);
+                		dataLibraryUploadFile.setDepth(depth);
+                		dataLibraryUploadFile.setFileSize(String.valueOf(size));
                 		
                 	} catch(IOException e) {
                 		LogMessageSupport.printMessage(e, "@@@@@@@@@@@@ io exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
-                		uploadDataFile.setErrorMessage(e.getMessage());
+                		dataLibraryUploadFile.setErrorMessage(e.getMessage());
                     } catch(Exception e) {
                 		LogMessageSupport.printMessage(e, "@@@@@@@@@@@@ exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
-                    	uploadDataFile.setErrorMessage(e.getMessage());
+                    	dataLibraryUploadFile.setErrorMessage(e.getMessage());
                     }
                 }
             	
-            	uploadDataFile.setConverterTarget(converterTarget);
-            	uploadDataFile.setFileSize(String.valueOf(entry.getSize()));
-            	uploadDataFileList.add(uploadDataFile);
+            	dataLibraryUploadFile.setConverterTarget(converterTarget);
+            	dataLibraryUploadFile.setFileSize(String.valueOf(entry.getSize()));
+            	dataLibraryUploadFileList.add(dataLibraryUploadFile);
             }
 		} catch(RuntimeException ex) {
 			LogMessageSupport.printMessage(ex, "@@@@@@@@@@@@ RuntimeException. message = {}", ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
@@ -539,7 +537,7 @@ public class UploadDataRestController {
 		}
 		
 		result.put("converterTargetCount", converterTargetCount);
-		result.put("uploadDataFileList", uploadDataFileList);
+		result.put("dataLibraryUploadFileList", dataLibraryUploadFileList);
 		return result;
 	}
 	
@@ -593,116 +591,116 @@ public class UploadDataRestController {
 		return null;
 	}
 	
-	/**
-	 * 업로드 데이트 수정
-	 * @param request
-	 * @param uploadData
-	 * @param bindingResult
-	 * @return
-	 */
-	@PostMapping(value = "/{uploadDataId:[0-9]+}")
-	public Map<String, Object> update(HttpServletRequest request, @PathVariable Long uploadDataId, @Valid UploadData uploadData, BindingResult bindingResult) {
-		log.info("@@ uploadData = {}", uploadData);
-		Map<String, Object> result = new HashMap<>();
-		String errorCode = null;
-		String message = null;
-		
-		if(bindingResult.hasErrors()) {
-			message = bindingResult.getAllErrors().get(0).getDefaultMessage();
-			log.info("@@@@@ message = {}", message);
-			result.put("statusCode", HttpStatus.BAD_REQUEST.value());
-			result.put("errorCode", errorCode);
-			result.put("message", message);
-            return result;
-		}
-		
-		if(StringUtils.isEmpty(uploadData.getDataName())) {
-			errorCode = "data.name.empty";
-		}
-		if(StringUtils.isEmpty(uploadData.getDataGroupId())) {
-			errorCode = "data.group.id.empty";
-		}
-		if(StringUtils.isEmpty(uploadData.getSharing())) {
-			errorCode = "data.sharing.empty";
-		}
-		if(StringUtils.isEmpty(uploadData.getDataType())) {
-			errorCode = "data.type.empty";
-		}
-		
-		// TODO citygml, indoorgml 의 경우 위도, 경도, 높이를 포함하고 있어서 validation 체크를 하지 않음
-		// 지금은 converter 가 update를 해 주지 않아서 기본 체크 함
-//			if(!dataType.equals(DataType.CITYGML.getValue()) && !dataType.equals(DataType.INDOORGML.getValue())) {
-		if(uploadData.getLongitude() == null) {
-			errorCode = "data.longitude.empty";
-		}
-		if(uploadData.getLatitude() == null) {
-			errorCode = "data.latitude.empty";
-		}
-		if(uploadData.getAltitude() == null) {
-			errorCode = "data.altitude.empty";
-		}
-//			}
-		
-		if(!StringUtils.isEmpty(errorCode)) {
-			log.info("@@@@@ errorCode = {}", errorCode);
-			result.put("statusCode", HttpStatus.BAD_REQUEST.value());
-			result.put("errorCode", errorCode);
-			result.put("message", message);
-            return result;
-		}
-	
-		uploadData.setLocation("POINT(" + uploadData.getLongitude() + " " + uploadData.getLatitude() + ")");
-		//uploadDataService.updateUploadData(uploadData);
-		
-		// 원본이 gml 파일일 경우, 데이터 타입을 citygml/indoorgml로 변경할 경우에 DB를 갱신하고 업로드 된 경로의 파일 확장자를 변경.
-		// DB 갱신과 파일 확장자 변경
-		uploadDataService.updateUploadDataAndFile(uploadData);
-		int statusCode = HttpStatus.OK.value();
-			
-		result.put("statusCode", statusCode);
-		result.put("errorCode", errorCode);
-		result.put("message", message);
-		return result;
-	}
-
-	/**
-	 * 선택 upload-data 삭제
-	 * @param request
-	 * @param uploadDataId
-	 * @return
-	 */
-	@DeleteMapping(value = "/{uploadDataId:[0-9]+}")
-	public Map<String, Object> deleteDatas(HttpServletRequest request, @PathVariable Long uploadDataId) {
-		
-		log.info("@@@@@@@ uploadDataId = {}", uploadDataId);
-		Map<String, Object> result = new HashMap<>();
-		String errorCode = null;
-		String message = null;
-		
-		UploadData uploadData = new UploadData();
-		//uploadData.setUserId(userSession.getUserId());
-		uploadData.setUploadDataId(uploadDataId);
-		
-		uploadDataService.deleteUploadData(uploadData);
-		int statusCode = HttpStatus.OK.value();
-		
-		result.put("statusCode", statusCode);
-		result.put("errorCode", errorCode);
-		result.put("message", message);
-		return result;
-	}
+//	/**
+//	 * 업로드 데이트 수정
+//	 * @param request
+//	 * @param uploadData
+//	 * @param bindingResult
+//	 * @return
+//	 */
+//	@PostMapping(value = "/{uploadDataId:[0-9]+}")
+//	public Map<String, Object> update(HttpServletRequest request, @PathVariable Long uploadDataId, @Valid UploadData uploadData, BindingResult bindingResult) {
+//		log.info("@@ uploadData = {}", uploadData);
+//		Map<String, Object> result = new HashMap<>();
+//		String errorCode = null;
+//		String message = null;
+//
+//		if(bindingResult.hasErrors()) {
+//			message = bindingResult.getAllErrors().get(0).getDefaultMessage();
+//			log.info("@@@@@ message = {}", message);
+//			result.put("statusCode", HttpStatus.BAD_REQUEST.value());
+//			result.put("errorCode", errorCode);
+//			result.put("message", message);
+//            return result;
+//		}
+//
+//		if(StringUtils.isEmpty(uploadData.getDataName())) {
+//			errorCode = "data.name.empty";
+//		}
+//		if(StringUtils.isEmpty(uploadData.getDataGroupId())) {
+//			errorCode = "data.group.id.empty";
+//		}
+//		if(StringUtils.isEmpty(uploadData.getSharing())) {
+//			errorCode = "data.sharing.empty";
+//		}
+//		if(StringUtils.isEmpty(uploadData.getDataType())) {
+//			errorCode = "data.type.empty";
+//		}
+//
+//		// TODO citygml, indoorgml 의 경우 위도, 경도, 높이를 포함하고 있어서 validation 체크를 하지 않음
+//		// 지금은 converter 가 update를 해 주지 않아서 기본 체크 함
+////			if(!dataType.equals(DataType.CITYGML.getValue()) && !dataType.equals(DataType.INDOORGML.getValue())) {
+//		if(uploadData.getLongitude() == null) {
+//			errorCode = "data.longitude.empty";
+//		}
+//		if(uploadData.getLatitude() == null) {
+//			errorCode = "data.latitude.empty";
+//		}
+//		if(uploadData.getAltitude() == null) {
+//			errorCode = "data.altitude.empty";
+//		}
+////			}
+//
+//		if(!StringUtils.isEmpty(errorCode)) {
+//			log.info("@@@@@ errorCode = {}", errorCode);
+//			result.put("statusCode", HttpStatus.BAD_REQUEST.value());
+//			result.put("errorCode", errorCode);
+//			result.put("message", message);
+//            return result;
+//		}
+//
+//		uploadData.setLocation("POINT(" + uploadData.getLongitude() + " " + uploadData.getLatitude() + ")");
+//		//uploadDataService.updateUploadData(uploadData);
+//
+//		// 원본이 gml 파일일 경우, 데이터 타입을 citygml/indoorgml로 변경할 경우에 DB를 갱신하고 업로드 된 경로의 파일 확장자를 변경.
+//		// DB 갱신과 파일 확장자 변경
+//		uploadDataService.updateUploadDataAndFile(uploadData);
+//		int statusCode = HttpStatus.OK.value();
+//
+//		result.put("statusCode", statusCode);
+//		result.put("errorCode", errorCode);
+//		result.put("message", message);
+//		return result;
+//	}
+//
+//	/**
+//	 * 선택 upload-data 삭제
+//	 * @param request
+//	 * @param uploadDataId
+//	 * @return
+//	 */
+//	@DeleteMapping(value = "/{uploadDataId:[0-9]+}")
+//	public Map<String, Object> deleteDatas(HttpServletRequest request, @PathVariable Long uploadDataId) {
+//
+//		log.info("@@@@@@@ uploadDataId = {}", uploadDataId);
+//		Map<String, Object> result = new HashMap<>();
+//		String errorCode = null;
+//		String message = null;
+//
+//		UploadData uploadData = new UploadData();
+//		//uploadData.setUserId(userSession.getUserId());
+//		uploadData.setUploadDataId(uploadDataId);
+//
+//		uploadDataService.deleteUploadData(uploadData);
+//		int statusCode = HttpStatus.OK.value();
+//
+//		result.put("statusCode", statusCode);
+//		result.put("errorCode", errorCode);
+//		result.put("message", message);
+//		return result;
+//	}
 	
 	/**
 	 * validation 체크
 	 * @param request
 	 * @return
 	 */
-	private String dataValidate(MultipartHttpServletRequest request) {
-		if(StringUtils.isEmpty(request.getParameter("dataName"))) {
-			return "data.name.empty";
+	private String dataLibraryValidate(MultipartHttpServletRequest request) {
+		if(StringUtils.isEmpty(request.getParameter("dataLibraryName"))) {
+			return "data.library.name.empty";
 		}
-		if(StringUtils.isEmpty(request.getParameter("dataGroupId"))) {
-			return "data.group.id.empty";
+		if(StringUtils.isEmpty(request.getParameter("dataLibraryGroupId"))) {
+			return "data.library.group.id.empty";
 		}
 		if(StringUtils.isEmpty(request.getParameter("sharing"))) {
 			return "data.sharing.empty";
@@ -711,18 +709,6 @@ public class UploadDataRestController {
 		String dataType = request.getParameter("dataType");
 		if(StringUtils.isEmpty(dataType)) {
 			return "data.type.empty";
-		}
-		
-		if(	UploadDataType.CITYGML != UploadDataType.findBy(dataType)) {
-			if(StringUtils.isEmpty(request.getParameter("longitude"))) {
-				return "data.longitude.empty";
-			}
-			if(StringUtils.isEmpty(request.getParameter("latitude"))) {
-				return "data.latitude.empty";
-			}
-			if(StringUtils.isEmpty(request.getParameter("altitude"))) {
-				return "data.altitude.empty";
-			}
 		}
 		
 		Map<String, MultipartFile> fileMap = request.getFileMap();

@@ -33,6 +33,7 @@ commit;
 create table design_layer_group (
 	design_layer_group_id		            integer,
 	design_layer_group_name      		    varchar(256)					not null,
+	design_layer_group_type                 varchar(30)                     default 'land',
 	user_id						            varchar(32),
 	ancestor					            integer							default 0,
 	parent                		            integer							default 0,
@@ -50,6 +51,7 @@ create table design_layer_group (
 comment on table design_layer_group is 'design layer 그룹';
 comment on column design_layer_group.design_layer_group_id is 'design layer 그룹 고유번호';
 comment on column design_layer_group.design_layer_group_name is 'design layer 그룹 그룹명';
+comment on column design_layer_group.design_layer_group_type is 'design layer 그룹 분류. land : 땅, building : 빌딩';
 comment on column design_layer_group.user_id is '사용자 아이디';
 comment on column design_layer_group.ancestor is '조상';
 comment on column design_layer_group.parent is '부모';

@@ -1,21 +1,19 @@
 package lhdt.service.impl;
 
-import lhdt.domain.MethodType;
-import lhdt.domain.ServerTarget;
-import lhdt.domain.SharingType;
-import lhdt.domain.data.*;
+import lhdt.domain.extrusionmodel.DataLibrary;
+import lhdt.domain.extrusionmodel.DataLibraryGroup;
+import lhdt.domain.extrusionmodel.DataLibraryUpload;
+import lhdt.domain.extrusionmodel.DataLibraryUploadFile;
+import lhdt.domain.uploaddata.UploadDataFile;
 import lhdt.persistence.DataLibraryMapper;
 import lhdt.service.DataLibraryGroupService;
 import lhdt.service.DataLibraryService;
-import lhdt.support.LogMessageSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 데이터 라이브러리
@@ -101,6 +99,31 @@ public class DataLibraryServiceImpl implements DataLibraryService {
 	public List<DataLibrary> getDataLibraryByConverterJob(DataLibrary dataLibrary) {
 		return dataLibraryMapper.getDataLibraryByConverterJob(dataLibrary);
 	}
+
+	/**
+	 * 데이터 라이브러리 업로딩 정보 입력
+	 * @param dataLibraryUpload
+	 * @param dataLibraryUploadFileList
+	 * @return
+	 */
+	@Transactional
+	public int insertDataLibraryUpload(DataLibraryUpload dataLibraryUpload, List<DataLibraryUploadFile> dataLibraryUploadFileList) {
+		int result = dataLibraryMapper.insertDataLibraryUpload(dataLibraryUpload);
+
+		Long dataLibraryUploadId = dataLibraryUpload.getDataLibraryUploadId();
+//		Integer dataGroupId = uploadData.getDataGroupId();
+//		String sharing = uploadData.getSharing();
+//		String dataType = uploadData.getDataType();
+		String userId = dataLibraryUpload.getUserId();
+		for(DataLibraryUploadFile dataLibraryUploadFile : dataLibraryUploadFileList) {
+			dataLibraryUploadFile.setDataLibraryUploadId(dataLibraryUploadId);
+			dataLibraryUploadFile.setUserId(userId);
+			dataLibraryMapper.insertDataLibraryUploadFile(dataLibraryUploadFile);
+			result++;
+		}
+		return result;
+	}
+
 	
 	/**
 	 * 데이터 라이브러리 등록

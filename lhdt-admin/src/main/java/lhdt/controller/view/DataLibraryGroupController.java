@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import lombok.extern.slf4j.Slf4j;
 import lhdt.config.PropertiesConfig;
-import lhdt.domain.data.DataLibraryGroup;
+import lhdt.domain.extrusionmodel.DataLibraryGroup;
 import lhdt.domain.Key;
 import lhdt.domain.policy.Policy;
 import lhdt.domain.user.UserSession;

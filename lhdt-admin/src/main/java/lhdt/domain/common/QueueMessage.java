@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 import lhdt.domain.ServerTarget;
-import lhdt.domain.uploaddata.UploadDataType;
+import lhdt.domain.UploadDataType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

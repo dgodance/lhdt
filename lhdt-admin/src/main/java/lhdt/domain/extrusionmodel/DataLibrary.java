@@ -1,4 +1,4 @@
-package lhdt.domain.data;
+package lhdt.domain.extrusionmodel;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lhdt.domain.MethodType;

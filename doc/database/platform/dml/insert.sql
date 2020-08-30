@@ -61,9 +61,12 @@ values
 	(70, '0', '1', '데이터 라이브러리 그룹', 'EXTRUSION MODEL', 6, 6, 2, 10, '/data-library-group/list', null, null, 'glyph-desktop', 'Y', 'Y', 'Y'),
 	(71, '0', '1', '데이터 라이브러리 그룹 등록', 'EXTRUSION MODEL', 6, 6, 2, 11, '/data-library-group/input', '/data-library-group/list', null, 'glyph-desktop', 'N', 'Y', 'N'),
 	(72, '0', '1', '데이터 라이브러리 그룹 수정', 'EXTRUSION MODEL', 6, 6, 2, 12, '/data-library-group/modify', '/data-library-group/list', null, 'glyph-desktop', 'N', 'Y', 'N'),
-	(73, '0', '1', '데이터 라이브러리 목록', 'EXTRUSION MODEL', 6, 6, 2, 13, '/data-library/list', null, null, 'glyph-desktop', 'Y', 'Y', 'Y'),
-	(74, '0', '1', '데이터 라이브러리 등록', 'EXTRUSION MODEL', 6, 6, 2, 14, '/data-library/input', '/data-library/list', null, 'glyph-desktop', 'N', 'Y', 'N'),
-	(75, '0', '1', '데이터 라이브러리 수정', 'EXTRUSION MODEL', 6, 6, 2, 15, '/data-library/modify', '/data-library/list', null, 'glyph-desktop', 'N', 'Y', 'N'),
+	(73, '0', '1', '데이터 라이브러리 업로드', 'DATA', 6, 6, 2, 13, '/data-library/upload', null, null, 'glyph-monitor', 'Y', 'Y', 'Y'),
+	(74, '0', '1', '데이터 라이브러리 업로드 목록', 'DATA', 6, 6, 2, 14, '/data-library/upload-list', null, null, 'glyph-monitor', 'Y', 'Y', 'Y'),
+	(75, '0', '1', '데이터 라이브러리 업로드 수정', 'DATA', 6, 6, 2, 15, '/data-library/upload-modify', '/data-library/upload-list', null, 'glyph-monitor', 'N', 'Y', 'N'),
+	(76, '0', '1', '데이터 라이브러리 변환 결과', 'DATA', 6, 6, 2, 16, '/data-library/converter-list', null, null, 'glyph-monitor', 'Y', 'Y', 'Y'),
+	(77, '0', '1', '데이터 라이브러리 목록', 'EXTRUSION MODEL', 6, 6, 2, 17, '/data-library/list', null, null, 'glyph-desktop', 'Y', 'Y', 'Y'),
+	(78, '0', '1', '데이터 라이브러리 수정', 'EXTRUSION MODEL', 6, 6, 2, 18, '/data-library/modify', '/data-library/list', null, 'glyph-desktop', 'N', 'Y', 'N'),
 	(8, '0', '1', '환경설정', 'CONFIGURATION', 8, 0, 1, 8, '/policy/modify', null, null, 'glyph-settings', 'Y', 'Y', 'Y'),
 	(81, '0', '1', '일반 운영정책', 'CONFIGURATION', 8, 8, 2, 1, '/policy/modify', null, null, 'glyph-settings', 'Y', 'Y', 'Y'),
 	(82, '0', '1', '공간정보 운영정책', 'CONFIGURATION', 8, 8, 2, 2, '/geopolicy/modify', null, null, 'glyph-settings', 'Y', 'Y', 'Y'),
@@ -138,6 +141,9 @@ values
 	(73, 1, 73, 'Y'),
 	(74, 1, 74, 'Y'),
 	(75, 1, 75, 'Y'),
+	(76, 1, 76, 'Y'),
+	(77, 1, 77, 'Y'),
+	(78, 1, 78, 'Y'),
 	(8, 1, 8, 'Y'),
 	(81, 1, 81, 'Y'),
 	(82, 1, 82, 'Y'),
@@ -211,7 +217,15 @@ INSERT INTO data_group (
 	data_group_id, data_group_key, data_group_name, data_group_path, data_group_target, sharing, user_id,
 	ancestor, parent, depth, view_order, children, basic, available, tiling, data_count, metainfo)
 values
-	(1, 'basic', '기본', 'infra/basic/', 'admin', 'public', 'admin', 1, 0, 1, 1, 0, true, true, false, 0,  TO_JSON('{"isPhysical": false}'::json))
+	(1, 'basic', '기본', 'infra/data/basic/', 'admin', 'common', 'admin', 1, 0, 1, 1, 0, true, true, false, 0,  TO_JSON('{"isPhysical": false}'::json))
+
+	;
+
+INSERT INTO data_library_group (
+	data_library_group_id, data_library_group_key, data_library_group_name, data_library_group_path, data_library_group_target, sharing, user_id,
+	ancestor, parent, depth, view_order, children, basic, available, data_library_count)
+values
+	(1, 'basic', '기본', 'infra/data-library/basic/', 'admin', 'common', 'admin', 1, 0, 1, 1, 0, true, true, 0)
 
 	;
 
