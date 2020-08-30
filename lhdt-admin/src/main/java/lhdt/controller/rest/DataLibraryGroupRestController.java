@@ -1,8 +1,7 @@
 package lhdt.controller.rest;
 
 import lhdt.domain.Key;
-import lhdt.domain.data.DataLibraryGroup;
-import lhdt.domain.user.UserGroup;
+import lhdt.domain.extrusionmodel.DataLibraryGroup;
 import lhdt.domain.user.UserSession;
 import lhdt.service.DataLibraryGroupService;
 import lombok.extern.slf4j.Slf4j;

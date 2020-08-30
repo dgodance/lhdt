@@ -4,7 +4,7 @@ import java.io.File;
 
 import lhdt.LhdtAdminApplication;
 import lhdt.config.PropertiesConfig;
-import lhdt.domain.uploaddata.UploadDirectoryType;
+import lhdt.domain.UploadDirectoryType;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 

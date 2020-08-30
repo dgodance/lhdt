@@ -77,6 +77,9 @@ public class PropertiesConfig {
     private String dataAttributeDir;
     private String dataAttributeUploadDir;
     private String dataObjectAttributeUploadDir;
+
+    // 데이터 라이브러리 업로드 디렉토리
+    private String dataLibraryUploadDir;
     
     private String guideDataServiceDir;
     

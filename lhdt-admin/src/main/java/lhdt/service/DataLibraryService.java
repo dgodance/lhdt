@@ -1,7 +1,11 @@
 package lhdt.service;
 
-import lhdt.domain.data.DataLibrary;
-import lhdt.domain.data.DataLibraryGroup;
+import lhdt.domain.extrusionmodel.DataLibrary;
+import lhdt.domain.extrusionmodel.DataLibraryGroup;
+import lhdt.domain.extrusionmodel.DataLibraryUpload;
+import lhdt.domain.extrusionmodel.DataLibraryUploadFile;
+import lhdt.domain.uploaddata.UploadData;
+import lhdt.domain.uploaddata.UploadDataFile;
 
 import java.util.List;
 
@@ -53,6 +57,14 @@ public interface DataLibraryService {
 	 * @return
 	 */
 	List<DataLibrary> getDataLibraryByConverterJob(DataLibrary dataLibrary);
+
+	/**
+	 * 데이터 라이브러리 업로딩 정보 입력
+	 * @param dataLibraryUpload
+	 * @param dataLibraryUploadFileList
+	 * @return
+	 */
+	int insertDataLibraryUpload(DataLibraryUpload dataLibraryUpload, List<DataLibraryUploadFile> dataLibraryUploadFileList);
 
 	/**
 	 * 데이터 라이브러리 등록

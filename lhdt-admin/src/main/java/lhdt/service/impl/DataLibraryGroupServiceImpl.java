@@ -2,7 +2,7 @@ package lhdt.service.impl;
 
 import lhdt.config.PropertiesConfig;
 import lhdt.domain.Move;
-import lhdt.domain.data.DataLibraryGroup;
+import lhdt.domain.extrusionmodel.DataLibraryGroup;
 import lhdt.persistence.DataLibraryGroupMapper;
 import lhdt.service.DataLibraryGroupService;
 import lhdt.service.DataLibraryService;
@@ -42,6 +42,15 @@ public class DataLibraryGroupServiceImpl implements DataLibraryGroupService {
 	@Transactional(readOnly = true)
 	public DataLibraryGroup getDataLibraryGroup(DataLibraryGroup dataLibraryGroup) {
 		return dataLibraryGroupMapper.getDataLibraryGroup(dataLibraryGroup);
+	}
+
+	/**
+	 * 기본 데이터 라이브러리 그룹 정보 조회
+	 * @return
+	 */
+	@Transactional(readOnly = true)
+	public DataLibraryGroup getBasicDataLibraryGroup() {
+		return dataLibraryGroupMapper.getBasicDataLibraryGroup();
 	}
 	
 	/**
@@ -105,6 +114,16 @@ public class DataLibraryGroupServiceImpl implements DataLibraryGroupService {
 
     	return result;
     }
+
+	/**
+	 * 기본 데이터 라이브러리 등록
+	 * @param dataLibraryGroup
+	 * @return
+	 */
+	@Transactional
+	public int insertBasicDataLibraryGroup(DataLibraryGroup dataLibraryGroup) {
+		return dataLibraryGroupMapper.insertBasicDataLibraryGroup(dataLibraryGroup);
+	}
     
     /**
 	 * 데이터 라이브러리 그룹 수정
