@@ -1,6 +1,5 @@
 package lhdt.domain.extrusionmodel;
 
-import lhdt.domain.ShapeFileField;
 import lhdt.domain.common.Search;
 import lombok.*;
 import org.hibernate.validator.constraints.Range;
@@ -101,6 +100,8 @@ public class DesignLayer extends Search implements Serializable {
     // 설명
     private String description;
 
+    // shape info
+    private Long shapeId;
     private String theGeom;
     private String attributes;
     
@@ -130,7 +131,8 @@ public class DesignLayer extends Search implements Serializable {
     }
 
 	public enum RequiredColumn {
-        THE_GEOM("the_geom");
+        SHAPE_ID("shape_id"),
+	    THE_GEOM("the_geom");
 
         private String value;
 
