@@ -92,10 +92,10 @@ public interface DesignLayerService {
     /**
     * design layer 가 등록 되어 있지 않은 경우 rest api 를 이용해서 design layer를 등록
      * @param geoPolicy
-     * @param designLayerKey
+     * @param designLayer
      * @throws Exception
      */
-    void registerDesignLayer(GeoPolicy geoPolicy, String designLayerKey) throws Exception;
+    void registerDesignLayer(GeoPolicy geoPolicy, DesignLayer designLayer) throws Exception;
     
     /**
 	 * design 레이어의 스타일 정보를 수정

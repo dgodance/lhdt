@@ -233,7 +233,7 @@ public class DesignLayerRestController implements AuthorizationController {
 				// 5. shape 파일 테이블의 현재 데이터의 활성화 하고 날짜를 업데이트
 				//designLayerFileInfoService.updateOgr2OgrDataFileVersion(orgMap);
 				// 6. geoserver에 신규 등록일 경우 등록, 아닐경우 레이어 정보 갱신
-				designLayerService.registerDesignLayer(geoPolicy, designLayer.getDesignLayerKey());
+				designLayerService.registerDesignLayer(geoPolicy, designLayer);
 				designLayerService.updateDesignLayerStyle(designLayer);
 			}
 

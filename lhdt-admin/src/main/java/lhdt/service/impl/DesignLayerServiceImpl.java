@@ -449,7 +449,8 @@ public class DesignLayerServiceImpl implements DesignLayerService {
     * @throws Exception
     */
     @Transactional
-    public void registerDesignLayer(GeoPolicy geoPolicy, String designLayerKey) throws Exception {
+    public void registerDesignLayer(GeoPolicy geoPolicy, DesignLayer designLayer) throws Exception {
+        String designLayerKey = designLayer.getDesignLayerKey();
         HttpStatus httpStatus = getDesignLayerStatus(geoPolicy, designLayerKey);
         if(HttpStatus.INTERNAL_SERVER_ERROR == httpStatus) {
             throw new Exception();
@@ -466,7 +467,12 @@ public class DesignLayerServiceImpl implements DesignLayerService {
             headers.add("Authorization", "Basic " + Base64.getEncoder().encodeToString( (geoPolicy.getGeoserverUser() + ":" + geoPolicy.getGeoserverPassword()).getBytes()));
 
             // body
-            String tableName = propertiesConfig.getDesignLayerLandTable();
+            String tableName = null;
+            if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
+                tableName = propertiesConfig.getDesignLayerLandTable();
+            } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toLowerCase())) {
+                tableName = propertiesConfig.getDesignLayerBuildingTable();
+            }
             String xmlString = "<?xml version=\"1.0\" encoding=\"utf-8\"?><featureType><name>" + designLayerKey + "</name><nativeName>"+tableName+"</nativeName></featureType>";
 
             List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
