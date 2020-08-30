@@ -3,8 +3,8 @@ package lhdt.sender;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lhdt.LhdtConverterApplication;
 import lhdt.config.PropertiesConfig;
-import lhdt.domain.ConverterJob;
-import lhdt.domain.ServerTarget;
+import lhdt.domain.*;
+import lhdt.support.LogMessageSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,26 +44,31 @@ class ResultSenderTest {
     }
 
     @Test
-    void sendLog() throws IOException, URISyntaxException {
-        String logPath = "src/test/resources/log.txt";
-        ServerTarget target = ServerTarget.ADMIN;
-        // 생성자 대신 정적 팩터리 매서드를 고려하라. (EffectiveJava 8page)
-        // static 메서드와 인스턴스 메서드. (Java의 정석 1, 188~191page)
-        ResultSender.sendLog(converterJob, objectMapper, propertiesConfig, restTemplate, target, logPath);
-    }
+    void sendLog() {
 
-    @Test
-    void sendLocation() throws IOException, URISyntaxException {
-        String locationPath = "src/test/resources/lonsLats.json";
+        String outFolder = "src/test/resources/";
+        String logPath = outFolder + "logTest_32.txt";
         ServerTarget target = ServerTarget.ADMIN;
-        ResultSender.sendLocation(converterJob, objectMapper, propertiesConfig, restTemplate, target, locationPath);
-    }
 
-    @Test
-    void sendAttribute() throws IOException, URISyntaxException {
-        String attributePath = "src/test/resources/attributes.json";
-        ServerTarget target = ServerTarget.USER;
-        ResultSender.sendAttribute(converterJob, propertiesConfig, restTemplate, target, attributePath);
+        QueueMessage queueMessage = new QueueMessage();
+        queueMessage.setOutputFolder(outFolder);
+        queueMessage.setLogPath(logPath);
+        queueMessage.setServerTarget(target);
+        queueMessage.setUploadDataType(UploadDataType.CITYGML);
+
+//        생성자 대신 정적 팩터리 매서드를 고려하라. (EffectiveJava 8page)
+//        static 메서드와 인스턴스 메서드. (Java의 정석 1, 188~191page)
+        try {
+            // 로그파일 전송
+            ResultSender.sendLog(converterJob, objectMapper, propertiesConfig, restTemplate, queueMessage);
+        } catch (IOException | URISyntaxException e) {
+            // 로그파일 전송 오류 시 변환 실패 전송
+            converterJob.setStatus(ConverterJobStatus.FAIL.name().toLowerCase());
+            converterJob.setErrorCode(e.getMessage());
+            ResultSender.sendConverterJobStatus(converterJob, propertiesConfig, restTemplate, target);
+            LogMessageSupport.printMessage(e);
+        }
+
     }
 
     @Test
@@ -71,4 +76,5 @@ class ResultSenderTest {
         ServerTarget target = ServerTarget.ADMIN;
         ResultSender.sendConverterJobStatus(converterJob, propertiesConfig, restTemplate, target);
     }
+
 }

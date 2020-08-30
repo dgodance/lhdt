@@ -39,6 +39,7 @@ public class CustomMessageListener {
     @Async
     @RabbitListener(queues = {"${lhdt.queue-name}"})
     public void receiveMessage(final QueueMessage queueMessage) {
+
         log.info("--------------- queueMessage = {}", queueMessage);
 		Long converterJobId = queueMessage.getConverterJobId();
 		log.info(" @@@@@@ handleMessage start. converterJobId = {}", converterJobId);
@@ -48,8 +49,6 @@ public class CustomMessageListener {
 
 		String logPath = queueMessage.getLogPath();
 		String outputPath = queueMessage.getOutputFolder();
-		String locationFilePath = outputPath + "/lonsLats.json";
-		String attributeFilePath = outputPath + "/attributes.json";
 
 		ConverterJob converterJob = new ConverterJob();
 		//converterJob.setConverterJobFileId(converterJobFileId);
@@ -85,26 +84,25 @@ public class CustomMessageListener {
 			String result;
 			try {
 				int exitCode = ProcessBuilderSupport.execute(command);
-
 				if(exitCode == 0) result = ConverterJobStatus.SUCCESS.name().toLowerCase();
 				else result = ConverterJobStatus.FAIL.name().toLowerCase();
 			} catch(InterruptedException e1) {
 				result = ConverterJobStatus.FAIL.name().toLowerCase();
-				log.info(" InterruptedException exception = {}", e1.getMessage());
+				LogMessageSupport.printMessage(e1);
 			} catch(IOException e1) {
 				result = ConverterJobStatus.FAIL.name().toLowerCase();
-				log.info(" IOException exception = {}", e1.getMessage());
+				LogMessageSupport.printMessage(e1);
 			} catch (Exception e1) {
 				result = ConverterJobStatus.FAIL.name().toLowerCase();
-				log.info(" Exception exception = {}", e1.getMessage());
+				LogMessageSupport.printMessage(e1);
 			}
 			return result;
         })
 		.exceptionally(e -> {
-        	log.info("exceptionally exception = {}", e.getMessage());
 			converterJob.setStatus(ConverterJobStatus.FAIL.name().toLowerCase());
 			converterJob.setErrorCode(e.getMessage());
 			ResultSender.sendConverterJobStatus(converterJob, propertiesConfig, restTemplate, target);
+			log.info("exceptionally exception = {}", e.getMessage());
         	return null;
 
         })
@@ -116,28 +114,15 @@ public class CustomMessageListener {
 
 			try {
 				// 로그파일 전송
-				ResultSender.sendLog(converterJob, objectMapper, propertiesConfig, restTemplate, target, logPath);
+				ResultSender.sendLog(converterJob, objectMapper, propertiesConfig, restTemplate, queueMessage);
 			} catch (IOException | URISyntaxException e) {
 				// 로그파일 전송 오류 시 변환 실패 전송
-//				converterJob.setStatus(ConverterJobStatus.FAIL.name().toLowerCase());
-//				converterJob.setErrorCode(e.getMessage());
-//				ResultSender.sendConverterJobStatus(converterJob, propertiesConfig, restTemplate, target);
+				converterJob.setStatus(ConverterJobStatus.FAIL.name().toLowerCase());
+				converterJob.setErrorCode(e.getMessage());
+				ResultSender.sendConverterJobStatus(converterJob, propertiesConfig, restTemplate, target);
 				LogMessageSupport.printMessage(e);
 			}
 
-			try {
-				// 위치, 속성파일 전송
-				UploadDataType uploadDataType = queueMessage.getUploadDataType();
-				if (UploadDataType.CITYGML == uploadDataType || UploadDataType.INDOORGML == uploadDataType) {
-					ResultSender.sendLocation(converterJob, objectMapper, propertiesConfig, restTemplate, target, locationFilePath);
-					ResultSender.sendAttribute(converterJob, propertiesConfig, restTemplate, target, attributeFilePath);
-				}
-			} catch (IOException | URISyntaxException e) {
-				LogMessageSupport.printMessage(e);
-			}
-
-			// 변환결과 전송
-//			ResultSender.sendConverterJobStatus(converterJob, propertiesConfig, restTemplate, target);
 			log.info("thenAccept end");
 		});
 		log.info("receiveMessage end");

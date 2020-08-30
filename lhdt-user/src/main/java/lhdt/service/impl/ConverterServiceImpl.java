@@ -7,7 +7,7 @@ import lhdt.domain.LocationUdateType;
 import lhdt.domain.MethodType;
 import lhdt.domain.ServerTarget;
 import lhdt.domain.agent.ConversionJobResult;
-import lhdt.domain.agent.ConverterAttribute;
+import lhdt.domain.agent.ConverterJobResultStatus;
 import lhdt.domain.agent.ConverterLocation;
 import lhdt.domain.agent.ConverterResultLog;
 import lhdt.domain.common.QueueMessage;
@@ -41,6 +41,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * converter manager
@@ -123,9 +125,6 @@ public class ConverterServiceImpl implements ConverterService {
 		// 2. converter job 을 등록
 		// 3. convert job file 하나씩 등록. 변환 상태를 ready(준비)로 등록.
 		// 4. queue 를 실행
-		// 5. 데이터를 등록 혹은 갱신. 상태를 use(사용중)로 등록.
-		// 6. 데이터 그룹 신규 생성의 경우 데이터 건수 update -
-		//    location_update_type 이 auto 일 경우 dataInfo 위치 정보로 dataGroup 위치 정보 수정
 		// 7. 업로드 데이터의 ConverterCount를 1로 갱신
 
 		String dataGroupRootPath = propertiesConfig.getDataServiceDir();
@@ -196,11 +195,10 @@ public class ConverterServiceImpl implements ConverterService {
 
 	}
 
-
-	// TODO 레거시 코드 updateConverterJobStatus로 변경..
 	@Transactional
-	public int updateConverterJob(ConverterJob converterJob) {
-
+	public void updateConverterJob(ConverterJob converterJob) {
+		converterMapper.updateConverterJob(converterJob);
+/*
 		DataInfo dataInfo = new DataInfo();
 		// dataInfo.setUserId(converterJob.getUserId());
 		dataInfo.setConverterJobId(converterJob.getConverterJobId());
@@ -256,58 +254,32 @@ public class ConverterServiceImpl implements ConverterService {
 			}
 		}
 
-		return converterMapper.updateConverterJob(converterJob);
+		converterMapper.updateConverterJob(converterJob);
+
+ */
 	}
 
 
 	/**
 	 * 로그파일을 통한 데이터 변환 작업 상태를 갱신
 	 * @param converterResultLog converterResultLog
-	 * @return 갱신된 데이터 변환 갯수
 	 */
 	@Transactional
-	public int updateConverterJobStatus(ConverterResultLog converterResultLog) {
-
-		// 1. 로그파일 정보를 통해 ConvertJob 갱신
-		// 2. 로그파일 정보를 통해 ConvertJobFile 갱신
-		// 실제 파일명으로 ConvertJobFile 찾기
-
-		// 상태가 성공인 경우
-		// 1) 데이터를 등록 혹은 갱신. 상태를 use(사용중)로 등록.
-		// 2) 데이터 그룹 신규 생성의 경우 데이터 건수 update -
-		//    location_update_type 이 auto 일 경우 dataInfo 위치 정보로 dataGroup 위치 정보 수정
-
-		// 상태가 실패인 경우
-		// 1) 데이터 삭제
-		// 2) 데이터 그룹 데이터 건수 -1
-		// 3) 데이터 그룹 최신 이동 location 은? 이건 그냥 다음에 하는걸로~
-
-		// ConvertJobFile status, errorCode 갱신
-
+	public void updateConverterJobStatus(ConverterResultLog converterResultLog) {
 
 		ConverterJob converterJob = converterResultLog.getConverterJob();
-		log.info(" >>>>>> converterJobId = {}", converterJob.getConverterJobId());
 
 		// 1. 로그파일 정보를 통해 ConvertJob 갱신
-		if (converterResultLog.getIsSuccess()) {
-			if (converterResultLog.getNumberOfFilesConverted() != converterResultLog.getNumberOfFilesToBeConverted()) {
-				converterJob.setStatus(ConverterJobStatus.PARTIAL_SUCCESS.getValue());
-			} else {
-				converterJob.setStatus(ConverterJobStatus.SUCCESS.getValue());
-			}
-		} else {
-			converterJob.setStatus(ConverterJobStatus.FAIL.getValue());
-			converterJob.setErrorCode(converterResultLog.getFailureLog());
-		}
-		int resultCnt = converterMapper.updateConverterJob(converterJob);
-		if (resultCnt <= 0) {
-			return resultCnt;
-		}
+		updateConverterJob(converterJob, converterResultLog);
 
 		// 2. 로그파일 정보를 통해 ConvertJobFile 갱신
-		resultCnt = 0;
 		List<ConverterJobFile> converterJobFiles = converterMapper.getListConverterJobFileByConverterJob(converterJob);
+
+		// List to Map
 		List<ConversionJobResult> conversionJobResultList = converterResultLog.getConversionJobResult();
+		Map<String, ConversionJobResult> converterJobResultMap = conversionJobResultList
+				.stream()
+				.collect(Collectors.toMap(ConversionJobResult::getFileName, result -> result));
 
 		String userId = converterJob.getUserId();
 		Long converterJobId = converterJob.getConverterJobId();
@@ -320,117 +292,49 @@ public class ConverterServiceImpl implements ConverterService {
 			uploadDataFile.setUploadDataFileId(converterJobFile.getUploadDataFileId());
 			uploadDataFile = uploadDataService.getUploadDataFile(uploadDataFile);
 
-			for (ConversionJobResult conversionJobResult : conversionJobResultList) {
+			String key = uploadDataFile.getFileRealName();
+			ConversionJobResult conversionJobResult = converterJobResultMap.get(key);
 
-				// 실제 파일명으로 ConvertJobFile 찾기
-				// TODO dataKey가 로그에 생성되면 변경 필요
-				if (uploadDataFile.getFileRealName().equals(conversionJobResult.getFileName())) {
+			if (ConverterJobResultStatus.SUCCESS.equals(conversionJobResult.getResultStatus())) {
+				// 상태가 성공인 경우
 
-					if ("success".equalsIgnoreCase(conversionJobResult.getResultStatus())) {
+				// 데이터를 등록 혹은 갱신. 상태를 use(사용중)로 등록.
+				DataInfo dataInfo = upsertData(userId, converterJobId, converterTargetCount, uploadDataFile);
 
-						// 상태가 성공인 경우
-						// 1) 데이터를 등록 혹은 갱신. 상태를 use(사용중)로 등록.
-						// 2) 데이터 그룹 신규 생성의 경우 데이터 건수 update -
-						//    location_update_type 이 auto 일 경우 dataInfo 위치 정보로 dataGroup 위치 정보 수정
-						DataInfo dataInfo = upsertData(userId, converterJobId, converterTargetCount, uploadDataFile);
-						updateDataGroup(userId, dataInfo, uploadDataFile);
+				// 데이터 그룹 신규 생성의 경우 데이터 건수 update
+				// location_update_type 이 auto 일 경우 dataInfo 위치 정보로 dataGroup 위치 정보 수정
+				updateDataGroup(userId, dataInfo, uploadDataFile);
 
-						converterJobFile.setStatus(ConverterJobStatus.SUCCESS.getValue());
+				if (conversionJobResult.getLocation() != null && conversionJobResult.getAttributes() != null) {
+					// 위치정보 갱신
+					ConverterLocation converterLocation = conversionJobResult.getLocation();
+					updateConverterLocation(converterLocation, dataInfo);
 
-					} else {
-
-						// 상태가 실패인 경우
-						// 1) 데이터 삭제
-						// 2) 데이터 그룹 데이터 건수 -1
-						// 3) 데이터 그룹 최신 이동 location 은? 이건 그냥 다음에 하는걸로~
-						DataInfo dataInfo = new DataInfo();
-						// dataInfo.setUserId(converterJob.getUserId());
-						dataInfo.setConverterJobId(converterJobId);
-						List<DataInfo> dataInfoList = dataService.getDataByConverterJob(dataInfo);
-						deleteFailData(dataInfoList);
-
-						converterJobFile.setStatus(ConverterJobStatus.FAIL.getValue());
-						converterJobFile.setErrorCode(conversionJobResult.getMessage());
-					}
-
-					// TODO 순서가 이게 맞나..?
-					// ConvertJobFile status, errorCode 갱신
-					resultCnt += converterMapper.updateConverterJobFile(converterJobFile);
-
+					// 속성정보 갱신
+					String attributes = conversionJobResult.getAttributes();
+					updateConverterAttribute(attributes, dataInfo);
 				}
 
+				converterJobFile.setStatus(ConverterJobStatus.SUCCESS.getValue());
+			} else {
+				// 상태가 실패인 경우
+				// 1) 데이터 삭제
+				// 2) 데이터 그룹 데이터 건수 -1
+				// 3) 데이터 그룹 최신 이동 location 은? 이건 그냥 다음에 하는걸로~
+				DataInfo dataInfo = new DataInfo();
+				// dataInfo.setUserId(converterJob.getUserId());
+				dataInfo.setConverterJobId(converterJobId);
+				List<DataInfo> dataInfoList = dataService.getDataByConverterJob(dataInfo);
+				deleteFailData(dataInfoList);
+
+				converterJobFile.setStatus(ConverterJobStatus.FAIL.getValue());
+				converterJobFile.setErrorCode(conversionJobResult.getMessage());
 			}
 
-		}
-		return resultCnt;
-	}
-
-	/**
-	 * 위치파일(LonsLats.json)을 통한 데이터 Longitude, Latitude 갱신
-	 * (CityGML, IndoorGML 파일에 한함)
-	 * @param converterLocation converterLocation
-	 * @return 갱신된 데이터 변환 갯수
-	 */
-	@Transactional
-	public int updateConverterLocation(ConverterLocation converterLocation) {
-
-		int resultCnt = 0;
-		ConverterJob converterJob = converterLocation.getConverterJob();
-
-		DataInfo dataInfo = new DataInfo();
-		// dataInfo.setUserId(converterJob.getUserId());
-		dataInfo.setConverterJobId(converterJob.getConverterJobId());
-
-		List<DataInfo> dataInfoList = dataService.getDataByConverterJob(dataInfo);
-		for (DataInfo updateDataInfo : dataInfoList) {
-			BigDecimal longitude = converterLocation.getLongitude();
-			BigDecimal latitude = converterLocation.getLatitude();
-			if (validationLonLat(longitude, latitude)) {
-				updateDataInfo.setLongitude(longitude);
-				updateDataInfo.setLatitude(latitude);
-				updateDataInfo.setLocation("POINT(" + longitude + " " + latitude + ")");
-			}
-			updateDataInfo.setAltitude(new BigDecimal(0));
-			// TODO 유효한 위치정보가 아닐 경우 DataInfo의 상태를 UNUSED로 갱신해야할지..?
-			resultCnt += dataService.updateDataStatus(updateDataInfo);
-		}
-
-		return resultCnt;
-	}
-
-	/**
-	 * 속성파일(attributes.json) 을 통한 데이터 Attribute 갱신
-	 * (CityGML, IndoorGML 파일에 한함)
-	 * @param converterAttribute converterAttribute
-	 * @return 갱신된 데이터 변환 갯수
-	 */
-	@Override
-	public int updateConverterAttribute(ConverterAttribute converterAttribute) {
-
-		int resultCnt = 0;
-		ConverterJob converterJob = converterAttribute.getConverterJob();
-
-		DataInfo dataInfo = new DataInfo();
-		// dataInfo.setUserId(converterJob.getUserId());
-		dataInfo.setConverterJobId(converterJob.getConverterJobId());
-		List<DataInfo> dataInfoList = dataService.getDataByConverterJob(dataInfo);
-		for (DataInfo updateDataInfo : dataInfoList) {
-
-			String attributes = converterAttribute.getAttributes();
-			if (attributes != null && !attributes.isEmpty()) {
-
-				// 데이터 속성 등록. 있으면 update, 없으면 insert
-				Long dataId = updateDataInfo.getDataId();
-				DataAttribute dataAttribute = dataAttributeService.getDataAttribute(dataId);
-				upsertDataAttribute(dataAttribute, dataId, attributes);
-
-				updateDataInfo.setAttributeExist(Boolean.TRUE);
-				resultCnt += dataService.updateDataStatus(updateDataInfo);
-			}
+			// ConvertJobFile status, errorCode 갱신
+			converterMapper.updateConverterJobFile(converterJobFile);
 
 		}
-
-		return resultCnt;
 	}
 
 	/**
@@ -482,7 +386,7 @@ public class ConverterServiceImpl implements ConverterService {
 
 		// 템플릿 별 meshType과 skinLevel 설정
 		ConverterTemplate template = ConverterTemplate.findBy(inConverterJob.getConverterTemplate());
-		assert template != null;
+		//assert template != null;
 		queueMessage.setMeshType(template.getMeshType());
 		queueMessage.setSkinLevel(template.getSkinLevel());
 
@@ -499,6 +403,63 @@ public class ConverterServiceImpl implements ConverterService {
 			converterJob.setErrorCode(e.getMessage());
 			converterMapper.updateConverterJob(converterJob);
 			LogMessageSupport.printMessage(e, "@@@@@@@@@@@@ AmqpException. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+		}
+	}
+
+
+	/**
+	 * 로그파일을 통한 데이터 변환 작업 상태를 갱신
+	 * @param converterJob	converterJob
+	 * @param converterResultLog	converterResultLog
+	 */
+	private void updateConverterJob(ConverterJob converterJob, ConverterResultLog converterResultLog) {
+		if (converterResultLog.getIsSuccess()) {
+			if (converterResultLog.getNumberOfFilesConverted() != converterResultLog.getNumberOfFilesToBeConverted()) {
+				converterJob.setStatus(ConverterJobStatus.PARTIAL_SUCCESS.getValue());
+			} else {
+				converterJob.setStatus(ConverterJobStatus.SUCCESS.getValue());
+			}
+		} else {
+			converterJob.setStatus(ConverterJobStatus.FAIL.getValue());
+			converterJob.setErrorCode(converterResultLog.getFailureLog());
+		}
+		converterMapper.updateConverterJob(converterJob);
+	}
+
+	/**
+	 * 위치파일(LonsLats.json)을 통한 데이터 Longitude, Latitude 갱신
+	 * (CityGML, IndoorGML 파일에 한함)
+	 * @param converterLocation	converterLocation
+	 * @param updateDataInfo	updateDataInfo
+	 */
+	private void updateConverterLocation(ConverterLocation converterLocation, DataInfo updateDataInfo) {
+		BigDecimal longitude = converterLocation.getLongitude();
+		BigDecimal latitude = converterLocation.getLatitude();
+		if (validationLonLat(longitude, latitude)) {
+			updateDataInfo.setLongitude(longitude);
+			updateDataInfo.setLatitude(latitude);
+			updateDataInfo.setLocation("POINT(" + longitude + " " + latitude + ")");
+		}
+		updateDataInfo.setAltitude(new BigDecimal(0));
+		// TODO 유효한 위치정보가 아닐 경우 DataInfo의 상태를 UNUSED로 갱신해야할지..?
+		dataService.updateDataStatus(updateDataInfo);
+	}
+
+	/**
+	 * 속성파일(attributes.json) 을 통한 데이터 Attribute 갱신
+	 * (CityGML, IndoorGML 파일에 한함)
+	 * @param attributes	attributes
+	 * @param updateDataInfo	updateDataInfo
+	 */
+	private void updateConverterAttribute(String attributes, DataInfo updateDataInfo) {
+		if (attributes != null && !attributes.isEmpty()) {
+			// 데이터 속성 등록. 있으면 update, 없으면 insert
+			Long dataId = updateDataInfo.getDataId();
+			DataAttribute dataAttribute = dataAttributeService.getDataAttribute(dataId);
+			upsertDataAttribute(dataAttribute, dataId, attributes);
+
+			updateDataInfo.setAttributeExist(Boolean.TRUE);
+			dataService.updateDataStatus(updateDataInfo);
 		}
 	}
 
@@ -683,7 +644,7 @@ public class ConverterServiceImpl implements ConverterService {
 				//read JSON like DOM Parser
 				JsonNode jsonNode = objectMapper.readTree(encodingData);
 				
-				String dataKey = jsonNode.path("data_key").asText();
+				//String dataKey = jsonNode.path("data_key").asText();
 				String longitude = jsonNode.path("longitude").asText().trim();
 				String latitude = jsonNode.path("latitude").asText().trim();
 				if(!StringUtils.isEmpty(longitude)) {
