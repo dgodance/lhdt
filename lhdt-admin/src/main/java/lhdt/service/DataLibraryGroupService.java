@@ -1,18 +1,17 @@
-package lhdt.persistence;
+package lhdt.service;
 
 import lhdt.domain.data.DataLibraryGroup;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
-public interface DataLibraryGroupMapper {
+public interface DataLibraryGroupService {
 	
 	/**
      * 데이터 라이브러리 그룹 목록
+     * @param dataLibraryGroup
      * @return
      */
-    List<DataLibraryGroup> getListDataLibraryGroup();
+    List<DataLibraryGroup> getListDataLibraryGroup(DataLibraryGroup dataLibraryGroup);
 
     /**
      * 데이터 라이브러리 그룹 정보
@@ -20,9 +19,9 @@ public interface DataLibraryGroupMapper {
      * @return
      */
     DataLibraryGroup getDataLibraryGroup(DataLibraryGroup dataLibraryGroup);
-
+    
     /**
-     * 부모와 순서를 가지고 데이터 라이브러리 그룹 정보를 취득
+     * 부모와 표시 순서로 데이터 라이브러리 그룹 조회
      * @param dataLibraryGroup
      * @return
      */
@@ -34,13 +33,6 @@ public interface DataLibraryGroupMapper {
      * @return
      */
     Boolean isDataLibraryGroupKeyDuplication(DataLibraryGroup dataLibraryGroup);
-    
-    /**
-     * 나를 부모로 가지는 자식 데이터 그룹 목록을 취득
-     * @param dataLibraryGroup
-     * @return
-     */
-    List<DataLibraryGroup> getChildrenDataLibraryGroupListByParent(DataLibraryGroup dataLibraryGroup);
     
     /**
      * 데이터 라이브러리 그룹 등록
@@ -64,24 +56,19 @@ public interface DataLibraryGroupMapper {
 	int updateDataLibraryGroupViewOrder(DataLibraryGroup dataLibraryGroup);
 
 	/**
-	 * 자식의 수를 + 또는 - 연산
-	 */
-	int updateDataLibraryGroupChildren(DataLibraryGroup dataLibraryGroup);
-
-	/**
 	 * 데이터 라이브러리 그룹 삭제
 	 * @param dataLibraryGroup
 	 * @return
 	 */
 	int deleteDataLibraryGroup(DataLibraryGroup dataLibraryGroup);
-
+	
 	/**
 	 * ancestor를 이용하여 데이터 라이브러리 그룹 삭제
 	 * @param dataLibraryGroup
 	 * @return
 	 */
 	int deleteDataLibraryGroupByAncestor(DataLibraryGroup dataLibraryGroup);
-
+	
 	/**
 	 * parent를 이용하여 데이터 라이브러리 그룹 삭제
 	 * @param dataLibraryGroup
@@ -90,7 +77,7 @@ public interface DataLibraryGroupMapper {
 	int deleteDataLibraryGroupByParent(DataLibraryGroup dataLibraryGroup);
 	
 	/**
-	 * 데이터 라이브러리 그룹 삭제
+	 * 사용자 아이디를 이용한 데이터 라이브러리 삭제
 	 * @param userId
 	 * @return
 	 */

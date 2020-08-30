@@ -194,3 +194,8 @@ JS_MESSAGE["design.layer.key.enable"] = "사용 가능한 디자인 레이어 Ke
 JS_MESSAGE["design.layer.key.duplication.check"] = "디자인 레이어 Key 중복 확인이 필요 합니다.";
 
 JS_MESSAGE["urban.group.key.empty"] = "도시 그룹 Key 를 입력하여 주십시오.";
+
+JS_MESSAGE["data.library.group.key.empty"] = "데이터 라이브러리 그룹 Key 를 입력하여 주십시오.";
+JS_MESSAGE["data.library.group.key.duplication"] = "사용중인 데이터 라이브러리 그룹 Key 입니다. 다른 이름을 사용해 주십시오.";
+JS_MESSAGE["data.library.group.key.enable"] = "사용 가능한 데이터 라이브러리 그룹 Key 입니다.";
+JS_MESSAGE["data.library.group.key.duplication.check"] = "데이터 라이브러리 그룹 Key 중복 확인이 필요 합니다.";
