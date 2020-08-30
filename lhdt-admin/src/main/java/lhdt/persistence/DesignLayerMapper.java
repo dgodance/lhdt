@@ -1,6 +1,8 @@
 package lhdt.persistence;
 
+import lhdt.domain.data.DataLibraryGroup;
 import lhdt.domain.extrusionmodel.DesignLayer;
+import lhdt.domain.extrusionmodel.DesignLayerGroup;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -65,6 +67,20 @@ public interface DesignLayerMapper {
     String getGeometryType(String designLayerKey);
 
     /**
+     * Design Layer 칼럼 목록을 조회
+     * @param designLayerKey
+     * @return
+     */
+    String getDesignLayerColumn(String designLayerKey);
+
+    /**
+     * Design Layer 존재 하는지 확인
+     * @param designLayerKey
+     * @return
+     */
+    String isDesignLayerExists(String designLayerKey);
+
+    /**
     * Design Layer 등록
     * @param designLayer
     * @return
@@ -105,18 +121,11 @@ public interface DesignLayerMapper {
      * @return
      */
     int deleteDesignLayerTable(String designLayerKey);
-    
+
     /**
-     * Design Layer 칼럼 목록을 조회
-     * @param designLayerKey
+     * 디자인 레이어 그룹 고유번호를 이용한 삭제
+     * @param designLayerGroup
      * @return
      */
-    String getDesignLayerColumn(String designLayerKey);
-    
-    /**
-     * Design Layer 존재 하는지 확인
-     * @param designLayerKey
-     * @return
-     */
-    String isDesignLayerExists(String designLayerKey);
+    int deleteDesignLayerByDesignLayerGroupId(DesignLayerGroup designLayerGroup);
 }
