@@ -4,6 +4,7 @@ $(()=> {
     render.init();
     lsDropDownList.init();
     lsDropDownList.initDropDownVal();
+    editEvt();
 });
 
 const landScapeTypeSelect = {
@@ -51,7 +52,11 @@ const lsDropDownList = {
     }
 }
 
-function checkform() {
+function editEvt() {
+    debugger;
+}
+
+function registForm() {
     var form = $('#lsAnalsForm')[0];
 
     // Create an FormData object
@@ -107,7 +112,7 @@ function checkform() {
 
     $.ajax({
         type: "POST",
-        url: "/adminsvc/landscape-anals-rest/edit",
+        url: "/adminsvc/ls-point-rest/edit",
         data: sendParam,
         success: function (data) {
             window.location.href = data;

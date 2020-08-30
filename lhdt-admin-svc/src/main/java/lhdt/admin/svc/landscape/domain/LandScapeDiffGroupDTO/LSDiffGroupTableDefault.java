@@ -16,6 +16,7 @@ public class LSDiffGroupTableDefault {
     private String lsDiffGrupName;
     private Date registDt;
     private Date updtDt;
+    private String contentAction;
     private String modifiedAction;
     private String deleteAction;
 }

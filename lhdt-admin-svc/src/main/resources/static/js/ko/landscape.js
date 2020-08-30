@@ -11,7 +11,7 @@ var KTDatatableRemoteAjaxDemo = function() {
                 type: 'remote',
                 source: {
                     read: {
-                        url: 'http://localhost:9091/adminsvc/ls-anals-rest',
+                        url: 'http://localhost:9091/adminsvc/ls-point-rest',
                         map: function(raw) {
                             // sample data mapping
                             var dataSet = raw;
@@ -49,7 +49,7 @@ var KTDatatableRemoteAjaxDemo = function() {
                 },
                 {
                     field: 'lsDiffGrupName',
-                    title: '그룹명',
+                    title: '조망점 명',
                     selector: false,
                     textAlign: 'center',
                 },
@@ -70,6 +70,25 @@ var KTDatatableRemoteAjaxDemo = function() {
                     format: 'YYYY/MM/DD',
                 },
                 {
+                    field: "contentAction",
+                    width: 80,
+                    title: "확인",
+                    sortable: false,
+                    autoHide: false,
+                    overflow: 'visible',
+                    textAlign: 'center',
+                    template: function (row) {
+                        debugger;
+                        return '' +
+                            "<form method='GET'"+
+                            "action='/adminsvc/ls-point/content/"+row.id+"'"+">"+
+                            "<span style='overflow: visible; position: relative; width: 80px;'>"+
+                            "<button class='btn btn-bold btn-sm btn-font-sm  btn-label-info'>확인</button>"+
+                            "</span>"+
+                            "</form>";
+                    },
+                },
+                {
                     field: "modifiedAction",
                     width: 80,
                     title: "수정",
@@ -80,13 +99,13 @@ var KTDatatableRemoteAjaxDemo = function() {
                     template: function (row) {
                         debugger;
                         return '' +
+                            "<form method='GET'"+
+                            "action='/adminsvc/ls-point/edit?id="+row.id+"'"+">"+
                             "<span style='overflow: visible; position: relative; width: 80px;'>"+
-                            "<button class=\"btn btn-bold btn-label-brand btn-sm\" " +
-                            "onclick=\"'lsDiffModiBtn("+row.id + "," + row.lsDiffGrupName+")'\""+
-                            "data-toggle=\"modal\" data-target=\"#ls-diff-modi-modal\">수정</button>"+
-                            "</span>"
+                            "<button class='btn btn-bold btn-sm btn-font-sm  btn-label-success'>수정</button>"+
+                            "</span>"+
+                            "</form>";
                     },
-
                 },
                 {
                     field: "deleteAction",
@@ -108,7 +127,6 @@ var KTDatatableRemoteAjaxDemo = function() {
                             "</form>";
                     },
                 }],
-
         });
 
         $('#kt_form_status').on('change', function() {

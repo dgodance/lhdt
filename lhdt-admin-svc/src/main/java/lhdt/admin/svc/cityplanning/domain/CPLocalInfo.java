@@ -35,8 +35,8 @@ public class CPLocalInfo extends DsDomain {
     private String localName;
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "cpLocalInfo", fetch= FetchType.LAZY, cascade = CascadeType.ALL,
-            orphanRemoval = true)
+    @OneToMany(mappedBy = "cpLocalInfo", fetch= FetchType.LAZY,
+            cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CPDistricInfo> cpDistricInfos = new ArrayList<>();
 
     public void addCityInfo(CPDistricInfo cpDistricInfo) {

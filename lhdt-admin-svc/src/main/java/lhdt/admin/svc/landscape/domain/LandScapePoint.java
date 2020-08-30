@@ -2,6 +2,7 @@ package lhdt.admin.svc.landscape.domain;
 
 import com.sun.istack.NotNull;
 import lhdt.admin.svc.landscape.type.LandScapeAnalsType;
+import lhdt.admin.svc.landscape.type.LSPointActionType;
 import lhdt.ds.common.domain.DsDomain;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,10 +18,10 @@ import javax.persistence.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class LandScapeAnals extends DsDomain {
+public class LandScapePoint extends DsDomain {
     @NotNull
-    @Column(name = "land_scape_anals_name")
-    private String landScapeAnalsName;
+    @Column(name = "land_scape_point_name")
+    private String landScapePointName;
 
     @NotNull
     @Column(name = "start_land_scape")
@@ -37,5 +38,7 @@ public class LandScapeAnals extends DsDomain {
 
     @NotNull
     @Enumerated(EnumType.ORDINAL)
-    LandScapeAnalsType landScapeAnalsType;
+    LandScapeAnalsType landScapePointType;
+
+    LSPointActionType LSPointActionType;
 }

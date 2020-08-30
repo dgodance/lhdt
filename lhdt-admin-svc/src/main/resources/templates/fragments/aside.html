@@ -7,7 +7,7 @@
 		<!-- begin:: Aside -->
 		<div class="kt-aside__brand kt-grid__item " id="kt_aside_brand">
 			<div class="kt-aside__brand-logo">
-				<a href="demo1/index.html">
+				<a th:href="@{/main/dashboard}">
 					<h3 class="kt-subheader__title">LHDT</h3>
 					<!-- <img alt="Logo" src="./assets/media/logos/logo-light.png" /> -->
 				</a>
@@ -43,7 +43,7 @@
 			<div id="kt_aside_menu" class="kt-aside-menu " data-ktmenu-vertical="1" data-ktmenu-scroll="1" data-ktmenu-dropdown-timeout="500">
 				<ul class="kt-menu__nav ">
 					<li class="kt-menu__item  kt-menu__item--active" aria-haspopup="true">
-						<a href="demo1/index.html" class="kt-menu__link ">
+						<a th:href="@{/main/dashboard}" class="kt-menu__link ">
 							<span class="kt-menu__link-icon">
 								<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" class="kt-svg-icon">
 									<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -131,7 +131,7 @@
 									</span>
 								</li>
 								<li class="kt-menu__item " aria-haspopup="true">
-									<a href="/adminsvc/ls-anals/edit" class="kt-menu__link ">
+									<a href="/adminsvc/ls-point/regist" class="kt-menu__link ">
 										<i class="kt-menu__link-bullet kt-menu__link-bullet--dot">
 											<span></span>
 										</i>
@@ -139,7 +139,7 @@
 									</a>
 								</li>
 								<li class="kt-menu__item " aria-haspopup="true">
-									<a href="/adminsvc/ls-anals" class="kt-menu__link ">
+									<a href="/adminsvc/ls-point" class="kt-menu__link ">
 										<i class="kt-menu__link-bullet kt-menu__link-bullet--dot">
 											<span></span>
 										</i>
@@ -197,7 +197,16 @@
 				</ul>
 			</div>
 		</div>
-
+		<script>
+			const asideBar = {
+				init: function() {
+					// li --> kt-menu__item--open
+					// li --> kt-menu__item--active
+					// window.location.href.split('/')
+					// location 기반 menu toglle 기능 구현 예정..
+				}
+			}
+		</script>
 		<!-- end:: Aside Menu -->
 	</div>
 <!-- end:: Aside -->
