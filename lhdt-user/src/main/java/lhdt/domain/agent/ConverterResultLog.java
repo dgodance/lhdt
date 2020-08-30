@@ -14,7 +14,8 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ConverterResultLog implements Serializable {
 
-    private static final long serialVersionUID = -5428363369463462634L;
+    // TODO 사용자, 관리자 동시에 들어올 경우 테스트 필요
+    private static final long serialVersionUID = 9122521223392537909L;
 
     private ConverterJob converterJob;
 

@@ -1,4 +1,4 @@
-package lhdt.domain.uploaddata;
+package lhdt.domain;
 
 /**
  * 디렉토리 구조

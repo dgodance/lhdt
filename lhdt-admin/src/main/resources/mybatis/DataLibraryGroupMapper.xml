@@ -49,6 +49,19 @@
 			</if>
 	</select>
 
+	<!-- 기본 데이터 라이브러리 그룹 정보 -->
+	<select id="getBasicDataLibraryGroup" parameterType="dataLibraryGroup" resultType="dataLibraryGroup">
+		/* getBasicDataLibraryGroup */
+		SELECT *
+		FROM data_library_group
+		WHERE data_library_group_target = 'admin'
+			AND data_library_group_key = 'basic'
+			AND basic = 'true'
+			AND depth = 1
+		ORDER BY view_order
+		LIMIT 1
+	</select>
+
 	<!-- 부모와 순서를 가지고 데이터 library 그룹 정보를 취득 -->
 	<select id="getDataLibraryGroupByParentAndViewOrder" parameterType="dataLibraryGroup" resultType="dataLibraryGroup">
 		/* getDataLibraryGroupByParentAndViewOrder */
@@ -152,6 +165,21 @@
 			</if>
 			COALESCE(#{dataLibraryCount}, 0),
 			trim(#{description})
+		)
+	</insert>
+
+	<!-- 기본 사용자 데이터 라이브러리 그룹 등록 -->
+	<insert id="insertBasicDataLibraryGroup" parameterType="dataLibraryGroup">
+		/* insertBasicDataLibraryGroup */
+		<selectKey keyProperty="dataLibraryGroupId" resultType="int" order="BEFORE">
+			SELECT NEXTVAL('data_library_group_seq')
+		</selectKey>
+		INSERT INTO data_library_group (
+			data_library_group_id, data_library_group_name, data_library_group_key, data_library_group_path, data_library_group_target,
+			sharing, user_id, ancestor, parent, depth, view_order, children, basic, available, data_library_count, description
+		) VALUES (
+			#{dataGroupId}, #{dataGroupName}, #{dataGroupKey}, #{dataGroupPath}, #{dataGroupTarget},
+			 #{sharing}, #{userId}, {dataLibraryGroupId}, 0, 1, 1, 0, true, true, 0, trim(#{description})
 		)
 	</insert>
 

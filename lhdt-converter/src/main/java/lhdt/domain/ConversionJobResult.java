@@ -34,14 +34,28 @@ public class ConversionJobResult implements Serializable {
     // 실패 시 메세지
     private String message;
     // 성공여부 (success, failure)
-    private String resultStatus;
+    private ConverterJobResultStatus resultStatus;
 
-    @JsonProperty(value="bGeoReferenced")
+    // 위치정보
+    private ConverterLocation location;
+
+    // 속성정보
+    private String attributes;
+
+    @JsonProperty(value = "bGeoReferenced")
     public boolean getBGeoReferenced() {
         return bGeoReferenced;
     }
     public void setBGeoReferenced(boolean bGeoReferenced) {
         this.bGeoReferenced = bGeoReferenced;
+    }
+
+    @JsonProperty(value = "resultStatus")
+    public ConverterJobResultStatus getResultStatus() {
+        return resultStatus;
+    }
+    public void setResultStatus(String resultStatus) {
+        this.resultStatus = ConverterJobResultStatus.findByStatus(resultStatus);
     }
 
 }

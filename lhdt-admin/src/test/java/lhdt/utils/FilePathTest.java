@@ -4,7 +4,7 @@ import java.io.File;
 
 import lhdt.LhdtAdminApplication;
 import lhdt.config.PropertiesConfig;
-import lhdt.domain.uploaddata.UploadDirectoryType;
+import lhdt.domain.UploadDirectoryType;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -46,7 +46,8 @@ class FilePathTest {
 	@Test
 	void mkdirDatePatternTest() {
 		String today = DateUtils.getToday(FormatUtils.YEAR_MONTH_DAY_TIME14);
-		String makedDirectory = FileUtils.makeDirectory("admin", UploadDirectoryType.YEAR_MONTH, propertiesConfig.getDataServiceLogDir());
+		String makedDirectory = FileUtils.makeDirectory("admin", UploadDirectoryType.YEAR_MONTH,
+				propertiesConfig.getDataConverterLogDir());
 		log.info(">>>>>>>>>> today = {}", today);
 		log.info(">>>>>>>>>> makedDirectory = {}", makedDirectory);
 	}
