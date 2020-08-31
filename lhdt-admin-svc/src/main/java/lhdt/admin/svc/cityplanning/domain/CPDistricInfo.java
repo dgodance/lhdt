@@ -40,12 +40,12 @@ public class CPDistricInfo extends DsDomain {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="local_id")
+    @JoinColumn(name="cpDistricInfos")
     @DsField(bizKey = true, order = 1)
     private CPLocalInfo cpLocalInfo;
 
-    @OneToMany(mappedBy = "cpDistricInfo", fetch= FetchType.LAZY, cascade = CascadeType.ALL,
-            orphanRemoval = true)
+    @OneToMany(mappedBy = "cpDistricInfo", fetch= FetchType.LAZY,
+            cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FileInfo> fileInfos = new ArrayList<>();
 
     public void addCityInfo(FileInfo fileInfo) {

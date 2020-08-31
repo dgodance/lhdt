@@ -74,6 +74,13 @@ Handlebars.registerHelper("subtract", function(value1, value2) {
     return value1 - value2;
 });
 
+// 더하기 helper
+Handlebars.registerHelper("plus", function(value1, value2) {
+    if(value1 === undefined)
+        return;
+    return value1 + value2;
+});
+
 // foreach start end 1씩 증가
 Handlebars.registerHelper('forEachStep', function(from, to, incr, block) {
     var accum = '';

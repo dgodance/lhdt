@@ -5,7 +5,7 @@ import lhdt.admin.svc.file.persistence.FileInfoRepository;
 import lhdt.admin.svc.file.persistence.FileInfoMapper;
 import lhdt.admin.svc.file.service.FileInfoService;
 import lhdt.admin.svc.common.AdminSvcServiceImpl;
-import lhdt.admin.svc.lhdt.config.PropertiesConfig;
+import lhdt.admin.svc.landscape.domain.LandScapeDiff;
 import lhdt.ds.common.misc.DsFileMaster;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

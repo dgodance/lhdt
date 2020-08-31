@@ -1,5 +1,6 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
 <div id="landscapeDiffWarp">
+    <!-- LandScpaeDiff DropdownList -->
     <script id="landscapeDiffSource" type="text/x-handlebars-template">
         <form id="landscapeDataForm" method="post" onsubmit="return false;">
             <div class="form-group form-group-data">
@@ -21,19 +22,10 @@
             </div>
         </form>
     </script>
+
+    <!-- LandScpaeDiff Page -->
     <script id="landscapeDiffContentSource" type="text/x-handlebars-template">
         <div id="dataListDHTML" style="height:calc(100% - 255px)">
-            <div>
-		<span>
-			전체
-			<span class="totalCount">0</span>
-			건
-		</span>
-                <span class="float-right">0 / 0
-			페이지
-		</span>
-                <input type="hidden" name="pageNo" value="0">
-            </div>
             <div class="dataBtns"></div>
             <div class="tableList marT10 yScroll" style="height: calc(100% - 43px)">
                 <table summary="데이터 목록">
@@ -55,8 +47,8 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {{#greaterThan landscapeDiffList.length 0}}
-                        {{#each landscapeDiffList}}
+                    {{#greaterThan size 0}}
+                        {{#each page}}
                             <tr>
                                 <td><span class="no">{{id}}</span></td>
                                 <td>
@@ -91,7 +83,29 @@
                     </tbody>
                 </table>
             </div>
-
+            {{#greaterThan size 0}}
+                <ul class="pagination">
+                    <li class="ico first"
+                        onclick="paginLandScapeList(1);">
+                    </li>
+                    <li class="ico forward"
+                        onclick="paginLandScapeList({{#plus pagenationInfo.previousPaging 1}}{{/plus}})">
+                    </li>
+                    {{#forEachStep pagenationInfo.startPageNum pagenationInfo.lastPageNum 1}}
+                        {{#numberEqual this ../nowPageNum}}
+                            <li class="on" onclick="paginLandScapeList()">{{#plus this 1}}{{/plus}}</li>
+                        {{else}}
+                            <li  onclick="paginLandScapeList({{#plus this 1}}{{/plus}})">{{#plus this 1}}{{/plus}}</li>
+                        {{/numberEqual}}
+                    {{/forEachStep}}
+                    <li class="ico back"
+                        onclick="paginLandScapeList({{#plus pagenationInfo.nextPaging 1}}{{/plus}});">
+                    </li>
+                    <li class="ico end"
+                        onclick="paginLandScapeList('{{landScapePage.totalPages}}');">
+                    </li>
+                </ul>
+            {{/greaterThan}}
         </div>
     </script>
 </div>

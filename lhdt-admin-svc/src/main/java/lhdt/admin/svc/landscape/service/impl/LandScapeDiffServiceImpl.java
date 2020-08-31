@@ -10,6 +10,9 @@ import lhdt.admin.svc.landscape.persistence.LandScapeDiffMapper;
 import lhdt.admin.svc.landscape.persistence.LandScapeDiffRepository;
 import lhdt.admin.svc.landscape.service.LandScapeDiffService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -30,7 +33,16 @@ public class LandScapeDiffServiceImpl
     }
 
     @Override
-    public List<LandScapeDiffDefault> findAllByLandScapeDiffGroup(LandScapeDiffGroup landScapeDiffGroup) {
+    public Page<LandScapeDiffDefault> findAllByLandScapeDiffGroup(LandScapeDiffGroup landScapeDiffGroup,
+                                                                  Integer startPage, Integer contentsSize) {
+        PageRequest pageRequest =
+                PageRequest.of(startPage,
+                        contentsSize, Sort.Direction.DESC, "id");
+        return this.jpaRepo.findAllByLandScapeDiffGroup(landScapeDiffGroup, pageRequest);
+    }
+
+    @Override
+    public List<LandScapeDiffDefault> findALlByLandScapeDiffGroup(LandScapeDiffGroup landScapeDiffGroup) {
         return this.jpaRepo.findAllByLandScapeDiffGroup(landScapeDiffGroup);
     }
 
