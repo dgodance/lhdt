@@ -48,7 +48,7 @@
     </select>
 
     <!-- design 레이어별 shape 파일 version 최대값 + 1 을 취득 -->
-    <select id="getMaxFileVersion" parameterType="int" resultType="long">
+    <select id="getMaxFileVersion" parameterType="long" resultType="int">
         /* getMaxFileVersion */
         SELECT MAX(version_id) FROM design_layer_file_info WHERE design_layer_id = #{designLayerId}
     </select>
@@ -121,13 +121,21 @@
         UPDATE ${value} SET enable_yn = 'N'
     </update>
 
-    <!-- org2org를 이용해서 생성한 테이블을 데이터 버전 갱신 -->
-    <update id="updateOgr2OgrDataFileVersion" parameterType="map">
-        /* updateOgr2OgrDataFileVersion */
-        UPDATE ${tableName}
+    <!--land 테이블을 데이터 버전 갱신 -->
+    <update id="updateLandDataFileVersion" parameterType="int">
+        /* updateLandDataFileVersion */
+        UPDATE design_layer_land
         SET enable_yn = 'Y',
-            <!-- update = #{updateDate} -->
-            version_id = CAST(#{fileVersion} AS integer)
+            version_id = #{fileVersion}
+        WHERE enable_yn IS NULL OR enable_yn = 'Y'
+    </update>
+
+    <!--building 테이블을 데이터 버전 갱신 -->
+    <update id="updateBuildingDataFileVersion" parameterType="int">
+        /* updateBuildingDataFileVersion */
+        UPDATE design_layer_building
+        SET enable_yn = 'Y',
+            version_id = #{fileVersion}
         WHERE enable_yn IS NULL OR enable_yn = 'Y'
     </update>
 

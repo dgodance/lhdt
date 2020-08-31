@@ -3,6 +3,7 @@ package lhdt.config;
 import lhdt.interceptor.*;
 import lombok.extern.slf4j.Slf4j;
 import nz.net.ultraq.thymeleaf.LayoutDialect;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -74,6 +75,7 @@ public class ServletConfig implements WebMvcConfigurer {
 				.excludePathPatterns("/f4d/**",
 					"/sign/**", "/cache/reload", "/data-groups/view-order/*", "/design-layer-groups/view-order/*", "/layer-groups/view-order/*", "/layer/insert",
 					"/layer/update/**", "/layer/**/layer-file-infos/**",
+					"/design-layers/insert", "design-layer/update/**",
 					"/data-librarys/upload",
 					"/upload-datas", "/users/status", "/user-groups/role", "/guide/**", "/css/**", "/externlib/**", "favicon*", "/images/**", "/js/**");
 		registry.addInterceptor(logInterceptor)
@@ -183,4 +185,9 @@ public class ServletConfig implements WebMvcConfigurer {
     	
 		return restTemplate;
     }
+
+	@Bean
+	public ModelMapper modelMapper() {
+		return new ModelMapper();
+	}
 }

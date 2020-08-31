@@ -2,9 +2,7 @@ package lhdt.service.impl;
 
 import lhdt.config.PropertiesConfig;
 import lhdt.domain.ShapeFileExt;
-import lhdt.domain.extrusionmodel.DesignLayer;
-import lhdt.domain.extrusionmodel.DesignLayerFileInfo;
-import lhdt.domain.extrusionmodel.DesignLayerGroup;
+import lhdt.domain.extrusionmodel.*;
 import lhdt.domain.layer.LayerFileInfo;
 import lhdt.domain.policy.GeoPolicy;
 import lhdt.geospatial.LayerStyleParser;
@@ -16,6 +14,7 @@ import lhdt.service.DesignLayerService;
 import lhdt.service.GeoPolicyService;
 import lhdt.support.LogMessageSupport;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -57,6 +56,9 @@ public class DesignLayerServiceImpl implements DesignLayerService {
     @Autowired
     private DesignLayerFileInfoMapper designLayerFileInfoMapper;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     /**
 	 * Design Layer 총 건수
 	 * @param designLayer
@@ -77,50 +79,6 @@ public class DesignLayerServiceImpl implements DesignLayerService {
     }
     
     /**
-     * geoserver design layer 목록 조회
-     */
-    @Transactional(readOnly=true)
-    public String getListGeoserverDesignLayer(GeoPolicy geoPolicy) {
-    	String geoserverDesignLayerJson = null;
-    	try {
-			RestTemplate restTemplate = new RestTemplate();
-			
-			HttpHeaders headers = new HttpHeaders();
-			// 클라이언트가 서버에 어떤 형식(MediaType)으로 달라는 요청을 할 수 있는데 이게 Accpet 헤더를 뜻함.
-			List<MediaType> acceptList = new ArrayList<>();
-			acceptList.add(MediaType.ALL);
-			headers.setAccept(acceptList);
-			// 클라이언트가 request에 실어 보내는 데이타(body)의 형식(MediaType)를 표현
-			headers.setContentType(MediaType.TEXT_XML);
-			// geoserver basic 암호화 아이디:비밀번호 를 base64로 encoding 
-			headers.add("Authorization", "Basic " + Base64.getEncoder().
-					encodeToString((geoPolicy.getGeoserverUser() + ":" + geoPolicy.getGeoserverPassword()).getBytes()));
-			
-			List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
-			//Add the String Message converter
-			messageConverters.add(new StringHttpMessageConverter());
-			//Add the message converters to the restTemplate
-			restTemplate.setMessageConverters(messageConverters);
-		    
-			HttpEntity<String> entity = new HttpEntity<>(headers);
-			
-			String url = geoPolicy.getGeoserverDataUrl() + "/rest/workspaces/" + geoPolicy.getGeoserverDataWorkspace()+ "/layers";
-			ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
-			log.info("-------- statusCode = {}, body = {}", response.getStatusCodeValue(), response.getBody());
-            geoserverDesignLayerJson = response.getBody().toString();
-		
-    	} catch(RestClientException e) {
-            LogMessageSupport.printMessage(e, "@@@ RestClientException. message = {}", e.getMessage());
-    	} catch(RuntimeException e) {
-    	    LogMessageSupport.printMessage(e, "@@@ RuntimeException. message = {}", e.getMessage());
-		} catch(Exception e) {
-    	    LogMessageSupport.printMessage(e, "@@@ Exception. message = {}", e.getMessage());
-		}
-    	
-    	return geoserverDesignLayerJson;
-    }
-
-    /**
     * design layer 정보 취득
     * @param designLayerId
     * @return
@@ -137,13 +95,10 @@ public class DesignLayerServiceImpl implements DesignLayerService {
      */
     @Transactional(readOnly=true)
     public Boolean isDesignLayerKeyDuplication(String designLayerKey) {
+        //return designLayerMapper.isDesignLayerKeyDuplication(designLayerKey);
         GeoPolicy geoPolicy = geoPolicyService.getGeoPolicy();
         HttpStatus httpStatus = getDesignLayerStatus(geoPolicy, designLayerKey);
-        if(HttpStatus.NOT_FOUND == httpStatus) {
-            return false;
-        } else {
-            return true;
-        }
+        return HttpStatus.NOT_FOUND != httpStatus;
     }
 
     /**
@@ -177,7 +132,6 @@ public class DesignLayerServiceImpl implements DesignLayerService {
 
         // design layer 정보 수정
         designLayerMapper.insertDesignLayer(designLayer);
-
         // shape 파일이 있을 경우
         if(!designLayerFileInfoList.isEmpty()) {
             String shapeFileName = null;
@@ -283,64 +237,39 @@ public class DesignLayerServiceImpl implements DesignLayerService {
         return designLayerFileInfoTeamMap;
     }
 
+
     /**
-    * Ogr2Ogr 실행
-    * @param designLayer
-    * @param isDesignLayerFileInfoExist
-    * @param shapeFileName
-    * @param shapeEncoding
-    * @throws Exception
-    */
+     * shapeInfo info insert
+     * @param designLayer
+     * @param shapeInfoList
+     * @throws Exception
+     */
     @Transactional
-    public void insertOgr2Ogr(DesignLayer designLayer, boolean isDesignLayerFileInfoExist, String shapeFileName, String shapeEncoding, List<DesignLayer> shapePropertiesList) throws Exception {
-
-        // TODO 박승현.... 여기서 잘 분기 태워 보세요.
-        // Long designLayerId = designLayer.getDesignLayerId();
-
-        String designLayerDetailtable = null;
-        if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerType())) {
-            designLayerDetailtable = propertiesConfig.getDesignLayerLandTable();
-        } else if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerType())) {
-            designLayerDetailtable = propertiesConfig.getDesignLayerBuildingTable();
+    public void insertShapeInfo(DesignLayer designLayer, List<DesignLayer> shapeInfoList) throws Exception {
+        if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
+            shapeInfoList.forEach(f -> {
+                f.setDesignLayerId(designLayer.getDesignLayerId());
+                f.setDesignLayerGroupId(designLayer.getDesignLayerGroupId());
+                f.setCoordinate(designLayer.getCoordinate().split(":")[1]);
+                designLayerMapper.insertGeometryLand(modelMapper.map(f, DesignLayerLand.class));
+            });
+        } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toLowerCase())) {
+            shapeInfoList.forEach(f -> {
+                f.setDesignLayerId(designLayer.getDesignLayerId());
+                f.setDesignLayerGroupId(designLayer.getDesignLayerGroupId());
+                f.setCoordinate(designLayer.getCoordinate().split(":")[1]);
+                designLayerMapper.insertGeometryBuilding(modelMapper.map(f, DesignLayerBuilding.class));
+            });
         }
-
-        // TODO 여기서 org2org 로 할건지, geotools로 할건지 분기 태워야 함
-
-
-        String osType = propertiesConfig.getOsType().toUpperCase();
-        String ogr2ogrPort = propertiesConfig.getOgr2ogrPort();
-        String ogr2ogrHost = propertiesConfig.getOgr2ogrHost();
-        String dbName = Crypt.decrypt(url);
-        dbName = dbName.substring(dbName.lastIndexOf("/") + 1);
-        String driver = "PG:host="+ogr2ogrHost + " port=" + ogr2ogrPort+ " dbname=" + dbName + " user=" + Crypt.decrypt(username) + " password=" + Crypt.decrypt(password);
-        //Layer dbLayer = designLayerMapper.getDesignLayer(layer.getDesignLayerId());
-
-        String updateOption;
-        if(isDesignLayerFileInfoExist) {
-            // update 실행
-            updateOption = "update";
-        } else {
-            // insert 실행
-            updateOption = "insert";
-        }
-
-        GeoPolicy geoPolicy = geoPolicyService.getGeoPolicy();
-        String designLayerSourceCoordinate = designLayer.getCoordinate();
-        String designLayerTargetCoordinate = geoPolicy.getLayerTargetCoordinate();
-//		ShapeFileParser shapeFileParser = new ShapeFileParser();
-//		shapeFileParser.parse(shapeFileName);
-        String enviromentPath = propertiesConfig.getOgr2ogrEnviromentPath();
-        Ogr2OgrExecute ogr2OgrExecute = new Ogr2OgrExecute(
-                osType, driver, shapeFileName, shapeEncoding, designLayer.getDesignLayerKey(), updateOption, designLayerSourceCoordinate, designLayerTargetCoordinate, enviromentPath);
-        ogr2OgrExecute.insert();
     }
-    
+
     /**
      * shp파일 정보를 db 정보 기준으로 export
      */
     @Transactional
     public void exportOgr2Ogr(DesignLayerFileInfo designLayerFileInfo, DesignLayer designLayer) throws Exception {
-        String tableName = designLayer.getDesignLayerKey();
+        Long designLayerId = designLayer.getDesignLayerId();
+        String designLayerGroupType = designLayer.getDesignLayerGroupType().toUpperCase();
         Integer versionId = designLayerFileInfo.getVersionId();
         String shpEncoding = designLayerFileInfo.getShapeEncoding();
         String exportPath = designLayerFileInfo.getFilePath() + designLayerFileInfo.getFileRealName()+ "." + ShapeFileExt.SHP.getValue();
@@ -354,8 +283,9 @@ public class DesignLayerServiceImpl implements DesignLayerService {
         GeoPolicy geoPolicy = geoPolicyService.getGeoPolicy();
         String designLayerSourceCoordinate = geoPolicy.getLayerSourceCoordinate();
         String designLayerTargetCoordinate = geoPolicy.getLayerTargetCoordinate();
-        String designLayerColumn = getDesignLayerColumn(tableName);
-        String sql = "SELECT "+ designLayer + ", null::text AS enable_yn, null::int AS version_id FROM " + tableName + " WHERE version_id=" + versionId;
+        String tableName = DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayerGroupType) ?
+                propertiesConfig.getDesignLayerLandTable() : propertiesConfig.getDesignLayerBuildingTable();
+        String sql = "SELECT * FROM " + tableName + " WHERE version_id=" + versionId + " AND design_layer_id=" + designLayerId;
 
         Ogr2OgrExecute ogr2OgrExecute = new Ogr2OgrExecute(osType, driver, shpEncoding, exportPath, sql, designLayerSourceCoordinate, designLayerTargetCoordinate);
         ogr2OgrExecute.export();
@@ -449,11 +379,12 @@ public class DesignLayerServiceImpl implements DesignLayerService {
 			deleteGeoserverLayerStyle(geopolicy, designLayer.getDesignLayerKey());
 			// design_layer_file_info 히스토리 삭제
             designLayerFileInfoMapper.deleteDesignLayerFileInfo(designLayerId);
-			// 공간정보 테이블 삭제
-			String designLayerExists = designLayerMapper.isDesignLayerExists(designLayer.getDesignLayerKey());
-			if(designLayerExists != null) {
-				designLayerMapper.deleteDesignLayerTable(designLayer.getDesignLayerKey());
-			}
+			// geometry 정보 삭제
+            if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
+                designLayerMapper.deleteGeometryLand(designLayerId);
+            } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toLowerCase())) {
+                designLayerMapper.deleteGeometryBuilding(designLayerId);
+            }
 		}
 
 		// design 레이어 메타정보 삭제
@@ -477,7 +408,8 @@ public class DesignLayerServiceImpl implements DesignLayerService {
     * @throws Exception
     */
     @Transactional
-    public void registerDesignLayer(GeoPolicy geoPolicy, String designLayerKey) throws Exception {
+    public void registerDesignLayer(GeoPolicy geoPolicy, DesignLayer designLayer) throws Exception {
+        String designLayerKey = designLayer.getDesignLayerKey();
         HttpStatus httpStatus = getDesignLayerStatus(geoPolicy, designLayerKey);
         if(HttpStatus.INTERNAL_SERVER_ERROR == httpStatus) {
             throw new Exception();
@@ -494,7 +426,13 @@ public class DesignLayerServiceImpl implements DesignLayerService {
             headers.add("Authorization", "Basic " + Base64.getEncoder().encodeToString( (geoPolicy.getGeoserverUser() + ":" + geoPolicy.getGeoserverPassword()).getBytes()));
 
             // body
-            String xmlString = "<?xml version=\"1.0\" encoding=\"utf-8\"?><featureType><name>" + designLayerKey + "</name></featureType>";
+            String tableName = null;
+            if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
+                tableName = propertiesConfig.getDesignLayerLandTable();
+            } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toLowerCase())) {
+                tableName = propertiesConfig.getDesignLayerBuildingTable();
+            }
+            String xmlString = "<?xml version=\"1.0\" encoding=\"utf-8\"?><featureType><name>" + designLayerKey + "</name><nativeName>"+tableName+"</nativeName></featureType>";
 
             List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
             //Add the String Message converter

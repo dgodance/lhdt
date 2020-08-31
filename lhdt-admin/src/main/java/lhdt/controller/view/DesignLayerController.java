@@ -136,6 +136,7 @@ public class DesignLayerController implements AuthorizationController {
         Policy policy = policyService.getPolicy();
         DesignLayer designLayer = designLayerService.getDesignLayer(designLayerId);
         List<DesignLayerGroup> designLayerGroupList = designLayerGroupService.getListDesignLayerGroup();
+        List<UrbanGroup> urbanGroupList = urbanGroupService.getListUrbanGroup();
 
         model.addAttribute("policy", policy);
         model.addAttribute("designLayer", designLayer);
@@ -151,6 +152,7 @@ public class DesignLayerController implements AuthorizationController {
         model.addAttribute("designLayerFileInfo", designLayerFileInfo);
         model.addAttribute("designLayerFileInfoList", designLayerFileInfoList);
         model.addAttribute("designLayerFileInfoListSize", designLayerFileInfoList.size());
+        model.addAttribute("urbanGroupList", urbanGroupList);
 
         return "/design-layer/modify-upload";
     }

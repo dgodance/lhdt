@@ -16,21 +16,25 @@ import lhdt.service.DesignLayerService;
 import lhdt.service.GeoPolicyService;
 import lhdt.service.PolicyService;
 import lhdt.support.LogMessageSupport;
+import lhdt.support.ZipSupport;
 import lhdt.utils.FileUtils;
+import lhdt.utils.WebUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -103,9 +107,7 @@ public class DesignLayerRestController implements AuthorizationController {
 		int statusCode = 0;
 		String errorCode = null;
 		String message = null;
-		boolean isDesignLayerFileInfoExist = false;
 		Map<String, Object> updateDesignLayerMap = new HashMap<>();
-
 		try {
 			errorCode = validate(request);
 			if (!StringUtils.isEmpty(errorCode)) {
@@ -205,43 +207,40 @@ public class DesignLayerRestController implements AuthorizationController {
 
 			// shp 파일 필수 필드 확인
 			ShapeFileParser shapeFileParser = new ShapeFileParser(makedDirectory + groupFileName + "." + ShapeFileExt.SHP.getValue());
-			if(!shapeFileParser.fieldValidate()) {
-				result.put("statusCode", HttpStatus.BAD_REQUEST.value());
-				result.put("errorCode", "upload.shpfile.requried");
-				return result;
-			}
+//			if(!shapeFileParser.fieldValidate()) {
+//				result.put("statusCode", HttpStatus.BAD_REQUEST.value());
+//				result.put("errorCode", "upload.shpfile.requried");
+//				return result;
+//			}
 
-			// extrusion model 시뮬레이션에서 사용할 디자인 레이어 정보
+			// 1. extrusion model 시뮬레이션에서 사용할 디자인 레이어 정보 parsing
 			String extrusionColumns = null;
-			if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerType())) {
+			if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
 				extrusionColumns = geoPolicy.getShapeLandRequiredColumns();
-			} else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerType())) {
+			} else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
 				extrusionColumns = geoPolicy.getShapeBuildingRequiredColumns();
 			}
 			List<DesignLayer> shapePropertiesList = shapeFileParser.getExtrusionModelList(objectMapper, extrusionColumns);
 
-			// 3. 레이어 기본 정보 및 레이어 이력 정보 등록
+			// 2. 레이어 기본 정보 및 레이어 이력 정보 등록
 			updateDesignLayerMap = designLayerService.insertDesignLayer(designLayer, designLayerFileInfoList);
 			if (!designLayerFileInfoList.isEmpty()) {
-				// 4. org2ogr 실행
-				designLayerService.insertOgr2Ogr(designLayer, isDesignLayerFileInfoExist, (String) updateDesignLayerMap.get("shapeFileName"),
-						(String) updateDesignLayerMap.get("shapeEncoding"), shapePropertiesList);
-
+				// 3. geometry 정보 insert
+				designLayerService.insertShapeInfo(designLayer, shapePropertiesList);
 				// org2ogr 로 등록한 데이터의 version을 갱신
 				Map<String, String> orgMap = new HashMap<>();
-				orgMap.put("fileVersion", ((Integer) updateDesignLayerMap.get("fileVersion")).toString());
-				orgMap.put("tableName", designLayer.getDesignLayerKey());
-				orgMap.put("enableYn", "Y");
-				// 5. shape 파일 테이블의 현재 데이터의 활성화 하고 날짜를 업데이트
-				designLayerFileInfoService.updateOgr2OgrDataFileVersion(orgMap);
-				// 6. geoserver에 신규 등록일 경우 등록, 아닐경우 통과
-				designLayerService.registerDesignLayer(geoPolicy, designLayer.getDesignLayerKey());
+				orgMap.put("fileVersion", ((Integer)updateDesignLayerMap.get("fileVersion")).toString());
+				orgMap.put("designLayerGroupType", designLayer.getDesignLayerGroupType());
+				// 4. shape 파일 테이블의 현재 데이터의 활성화 하고 날짜를 업데이트
+				designLayerFileInfoService.updateDataFileVersion(orgMap);
+				// 5. geoserver에 신규 등록일 경우 등록, 아닐경우 통과
+				designLayerService.registerDesignLayer(geoPolicy, designLayer);
 				designLayerService.updateDesignLayerStyle(designLayer);
 			}
 
 			statusCode = HttpStatus.OK.value();
 		} catch(DataAccessException e) {
-			// ogr2ogr2 실행하다가 에러날경우 이미 들어간 레이어, 레이러 파일정보 삭제 
+			// ogr2ogr2 실행하다가 에러날경우 이미 들어간 레이어, 레이러 파일정보 삭제
 			Long designLayerId = (Long) updateDesignLayerMap.get("designLayerId");
 			Long designLayerFileInfoTeamId = (Long) updateDesignLayerMap.get("designLayerFileInfoTeamId");
 			designLayerService.deleteDesignLayer(designLayerId);
@@ -287,7 +286,7 @@ public class DesignLayerRestController implements AuthorizationController {
 				.designLayerGroupId(Integer.valueOf(request.getParameter("designLayerGroupId")))
 				.designLayerName(request.getParameter("designLayerName"))
 				.designLayerKey(request.getParameter("designLayerKey"))
-				.designLayerType(request.getParameter("designLayerType"))
+				.designLayerGroupType(request.getParameter("designLayerGroupType"))
 				.sharing(request.getParameter("sharing"))
 				.ogcWebServices(request.getParameter("ogcWebServices"))
 				.geometryType(request.getParameter("geometryType"))
@@ -575,118 +574,112 @@ public class DesignLayerRestController implements AuthorizationController {
 //		return result;
 //    }
 //
-//	/**
-//	 * 레이어 삭제 삭제
-//	 * @param layerId
-//	 * @return
-//	 */
-//	@DeleteMapping(value = "/delete/{layerId:[0-9]+}")
-//	public Map<String, Object> delete(@PathVariable Integer layerId) {
-//		Map<String, Object> result = new HashMap<>();
-//		String errorCode = null;
-//		String message = null;
-//
-//		designLayerService.deleteLayer(layerId);
-//		int statusCode = HttpStatus.OK.value();
-//
-//		result.put("statusCode", statusCode);
-//		result.put("errorCode", errorCode);
-//		result.put("message", message);
-//		return result;
-//	}
-//
-//	/**
-//	 * shape 파일 목록
-//	 * @param request
-//	 * @param layerId
-//	 * @return
-//	 */
-//    @GetMapping(value = "/{layerId:[0-9]+}/layer-fileinfos")
-//    public Map<String, Object> listDesignLayerFileInfo(HttpServletRequest request, @PathVariable Integer layerId) {
-//
-//    	Map<String, Object> result = new HashMap<>();
-//		String errorCode = null;
-//		String message = null;
-//
-//		List<DesignLayerFileInfo> designLayerFileInfoList = designLayerFileInfoService.getListDesignLayerFileInfo(layerId);
-//        log.info("designLayerFileInfoList =============================== {} " , designLayerFileInfoList);
-//        int statusCode = HttpStatus.OK.value();
-//
-//        result.put("designLayerFileInfoList", designLayerFileInfoList);
-//        result.put("statusCode", statusCode);
-//		result.put("errorCode", errorCode);
-//		result.put("message", message);
-//		return result;
-//    }
-//
-//	/**
-//	 * shape 파일 다운 로드
-//	 * @param request
-//	 * @param response
-//	 * @param layerId
-//	 * @param designLayerFileInfoTeamId
-//	 */
-//    @GetMapping(value = "/{layerId:[0-9]+}/layer-file-info/{designLayerFileInfoTeamId:[0-9]+}/download")
-//    public void download(HttpServletRequest request, HttpServletResponse response, @PathVariable Integer layerId, @PathVariable Integer designLayerFileInfoTeamId) {
-//        log.info("@@@@@@@@@@@@ layerId = {}, designLayerFileInfoTeamId = {}", layerId, designLayerFileInfoTeamId);
-//        try {
-//
-//            Layer layer = designLayerService.getLayer(layerId);
-//            String today = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-//            String filePath = propertiesConfig.getLayerExportDir() + today.substring(0, 6) + File.separator;
-//            String fileRealName = layer.getLayerKey() + "_" + today + "_" + System.nanoTime();
-//            // TODO 필요 없는 로직. 추후 삭제
-////            fileRealName = fileRealName.replaceAll("/", "");
-////            fileRealName = fileRealName.replaceAll("\\", "");
-////            fileRealName = fileRealName.replaceAll(".", "");
-//            fileRealName = fileRealName.replaceAll("&", "");
-//
-//			FileUtils.makeDirectory(filePath);
-//            log.info("@@@@@@@ zip directory = {}", filePath);
-//
-//            List<DesignLayerFileInfo> designLayerFileInfoList = designLayerFileInfoService.getDesignLayerFileInfoTeam(designLayerFileInfoTeamId);
-//            DesignLayerFileInfo designLayerFileInfo = designLayerFileInfoList.get(0);
-//            designLayerFileInfo.setFilePath(filePath);
-//            designLayerFileInfo.setFileRealName(fileRealName);
-//            // db에 해당 versionId의 데이터를 shape으로 export
-//            designLayerService.exportOgr2Ogr(designLayerFileInfo, layer);
-//
-//            String zipFileName = filePath + fileRealName + ".zip";
-//            List<DesignLayerFileInfo> makeFileList = new ArrayList<>();
-//            for(ShapeFileExt shapeFileExt : ShapeFileExt.values()) {
-//				DesignLayerFileInfo fileInfo = new DesignLayerFileInfo();
-//				fileInfo.setFilePath(filePath);
-//				fileInfo.setFileRealName(fileRealName + "." + shapeFileExt.getValue());
-//				makeFileList.add(fileInfo);
-//			}
-//
-//            ZipSupport.makeZip(zipFileName, makeFileList);
-//
-//            response.setContentType("application/force-download");
-//            response.setHeader("Content-Transfer-Encoding", "binary");
-//            setDisposition(layer.getLayerName() + ".zip", request, response);
-//
-//            File zipFile = new File(zipFileName);
-//            try(	BufferedInputStream in = new BufferedInputStream(new FileInputStream(zipFile));
-//                    BufferedOutputStream out = new BufferedOutputStream(response.getOutputStream())) {
-//
-//                FileCopyUtils.copy(in, out);
-//                out.flush();
-//            } catch(IOException e) {
-//            	LogMessageSupport.printMessage(e, "@@ IOException. message = {}", e.getMessage());
-//            	throw new RuntimeException(e.getMessage());
-//            }
-//        } catch(DataAccessException e) {
-//        	LogMessageSupport.printMessage(e, "@@ DataAccessException. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
-//        } catch(RuntimeException e) {
-//			LogMessageSupport.printMessage(e, "@@ RuntimeException. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
-//        } catch(IOException e) {
-//			LogMessageSupport.printMessage(e, "@@ FileNotFoundException. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
-//        } catch(Exception e) {
-//			LogMessageSupport.printMessage(e, "@@ Exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
-//		}
-//    }
-//
+	/**
+	 * 레이어 삭제 삭제
+	 * @param designLayerId
+	 * @return
+	 */
+	@DeleteMapping(value = "/delete/{designLayerId:[0-9]+}")
+	public Map<String, Object> delete(@PathVariable Long designLayerId) {
+		Map<String, Object> result = new HashMap<>();
+		String errorCode = null;
+		String message = null;
+
+		designLayerService.deleteDesignLayer(designLayerId);
+		int statusCode = HttpStatus.OK.value();
+
+		result.put("statusCode", statusCode);
+		result.put("errorCode", errorCode);
+		result.put("message", message);
+		return result;
+	}
+	/**
+	 * shape 파일 목록
+	 * @param request
+	 * @param designLayerId
+	 * @return
+	 */
+    @GetMapping(value = "/{designLayerId:[0-9]+}/layer-fileinfos")
+    public Map<String, Object> listDesignLayerFileInfo(HttpServletRequest request, @PathVariable Long designLayerId) {
+
+    	Map<String, Object> result = new HashMap<>();
+		String errorCode = null;
+		String message = null;
+
+		List<DesignLayerFileInfo> designLayerFileInfoList = designLayerFileInfoService.getListDesignLayerFileInfo(designLayerId);
+        int statusCode = HttpStatus.OK.value();
+
+        result.put("designLayerFileInfoList", designLayerFileInfoList);
+        result.put("statusCode", statusCode);
+		result.put("errorCode", errorCode);
+		result.put("message", message);
+		return result;
+    }
+
+	/**
+	 * shape 파일 다운 로드
+	 * @param request
+	 * @param response
+	 * @param designLayerId
+	 * @param designLayerFileInfoTeamId
+	 */
+    @GetMapping(value = "/{designLayerId:[0-9]+}/layer-file-info/{designLayerFileInfoTeamId:[0-9]+}/download")
+    public void download(HttpServletRequest request, HttpServletResponse response, @PathVariable Long designLayerId, @PathVariable Long designLayerFileInfoTeamId) {
+        log.info("@@@@@@@@@@@@ designLayerId = {}, designLayerFileInfoTeamId = {}", designLayerId, designLayerFileInfoTeamId);
+        try {
+
+			DesignLayer layer = designLayerService.getDesignLayer(designLayerId);
+            String today = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+            String filePath = propertiesConfig.getLayerExportDir() + today.substring(0, 6) + File.separator;
+            String fileRealName = layer.getDesignLayerKey() + "_" + today + "_" + System.nanoTime();
+            fileRealName = fileRealName.replaceAll("&", "");
+
+			FileUtils.makeDirectory(filePath);
+            log.info("@@@@@@@ zip directory = {}", filePath);
+
+            List<DesignLayerFileInfo> designLayerFileInfoList = designLayerFileInfoService.getDesignLayerFileInfoTeam(designLayerFileInfoTeamId);
+            DesignLayerFileInfo designLayerFileInfo = designLayerFileInfoList.get(0);
+            designLayerFileInfo.setFilePath(filePath);
+            designLayerFileInfo.setFileRealName(fileRealName);
+            // db에 해당 versionId의 데이터를 shape으로 export
+            designLayerService.exportOgr2Ogr(designLayerFileInfo, layer);
+
+            String zipFileName = filePath + fileRealName + ".zip";
+            List<DesignLayerFileInfo> makeFileList = new ArrayList<>();
+            for(ShapeFileExt shapeFileExt : ShapeFileExt.values()) {
+				DesignLayerFileInfo fileInfo = new DesignLayerFileInfo();
+				fileInfo.setFilePath(filePath);
+				fileInfo.setFileRealName(fileRealName + "." + shapeFileExt.getValue());
+				makeFileList.add(fileInfo);
+			}
+
+            ZipSupport.makeZip(zipFileName, makeFileList);
+
+            response.setContentType("application/force-download");
+            response.setHeader("Content-Transfer-Encoding", "binary");
+            setDisposition(layer.getDesignLayerName() + ".zip", request, response);
+
+            File zipFile = new File(zipFileName);
+            try(	BufferedInputStream in = new BufferedInputStream(new FileInputStream(zipFile));
+                    BufferedOutputStream out = new BufferedOutputStream(response.getOutputStream())) {
+
+                FileCopyUtils.copy(in, out);
+                out.flush();
+            } catch(IOException e) {
+            	LogMessageSupport.printMessage(e, "@@ IOException. message = {}", e.getMessage());
+            	throw new RuntimeException(e.getMessage());
+            }
+        } catch(DataAccessException e) {
+        	LogMessageSupport.printMessage(e, "@@ DataAccessException. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+        } catch(RuntimeException e) {
+			LogMessageSupport.printMessage(e, "@@ RuntimeException. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+        } catch(IOException e) {
+			LogMessageSupport.printMessage(e, "@@ FileNotFoundException. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+        } catch(Exception e) {
+			LogMessageSupport.printMessage(e, "@@ Exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+		}
+    }
+
 //	/**
 //	 * 비활성화 상태의 layer를 활성화
 //	 * @param request
@@ -695,16 +688,17 @@ public class DesignLayerRestController implements AuthorizationController {
 //	 * @param designLayerFileInfoTeamId
 //	 * @return
 //	 */
-//    @PostMapping(value = "/{layerId:[0-9]+}/layer-file-infos/{designLayerFileInfoId:[0-9]+}")
+//    @PostMapping(value = "/{designLayerId:[0-9]+}/layer-file-infos/{designLayerFileInfoId:[0-9]+}")
 //    public Map<String, Object> updateByDesignLayerFileInfoId(HttpServletRequest request,
-//                                                            @PathVariable Integer layerId,
-//                                                            @PathVariable Integer designLayerFileInfoId,
+//                                                            @PathVariable Long designLayerId,
+//                                                            @PathVariable Long designLayerFileInfoId,
 //                                                            Integer designLayerFileInfoTeamId) {
 //        log.info("@@@@@@@@@@@@ layerId = {}, designLayerFileInfoId = {}", layerId, designLayerFileInfoId);
 //
 //        Map<String, Object> result = new HashMap<>();
 //		String errorCode = null;
 //		String message = null;
+//		designLayerService.updateDesignLayerByDesignLayerFileInfoId()
 //        designLayerService.updateLayerByDesignLayerFileInfoId(layerId, designLayerFileInfoTeamId, designLayerFileInfoId);
 //
 //        int statusCode = HttpStatus.OK.value();
@@ -714,23 +708,28 @@ public class DesignLayerRestController implements AuthorizationController {
 //		result.put("message", message);
 //		return result;
 //    }
-//
-//    @GetMapping(value = "/file-info/{designLayerFileInfoId:[0-9]+}")
-//    public Map<String, Object> viewFileDetail(@PathVariable Integer designLayerFileInfoId) {
-//    	Map<String, Object> result = new HashMap<>();
-//		String errorCode = null;
-//		String message = null;
-//
-//		DesignLayerFileInfo designLayerFileInfo = designLayerFileInfoService.getDesignLayerFileInfo(designLayerFileInfoId);
-//        log.info("@@@@@@@@@@@@@@@@@@@@@@@@@@ designLayerFileInfo = {}", designLayerFileInfo);
-//        int statusCode = HttpStatus.OK.value();
-//
-//    	result.put("statusCode", statusCode);
-//		result.put("errorCode", errorCode);
-//		result.put("message", message);
-//		result.put("designLayerFileInfo", designLayerFileInfo);
-//		return result;
-//    }
+
+	/**
+	 * 파일 상세보기
+	 * @param designLayerFileInfoId
+	 * @return
+	 */
+    @GetMapping(value = "/file-info/{designLayerFileInfoId:[0-9]+}")
+    public Map<String, Object> viewFileDetail(@PathVariable Long designLayerFileInfoId) {
+    	Map<String, Object> result = new HashMap<>();
+		String errorCode = null;
+		String message = null;
+
+		DesignLayerFileInfo designLayerFileInfo = designLayerFileInfoService.getDesignLayerFileInfo(designLayerFileInfoId);
+        log.info("@@@@@@@@@@@@@@@@@@@@@@@@@@ designLayerFileInfo = {}", designLayerFileInfo);
+        int statusCode = HttpStatus.OK.value();
+
+    	result.put("statusCode", statusCode);
+		result.put("errorCode", errorCode);
+		result.put("message", message);
+		result.put("designLayerFileInfo", designLayerFileInfo);
+		return result;
+    }
 
    private String replaceInvalidValue(String value) {
         if("null".equals(value)) value = null;
@@ -913,46 +912,46 @@ public class DesignLayerRestController implements AuthorizationController {
         return null;
     }
 
-//    /**
-//    * 다운로드시 한글 깨짐 방지 처리
-//    */
-//    private void setDisposition(String filename, HttpServletRequest request, HttpServletResponse response) throws Exception {
-//        String browser = WebUtils.getBrowser(request);
-//        String dispositionPrefix = "attachment; filename=";
-//        String encodedFilename = null;
-//
-//        log.info("================================= browser = {}", browser);
-//        if (browser.equals("MSIE")) {
-//            encodedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
-//        } else if (browser.equals("Trident")) {       // IE11 문자열 깨짐 방지
-//            encodedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
-//        } else if (browser.equals("Firefox")) {
-//            encodedFilename = "\"" + new String(filename.getBytes(StandardCharsets.UTF_8), "8859_1") + "\"";
-//            encodedFilename = URLDecoder.decode(encodedFilename, StandardCharsets.UTF_8);
-//        } else if (browser.equals("Opera")) {
-//            encodedFilename = "\"" + new String(filename.getBytes(StandardCharsets.UTF_8), "8859_1") + "\"";
-//        } else if (browser.equals("Chrome")) {
-//            StringBuffer sb = new StringBuffer();
-//            for (int i = 0; i < filename.length(); i++) {
-//                char c = filename.charAt(i);
-//                if (c > '~') {
-//                    sb.append(URLEncoder.encode("" + c, StandardCharsets.UTF_8));
-//                } else {
-//                    sb.append(c);
-//                }
-//            }
-//            encodedFilename = sb.toString();
-//        } else if (browser.equals("Safari")){
-//            encodedFilename = "\"" + new String(filename.getBytes(StandardCharsets.UTF_8), "8859_1")+ "\"";
-//            encodedFilename = URLDecoder.decode(encodedFilename, StandardCharsets.UTF_8);
-//        }
-//        else {
-//            encodedFilename = "\"" + new String(filename.getBytes(StandardCharsets.UTF_8), "8859_1")+ "\"";
-//        }
-//
-//        response.setHeader("Content-Disposition", dispositionPrefix + encodedFilename);
-//        if ("Opera".equals(browser)){
-//            response.setContentType("application/octet-stream;charset=UTF-8");
-//        }
-//    }
+    /**
+    * 다운로드시 한글 깨짐 방지 처리
+    */
+    private void setDisposition(String filename, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        String browser = WebUtils.getBrowser(request);
+        String dispositionPrefix = "attachment; filename=";
+        String encodedFilename = null;
+
+        log.info("================================= browser = {}", browser);
+        if (browser.equals("MSIE")) {
+            encodedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
+        } else if (browser.equals("Trident")) {       // IE11 문자열 깨짐 방지
+            encodedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
+        } else if (browser.equals("Firefox")) {
+            encodedFilename = "\"" + new String(filename.getBytes(StandardCharsets.UTF_8), "8859_1") + "\"";
+            encodedFilename = URLDecoder.decode(encodedFilename, StandardCharsets.UTF_8);
+        } else if (browser.equals("Opera")) {
+            encodedFilename = "\"" + new String(filename.getBytes(StandardCharsets.UTF_8), "8859_1") + "\"";
+        } else if (browser.equals("Chrome")) {
+            StringBuffer sb = new StringBuffer();
+            for (int i = 0; i < filename.length(); i++) {
+                char c = filename.charAt(i);
+                if (c > '~') {
+                    sb.append(URLEncoder.encode("" + c, StandardCharsets.UTF_8));
+                } else {
+                    sb.append(c);
+                }
+            }
+            encodedFilename = sb.toString();
+        } else if (browser.equals("Safari")){
+            encodedFilename = "\"" + new String(filename.getBytes(StandardCharsets.UTF_8), "8859_1")+ "\"";
+            encodedFilename = URLDecoder.decode(encodedFilename, StandardCharsets.UTF_8);
+        }
+        else {
+            encodedFilename = "\"" + new String(filename.getBytes(StandardCharsets.UTF_8), "8859_1")+ "\"";
+        }
+
+        response.setHeader("Content-Disposition", dispositionPrefix + encodedFilename);
+        if ("Opera".equals(browser)){
+            response.setContentType("application/octet-stream;charset=UTF-8");
+        }
+    }
 }

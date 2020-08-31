@@ -1,7 +1,9 @@
 package lhdt.persistence;
 
 import lhdt.domain.extrusionmodel.DesignLayer;
+import lhdt.domain.extrusionmodel.DesignLayerBuilding;
 import lhdt.domain.extrusionmodel.DesignLayerGroup;
+import lhdt.domain.extrusionmodel.DesignLayerLand;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -87,6 +89,20 @@ public interface DesignLayerMapper {
     int insertDesignLayer(DesignLayer designLayer);
 
     /**
+     * land info insert
+     * @param designLayer
+     * @return
+     */
+    int insertGeometryLand(DesignLayerLand designLayer);
+
+    /**
+     * building info insert
+     * @param designLayer
+     * @return
+     */
+    int insertGeometryBuilding(DesignLayerBuilding designLayer);
+
+    /**
     * Design Layer 트리 정보 수정
     * @param designLayer
     * @return
@@ -113,6 +129,20 @@ public interface DesignLayerMapper {
     * @return
     */
     int deleteDesignLayer(Long designLayerId);
+
+    /**
+     * land geometry delete
+     * @param designLayerId
+     * @return
+     */
+    int deleteGeometryLand(Long designLayerId);
+
+    /**
+     * building geometry delete
+     * @param designLayerId
+     * @return
+     */
+    int deleteGeometryBuilding(Long designLayerId);
     
     /**
      * Design Layer 테이블 삭제

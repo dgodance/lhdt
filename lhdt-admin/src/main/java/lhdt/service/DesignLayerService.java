@@ -24,12 +24,6 @@ public interface DesignLayerService {
     List<DesignLayer> getListDesignLayer(DesignLayer designLayer);
     
     /**
-     * geoserver에 등록된 design 레이어 목록 조회
-     * @return
-     */
-    String getListGeoserverDesignLayer(GeoPolicy geoPolicy);
-
-    /**
     * design layer 정보 취득
     * @param designLayerId
     * @return
@@ -75,15 +69,12 @@ public interface DesignLayerService {
     Map<String, Object> updateDesignLayer(DesignLayer designLayer, boolean isDesignLayerFileInfoExist, List<DesignLayerFileInfo> designLayerFileInfoList);
 
     /**
-    * Ogr2Ogr 실행
-    * @param designLayer
-    * @param isDesignLayerFileInfoExist
-    * @param shapeFileName
-    * @param shapeEncoding
-    * @throws Exception
-    */
-    void insertOgr2Ogr(DesignLayer designLayer, boolean isDesignLayerFileInfoExist, String shapeFileName, String shapeEncoding, List<DesignLayer> shapePropertiesList) throws Exception;
-
+     * shapeInfo insert
+     * @param designLayer
+     * @param shapePropertiesList
+     * @throws Exception
+     */
+    void insertShapeInfo(DesignLayer designLayer, List<DesignLayer> shapePropertiesList) throws Exception;
     /**
      * shp파일 정보를 db정보를 기준으로 갱신
      * @param designLayerFileInfo
@@ -95,10 +86,10 @@ public interface DesignLayerService {
     /**
     * design layer 가 등록 되어 있지 않은 경우 rest api 를 이용해서 design layer를 등록
      * @param geoPolicy
-     * @param designLayerKey
+     * @param designLayer
      * @throws Exception
      */
-    void registerDesignLayer(GeoPolicy geoPolicy, String designLayerKey) throws Exception;
+    void registerDesignLayer(GeoPolicy geoPolicy, DesignLayer designLayer) throws Exception;
     
     /**
 	 * design 레이어의 스타일 정보를 수정

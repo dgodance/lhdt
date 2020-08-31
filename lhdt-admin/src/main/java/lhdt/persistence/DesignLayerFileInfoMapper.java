@@ -119,11 +119,18 @@ public interface DesignLayerFileInfoMapper {
 	int updateShapePreDataDisable(String tableName);
 	
 	/**
-	 * org2org를 이용해서 생성한 테이블을 데이터 version 갱신
-	 * @param map
+	 * land 테이블 데이터 version 갱신
+	 * @param fileVersion
 	 * @return
 	 */
-	int updateOgr2OgrDataFileVersion(Map<String, String> map);
+	int updateLandDataFileVersion(Integer fileVersion);
+
+	/**
+	 * building 테이블 데이터 version 갱신
+	 * @param fileVersion
+	 * @return
+	 */
+	int updateBuildingDataFileVersion(Integer fileVersion);
 	
 	/**
 	 * shape 테이블 데이터 상태 변경

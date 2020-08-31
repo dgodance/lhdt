@@ -67,12 +67,11 @@ public class ShapeFileParser {
                     String attributeName = String.valueOf(attribute.getName()).toLowerCase();
                     if(columnList.contains(attributeName)) {
                         // 필수 속성값일 경우
-                        if(attributeName.equalsIgnoreCase(String.valueOf(DesignLayer.RequiredColumn.THE_GEOM))) {
+                        if(attributeName.equalsIgnoreCase(DesignLayer.RequiredColumn.THE_GEOM.getValue())) {
                             designLayer.setTheGeom(attribute.getValue().toString());
+                        } else if(attributeName.equalsIgnoreCase(DesignLayer.RequiredColumn.SHAPE_ID.getValue())) {
+                            designLayer.setShapeId((Long) attribute.getValue());
                         }
-//                        else if(attributeName.equalsIgnoreCase(String.valueOf(DesignLayer.RequiredColumn.ATTRIBUTES))) {
-//                            designLayer.setAttributes(attribute.getValue().toString());
-//                        }
                     } else {
                         // 옵션 속성 값일 경우 json 통으로 넣음.
                         attributesMap.put(attributeName, attribute.getValue().toString());
@@ -82,6 +81,7 @@ public class ShapeFileParser {
                 designLayer.setAttributes(objectMapper.writeValueAsString(attributesMap));
                 extrusionModelList.add(designLayer);
             }
+            features.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -99,8 +99,9 @@ public class ShapeFileParser {
         boolean fieldValid = false;
         try {
             ShpFiles shpFile = new ShpFiles(filePath);
+            // 메타 정보만 수정하는 경우
             if (!shpFile.exists(ShpFileType.SHP)) {
-                return false;
+                return true;
             }
             // field만 검사할 것이기 때문에 따로 인코딩은 설정하지 않음 
             reader = new DbaseFileReader(shpFile, false, Charset.defaultCharset());

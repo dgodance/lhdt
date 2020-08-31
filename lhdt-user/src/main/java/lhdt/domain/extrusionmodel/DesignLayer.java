@@ -94,6 +94,8 @@ public class DesignLayer extends Search implements Serializable {
     // 설명
     private String description;
 
+    // shape info
+    private Long shapeId;
     private String theGeom;
     private String attributes;
     
@@ -102,17 +104,4 @@ public class DesignLayer extends Search implements Serializable {
 
 	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime insertDate;
-
-	// shape 파일 종류
-	public enum DesignLayerType {
-	    // 토지
-	    LAND,
-        // 빌딩
-        BUILDING
-    }
-
-	public enum RequiredColumn {
-        ATTRIBUTES,
-        THE_GEOM
-    }
 }
