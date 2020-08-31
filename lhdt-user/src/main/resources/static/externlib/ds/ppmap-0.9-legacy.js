@@ -106,7 +106,7 @@ PpMap.prototype.flyTo = function (ctsnOrXyz, hpr, option, callbackFn) {
         }
     };
     //
-    if (null != option && undefined != option && pp.isNotEmpty(option.duration)) {
+    if (null != option && undefined != option && Pp.isNotEmpty(option.duration)) {
         opt.duration = option.duration;
     }
     //

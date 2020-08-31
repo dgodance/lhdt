@@ -21,7 +21,7 @@
   * @since	20200824	init
   */
  DsObj.prototype.pagination = function(totalItems, currentPage, $el, callbackFn){
- 	let paging = pp.paginate(totalItems, currentPage, 10, 5);
+ 	let paging = Pp.paginate(totalItems, currentPage, 10, 5);
  	
  	let s = '';
 	s += '<ul class="pagination">';

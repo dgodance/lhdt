@@ -101,7 +101,7 @@ ModelerObj.prototype.init = function(){
 ModelerObj.prototype.setEventHandler = function(){
 	
 	//TODO 도구 - 선택 클릭
-	ppui.on(document.querySelector('.ds-tool-select'), 'click', function(){
+	Ppui.on(document.querySelector('.ds-tool-select'), 'click', function(){
 		changeObjectMoveAPI(MAGO3D_INSTANCE, '0');
 		
 
@@ -144,64 +144,64 @@ ModelerObj.prototype.setEventHandler = function(){
 	
 	
 	//TODO 도구 - 점 클릭
-	ppui.on(document.querySelector('.ds-tool-create-by-point'), 'click', function(){
-		ppui.replaceClass('[class*=ds-tool]', 'textBtn', 'textBtnSub')
+	Ppui.on(document.querySelector('.ds-tool-create-by-point'), 'click', function(){
+		Ppui.replaceClass('[class*=ds-tool]', 'textBtn', 'textBtnSub')
 			.replaceClass(this, 'textBtnSub', 'textBtn');
 		
 	});
 	
 	
 	//TODO 도구 - 선 클릭
-	ppui.on(document.querySelector('.ds-tool-create-by-line'), 'click', function(){
-		ppui.replaceClass('[class*=ds-tool]', 'textBtn', 'textBtnSub')
+	Ppui.on(document.querySelector('.ds-tool-create-by-line'), 'click', function(){
+		Ppui.replaceClass('[class*=ds-tool]', 'textBtn', 'textBtnSub')
 			.replaceClass(this, 'textBtnSub', 'textBtn');
 		
 	});
 	
 	//TODO 도구 - 지우기 클릭
-	ppui.on(document.querySelector('.ds-tool-delete'), 'click', function(){
-		ppui.replaceClass('[class*=ds-tool]', 'textBtn', 'textBtnSub')
+	Ppui.on(document.querySelector('.ds-tool-delete'), 'click', function(){
+		Ppui.replaceClass('[class*=ds-tool]', 'textBtn', 'textBtnSub')
 			.replaceClass(this, 'textBtnSub', 'textBtn');
 	});
 	
 	//TODO 데이터 라이브러리 > 검색 버튼 클릭
-	ppui.on(document.querySelector('.ds-search-data-library'), 'click', function(){
+	Ppui.on(document.querySelector('.ds-search-data-library'), 'click', function(){
 		
 	});
 	
 	//TODO 카테고리 > 변경버튼 클릭
-	ppui.on(document.querySelector('.ds-change-category'), 'click', function(){
+	Ppui.on(document.querySelector('.ds-change-category'), 'click', function(){
 		
 	});
 	
 	
 	//TODO my모델러 > 검색 버튼 클릭
-	ppui.on(document.querySelector('.ds-modeler-search'), 'click', function(){
+	Ppui.on(document.querySelector('.ds-modeler-search'), 'click', function(){
 		
 	});
 	
 
 
 	//TODO my모델러 > 신규 버튼 클릭
-	ppui.on(document.querySelector('.ds-modeler-new'), 'click', function(){
+	Ppui.on(document.querySelector('.ds-modeler-new'), 'click', function(){
 		
 	});
 	
 	
 	//TODO my모델러 > 읽어오기 버튼 클릭
-	ppui.on(document.querySelector('.ds-modeler-load'), 'click', function(){
+	Ppui.on(document.querySelector('.ds-modeler-load'), 'click', function(){
 		
 	});
 	
 	
 	//TODO my모델러 > 삭제 버튼 클릭
-	ppui.on(document.querySelector('.ds-modeler-delete'), 'click', function(){
+	Ppui.on(document.querySelector('.ds-modeler-delete'), 'click', function(){
 		
 	});
 	
 	
 	//TODO my모델러 > 저장 버튼 클릭
-	ppui.on(document.querySelector('.ds-modeler-save'), 'click', function(){
+	Ppui.on(document.querySelector('.ds-modeler-save'), 'click', function(){
 		
 	});
 
@@ -224,7 +224,7 @@ ModelerObj.prototype.setEventHandler = function(){
 
 //TODO 데이터 라이브러리 > 그룹 목록 로드
 ModelerObj.prototype.getGroups = function(){
-	pp.submitAjax('./data-library/groups', {}, function(res){
+	Pp.submitAjax('./data-library/groups', {}, function(res){
 		console.log(res);
 	}, {'method':'get'});
 };
@@ -232,7 +232,7 @@ ModelerObj.prototype.getGroups = function(){
 
 //TODO 데이터 라이브러리 > 카테고리그룹 목록 로드
 ModelerObj.prototype.getCategoryGroups = function(){
-	pp.submitAjax('./data-library/category-groups', {}, function(res){
+	Pp.submitAjax('./data-library/category-groups', {}, function(res){
 		console.log(res);
 	}, {'method':'get'});
 	
@@ -246,7 +246,7 @@ ModelerObj.prototype.searchDataLibrary = function(pageNo){
 	param.categoryGroupNo = document.querySelector('.categoryGroupNo').value;
 	
 	//
-	pp.submitAjax('./data-library/datas', param, function(res){
+	Pp.submitAjax('./data-library/datas', param, function(res){
 		console.log(res);
 	}, {'method':'get'});
 	
