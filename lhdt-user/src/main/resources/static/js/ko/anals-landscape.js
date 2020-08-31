@@ -117,17 +117,8 @@ SkylineObj.prototype.setEventHandler = function(){
 		gotoFly(127.2891, 36.4800, 10);
 		
 		//TODO 지도위에 HTML 표시하기. 성공
-		let div = document.createElement('div');
-		div.style.backgroundColor = '#efefef';
-		div.style.position = 'absolute';
-		div.style.zIndex = '0';	
-		div.style.width = '200px';
-		div.style.height = '200px';
-		div.style.bottom = '0px';
-		div.style.float = 'bottom';
 		
-		//
-		MAGO3D_INSTANCE.getMagoManager().overlayContainer.appendChild(div);
+		
 	});
 	
 	
