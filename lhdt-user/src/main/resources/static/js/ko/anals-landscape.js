@@ -51,7 +51,7 @@ SkylineObj.prototype.setEventHandler = function(){
 	let the = this;
 	
 	//모달 표시
-	ppui.on(document.querySelector('.ds-show-modal'), 'click', function(){
+	Ppui.on(document.querySelector('.ds-show-modal'), 'click', function(){
 		the.showModal();
 	});
 	
@@ -77,7 +77,7 @@ SkylineObj.prototype.setEventHandler = function(){
 	
 	
 	//자동으로 3점 지도 캡처 & get 스카이라인 base64 & show modal
-	ppui.on(document.querySelector('.ds-autoall'), 'click' ,function(){
+	Ppui.on(document.querySelector('.ds-autoall'), 'click' ,function(){
 		document.querySelector('body').style.cursor = 'wait';
 		
 		//모든 점 자동 캡처
@@ -112,27 +112,18 @@ SkylineObj.prototype.setEventHandler = function(){
 	
 	
 	//테스트 위치로 이동
-	ppui.on(document.querySelector('.ds-flyto'), 'click', function(){
+	Ppui.on(document.querySelector('.ds-flyto'), 'click', function(){
 		//세종시청
 		gotoFly(127.2891, 36.4800, 10);
 		
 		//TODO 지도위에 HTML 표시하기. 성공
-		let div = document.createElement('div');
-		div.style.backgroundColor = '#efefef';
-		div.style.position = 'absolute';
-		div.style.zIndex = '0';	
-		div.style.width = '200px';
-		div.style.height = '200px';
-		div.style.bottom = '0px';
-		div.style.float = 'bottom';
 		
-		//
-		MAGO3D_INSTANCE.getMagoManager().overlayContainer.appendChild(div);
+		
 	});
 	
 	
 	//2점 선택했다고 치고...draw 2 points
-	ppui.on(document.querySelector('.ds-points2'), 'click', function(){
+	Ppui.on(document.querySelector('.ds-points2'), 'click', function(){
 		//시작점
 		the.drawPoint(xyz1.lon, xyz1.lat);
 		//끝점
@@ -145,7 +136,7 @@ SkylineObj.prototype.setEventHandler = function(){
 	
 	
 	//원/중/근경 위치 계산 & 점표시
-	ppui.on(document.querySelector('.ds-points3'), 'click', function(){
+	Ppui.on(document.querySelector('.ds-points3'), 'click', function(){
 		let viewPoint = the.calcViewPoint(xyz1, xyz2);
 		
 		//점 표시
@@ -159,12 +150,12 @@ SkylineObj.prototype.setEventHandler = function(){
 
 	
 	//원경 클릭 이벤트
-	ppui.on(document.querySelector('.ds-movetop1'), 'click', function(){
+	Ppui.on(document.querySelector('.ds-movetop1'), 'click', function(){
 		//
 		let heading = ppmap.getHeading(xyz1, xyz2);
 		
 		//
-		const xyz = pp.extend(sobj.getViewPoint(ViewPoint.A), {'alt':30.0});
+		const xyz = Pp.extend(sobj.getViewPoint(ViewPoint.A), {'alt':30.0});
 		//
 		const hpr = new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(heading), Cesium.Math.toRadians(0), Cesium.Math.toRadians(0));
 		//
@@ -176,11 +167,11 @@ SkylineObj.prototype.setEventHandler = function(){
 	
 
 	//중경 클릭 이벤트
-	ppui.on(document.querySelector('.ds-movetop2'), 'click', function(){
+	Ppui.on(document.querySelector('.ds-movetop2'), 'click', function(){
 		let heading = ppmap.getHeading(xyz1, xyz2);
 		
 		//
-		const xyz = pp.extend(sobj.getViewPoint(ViewPoint.B), {'alt':30.0});
+		const xyz = Pp.extend(sobj.getViewPoint(ViewPoint.B), {'alt':30.0});
 		//
 		const hpr = new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(heading), Cesium.Math.toRadians(0), Cesium.Math.toRadians(0));
 		//
@@ -189,11 +180,11 @@ SkylineObj.prototype.setEventHandler = function(){
 		
 		
 	//근경 클릭 이벤트
-	ppui.on(document.querySelector('.ds-movetop3'), 'click', function(){
+	Ppui.on(document.querySelector('.ds-movetop3'), 'click', function(){
 		let heading = ppmap.getHeading(xyz1, xyz2);
 		
 		//
-		const xyz = pp.extend(sobj.getViewPoint(ViewPoint.C), {'alt':30.0});
+		const xyz = Pp.extend(sobj.getViewPoint(ViewPoint.C), {'alt':30.0});
 		const hpr = new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(heading), Cesium.Math.toRadians(0), Cesium.Math.toRadians(0));
 		//
 		ppmap.flyTo(xyz, hpr, {'duration':0.5});
@@ -202,7 +193,7 @@ SkylineObj.prototype.setEventHandler = function(){
 	
 	
 	//저장 클릭
-	ppui.on(document.querySelector('.ds-save'), 'click', function(){
+	Ppui.on(document.querySelector('.ds-save'), 'click', function(){
 		if(!confirm('저장하시겠습니까?')){
 			return;
 		}
@@ -217,7 +208,7 @@ SkylineObj.prototype.setEventHandler = function(){
 		}
 		
 		//
-		pp.submitFormData(url, fd, function(){
+		Pp.submitFormData(url, fd, function(){
 			alert('저장되었습니다.');
 		});
 	});
@@ -311,7 +302,7 @@ SkylineObj.prototype.setViewer = function(viewer){
  * @returns {object} gbn 설명 참조
  */
 SkylineObj.prototype.getViewPoint = function(gbn){
-	if(pp.isNotNull(gbn)){
+	if(Pp.isNotNull(gbn)){
 		return this._viewPoint[gbn];
 	}
 	
@@ -367,7 +358,7 @@ SkylineObj.prototype.captureMap = function(callbackFn){
 	
 	//
 	ppmap.captureMap(function(blob){
-		if(pp.isNotNull(callbackFn)){
+		if(Pp.isNotNull(callbackFn)){
 			callbackFn(blob);
 		}
 	});	
@@ -448,7 +439,7 @@ SkylineObj.prototype.flyToAndCapture = function(gbn, callbackFn){
 	//
 	let heading = ppmap.getHeading(xyz1, xyz2);
 	//
-	const xyz = pp.extend(sobj.getViewPoint(gbn), {'alt':30.0});		
+	const xyz = Pp.extend(sobj.getViewPoint(gbn), {'alt':30.0});		
 	//
 	const hpr = new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(heading), Cesium.Math.toRadians(0), Cesium.Math.toRadians(0));
 	
@@ -481,7 +472,7 @@ SkylineObj.prototype.uploadBlobAndGetSkylineImage = function(gbn, callbackFn){
 	fd.append('blob', this.getCaptureBlob(gbn));
 	
 	//
-	pp.submitFormData(PREDICT_SERVER_URL, fd, function(json){
+	Pp.submitFormData(PREDICT_SERVER_URL, fd, function(json){
 		callbackFn(json.base64)
 	}, {});
 	
@@ -552,7 +543,7 @@ SkylineObj.prototype.showModal = function(){
  */
 SkylineObj.prototype.setCaptureImgSrc = function(gbn, blob){
 	let img = document.querySelector('.ds-image[data-index="'+gbn+'"]');
-	if(pp.isNull(img)){
+	if(Pp.isNull(img)){
 		console.log('null img');
 		return;
 	}
@@ -569,7 +560,7 @@ SkylineObj.prototype.setCaptureImgSrc = function(gbn, blob){
  */
 SkylineObj.prototype.setCaptureThumbImgSrc = function(gbn, blob){
 	let img = document.querySelector('.ds-image-thumb[data-index="'+gbn+'"]');
-	if(pp.isNull(img)){
+	if(Pp.isNull(img)){
 		console.log('null img');
 		return;
 	}
@@ -586,7 +577,7 @@ SkylineObj.prototype.setCaptureThumbImgSrc = function(gbn, blob){
  */
 SkylineObj.prototype.setSkylineImgSrc = function(gbn, blob){
 	let img = document.querySelector('.ds-image-skyline[data-index="'+gbn+'"]');
-	if(pp.isNull(img)){
+	if(Pp.isNull(img)){
 		console.log('null img');
 		return;
 	}
@@ -603,7 +594,7 @@ SkylineObj.prototype.setSkylineImgSrc = function(gbn, blob){
  */
 SkylineObj.prototype.setSkylineThumbImgSrc = function(gbn, blob){
 	let img = document.querySelector('.ds-image-skyline-thumb[data-index="'+gbn+'"]');
-	if(pp.isNull(img)){
+	if(Pp.isNull(img)){
 		console.log('null img');
 		return;
 	}
@@ -620,11 +611,11 @@ SkylineObj.prototype.setSkylineThumbImgSrc = function(gbn, blob){
  */
 SkylineObj.prototype.showCaptureImage = function(gbn){
 	//
-	ppui.removeClass(document.querySelectorAll('.ds-image'), 'on');
-	ppui.removeClass(document.querySelectorAll('.ds-image-skyline'), 'on');
+	Ppui.removeClass(document.querySelectorAll('.ds-image'), 'on');
+	Ppui.removeClass(document.querySelectorAll('.ds-image-skyline'), 'on');
 	
 	//
-	ppui.addClass(document.querySelector('.ds-image[data-index="'+gbn+'"]'), 'on');
+	Ppui.addClass(document.querySelector('.ds-image[data-index="'+gbn+'"]'), 'on');
 };
 
 
@@ -634,11 +625,11 @@ SkylineObj.prototype.showCaptureImage = function(gbn){
  */
 SkylineObj.prototype.showSkylineImage = function(gbn){
 	//
-	ppui.removeClass(document.querySelectorAll('.ds-image'), 'on');
-	ppui.removeClass(document.querySelectorAll('.ds-image-skyline'), 'on');
+	Ppui.removeClass(document.querySelectorAll('.ds-image'), 'on');
+	Ppui.removeClass(document.querySelectorAll('.ds-image-skyline'), 'on');
 	
 	//
-	ppui.addClass(document.querySelector('.ds-image-skyline[data-index="'+gbn+'"]'), 'on');
+	Ppui.addClass(document.querySelector('.ds-image-skyline[data-index="'+gbn+'"]'), 'on');
 
 };
 

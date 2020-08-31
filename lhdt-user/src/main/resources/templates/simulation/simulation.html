@@ -117,6 +117,11 @@
 	</li>
 
 	<li class="on">
+		<p th:text="모델러"><span class="collapse-icon">icon</span></p>
+		<th:block th:insert="~{/simulation/modeler :: #modelerContent}"></th:block> 
+	</li>
+
+	<li class="on">
 		<p th:text="스카이라인"><span class="collapse-icon">icon</span></p>
 		<div id="skyline" class="listContents">
 			<ul>
@@ -128,6 +133,7 @@
 				<li><a href="#" class="ds-movetop3">4-3. move to 근경</a></li>
 				<li><a href="#" class="ds-autoall">※ 자동으로 원/중/근경 이동 & 지도 캡처 & 이미지표시</a></li>
 				<li><a href="#" class="ds-show-modal">모달 표시</a></li>
+				<li><a href="javascript:tsobj.init()" class="">시계열</a></li>
 			</ul>
 		</div>
 	</li>
@@ -142,6 +148,9 @@
 .ds-image-thumb {margin-bottom: 5px; cursor: pointer;}
 .ds-image-skyline-thumb {margin-bottom: 5px; cursor: pointer;}
 </style>
+
+<script type="text/javascript" th:src="@{/js/ko/time-series.js}" defer></script>
+
 
 <!-- skylineModal -->
 <div class="dialog" role="dialog" id="skylineModal" style="display:none;">

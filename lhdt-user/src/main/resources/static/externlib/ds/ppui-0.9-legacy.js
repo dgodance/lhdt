@@ -17,12 +17,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  *  2020-07-16  init
  * @author gravity@daumsoft.com
  */
-var ppui = function () {
-    function ppui() {
-        _classCallCheck(this, ppui);
+var Ppui = function () {
+    function Ppui() {
+        _classCallCheck(this, Ppui);
     }
 
-    _createClass(ppui, null, [{
+    _createClass(Ppui, null, [{
         key: 'bindDatas',
 
 
@@ -48,12 +48,12 @@ var ppui = function () {
             }
 
             //
-            if (pp.isNull(el)) {
+            if (Pp.isNull(el)) {
                 return;
             }
 
             //
-            var opt = pp.extend({ 'initValue': null, 'append': true, 'headerText': null, 'headerValue': null }, option);
+            var opt = Pp.extend({ 'initValue': null, 'append': true, 'headerText': null, 'headerValue': null }, option);
 
             //
             var _select = function _select(el, datas, opt) {
@@ -64,7 +64,7 @@ var ppui = function () {
                 }
 
                 //헤더 텍스트 존재하면
-                if (pp.isNotEmpty(opt.headerText)) {
+                if (Pp.isNotEmpty(opt.headerText)) {
                     var _option = document.createElement('option');
                     el.appendChild(_option);
                     //
@@ -85,7 +85,7 @@ var ppui = function () {
                 }
 
                 //초기값 존재하면
-                if (pp.isNotEmpty(opt.initValue)) {
+                if (Pp.isNotEmpty(opt.initValue)) {
                     for (var _i = 0; _i < el.options.length; _i++) {
                         if (opt.initValue == el.options[_i].value) {
                             el.selectedIndex = _i;
@@ -140,7 +140,7 @@ var ppui = function () {
              * @param {Function} callback 
              */
             function _collection(coll, callback) {
-                if (pp.isNull(coll)) {
+                if (Pp.isNull(coll)) {
                     return;
                 }
 
@@ -156,7 +156,7 @@ var ppui = function () {
              * @param {Function} callback
              */
             function _nodeList(nl, callback) {
-                if (pp.isNull(nl)) {
+                if (Pp.isNull(nl)) {
                     return;
                 }
 
@@ -183,60 +183,128 @@ var ppui = function () {
         }
 
         /**
+         * el이 엘리먼트인지 여부
+         * @param {HTMLElement|any} el 엘리먼트
+         * @returns {boolean} 엘리먼트이면 true
+         */
+
+    }, {
+        key: '_isElement',
+        value: function _isElement(el) {
+            return el instanceof HTMLElement;
+        }
+
+        /**
+         * 콜렉션인지 여부
+         * @param {HTMLCollection|any} coll  콜렉션
+         * @returns {boolean} 콜렉션이면 true
+         */
+
+    }, {
+        key: '_isCollection',
+        value: function _isCollection(coll) {
+            return coll instanceof HTMLCollection;
+        }
+
+        /**
+         * 노드리스트인지 여부
+         * @param {NodeList|any} nl  노드리스트
+         * @returns {boolean} 노드리스트이면 true
+         */
+
+    }, {
+        key: '_isNodeList',
+        value: function _isNodeList(nl) {
+            return nl instanceof NodeList;
+        }
+
+        /**
          * el에 클래스 추가. like jq's addClass
-         * @param {HTMLElement|HTMLCollection|NodeListOf<Element>} el getElement or getElements or querySelectorAll()
+         * @param {HTMLElement|HTMLCollection|NodeListOf<Element>|string} el getElement or getElements or querySelectorAll()
          * @param {string} className 클래스명
-         * @returns {HTMLElement|HTMLCollection|NodeListOf<Element>}
+         * @returns {object} Ppui
+         * @since
+         *  20200831    el에 string 추가
          */
 
     }, {
         key: 'addClass',
-        value: function addClass(el, className) {
-            if (pp.isNull(el)) {
-                return el;
-            }
+        value: function addClass(elOrSelector, className) {
+            //엘리먼트
+            var _element = function _element(el, className) {
+                if (!Ppui._isElement(el)) {
+                    return;
+                }
 
-            //
-            if (el instanceof HTMLElement) {
-                if (ppui.hasClass(el, className)) {
-                    return el;
+                //
+                if (Ppui.hasClass(el, className)) {
+                    return;
                 }
 
                 //
                 el.classList.add(className);
-                //
-                return el;
-            }
+            };
 
-            //
-            if (el instanceof HTMLCollection) {
-                for (var i = 0; i < el.length; i++) {
-                    if (ppui.hasClass(el.item(i), className)) {
+            //콜렉션
+            var _collection = function _collection(coll, className) {
+                if (!Ppui._isCollection(coll)) {
+                    return;
+                }
+
+                //
+                for (var i = 0; i < coll.length; i++) {
+                    var _el = coll.item(i);
+
+                    if (Ppui.hasClass(_el, className)) {
                         continue;
                     }
 
                     //
-                    el.item(i).classList.add(className);
+                    _el.classList.add(className);
                 }
-                //
-                return el;
-            }
+            };
 
-            //
-            if (el instanceof NodeList) {
-                el.forEach(function (x) {
-                    if (ppui.hasClass(x, className)) {
+            //노드리스트
+            var _nodeList = function _nodeList(nodeList, className) {
+                if (!Ppui._isNodeList(nodeList)) {
+                    return;
+                }
+
+                //
+                nodeList.forEach(function (el) {
+                    if (Ppui.hasClass(el, className)) {
                         return;
                     }
                     //
-                    x.classList.add(className);
+                    el.classList.add(className);
                 });
-                //
-                return el;
+            };
+
+            //
+            if (Pp.isNull(elOrSelector)) {
+                return Ppui;
             }
 
             //
-            return el;
+            var el = elOrSelector;
+            if ('string' === typeof elOrSelector) {
+                el = document.querySelectorAll(elOrSelector);
+            }
+
+            //
+            if (Pp.isNull(el)) {
+                return Ppui;
+            }
+
+            //
+            _element(el, className);
+            //
+            _collection(el, className);
+            //
+            _nodeList(el, className);
+
+            //
+            return Ppui;
         }
 
         /**
@@ -249,38 +317,74 @@ var ppui = function () {
     }, {
         key: 'hasClass',
         value: function hasClass(el, className) {
-            if (pp.isNull(el)) {
-                return false;
-            }
+            //엘리먼트
+            var _element = function _element(el, className) {
+                if (!Ppui._isElement(el)) {
+                    return null;
+                }
 
-            //
-            if (el instanceof Element) {
-                return ppui._hasClassAtElement(el, className);
-            }
+                //
+                return Ppui._hasClassAtElement(el, className);
+            };
 
-            //
-            if (el instanceof HTMLCollection) {
+            //콜렉션
+            var _collection = function _collection(coll, className) {
+                if (!Ppui._isCollection(coll)) {
+                    return null;
+                }
+
                 //
                 var b = false;
                 //
-                for (var i = 0; i < el.length; i++) {
-                    b = b || ppui._hasClassAtElement(el.item(i), className);
+                for (var i = 0; i < coll.length; i++) {
+                    var _el2 = coll.item(i);
+                    //
+                    b = b || Ppui._hasClassAtElement(_el2, className);
                 }
 
                 //
                 return b;
-            }
+            };
 
-            //
-            if (el instanceof NodeList) {
-                var _b = false;
+            //노드리스트
+            var _nodeList = function _nodeList(nl, className) {
+                if (!Ppui._nodeList(nl)) {
+                    return null;
+                }
+
+                var b = false;
                 //
-                el.forEach(function (x) {
-                    _b = _b || ppui._hasClassAtElement(x, className);
+                nl.forEach(function (el) {
+                    b = b || Ppui._hasClassAtElement(el, className);
                 });
 
                 //
-                return _b;
+                return b;
+            };
+
+            if (Pp.isNull(el)) {
+                return false;
+            }
+
+            //
+            var b = null;
+
+            //
+            b = _element(el);
+            if (null != b) {
+                return b;
+            }
+
+            //
+            b = _collection(el);
+            if (null != b) {
+                return b;
+            }
+
+            //
+            b = _nodeList(el);
+            if (null != b) {
+                return b;
             }
 
             //
@@ -291,12 +395,15 @@ var ppui = function () {
          * like jquery's toggleClass
          * @param {Element} el 
          * @param {string} className 
+         * @returns {object} Ppui
          */
 
     }, {
         key: 'toggleClass',
         value: function toggleClass(el, className) {
-            ppui.hasClass(el, className) ? ppui.removeClass(el, className) : ppui.addClass(el, className);
+            Ppui.hasClass(el, className) ? Ppui.removeClass(el, className) : Ppui.addClass(el, className);
+
+            return Ppui;
         }
 
         /**
@@ -309,7 +416,7 @@ var ppui = function () {
     }, {
         key: '_hasClassAtElement',
         value: function _hasClassAtElement(el, className) {
-            if (pp.isNull(el)) {
+            if (Pp.isNull(el)) {
                 return false;
             }
 
@@ -328,47 +435,90 @@ var ppui = function () {
 
         /**
          * el에서 클래스 삭제. like jq's removeClass
-         * @param {HTMLElement|HTMLCollection|NodeListOf<Element>} el getElement or getElements or querySelectorAll()
+         * @param {HTMLElement|HTMLCollection|NodeListOf<Element>|string} el getElement or getElements or querySelectorAll()
          * @param {string} className 클래스명
-         * @returns {HTMLElement|HTMLCollection|NodeListOf<Element>}
+         * @returns {object} Ppui
+         * @since
+         *  20200831    el에 string추가
          */
 
     }, {
         key: 'removeClass',
-        value: function removeClass(el, className) {
-            if (pp.isNull(el)) {
-                return el;
-            }
+        value: function removeClass(elOrSelector, className) {
+            //엘리먼트
+            var _element = function _element(el, className) {
+                if (!Ppui._isElement(el)) {
+                    return;
+                }
 
-            //
-            if (el instanceof HTMLElement) {
                 //
                 el.classList.remove(className);
+            };
 
-                //
-                return el;
-            }
-
-            //
-            if (el instanceof HTMLCollection) {
-                for (var i = 0; i < el.length; i++) {
-                    el.item(i).classList.remove(className);
+            //콜렉션
+            var _collection = function _collection(coll, className) {
+                if (!Ppui._isCollection(coll)) {
+                    return;
                 }
-                //
-                return el;
-            }
 
-            //
-            if (el instanceof NodeList) {
-                el.forEach(function (x) {
-                    x.classList.remove(className);
+                //
+                for (var i = 0; i < coll.length; i++) {
+                    var _el3 = coll.item(i);
+                    //
+                    _el3.classList.remove(className);
+                }
+            };
+
+            //노드리스트
+            var _nodeList = function _nodeList(nl, className) {
+                if (!Ppui._isNodeList(nl)) {
+                    return;
+                }
+
+                //
+                nl.forEach(function (el) {
+                    el.classList.remove(className);
                 });
-                //
-                return el;
+            };
+
+            //
+            if (Pp.isNull(elOrSelector)) {
+                return Ppui;
             }
 
             //
-            return el;
+            var el = elOrSelector;
+            if ('string' === typeof elOrSelector) {
+                el = document.querySelectorAll(elOrSelector);
+            }
+
+            //
+            _element(el, className);
+            //
+            _collection(el, className);
+            //
+            _nodeList(el, className);
+
+            //
+            return Ppui;
+        }
+
+        /**
+         * 
+         * @param {Element|Node|NodeList|string} elOrSelector 
+         * @param {string} beforeClassName 변경전 classname
+         * @param {string} afterClassName 변경후 classname
+         */
+
+    }, {
+        key: 'replaceClass',
+        value: function replaceClass(elOrSelector, beforeClassName, afterClassName) {
+
+            //
+            Ppui.removeClass(elOrSelector, beforeClassName).addClass(elOrSelector, afterClassName);
+
+            //
+            return Ppui;
         }
 
         /**
@@ -384,22 +534,22 @@ var ppui = function () {
             var img = document.createElement('img');
 
             //
-            var opt = pp.extend({}, option);
+            var opt = Pp.extend({}, option);
 
             //
-            if (pp.isNotEmpty(opt.id)) {
+            if (Pp.isNotEmpty(opt.id)) {
                 img.id = opt.id;
             }
             //
-            if (pp.isNotEmpty(opt.name)) {
+            if (Pp.isNotEmpty(opt.name)) {
                 img.name = opt.name;
             }
             //
-            if (pp.isNotEmpty(opt.width)) {
+            if (Pp.isNotEmpty(opt.width)) {
                 img.width = opt.width;
             }
             //
-            if (pp.isNotEmpty(opt.height)) {
+            if (Pp.isNotEmpty(opt.height)) {
                 img.height = opt.height;
             }
 
@@ -439,7 +589,7 @@ var ppui = function () {
             htmlElement.setAttribute('name', name);
 
             //
-            if (pp.isNull(opt)) {
+            if (Pp.isNull(opt)) {
                 return htmlElement;
             }
 
@@ -468,19 +618,19 @@ var ppui = function () {
         value: function createForm(param) {
             var htmlFormElement = document.createElement('form');
             //
-            htmlFormElement.setAttribute('id', pp.createUid());
+            htmlFormElement.setAttribute('id', Pp.createUid());
 
             //
-            if (pp.isNull(param)) {
+            if (Pp.isNull(param)) {
                 return htmlFormElement;
             }
 
             //
-            var map = pp.toMap(param);
+            var map = Pp.toMap(param);
             //
             map.forEach(function (value, key) {
                 //
-                var el = ppui.createElement('INPUT', key, value);
+                var el = Ppui.createElement('INPUT', key, value);
                 //
                 htmlFormElement.appendChild(el);
             });
@@ -499,16 +649,16 @@ var ppui = function () {
     }, {
         key: 'createFormAndSubmit',
         value: function createFormAndSubmit(url, param) {
-            var htmlFormElement = ppui.createForm(param);
+            var htmlFormElement = Ppui.createForm(param);
             //
-            if (pp.isNull(htmlFormElement)) {
+            if (Pp.isNull(htmlFormElement)) {
                 return;
             }
 
             //
             var el = document.querySelector('body:last-child');
             //
-            if (pp.isNull(el)) {
+            if (Pp.isNull(el)) {
                 return;
             }
 
@@ -549,7 +699,7 @@ var ppui = function () {
     }, {
         key: 'submitGet',
         value: function submitGet(url, param) {
-            var htmlFormElement = ppui.createForm(param);
+            var htmlFormElement = Ppui.createForm(param);
 
             //
             htmlFormElement.setAttribute("method", "get");
@@ -567,7 +717,7 @@ var ppui = function () {
     }, {
         key: 'submitPost',
         value: function submitPost(url, param) {
-            var htmlFormElement = ppui.createForm(param);
+            var htmlFormElement = Ppui.createForm(param);
 
             //
             htmlFormElement.setAttribute("method", "post");
@@ -592,14 +742,14 @@ var ppui = function () {
             function _children(htmlCollection) {
                 var arr = [];
                 //
-                if (pp.isNull(htmlCollection)) {
+                if (Pp.isNull(htmlCollection)) {
                     return arr;
                 }
 
                 //
                 for (var i = 0; i < htmlCollection.length; i++) {
                     var el = htmlCollection.item(i);
-                    if (pp.isNull(el)) {
+                    if (Pp.isNull(el)) {
                         continue;
                     }
 
@@ -629,14 +779,14 @@ var ppui = function () {
             var arr = [];
 
             //
-            if (pp.isNull(htmlCollection) || 0 == htmlCollection.length) {
+            if (Pp.isNull(htmlCollection) || 0 == htmlCollection.length) {
                 return [];
             }
 
             //body 갯수만큼 루프
             for (var i = 0; i < htmlCollection.length; i++) {
                 var el = htmlCollection.item(i);
-                if (pp.isNull(el)) {
+                if (Pp.isNull(el)) {
                     continue;
                 }
 
@@ -664,7 +814,7 @@ var ppui = function () {
             map.set('b', true);
 
             //
-            var opt = pp.extend(new Map().set('showMessage', true), option);
+            var opt = Pp.extend(new Map().set('showMessage', true), option);
 
             //
             if (null == nodeList || 0 == nodeList.length) {
@@ -676,7 +826,7 @@ var ppui = function () {
                 var _node = nodeList.item(i);
 
                 //
-                if (pp.isEmpty(_node.value)) {
+                if (Pp.isEmpty(_node.value)) {
                     map.set('b', false);
                     map.set('node', _node);
 
@@ -685,12 +835,12 @@ var ppui = function () {
             }
 
             //
-            if (pp.isNotEmpty(map.get('node').title)) {
+            if (Pp.isNotEmpty(map.get('node').title)) {
                 map.set('title', map.get('node').title);
             } else {
                 var id = node.id;
                 var htmlElement = document.querySelector('label[for="' + id + '"]');
-                if (pp.isNotNull(htmlElement)) {
+                if (Pp.isNotNull(htmlElement)) {
                     map.set('title', htmlElement.innerHTML);
                 }
             }
@@ -699,7 +849,7 @@ var ppui = function () {
             if (opt.get('showMessage')) {
                 map.get('node').focus();
                 //
-                if (pp.isNotEmpty(map.get('title'))) {
+                if (Pp.isNotEmpty(map.get('title'))) {
                     alert(map.get('title') + '\uC740(\uB294) \uD544\uC218\uD56D\uBAA9\uC785\uB2C8\uB2E4.');
                 } else {
                     alert('필수항목입니다.');
@@ -721,7 +871,7 @@ var ppui = function () {
     }, {
         key: 'on',
         value: function on(el, eventName, callbackFn) {
-            if (pp.isNull(el)) {
+            if (Pp.isNull(el)) {
                 console.log('on', 'null htmlNode');
                 return;
             }
@@ -741,19 +891,19 @@ var ppui = function () {
     }, {
         key: 'uploadFile',
         value: function uploadFile(url, file, callbackSuccess, option) {
-            if (pp.isNull(file)) {
+            if (Pp.isNull(file)) {
                 callbackSuccess({ errorCode: 'E_NULL' });
                 return;
             }
 
             //파일 크기 검사
-            if (!pp.checkFileSize(file, 123456)) {
+            if (!Pp.checkFileSize(file, 123456)) {
                 callbackSuccess({ errorCode: 'E_FILE_SIZE' });
                 return;
             }
 
             //파일 확장자 검사
-            if (!pp.checkFileExt(file)) {
+            if (!Pp.checkFileExt(file)) {
                 callbackSuccess({ errorCode: 'E_EXT' });
                 return;
             }
@@ -791,5 +941,5 @@ var ppui = function () {
         }
     }]);
 
-    return ppui;
+    return Ppui;
 }();

@@ -46,7 +46,7 @@ AnalsLandScapeDiff.prototype.captureScreenProc = function(blob) {
 
 AnalsLandScapeDiff.prototype.setCaptureImgSrc = function(blob) {
     const image = new Image();
-    if(pp.isNull(image)) {
+    if(Pp.isNull(image)) {
         console.log('null img');
         return;
     }
@@ -55,7 +55,7 @@ AnalsLandScapeDiff.prototype.setCaptureImgSrc = function(blob) {
 
 AnalsLandScapeDiff.prototype.captureMap = function(callbackFn) {
     ppmap.captureMap(function (blob){
-        if(pp.isNotNull(callbackFn)) {
+        if(Pp.isNotNull(callbackFn)) {
             callbackFn(blob);
         }
     });
