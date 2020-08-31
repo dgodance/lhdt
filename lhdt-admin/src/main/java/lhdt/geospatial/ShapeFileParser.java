@@ -81,6 +81,7 @@ public class ShapeFileParser {
                 designLayer.setAttributes(objectMapper.writeValueAsString(attributesMap));
                 extrusionModelList.add(designLayer);
             }
+            features.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
