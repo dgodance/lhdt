@@ -268,7 +268,8 @@ public class DesignLayerServiceImpl implements DesignLayerService {
      */
     @Transactional
     public void exportOgr2Ogr(DesignLayerFileInfo designLayerFileInfo, DesignLayer designLayer) throws Exception {
-        String tableName = designLayer.getDesignLayerKey();
+        Long designLayerId = designLayer.getDesignLayerId();
+        String designLayerGroupType = designLayer.getDesignLayerGroupType().toUpperCase();
         Integer versionId = designLayerFileInfo.getVersionId();
         String shpEncoding = designLayerFileInfo.getShapeEncoding();
         String exportPath = designLayerFileInfo.getFilePath() + designLayerFileInfo.getFileRealName()+ "." + ShapeFileExt.SHP.getValue();
@@ -282,8 +283,9 @@ public class DesignLayerServiceImpl implements DesignLayerService {
         GeoPolicy geoPolicy = geoPolicyService.getGeoPolicy();
         String designLayerSourceCoordinate = geoPolicy.getLayerSourceCoordinate();
         String designLayerTargetCoordinate = geoPolicy.getLayerTargetCoordinate();
-        String designLayerColumn = getDesignLayerColumn(tableName);
-        String sql = "SELECT "+ designLayer + ", null::text AS enable_yn, null::int AS version_id FROM " + tableName + " WHERE version_id=" + versionId;
+        String tableName = DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayerGroupType) ?
+                propertiesConfig.getDesignLayerLandTable() : propertiesConfig.getDesignLayerBuildingTable();
+        String sql = "SELECT * FROM " + tableName + " WHERE version_id=" + versionId + " AND design_layer_id=" + designLayerId;
 
         Ogr2OgrExecute ogr2OgrExecute = new Ogr2OgrExecute(osType, driver, shpEncoding, exportPath, sql, designLayerSourceCoordinate, designLayerTargetCoordinate);
         ogr2OgrExecute.export();

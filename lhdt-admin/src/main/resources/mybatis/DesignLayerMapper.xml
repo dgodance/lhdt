@@ -75,9 +75,10 @@
     <!-- 디자인 레이어 정보 취득 -->
     <select id="getDesignLayer" parameterType="long" resultType="designLayer">
         /* getDesignLayer */
-        SELECT A.*, B.design_layer_group_name
+        SELECT A.*, B.design_layer_group_name, C.urban_group_name
         FROM design_layer A
         LEFT JOIN design_layer_group B on B.design_layer_group_id = A.design_layer_group_id
+		LEFT JOIN urban_group C on C.urban_group_id = A.urban_group_id
         WHERE A.design_layer_id = #{designLayerId}
     </select>
 
