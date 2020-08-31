@@ -166,17 +166,24 @@ $(function() {
 	});
 	
 	// 행정구역 검색
+	$('div.district').click(function() {
+		$(this).toggleClass('on');
+		$('div.districtWrap').toggle();
+	});
+	/*
 	$('div.district').hover(function() {
 		$('div.districtWrap').css('display', 'block');
 	}, function(){
 		$('div.districtWrap').css('display', 'none');
 	});
-
 	$('div.districtWrap').hover(function() {
 		$('div.districtWrap').css('display', 'block');
 	}, function(){
 		$('div.districtWrap').css('display', 'none');
 	});
+	 */
+
+
 });
 
 function allMenuDisplay() {

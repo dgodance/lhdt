@@ -67,16 +67,16 @@
 	</div>
 	<!-- E: NAVWRAP -->
 
-	<!-- S: GNB WRAP -->
-	<div th:replace="~{/fragments/global-search :: #gnbWrap}"></div>
-	<!-- E: GNB WRAP -->
-
 	<!-- CTRLWRAP -->
 	<!-- <div th:replace="~{/fragments/toolbar :: #toolbarWrap}"></div> -->
 	<!-- E: CTRLWRAP -->
 
 	<!-- MAP -->
-	<div id="magoContainer" class="mapWrap"></div>
+	<div id="magoContainer" class="mapWrap">
+		<!-- S: GNB WRAP -->
+		<div th:replace="~{/fragments/global-search :: #gnbWrap}"></div>
+		<!-- E: GNB WRAP -->
+	</div>
 	<!-- E: MAP -->
 </div>
 <!-- E: WRAP -->

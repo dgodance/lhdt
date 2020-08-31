@@ -63,7 +63,9 @@ var emdCode = "";
 var bjcdLen;
 var districtMapType = 1;
 
-var defaultDistrictObject = '<li class="on">전체</li>';
+var defaultDistrictSdoObject = '<li class="on" onclick="changeSdo(this, \'\')">전체</li>';
+//var defaultDistrictSggObject = '<li class="on" onclick="changeSgg(this, sdoCode, \'\')">전체</li>';
+//var defaultDistrictEmdObject = '<li class="on" onclick="changeEmd(this, sdoCode, sggCode, \'\')">전체</li>';
 
 function updateViewDistrictName() {
     // 시군구가 blank
@@ -110,10 +112,10 @@ function loadDistrict() {
                 var content = "";
                 bjcdLen = sdoList[0].bjcd.length;
 
-                content += defaultDistrictObject;
+                content += defaultDistrictSdoObject;
                 for (var i = 0, len = sdoList.length; i < len; i++) {
                 	var sdo = sdoList[i];
-                    content += '<li onclick="changeSdo(this, ' + sdo.sdoCode + ')">' + sdo.koname + '</li>';
+                    content += '<li onclick="changeSdo(this, ' + sdo.sdoCode + ')">' + sdo.koname + '<span></span></li>';
                 }
                 $('#sdoList').html(content);
             } else {
@@ -134,6 +136,23 @@ function changeSdo(_this, _sdoCode) {
     emdCode = "";
     districtMapType = 1;
 
+    var defaultDistrictSggObject = '<li class="on" onclick="changeSgg(this, ' + sdoCode + ', ' + sggCode + ')">전체</li>';
+    var defaultDistrictEmdObject = '<li class="on" onclick="changeEmd(this, ' + sdoCode + ', ' + sggCode + ', ' + emdCode + ')">전체</li>';
+
+    if (!sdoCode) {
+        sdoCode = "";
+        $('#sggList').html(defaultDistrictSggObject);
+        $('#emdList').html(defaultDistrictEmdObject);
+        $("#sdoList li").removeClass("on");
+        $(_this).addClass('on');
+        $('#districtNav span').removeClass("on");
+        $('#sdoName').addClass("on")
+        $('#sdoName').html("시도");
+        $('#sggName').html("시군구");
+        $('#emdName').html("읍면동");
+        return false;
+    }
+
     var url = "../searchmap/sdos/" + sdoCode + "/sggs";
     $.ajax({
         url: url,
@@ -144,7 +163,7 @@ function changeSdo(_this, _sdoCode) {
                 var sggList = msg.sggList;
                 var content = "";
 
-                content += defaultDistrictObject;
+                content += defaultDistrictSggObject;
                 for (var i = 0, len = sggList.length; i < len; i++) {
                     var sgg = sggList[i];
                     content += '<li onclick="changeSgg(this, ' + sdoCode + ', ' + sgg.sggCode + ')">' + sgg.koname + '</li>';
@@ -153,8 +172,14 @@ function changeSdo(_this, _sdoCode) {
                 sggName = "";
                 emdName = "";
 
+                $('#districtNav span').removeClass("on");
+                $('#sdoName').addClass("on")
+                $('#sdoName').html(sdoName ? sdoName : "시도");
+                $('#sggName').html(sggName ? sggName : "시군구");
+                $('#emdName').html(emdName ? emdName : "읍면동");
+
                 $('#sggList').html(content);
-                $('#emdList').html(defaultDistrictObject);
+                $('#emdList').html(defaultDistrictEmdObject);
 
                 $("#sdoList li").removeClass("on");
                 $(_this).addClass('on');
@@ -177,6 +202,21 @@ function changeSgg(_this, _sdoCode, _sggCode) {
     sggCode = _sggCode;
     emdCode = "";
     districtMapType = 2;
+    var defaultDistrictEmdObject = '<li class="on" onclick="changeEmd(this, ' + sdoCode + ', ' + sggCode + ', ' + emdCode + ')">전체</li>';
+
+    if (!sggCode) {
+        sggCode = "";
+        districtMapType = 1;
+        $('#emdList').html(defaultDistrictEmdObject);
+        $("#sggList li").removeClass("on");
+        $(_this).addClass('on');
+        $('#districtNav span').removeClass("on");
+        $('#sdoName').addClass("on")
+        $('#sdoName').html(sdoName);
+        $('#sggName').html("시군구");
+        $('#emdName').html("읍면동");
+        return false;
+    }
 
     var url = "../searchmap/sdos/" + sdoCode + "/sggs/" + sggCode + "/emds";
     $.ajax({
@@ -188,13 +228,19 @@ function changeSgg(_this, _sdoCode, _sggCode) {
                 var emdList = msg.emdList;
                 var content = "";
 
-                content += defaultDistrictObject;
+                content += defaultDistrictEmdObject;
                 for (var i = 0, len = emdList.length; i < len; i++) {
                     var emd = emdList[i];
                     content += '<li onclick="changeEmd(this, ' + sdoCode + ', ' + sggCode + ', ' + emd.emdCode + ')">' + emd.koname + '</li>';
                 }
                 sggName = $(_this).text();
                 emdName = "";
+
+                $('#districtNav span').removeClass("on");
+                $('#sggName').addClass("on")
+                $('#sdoName').html(sdoName ? sdoName : "시도");
+                $('#sggName').html(sggName ? sggName : "시군구");
+                $('#emdName').html(emdName ? emdName : "읍면동");
 
                 $('#emdList').html(content);
 
@@ -220,7 +266,26 @@ function changeEmd(_this, _sdoCode, _sggCode, _emdCode) {
     emdCode = _emdCode;
     districtMapType = 3;
 
+    if (!emdCode) {
+        emdCode = "";
+        districtMapType = 2;
+        $("#emdList li").removeClass("on");
+        $(_this).addClass('on');
+        $('#districtNav span').removeClass("on");
+        $('#sggName').addClass("on")
+        $('#sdoName').html(sdoName);
+        $('#sggName').html(sggName);
+        $('#emdName').html("읍면동");
+        return false;
+    }
+
     emdName = $(_this).text();
+
+    $('#districtNav span').removeClass("on");
+    $('#emdName').addClass("on")
+    $('#sdoName').html(sdoName ? sdoName : "시도");
+    $('#sggName').html(sggName ? sggName : "시군구");
+    $('#emdName').html(emdName ? emdName : "읍면동");
 
     $("#emdList li").removeClass("on");
     $(_this).addClass('on');
@@ -239,6 +304,9 @@ $("#districtCancelButton").click(function () {
     district.deleteDistrict();
 });
 
+$("#districtCloseButton").click(function () {
+    $("#districtSelect").click();
+});
 
 function getCentroid(name, sdoCode, sggCode, emdCode, bjcdLen) {
     var layerType = districtMapType;
@@ -279,10 +347,10 @@ function getCentroid(name, sdoCode, sggCode, emdCode, bjcdLen) {
 function getEnvelope(name, sdoCode, sggCode, emdCode, bjcdLen) {
     var layerType = districtMapType;
     var bjcd;
-    if(bjcdLen==10){
-    	var bjcd = sdoCode.toString().padStart(2, '0') + sggCode.toString().padStart(3, '0') + emdCode.toString().padStart(3, '0') + '00';
-    }else{
-    	bjcd = sdoCode.toString() + sggCode.toString() + emdCode.toString();
+    if (bjcdLen == 10) {
+        bjcd = sdoCode.toString().padStart(2, '0') + sggCode.toString().padStart(3, '0') + emdCode.toString().padStart(3, '0') + '00';
+    } else {
+        bjcd = sdoCode.toString() + sggCode.toString() + emdCode.toString();
     }
     
     var time = 3;

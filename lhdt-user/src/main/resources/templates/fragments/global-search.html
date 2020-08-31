@@ -1,20 +1,25 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
 <body>
-	<div id="gnbWrap" style="z-index: 100;">
+	<div id="gnbWrap" class="gnbWrap">
 		<!-- S: 통합검색 -->
 		<div class="totalSearch">
+			<span class="searchIcon"></span>
 			<label for="fullTextSearch" class="hiddenTag"><th:block th:text="#{search.intergrated}"></th:block></label>
 			<input type="text" id="fullTextSearch" name="fullTextSearch" th:placeholder="#{search.input.placeholder}" />
+			<!-- S: 지역선택 -->
+			<div id="districtSelect" class="district">지역선택</div>
 			<button type="button" id="fullTextSearchButton" th:title="#{common.search}" class="btnTotalSearch"><th:block th:text="#{common.search}"></th:block></button>
 		</div>
-		<!-- S: 화면행정구역 -->
-		<div class="district" >
-			<p id="viewDistrictName"></p>
-		</div>
-		<!-- S: 행정구역 레이어 -->
+
+		<!-- E: 행정구역 레이어 -->
 		<div class="districtWrap" style="display:none;">
+			<p id="districtNav" class="districtNav">
+				<span id="sdoName" class="on">시도</span> 	&rsaquo;
+				<span id="sggName">시군구</span>	&rsaquo;
+				<span id="emdName">읍면동</span>
+			</p>
 			<div class="districtLayer">
-				<ul id="sdoList">
+				<ul id="sdoList" class="twoColumn">
 					<li class="on"><th:block th:text="#{common.all}"></th:block></li>
 				</ul>
 				<ul id="sggList">
@@ -25,8 +30,9 @@
 				</ul>
 			</div>
 			<div class="districtBtn">
-				<button type="button" class="focusB" id="districtFlyButton"><th:block th:text="#{common.move}"></th:block></button>
-				<button type="button" class="basicB" id="districtCancelButton"><th:block th:text="#{common.cancel}"></th:block></button>
+				<button type="button" class="focus" id="districtFlyButton"><th:block th:text="#{common.district.move}"></th:block></button>
+				<button type="button" class="basic" id="districtCancelButton"><th:block th:text="#{common.remove.district}"></th:block></button>
+				<button type="button" class="basic" id="districtCloseButton"><th:block th:text="#{common.close}"></th:block></button>
 			</div>
 		</div>
 		<!-- E: 행정구역 레이어 -->
