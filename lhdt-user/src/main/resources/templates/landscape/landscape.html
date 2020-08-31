@@ -15,14 +15,25 @@
         </li>
         <li class="on">
             <p th:text="경관분석"><span class="collapse-icon">icon</span></p>
-            <div id="landScapeAnalsProcess" class="listContents">
-                <ul>
-                    <li>
-                        <label for="landScapeAnalsToggle" th:text="활성화"></label>
-                        <input type="checkbox" id="landScapeAnalsToggle" value="" placeholder=""/>
-                        <button type="button" id="landScapeAnalsBtn" th:text="작동"></button>
-                    </li>
-                </ul>
+            <div id="landScapeAnalsProcess"
+                 style="display: block;
+                padding: 10px;
+                border: 1px solid #e0e0e0;
+                background-color: #fff;">
+                <div class="form-group form-group-data">
+                    <label for="lsAnalsActionGroup">작업 방식</label>
+                    <select id="lsAnalsActionGroup" name="lsAnalsActionGroup">
+                        <option value="0">
+                            자율분석
+                        </option>
+                        <option value="1">
+                            저장된데이터기반분석
+                        </option>
+                    </select>
+                </div>
+                <div id="lsAnalsContent">
+
+                </div>
             </div>
         </li>
         <li class="on">

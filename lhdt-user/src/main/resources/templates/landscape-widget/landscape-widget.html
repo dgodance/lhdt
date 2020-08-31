@@ -93,7 +93,7 @@
                     </li>
                     {{#forEachStep pagenationInfo.startPageNum pagenationInfo.lastPageNum 1}}
                         {{#numberEqual this ../nowPageNum}}
-                            <li class="on" onclick="paginLandScapeList()">{{#plus this 1}}{{/plus}}</li>
+                            <li class="on" onclick="paginLandScapeList({{#plus this 1}}{{/plus}})">{{#plus this 1}}{{/plus}}</li>
                         {{else}}
                             <li  onclick="paginLandScapeList({{#plus this 1}}{{/plus}})">{{#plus this 1}}{{/plus}}</li>
                         {{/numberEqual}}

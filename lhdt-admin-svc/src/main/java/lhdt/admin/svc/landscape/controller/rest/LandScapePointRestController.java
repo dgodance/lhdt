@@ -2,6 +2,8 @@ package lhdt.admin.svc.landscape.controller.rest;
 
 import lhdt.admin.svc.cityplanning.service.CPDistricInfoService;
 import lhdt.admin.svc.cityplanning.service.CPLocalInfoService;
+import lhdt.admin.svc.common.model.PageParam;
+import lhdt.admin.svc.landscape.domain.LandScapeDiffDTO.LandScapeDiffDefault;
 import lhdt.admin.svc.landscape.domain.LandScapeDiffGroupDTO.LSDiffGroupMeta;
 import lhdt.admin.svc.landscape.domain.LandScapeDiffGroupDTO.LSDiffGroupTable;
 import lhdt.admin.svc.landscape.domain.LandScapeDiffGroupDTO.LSDiffGroupTableDefault;
@@ -17,10 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.geo.Point;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -32,6 +31,21 @@ public class LandScapePointRestController {
     private CPDistricInfoService cpDistricInfoService;
     @Autowired
     private CPLocalInfoService cpLocalInfoService;
+
+    @GetMapping
+    public PageParam<LandScapePoint> getNoticePage(
+            @RequestParam(value = "lsDiffPage", defaultValue = "1") Integer nowPageNum) {
+        Page<LandScapePoint> cpLocalInfoPage = landScapeService.findAllPgByStartPg(nowPageNum-1, DSPageSize.NOTICE.getContent());
+
+        DSPaginatorInfo cpLocalPageNav = DSPaginator.getPaginatorMap(cpLocalInfoPage, DSPageSize.NOTICE);
+
+        var sendParam = new PageParam<LandScapePoint>();
+        sendParam.setPage(cpLocalInfoPage.getContent());
+        sendParam.setPagenationInfo(cpLocalPageNav);
+        sendParam.setSize(cpLocalInfoPage.getSize());
+        sendParam.setNowPageNum(nowPageNum -1);;
+        return sendParam;
+    }
 
     @PostMapping()
     public LSDiffGroupTable getNoticePage(

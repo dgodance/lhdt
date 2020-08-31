@@ -43,6 +43,12 @@ public class LandScapeDiffRestController {
         return this.landScapeDiffGroupService.findAll();
     };
 
+    /**
+     * 그룹 Id를 받아와 처리한 후 페이징 처리가 가능한 경관 비교 세부 데이터를 사용자에게 전달합니다.
+     * @param id 그룹Id
+     * @param nowPageNum
+     * @return
+     */
     @GetMapping("/{id}")
     public PageParam<LandScapeDiffDefault> getNoticePage(
             @PathVariable(value = "id") Long id,
