@@ -14,7 +14,7 @@
     <script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
     <script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
     <script type="text/javascript" th:src="@{/externlib/ol45/ol.js(cacheVersion=${contentCacheVersion})}"></script>
-    <script type="text/javascript" th:src="@{/js/{lang}/map-view.js(lang=${lang}, cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/{lang}/design-layer-map-view.js(lang=${lang}, cacheVersion=${contentCacheVersion})}"></script>
  </head>
 <body>
     <div style="height: 100%;">
@@ -23,7 +23,7 @@
 </body>
 <script th:inline="javascript">
     var policy = JSON.parse(/*[[${policyJson}]]*/"");
-    var layer = JSON.parse(/*[[${layerJson}]]*/"");
+    var layer = JSON.parse(/*[[${designLayerJson}]]*/"");
     var mapViewer = new mapViewer(policy, layer, [[${versionId}]]);
 </script>
 </html>

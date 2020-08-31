@@ -198,7 +198,7 @@ function deleteLayer(designLayerId) {
 		if(confirm(JS_MESSAGE["delete.confirm"])) {
 			deleteLayerFlag = false;
 			$.ajax({
-				url: "/design-layer/delete/" + designLayerId,
+				url: "/design-layers/delete/" + designLayerId,
 				type: "DELETE",
 				headers: {"X-Requested-With": "XMLHttpRequest"},
 				dataType: "json",

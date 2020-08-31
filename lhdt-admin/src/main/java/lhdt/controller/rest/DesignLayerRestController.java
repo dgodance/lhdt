@@ -22,10 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
@@ -570,26 +567,25 @@ public class DesignLayerRestController implements AuthorizationController {
 //		return result;
 //    }
 //
-//	/**
-//	 * 레이어 삭제 삭제
-//	 * @param layerId
-//	 * @return
-//	 */
-//	@DeleteMapping(value = "/delete/{layerId:[0-9]+}")
-//	public Map<String, Object> delete(@PathVariable Integer layerId) {
-//		Map<String, Object> result = new HashMap<>();
-//		String errorCode = null;
-//		String message = null;
-//
-//		designLayerService.deleteLayer(layerId);
-//		int statusCode = HttpStatus.OK.value();
-//
-//		result.put("statusCode", statusCode);
-//		result.put("errorCode", errorCode);
-//		result.put("message", message);
-//		return result;
-//	}
-//
+	/**
+	 * 레이어 삭제 삭제
+	 * @param designLayerId
+	 * @return
+	 */
+	@DeleteMapping(value = "/delete/{designLayerId:[0-9]+}")
+	public Map<String, Object> delete(@PathVariable Long designLayerId) {
+		Map<String, Object> result = new HashMap<>();
+		String errorCode = null;
+		String message = null;
+
+		designLayerService.deleteDesignLayer(designLayerId);
+		int statusCode = HttpStatus.OK.value();
+
+		result.put("statusCode", statusCode);
+		result.put("errorCode", errorCode);
+		result.put("message", message);
+		return result;
+	}
 //	/**
 //	 * shape 파일 목록
 //	 * @param request
