@@ -1,286 +1,75 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
-<div id="modelerContent" class="contents contents-margin-none fullHeight" style="display:none;">
-<ul class="listDrop">
-    
+<div id="modelerContent" class="modelerContent listContents">
+	<div class="ds-modeler">
+		<h3 class="h3-heading">모델러 목록</h3>
+
+		<div class="list">
+			<div class="ds-modeler-list dataGroupSummary table-data-group-summary">
+				<table class="table-word-break" summary="모델러 목록">
+					<caption class="hiddenTag">모델러 목록</caption>
+					<colgroup>
+						<col class="col-number" width="10%">
+						<col class="col-number" width="20%">
+						<col class="col-number" width="*">
+						<col class="col-number" width="*">
+					</colgroup>
+					<tbody>
+						<tr>
+							<th scope="col" class="col-number">선택</th>
+							<th scope="col" class="col-number">번호</th>
+							<th scope="col" class="col-number">모델러명</th>
+							<th scope="col" class="col-number">그룹</th>
+						</tr>
+						<tr>
+							<td class="col-number"><input type="radio" name="modelerNo" value="1"></td>
+							<td class="col-number">1</td>
+							<td class="col-number">모델러1</td>
+							<td class="col-number">0</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
 
 
-	<li class=" ds-data-library on">
-		<p>데이터 라이브러리</p>
-		<div id="solarAnalysis" class="listContents">
-			<ul class="">
-				<li>
-					<div class="form-group form-group-data">
-						<label>그룹</label>
-	                    <select>
-	                        <option>그룹</option>
-	                    </select>
-						<label>카테고리그룹</label>
-	                    <select>
-	                        <option>카테고리그룹</option>
-	                    </select>
-						<button type="button" class="btnTextF ds-search-data-library" >검색</button>
-					</div>
-				</li>
-				<li>
-					<div class="dataGroupSummary table-data-group-summary">
-                        <table class="table-word-break" th:summary="#{data.group.statistics.summary}">
-                        <caption class="hiddenTag"><th:block th:text="#{data.group.statistics.caption}"></th:block></caption>
-                            <colgroup>
-                                <col class="col-number" />
-                                <col class="col-number" />
-                                <col class="col-number" />
-                                <col class="col-number" />
-                                <col class="col-number" />
-                            </colgroup>
-                            <thead>
-                                <tr>
-                                    <th scope="col" class="col-number" th:text="선택"></th>
-                                    <th scope="col" class="col-number" th:text="그룹"></th>
-                                    <th scope="col" class="col-number" th:text="카테고리그룹"></th>
-                                    <th scope="col" class="col-number" th:text="|카테고리(세부)|"></th>
-                                    <th scope="col" class="col-number" th:text="데이터명"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="col-input" >
-                                    	<span>ㅇ</span>
-                                    </td>
-                                    <td class="col-number" th:text="나무"></td>
-                                    <td class="col-number" th:text="계절"></td>
-                                    <td class="col-number" th:text="여름"></td>
-                                    <td class="col-number" th:text="은행나무-여름"></td>
-                                </tr>
-                                <tr>
-                                    <td class="col-input" >
-                                    	<span>ㅇ</span>
-                                    </td>
-                                    <td class="col-number" th:text="나무"></td>
-                                    <td class="col-number" th:text="계절"></td>
-                                    <td class="col-number" th:text="겨울"></td>
-                                    <td class="col-number" th:text="은행나무-겨울"></td>
-                                </tr>
-                                <tr>
-                                    <td class="col-input" >
-                                    	<span>ㅇ</span>
-                                    </td>
-                                    <td class="col-number" th:text="건물"></td>
-                                    <td class="col-number" th:text="크기"></td>
-                                    <td class="col-number" th:text="3x3"></td>
-                                    <td class="col-number" th:text="단독주택-3x3"></td>
-                                </tr>
-                                <tr>
-                                    <td class="col-input" >
-                                    	<span>ㅇ</span>
-                                    </td>
-                                    <td class="col-number" th:text="건물"></td>
-                                    <td class="col-number" th:text="크기"></td>
-                                    <td class="col-number" th:text="4x4"></td>
-                                    <td class="col-number" th:text="단독주택-4x4"></td>
-                                </tr>
-                                <tr>
-                                    <td class="col-input" >
-                                    	<span>ㅇ</span>
-                                    </td>
-                                    <td class="col-number" th:text="방음벽"></td>
-                                    <td class="col-number" th:text="무늬"></td>
-                                    <td class="col-number" th:text="새"></td>
-                                    <td class="col-number" th:text="|새무늬 방음벽|"></td>
-                                </tr>
-                                <tr>
-                                    <td class="col-input" >
-                                    	<span>ㅇ</span>
-                                    </td>
-                                    <td class="col-number" th:text="방음벽"></td>
-                                    <td class="col-number" th:text="무늬"></td>
-                                    <td class="col-number" th:text="격자"></td>
-                                    <td class="col-number" th:text="|격자무늬 방음벽|"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-				</li>
-				<li>
-					<div class="pagination"></div>
-				</li>
-				
+			<ul class="pagination">
+				<li class="ico first" >처음</li>
+				<li class="on">1</li>
+ 				<li class="ico end" >마지막</li>
 			</ul>
 		</div>
-    </li>
-    
-    
-    <li class=" ds-tool on">
-        <p>도구</p>
-        <div id="" class="listContents">
-            <ul>
-                <li>
-                    <button class="textBtnSub ds-tool-select">선택</button>
-                    <button class="textBtnSub ds-tool-point">점으로생성</button>
-                    <button class="textBtnSub ds-tool-line">선으로생성</button>
-                    <button class="textBtnSub ds-tool-delete">지우기</button>
-                </li>
-            </ul>
-        </div>
-    </li>
-    
+	</div>
 
-    <li class="ds-category on">
-        <p>카테고리</p>
-        <div id="" class="listContents">
-            <ul>
-                <li>
-                    <div class="form-group from-group-data">
-                    	<label>변경전</label>
-                        <select>
-                            <option>...</option>
-                        </select>
-                    </div>
-                    <div class="form-group from-group-data">
-                    	<label>변경후</label>
-                        <select>
-                            <option>...</option>
-                        </select>
-                    </div>
-                    <div class="form-group button-group-center">
-						<button type="submit" id="mapDataSearch" class="btnTextF ds-change-category" title="변경">변경</button>
-					</div>
-                </li>
-            </ul>
-        </div>
-    </li>
-    
-    <li class="ds-property on">
-    	<p>속성</p>
-    	<div >
-    		<ul>
-    			<li>
-                  	<div class="form-group button-group-data">
-                        <label>데이터 <br/>라이브러리명</label>
-                        <input type="text" placeholder="">
-                        <label>그룹명</label>
-                        <input type="text" placeholder="">
-                        <label>카테고리그룹명</label>
-                        <input type="text" placeholder="">
-                        <label>경도</label>
-                        <input type="text" class="ds-lon" placeholder="">
-                        <label>위도</label>
-                        <input type="text" class="ds-lat" placeholder="">
-                        <label>높이</label>
-                        <input type="text" class="ds-alt" placeholder="">
-                        <label>heading</label>
-                        <input type="text" class="ds-heading" placeholder="">
-                        <label>pitch</label>
-                        <input type="text" class="ds-pitch" placeholder="">
-                        <label>roll</label>
-                        <input type="text" class="ds-roll" placeholder="">
-                    </div>
-    			
-    			</li>
-    		</ul>
-    	</div>
-    </li>
+	<div class="ds-tool">
+		<h3 class="h3-heading">도구</h3>
+		<div class="">
+			<button class="textBtnSub ds-tool-select">선택</button>
+			<button class="textBtnSub ds-tool-create-by-point">점으로생성</button>
+			<button class="textBtnSub ds-tool-create-by-line">선으로생성</button>
+			<button class="textBtnSub ds-tool-delete">삭제</button>
+		</div>
+	</div>
 
-    <li class="ds-modeler on">
-        <p>my모델러</p>
-        <div id="" class="listContents">
-            <ul class="">
-				<li>
-                  	<div class="form-group button-group-data">
-                        <label>검색어</label>
-                        <input type="text" placeholder="my모델러명">
-                        <button type="button" class="btnTextF ds-modeler-search">검색</button>
-                    </div>
-				</li>
-				<li>
-					<div class="dataGroupSummary table-data-group-summary">
-                        <table class="table-word-break" th:summary="#{data.group.statistics.summary}">
-                        <caption class="hiddenTag"><th:block th:text="#{data.group.statistics.caption}"></th:block></caption>
-                            <colgroup>
-                                <col class="col-number" />
-                                <col class="col-number" />
-                                <col class="col-number" />
-                                <col class="col-number" />
-                            </colgroup>
-                            <thead>
-                                <tr>
-                                    <th scope="col" class="col-number" th:text="선택"></th>
-                                    <th scope="col" class="col-number" th:text="my모델러명"></th>
-                                    <th scope="col" class="col-number" th:text="데이터갯수"></th>
-                                    <th scope="col" class="col-number" th:text="생성일"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="col-input" >
-                                    	<span>ㅇ</span>
-                                    </td>
-                                    <td class="col-number" th:text="7공구모델"></td>
-                                    <td class="col-number" th:text="5"></td>
-                                    <td class="col-number" th:text="2020-01-01"></td>
-                                </tr>
-                                <tr>
-                                    <td class="col-input" >
-                                    	<span>ㅇ</span>
-                                    </td>
-                                    <td class="col-number" th:text="1기신도시"></td>
-                                    <td class="col-number" th:text="10"></td>
-                                    <td class="col-number" th:text="2020-02-01"></td>
-                                </tr>
-                                <tr>
-                                    <td class="col-input" >
-                                    	<span>ㅇ</span>
-                                    </td>
-                                    <td class="col-number" th:text="2기신도시"></td>
-                                    <td class="col-number" th:text="8"></td>
-                                    <td class="col-number" th:text="2020-03-30"></td>
-                                </tr>
-                                <tr>
-                                    <td class="col-input" >
-                                    	<span>ㅇ</span>
-                                    </td>
-                                    <td class="col-number" th:text="3기신도시"></td>
-                                    <td class="col-number" th:text="9"></td>
-                                    <td class="col-number" th:text="2020-04-04"></td>
-                                </tr>
-                                <tr>
-                                    <td class="col-input" >
-                                    	<span>ㅇ</span>
-                                    </td>
-                                    <td class="col-number" th:text="4기신도시"></td>
-                                    <td class="col-number" th:text="5"></td>
-                                    <td class="col-number" th:text="2020-05-05"></td>
-                                </tr>
-                                <tr>
-                                    <td class="col-input" >
-                                    	<span>ㅇ</span>
-                                    </td>
-                                    <td class="col-number" th:text="5기신도시"></td>
-                                    <td class="col-number" th:text="6"></td>
-                                    <td class="col-number" th:text="2020-06-06"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-				</li>
-				<li>
-					<div class="pagination"></div>
-				</li>
-				<li>
-					<div style="text-align:right;">
-						<button class="btnTextF ds-modeler-new">신규</button>
-	                    <button class="btnTextF ds-modeler-load">읽어오기</button>
-	                    <button class="btnTextF ds-modeler-delete">삭제</button>
-	                    <button class="btnTextF ds-modeler-save">저장</button>
-					</div>
-				</li>
-			</ul>
-        </div>
-    </li>
-</ul>
+	<div class="ds-category">
+		<h3 class="h3-heading marT10">카테고리</h3>
+		<div class="form-group form-group-data">
+			<label for="before-category">변경전</label> <select id="before-category" name="searchDataGroup">
+				<option value="">선택</option>
+			</select>
+		</div>
+		<div class="form-group form-group-data">
+			<label for="after-category">변경후</label> <select id="after-category" name="searchDataGroup">
+				<option value="">선택</option>
+			</select>
+		</div>
 
+		<div class="form-group button-group-center">
+			<button type="button" class="btnTextF ds-change-category" title="검색">변경</button>
+		</div>
+
+	</div>
 <script>
 let ModelerObj = function(){
-	
+	console.log(new Date(), this);
 }
 
 
@@ -288,7 +77,22 @@ let ModelerObj = function(){
  * 초기
  */
 ModelerObj.prototype.init = function(){
+	console.log(new Date(), '>>.init');
+	
+	//
 	this.setEventHandler();
+	
+	//TEST
+	let source = $('#modeler-list-template').html();
+	let template = Handlebars.compile(source);
+	let data = {'datas':[
+		{'modelerNo':'1', 'modelerName':'모델러1'},
+		{'modelerNo':'2', 'modelerName':'모델러2'},
+		{'modelerNo':'3', 'modelerName':'모델러3'}
+		]
+	};
+	let html = template(data);
+	document.querySelector('.ds-modeler-list').innerHTML = html;
 };
 
 /**
@@ -340,19 +144,24 @@ ModelerObj.prototype.setEventHandler = function(){
 	
 	
 	//TODO 도구 - 점 클릭
-	ppui.on(document.querySelector('.ds-tool-point'), 'click', function(){
+	ppui.on(document.querySelector('.ds-tool-create-by-point'), 'click', function(){
+		ppui.replaceClass('[class*=ds-tool]', 'textBtn', 'textBtnSub')
+			.replaceClass(this, 'textBtnSub', 'textBtn');
 		
 	});
 	
 	
 	//TODO 도구 - 선 클릭
-	ppui.on(document.querySelector('.ds-tool-line'), 'click', function(){
+	ppui.on(document.querySelector('.ds-tool-create-by-line'), 'click', function(){
+		ppui.replaceClass('[class*=ds-tool]', 'textBtn', 'textBtnSub')
+			.replaceClass(this, 'textBtnSub', 'textBtn');
 		
 	});
 	
 	//TODO 도구 - 지우기 클릭
 	ppui.on(document.querySelector('.ds-tool-delete'), 'click', function(){
-		
+		ppui.replaceClass('[class*=ds-tool]', 'textBtn', 'textBtnSub')
+			.replaceClass(this, 'textBtnSub', 'textBtn');
 	});
 	
 	//TODO 데이터 라이브러리 > 검색 버튼 클릭
@@ -473,4 +282,30 @@ window.addEventListener('load', function(){
 });
 </script>
 
+<script id="modeler-list-template" type="text/x-handlebars-template">
+<table class="table-word-break" summary="모델러 목록">
+	<caption class="hiddenTag">모델러 목록</caption>
+	<colgroup>
+		<col class="col-number" width="10%">
+		<col class="col-number" width="*">
+		<col class="col-number" width="*">
+	</colgroup>
+	<thead>
+		<tr>
+			<th scope="col" class="col-number">선택</th>
+			<th scope="col" class="col-number">모델러명</th>
+			<th scope="col" class="col-number">그룹</th>
+		</tr>
+	</thead>
+	<tbody>
+		{{#datas}}
+		<tr>
+			<td class="col-number"><input type="radio" name="modelerNo" value="{{modelerNo}}"></td>
+			<td class="col-number">{{modelerName}}</td>
+			<td class="col-number">TODO</td>
+		</tr>
+		{{/datas}}
+	</tbody>
+</table>
+</script>
 </div>
