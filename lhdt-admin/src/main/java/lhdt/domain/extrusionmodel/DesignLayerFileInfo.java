@@ -21,6 +21,8 @@ public class DesignLayerFileInfo extends FileInfo {
 	private Long designLayerFileInfoId;
 	// design layer 고유번호
 	private Long designLayerId;
+	// design layer name
+	private String designLayerName;
 	// shape 파일 팀 아이디. .shp 파일의 design_layer_file_info_id 를 team_id로 함
 	private Long designLayerFileInfoTeamId;
 
