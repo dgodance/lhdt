@@ -71,6 +71,7 @@ create table design_layer (
 	design_layer_group_id			    integer,
 	design_layer_key					varchar(100)					not null,
 	design_layer_name				    varchar(256)					not null,
+	design_layer_group_type             varchar(30)                     default 'land',
 	design_layer_type                   varchar(30)                     default 'land',
 	user_id						        varchar(32),
 	sharing						        varchar(30)						default 'public',

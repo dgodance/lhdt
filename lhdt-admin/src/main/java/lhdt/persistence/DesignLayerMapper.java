@@ -129,6 +129,20 @@ public interface DesignLayerMapper {
     * @return
     */
     int deleteDesignLayer(Long designLayerId);
+
+    /**
+     * land geometry delete
+     * @param designLayerId
+     * @return
+     */
+    int deleteGeometryLand(Long designLayerId);
+
+    /**
+     * building geometry delete
+     * @param designLayerId
+     * @return
+     */
+    int deleteGeometryBuilding(Long designLayerId);
     
     /**
      * Design Layer 테이블 삭제

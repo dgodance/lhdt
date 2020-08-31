@@ -79,50 +79,6 @@ public class DesignLayerServiceImpl implements DesignLayerService {
     }
     
     /**
-     * geoserver design layer 목록 조회
-     */
-    @Transactional(readOnly=true)
-    public String getListGeoserverDesignLayer(GeoPolicy geoPolicy) {
-    	String geoserverDesignLayerJson = null;
-    	try {
-			RestTemplate restTemplate = new RestTemplate();
-			
-			HttpHeaders headers = new HttpHeaders();
-			// 클라이언트가 서버에 어떤 형식(MediaType)으로 달라는 요청을 할 수 있는데 이게 Accpet 헤더를 뜻함.
-			List<MediaType> acceptList = new ArrayList<>();
-			acceptList.add(MediaType.ALL);
-			headers.setAccept(acceptList);
-			// 클라이언트가 request에 실어 보내는 데이타(body)의 형식(MediaType)를 표현
-			headers.setContentType(MediaType.TEXT_XML);
-			// geoserver basic 암호화 아이디:비밀번호 를 base64로 encoding 
-			headers.add("Authorization", "Basic " + Base64.getEncoder().
-					encodeToString((geoPolicy.getGeoserverUser() + ":" + geoPolicy.getGeoserverPassword()).getBytes()));
-			
-			List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
-			//Add the String Message converter
-			messageConverters.add(new StringHttpMessageConverter());
-			//Add the message converters to the restTemplate
-			restTemplate.setMessageConverters(messageConverters);
-		    
-			HttpEntity<String> entity = new HttpEntity<>(headers);
-			
-			String url = geoPolicy.getGeoserverDataUrl() + "/rest/workspaces/" + geoPolicy.getGeoserverDataWorkspace()+ "/layers";
-			ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
-			log.info("-------- statusCode = {}, body = {}", response.getStatusCodeValue(), response.getBody());
-            geoserverDesignLayerJson = response.getBody().toString();
-		
-    	} catch(RestClientException e) {
-            LogMessageSupport.printMessage(e, "@@@ RestClientException. message = {}", e.getMessage());
-    	} catch(RuntimeException e) {
-    	    LogMessageSupport.printMessage(e, "@@@ RuntimeException. message = {}", e.getMessage());
-		} catch(Exception e) {
-    	    LogMessageSupport.printMessage(e, "@@@ Exception. message = {}", e.getMessage());
-		}
-    	
-    	return geoserverDesignLayerJson;
-    }
-
-    /**
     * design layer 정보 취득
     * @param designLayerId
     * @return
@@ -421,11 +377,12 @@ public class DesignLayerServiceImpl implements DesignLayerService {
 			deleteGeoserverLayerStyle(geopolicy, designLayer.getDesignLayerKey());
 			// design_layer_file_info 히스토리 삭제
             designLayerFileInfoMapper.deleteDesignLayerFileInfo(designLayerId);
-			// 공간정보 테이블 삭제
-			String designLayerExists = designLayerMapper.isDesignLayerExists(designLayer.getDesignLayerKey());
-			if(designLayerExists != null) {
-				designLayerMapper.deleteDesignLayerTable(designLayer.getDesignLayerKey());
-			}
+			// geometry 정보 삭제
+            if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
+                designLayerMapper.deleteGeometryLand(designLayerId);
+            } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toLowerCase())) {
+                designLayerMapper.deleteGeometryBuilding(designLayerId);
+            }
 		}
 
 		// design 레이어 메타정보 삭제

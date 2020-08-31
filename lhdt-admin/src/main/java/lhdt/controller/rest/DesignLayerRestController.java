@@ -236,7 +236,7 @@ public class DesignLayerRestController implements AuthorizationController {
 
 			statusCode = HttpStatus.OK.value();
 		} catch(DataAccessException e) {
-			// ogr2ogr2 실행하다가 에러날경우 이미 들어간 레이어, 레이러 파일정보 삭제 
+			// ogr2ogr2 실행하다가 에러날경우 이미 들어간 레이어, 레이러 파일정보 삭제
 			Long designLayerId = (Long) updateDesignLayerMap.get("designLayerId");
 			Long designLayerFileInfoTeamId = (Long) updateDesignLayerMap.get("designLayerFileInfoTeamId");
 			designLayerService.deleteDesignLayer(designLayerId);

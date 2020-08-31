@@ -24,12 +24,6 @@ public interface DesignLayerService {
     List<DesignLayer> getListDesignLayer(DesignLayer designLayer);
     
     /**
-     * geoserver에 등록된 design 레이어 목록 조회
-     * @return
-     */
-    String getListGeoserverDesignLayer(GeoPolicy geoPolicy);
-
-    /**
     * design layer 정보 취득
     * @param designLayerId
     * @return
