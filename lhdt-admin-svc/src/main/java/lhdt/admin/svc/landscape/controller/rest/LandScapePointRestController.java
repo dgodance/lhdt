@@ -8,6 +8,7 @@ import lhdt.admin.svc.landscape.domain.LandScapeDiffGroupDTO.LSDiffGroupMeta;
 import lhdt.admin.svc.landscape.domain.LandScapeDiffGroupDTO.LSDiffGroupTable;
 import lhdt.admin.svc.landscape.domain.LandScapeDiffGroupDTO.LSDiffGroupTableDefault;
 import lhdt.admin.svc.landscape.domain.LandScapePoint;
+import lhdt.admin.svc.landscape.domain.landScapeAnalsDTO.LandScapeAnalsTable;
 import lhdt.admin.svc.landscape.model.LandScapeRegistParam;
 import lhdt.admin.svc.landscape.service.LandScapePointService;
 import lhdt.admin.svc.landscape.type.LandScapeAnalsType;
@@ -21,6 +22,9 @@ import org.springframework.data.geo.Point;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Slf4j
 @RestController
 @RequestMapping("/ls-point-rest")
@@ -33,14 +37,32 @@ public class LandScapePointRestController {
     private CPLocalInfoService cpLocalInfoService;
 
     @GetMapping
-    public PageParam<LandScapePoint> getNoticePage(
+    public PageParam<LandScapeAnalsTable> getNoticePage(
             @RequestParam(value = "lsDiffPage", defaultValue = "1") Integer nowPageNum) {
         Page<LandScapePoint> cpLocalInfoPage = landScapeService.findAllPgByStartPg(nowPageNum-1, DSPageSize.NOTICE.getContent());
 
         DSPaginatorInfo cpLocalPageNav = DSPaginator.getPaginatorMap(cpLocalInfoPage, DSPageSize.NOTICE);
+        List<LandScapeAnalsTable> result = new ArrayList<>();
+        for (LandScapePoint landScapePoint : cpLocalInfoPage.getContent()) {
+            var lsat = new LandScapeAnalsTable();
+            lsat.setId(landScapePoint.getId());
+            lsat.setLandScapePointName(landScapePoint.getLandScapePointName());
+            lsat.setEndLandScapePos(landScapePoint.getEndLandScapePos());
+            lsat.setStartAltitude(landScapePoint.getStartAltitude());
+            lsat.setEndAltitude(landScapePoint.getEndAltitude());
+            lsat.setLandScapePointType(landScapePoint.getLandScapePointType());
+            if(landScapePoint.getLandScapePointType() == LandScapeAnalsType.선) {
+                lsat.setViewAction(true);
+                lsat.setAnalsAction(true);
+            } else {
+                lsat.setViewAction(true);
+                lsat.setAnalsAction(false);
+            }
+            result.add(lsat);
+        }
 
-        var sendParam = new PageParam<LandScapePoint>();
-        sendParam.setPage(cpLocalInfoPage.getContent());
+        var sendParam = new PageParam<LandScapeAnalsTable>();
+        sendParam.setPage(result);
         sendParam.setPagenationInfo(cpLocalPageNav);
         sendParam.setSize(cpLocalInfoPage.getSize());
         sendParam.setNowPageNum(nowPageNum -1);;

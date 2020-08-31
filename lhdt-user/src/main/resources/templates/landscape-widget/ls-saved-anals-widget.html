@@ -19,8 +19,7 @@
                             <th>번호</th>
                             <th>경관명</th>
                             <th>이동</th>
-                            <th>확인</th>
-                            <th>삭제</th>
+                            <th>분석</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -29,7 +28,7 @@
                                 <tr>
                                     <td><span class="no">{{id}}</span></td>
                                     <td>
-                                        <span class="no">{{lsDiffName}}</span>
+                                        <span>{{lsDiffName}}</span>
                                     </td>
                                     <td>
                                         <button type="button" class="goto" th:text="이동"
@@ -39,16 +38,8 @@
                                     </td>
                                     <td>
                                         <button type="button" class="showHideButton show"
-                                                th:text="조회" onclick="showData('{{id}}')">
+                                                th:text="분석" onclick="showData('{{id}}')">
                                         </button>
-                                    </td>
-                                    <td>
-                                        <form method="post" action="">
-                                            <button type="button" class="showHideButton delete"
-                                                    th:text="삭제" onclick="deleteData('{{id}}')">
-                                            </button>
-                                        </form>
-
                                     </td>
                                 </tr>
                             {{/each}}
@@ -70,9 +61,9 @@
                         </li>
                         {{#forEachStep pagenationInfo.startPageNum pagenationInfo.lastPageNum 1}}
                             {{#numberEqual this ../nowPageNum}}
-                                <li class="on" onclick="paginSavedAnalsList({{#plus this 1}}{{/plus}})">{{#plus this 1}}{{/plus}}</li>
+                                <li onclick="paginSavedAnalsList({{#plus this 1}}{{/plus}})">{{#plus this 1}}{{/plus}}</li>
                             {{else}}
-                                <li  onclick="paginSavedAnalsList({{#plus this 1}}{{/plus}})">{{#plus this 1}}{{/plus}}</li>
+                                <li onclick="paginSavedAnalsList({{#plus this 1}}{{/plus}})">{{#plus this 1}}{{/plus}}</li>
                             {{/numberEqual}}
                         {{/forEachStep}}
                         <li class="ico back"

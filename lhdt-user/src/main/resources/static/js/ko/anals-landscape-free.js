@@ -168,7 +168,6 @@ const cesiumMouseEvt = {
     mouseMove: function() {
         const handler = new Cesium.ScreenSpaceEventHandler(cesiumMouseEvt.canvas);
         handler.setInputAction( (move) => {
-                console.log(move);
                 cesiumMouseEvt.pos.move = cesiumMouseEvt.posByEvt(move.endPosition);
             },
             Cesium.ScreenSpaceEventType.MOUSE_MOVE
