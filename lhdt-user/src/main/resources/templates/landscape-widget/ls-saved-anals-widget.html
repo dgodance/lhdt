@@ -28,18 +28,22 @@
                                 <tr>
                                     <td><span class="no">{{id}}</span></td>
                                     <td>
-                                        <span>{{lsDiffName}}</span>
+                                        <span>{{landScapePointName}}</span>
                                     </td>
                                     <td>
+                                        {{#if viewAction}}
                                         <button type="button" class="goto" th:text="이동"
                                                 th:title="이동" style="margin: 0px; padding: 0px;"
                                                 onclick="gotoScene('{{id}}')">
                                         </button>
+                                        {{/if}}
                                     </td>
                                     <td>
-                                        <button type="button" class="showHideButton show"
-                                                th:text="분석" onclick="showData('{{id}}')">
-                                        </button>
+                                        {{#if analsAction}}
+                                            <button type="button" class="showHideButton show"
+                                                    th:text="분석" onclick="showData('{{id}}')">
+                                            </button>
+                                        {{/if}}
                                     </td>
                                 </tr>
                             {{/each}}

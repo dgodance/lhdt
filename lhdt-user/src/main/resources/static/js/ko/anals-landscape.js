@@ -1,4 +1,39 @@
 
+
+
+const lsDropDownList = function() {
+	this._ele = '#lsAnalsActionGroup';
+	this._val = {};
+	this._lsFreeAnalsWidgetSource = {};
+	this._lsSavedAnalsWidgetSource = {};
+	this._lsFreeAnalsWidgetSourceTlt = {};
+	this._lsSavedAnalsWidgetSourceTlt = {};
+}
+
+lsDropDownList.prototype.init = function() {
+	this.initProperty();
+	this.change();
+}
+lsDropDownList.prototype.initProperty = function() {
+	const p = new lsFreeAnalsWidget();
+	p.defaultRender();
+}
+
+lsDropDownList.prototype.change = function () {
+	let that = this;
+	$(that._ele).change(function() {
+		const val = that._val = $(this).val();
+		if(val === "0") {
+			const p = new lsFreeAnalsWidget();
+			p.defaultRender()
+		} else {
+			const p = new lsSavedAnalsWidget();
+			p.reqeustDataBylsAnalsPg();
+		}
+	});
+}
+
+
 //원/중/근경
 const ViewPoint = {'A':0, 'B':1, 'C':2};
 
@@ -41,6 +76,10 @@ SkylineObj.prototype.init = function(viewer){
 	
 };
 
+SkylineObj.prototype.calcTwoPointSimulation = function() {
+
+}
+
 
 
 /**
@@ -78,35 +117,7 @@ SkylineObj.prototype.setEventHandler = function(){
 	
 	//자동으로 3점 지도 캡처 & get 스카이라인 base64 & show modal
 	Ppui.on(document.querySelector('.ds-autoall'), 'click' ,function(){
-		document.querySelector('body').style.cursor = 'wait';
-		
-		//모든 점 자동 캡처
-		the.autoCaptureAll(function(){
-			console.log('<<.autoCaptureAll');
-			
-			//show modal
-			the.showModal();
-			
-			
-			//캡처 blob <img>에 할당
-			for(let i=0; i<the.getViewPointCo(); i++){
-				the.setCaptureImgSrc(i, the.getCaptureBlob(i));
-				the.setCaptureThumbImgSrc(i, the.getCaptureBlob(i));
-			}
-			
-			//모든 blob 업로드 & get 스카이라인 base64
-			the.uploadBlobAndGetSkylineImageAll(function(){
-				console.log('<<.uploadBlobAndGetSkylineImageAll');
-								
-				//
-				alert('스카이라인 분석이 완료되었습니다.');
-				document.querySelector('body').style.cursor = 'default';
-			});
-		});
-		
-		
-		//
-		the.showCaptureImage(ViewPoint.A);
+		the.autoCaptureAllMenual();
 	});
 	
 	
@@ -129,7 +140,7 @@ SkylineObj.prototype.setEventHandler = function(){
 		//끝점
 		the.drawPoint(xyz2.lon, xyz2.lat);
 		//선
-		the.drawLine(xyz1, xyz2);		
+		the.drawLine(xyz1, xyz2);
 		
 	});
 	
@@ -146,32 +157,26 @@ SkylineObj.prototype.setEventHandler = function(){
 		
 	});
 
-
-
-	
 	//원경 클릭 이벤트
 	Ppui.on(document.querySelector('.ds-movetop1'), 'click', function(){
 		//
 		let heading = ppmap.getHeading(xyz1, xyz2);
 		
 		//
-		const xyz = Pp.extend(sobj.getViewPoint(ViewPoint.A), {'alt':30.0});
+		const xyz = Pp.extend(the.getViewPoint(ViewPoint.A), {'alt':30.0});
 		//
 		const hpr = new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(heading), Cesium.Math.toRadians(0), Cesium.Math.toRadians(0));
 		//
 		ppmap.flyTo(xyz, hpr, {'duration':0.5});
 		
 	});
-		
-		
-	
 
 	//중경 클릭 이벤트
 	Ppui.on(document.querySelector('.ds-movetop2'), 'click', function(){
 		let heading = ppmap.getHeading(xyz1, xyz2);
 		
 		//
-		const xyz = Pp.extend(sobj.getViewPoint(ViewPoint.B), {'alt':30.0});
+		const xyz = Pp.extend(the.getViewPoint(ViewPoint.B), {'alt':30.0});
 		//
 		const hpr = new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(heading), Cesium.Math.toRadians(0), Cesium.Math.toRadians(0));
 		//
@@ -184,7 +189,7 @@ SkylineObj.prototype.setEventHandler = function(){
 		let heading = ppmap.getHeading(xyz1, xyz2);
 		
 		//
-		const xyz = Pp.extend(sobj.getViewPoint(ViewPoint.C), {'alt':30.0});
+		const xyz = Pp.extend(the.getViewPoint(ViewPoint.C), {'alt':30.0});
 		const hpr = new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(heading), Cesium.Math.toRadians(0), Cesium.Math.toRadians(0));
 		//
 		ppmap.flyTo(xyz, hpr, {'duration':0.5});
@@ -246,6 +251,64 @@ function base64ToBlob(base64, contentType){
 	return blob;
 }
 
+SkylineObj.prototype.drawTwoPointLine = function(xyz1, xyz2) {
+	//시작점
+	const point1 = this.drawPoint(xyz1.lon, xyz1.lat);
+	//끝점
+	const point2 = this.drawPoint(xyz2.lon, xyz2.lat);
+	//선
+	const line = this.drawLine(xyz1, xyz2);
+
+	return {
+		point1: point1,
+		point2: point2,
+		line: line
+	}
+}
+
+SkylineObj.prototype.execCalcViewPoint = function(xyz1, xyz2) {
+	debugger;
+	const that = this;
+	let viewPoint = that.calcViewPoint(xyz1, xyz2);
+
+	//점 표시
+	for(let i=0; i<3; i++){
+		that.drawPoint(viewPoint[i].lon, viewPoint[i].lat);
+	}
+}
+
+SkylineObj.prototype.autoCaptureAllMenual = function() {
+	const that = this;
+
+	document.querySelector('body').style.cursor = 'wait';
+
+	//모든 점 자동 캡처
+	that.autoCaptureAll(function(){
+		console.log('<<.autoCaptureAll');
+
+		//show modal
+		that.showModal();
+
+		//캡처 blob <img>에 할당
+		for(let i=0; i<that.getViewPointCo(); i++){
+			that.setCaptureImgSrc(i, that.getCaptureBlob(i));
+			that.setCaptureThumbImgSrc(i, that.getCaptureBlob(i));
+		}
+
+		//모든 blob 업로드 & get 스카이라인 base64
+		that.uploadBlobAndGetSkylineImageAll(function(){
+			console.log('<<.uploadBlobAndGetSkylineImageAll');
+
+			//
+			alert('스카이라인 분석이 완료되었습니다.');
+			document.querySelector('body').style.cursor = 'default';
+		});
+	});
+
+
+	//
+	that.showCaptureImage(ViewPoint.A);
+}
 
 /**
  * set 캡처 이미지(blob) 
@@ -376,7 +439,7 @@ SkylineObj.prototype.calcViewPoint = function(beginXyz, endXyz){
 	//
 	let diffx = (endXyz.lon - beginXyz.lon) / 4;
 	let diffy = (endXyz.lat - beginXyz.lat) / 4;
-		
+
 	//
 	for(let i=0; i<3; i++){
 		let times = (i+1);
@@ -390,13 +453,14 @@ SkylineObj.prototype.calcViewPoint = function(beginXyz, endXyz){
 
 
 
+
 /**
  * 지도에 점 표시
  * @param {number} lon 경도
  * @param {number} lat 위도
  */
 SkylineObj.prototype.drawPoint = function(lon, lat){
-	let entity = ppmap.viewer.entities.add({
+	return ppmap.getViewer().entities.add({
 		position : Cesium.Cartesian3.fromDegrees(lon, lat, 10),
 		point : {
 				color : Cesium.Color.RED,
@@ -415,7 +479,7 @@ SkylineObj.prototype.drawPoint = function(lon, lat){
  * @param {LonLatAlt} xyz2
  */
 SkylineObj.prototype.drawLine = function(xyz1, xyz2){
-	let entity = ppmap.viewer.entities.add({
+	return ppmap.getViewer().entities.add({
 		name:'',
 		polyline:{
 			positions: Cesium.Cartesian3.fromDegreesArray([xyz1.lon, xyz1.lat, xyz2.lon, xyz2.lat]),
@@ -439,7 +503,7 @@ SkylineObj.prototype.flyToAndCapture = function(gbn, callbackFn){
 	//
 	let heading = ppmap.getHeading(xyz1, xyz2);
 	//
-	const xyz = Pp.extend(sobj.getViewPoint(gbn), {'alt':30.0});		
+	const xyz = Pp.extend(the.getViewPoint(gbn), {'alt':30.0});
 	//
 	const hpr = new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(heading), Cesium.Math.toRadians(0), Cesium.Math.toRadians(0));
 	
@@ -462,7 +526,7 @@ SkylineObj.prototype.flyToAndCapture = function(gbn, callbackFn){
  */
 SkylineObj.prototype.uploadBlobAndGetSkylineImage = function(gbn, callbackFn){
 	//
-	if(gbn >= sobj.getViewPointCo()){
+	if(gbn >= this.getViewPointCo()){
 		console.log(i, 'break');
 		return;
 	}
@@ -633,8 +697,6 @@ SkylineObj.prototype.showSkylineImage = function(gbn){
 
 };
 
-
-
-
-//
-let sobj = new SkylineObj();
+$(function() {
+	new lsDropDownList().init();;
+})

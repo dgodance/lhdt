@@ -1,39 +1,4 @@
 
-
-
-
-const lsDropDownList = function() {
-    this._ele = '#lsAnalsActionGroup';
-    this._val = {};
-    this._lsFreeAnalsWidgetSource = {};
-    this._lsSavedAnalsWidgetSource = {};
-    this._lsFreeAnalsWidgetSourceTlt = {};
-    this._lsSavedAnalsWidgetSourceTlt = {};
-}
-
-lsDropDownList.prototype.init = function() {
-    this.initProperty();
-    this.change();
-}
-lsDropDownList.prototype.initProperty = function() {
-    const p = new lsFreeAnalsWidget();
-    p.defaultRender();
-}
-
-lsDropDownList.prototype.change = function () {
-    let that = this;
-    $(that._ele).change(function() {
-        const val = that._val = $(this).val();
-        if(val === "0") {
-            const p = new lsFreeAnalsWidget();
-            p.defaultRender()
-        } else {
-            const p = new lsSavedAnalsWidget();
-            p.reqeustDataBylsAnalsPg();
-        }
-    });
-}
-
 const lsFreeAnalsWidget = function() {
     this._ele = '#lsFreeAnalsWidget'
 }
@@ -106,7 +71,39 @@ lsDrawLingComponent.prototype.drawLine = function() {
 
 }
 
-new lsDropDownList().init();
+const lsAnalsBtn = function() {
+    this._ele = '#landscapeAnalsBtn'
+}
+
+lsAnalsBtn.prototype.init = function() {
+    this.eventHandler();
+}
+
+lsAnalsBtn.prototype.eventHandler = function() {
+    $(this._ele).click(function() {
+        debugger;
+        const startPos = cesiumMouseEvt.pos.start;
+        const endPos = cesiumMouseEvt.pos.end;
+
+        const pos1 = {
+            lon: startPos.long,
+            lat: startPos.lat,
+            alt: startPos.alt
+        }
+
+        const pos2 = {
+            lon: endPos.long,
+            lat: endPos.lat,
+            alt: endPos.alt
+        }
+
+        const p = new SkylineObj();
+        p.execCalcViewPoint(pos1, pos2);
+        p.autoCaptureAllMenual();
+
+
+    })
+}
 
 
 const cesiumMouseEvt = {
@@ -289,4 +286,7 @@ $(function() {
         canvas: canvas,
     });
     render.init();
+
+    const p = new lsAnalsBtn();
+    p.init();
 })

@@ -154,12 +154,6 @@ function gotoScene(id) {
     });
 }
 
-function showData(id) {
-    $.get('http://localhost:9091/adminsvc/ls-diff-rest/info/'+id).done(function(diffObj) {
-
-    });
-}
-
 function deleteData(id) {
     $.ajax({
         url : 'http://localhost:9091/adminsvc/ls-diff-rest/scene/'+id,

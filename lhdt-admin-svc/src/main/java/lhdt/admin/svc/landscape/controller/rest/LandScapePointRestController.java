@@ -69,6 +69,13 @@ public class LandScapePointRestController {
         return sendParam;
     }
 
+    @GetMapping("/{id}")
+    public LandScapePoint getLSPointById(
+            @PathVariable(value = "id") Long id) {
+        LandScapePoint lp = landScapeService.findById(id);
+        return lp;
+    }
+
     @PostMapping()
     public LSDiffGroupTable getNoticePage(
             @RequestParam(value = "lsGroupPage", defaultValue = "1") Integer landscape_page,
