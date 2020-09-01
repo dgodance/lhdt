@@ -8,6 +8,6 @@ import lombok.Getter;
 public enum LSPointActionType {
     EDIT (0),
     REGIST (1),
-    CONTENT (1);
+    CONTENT (2);
     private Integer code;
 }

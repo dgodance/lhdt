@@ -30,6 +30,8 @@
 <!--	탬플릿 Warp		-->
 <div id="template-warp">
 	<div th:replace="~{/landscape-widget/landscape-widget :: #landscapeDiffWarp}"></div>
+	<div th:replace="~{/landscape-widget/ls-free-anals-widget :: #lsFreeAnalsWarp}"></div>
+	<div th:replace="~{/landscape-widget/ls-saved-anals-widget :: #lsSavedAnalsWrap}"></div>
 </div>
 <div id="loadingWrap">
 	<div class="loading">
@@ -92,6 +94,15 @@
 	<!-- MAP -->
 	<div id="magoContainer" class="mapWrap"></div>
 	<canvas id="objectLabel"></canvas>
+	<!-- range Input!!! -->
+	<div class="sliderWrap" id="csRange">
+		<label for="rangeInput" class="hiddenTag">caRange</label>
+		<input id="rangeInput"/>
+	</div>
+	<div class="sliderWrap" id="saRange">
+		<label for="timeInput" class="hiddenTag">saRange</label>
+		<input id="timeInput"/>
+	</div>
 	<!-- E: MAP -->
 
 </div>
@@ -139,6 +150,7 @@
 <!--DS lib-->
 <script type="text/javascript" th:src="@{/js/{lang}/anals-buildheight.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/anals-landscapedirect.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/anals-landscape-free.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/anals-landscapediff.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/sunshine.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 
