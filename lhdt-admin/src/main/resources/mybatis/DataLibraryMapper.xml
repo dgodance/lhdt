@@ -143,48 +143,6 @@
 			AND data_library_key = #{dataLibraryKey}
 	</select>
 
-	<!-- converterJob 정보를 이용하여 데이터 라이브러리 정보 취득 -->
-	<select id="getDataLibraryByConverterJob" parameterType="dataLibrary" resultType="dataLibrary">
-		/* getDataLibraryByConverterJob */
-		SELECT A.data_library_id, A.data_library_key, A.data_library_group_id, A.data_type, B.data_library_group_key
-		FROM data_library A, data_library_group B 
-		WHERE A.data_library_group_id = B.data_library_group_id
-			AND A.converter_job_id = #{converterJobId}
-			<if test="userId != null and userId != ''">
-			AND A.user_id = #{userId}
-			</if>
-	</select>
-
-	<!-- 데이터 라이브러리 업로딩 정보 입력 -->
-	<insert id="insertDataLibraryUpload" parameterType="dataLibraryUpload" >
-		/* insertDataLibraryUpload */
-		<selectKey keyProperty="dataLibraryUploadId" resultType="long" order="BEFORE">
-			SELECT NEXTVAL('data_library_upload_seq')
-		</selectKey>
-		INSERT INTO data_library_upload (
-			data_library_upload_id, data_library_group_id, sharing, data_type, data_library_name, user_id,
-			file_count, converter_target_count, basic_width, basic_depth, basic_height, description
-		) VALUES (
-			#{dataLibraryUploadId}, #{dataLibraryGroupId}, #{sharing}, #{dataType}, #{dataLibraryName}, #{userId},
-			#{fileCount}, #{converterTargetCount}, #{basicWidth}, #{basicDepth}, #{basicHeight}, #{description}
-		)
-	</insert>
-
-	<!-- 데이터 라이브러리 업로딩 파일 정보 입력 -->
-	<insert id="insertDataLibraryUploadFile" parameterType="dataLibraryUploadFile" >
-		/* insertDataLibraryUploadFile */
-		<selectKey keyProperty="dataLibraryUploadFileId" resultType="long" order="BEFORE">
-			SELECT NEXTVAL('data_library_upload_file_seq')
-		</selectKey>
-		INSERT INTO data_library_upload_file (
-			data_library_upload_file_id, data_library_upload_id, converter_target, user_id, file_type,
-			file_name, file_real_name, file_path, file_sub_path, file_size, file_ext, depth, error_message
-		) VALUES (
-			#{dataLibraryUploadFileId}, #{dataLibraryUploadId}, #{converterTarget}, #{userId}, #{fileType},
-			#{fileName}, #{fileRealName}, #{filePath}, #{fileSubPath}, #{fileSize}, #{fileExt}, #{depth}, #{errorMessage}
-		)
-	</insert>
-	
 	<!-- 데이터 라이브러리 등록 -->
 	<insert id="insertDataLibrary" useGeneratedKeys="true" keyProperty="dataLibraryId" parameterType="dataLibrary">
 		/* insertDataLibrary */

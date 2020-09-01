@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html th:lang="${accessibility}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="/layouts/default">
 <head>
-    <title>업로딩 데이터 변환 목록</title>
+    <title>데이터 라이브러리 업로딩 목록</title>
 	<th:block layout:fragment="pageCustomStyle">
 		<link rel="shortcut icon" th:href="@{/images/favicon.ico(cacheVersion=${contentCacheVersion})}">
 		<link rel="stylesheet" th:href="@{/css/{lang}/font/font.css(lang=${lang}, cacheVersion=${contentCacheVersion})}">
@@ -23,13 +23,13 @@
 
 						<!-- S: 검색 -->
 						<div class="filters">
-							<form id="searchForm" th:object="${uploadData}" method="get" th:action="@{/upload-data/list}" onsubmit="return searchCheck();">
+							<form id="searchForm" th:object="${dataLibraryUpload}" method="get" th:action="@{/data-library/upload-list}" onsubmit="return searchCheck();">
 							<div class="input-group row">
 								<div class="input-set">
 									<label for="searchWord" th:text="#{search.word}"></label>
 									<select id="searchWord" name="searchWord" class="selectBoxClass">
 										<option value="" th:text="#{select}"></option>
-										<option value="data_name" th:text="데이터명"></option>
+										<option value="data_library_name">데이터 라이브러리명</option>
 									</select>
 									<select id="searchOption" name="searchOption" class="selectBoxClass">
 										<option value="0" th:text="#{search.same}"></option>
@@ -47,7 +47,7 @@
 									<label for="orderWord" th:text="#{search.order}"></label>
 									<select id="orderWord" name="orderWord" class="selectBoxClass">
 										<option value="" th:text="#{search.basic}"></option>
-										<option value="data_name" th:text="데이터명"></option>
+										<option value="data_library_name">데이터 라이브러리명</option>
 										<option value="insert_date" th:text="#{search.insert.date}"></option>
 									</select>
 									<select id="orderValue" name="orderValue" class="selectBoxClass">
@@ -71,7 +71,7 @@
 
 						<!-- S: 업로딩 데이터 목록 -->
 						<div class="list">
-							<form id="listForm" th:object="${uploadData}" method="post">
+							<form id="listForm" th:object="${dataLibraryUpload}" method="post">
 								<input type="hidden" id="checkIds" name="checkIds" />
 								<div class="list-header row">
 									<div class="list-desc u-pull-left">
@@ -83,12 +83,12 @@
 									</div>
 									<div class="list-functions u-pull-right">
 										<div class="button-group" style="padding-bottom: 3px;">
-											<a href="#" class="button" title="F4D 일괄 변환" onclick="converterFiles(); return false;">F4D 일괄 변환</a>
+											<a href="#" class="button" title="데이터 라이브러리 일괄 변환" onclick="converterFiles(); return false;">데이터 라이브러리 일괄 변환</a>
 										</div>
 									</div>
 								</div>
-								<table class="list-table scope-col" summary="업로드 목록 테이블">
-									<caption class="hiddenTag">업로드 목록</caption>
+								<table class="list-table scope-col" summary="데이터 라이브러리 업로딩 목록">
+									<caption class="hiddenTag">데이터 라이브러리 업로딩 목록</caption>
 									<colgroup>
 										<col class="col-checkbox"></col>
 										<col class="col-number"></col>
@@ -109,10 +109,10 @@
 												<input type="checkbox" id="chkAll" name="chkAll" />
 											</th>
 											<th scope="col" class="col-number" th:text="#{number}"></th>
-											<th scope="col" class="col-name">그룹명</th>
+											<th scope="col" class="col-name">데이터 라이브러리 그룹명</th>
 											<th scope="col" class="col-name">공유 유형</th>
 											<th scope="col" class="col-name">데이터 타입</th>
-											<th scope="col" class="col-name">데이터명</th>
+											<th scope="col" class="col-name">데이터 라이브러리명</th>
 											<th scope="col" class="col-name">3D파일/전체파일</th>
 											<th scope="col" class="col-name">Converter 횟수</th>
 											<th scope="col" class="col-functions">Converter</th>
@@ -121,42 +121,47 @@
 										</tr>
 									</thead>
 									<tbody>
-										<tr th:if="${uploadDataList.empty}">
+										<tr th:if="${dataLibraryUploadList.empty}">
 											<td colspan="11" class="col-none">파일 업로딩 이력이 존재하지 않습니다.</td>
 										</tr>
 
-										<tr th:if="${!uploadDataList.empty}" th:each="uploadData : ${uploadDataList}">
+										<tr th:if="${!dataLibraryUploadList.empty}" th:each="dataLibraryUpload : ${dataLibraryUploadList}">
 											<td class="col-checkbox">
-												<input type="checkbox" th:id="|uploadDataId_${uploadData.uploadDataId}|" name="uploadDataId" th:value="${uploadData.uploadDataId}" />
+												<input type="checkbox" th:id="|dataLibraryUploadId_${dataLibraryUpload.dataLibraryUploadId}|" name="dataLibraryUploadId"
+													   th:value="${dataLibraryUpload.dataLibraryUploadId}" />
 											</td>
-											<td class="col-number" th:text="${uploadDataStat.count + ((pagination.pageNo-1)*10)}"></td>
-											<td class="col-name ellipsis" th:text="${uploadData.dataGroupName}" style="min-width:120px;max-width:120px;"></td>
-											<td class="col-type" th:if="${#strings.equals(uploadData.sharing, 'common')}" th:text="공통"></td>
-											<td class="col-type" th:if="${#strings.equals(uploadData.sharing, 'public')}" th:text="공개"></td>
-											<td class="col-type" th:if="${#strings.equals(uploadData.sharing, 'private')}" th:text="개인"></td>
-											<td class="col-type" th:if="${#strings.equals(uploadData.sharing, 'group')}" th:text="그룹"></td>
-					
-											<td class="col-type" th:text="${uploadData.dataType}"></td>
+											<td class="col-number" th:text="${dataLibraryUploadStat.count + ((pagination.pageNo-1)*10)}"></td>
+											<td class="col-name ellipsis" th:text="${dataLibraryUpload.dataLibraryGroupName}" style="min-width:120px; max-width:120px;"></td>
+											<td class="col-type">
+												<th:block th:text="${#strings.equals(dataLibraryUpload.sharing, 'common')}">공통</th:block>
+												<!--												<th:block th:text="${#strings.equals(dataLibraryUpload.sharing, 'public')}">공개</th:block>-->
+												<!--												<th:block th:text="${#strings.equals(dataLibraryUpload.sharing, 'private')}">개인</th:block>-->
+												<!--												<th:block th:text="${#strings.equals(dataLibraryUpload.sharing, 'group')}">그룸</th:block>-->
+											</td>
+											<td class="col-type" th:text="${dataLibraryUpload.dataType}"></td>
 											<td class="col-name ellipsis" style="min-width:300px;max-width:300px;">
-												<a th:text="${uploadData.dataName}" th:href="@{/upload-data/modify(uploadDataId=${uploadData.uploadDataId})}"></a>
+												<a th:text="${dataLibraryUpload.dataLibraryName}" th:href="@{/data-library-upload/modify(dataLibraryUploadId=${dataLibraryUpload.dataLibraryUploadId})}"></a>
 											</td>
 											<td class="col-count">
-												<span th:text="${uploadData.converterTargetCount}" style="color:blue; font-weight: bold;"></span>
-												<span th:text="| / ${uploadData.fileCount}개|"></span> 
+												<span th:text="${dataLibraryUpload.converterTargetCount}" style="color:blue; font-weight: bold;"></span>
+												<span th:text="| / ${dataLibraryUpload.fileCount}개|"></span> 
 											</td>
-											<td class="col-count" th:text="|${uploadData.converterCount}건|"></td>
+											<td class="col-count" th:text="|${dataLibraryUpload.converterCount}건|"></td>
 											<td class="col-functions">
 												<span class="button-group">
-													<a href="#" class="button" th:onclick="converterFile([[${uploadData.uploadDataId}]], [[${uploadData.dataName}]], [[${uploadData.dataType}]]); return false;" style="text-decoration: none;">F4D 변환</a>
+													<a href="#" class="button"
+													   th:onclick="converterFile([[${dataLibraryUpload.dataLibraryUploadId}]], [[${dataLibraryUpload.dataLibraryName}]], [[${dataLibraryUpload.dataType}]]); return false;"
+													   style="text-decoration: none;">데이터 라이브러리 변환</a>
 												</span>
 											</td>
 											<td class="col-functions">
 												<span class="button-group">
-													<a href="#" class="image-button button-delete" th:text="#{delete}" th:onclick="deleteUploadData([[${uploadData.uploadDataId}]]); return false;"></a>
+													<a href="#" class="image-button button-delete" th:text="#{delete}"
+													   th:onclick="deleteDataLibraryUpload([[${dataLibraryUpload.dataLibraryUploadId}]]); return false;"></a>
 												</span>
 											</td>
 											<td class="col-type">
-												<th:block th:text="${#temporals.format(uploadData.insertDate,'yyyy-MM-dd HH:mm')}"></th:block>
+												<th:block th:text="${#temporals.format(dataLibraryUpload.insertDate,'yyyy-MM-dd HH:mm')}"></th:block>
 											</td>
 										</tr>
 									</tbody>
@@ -171,8 +176,8 @@
 			</div>
 		</div>
 	</div>
-	<!-- F4D 변환 -->
-	<div th:replace="~{/upload-data/converter-dialog :: #dialogConverterJob}"></div>
+	<!-- 데이터 라이브러리 변환 -->
+	<div th:replace="~{/data-library-upload/converter-dialog :: #dialogConverterJob}"></div>
 </th:block>
 <th:block layout:fragment="pageCustomScript">
 <script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
@@ -182,20 +187,20 @@
 <script type="text/javascript" th:src="@{/js/navigation.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript">
 	$(document).ready(function() {
-		var searchWord = "[[${uploadData.searchWord}]]";
-		var searchOption = "[[${uploadData.searchOption}]]";
-		var orderWord = "[[${uploadData.orderWord}]]";
-		var orderValue = "[[${uploadData.orderValue}]]";
-		var listCounter = "[[${uploadData.listCounter}]]";
+		var searchWord = "[[${dataLibraryUpload.searchWord}]]";
+		var searchOption = "[[${dataLibraryUpload.searchOption}]]";
+		var orderWord = "[[${dataLibraryUpload.orderWord}]]";
+		var orderValue = "[[${dataLibraryUpload.orderValue}]]";
+		var listCounter = "[[${dataLibraryUpload.listCounter}]]";
 
-		if(searchWord != "") $("#searchWord").val("[[${uploadData.searchWord}]]");
-		if(searchOption != "") $("#searchOption").val("[[${uploadData.searchOption}]]");
-		if(orderWord != "") $("#orderWord").val("[[${uploadData.orderWord}]]");
-		if(orderValue != "") $("#orderValue").val("[[${uploadData.orderValue}]]");
-		if(listCounter != "") $("#listCounter").val("[[${uploadData.listCounter}]]");
+		if(searchWord != "") $("#searchWord").val("[[${dataLibraryUpload.searchWord}]]");
+		if(searchOption != "") $("#searchOption").val("[[${dataLibraryUpload.searchOption}]]");
+		if(orderWord != "") $("#orderWord").val("[[${dataLibraryUpload.orderWord}]]");
+		if(orderValue != "") $("#orderValue").val("[[${dataLibraryUpload.orderValue}]]");
+		if(listCounter != "") $("#listCounter").val("[[${dataLibraryUpload.listCounter}]]");
 
 		initDatePicker();
-		initCalendar(new Array("startDate", "endDate"), new Array("[[${uploadData.startDate}]]", "[[${uploadData.endDate}]]"));
+		initCalendar(new Array("startDate", "endDate"), new Array("[[${dataLibraryUpload.startDate}]]", "[[${dataLibraryUpload.endDate}]]"));
 	});
 
 	function searchCheck() {
@@ -221,7 +226,7 @@
 
 	//전체 선택
 	$("#chkAll").click(function() {
-		$(":checkbox[name=uploadDataId]").prop("checked", this.checked);
+		$(":checkbox[name=dataLibraryUploadId]").prop("checked", this.checked);
 	});
 
 	var dialogConverterJob = $( "#dialogConverterJob" ).dialog({
@@ -237,11 +242,11 @@
 		}
 	});
 
-	// F4D Converter Button Click
-	function converterFile(uploadDataId, dataName, dataType) {
+	// 데이터 라이브러리 Converter Button Click
+	function converterFile(dataLibraryUploadId, dataLibraryName, dataType) {
 		$("#dataType").val(dataType);
-		$("#converterCheckIds").val(uploadDataId + ",");
-		$("#title").val(dataName);
+		$("#converterCheckIds").val(dataLibraryUploadId + ",");
+		$("#title").val(dataLibraryName);
 		// 여기서 확장자가 las면 template 을 포인트 클라우트 클릭하게
 		if(dataType === "las") {
 			$("#converterTemplate").val("point-cloud");
@@ -252,10 +257,10 @@
 		dialogConverterJob.dialog( "open" );
 	}
 
-	// All F4D Converter Button Click
+	// All 데이터 라이브러리 Converter Button Click
 	function converterFiles() {
 		var checkedValue = "";
-		$("input:checkbox[name=uploadDataId]:checked").each(function(index) {
+		$("input:checkbox[name=dataLibraryUploadId]:checked").each(function(index) {
 			checkedValue += $(this).val() + ",";
 		});
 		if(checkedValue === "") {
@@ -268,7 +273,7 @@
 		dialogConverterJob.dialog( "open" );
 	}
 
-	// F4D Converter 일괄 변환
+	// 데이터 라이브러리 Converter 일괄 변환
 	var saveConverterJobFlag = true;
 	function saveConverterJob() {
 		if($("#title").val() === null || $("#title").val() === "") {
@@ -290,7 +295,7 @@
 			saveConverterJobFlag = false;
 			var formData =$("#converterJobForm").serialize();
 			$.ajax({
-				url: "/converters",
+				url: "/data-librarys/converter",
 				type: "POST",
 				data: formData,
 				dataType: "json",
@@ -304,7 +309,7 @@
 
 					$("#converterCheckIds").val("");
 					$("#title").val("");
-					$(":checkbox[name=uploadDataId]").prop("checked", false);
+					$(":checkbox[name=dataLibraryUploadId]").prop("checked", false);
 					dialogConverterJob.dialog( "close" );
 					saveConverterJobFlag = true;
 				},
@@ -320,12 +325,12 @@
 	}
 
 	var deleteUploadDataFlag = true;
-	function deleteUploadData(uploadDataId) {
+	function deleteUploadData(dataLibraryUploadId) {
 		if(confirm(JS_MESSAGE["delete.confirm"])) {
 			if(deleteUploadDataFlag) {
 				deleteUploadDataFlag = false;
 				$.ajax({
-					url: "/upload-datas/" + uploadDataId,
+					url: "/data-library/uploads/" + dataLibraryUploadId,
 					type: "DELETE",
 					//data: formData,
 					dataType: "json",

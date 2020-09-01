@@ -4,10 +4,11 @@ import lhdt.config.PropertiesConfig;
 import lhdt.domain.Key;
 import lhdt.domain.PageType;
 import lhdt.domain.common.Pagination;
-import lhdt.domain.extrusionmodel.DataLibraryGroup;
+import lhdt.domain.common.Search;
+import lhdt.domain.converter.ConverterJob;
 import lhdt.domain.extrusionmodel.DataLibrary;
+import lhdt.domain.extrusionmodel.DataLibraryGroup;
 import lhdt.domain.extrusionmodel.DataLibraryUpload;
-import lhdt.domain.uploaddata.UploadData;
 import lhdt.domain.user.UserSession;
 import lhdt.service.DataLibraryGroupService;
 import lhdt.service.DataLibraryService;
@@ -93,102 +94,25 @@ public class DataLibraryController {
 		return "/data-library/list";
 	}
 
-	/**
-	 * 데이터 라이브러리 upload 화면
-	 * @param model
-	 * @return
-	 */
-	@GetMapping(value = "/upload")
-	public String upload(HttpServletRequest request, Model model) {
-		UserSession userSession = (UserSession)request.getSession().getAttribute(Key.USER_SESSION.name());
-
-		DataLibraryGroup dataLibraryGroup = new DataLibraryGroup();
-		dataLibraryGroup.setUserId(userSession.getUserId());
-		List<DataLibraryGroup> dataLibraryGroupList = dataLibraryGroupService.getListDataLibraryGroup(dataLibraryGroup);
-		DataLibraryGroup basicDataLibraryGroup = dataLibraryGroupService.getBasicDataLibraryGroup();
-
-		// basic 디렉토리를 실수로 지웠거나 만들지 않았는지 확인
-		File basicDirectory = new File(propertiesConfig.getAdminDataLibraryServiceDir() + "basic");
-		if(!basicDirectory.exists()) {
-			basicDirectory.mkdir();
-		}
-
-		DataLibraryUpload dataLibraryUpload = DataLibraryUpload.builder().
-				dataLibraryGroupId(basicDataLibraryGroup.getDataLibraryGroupId()).
-				dataLibraryGroupName(basicDataLibraryGroup.getDataLibraryGroupName()).build();
-
-		String acceptedFiles = policyService.getUserUploadType();
-
-		model.addAttribute("dataLibraryUpload", dataLibraryUpload);
-		model.addAttribute("dataLibraryGroupList", dataLibraryGroupList);
-		model.addAttribute("acceptedFiles", acceptedFiles);
-
-		return "/data-library/upload";
-	}
-//
-//	/**
-//	 * 업로딩 라이브러리 파일 목록
-//	 * @param request
-//	 * @param uploadData
-//	 * @param pageNo
-//	 * @param model
-//	 * @return
-//	 */
-//	@GetMapping(value = "/upload-list")
-//	public String list(HttpServletRequest request, UploadData uploadData, @RequestParam(defaultValue="1") String pageNo, Model model) {
-//		uploadData.setSearchWord(SQLInjectSupport.replaceSqlInection(uploadData.getSearchWord()));
-//		uploadData.setOrderWord(SQLInjectSupport.replaceSqlInection(uploadData.getOrderWord()));
-//
-//		log.info("@@ uploadData = {}", uploadData);
-//
-////		UserSession userSession = (UserSession)request.getSession().getAttribute(Key.USER_SESSION.name());
-////		uploadData.setUserId(userSession.getUserId());
-//
-//		if(!StringUtils.isEmpty(uploadData.getStartDate())) {
-//			uploadData.setStartDate(uploadData.getStartDate().substring(0, 8) + DateUtils.START_TIME);
-//		}
-//		if(!StringUtils.isEmpty(uploadData.getEndDate())) {
-//			uploadData.setEndDate(uploadData.getEndDate().substring(0, 8) + DateUtils.END_TIME);
-//		}
-//
-//		long totalCount = uploadDataService.getUploadDataTotalCount(uploadData);
-//		Pagination pagination = new Pagination(request.getRequestURI(), getSearchParameters(PageType.LIST, uploadData),
-//				totalCount, Long.parseLong(pageNo), uploadData.getListCounter());
-//		uploadData.setOffset(pagination.getOffset());
-//		uploadData.setLimit(pagination.getPageRows());
-//
-//		List<UploadData> uploadDataList = new ArrayList<>();
-//		if(totalCount > 0l) {
-//			uploadDataList = uploadDataService.getListUploadData(uploadData);
-//		}
-//
-//		model.addAttribute(pagination);
-//		model.addAttribute("uploadData", uploadData);
-//		model.addAttribute("converterJobForm", new ConverterJob());
-//		model.addAttribute("uploadDataList", uploadDataList);
-//
-//		return "/upload-data/list";
-//	}
-//
 //	/**
 //	 * 데이터 라이브러리 upload 수정
 //	 * @param model
 //	 * @return
 //	 */
 //	@GetMapping(value = "/upload-modify")
-//	public String modify(HttpServletRequest request, UploadData uploadData, Model model) {
+//	public String modify(HttpServletRequest request, DataLibraryUpload dataLibraryUpload, Model model) {
 //		UserSession userSession = (UserSession)request.getSession().getAttribute(Key.USER_SESSION.name());
-////		uploadData.setUserId(userSession.getUserId());
+////		dataLibraryUpload.setUserId(userSession.getUserId());
 //
-//		uploadData = uploadDataService.getUploadData(uploadData);
-//		List<UploadDataFile> uploadDataFileList = uploadDataService.getListUploadDataFile(uploadData);
+//		dataLibraryUpload = dataLibraryUploadService.getDataLibraryUpload(dataLibraryUpload);
+//		List<DataLibraryUploadFile> dataLibraryUploadFileList = dataLibraryUploadService.getListDataLibraryUploadFile(dataLibraryUpload);
 //
 //		DataLibraryGroup dataLibraryGroup = new DataLibraryGroup();
 //		dataLibraryGroup.setUserId(userSession.getUserId());
 //		List<DataLibraryGroup> dataLibraryGroupList = dataLibraryGroupService.getListDataLibraryGroup(dataLibraryGroup);
 //
-//		model.addAttribute("uploadData", uploadData);
-//		model.addAttribute("uploadDataFileList", uploadDataFileList);
+//		model.addAttribute("dataLibraryUpload", dataLibraryUpload);
+//		model.addAttribute("dataLibraryUploadFileList", dataLibraryUploadFileList);
 //		model.addAttribute("dataLibraryGroupList", dataLibraryGroupList);
 //
 //		return "/upload-data/modify";
@@ -266,11 +190,11 @@ public class DataLibraryController {
 	/**
      * 검색 조건
 	 * @param pageType
-     * @param dataLibrary
+     * @param search
      * @return
      */
-	private String getSearchParameters(PageType pageType, DataLibrary dataLibrary) {
-		StringBuffer buffer = new StringBuffer(dataLibrary.getParameters());
+	private String getSearchParameters(PageType pageType, Search search) {
+		StringBuffer buffer = new StringBuffer(search.getParameters());
 		boolean isListPage = true;
 		if(pageType == PageType.MODIFY || pageType == PageType.DETAIL) {
 			isListPage = false;
@@ -279,7 +203,7 @@ public class DataLibraryController {
 //		if(!isListPage) {
 //			buffer.append("pageNo=" + request.getParameter("pageNo"));
 //			buffer.append("&");
-//			buffer.append("list_count=" + uploadData.getList_counter());
+//			buffer.append("list_count=" + dataLibraryUpload.getList_counter());
 //		}
 
 		return buffer.toString();

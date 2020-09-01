@@ -1,4 +1,4 @@
-package lhdt.domain.converter;
+package lhdt.domain;
 
 import lombok.Getter;
 
