@@ -127,7 +127,7 @@
         UPDATE design_layer_land
         SET enable_yn = 'Y',
             version_id = #{fileVersion}
-        WHERE enable_yn IS NULL OR enable_yn = 'Y'
+        WHERE version_id IS NULL
     </update>
 
     <!--building 테이블을 데이터 버전 갱신 -->
@@ -136,7 +136,7 @@
         UPDATE design_layer_building
         SET enable_yn = 'Y',
             version_id = #{fileVersion}
-        WHERE enable_yn IS NULL OR enable_yn = 'Y'
+        WHERE version_id IS NULL
     </update>
 
     <!-- shape 테이블 데이터 상태 변경 -->
