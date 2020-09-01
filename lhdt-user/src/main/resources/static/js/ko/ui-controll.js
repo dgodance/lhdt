@@ -169,6 +169,9 @@ $(function() {
 	$('div.district').click(function() {
 		$(this).toggleClass('on');
 		$('div.districtWrap').toggle();
+		if ($("#searchContent").is(':visible')) {
+			$("#searchContent").hide();
+		}
 	});
 	/*
 	$('div.district').hover(function() {

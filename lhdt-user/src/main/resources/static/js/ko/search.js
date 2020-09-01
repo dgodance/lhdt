@@ -6,14 +6,23 @@ $("#fullTextSearch").keyup(function(e) {
 		}
 	}
 });
-
 // 검색 버튼을 눌렀을때
 $("#fullTextSearchButton").click(function() {
 	if(fullTextSearchCheck()) {
 		fullTextSearch();
 	}
 });
-
+// 닫기 버튼 클릭
+$('#districtSearchCloseButton').click(function() {
+	$('#searchContent').hide();
+});
+// 지도 클릭
+$('#magoContainer').click(function(e) {
+	e.preventDefault();
+	if ($("#searchContent").is(':visible')) {
+		$("#searchContent").hide();
+	}
+});
 // 입력 체크
 function fullTextSearchCheck() {
 	if($("#fullTextSearch").val() === null || $("#fullTextSearch").val().trim() === "") {
@@ -26,6 +35,9 @@ function fullTextSearchCheck() {
 		$("#fullTextSearch").focus();
 		return false;
 	}
+	if ($(".districtWrap").is(':visible')) {
+		$(".districtWrap").hide();
+	}
 	return true;
 }
 
@@ -33,7 +45,7 @@ var fullTextSearchFlag = true;
 function fullTextSearch() {
 	if(fullTextSearchFlag) {
 		fullTextSearchFlag = false;
-		if($('#searchContent').css("display") ==='none') $(".search").click();
+		//if($('#searchContent').css("display") ==='none') $(".search").click();
 		districtSearch(null);
 	} else {
 		alert(JS_MESSAGE["searching"]);
@@ -74,6 +86,7 @@ function districtSearch(pageNo) {
 				var pageTemplate = Handlebars.compile($("#districtPaginationSource").html());
 				$("#districtSearchResultDHTML").html("").append(template(msg))
 				$("#districtPaginationDHTML").html("").append(pageTemplate(msg));
+				$('#searchContent').show();
 				fullTextSearchFlag = true;
 			} else {
 				alert(JS_MESSAGE[msg.errorCode]);

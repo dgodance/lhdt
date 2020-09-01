@@ -38,9 +38,6 @@
 		<div th:replace="~{/fragments/menu :: #navWrap}"></div>
 		<!-- E: NAVWRAP -->
 		<div id="contentsWrap" class="contentsWrap" style="display: none;">
-			<div id="searchContent" class="contents fullHeight" style="display:none;">
-				<div th:replace="~{/search/district :: #districtWrap}"></div>
-			</div>
 			<div id="dataContent" class="contents-margin-default fullHeight">
 				<div class="tabs">
 					<ul id="dataInfoTab" class="tab tab-divide">
@@ -193,6 +190,7 @@
 
 	// smart tiling data flyTo
 	function gotoFly(longitude, latitude, altitude) {
+
 		if(longitude === null || longitude === '' || latitude === null || latitude === '' || altitude === null || altitude === '') {
 			alert(JS_MESSAGE["location.invalid"]);
 			return;

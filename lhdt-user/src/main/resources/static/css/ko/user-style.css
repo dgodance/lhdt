@@ -203,6 +203,68 @@ background-color: #262b3f;
 	/*width: 150px;*/
 }
 
+/* 행정구역 검색결과 */
+.searchContent {
+	box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5);
+	background-color: #fff;
+	font-size: 0.9em;
+}
+.searchSummary {
+	padding: 20px 10px 5px 10px;
+}
+ul.listDefault {
+	height: calc(100% - 40px);
+}
+ul.listDefault > li {
+	margin-bottom: 3px;
+	height: 100%;
+}
+ul.listDefault li > p {
+	padding: 10px;
+	font-size: 15px;
+	/* font-weight: bold; */
+	background-color: #fff;
+}
+ul.listDefault li > p > span {
+	float: right;
+	font-weight: normal;
+}
+ul.listDefault li > ul {
+	display: none;
+}
+ul.listDefault li.on > p {
+	color: #fff;
+	background-color: #258fff;
+}
+ul.listDefault li.on > ul {
+	/*height: calc(100% - 40px);*/
+	display: block;
+	background-color: #fff;
+	border: 1px dotted #999;
+	margin: 0 15px;
+}
+ul.listDefault li.on > ul li {
+	/* cursor: pointer; */
+	padding: 5px;
+	/*border-bottom: 1px dotted #999;*/
+}
+ul.listDefault li.on > ul li:hover {
+	background-color: #dbf1ff;
+}
+ul.listDefault li.on > ul li > * {
+	vertical-align: middle;
+}
+ul.listDefault li.on ul li > span {
+	width: 80%;
+	display: inline-block;
+}
+ul.listDefault li.on ul li > span.title {
+	text-decoration: underline;
+}
+ul.listDefault li.on > ul li > button {
+	float: right;
+}
+
 /* ////////// NAVWRAP ////////// */
 /* NAV */
 .navWrap {
@@ -585,10 +647,7 @@ text-indent: -999em;
 background: url(/images/ko/ico.png) no-repeat -462px -697px;
 }
 button.goto:hover {
-border:none;
-text-indent: -999em;
-background: url(/images/ko/ico.png) no-repeat -462px -697px;
-transform: scale(1.1);
+/*transform: scale(1.1);*/
 }
 
 /* 양쪽으로 나눠진 구분DIV - 정연화 수정 */
@@ -2065,57 +2124,7 @@ z-index:100;
 .border-none{border:none}
 
 
-/* LIST / 검색결과 */
-ul.listDefault {
-height: calc(100% - 40px);
-}
-ul.listDefault > li {
-margin-bottom: 3px;
-height: 100%;
-}
-ul.listDefault li > p {
-padding: 10px;
-font-size: 15px;
-/* font-weight: bold; */
-background-color: #fff;
-}
-ul.listDefault li > p > span {
-float: right;
-font-weight: normal;
-}
-ul.listDefault li > ul {
-display: none;
-}
-ul.listDefault li.on > p {
-color: #fff;
-background-color: #258fff;
-}
-ul.listDefault li.on > ul {
-height: calc(100% - 40px);
-display: block;
-background-color: #fff;
-}
-ul.listDefault li.on > ul li {
-/* cursor: pointer; */
-padding: 10px;
-border-bottom: 1px dotted #999;
-}
-ul.listDefault li.on > ul li:hover {
-background-color: #dbf1ff;
-}
-ul.listDefault li.on > ul li > * {
-vertical-align: middle;
-}
-ul.listDefault li.on ul li > span {
-width: 80%;
-display: inline-block;
-}
-ul.listDefault li.on ul li > span.title {
-text-decoration: underline;
-}
-ul.listDefault li.on > ul li > button {
-float: right;
-}
+
 
 /* 데이터 목록 / 범례 */
 /*

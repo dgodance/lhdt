@@ -53,14 +53,19 @@ function District(magoInstance, viewer) {
 
         var layer = viewer.imageryLayers.addImageryProvider(provider);
         layer.id = "district";
-    }
+    },
 
     this.deleteDistrict = function () {
         var districtProvider = NDTP.map.getImageryLayerById('district');
         if (districtProvider) {
             viewer.imageryLayers.remove(districtProvider);
         }
+    },
+
+    this.gotoFly = function(longitude, latitude, altitude, duration) {
+        gotoFlyAPI(MAGO3D_INSTANCE, longitude, latitude, altitude, duration);
     }
+
 }
 
 var sdoName = "";
@@ -416,10 +421,6 @@ function getCentroid(name, sdoCode, sggCode, emdCode, bjcdLen) {
             console.log("code : " + request.status + "\n message : " + request.responseText + "\n error : " + error);
         }
     });
-}
-
-function gotoFly(longitude, latitude, altitude, duration) {
-    gotoFlyAPI(MAGO3D_INSTANCE, longitude, latitude, altitude, duration);
 }
 
 function updateViewDistrictName() {
