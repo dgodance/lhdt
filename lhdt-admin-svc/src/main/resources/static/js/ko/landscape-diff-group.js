@@ -141,4 +141,6 @@ function lsDiffModiBtn(id, value) {
 
 $(document).ready(function() {
     KTDatatableRemoteAjaxDemo.init();
+    const p = new asideMenuComponent('ls-diff-wrap', 'ls-diff-group');
+    p.setMenu();
 });
