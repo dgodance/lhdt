@@ -191,8 +191,12 @@
 		var f4dController = magoInstance.getF4dController();
 		
 		//gravity
-		ppmap.init(viewer);
-		sobj.init(viewer);
+		try{
+			ppmap.init(viewer);
+			sobj.init(viewer);			
+		}catch(e){
+			console.log(e);
+		}
 		
 
 		// TODO : 세슘 MAP 선택 UI 제거,엔진에서 처리로 변경 예정.
