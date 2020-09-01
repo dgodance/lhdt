@@ -370,19 +370,19 @@ var Ppui = function () {
             var b = null;
 
             //
-            b = _element(el);
+            b = _element(el, className);
             if (null != b) {
                 return b;
             }
 
             //
-            b = _collection(el);
+            b = _collection(el, className);
             if (null != b) {
                 return b;
             }
 
             //
-            b = _nodeList(el);
+            b = _nodeList(el, className);
             if (null != b) {
                 return b;
             }
@@ -523,7 +523,7 @@ var Ppui = function () {
 
         /**
          * blob로 <img> 생성
-            * @param {Object} blob 이미지 blob
+         * @param {Object} blob 이미지 blob
          * @param {object} option 속성값 {'width':number, 'height':number, 'id':string, 'name':string}
          * @param {function} callbackFn 이미지 생성 완료 후 호출할 콜백함수. FileReader가 비동기적으로 처리되기 때문에 콜백사용
          */
@@ -862,7 +862,7 @@ var Ppui = function () {
 
         /**
          * el에 이벤트 등록
-         * @param {HtmlElement} el
+         * @param {HtmlElement|HTMLCollection|NodeList|string} elOrSelector
          * @param {string} eventName
          * @param {Function} callbackFn
          * @since	20200818	init
@@ -870,14 +870,145 @@ var Ppui = function () {
 
     }, {
         key: 'on',
-        value: function on(el, eventName, callbackFn) {
-            if (Pp.isNull(el)) {
+        value: function on(elOrSelector, eventName, callbackFn) {
+            var _element = function _element(el, eventName, callbackFn) {
+                if (!Ppui._isElement(el)) {
+                    return;
+                }
+
+                //
+                el.addEventListener(eventName, callbackFn);
+            };
+
+            //
+            var _collection = function _collection(coll, eventName, callbackFn) {
+                if (!Ppui._isCollection(coll)) {
+                    return;
+                }
+
+                //
+                for (var i = 0; i < coll.length; i++) {
+                    var el = coll.item(i);
+
+                    //
+                    _element(el, eventName, callbackFn);
+                }
+            };
+
+            //
+            var _nodeList = function _nodeList(nl, eventName, callbackFn) {
+                if (!Ppui._isNodeList(nl)) {
+                    return;
+                }
+
+                //
+                nl.forEach(function (node) {
+                    _element(node, eventName, callbackFn);
+                });
+            };
+
+            //
+            if (Pp.isNull(elOrSelector)) {
                 console.log('on', 'null htmlNode');
                 return;
             }
 
             //
-            el.addEventListener(eventName, callbackFn);
+            var elOrColl = elOrSelector;
+            if ('string' === typeof elOrColl) {
+                elOrColl = document.querySelectorAll(elOrSelector);
+            }
+
+            //
+            _element(elOrColl, eventName, callbackFn);
+            //
+            _collection(elOrColl, eventName, callbackFn);
+            //
+            _nodeList(elOrColl, eventName, callbackFn);
+        }
+
+        /**
+         * 이벤트 강제로 실행시키기
+         * @param {HTMLElement|HTMLCollection|NodeList|string} elOrSelector 
+         * @param {string} eventName 이벤트명
+         */
+
+    }, {
+        key: 'trigger',
+        value: function trigger(elOrSelector, eventName) {
+            //엘리먼트
+            var _element = function _element(el, eventName) {
+                if (!Ppui._isElement(el)) {
+                    return;
+                }
+
+                //
+                el.dispatchEvent(new Event(eventName));
+            };
+
+            //콜렉션
+            var _collection = function _collection(coll, eventName) {
+                if (!Ppui._isCollection(coll)) {
+                    return;
+                }
+
+                //
+                for (var i = 0; i < coll.length; i++) {
+                    var _el4 = coll.item(i);
+
+                    //
+                    _element(_el4, eventName);
+                }
+            };
+
+            //노드리스트
+            var _nodeList = function _nodeList(nl, eventName) {
+                if (!Ppui._isNodeList(nl)) {
+                    return;
+                }
+
+                //
+                nl.forEach(function (node) {
+                    _element(node, eventName);
+                });
+            };
+
+            //
+            var el = elOrSelector;
+            if ('string' === typeof el) {
+                el = document.querySelectorAll(elOrSelector);
+            }
+
+            //
+            _element(el, eventName);
+            //
+            _collection(el, eventName);
+            //
+            _nodeList(el, eventName);
+        }
+
+        /**
+         * click 이벤트 등록
+         * @param {HTMLElement|HTMLCollection|NodeList|string} elOrSelector 
+         * @param {function} callbackFn 
+         */
+
+    }, {
+        key: 'click',
+        value: function click(elOrSelector, callbackFn) {
+            Ppui.on(elOrSelector, 'click', callbackFn);
+        }
+
+        /**
+         * change 이벤트 등록
+         * @param {HTMLElement|HTMLCollection|NodeList|string} elOrSelector 
+         * @param {function} callbackFn 
+         */
+
+    }, {
+        key: 'change',
+        value: function change(elOrSelector, callbackFn) {
+            Ppui.on(elOrSelector, 'change', callbackFn);
         }
 
         /**

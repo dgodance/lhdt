@@ -14,16 +14,9 @@
             </div>
         </li>
 
-        <li class="on">
+        <li class="on ds-li-lot-view">
             <p th:text="단지가시화"><span class="collapse-icon">icon</span></p>
-            <div id="lotViewProcess" class="listContents">
-                <ul>
-                    <li>
-                        <label for="lotViewToggle" th:text="활성화"></label>
-                        <input type="checkbox" value="" placeholder="" id="lotViewToggle"/>
-                    </li>
-                </ul>
-            </div>
+            <th:block th:insert="~{/cityplan/cityplan-lot-view :: #lotViewProcess}"/>
         </li>
 
         <li class="on">
@@ -64,5 +57,8 @@
             </div>
         </li>
     </ul>
+ 
+ 
+	
 </div>
 </html>
