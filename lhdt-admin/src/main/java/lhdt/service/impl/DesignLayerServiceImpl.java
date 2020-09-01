@@ -183,9 +183,8 @@ public class DesignLayerServiceImpl implements DesignLayerService {
     */
     @Transactional
     public Map<String, Object> updateDesignLayer(DesignLayer designLayer, boolean isDesignLayerFileInfoExist, List<DesignLayerFileInfo> designLayerFileInfoList) {
-
+        log.info("designLayerFileInfoList ======================================== {} " , designLayerFileInfoList);
         Map<String, Object> designLayerFileInfoTeamMap = new HashMap<>();
-
         // design layer 정보 수정
         designLayerMapper.updateDesignLayer(designLayer);
 
@@ -195,13 +194,16 @@ public class DesignLayerServiceImpl implements DesignLayerService {
             String shapeEncoding = null;
             Long designLayerId = designLayer.getDesignLayerId();
             String userId = designLayer.getUserId();
-            String tableName = designLayer.getDesignLayerKey();
 
             if(isDesignLayerFileInfoExist) {
                 // 모든 design_layer_file_info 의 shape 상태를 비활성화로 update 함
                 designLayerFileInfoMapper.updateDesignLayerFileInfoAllDisabledByDesignLayerId(designLayerId);
                 // 이 design 레이어의 지난 데이터를 비 활성화 상태로 update 함
-                designLayerFileInfoMapper.updateShapePreDataDisable(tableName);
+                if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
+                    designLayerFileInfoMapper.updateLandPreDataDisable(designLayerId);
+                } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toLowerCase())) {
+                    designLayerFileInfoMapper.updateBuildingPreDataDisable(designLayerId);
+                }
             }
 
             Long designLayerFileInfoTeamId = 0L;
@@ -228,8 +230,9 @@ public class DesignLayerServiceImpl implements DesignLayerService {
             designLayerFileInfoTeamMap.put("fileVersion", fileVersion);
             designLayerFileInfoTeamMap.put("shapeFileName", shapeFileName);
             designLayerFileInfoTeamMap.put("shapeEncoding", shapeEncoding);
-            designLayerFileInfoTeamMap.put("layerFileInfoTeamId", designLayerFileInfoTeamId);
-            designLayerFileInfoTeamMap.put("layerFileInfoTeamIdList", designLayerFileInfoTeamIdList);
+            designLayerFileInfoTeamMap.put("designLayerFileInfoTeamId", designLayerFileInfoTeamId);
+            designLayerFileInfoTeamMap.put("designLayerFileInfoTeamIdList", designLayerFileInfoTeamIdList);
+            designLayerFileInfoTeamMap.put("designLayerId", designLayerId);
             log.info("+++ designLayerFileInfoTeamMap = {}", designLayerFileInfoTeamMap);
             designLayerFileInfoMapper.updateDesignLayerFileInfoTeam(designLayerFileInfoTeamMap);
         }
@@ -301,26 +304,24 @@ public class DesignLayerServiceImpl implements DesignLayerService {
     public int updateDesignLayerByDesignLayerFileInfoId(Long designLayerId, Long designLayerFileInfoTeamId, Long designLayerFileInfoId) {
         // design layer 정보 수정
         DesignLayer designLayer = designLayerMapper.getDesignLayer(designLayerId);
-        String tableName = designLayer.getDesignLayerKey();
+        Integer fileVersion = designLayerFileInfoMapper.getDesignLayerShapeFileVersion(designLayerFileInfoId);
 
         // 모든 design_layer_file_info 의 shape 상태를 비활성화로 update 함
         designLayerFileInfoMapper.updateDesignLayerFileInfoAllDisabledByDesignLayerId(designLayerId);
         // shape table 모든 데이터를 비활성화 함
-        designLayerFileInfoMapper.updateShapePreDataDisable(tableName);
+        if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
+            designLayerFileInfoMapper.updateLandPreDataDisable(designLayerId);
+            designLayerFileInfoMapper.updateLandStatus(fileVersion);
+        } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toLowerCase())) {
+            designLayerFileInfoMapper.updateBuildingPreDataDisable(designLayerId);
+            designLayerFileInfoMapper.updateBuildingStatus(fileVersion);
+        }
 
         DesignLayerFileInfo designLayerFileInfo = new DesignLayerFileInfo();
         designLayerFileInfo.setDesignLayerId(designLayerId);
         designLayerFileInfo.setDesignLayerFileInfoTeamId(designLayerFileInfoTeamId);
-        designLayerFileInfo.setEnableYn("Y");
-        designLayerFileInfoMapper.updateDesignLayerFileInfoByTeamId(designLayerFileInfo);
 
-        Integer fileVersion = designLayerFileInfoMapper.getDesignLayerShapeFileVersion(designLayerFileInfoId);
-        Map<String, String> orgMap = new HashMap<>();
-        orgMap.put("fileVersion", fileVersion.toString());
-        orgMap.put("tableName", tableName);
-        orgMap.put("enableYn", "Y");
-
-        return designLayerFileInfoMapper.updateOgr2OgrStatus(orgMap);
+        return designLayerFileInfoMapper.updateDesignLayerFileInfoByTeamId(designLayerFileInfo);
     }
 
     /**
@@ -334,21 +335,21 @@ public class DesignLayerServiceImpl implements DesignLayerService {
 	public void rollbackDesignLayer(DesignLayer designLayer, boolean isDesignLayerFileInfoExist, DesignLayerFileInfo designLayerFileInfo, Long deleteDesignLayerFileInfoTeamId) {
 		designLayerMapper.updateDesignLayer(designLayer);
 		if (isDesignLayerFileInfoExist) {
-            designLayerFileInfoMapper.deleteDesignLayerFileInfoByTeamId(deleteDesignLayerFileInfoTeamId);
+            Integer fileVersion = designLayerFileInfo.getVersionId();
 
+            designLayerFileInfoMapper.deleteDesignLayerFileInfoByTeamId(deleteDesignLayerFileInfoTeamId);
 			// 모든 design_layer_file_info 의 shape 상태를 비활성화로 update 함
             designLayerFileInfoMapper.updateDesignLayerFileInfoAllDisabledByDesignLayerId(designLayer.getDesignLayerId());
 			// 이 design 레이어의 지난 데이터를 비 활성화 상태로 update 함
-            designLayerFileInfoMapper.updateShapePreDataDisable(designLayer.getDesignLayerKey());
-
+            if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
+                designLayerFileInfoMapper.updateLandPreDataDisable(designLayer.getDesignLayerId());
+                designLayerFileInfoMapper.updateLandStatus(fileVersion);
+            } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toLowerCase())) {
+                designLayerFileInfoMapper.updateBuildingPreDataDisable(designLayer.getDesignLayerId());
+                designLayerFileInfoMapper.updateBuildingStatus(fileVersion);
+            }
 			// 이전 design 레이어 이력을 활성화
             designLayerFileInfoMapper.updateDesignLayerFileInfoByTeamId(designLayerFileInfo);
-			// 이전 shape 데이터를 활성화
-			Map<String, String> orgMap = new HashMap<>();
-			orgMap.put("fileVersion", designLayerFileInfo.getVersionId().toString());
-			orgMap.put("tableName", designLayer.getDesignLayerKey());
-			orgMap.put("enableYn", "Y");
-            designLayerFileInfoMapper.updateOgr2OgrStatus(orgMap);
 		} else {
             designLayerFileInfoMapper.deleteDesignLayerFileInfo(designLayer.getDesignLayerId());
 			// TODO shape 파일에도 이력이 있음 지워 줘야 하나?

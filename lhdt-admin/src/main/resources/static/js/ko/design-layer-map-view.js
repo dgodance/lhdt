@@ -17,8 +17,8 @@ var mapViewer = function(policy, layer, versionId) {
 	var layerKey = layer.designLayerKey;
 	var designlayerId = layer.designLayerId;
 	var layerInsertType = layer.layerInsertType;
-	var queryString = (versionId > 0) ? "version_id='" + versionId + "'" :"enable_yn='Y'";
-	queryString = "design_layer_id=" + designlayerId + ";" + queryString;
+	var queryString = (versionId > 0) ? "version_id=" + versionId  :"enable_yn='Y'";
+	queryString = "design_layer_id=" + designlayerId + " and " + queryString;
 	var layerName = geoserverDataWorkspace + ":" + layerKey;
 	var layerParam = {
 			'VERSION' : '1.1.1',
