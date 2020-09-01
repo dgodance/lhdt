@@ -143,16 +143,16 @@ background-color: #262b3f;
 	box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5);
 	background-color: #fff;
 }
-.districtWrap > p.districtNav {
+.districtWrap p.districtNav {
 	text-align: right;
 	padding: 10px;
 	font-size: 0.9em;
 }
-.districtWrap > p.districtNav span {
+.districtWrap p.districtNav span {
 	color: #797979;
 	margin: 0 8px;
 }
-.districtWrap > p.districtNav span.on {
+.districtWrap p.districtNav span.on {
 	color: #258fff;
 }
 .districtLayer {
