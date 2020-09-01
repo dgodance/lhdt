@@ -91,7 +91,7 @@
 									<span class="icon-glyph glyph-emark-dot color-warning"></span>
 								</th>
 								<td class="col-input">
-									<input type="hidden" id="urbanGroupId" name="urbanGroupId" />
+									<input type="hidden" id="urbanGroupId" name="urbanGroupId" th:field="*{urbanGroupId}" />
 									<input type="text" id="urbanGroupName" name="urbanGroupName" th:field="*{urbanGroupName}" class="m" th:readonly="true" />
 									<input type="button" id="urbanGroupButton" value="도시 그룹 선택" />
 								</td>
@@ -100,8 +100,8 @@
 									<span class="icon-glyph glyph-emark-dot color-warning"></span>
 								</th>
 								<td class="col-input">
-									<input type="hidden" id="designLayerGroupId" name="designLayerGroupId" />
-									<input type="hidden" id="designLayerGroupType" name="designLayerGroupType" />
+									<input type="hidden" id="designLayerGroupId" name="designLayerGroupId" th:field="*{designLayerGroupId}" />
+									<input type="hidden" id="designLayerGroupType" name="designLayerGroupType" th:field="*{designLayerGroupType}" />
 									<input type="text" id="designLayerGroupName" name="designLayerGroupName" th:field="*{designLayerGroupName}" class="m" th:readonly="true" />
 									<input type="button" id="designLayerGroupButton" value="디자인 레이어 그룹 선택" />
 								</td>
@@ -662,7 +662,6 @@
                     //startSpinner("fileUploadSpinner");
                     fileUploadDialog.dialog( "open" );
                 } else {
-                	layerLoadingDialog.dialog("open");
                     //send empty
                     //myDropzone.uploadFiles([{ name: 'nofiles', upload: { filename: 'nofiles' } }]);
                     myDropzone._uploadData([{ upload: { filename: '' } }], [{ filename: '', name: '', data: new Blob() }]);
@@ -730,7 +729,6 @@
 	            } else {
 					console.log("------- success response = " + response);
 					if(response.statusCode <= 200) {
-						layerLoadingDialog.dialog("close");
 						setTimeout(function(){
 		        			alert(JS_MESSAGE["update"]);
 						},100);
@@ -750,9 +748,8 @@
 
     var reloadLayerFileInfoListCount = 0;
 	function reloadLayerFileInfoList() {
-    	console.log("reloadLayerFileInfoListCount = " + reloadLayerFileInfoListCount);
     	$.ajax({
-            url: "/layer/[[${designLayer.designLayerId}]]/layer-fileinfos",
+            url: "/design-layers/[[${designLayer.designLayerId}]]/layer-fileinfos",
             type: "GET",
             headers: {"X-Requested-With": "XMLHttpRequest"},
             dataType: "json",
@@ -776,7 +773,7 @@
 				});
 
 				//핸들바 템플릿에 데이터를 바인딩해서 HTML 생성
-				var reloadData = { layerFileInfoList: msg.layerFileInfoList };
+				var reloadData = { designLayerFileInfoList: msg.designLayerFileInfoList };
 				var layerFileInfoListHtml = template(reloadData);
 				$("#layerFileInfoListArea").html("");
 				$("#layerFileInfoListArea").append(layerFileInfoListHtml);
@@ -790,11 +787,11 @@
     }
 
 	// 비활성화 상태의 layer를 활성화 함
-	function changeStatus(layerId, layerFileInfoTeamId, layerFileInfoId) {
-		var info = "layerFileInfoTeamId=" + layerFileInfoTeamId;
+	function changeStatus(layerId, designLayerFileInfoTeamId, layerFileInfoId) {
+		var info = "designLayerFileInfoTeamId=" + designLayerFileInfoTeamId;
 		if(confirm("이 파일을 layer Shape 파일로 사용하시겠습니까?")) {
             $.ajax({
-                url: "/layer/[[${designLayer.designLayerId}]]/layer-file-infos/" + layerFileInfoId,
+                url: "/design-layers/[[${designLayer.designLayerId}]]/layer-file-infos/" + layerFileInfoId,
 				type: "POST",
 				headers: {"X-Requested-With": "XMLHttpRequest"},
 				data: info,
@@ -851,7 +848,7 @@
 
  	// 지도 보기
     function viewLayerMap(layerId, layerName, layerFileInfoId) {
-    	var url = "/design-layer/" + layerId + "/map?layerFileInfoId=" + layerFileInfoId;
+    	var url = "/design-layer/" + layerId + "/map?designLayerFileInfoId=" + layerFileInfoId;
 		var width = 1000;
 		var height = 700;
 

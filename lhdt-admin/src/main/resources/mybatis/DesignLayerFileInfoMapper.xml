@@ -116,9 +116,14 @@
     </update>
 
     <!-- 해당 design 레이어의 이전 데이터를 전부 비활성화 상태로 수정 -->
-    <update id="updateShapePreDataDisable" parameterType="string">
-        /* updateShapePreDataDisable */
-        UPDATE ${value} SET enable_yn = 'N'
+    <update id="updateLandPreDataDisable" parameterType="long">
+        /* updateLandPreDataDisable */
+        UPDATE design_layer_land SET enable_yn = 'N' WHERE design_layer_id = #{designLayerId}
+    </update>
+
+    <update id="updateBuildingPreDataDisable" parameterType="long">
+        /* updateBuildingPreDataDisable */
+        UPDATE design_layer_building SET enable_yn = 'N' WHERE design_layer_id = #{designLayerId}
     </update>
 
     <!--land 테이블을 데이터 버전 갱신 -->
@@ -140,12 +145,18 @@
     </update>
 
     <!-- shape 테이블 데이터 상태 변경 -->
-    <update id="updateOgr2OgrStatus" parameterType="map">
-        /* updateOgr2OgrStatus */
-        UPDATE ${tableName}
+    <update id="updateLandStatus" parameterType="int">
+        /* updateLandStatus */
+        UPDATE design_layer_land
         SET enable_yn = 'Y'
-        <!-- WHERE update = #{updateDate} -->
-        WHERE version_id = CAST(#{fileVersion} AS integer)
+        WHERE version_id = #{fileVersion}
+    </update>
+
+    <update id="updateBuildingStatus" parameterType="int">
+        /* updateBuildingStatus */
+        UPDATE design_layer_building
+        SET enable_yn = 'Y'
+        WHERE version_id = #{fileVersion}
     </update>
 
     <!-- design 레이어 삭제 -->

@@ -20,6 +20,7 @@ import lhdt.support.ZipSupport;
 import lhdt.utils.FileUtils;
 import lhdt.utils.WebUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -220,12 +221,11 @@ public class DesignLayerRestController implements AuthorizationController {
 			} else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
 				extrusionColumns = geoPolicy.getShapeBuildingRequiredColumns();
 			}
-			List<DesignLayer> shapePropertiesList = shapeFileParser.getExtrusionModelList(objectMapper, extrusionColumns);
-
 			// 2. 레이어 기본 정보 및 레이어 이력 정보 등록
 			updateDesignLayerMap = designLayerService.insertDesignLayer(designLayer, designLayerFileInfoList);
 			if (!designLayerFileInfoList.isEmpty()) {
 				// 3. geometry 정보 insert
+				List<DesignLayer> shapePropertiesList = shapeFileParser.getExtrusionModelList(objectMapper, extrusionColumns);
 				designLayerService.insertShapeInfo(designLayer, shapePropertiesList);
 				// org2ogr 로 등록한 데이터의 version을 갱신
 				Map<String, String> orgMap = new HashMap<>();
@@ -280,6 +280,208 @@ public class DesignLayerRestController implements AuthorizationController {
 		return result;
 	}
 
+	/**
+	 * shape 파일 변환
+	 * TODO dropzone 이 파일 갯수만큼 form data를 전송해 버려서 command 패턴을(Layer layer) 사용할 수 없음
+	 * dropzone 이 예외 처리가 이상해서 BAD_REQUEST 를 던지지 않고 OK 를 넣짐
+	 * @param request
+	 * @param designLayerId
+	 * @return
+	 */
+    @SuppressWarnings("unchecked")
+	@PostMapping(value = "/update/{designLayerId:[0-9]+}")
+    public Map<String, Object> update(MultipartHttpServletRequest request, @PathVariable("designLayerId") Long designLayerId) {
+
+    	Map<String, Object> result = new HashMap<>();
+		int statusCode = 0;
+		String errorCode = null;
+		String message = null;
+
+        boolean isRollback = false;
+        DesignLayer rollbackLayer = new DesignLayer();
+        boolean isDesignDesignLayerFileInfoExist = false;
+        DesignLayerFileInfo rollbackDesignLayerFileInfo = null;
+        Long deleteDesignLayerFileInfoTeamId = null;
+
+        try {
+            errorCode = validate(request);
+            if(!StringUtils.isEmpty(errorCode)) {
+            	result.put("statusCode", HttpStatus.BAD_REQUEST.value());
+                result.put("errorCode", errorCode);
+                return result;
+            }
+
+            UserSession userSession = (UserSession)request.getSession().getAttribute(Key.USER_SESSION.name());
+            String userId = userSession.getUserId();
+
+            List<DesignLayerFileInfo> designLayerFileInfoList = new ArrayList<>();
+            Map<String, MultipartFile> fileMap = request.getFileMap();
+
+            Policy policy = policyService.getPolicy();
+			GeoPolicy geoPolicy = geoPolicyService.getGeoPolicy();
+			String shapeEncoding = replaceInvalidValue(request.getParameter("shapeEncoding"));
+			String today = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+
+            // layer 변경 횟수가 많지 않아서 년 단위로 관리할 예정
+            String makedDirectory = propertiesConfig.getLayerUploadDir();
+            FileUtils.makeDirectory(makedDirectory);
+            makedDirectory = makedDirectory + today.substring(0,4) + File.separator;
+			FileUtils.makeDirectory(makedDirectory);
+            log.info("@@@@@@@ = {}", makedDirectory);
+
+            // 1. 롤백 처리를 위해 기존 레이어 정보 복사
+            DesignLayer designLayer = designLayerService.getDesignLayer(designLayerId);
+            BeanUtils.copyProperties(designLayer, rollbackLayer);
+            // layer 파일의 경우 한 세트가 같은 이름에 확장자만 달라야 한다.
+            String groupFileName = designLayer.getDesignLayerKey() + "_" + today;
+
+            // 한건이면서 zip 의 경우
+            boolean isZipFile = false;
+            int fileCount = fileMap.values().size();
+            log.info("********************************************* fileCount = {}", fileCount);
+            if(fileCount == 1) {
+                for (MultipartFile multipartFile : fileMap.values()) {
+                    String[] divideNames = multipartFile.getOriginalFilename().split("\\.");
+                    String fileExtension = divideNames[divideNames.length - 1];
+                    if(DesignLayerFileInfo.ZIP_EXTENSION.equalsIgnoreCase(fileExtension)) {
+                        isZipFile = true;
+                        // zip 파일
+                        Map<String, Object> uploadMap = unzip(policy, groupFileName, multipartFile, shapeEncoding, makedDirectory);
+                        designLayerFileInfoList = (List<DesignLayerFileInfo>)uploadMap.get("designLayerFileInfoList");
+                    }
+                }
+            }
+
+            if(!isZipFile) {
+                for (MultipartFile multipartFile : fileMap.values()) {
+                    log.info("@@@@@@@@@@@@@@@ name = {}, original_name = {}", multipartFile.getName(), multipartFile.getOriginalFilename());
+
+                    String saveFileName = groupFileName;
+                    DesignLayerFileInfo designLayerFileInfo = new DesignLayerFileInfo();
+
+                    // 파일 기본 validation 체크
+                    errorCode = fileValidate(policy, multipartFile);
+                    if(!StringUtils.isEmpty(errorCode)) {
+                    	result.put("statusCode", HttpStatus.BAD_REQUEST.value());
+                        result.put("errorCode", errorCode);
+                        return result;
+                    }
+
+					String originalName = multipartFile.getOriginalFilename();
+					String[] divideFileName = originalName.split("\\.");
+					String extension = null;
+					if (divideFileName.length != 0) {
+						extension = divideFileName[divideFileName.length - 1];
+						if (DesignLayerFileInfo.ZIP_EXTENSION.equalsIgnoreCase(extension)) {
+							log.info("@@@@@@@@@@@@ upload.file.type.invalid");
+							result.put("statusCode", HttpStatus.BAD_REQUEST.value());
+							result.put("errorCode", "upload.file.type.invalid");
+							return result;
+						}
+						saveFileName = saveFileName + "." + extension;
+					}
+
+					designLayerFileInfoList.add(getCopyDesignLayerFileInfo(multipartFile, makedDirectory, saveFileName, extension, shapeEncoding, designLayerFileInfo));
+                }
+            }
+
+            // shape 필수 파일 확인
+ 			errorCode = shapeFileValidate(designLayerFileInfoList);
+ 			if(!StringUtils.isEmpty(errorCode)) {
+ 				log.info("@@@@@@@@@@@@ errorCode = {}", errorCode);
+ 				result.put("statusCode", HttpStatus.BAD_REQUEST.value());
+ 				result.put("errorCode", errorCode);
+ 	            return result;
+ 			}
+
+            // shp 파일 필수 필드 확인
+ 			ShapeFileParser shapeFileParser = new ShapeFileParser(makedDirectory + groupFileName + "." + ShapeFileExt.SHP.getValue());
+ 			/*if(!shapeFileParser.fieldValidate()) {
+ 				result.put("statusCode", HttpStatus.BAD_REQUEST.value());
+ 				result.put("errorCode", "upload.shpfile.requried");
+ 				return result;
+ 			}*/
+
+			// 디자인 레이어 객체 생성
+			designLayer = getDesignLayerFromRequest(request, userId);
+			designLayer.setDesignLayerId(designLayerId);
+
+            // 여기서 부터 문제가 생기는 것은 rollback 처리를 합니다.
+            // 2. 레이어 이력 파일이 존재하는 검사
+            isDesignDesignLayerFileInfoExist = designLayerFileInfoService.isDesignLayerFileInfoExist(designLayerId);
+            if(isDesignDesignLayerFileInfoExist) {
+                // 3. 존재하면 백업을 위해 조회
+                rollbackDesignLayerFileInfo = designLayerFileInfoService.getEnableDesignLayerFileInfo(designLayerId);
+            }
+            log.info("----- isDesignDesignLayerFileInfoExist = {}", isDesignDesignLayerFileInfoExist);
+
+			String extrusionColumns = null;
+			if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
+				extrusionColumns = geoPolicy.getShapeLandRequiredColumns();
+			} else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
+				extrusionColumns = geoPolicy.getShapeBuildingRequiredColumns();
+			}
+            // 4. 레이어 기본 정보 및 레이어 이력 정보 등록
+            Map<String, Object> updateDesignLayerMap = designLayerService.updateDesignLayer(designLayer, isDesignDesignLayerFileInfoExist, designLayerFileInfoList);
+            if(!designLayerFileInfoList.isEmpty()) {
+                isRollback = true;
+
+                deleteDesignLayerFileInfoTeamId = (Long)updateDesignLayerMap.get("designLayerFileInfoTeamId");
+                // 4. org2ogr 실행
+				List<DesignLayer> shapePropertiesList = shapeFileParser.getExtrusionModelList(objectMapper, extrusionColumns);
+				designLayerService.insertShapeInfo(designLayer, shapePropertiesList);
+
+                // org2ogr 로 등록한 데이터의 version을 갱신
+                Map<String, String> orgMap = new HashMap<>();
+				orgMap.put("fileVersion", ((Integer)updateDesignLayerMap.get("fileVersion")).toString());
+				orgMap.put("designLayerGroupType", designLayer.getDesignLayerGroupType());
+                // 5. shape 파일 테이블의 현재 데이터의 활성화 하고 날짜를 업데이트
+                designLayerFileInfoService.updateDataFileVersion(orgMap);
+                // 6. geoserver에 신규 등록일 경우 등록, 아닐경우 통과
+                designLayerService.registerDesignLayer(geoPolicy, designLayer);
+            }
+			// 스타일 업데이트
+			designLayerService.updateDesignLayerStyle(designLayer);
+
+            statusCode = HttpStatus.OK.value();
+        } catch(DataAccessException e) {
+        	if(isRollback) {
+                // rollback 처리
+                designLayerService.rollbackDesignLayer(rollbackLayer, isDesignDesignLayerFileInfoExist, rollbackDesignLayerFileInfo, deleteDesignLayerFileInfoTeamId);
+            }
+
+			statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
+			errorCode = "db.exception";
+			message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
+			LogMessageSupport.printMessage(e, "@@ db.exception. message = {}", message);
+		} catch(RuntimeException e) {
+			if(isRollback) {
+                // rollback 처리
+                designLayerService.rollbackDesignLayer(rollbackLayer, isDesignDesignLayerFileInfoExist, rollbackDesignLayerFileInfo, deleteDesignLayerFileInfoTeamId);
+            }
+
+			statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
+			errorCode = "runtime.exception";
+			message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
+			LogMessageSupport.printMessage(e, "@@ runtime.exception. message = {}", message);
+		} catch(Exception e) {
+			if(isRollback) {
+                // rollback 처리
+                designLayerService.rollbackDesignLayer(rollbackLayer, isDesignDesignLayerFileInfoExist, rollbackDesignLayerFileInfo, deleteDesignLayerFileInfoTeamId);
+            }
+
+			statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
+			errorCode = "unknown.exception";
+			message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
+			LogMessageSupport.printMessage(e, "@@ exception. message = {}", message);
+        }
+
+        result.put("statusCode", statusCode);
+		result.put("errorCode", errorCode);
+		result.put("message", message);
+		return result;
+    }
+
 	private DesignLayer getDesignLayerFromRequest(MultipartHttpServletRequest request, String userId) {
 		return DesignLayer.builder()
 				.urbanGroupId(Integer.valueOf(request.getParameter("urbanGroupId")))
@@ -332,248 +534,7 @@ public class DesignLayerRestController implements AuthorizationController {
 
 		return designLayerFileInfo;
 	}
-	
-//	/**
-//	 * shape 파일 변환
-//	 * TODO dropzone 이 파일 갯수만큼 form data를 전송해 버려서 command 패턴을(Layer layer) 사용할 수 없음
-//	 * dropzone 이 예외 처리가 이상해서 BAD_REQUEST 를 던지지 않고 OK 를 넣짐
-//	 * @param request
-//	 * @param layerId
-//	 * @return
-//	 */
-//    @SuppressWarnings("unchecked")
-//	@PostMapping(value = "/update/{layerId:[0-9]+}")
-//    public Map<String, Object> update(MultipartHttpServletRequest request, @PathVariable("layerId") Integer layerId) {
-//
-//    	Map<String, Object> result = new HashMap<>();
-//		int statusCode = 0;
-//		String errorCode = null;
-//		String message = null;
-//
-//        boolean isRollback = false;
-//        Layer rollbackLayer = new Layer();
-//        boolean isDesignDesignLayerFileInfoExist = false;
-//        DesignLayerFileInfo rollbackDesignLayerFileInfo = null;
-//        Integer deleteDesignLayerFileInfoTeamId = null;
-//
-//        try {
-//            errorCode = layerValidate(request);
-//            if(!StringUtils.isEmpty(errorCode)) {
-//            	result.put("statusCode", HttpStatus.BAD_REQUEST.value());
-//                result.put("errorCode", errorCode);
-//                return result;
-//            }
-//
-//            UserSession userSession = (UserSession)request.getSession().getAttribute(Key.USER_SESSION.name());
-//            String userId = userSession.getUserId();
-//
-//            List<DesignLayerFileInfo> designLayerFileInfoList = new ArrayList<>();
-//            Map<String, MultipartFile> fileMap = request.getFileMap();
-//
-//            Policy policy = policyService.getPolicy();
-//			GeoPolicy geoPolicy = geoPolicyService.getGeoPolicy();
-//			String shapeEncoding = replaceInvalidValue(request.getParameter("shapeEncoding"));
-//			String today = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-//
-//            // layer 변경 횟수가 많지 않아서 년 단위로 관리할 예정
-//            String makedDirectory = propertiesConfig.getLayerUploadDir();
-//            FileUtils.makeDirectory(makedDirectory);
-//            makedDirectory = makedDirectory + today.substring(0,4) + File.separator;
-//			FileUtils.makeDirectory(makedDirectory);
-//            log.info("@@@@@@@ = {}", makedDirectory);
-//
-//            Layer layer = designLayerService.getLayer(layerId);
-//            BeanUtils.copyProperties(layer, rollbackLayer);
-//            // layer 파일의 경우 한 세트가 같은 이름에 확장자만 달라야 한다.
-//            String groupFileName = layer.getLayerKey() + "_" + today;
-//
-//            // 한건이면서 zip 의 경우
-//            boolean isZipFile = false;
-//            int fileCount = fileMap.values().size();
-//            log.info("********************************************* fileCount = {}", fileCount);
-//            if(fileCount == 1) {
-//                for (MultipartFile multipartFile : fileMap.values()) {
-//                    String[] divideNames = multipartFile.getOriginalFilename().split("\\.");
-//                    String fileExtension = divideNames[divideNames.length - 1];
-//                    if(DesignLayerFileInfo.ZIP_EXTENSION.equalsIgnoreCase(fileExtension)) {
-//                        isZipFile = true;
-//                        // zip 파일
-//                        Map<String, Object> uploadMap = unzip(policy, groupFileName, multipartFile, shapeEncoding, makedDirectory);
-//                        designLayerFileInfoList = (List<DesignLayerFileInfo>)uploadMap.get("designLayerFileInfoList");
-//                    }
-//                }
-//            }
-//
-//            if(!isZipFile) {
-//                for (MultipartFile multipartFile : fileMap.values()) {
-//                    log.info("@@@@@@@@@@@@@@@ name = {}, original_name = {}", multipartFile.getName(), multipartFile.getOriginalFilename());
-//
-//                    String saveFileName = groupFileName;
-//                    DesignLayerFileInfo designLayerFileInfo = new DesignLayerFileInfo();
-//
-//                    // 파일 기본 validation 체크
-//                    errorCode = fileValidate(policy, multipartFile);
-//                    if(!StringUtils.isEmpty(errorCode)) {
-//                    	result.put("statusCode", HttpStatus.BAD_REQUEST.value());
-//                        result.put("errorCode", errorCode);
-//                        return result;
-//                    }
-//
-//                    String originalName = multipartFile.getOriginalFilename();
-//                    String[] divideFileName = originalName.split("\\.");
-//                    String extension = null;
-//                    if(divideFileName.length != 0) {
-//                        extension = divideFileName[divideFileName.length - 1];
-//                        if(DesignLayerFileInfo.ZIP_EXTENSION.equalsIgnoreCase(extension)) {
-//                            log.info("@@@@@@@@@@@@ upload.file.type.invalid");
-//                            result.put("statusCode", HttpStatus.BAD_REQUEST.value());
-//                            result.put("errorCode", "upload.file.type.invalid");
-//                            return result;
-//                        }
-//                        saveFileName = saveFileName + "." + extension;
-//                    }
-//
-//                    long size = 0L;
-//                    try (	InputStream inputStream = multipartFile.getInputStream();
-//                            OutputStream outputStream = new FileOutputStream(makedDirectory + saveFileName)) {
-//
-//                    	int bytesRead;
-//						byte[] buffer = new byte[BUFFER_SIZE];
-//						while ((bytesRead = inputStream.read(buffer, 0, BUFFER_SIZE)) != -1) {
-//							size += bytesRead;
-//							outputStream.write(buffer, 0, bytesRead);
-//						}
-//                        designLayerFileInfo.setFileExt(extension);
-//                        designLayerFileInfo.setFileName(multipartFile.getOriginalFilename());
-//                        designLayerFileInfo.setFileRealName(saveFileName);
-//                        designLayerFileInfo.setFilePath(makedDirectory);
-//                        designLayerFileInfo.setFileSize(String.valueOf(size));
-//                        designLayerFileInfo.setShapeEncoding(shapeEncoding);
-//
-//                    } catch(IOException e) {
-//						LogMessageSupport.printMessage(e, "@@@@@@@@@@@@ IOException. message = {}", e.getMessage());
-//						designLayerFileInfo.setErrorMessage(e.getMessage());
-//                    } catch(Exception e) {
-//                    	LogMessageSupport.printMessage(e, "@@@@@@@@@@@@ Exception. message = {}", e.getMessage());
-//                        designLayerFileInfo.setErrorMessage(e.getMessage());
-//                    }
-//
-//					designLayerFileInfoList.add(designLayerFileInfo);
-//                }
-//            }
-//
-//            // shape 필수 파일 확인
-// 			errorCode = shapeFileValidate(designLayerFileInfoList);
-// 			if(!StringUtils.isEmpty(errorCode)) {
-// 				log.info("@@@@@@@@@@@@ errorCode = {}", errorCode);
-// 				result.put("statusCode", HttpStatus.BAD_REQUEST.value());
-// 				result.put("errorCode", errorCode);
-// 	            return result;
-// 			}
-//
-//            // shp 파일 필수 필드 확인
-// 			ShapeFileParser shapeFileParser = new ShapeFileParser(makedDirectory + groupFileName + "." + ShapeFileExt.SHP.getValue());
-// 			if(!shapeFileParser.fieldValidate()) {
-// 				result.put("statusCode", HttpStatus.BAD_REQUEST.value());
-// 				result.put("errorCode", "upload.shpfile.requried");
-// 				return result;
-// 			}
-//
-//            layer.setLayerId(layerId);
-//            layer.setLayerGroupId(Integer.valueOf(request.getParameter("layerGroupId")));
-//            layer.setSharing(request.getParameter("sharing"));
-//            layer.setLayerName(request.getParameter("layerName"));
-//			layer.setLayerKey(request.getParameter("layerKey"));
-//			layer.setOgcWebServices(request.getParameter("ogcWebServices"));
-//			layer.setLayerType(request.getParameter("layerType"));
-//			layer.setGeometryType(request.getParameter("geometryType"));
-//			layer.setLayerLineColor(request.getParameter("layerLineColor"));
-//			layer.setLayerLineStyle(Float.valueOf(request.getParameter("layerLineStyle")));
-//			layer.setLayerFillColor(request.getParameter("layerFillColor"));
-//			layer.setLayerAlphaStyle(Float.valueOf(request.getParameter("layerAlphaStyle")));
-//			layer.setDefaultDisplay(Boolean.valueOf(request.getParameter("defaultDisplay")));
-//			layer.setAvailable(Boolean.valueOf(request.getParameter("available")));
-//			layer.setLabelDisplay(Boolean.valueOf(request.getParameter("labelDisplay")));
-//			layer.setCoordinate(request.getParameter("coordinate"));
-//			layer.setDescription(request.getParameter("description"));
-//			layer.setZIndex(Integer.valueOf(request.getParameter("zIndex")));
-//			layer.setCacheAvailable(Boolean.valueOf(request.getParameter("cacheAvailable")));
-//			layer.setViewOrder(Integer.valueOf(request.getParameter("viewOrder")));
-//			layer.setUserId(userId);
-//
-//            // TODO geoserver 에서 postgresql 로 hang 걸리는게 있어서 우선 이럻게 처리 함. 추후 개선 예정
-//            // 여기서 부터 문제가 생기는 것은 rollback 처리를 합니다.
-//            // 1. 레이어 이력 파일이 존재하는 검사
-//            isDesignDesignLayerFileInfoExist = designLayerFileInfoService.isDesignDesignLayerFileInfoExist(layer.getLayerId());
-//            if(isDesignDesignLayerFileInfoExist) {
-//                // 2. 존재하면 백업을 위해 조회
-//                rollbackDesignLayerFileInfo = designLayerFileInfoService.getEnableDesignLayerFileInfo(layerId);
-//            }
-//            log.info("----- isDesignDesignLayerFileInfoExist = {}", isDesignDesignLayerFileInfoExist);
-//            // 3. 레이어 기본 정보 및 레이어 이력 정보 등록
-//            Map<String, Object> updateDesignLayerMap = designLayerService.updateLayer(layer, isDesignDesignLayerFileInfoExist, designLayerFileInfoList);
-//            if(!designLayerFileInfoList.isEmpty()) {
-//                isRollback = true;
-//
-//                deleteDesignLayerFileInfoTeamId = (Integer)updateDesignLayerMap.get("designLayerFileInfoTeamId");
-//                // 4. org2ogr 실행
-//                designLayerService.insertOgr2Ogr(layer, isDesignDesignLayerFileInfoExist, (String)updateDesignLayerMap.get("shapeFileName"), (String)updateDesignLayerMap.get("shapeEncoding"));
-//
-//                // org2ogr 로 등록한 데이터의 version을 갱신
-//                Map<String, String> orgMap = new HashMap<>();
-//                orgMap.put("fileVersion", ((Integer)updateDesignLayerMap.get("fileVersion")).toString());
-//                orgMap.put("tableName", layer.getLayerKey());
-//                orgMap.put("enableYn", "Y");
-//                // 5. shape 파일 테이블의 현재 데이터의 활성화 하고 날짜를 업데이트
-//                designLayerFileInfoService.updateOgr2OgrDataFileVersion(orgMap);
-//                // 6. geoserver에 신규 등록일 경우 등록, 아닐경우 통과
-//                designLayerService.registerLayer(geoPolicy, layer.getLayerKey());
-//            }
-//            String layerType = layer.getLayerType();
-//			// 레이어 타입이 vector일 경우에만 스타일 설정
-//			if(LayerType.VECTOR == LayerType.valueOf(layerType.toUpperCase())) {
-//				designLayerService.updateLayerStyle(layer);
-//			}
-//
-//            statusCode = HttpStatus.OK.value();
-//        } catch(DataAccessException e) {
-//        	if(isRollback) {
-//                // rollback 처리
-//                designLayerService.rollbackLayer(rollbackLayer, isDesignDesignLayerFileInfoExist, rollbackDesignLayerFileInfo, deleteDesignLayerFileInfoTeamId);
-//            }
-//
-//			statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
-//			errorCode = "db.exception";
-//			message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
-//			LogMessageSupport.printMessage(e, "@@ db.exception. message = {}", message);
-//		} catch(RuntimeException e) {
-//			if(isRollback) {
-//                // rollback 처리
-//                designLayerService.rollbackLayer(rollbackLayer, isDesignDesignLayerFileInfoExist, rollbackDesignLayerFileInfo, deleteDesignLayerFileInfoTeamId);
-//            }
-//
-//			statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
-//			errorCode = "runtime.exception";
-//			message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
-//			LogMessageSupport.printMessage(e, "@@ runtime.exception. message = {}", message);
-//		} catch(Exception e) {
-//			if(isRollback) {
-//                // rollback 처리
-//                designLayerService.rollbackLayer(rollbackLayer, isDesignDesignLayerFileInfoExist, rollbackDesignLayerFileInfo, deleteDesignLayerFileInfoTeamId);
-//            }
-//
-//			statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
-//			errorCode = "unknown.exception";
-//			message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
-//			LogMessageSupport.printMessage(e, "@@ exception. message = {}", message);
-//        }
-//
-//        result.put("statusCode", statusCode);
-//		result.put("errorCode", errorCode);
-//		result.put("message", message);
-//		return result;
-//    }
-//
+
 	/**
 	 * 레이어 삭제 삭제
 	 * @param designLayerId
@@ -680,34 +641,33 @@ public class DesignLayerRestController implements AuthorizationController {
 		}
     }
 
-//	/**
-//	 * 비활성화 상태의 layer를 활성화
-//	 * @param request
-//	 * @param layerId
-//	 * @param designLayerFileInfoId
-//	 * @param designLayerFileInfoTeamId
-//	 * @return
-//	 */
-//    @PostMapping(value = "/{designLayerId:[0-9]+}/layer-file-infos/{designLayerFileInfoId:[0-9]+}")
-//    public Map<String, Object> updateByDesignLayerFileInfoId(HttpServletRequest request,
-//                                                            @PathVariable Long designLayerId,
-//                                                            @PathVariable Long designLayerFileInfoId,
-//                                                            Integer designLayerFileInfoTeamId) {
-//        log.info("@@@@@@@@@@@@ layerId = {}, designLayerFileInfoId = {}", layerId, designLayerFileInfoId);
-//
-//        Map<String, Object> result = new HashMap<>();
-//		String errorCode = null;
-//		String message = null;
-//		designLayerService.updateDesignLayerByDesignLayerFileInfoId()
-//        designLayerService.updateLayerByDesignLayerFileInfoId(layerId, designLayerFileInfoTeamId, designLayerFileInfoId);
-//
-//        int statusCode = HttpStatus.OK.value();
-//
-//        result.put("statusCode", statusCode);
-//		result.put("errorCode", errorCode);
-//		result.put("message", message);
-//		return result;
-//    }
+	/**
+	 * 비활성화 상태의 layer를 활성화
+	 * @param request
+	 * @param designLayerId
+	 * @param designLayerFileInfoId
+	 * @param designLayerFileInfoTeamId
+	 * @return
+	 */
+    @PostMapping(value = "/{designLayerId:[0-9]+}/layer-file-infos/{designLayerFileInfoId:[0-9]+}")
+    public Map<String, Object> updateByDesignLayerFileInfoId(HttpServletRequest request,
+                                                            @PathVariable Long designLayerId,
+                                                            @PathVariable Long designLayerFileInfoId,
+                                                            Long designLayerFileInfoTeamId) {
+        log.info("@@@@@@@@@@@@ designLayerId = {}, designLayerFileInfoId = {}, designLayerFileInfoTeamId = {} ", designLayerId, designLayerFileInfoId, designLayerFileInfoTeamId);
+
+        Map<String, Object> result = new HashMap<>();
+		String errorCode = null;
+		String message = null;
+		designLayerService.updateDesignLayerByDesignLayerFileInfoId(designLayerId, designLayerFileInfoTeamId, designLayerFileInfoId);
+
+        int statusCode = HttpStatus.OK.value();
+
+        result.put("statusCode", statusCode);
+		result.put("errorCode", errorCode);
+		result.put("message", message);
+		return result;
+    }
 
 	/**
 	 * 파일 상세보기
