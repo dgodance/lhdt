@@ -11,7 +11,7 @@ import java.util.List;
  * @author Cheon JeongDae
  *
  */
-public interface ConverterService {
+public interface DataLibraryConverterService {
 	
 	/**
 	 * converter job 총 건수

@@ -29,7 +29,7 @@ public class DataLibraryServiceImpl implements DataLibraryService {
 	
 	@Autowired
 	private DataLibraryGroupService dataLibraryGroupService;
-	
+
 	/**
 	 * 데이터 라이브러리 수
 	 * @param dataLibrary
@@ -100,31 +100,6 @@ public class DataLibraryServiceImpl implements DataLibraryService {
 		return dataLibraryMapper.getDataLibraryByConverterJob(dataLibrary);
 	}
 
-	/**
-	 * 데이터 라이브러리 업로딩 정보 입력
-	 * @param dataLibraryUpload
-	 * @param dataLibraryUploadFileList
-	 * @return
-	 */
-	@Transactional
-	public int insertDataLibraryUpload(DataLibraryUpload dataLibraryUpload, List<DataLibraryUploadFile> dataLibraryUploadFileList) {
-		int result = dataLibraryMapper.insertDataLibraryUpload(dataLibraryUpload);
-
-		Long dataLibraryUploadId = dataLibraryUpload.getDataLibraryUploadId();
-//		Integer dataGroupId = uploadData.getDataGroupId();
-//		String sharing = uploadData.getSharing();
-//		String dataType = uploadData.getDataType();
-		String userId = dataLibraryUpload.getUserId();
-		for(DataLibraryUploadFile dataLibraryUploadFile : dataLibraryUploadFileList) {
-			dataLibraryUploadFile.setDataLibraryUploadId(dataLibraryUploadId);
-			dataLibraryUploadFile.setUserId(userId);
-			dataLibraryMapper.insertDataLibraryUploadFile(dataLibraryUploadFile);
-			result++;
-		}
-		return result;
-	}
-
-	
 	/**
 	 * 데이터 라이브러리 등록
 	 * @param dataLibrary

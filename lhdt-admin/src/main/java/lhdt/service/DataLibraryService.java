@@ -15,7 +15,7 @@ import java.util.List;
  *
  */
 public interface DataLibraryService {
-	
+
 	/**
 	 * 데이터 라이브러리 수
 	 * @param dataLibrary
@@ -57,14 +57,6 @@ public interface DataLibraryService {
 	 * @return
 	 */
 	List<DataLibrary> getDataLibraryByConverterJob(DataLibrary dataLibrary);
-
-	/**
-	 * 데이터 라이브러리 업로딩 정보 입력
-	 * @param dataLibraryUpload
-	 * @param dataLibraryUploadFileList
-	 * @return
-	 */
-	int insertDataLibraryUpload(DataLibraryUpload dataLibraryUpload, List<DataLibraryUploadFile> dataLibraryUploadFileList);
 
 	/**
 	 * 데이터 라이브러리 등록

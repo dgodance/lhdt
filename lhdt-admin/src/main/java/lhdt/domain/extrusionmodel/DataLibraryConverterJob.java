@@ -1,4 +1,4 @@
-package lhdt.domain.converter;
+package lhdt.domain.extrusionmodel;
 
 import lhdt.domain.ConverterJobStatus;
 import lhdt.domain.common.Search;
@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * f4d converter 변환 job
+ * 데이터 라이브러리 변환 job
  * @author jeongdae
  *
  */
@@ -19,10 +19,10 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ConverterJob extends Search {
+public class DataLibraryConverterJob extends Search {
 	
 	/**
-	 * F4D 변환 대상 업로딩 목록. uploadDataId 를 ,로 연결
+	 * 데이터 라이브러리 변환 대상 업로딩 목록. dataLibraryUploadId 를 ,로 연결
 	 */
 	private String converterCheckIds;
 	// converter 변환시, 단일 파일의 경우 validataion 체크용
@@ -30,17 +30,17 @@ public class ConverterJob extends Search {
 	
 	// job에 포함된 변환 파일 갯수
 	private Integer converterFileCount;
-	private Long converterJobFileId;
+	private Long dataLibraryConverterJobFileId;
 	
 	/****** validator ********/
 	private String methodMode;
 	
 	// Primary Key
-	private Long converterJobId;
+	private Long dataLibraryConverterJobId;
 	// 업로드 고유키
-	private Long uploadDataId;
-	// [중복] admin : 관리자용 데이터 그룹, user : 일반 사용자용 데이터 그룹
-	private String dataGroupTarget;
+	private Long dataLibraryUploadId;
+	// [중복] admin : 관리자용 데이터 라이브러리 그룹, user : 일반 사용자용 데이터 라이브러리 그룹
+	private String dataLibraryGroupTarget;
 	// 사용자 고유번호
 	private String userId;
 	// title

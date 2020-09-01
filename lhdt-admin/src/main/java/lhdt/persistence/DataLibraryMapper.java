@@ -71,20 +71,6 @@ public interface DataLibraryMapper {
 	 * @return
 	 */
 	List<DataLibrary> getDataLibraryByConverterJob(DataLibrary dataLibrary);
-
-	/**
-	 * 데이터 라이브러리 업로딩 정보 입력
-	 * @param dataLibraryUpload
-	 * @return
-	 */
-	int insertDataLibraryUpload(DataLibraryUpload dataLibraryUpload);
-
-	/**
-	 * 데이터 라이브러리 업로딩 파일 정보 입력
-	 * @param dataLibraryUploadFile
-	 * @return
-	 */
-	int insertDataLibraryUploadFile(DataLibraryUploadFile dataLibraryUploadFile);
 	
 	/**
 	 * 데이터 라이브러리 등록

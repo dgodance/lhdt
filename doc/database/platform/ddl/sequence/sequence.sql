@@ -14,16 +14,18 @@ drop sequence if exists data_smart_tiling_file_parse_log_seq;
 drop sequence if exists data_attribute_file_info_seq;
 drop sequence if exists data_object_attribute_file_info_seq;
 
+drop sequence if exists data_library_group_seq;
+drop sequence if exists data_library_seq;
+drop sequence if exists data_library_upload_seq;
+drop sequence if exists data_library_upload_file_seq;
+drop sequence if exists data_library_converter_job_seq;
+drop sequence if exists data_library_converter_job_file_seq;
 drop sequence if exists design_layer_group_seq;
 drop sequence if exists design_layer_seq;
 drop sequence if exists design_layer_land_seq;
 drop sequence if exists design_layer_building_seq;
 drop sequence if exists design_layer_attribute_seq;
 drop sequence if exists design_layer_file_info_seq;
-drop sequence if exists data_library_group_seq;
-drop sequence if exists data_library_seq;
-drop sequence if exists data_library_upload_seq;
-drop sequence if exists data_library_upload_file_seq;
 
 drop sequence if exists geopolicy_seq;
 drop sequence if exists issue_seq;
@@ -62,6 +64,12 @@ create sequence data_smart_tiling_file_info_seq increment 1 minvalue 1 maxvalue 
 create sequence data_smart_tiling_file_parse_log_seq increment 1 minvalue 1 maxvalue 9999999999999999 start 1 cache 1;
 create sequence data_object_attribute_file_info_seq increment 1 minvalue 1 maxvalue 9999999999999999 start 1 cache 1;
 
+create sequence data_library_converter_job_seq increment 1 minvalue 1 maxvalue 999999999999 start 1 cache 1;
+create sequence data_library_converter_job_file_seq increment 1 minvalue 1 maxvalue 999999999999 start 1 cache 1;
+create sequence data_library_group_seq increment 1 minvalue 1 maxvalue 999999999999 start 1000 cache 1;
+create sequence data_library_seq increment 1 minvalue 1 maxvalue 9999999999999999 start 1 cache 1;
+create sequence data_library_upload_seq increment 1 minvalue 1 maxvalue 9999999999999999 start 1 cache 1;
+create sequence data_library_upload_file_seq increment 1 minvalue 1 maxvalue 9999999999999999 start 1 cache 1;
 create sequence design_layer_group_seq increment 1 minvalue 1 maxvalue 999999999999 start 1 cache 1;
 create sequence design_layer_seq increment 1 minvalue 1 maxvalue 9999999999999999 start 1 cache 1;
 create sequence design_layer_land_seq increment 1 minvalue 1 maxvalue 9999999999999999 start 1 cache 1;
@@ -69,10 +77,6 @@ create sequence design_layer_building_seq increment 1 minvalue 1 maxvalue 999999
 create sequence design_layer_attribute_seq increment 1 minvalue 1 maxvalue 9999999999999999 start 1 cache 1;
 create sequence design_layer_file_info_seq increment 1 minvalue 1 maxvalue 9999999999999999 start 1 cache 1;
 create sequence design_layer_log_seq increment 1 minvalue 1 maxvalue 9999999999999999 start 1 cache 1;
-create sequence data_library_group_seq increment 1 minvalue 1 maxvalue 999999999999 start 1000 cache 1;
-create sequence data_library_seq increment 1 minvalue 1 maxvalue 9999999999999999 start 1 cache 1;
-create sequence data_library_upload_seq increment 1 minvalue 1 maxvalue 9999999999999999 start 1 cache 1;
-create sequence data_library_upload_file_seq increment 1 minvalue 1 maxvalue 9999999999999999 start 1 cache 1;
 
 create sequence geopolicy_seq increment 1 minvalue 1 maxvalue 999999999999 start 2 cache 1;
 create sequence issue_seq increment 1 minvalue 1 maxvalue 9999999999999999 start 1 cache 1;
