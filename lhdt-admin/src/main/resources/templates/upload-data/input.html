@@ -14,7 +14,7 @@
 		<script type="text/javascript" th:src="@{/externlib/dropzone-5.7.0/dropzone.min.js(cacheVersion=${contentCacheVersion})}"></script>
 		<script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
 		<script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
-	</th:block>>
+	</th:block>
 	<style type="text/css">
         .dropzone .dz-preview.lp-preview {
             width: 150px;
@@ -93,7 +93,7 @@
 										<span class="icon-glyph glyph-emark-dot color-warning"></span>
 									</th>
 									<td class="col-input">
-										<hidden id="dataGroupId" name="dataGroupId">
+										<hidden id="dataGroupId" name="dataGroupId" />
 										<input type="text" id="dataGroupName" name="dataGroupName" class="ml" readonly="true" />
 										<input type="button" id="dataGroupButtion" value="데이터 그룹 선택" />
 									</td>

@@ -1,7 +1,97 @@
+drop table if exists data_library_converter_job cascade;
+drop table if exists data_library_converter_job_file cascade;
 drop table if exists data_library_group cascade;
 drop table if exists data_library cascade;
 drop table if exists data_library_upload cascade;
 drop table if exists data_library_upload_file cascade;
+
+
+-- 데이터 라이브러리 파일 변환 job
+create table data_library_converter_job (
+	data_library_converter_job_id				bigint,
+	data_library_upload_id					    bigint,
+	data_library_group_target				    varchar(5)							default 'user',
+	user_id							            varchar(32),
+	title							            varchar(256)						not null,
+	converter_template				            varchar(30)							default 'basic',
+	usf								            numeric(13,5),
+	y_axis_up						            char(1)								default 'N',
+	file_count						            integer								default 0,
+	status							            varchar(20)							default 'ready',
+	error_code						            varchar(4000),
+	year							            char(4)								default to_char(now(), 'yyyy'),
+	month							            varchar(2)							default to_char(now(), 'MM'),
+	day								            varchar(2)							default to_char(now(), 'DD'),
+	year_week						            varchar(2)							default to_char(now(), 'WW'),
+	week							            varchar(2)							default to_char(now(), 'W'),
+	hour							            varchar(2)							default to_char(now(), 'HH24'),
+	minute							            varchar(2)							default to_char(now(), 'MI'),
+	update_date						            timestamp with time zone,
+	insert_date						            timestamp with time zone			default now(),
+	constraint data_library_converter_job_pk 	primary key (data_library_converter_job_id)
+);
+
+comment on table data_library_converter_job is '데이터 라이브러리 파일 변환 job';
+comment on column data_library_converter_job.data_library_converter_job_id is '고유번호';
+comment on column data_library_converter_job.data_library_upload_id is '데이터 라이브러리 업로더 고유번호';
+comment on column data_library_converter_job.data_library_group_target is '[중복] admin : 관리자용 데이터 라이브러리 그룹, user : 일반 사용자용 데이터 라이브러리 그룹';
+comment on column data_library_converter_job.title is '제목';
+comment on column data_library_converter_job.user_id is '사용자 아이디';
+comment on column data_library_converter_job.converter_template is '변환 유형. basic : 기본, building : 빌딩, extra-big-building : 초대형 빌딩, point-cloud : point cloud 데이터';
+comment on column data_library_converter_job.usf is 'unit scale factor. 설계 파일의 1이 의미하는 단위. 기본 1 = 0.01m';
+comment on column data_library_converter_job.y_axis_up is '높이방향. y축이 건물의 천장을 향하는 경우 Y. default = N';
+comment on column data_library_converter_job.file_count is '대상 file 개수';
+comment on column data_library_converter_job.status is '상태. ready : 준비, success : 성공, waiting : 승인대기, fail : 실패';
+comment on column data_library_converter_job.error_code is '에러 코드';
+comment on column data_library_converter_job.year is '년';
+comment on column data_library_converter_job.month is '월';
+comment on column data_library_converter_job.day is '일';
+comment on column data_library_converter_job.year_week is '일년중 몇주';
+comment on column data_library_converter_job.week is '이번달 몇주';
+comment on column data_library_converter_job.hour is '시간';
+comment on column data_library_converter_job.minute is '분';
+comment on column data_library_converter_job.update_date is '수정일';
+comment on column data_library_converter_job.insert_date is '등록일';
+
+
+-- 데이터 라이브러리 변환 이력
+create table data_library_converter_job_file(
+	data_library_converter_job_file_id				bigint,
+	data_library_converter_job_id					bigint,
+	data_library_upload_id						    bigint,
+	data_library_upload_file_id					    bigint,
+	data_library_group_id						    int,
+	user_id								            varchar(32),
+	status								            varchar(20)							default 'ready',
+	error_code							            varchar(4000),
+	year								            char(4)								default to_char(now(), 'yyyy'),
+	month								            varchar(2)							default to_char(now(), 'MM'),
+	day									            varchar(2)							default to_char(now(), 'DD'),
+	year_week							            varchar(2)							default to_char(now(), 'WW'),
+	week								            varchar(2)							default to_char(now(), 'W'),
+	hour								            varchar(2)							default to_char(now(), 'HH24'),
+	minute								            varchar(2)							default to_char(now(), 'MI'),
+	insert_date							            timestamp with time zone			default now(),
+	constraint data_library_converter_job_file_pk 	primary key (data_library_converter_job_file_id)
+);
+
+comment on table data_library_converter_job_file is '데이터 라이브러리 변환 이력';
+comment on column data_library_converter_job_file.data_library_converter_job_file_id is '고유번호';
+comment on column data_library_converter_job_file.data_library_converter_job_id is '데이터 라이브러리 변환 job 고유번호';
+comment on column data_library_converter_job_file.data_library_upload_id is '데이터 라이브러리 업로드 고유번호';
+comment on column data_library_converter_job_file.data_library_upload_file_id is '데이터 라이브러리 업로드 파일 고유번호';
+comment on column data_library_converter_job_file.data_library_group_id is '데이터 라이브러리 그룹 고유번호(중복)';
+comment on column data_library_converter_job_file.user_id is '사용자 아이디';
+comment on column data_library_converter_job_file.status is '상태. ready : 준비, success : 성공, fail : 실패';
+comment on column data_library_converter_job_file.error_code is '에러 코드';
+comment on column data_library_converter_job_file.year is '년';
+comment on column data_library_converter_job_file.month is '월';
+comment on column data_library_converter_job_file.day is '일';
+comment on column data_library_converter_job_file.year_week is '일년중 몇주';
+comment on column data_library_converter_job_file.week is '이번달 몇주';
+comment on column data_library_converter_job_file.hour is '시간';
+comment on column data_library_converter_job_file.minute is '분';
+comment on column data_library_converter_job_file.insert_date is '등록일';
 
 
 -- data library 그룹

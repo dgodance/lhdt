@@ -15,7 +15,7 @@
 		<script type="text/javascript" th:src="@{/externlib/dropzone-5.7.0/dropzone.min.js(cacheVersion=${contentCacheVersion})}"></script>
 		<script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
 		<script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
-	</th:block>>
+	</th:block>
 	<style type="text/css">
         .dropzone .dz-preview.lp-preview {
             width: 150px;
@@ -94,7 +94,7 @@
 										<span class="icon-glyph glyph-emark-dot color-warning"></span>
 									</th>
 									<td class="col-input">
-										<hidden id="dataLibraryGroupId" name="dataLibraryGroupId">
+										<hidden id="dataLibraryGroupId" name="dataLibraryGroupId" />
 										<input type="text" id="dataLibraryGroupName" name="dataLibraryGroupName" class="ml" readonly="true" />
 										<input type="button" id="dataLibraryGroupButtion" value="데이터 라이브러리 그룹 선택" />
 									</td>
@@ -106,10 +106,10 @@
 									</th>
 									<td class="col-input">
 										<select id="sharing" name="sharing" class="selectBoxClass">
-											<option value="public">공개</option>
+											<!--<option value="public">공개</option>-->
 											<option value="common">공통</option>
-											<option value="private">비공개</option>
-											<option value="group">그룹 공개</option>
+											<!--<option value="private">비공개</option>
+											<option value="group">그룹 공개</option>-->
 										</select>
 									</td>
 									<th class="col-label m" scope="row">
@@ -130,9 +130,29 @@
 								</tr>
 								<tr>
 									<th class="col-label" scope="row">
+										<label for="basicWidth">가로 기본값(m)</label>
+									</th>
+									<td class="col-input">
+										<input type="text" id="basicWidth" name="basicWidth" class="m" />
+									</td>
+									<th class="col-label" scope="row">
+										<label for="basicDepth">세로 기본값(m)</label>
+									</th>
+									<td class="col-input">
+										<input type="text" id="basicDepth" name="basicDepth" class="m" />
+									</td>
+								</tr>
+								<tr>
+									<th class="col-label" scope="row">
+										<label for="basicHeight">높이 기본값(m)</label>
+									</th>
+									<td class="col-input">
+										<input type="text" id="basicHeight" name="basicHeight" class="m" />
+									</td>
+									<th class="col-label" scope="row">
 										<label for="description" th:text="#{description}"></label>
 									</th>
-									<td colspan="3" class="col-input">
+									<td class="col-input">
 										<input type="text" id="description" name="description" class="xl" maxlength="255" />
 									</td>
 								</tr>
@@ -158,9 +178,9 @@
 						</div>
 
 						<!-- 데이터 그룹 선택 -->
-						<div th:replace="~{/data-library/data-library-group-dialog :: #dataLibraryGroupDialog}"></div>
+						<div th:replace="~{/data-library-upload/data-library-group-dialog :: #dataLibraryGroupDialog}"></div>
 						<!-- Spinner -->
-						<div th:replace="~{/data-library/spinner-dialog :: #fileUploadDialog}"></div>
+						<div th:replace="~{/data-library-upload/spinner-dialog :: #fileUploadDialog}"></div>
 					</div>
 				</div>
 			</div>

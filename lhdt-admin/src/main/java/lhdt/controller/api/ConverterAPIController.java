@@ -2,7 +2,6 @@ package lhdt.controller.api;
 
 import lhdt.domain.agent.ConverterResultLog;
 import lhdt.domain.converter.ConverterJob;
-import lhdt.domain.converter.ConverterJobStatus;
 import lhdt.service.ConverterService;
 import lhdt.support.LogMessageSupport;
 import lhdt.utils.LocaleUtils;
