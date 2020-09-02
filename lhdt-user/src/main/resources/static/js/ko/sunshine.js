@@ -4,13 +4,6 @@ $(document).ready(function() {
         clock.currentTime = e.timeJulian;
         clock.shouldAnimate = false;
     }
-    var datepicker = new tui.DatePicker('#sunshineDatePicker', {
-        date: new Date(),
-        input: {
-            element: '#sunshine-datepicker-input',
-            format: 'yyyy-MM-dd'
-        }
-    });
 
 })
 
@@ -77,15 +70,29 @@ $('#solarAnalysis .execute').click(function() {
     //레인지 보이기
     $('#saRange').show();
     $('#csRange').hide();
-    magoInstance.getViewer().scene.globe.enableLighting = true;
-    magoManager.sceneState.setApplySunShadows(true);
+    MAGO3D_INSTANCE.getViewer().scene.globe.enableLighting = true;
+    MAGO3D_INSTANCE.getMagoManager().sceneState.setApplySunShadows(true);
     solarMode = true;
 
     changeDateTime();
 });
 var changeDateTime = function() {
+    var datepicker = new tui.DatePicker('#sunshineDatePicker', {
+        date: new Date(),
+        input: {
+            element: '#sunshine-datepicker-input',
+            format: 'yyyy-MM-dd'
+        }
+    });
+
+	var setDate = function(date){
+		//TODO
+	};
+
+
     var date = datepicker.getDate();
     var hours = $('#timeInput').val();
     date.setHours(hours);
-    setDate(date);
+
+	setDate(date);
 };
