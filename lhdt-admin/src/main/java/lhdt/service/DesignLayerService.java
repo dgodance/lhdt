@@ -45,13 +45,6 @@ public interface DesignLayerService {
     String getGeometryType(String designLayerKey);
 
     /**
-     * design 레이어의 칼럼 목록을 조회
-     * @param designLayerKey
-     * @return
-     */
-    String getDesignLayerColumn(String designLayerKey);
-
-    /**
     * design 레이어 등록
     * @param designLayer
     * @return
