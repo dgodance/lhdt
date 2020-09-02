@@ -77,7 +77,6 @@ let ModelerObj = function(){
  * 초기
  */
 ModelerObj.prototype.init = function(){
-	console.log(new Date(), '>>.init');
 	
 	//
 	this.setEventHandler();
@@ -93,6 +92,8 @@ ModelerObj.prototype.init = function(){
 	};
 	let html = template(data);
 	document.querySelector('.ds-modeler-list').innerHTML = html;
+	
+	console.log(new Date(), '<<ModelerObj.init()');
 };
 
 /**
