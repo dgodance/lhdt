@@ -1,9 +1,13 @@
+/**
+ */
 const PpMap = function () {
-
 };
 
-PpMap.prototype.init = function (viewer) {
-    this._viewer = viewer
+/**
+ */
+PpMap.prototype.init = function () {
+	//
+	console.log(new Date(), '<<PpMap.init()');
 };
 
 PpMap.prototype.getViewer = function () {
