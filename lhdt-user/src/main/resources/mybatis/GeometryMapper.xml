@@ -2,5 +2,19 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="lhdt.persistence.GeometryMapper">
+    <!-- 운영 정책 정보 -->
+    <select id="getIntersectionDesignLayerLands" parameterType="spatialOperationInfo" resultType="designLayerLand">
+        /* getIntersectionDesignLayerLands */
+        SELECT * FROM design_layer_land limit 1
+    </select>
 
+    <select id="getIntersectionDesignLayerBuildings" parameterType="spatialOperationInfo" resultType="designLayerBuilding">
+        /* getIntersectionDesignLayerBuildings */
+        SELECT * FROM design_layer_building limit 1
+    </select>
+
+    <select id="getIntersectionDatas" parameterType="spatialOperationInfo" resultType="dataInfo">
+        /* getIntersectionDatas */
+        SELECT * FROM data_info limit 1
+    </select>
 </mapper>
