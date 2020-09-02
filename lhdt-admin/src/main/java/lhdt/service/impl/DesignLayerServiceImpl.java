@@ -112,16 +112,6 @@ public class DesignLayerServiceImpl implements DesignLayerService {
     }
 
     /**
-     *
-     * @param designLayerKey
-     * @return
-     */
-    @Transactional(readOnly = true)
-    public String getDesignLayerColumn(String designLayerKey) {
-    	return designLayerMapper.getDesignLayerColumn(designLayerKey);
-    }
-
-    /**
     * design 레이어 등록
     * @param designLayer
     * @return
@@ -183,7 +173,6 @@ public class DesignLayerServiceImpl implements DesignLayerService {
     */
     @Transactional
     public Map<String, Object> updateDesignLayer(DesignLayer designLayer, boolean isDesignLayerFileInfoExist, List<DesignLayerFileInfo> designLayerFileInfoList) {
-        log.info("designLayerFileInfoList ======================================== {} " , designLayerFileInfoList);
         Map<String, Object> designLayerFileInfoTeamMap = new HashMap<>();
         // design layer 정보 수정
         designLayerMapper.updateDesignLayer(designLayer);
@@ -333,6 +322,10 @@ public class DesignLayerServiceImpl implements DesignLayerService {
      */
 	@Transactional
 	public void rollbackDesignLayer(DesignLayer designLayer, boolean isDesignLayerFileInfoExist, DesignLayerFileInfo designLayerFileInfo, Long deleteDesignLayerFileInfoTeamId) {
+        Map<String,Object> map = new HashMap<>();
+        map.put("designLayerId", designLayer.getDesignLayerId());
+        map.put("isDesignLayerFileInfoExist", isDesignLayerFileInfoExist);
+
 		designLayerMapper.updateDesignLayer(designLayer);
 		if (isDesignLayerFileInfoExist) {
             Integer fileVersion = designLayerFileInfo.getVersionId();
@@ -340,13 +333,15 @@ public class DesignLayerServiceImpl implements DesignLayerService {
             designLayerFileInfoMapper.deleteDesignLayerFileInfoByTeamId(deleteDesignLayerFileInfoTeamId);
 			// 모든 design_layer_file_info 의 shape 상태를 비활성화로 update 함
             designLayerFileInfoMapper.updateDesignLayerFileInfoAllDisabledByDesignLayerId(designLayer.getDesignLayerId());
-			// 이 design 레이어의 지난 데이터를 비 활성화 상태로 update 함
+			// 이 design 레이어의 지난 데이터를 비 활성화 상태로 update 하고 기존 version 업데이트하고 insert 된 데이터를 삭제
             if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
                 designLayerFileInfoMapper.updateLandPreDataDisable(designLayer.getDesignLayerId());
                 designLayerFileInfoMapper.updateLandStatus(fileVersion);
+                designLayerMapper.deleteGeometryLand(map);
             } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toLowerCase())) {
                 designLayerFileInfoMapper.updateBuildingPreDataDisable(designLayer.getDesignLayerId());
                 designLayerFileInfoMapper.updateBuildingStatus(fileVersion);
+                designLayerMapper.deleteGeometryBuilding(map);
             }
 			// 이전 design 레이어 이력을 활성화
             designLayerFileInfoMapper.updateDesignLayerFileInfoByTeamId(designLayerFileInfo);
@@ -364,6 +359,8 @@ public class DesignLayerServiceImpl implements DesignLayerService {
 	 */
 	@Transactional
 	public int deleteDesignLayer(Long designLayerId) {
+	    Map<String,Object> map = new HashMap<>();
+        map.put("designLayerId", designLayerId);
 		// geoserver layer 삭제
 		GeoPolicy geopolicy = geoPolicyService.getGeoPolicy();
 		DesignLayer designLayer = designLayerMapper.getDesignLayer(designLayerId);
@@ -382,9 +379,9 @@ public class DesignLayerServiceImpl implements DesignLayerService {
             designLayerFileInfoMapper.deleteDesignLayerFileInfo(designLayerId);
 			// geometry 정보 삭제
             if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
-                designLayerMapper.deleteGeometryLand(designLayerId);
+                designLayerMapper.deleteGeometryLand(map);
             } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toLowerCase())) {
-                designLayerMapper.deleteGeometryBuilding(designLayerId);
+                designLayerMapper.deleteGeometryBuilding(map);
             }
 		}
 
