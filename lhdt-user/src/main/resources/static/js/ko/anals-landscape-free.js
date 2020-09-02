@@ -276,10 +276,16 @@ const RenderType = {
     LINE : 1
 };
 
-$(function() {
-    const viewer = ppmap.viewer;
-    const scene = ppmap.viewer.scene;
-    const canvas = ppmap.viewer.scene.canvas;
+
+$(document).ready(function(){
+	if(Pp.isNull(MAGO3D_INSTANCE)){
+		throw new Error('null MAGO3D_INSTANCE');	
+	}
+	
+	//console.log(new Date(), 'anals-landscape-free.js');
+    const viewer = MAGO3D_INSTANCE.getViewer();
+    const scene = MAGO3D_INSTANCE.getViewer().scene;
+    const canvas = MAGO3D_INSTANCE.getViewer().scene.canvas;
     cesiumMouseEvt.init({
         viewer: viewer,
         scene: scene,
@@ -289,4 +295,6 @@ $(function() {
 
     const p = new lsAnalsBtn();
     p.init();
-})
+	
+});
+
