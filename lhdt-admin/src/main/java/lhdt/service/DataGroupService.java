@@ -3,6 +3,7 @@ package lhdt.service;
 import java.util.List;
 
 import lhdt.domain.data.DataGroup;
+import lhdt.domain.extrusionmodel.DataLibraryGroup;
 
 public interface DataGroupService {
 	
@@ -80,6 +81,11 @@ public interface DataGroupService {
 	 * @return
 	 */
 	int updateDataGroupViewOrder(DataGroup dataGroup);
+
+	/**
+	 * 자식의 수를 + 또는 - 연산
+	 */
+	int updateDataGroupChildren(DataGroup dataGroup);
 
 	/**
 	 * 데이터 그룹 삭제

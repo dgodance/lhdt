@@ -143,6 +143,18 @@
 			AND data_library_key = #{dataLibraryKey}
 	</select>
 
+	<!-- converterJob 정보를 이용하여 데이터 라이브러리 정보 취득 -->
+	<select id="getDataLibraryByDataLibraryConverterJob" parameterType="dataLibrary" resultType="dataLibrary">
+		/* getDataLibraryByDataLibraryConverterJob */
+		SELECT A.data_library_id, A.data_library_key, A.data_library_group_id, A.data_type, B.data_library_group_key
+		FROM data_library A, data_library_group B
+		WHERE A.data_library_group_id = B.data_library_group_id
+		AND A.data_library_converter_job_id = #{dataLibraryConverterJobId}
+		<if test="userId != null and userId != ''">
+			AND A.user_id = #{userId}
+		</if>
+	</select>
+
 	<!-- 데이터 라이브러리 등록 -->
 	<insert id="insertDataLibrary" useGeneratedKeys="true" keyProperty="dataLibraryId" parameterType="dataLibrary">
 		/* insertDataLibrary */

@@ -56,7 +56,7 @@ public interface DataLibraryService {
 	 * @param dataLibrary
 	 * @return
 	 */
-	List<DataLibrary> getDataLibraryByConverterJob(DataLibrary dataLibrary);
+	List<DataLibrary> getDataLibraryByDataLibraryConverterJob(DataLibrary dataLibrary);
 
 	/**
 	 * 데이터 라이브러리 등록

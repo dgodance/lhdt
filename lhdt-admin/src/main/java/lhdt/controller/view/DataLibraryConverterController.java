@@ -1,17 +1,12 @@
 package lhdt.controller.view;
 
 import lhdt.config.PropertiesConfig;
-import lhdt.domain.Key;
 import lhdt.domain.PageType;
 import lhdt.domain.common.Pagination;
 import lhdt.domain.common.Search;
-import lhdt.domain.converter.ConverterJob;
-import lhdt.domain.extrusionmodel.DataLibrary;
-import lhdt.domain.extrusionmodel.DataLibraryGroup;
-import lhdt.domain.extrusionmodel.DataLibraryUpload;
-import lhdt.domain.user.UserSession;
+import lhdt.domain.extrusionmodel.DataLibraryConverterJob;
+import lhdt.service.DataLibraryConverterService;
 import lhdt.service.DataLibraryGroupService;
-import lhdt.service.DataLibraryService;
 import lhdt.service.PolicyService;
 import lhdt.support.SQLInjectSupport;
 import lhdt.utils.DateUtils;
@@ -25,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,11 +37,51 @@ public class DataLibraryConverterController {
 	@Autowired
 	private DataLibraryGroupService dataLibraryGroupService;
 	@Autowired
-	private DataLibraryService dataLibraryService;
+	private DataLibraryConverterService dataLibraryConverterService;
 	@Autowired
 	private PolicyService policyService;
 	@Autowired
 	private PropertiesConfig propertiesConfig;
+
+	/**
+	 * 변환 job 목록
+	 * @param request
+	 * @param dataLibraryConverterJob
+	 * @param pageNo
+	 * @param model
+	 * @return
+	 */
+	@GetMapping(value = "/list")
+	public String list(HttpServletRequest request, DataLibraryConverterJob dataLibraryConverterJob, @RequestParam(defaultValue="1") String pageNo, Model model) {
+		dataLibraryConverterJob.setSearchWord(SQLInjectSupport.replaceSqlInection(dataLibraryConverterJob.getSearchWord()));
+		dataLibraryConverterJob.setOrderWord(SQLInjectSupport.replaceSqlInection(dataLibraryConverterJob.getOrderWord()));
+
+//		UserSession userSession = (UserSession)request.getSession().getAttribute(Key.USER_SESSION.name());
+//		dataLibraryConverterJob.setUserId(userSession.getUserId());
+		log.info("@@ dataLibraryConverterJob = {}", dataLibraryConverterJob);
+
+		if(!StringUtils.isEmpty(dataLibraryConverterJob.getStartDate())) {
+			dataLibraryConverterJob.setStartDate(dataLibraryConverterJob.getStartDate().substring(0, 8) + DateUtils.START_TIME);
+		}
+		if(!StringUtils.isEmpty(dataLibraryConverterJob.getEndDate())) {
+			dataLibraryConverterJob.setEndDate(dataLibraryConverterJob.getEndDate().substring(0, 8) + DateUtils.END_TIME);
+		}
+
+		long totalCount = dataLibraryConverterService.getDataLibraryConverterJobTotalCount(dataLibraryConverterJob);
+		Pagination pagination = new Pagination(request.getRequestURI(), getSearchParameters(PageType.LIST, dataLibraryConverterJob),
+				totalCount, Long.parseLong(pageNo), dataLibraryConverterJob.getListCounter());
+		dataLibraryConverterJob.setOffset(pagination.getOffset());
+		dataLibraryConverterJob.setLimit(pagination.getPageRows());
+
+		List<DataLibraryConverterJob> dataLibraryConverterJobList = new ArrayList<>();
+		if(totalCount > 0l) {
+			dataLibraryConverterJobList = dataLibraryConverterService.getListDataLibraryConverterJob(dataLibraryConverterJob);
+		}
+
+		model.addAttribute(pagination);
+		model.addAttribute("dataLibraryConverterJobList", dataLibraryConverterJobList);
+		return "/data-library-converter/list";
+	}
 
 	/**
      * 검색 조건

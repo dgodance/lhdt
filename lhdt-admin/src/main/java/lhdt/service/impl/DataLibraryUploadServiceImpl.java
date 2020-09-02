@@ -70,6 +70,16 @@ public class DataLibraryUploadServiceImpl implements DataLibraryUploadService {
 	public DataLibraryUpload getDataLibraryUpload(DataLibraryUpload dataLibraryUpload) {
 		return dataLibraryUploadMapper.getDataLibraryUpload(dataLibraryUpload);
 	}
+
+	/**
+	 * 업로딩 데이터 라이브러리
+	 * @param dataLibraryUploadFile
+	 * @return	업로딩 데이터 파일
+	 */
+	@Transactional(readOnly=true)
+	public DataLibraryUploadFile getDataLibraryUploadFile(DataLibraryUploadFile dataLibraryUploadFile) {
+		return dataLibraryUploadMapper.getDataLibraryUploadFile(dataLibraryUploadFile);
+	}
 	
 	/**
 	 * 데이터 라이브러리 업로딩 정보 입력
@@ -93,6 +103,16 @@ public class DataLibraryUploadServiceImpl implements DataLibraryUploadService {
 			result++;
 		}
 		return result;
+	}
+
+	/**
+	 * 데이터 라이브러리 업로드 정보 수정
+	 * @param dataLibraryUpload
+	 * @return
+	 */
+	@Transactional
+	public int updateDataLibraryUpload(DataLibraryUpload dataLibraryUpload) {
+		return dataLibraryUploadMapper.updateDataLibraryUpload(dataLibraryUpload);
 	}
 
 }

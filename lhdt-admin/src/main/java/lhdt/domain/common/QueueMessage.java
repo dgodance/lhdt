@@ -3,6 +3,7 @@ package lhdt.domain.common;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+import lhdt.domain.ConverterType;
 import lhdt.domain.ServerTarget;
 import lhdt.domain.UploadDataType;
 import lombok.AllArgsConstructor;
@@ -25,11 +26,14 @@ public class QueueMessage implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
+	private ConverterType converterType;
 	private ServerTarget serverTarget;
 	private String userId;
 	
 	private Long converterJobId;
 	private Long converterJobFileId;
+	private Long dataLibraryConverterJobId;
+	private Long dataLibraryConverterJobFileId;
 	private String inputFolder;
 	private String outputFolder;
 	private String meshType;

@@ -39,7 +39,7 @@ public class DataLibrary extends Search implements Serializable {
 	// data libray Group 고유번호
 	private Integer dataLibraryGroupId;
 	// converter job 고유번호
-	private Long converterJobId;
+	private Long dataLibraryConverterJobId;
 	// data library key
 	private String dataLibraryKey;
 	// data library name

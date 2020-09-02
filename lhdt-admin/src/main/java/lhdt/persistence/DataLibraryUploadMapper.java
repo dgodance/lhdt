@@ -4,6 +4,7 @@ import lhdt.domain.extrusionmodel.DataLibrary;
 import lhdt.domain.extrusionmodel.DataLibraryGroup;
 import lhdt.domain.extrusionmodel.DataLibraryUpload;
 import lhdt.domain.extrusionmodel.DataLibraryUploadFile;
+import lhdt.domain.uploaddata.UploadDataFile;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -45,6 +46,13 @@ public interface DataLibraryUploadMapper {
 	DataLibraryUpload getDataLibraryUpload(DataLibraryUpload dataLibraryUpload);
 
 	/**
+	 * 업로딩 데이터 라이브러리
+	 * @param dataLibraryUploadFile
+	 * @return	업로딩 데이터 파일
+	 */
+	DataLibraryUploadFile getDataLibraryUploadFile(DataLibraryUploadFile dataLibraryUploadFile);
+
+	/**
 	 * 데이터 라이브러리 업로딩 정보 입력
 	 * @param dataLibraryUpload
 	 * @return
@@ -57,4 +65,11 @@ public interface DataLibraryUploadMapper {
 	 * @return
 	 */
 	int insertDataLibraryUploadFile(DataLibraryUploadFile dataLibraryUploadFile);
+
+	/**
+	 * 데이터 라이브러리 업로드 정보 수정
+	 * @param dataLibraryUpload
+	 * @return
+	 */
+	int updateDataLibraryUpload(DataLibraryUpload dataLibraryUpload);
 }
