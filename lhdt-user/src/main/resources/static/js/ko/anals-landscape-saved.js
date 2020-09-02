@@ -2,8 +2,8 @@ const analsSavedEntitiy = {
     point: [],
     line: [],
     removeThis: function() {
-        this.point.forEach(p => ppmap.getViewer().entities.remove(p));
-        this.line.forEach(p => ppmap.getViewer().entities.remove(p));
+        this.point.forEach(p => MAGO3D_INSTANCE.getViewer().entities.remove(p));
+        this.line.forEach(p => MAGO3D_INSTANCE.getViewer().entities.remove(p));
     }
 }
 
@@ -22,7 +22,7 @@ function showData(id) {
             const p = new SkylineObj();
             const point1 = p.drawPoint(pos.lon, pos.lat);
             analsSavedEntitiy.point.push(point1);
-            ppmap.getViewer().zoomTo(point1);
+            MAGO3D_INSTANCE.getViewer().zoomTo(point1);
         } else {
 
             const xyz1 = {
@@ -39,7 +39,7 @@ function showData(id) {
             analsSavedEntitiy.point.push(resultEntitiy.point1);
             analsSavedEntitiy.point.push(resultEntitiy.point2);
             analsSavedEntitiy.line.push(resultEntitiy.line);
-            ppmap.getViewer().zoomTo(resultEntitiy.line);
+            MAGO3D_INSTANCE.getViewer().zoomTo(resultEntitiy.line);
         }
     });
 }
