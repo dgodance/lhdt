@@ -1,13 +1,11 @@
 package lhdt.service.impl;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lhdt.config.PropertiesConfig;
 import lhdt.domain.LocationUdateType;
 import lhdt.domain.MethodType;
 import lhdt.domain.ServerTarget;
 import lhdt.domain.agent.ConversionJobResult;
-import lhdt.domain.agent.ConverterJobResultStatus;
+import lhdt.domain.ConverterJobResultStatus;
 import lhdt.domain.agent.ConverterLocation;
 import lhdt.domain.agent.ConverterResultLog;
 import lhdt.domain.common.QueueMessage;
@@ -32,14 +30,8 @@ import org.springframework.amqp.AmqpException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
-import java.io.File;
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -305,7 +297,7 @@ public class ConverterServiceImpl implements ConverterService {
 			String key = uploadDataFile.getFileRealName();
 			ConversionJobResult conversionJobResult = converterJobResultMap.get(key);
 
-			if (ConverterJobResultStatus.SUCCESS.equals(conversionJobResult.getResultStatus())) {
+			if (ConverterJobResultStatus.SUCCESS == conversionJobResult.getResultStatus()) {
 				// 상태가 성공인 경우
 
 				// 데이터를 등록 혹은 갱신. 상태를 use(사용중)로 등록.
@@ -622,21 +614,12 @@ public class ConverterServiceImpl implements ConverterService {
 	 * @param dataInfoList	dataInfoList
 	 */
 	private void deleteFailData(List<DataInfo> dataInfoList) {
-		for(DataInfo deleteDataInfo : dataInfoList) {
-			// deleteDataInfo.setUserId(converterJob.getUserId());
-			// deleteDataInfo.setConverterJobId(converterJob.getConverterJobId());
-			// dataService.deleteDataByConverterJob(deleteDataInfo);
-
+		for(DataInfo dataInfo : dataInfoList) {
 			DataGroup dataGroup = new DataGroup();
 			// dataGroup.setUserId(converterJob.getUserId());
-			dataGroup.setDataGroupId(deleteDataInfo.getDataGroupId());
-			dataGroup = dataGroupService.getDataGroup(dataGroup);
-
-			DataGroup updateDataGroup = new DataGroup();
-			// updateDataGroup.setUserId(converterJob.getUserId());
-			updateDataGroup.setDataGroupId(dataGroup.getDataGroupId());
-			updateDataGroup.setDataCount(dataGroup.getDataCount() - 1);
-			dataGroupService.updateDataGroup(updateDataGroup);
+			dataGroup.setDataGroupId(dataInfo.getDataGroupId());
+			dataGroup.setDataCount(-1);
+			dataGroupService.updateDataGroupChildren(dataGroup);
 		}
 	}
 }

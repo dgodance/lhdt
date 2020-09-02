@@ -59,6 +59,8 @@ public class PropertiesConfig {
     private String dataServiceDir;
     // F4D 변환 결과 로그 저장 경로
     private String dataConverterLogDir;
+    // 데이터 라이브러리 F4D 변환 결과 로그 저장 경로
+    private String dataLibraryConverterLogDir;
     // 관리자용
     private String adminDataServiceDir;
     private String adminDataLibraryServiceDir;

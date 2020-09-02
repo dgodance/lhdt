@@ -1,4 +1,4 @@
-package lhdt.domain.agent;
+package lhdt.domain;
 
 import java.util.Arrays;
 import java.util.HashMap;
