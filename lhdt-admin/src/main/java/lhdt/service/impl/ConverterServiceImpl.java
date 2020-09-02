@@ -445,7 +445,7 @@ public class ConverterServiceImpl implements ConverterService {
 	private void updateConverterLocation(ConverterLocation converterLocation, DataInfo updateDataInfo) {
 		BigDecimal longitude = converterLocation.getLongitude();
 		BigDecimal latitude = converterLocation.getLatitude();
-		if (validationLonLat(longitude, latitude)) {
+		if (isNotNull(longitude, latitude)) {
 			updateDataInfo.setLongitude(longitude);
 			updateDataInfo.setLatitude(latitude);
 			updateDataInfo.setLocation("POINT(" + longitude + " " + latitude + ")");
@@ -525,7 +525,7 @@ public class ConverterServiceImpl implements ConverterService {
 			dataInfo.setLatitude(latitude);
 			dataInfo.setLongitude(longitude);
 			dataInfo.setAltitude(altitude);
-			if (validationLonLat(longitude, latitude)) {
+			if (isNotNull(longitude, latitude)) {
 				dataInfo.setLocation("POINT(" + longitude + " " + latitude + ")");
 			}
 			dataInfo.setMetainfo(metainfo);
@@ -544,7 +544,7 @@ public class ConverterServiceImpl implements ConverterService {
 			dataInfo.setLatitude(latitude);
 			dataInfo.setLongitude(longitude);
 			dataInfo.setAltitude(altitude);
-			if (validationLonLat(longitude, latitude)) {
+			if (isNotNull(longitude, latitude)) {
 				dataInfo.setLocation("POINT(" + longitude + " " + latitude + ")");
 			} else {
 				dataInfo.setLocation(null);
@@ -579,7 +579,7 @@ public class ConverterServiceImpl implements ConverterService {
 		if (LocationUdateType.AUTO == LocationUdateType.valueOf(dbDataGroup.getLocationUpdateType().toUpperCase())) {
 			BigDecimal longitude = dataInfo.getLongitude();
 			BigDecimal latitude = dataInfo.getLatitude();
-			if (validationLonLat(longitude, latitude)) {
+			if (isNotNull(longitude, latitude)) {
 				dataGroup.setLocation("POINT(" + longitude + " " + latitude + ")");
 				dataGroup.setAltitude(dataInfo.getAltitude());
 			}
@@ -613,7 +613,7 @@ public class ConverterServiceImpl implements ConverterService {
 	 * @param latitude	위도
 	 * @return 유효한 값일 경우 true, 아닐경우 false
 	 */
-	private boolean validationLonLat(BigDecimal longitude, BigDecimal latitude) {
+	private boolean isNotNull(BigDecimal longitude, BigDecimal latitude) {
 		return longitude != null && latitude != null;
 	}
 
@@ -639,56 +639,4 @@ public class ConverterServiceImpl implements ConverterService {
 			dataGroupService.updateDataGroup(updateDataGroup);
 		}
 	}
-
-
-	private void getCityGmlLocation(String serviceDirectory, DataInfo updateDataInfo) {
-		try {
-			String targetDirectory = serviceDirectory + updateDataInfo.getDataGroupKey() + File.separator + DataInfo.F4D_PREFIX + updateDataInfo.getDataKey();
-			
-			File file = new File(targetDirectory + File.separator + "lonsLats.json");
-			if(file.exists()) {
-				byte[] jsonData = Files.readAllBytes(Paths.get(targetDirectory + File.separator + "lonsLats.json"));
-				String encodingData = new String(jsonData, StandardCharsets.UTF_8);
-					
-				ObjectMapper objectMapper = new ObjectMapper();
-				//read JSON like DOM Parser
-				JsonNode jsonNode = objectMapper.readTree(encodingData);
-				
-				//String dataKey = jsonNode.path("data_key").asText();
-				String longitude = jsonNode.path("longitude").asText().trim();
-				String latitude = jsonNode.path("latitude").asText().trim();
-				if(!StringUtils.isEmpty(longitude)) {
-					updateDataInfo.setLongitude(new BigDecimal(longitude) );
-					updateDataInfo.setLatitude(new BigDecimal(latitude) );
-					updateDataInfo.setLocation("POINT(" + longitude + " " + latitude + ")");
-				}
-			}
-			
-			updateDataInfo.setAltitude(new BigDecimal(0));
-			updateDataInfo.setStatus(DataStatus.USE.name().toLowerCase());
-		} catch(IOException e) {
-			updateDataInfo.setStatus(DataStatus.UNUSED.name().toLowerCase());
-			LogMessageSupport.printMessage(e);
-		}
-
-	}
-
-	private String getCityGmlAttribute(String serviceDirectory, DataInfo updateDataInfo) {
-		String attribute = null;
-		try {
-			String targetDirectory = serviceDirectory + updateDataInfo.getDataGroupKey() + File.separator + DataInfo.F4D_PREFIX + updateDataInfo.getDataKey();
-			
-			File file = new File(targetDirectory + File.separator + "attributes.json");
-			if(file.exists()) {
-				byte[] jsonData = Files.readAllBytes(Paths.get(targetDirectory + File.separator + "attributes.json"));
-				attribute = new String(jsonData, StandardCharsets.UTF_8);
-			}
-		} catch(IOException e) {
-			LogMessageSupport.printMessage(e);
-		}
-		
-		return attribute;
-	}
-
-
 }
