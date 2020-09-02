@@ -35,11 +35,11 @@ public class ConverterController {
 	
 	@Autowired
 	private ConverterService converterService;
-	
+
 	/**
-	 * converter job 목록
+	 * 변환 job 목록
 	 * @param request
-	 * @param membership_id
+	 * @param converterJob
 	 * @param pageNo
 	 * @param model
 	 * @return
@@ -75,8 +75,17 @@ public class ConverterController {
 		model.addAttribute("converterJobList", converterJobList);
 		return "/converter/list";
 	}
-	
-	
+
+	/**
+	 *
+	 * @param request
+	 * @param converterJob
+	 * @param pageNo
+	 * @param converterJobFile
+	 * @param converterJobId
+	 * @param model
+	 * @return
+	 */
 	@GetMapping(value = "/converter-job-file-list")
 	public String converterJob(HttpServletRequest request, ConverterJob converterJob, @RequestParam(defaultValue="1") String pageNo,ConverterJobFile converterJobFile, @RequestParam("converterJobId") Long converterJobId, Model model) {
 		//UserSession userSession = (UserSession)request.getSession().getAttribute(Key.USER_SESSION.name());
@@ -153,10 +162,11 @@ public class ConverterController {
 //		model.addAttribute("converterJobFileList", converterJobFileList);
 //		return "/converter/list-converter-job-file";
 //	}
-	
+
 	/**
 	 * 검색 조건
-	 * @param search
+	 * @param pageType
+	 * @param converterJob
 	 * @return
 	 */
 	private String getSearchParameters(PageType pageType, ConverterJob converterJob) {
