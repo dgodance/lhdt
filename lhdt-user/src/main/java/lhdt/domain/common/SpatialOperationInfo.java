@@ -18,5 +18,6 @@ public class SpatialOperationInfo {
     private String wkt;
     private String type;
     private Float buffer;
+    private Integer maxFeatures;
     private List<GeometryInfo> geometryInfo;
 }

@@ -1,6 +1,7 @@
 package lhdt.domain.extrusionmodel;
 
 import lombok.*;
+import org.springframework.hateoas.server.core.Relation;
 
 import java.time.LocalDateTime;
 
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Relation(collectionRelation = "designLayerLands")
 public class DesignLayerLand {
 
     // design layer lnad 고유 번호

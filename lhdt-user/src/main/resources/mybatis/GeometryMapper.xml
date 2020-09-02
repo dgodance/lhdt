@@ -5,16 +5,51 @@
     <!-- 운영 정책 정보 -->
     <select id="getIntersectionDesignLayerLands" parameterType="spatialOperationInfo" resultType="designLayerLand">
         /* getIntersectionDesignLayerLands */
-        SELECT * FROM design_layer_land limit 1
+        SELECT * FROM design_layer_land
+        WHERE enable_yn='Y'
+        <choose>
+            <when test="buffer !=null and buffer > 0" >
+                AND st_intersects(st_buffer(ST_GeomFromText(#{wkt},4326),#{buffer}), the_geom) = true
+            </when>
+            <otherwise>
+                AND st_intersects(ST_GeomFromText(#{wkt},4326), the_geom) = true
+            </otherwise>
+        </choose>
+        <if test="maxFeatures !=null and maxFeatures > 0">
+            limit #{maxFeatures}
+        </if>
     </select>
 
     <select id="getIntersectionDesignLayerBuildings" parameterType="spatialOperationInfo" resultType="designLayerBuilding">
         /* getIntersectionDesignLayerBuildings */
-        SELECT * FROM design_layer_building limit 1
+        SELECT * FROM design_layer_building
+        WHERE enable_yn='Y'
+        <choose>
+            <when test="buffer !=null and buffer > 0" >
+                AND st_intersects(st_buffer(ST_GeomFromText(#{wkt},4326),#{buffer}), the_geom) = true
+            </when>
+            <otherwise>
+                AND st_intersects(ST_GeomFromText(#{wkt},4326), the_geom) = true
+            </otherwise>
+        </choose>
+        <if test="maxFeatures !=null and maxFeatures > 0">
+            limit #{maxFeatures}
+        </if>
     </select>
 
     <select id="getIntersectionDatas" parameterType="spatialOperationInfo" resultType="dataInfo">
         /* getIntersectionDatas */
-        SELECT * FROM data_info limit 1
+        SELECT * FROM data_info
+        <choose>
+            <when test="buffer !=null and buffer > 0" >
+                WHERE st_intersects(st_buffer(ST_GeomFromText(#{wkt},4326),#{buffer}), location) = true
+            </when>
+            <otherwise>
+                WHERE st_intersects(ST_GeomFromText(#{wkt},4326), location) = true
+            </otherwise>
+        </choose>
+        <if test="maxFeatures !=null and maxFeatures > 0">
+            limit #{maxFeatures}
+        </if>
     </select>
 </mapper>

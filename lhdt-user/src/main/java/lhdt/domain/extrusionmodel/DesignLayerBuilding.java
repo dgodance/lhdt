@@ -2,6 +2,7 @@ package lhdt.domain.extrusionmodel;
 
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.hateoas.server.core.Relation;
 
 import java.time.LocalDateTime;
 
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Relation(collectionRelation = "designLayerBuildings")
 public class DesignLayerBuilding {
 
     // design layer building 고유번호

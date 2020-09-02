@@ -52,7 +52,7 @@ public class GeometryAPIController {
         CollectionModel<EntityModel<?>> model = CollectionModel.of(designLayerEntity);
 
         model.add(linkTo(GeometryAPIController.class).withSelfRel());
-        model.add(Link.of("/docs/index.html#resource-geometry-design-layer-list").withRel("profile"));
+        model.add(Link.of("/docs/index.html#resource-geometry-intersection-design-layer-list").withRel("profile"));
 
         return ResponseEntity.ok(model);
     }
@@ -67,7 +67,7 @@ public class GeometryAPIController {
         CollectionModel<EntityModel<DataInfoDto>> model = CollectionModel.of(dataInfoEntity);
 
         model.add(linkTo(GeometryAPIController.class).withSelfRel());
-        model.add(Link.of("/docs/index.html#resource-geometry-data-list").withRel("profile"));
+        model.add(Link.of("/docs/index.html#resource-geometry-intersection-data-list").withRel("profile"));
 
         return ResponseEntity.ok(model);
     }
