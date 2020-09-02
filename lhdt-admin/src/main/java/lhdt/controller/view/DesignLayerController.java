@@ -169,6 +169,7 @@ public class DesignLayerController implements AuthorizationController {
 
         GeoPolicy policy = geoPolicyService.getGeoPolicy();
         DesignLayer designLayer = designLayerService.getDesignLayer(designLayerId);
+        String designLayerExtent = designLayerService.getDesignLayerExtent(designLayerId);
         Integer versionId = 0;
         if (designLayerFileInfoId != null) {
             versionId = designLayerFileInfoService.getDesignLayerShapeFileVersion(designLayerFileInfoId);
@@ -186,6 +187,7 @@ public class DesignLayerController implements AuthorizationController {
         model.addAttribute("policyJson", policyJson);
         model.addAttribute("designLayerJson", designLayerJson);
         model.addAttribute("versionId", versionId);
+        model.addAttribute("designLayerExtent", designLayerExtent);
 
         return "/design-layer/popup-map";
     }

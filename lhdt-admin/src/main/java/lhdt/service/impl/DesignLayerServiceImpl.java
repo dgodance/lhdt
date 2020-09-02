@@ -89,6 +89,16 @@ public class DesignLayerServiceImpl implements DesignLayerService {
     }
 
     /**
+     * design layer 정보 취득
+     * @param designLayerId
+     * @return
+     */
+    @Transactional(readOnly=true)
+    public String getDesignLayerExtent(Long designLayerId) {
+       return designLayerMapper.getDesignLayerExtent(designLayerId);
+    }
+
+    /**
      * 디자인 레이어 key 중복 확인
      * @param designLayerKey
      * @return
