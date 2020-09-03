@@ -105,6 +105,28 @@ class GeometryAPIControllerTests extends BaseControllerTest {
 
     }
 
+    @Test
+    @DisplayName("buffer 입력범위 초과 테스트")
+    void bufferValidTest() throws Exception {
+        List<GeometryInfo> geometry = new ArrayList<>();
+        geometry.add(new GeometryInfo(127.0018109, 37.4440647));
+
+        SpatialOperationInfo info = SpatialOperationInfo.builder()
+                .type("land")
+                .buffer(10f)
+                .geometryInfo(geometry)
+                .maxFeatures(3)
+                .build();
+        this.mockMvc.perform(get("/api/geometry/intersection/design-layers")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(info)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("errorCode").exists())
+                .andExpect(jsonPath("statusCode").exists())
+                .andExpect(jsonPath("message").exists());
+    }
+
     @Disabled
     @DisplayName("디자인 레이어 빌딩 intersection point")
     void getDesignLayerBuildingsByPoint() {

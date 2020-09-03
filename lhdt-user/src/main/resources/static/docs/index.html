@@ -909,8 +909,8 @@ Content-Length: 7555
       "attributes" : null,
       "updateDate" : null,
       "insertDate" : null,
-      "viewZIndex" : 1,
       "zindex" : 1,
+      "viewZIndex" : 1,
       "parameters" : "&amp;searchWord=&amp;searchOption=&amp;searchValue=&amp;startDate=&amp;endDate=&amp;orderWord=&amp;orderValue=&amp;listCounter=10",
       "_links" : {
         "self" : {
@@ -957,8 +957,8 @@ Content-Length: 7555
       "attributes" : null,
       "updateDate" : null,
       "insertDate" : null,
-      "viewZIndex" : 1,
       "zindex" : 1,
+      "viewZIndex" : 1,
       "parameters" : "&amp;searchWord=&amp;searchOption=&amp;searchValue=&amp;startDate=&amp;endDate=&amp;orderWord=&amp;orderValue=&amp;listCounter=10",
       "_links" : {
         "self" : {
@@ -1005,8 +1005,8 @@ Content-Length: 7555
       "attributes" : null,
       "updateDate" : null,
       "insertDate" : null,
-      "viewZIndex" : 1,
       "zindex" : 1,
+      "viewZIndex" : 1,
       "parameters" : "&amp;searchWord=&amp;searchOption=&amp;searchValue=&amp;startDate=&amp;endDate=&amp;orderWord=&amp;orderValue=&amp;listCounter=10",
       "_links" : {
         "self" : {
@@ -1053,8 +1053,8 @@ Content-Length: 7555
       "attributes" : null,
       "updateDate" : null,
       "insertDate" : null,
-      "viewZIndex" : 1,
       "zindex" : 1,
+      "viewZIndex" : 1,
       "parameters" : "&amp;searchWord=&amp;searchOption=&amp;searchValue=&amp;startDate=&amp;endDate=&amp;orderWord=&amp;orderValue=&amp;listCounter=10",
       "_links" : {
         "self" : {
@@ -1101,8 +1101,8 @@ Content-Length: 7555
       "attributes" : null,
       "updateDate" : null,
       "insertDate" : null,
-      "viewZIndex" : 1,
       "zindex" : 1,
+      "viewZIndex" : 1,
       "parameters" : "&amp;searchWord=&amp;searchOption=&amp;searchValue=&amp;startDate=&amp;endDate=&amp;orderWord=&amp;orderValue=&amp;listCounter=10",
       "_links" : {
         "self" : {
@@ -1179,8 +1179,8 @@ Content-Length: 1354
   "attributes" : null,
   "updateDate" : null,
   "insertDate" : null,
-  "viewZIndex" : 1,
   "zindex" : 1,
+  "viewZIndex" : 1,
   "parameters" : "&amp;searchWord=&amp;searchOption=&amp;searchValue=&amp;startDate=&amp;endDate=&amp;orderWord=&amp;orderValue=&amp;listCounter=10",
   "_links" : {
     "self" : {
@@ -1321,7 +1321,13 @@ Content-Length: 1354
 <p>입력 지오메트리와 디자인 레이어가 교차하는 영역에 대한 정보 리턴.</p>
 </li>
 <li>
-<p>type(land,building), geometry 정보를 필수로 입력해야 한다.</p>
+<p><strong>type(land,building), geometry 정보를 필수로 입력해야 한다.</strong></p>
+</li>
+<li>
+<p><strong> buffer 정보는 1을 넘길 수 없다.</strong></p>
+</li>
+<li>
+<p>buffer 정보는 좌표계에 따라 달라지며, 4326 기준으로 1도는 약 111km 이다. <a href="https://help.sap.com/saphelp_iq1608_iqspat/helpdata/en/3c/207ab56c5f1014a95ba9268e096e6a/content.htm?no_cache=true">참고</a></p>
 </li>
 </ul>
 </div>
@@ -2437,7 +2443,7 @@ Content-Length: 4859
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-09-03 10:20:59 +0900
+Last updated 2020-09-03 14:09:29 +0900
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/github.min.css">

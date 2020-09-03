@@ -119,7 +119,9 @@ include::{snippets}/design-layer-get/response-fields.adoc[]
 == 디자인 레이어 intersection
 
 - 입력 지오메트리와 디자인 레이어가 교차하는 영역에 대한 정보 리턴.
-- type(land,building), geometry 정보를 필수로 입력해야 한다.
+- **type(land,building), geometry 정보를 필수로 입력해야 한다.**
+- ** buffer 정보는 1을 넘길 수 없다.**
+- buffer 정보는 좌표계에 따라 달라지며, 4326 기준으로 1도는 약 111km 이다. https://help.sap.com/saphelp_iq1608_iqspat/helpdata/en/3c/207ab56c5f1014a95ba9268e096e6a/content.htm?no_cache=true[참고]
 
 [[resources-geometry-intersection-design-layer-land-point]]
 === Point 입력에 대한 필지 정보
