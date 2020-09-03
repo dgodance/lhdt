@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Relation(collectionRelation = "designLayerBuildings")
-public class DesignLayerBuilding {
+public class DesignLayerBuildingDto {
 
     // design layer building 고유번호
     private Long designLayerBuildingId;
@@ -43,10 +43,4 @@ public class DesignLayerBuilding {
     private LocalDateTime insertDate;
     // wkt
     private String theGeom;
-    // 활성화 여부 'Y', 'N'
-    private String enableYn;
-    // shape 버전 아이디
-    private Integer versionId;
-    // 좌표계
-    private Integer coordinate;
 }

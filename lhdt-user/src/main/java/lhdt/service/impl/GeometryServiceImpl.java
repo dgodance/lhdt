@@ -2,8 +2,8 @@ package lhdt.service.impl;
 
 import lhdt.domain.common.SpatialOperationInfo;
 import lhdt.domain.data.DataInfo;
-import lhdt.domain.extrusionmodel.DesignLayerBuilding;
-import lhdt.domain.extrusionmodel.DesignLayerLand;
+import lhdt.domain.extrusionmodel.DesignLayerBuildingDto;
+import lhdt.domain.extrusionmodel.DesignLayerLandDto;
 import lhdt.persistence.GeometryMapper;
 import lhdt.service.GeometryService;
 import lhdt.support.GeometrySupport;
@@ -22,14 +22,14 @@ public class GeometryServiceImpl implements GeometryService {
     }
 
     @Transactional(readOnly=true)
-    public List<DesignLayerLand> getIntersectionDesignLayerLands(SpatialOperationInfo spatialOperationInfo) {
+    public List<DesignLayerLandDto> getIntersectionDesignLayerLands(SpatialOperationInfo spatialOperationInfo) {
         spatialOperationInfo.setWkt(GeometrySupport.toWKT(spatialOperationInfo.getGeometryInfo()));
 
         return geometryMapper.getIntersectionDesignLayerLands(spatialOperationInfo);
     }
 
     @Transactional(readOnly=true)
-    public List<DesignLayerBuilding> getIntersectionDesignLayerBuildings(SpatialOperationInfo spatialOperationInfo) {
+    public List<DesignLayerBuildingDto> getIntersectionDesignLayerBuildings(SpatialOperationInfo spatialOperationInfo) {
         spatialOperationInfo.setWkt(GeometrySupport.toWKT(spatialOperationInfo.getGeometryInfo()));
 
         return geometryMapper.getIntersectionDesignLayerBuildings(spatialOperationInfo);

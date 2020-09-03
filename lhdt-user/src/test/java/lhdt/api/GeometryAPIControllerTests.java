@@ -46,7 +46,7 @@ class GeometryAPIControllerTests extends BaseControllerTest {
                 //.andExpect(jsonPath("_embedded.designLayerLands[0]._links.self").exists())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.profile").exists())
-                .andDo(document("geometry-intersection-design-layer-list"));
+                .andDo(document("geometry-intersection-design-layer-land-point"));
     }
 
     @Test
@@ -73,7 +73,7 @@ class GeometryAPIControllerTests extends BaseControllerTest {
                 //.andExpect(jsonPath("_embedded.designLayerLands[0]._links.self").exists())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.profile").exists())
-                .andDo(document("geometry-intersection-design-layer-list"));
+                .andDo(document("geometry-intersection-design-layer-land-linestring"));
     }
 
     @Test
@@ -101,7 +101,7 @@ class GeometryAPIControllerTests extends BaseControllerTest {
                 //.andExpect(jsonPath("_embedded.designLayerLands[0]._links.self").exists())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.profile").exists())
-                .andDo(document("geometry-intersection-design-layer-list"));
+                .andDo(document("geometry-intersection-design-layer-land-polygon"));
 
     }
 
@@ -134,7 +134,7 @@ class GeometryAPIControllerTests extends BaseControllerTest {
                 .geometryInfo(geometry)
                 .maxFeatures(3)
                 .build();
-        this.mockMvc.perform(get("/api/geometry/intersection/design-layers")
+        this.mockMvc.perform(get("/api/geometry/intersection/datas")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(info)))
                 .andDo(print())
@@ -142,7 +142,7 @@ class GeometryAPIControllerTests extends BaseControllerTest {
                 //.andExpect(jsonPath("_embedded.designLayerLands[0]._links.self").exists())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.profile").exists())
-                .andDo(document("geometry-intersection-data-list"));
+                .andDo(document("geometry-intersection-data-point"));
     }
 
     @Test
@@ -159,7 +159,7 @@ class GeometryAPIControllerTests extends BaseControllerTest {
                 .geometryInfo(geometry)
                 .maxFeatures(3)
                 .build();
-        this.mockMvc.perform(get("/api/geometry/intersection/design-layers")
+        this.mockMvc.perform(get("/api/geometry/intersection/datas")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(info)))
                 .andDo(print())
@@ -167,21 +167,25 @@ class GeometryAPIControllerTests extends BaseControllerTest {
                 //.andExpect(jsonPath("_embedded.designLayerLands[0]._links.self").exists())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.profile").exists())
-                .andDo(document("geometry-intersection-data-list"));
+                .andDo(document("geometry-intersection-data-linestring"));
     }
 
     @Test
     @DisplayName("데이터 intersection polygon")
     void getDatasByPolygon() throws Exception {
         List<GeometryInfo> geometry = new ArrayList<>();
-        geometry.add(new GeometryInfo(127.0018109, 37.4440647));
+        geometry.add(new GeometryInfo(127.261939578507366, 36.497348461104508));
+        geometry.add(new GeometryInfo(127.261994592089778, 36.497006997489514));
+        geometry.add(new GeometryInfo(127.262430906708943, 36.496855235882848));
+        geometry.add(new GeometryInfo(127.262550418974186, 36.497179626317092));
+        geometry.add(new GeometryInfo(127.262550418974186, 36.497179626317092));
+        geometry.add(new GeometryInfo(127.261939578507366, 36.497348461104508));
 
         SpatialOperationInfo info = SpatialOperationInfo.builder()
-                .buffer(0.002f)
                 .geometryInfo(geometry)
                 .maxFeatures(3)
                 .build();
-        this.mockMvc.perform(get("/api/geometry/intersection/design-layers")
+        this.mockMvc.perform(get("/api/geometry/intersection/datas")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(info)))
                 .andDo(print())
@@ -189,7 +193,7 @@ class GeometryAPIControllerTests extends BaseControllerTest {
                 //.andExpect(jsonPath("_embedded.designLayerLands[0]._links.self").exists())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.profile").exists())
-                .andDo(document("geometry-intersection-data-list"));
+                .andDo(document("geometry-intersection-data-polygon"));
     }
 
 }
