@@ -1,20 +1,28 @@
 /**
+ * @since
+ *	20200902 remove viewer. add MAGO3D_INSTANCE
  */
-const PpMap = function () {
+const Ppmap = function () {
 };
 
 /**
  */
-PpMap.prototype.init = function () {
+Ppmap.init = function () {
 	//
-	console.log(new Date(), '<<PpMap.init()');
+	console.log(new Date(), '<<Ppmap.init()');
 };
 
-PpMap.prototype.getViewer = function () {
+/**
+ * @deprecated 20200902
+ */
+Ppmap.getViewer = function () {
     return this._viewer;
 }
 
-PpMap.prototype.setViewer = function (viewer) {
+/**
+ * @deprecated 20200902
+ */
+Ppmap.setViewer = function (viewer) {
     this._viewer = viewer;
 }
 
@@ -23,13 +31,13 @@ PpMap.prototype.setViewer = function (viewer) {
  * @param {Cartesian3|LonLatAlt} ctsnOrXyz
  * @param {Cartesian3} direction
  */
-PpMap.prototype.addDirectionRay = function (ctsnOrXyz, direction) {
-    const origin = this.toCartesian3(ctsnOrXyz);
+Ppmap.addDirectionRay = function (ctsnOrXyz, direction) {
+    const origin = Ppmap.toCartesian3(ctsnOrXyz);
 
     const directionRay = Cesium.Cartesian3.multiplyByScalar(direction, 100000, new Cesium.Cartesian3());
     Cesium.Cartesian3.add(origin, directionRay, directionRay);
 
-    this._viewer.entities.add({
+    MAGO3D_INSTANCE.getViewer().entities.add({
         polyline: {
             positions: [origin, directionRay],
             width: 5,
@@ -45,10 +53,10 @@ PpMap.prototype.addDirectionRay = function (ctsnOrXyz, direction) {
  * @param {Cartesian3|LonLatAlt} ctsn2
  * @returns {Cartesian3} 
  */
-PpMap.prototype.getDirection = function (ctsn1, ctsn2) {
+Ppmap.getDirection = function (ctsn1, ctsn2) {
     //
-    const origin = this.toCartesian3(ctsn1);
-    const target = this.toCartesian3(ctsn2);
+    const origin = Ppmap.toCartesian3(ctsn1);
+    const target = Ppmap.toCartesian3(ctsn2);
 
     //
     const direction = Cesium.Cartesian3.subtract(target, origin, new Cesium.Cartesian3());
@@ -69,10 +77,10 @@ PpMap.prototype.getDirection = function (ctsn1, ctsn2) {
 * @param {Cartesian3|LonLatAlt} pointB  
 * @return {Number}
 */
-PpMap.prototype.getHeading = function (pointA, pointB) {
+Ppmap.getHeading = function (pointA, pointB) {
     //
-    const ctsnA = this.toCartesian3(pointA);
-    const ctsnB = this.toCartesian3(pointB);
+    const ctsnA = Ppmap.toCartesian3(pointA);
+    const ctsnB = Ppmap.toCartesian3(pointB);
 
     //		
     const transform = Cesium.Transforms.eastNorthUpToFixedFrame(ctsnA);
@@ -97,8 +105,8 @@ PpMap.prototype.getHeading = function (pointA, pointB) {
  * @param {object} option {'duration':number}
  * @param {Function} callbackFn flyTo완료 후 호출할 콜백함수. 옵션
  */
-PpMap.prototype.flyTo = function (ctsnOrXyz, hpr, option, callbackFn) {
-    const ctsn = this.toCartesian3(ctsnOrXyz);
+Ppmap.flyTo = function (ctsnOrXyz, hpr, option, callbackFn) {
+    const ctsn = Ppmap.toCartesian3(ctsnOrXyz);
 
     //
     let opt = {
@@ -119,7 +127,7 @@ PpMap.prototype.flyTo = function (ctsnOrXyz, hpr, option, callbackFn) {
     }
 
     //
-    this._viewer.scene.camera.flyTo(opt);
+    MAGO3D_INSTANCE.getviewer().scene.camera.flyTo(opt);
 }
 
 
@@ -131,7 +139,7 @@ PpMap.prototype.flyTo = function (ctsnOrXyz, hpr, option, callbackFn) {
  * @param {any} obj
  * @returns {boolean}
  */
-PpMap.prototype.isDegree = function (obj) {
+Ppmap.isDegree = function (obj) {
     if ('object' !== typeof (obj)) {
         return false;
     }
@@ -145,33 +153,28 @@ PpMap.prototype.isDegree = function (obj) {
  * 지도 화면 캡처
  * @param callbackFn 스크린샷 후 호출할 콜백함수
  */
-PpMap.prototype.captureMap = function (callbackFn) {
-    let viewer = this._viewer;
-    var scene = this._viewer.scene;
-    if (!scene) {
-        console.error("No scene");
-    }
-
+Ppmap.captureMap = function (callbackFn) {
+    
     var targetResolutionScale = 1.0;
     var timeout = 500; // in ms
 
     // define callback functions
     var prepareScreenshot = function () {
-        viewer.resolutionScale = targetResolutionScale;
-        scene.preRender.removeEventListener(prepareScreenshot);
+        MAGO3D_INSTANCE.getViewer().resolutionScale = targetResolutionScale;
+        MAGO3D_INSTANCE.getViewer().scene.preRender.removeEventListener(prepareScreenshot);
         // take snapshot after defined timeout to allow scene update (ie. loading data)
         //startLoading();
         setTimeout(function () {
-            scene.postRender.addEventListener(takeScreenshot);
+            MAGO3D_INSTANCE.getViewer().scene.postRender.addEventListener(takeScreenshot);
         }, timeout);
     }
 
     //
     var takeScreenshot = function () {
-        scene.postRender.removeEventListener(takeScreenshot);
-        var canvas = scene.canvas;
+        MAGO3D_INSTANCE.getViewer().scene.postRender.removeEventListener(takeScreenshot);
+        var canvas = MAGO3D_INSTANCE.getViewer().scene.canvas;
         canvas.toBlob(function (blob) {
-            viewer.resolutionScale = 1.0;
+            MAGO3D_INSTANCE.getViewer().resolutionScale = 1.0;
 
             console.log(blob);
             callbackFn(blob);
@@ -179,7 +182,7 @@ PpMap.prototype.captureMap = function (callbackFn) {
     }
 
     //
-    scene.preRender.addEventListener(prepareScreenshot);
+    MAGO3D_INSTANCE.getViewer().scene.preRender.addEventListener(prepareScreenshot);
 }
 
 
@@ -188,7 +191,7 @@ PpMap.prototype.captureMap = function (callbackFn) {
  * @param {any} 가변적 Cartesian3 or LonLatAlt or lon,lat,alt
  * @returns {Cartesian3}
  */
-PpMap.prototype.toCartesian3 = function () {
+Ppmap.toCartesian3 = function () {
     const args = arguments;
 
 
@@ -202,7 +205,7 @@ PpMap.prototype.toCartesian3 = function () {
     }
 
     //
-    if (1 === args.length && this.isDegree(args[0])) {
+    if (1 === args.length && Ppmap.isDegree(args[0])) {
         return Cesium.Cartesian3.fromDegrees(args[0].lon, args[0].lat, args[0].alt || 0.0);
     }
 
@@ -219,9 +222,9 @@ PpMap.prototype.toCartesian3 = function () {
 /**
 * 지도 방향? 초기화
 */
-PpMap.prototype.resetRotate = function () {
-    ppmap.viewer.scene.camera.flyTo({
-        destination: ppmap.viewer.scene.camera.positionWC,
+Ppmap.resetRotate = function () {
+    MAGO3D_INSTANCE.getViewer().scene.camera.flyTo({
+        destination: MAGO3D_INSTANCE.getViewer().scene.camera.positionWC,
         duration: 1
     });
     /*
@@ -231,8 +234,3 @@ PpMap.prototype.resetRotate = function () {
     });
     */
 }
-
-
-
-//
-let ppmap = new PpMap();
