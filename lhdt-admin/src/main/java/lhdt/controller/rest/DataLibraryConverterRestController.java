@@ -1,20 +1,11 @@
 package lhdt.controller.rest;
 
 import lhdt.config.PropertiesConfig;
-import lhdt.domain.FileType;
 import lhdt.domain.Key;
-import lhdt.domain.UploadDataType;
-import lhdt.domain.UploadDirectoryType;
-import lhdt.domain.extrusionmodel.DataLibraryUpload;
-import lhdt.domain.extrusionmodel.DataLibraryUploadFile;
-import lhdt.domain.policy.Policy;
+import lhdt.domain.extrusionmodel.DataLibraryConverterJob;
 import lhdt.domain.user.UserSession;
-import lhdt.service.DataLibraryService;
+import lhdt.service.DataLibraryConverterService;
 import lhdt.service.PolicyService;
-import lhdt.support.LogMessageSupport;
-import lhdt.utils.DateUtils;
-import lhdt.utils.FileUtils;
-import lhdt.utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,13 +13,10 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import java.io.*;
-import java.util.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 데이터 라이브러리 파일 업로더
@@ -51,51 +39,51 @@ public class DataLibraryConverterRestController {
 	private PropertiesConfig propertiesConfig;
 	
 	@Autowired
-	private DataLibraryService dataLibraryService;
+	private DataLibraryConverterService dataLibraryConverterService;
 
-//	/**
-//	 * TODO 우선은 여기서 적당히 구현해 두고... 나중에 좀 깊이 생각해 보자. converter에 어디까지 넘겨야 할지
-//	 * @param request
-//	 * @param dataLibraryConverterJob
-//	 * @return
-//	 */
-//	@PostMapping(value = "/converter")
-//	public Map<String, Object> converter(HttpServletRequest request, DataLibraryConverterJob dataLibraryConverterJob) {
-//		log.info("@@@ dataLibraryConverterJob = {}", dataLibraryConverterJob);
-//
-//		Map<String, Object> result = new HashMap<>();
-//		String errorCode = null;
-//		String message = null;
-//
-//		if(dataLibraryConverterJob.getConverterCheckIds().length() <= 0) {
-//			log.info("@@@@@ message = {}", message);
-//			result.put("statusCode", HttpStatus.BAD_REQUEST.value());
-//			result.put("errorCode", "check.value.required");
-//			result.put("message", message);
-//			return result;
-//		}
-//		if(StringUtils.isEmpty(dataLibraryConverterJob.getTitle())) {
-//			result.put("statusCode", HttpStatus.BAD_REQUEST.value());
-//			result.put("errorCode", "converter.title.empty");
-//			result.put("message", message);
-//			return result;
-//		}
-//		if(dataLibraryConverterJob.getUsf() == null) {
-//			result.put("statusCode", HttpStatus.BAD_REQUEST.value());
-//			result.put("errorCode", "converter.usf.empty");
-//			result.put("message", message);
-//			return result;
-//		}
-//
-//		UserSession userSession = (UserSession)request.getSession().getAttribute(Key.USER_SESSION.name());
-//		dataLibraryConverterJob.setUserId(userSession.getUserId());
-//
-//		converterService.insertConverter(dataLibraryConverterJob);
-//		int statusCode = HttpStatus.OK.value();
-//
-//		result.put("statusCode", statusCode);
-//		result.put("errorCode", errorCode);
-//		result.put("message", message);
-//		return result;
-//	}
+	/**
+	 * 변환
+	 * @param request
+	 * @param dataLibraryConverterJob
+	 * @return
+	 */
+	@PostMapping
+	public Map<String, Object> insert(HttpServletRequest request, DataLibraryConverterJob dataLibraryConverterJob) {
+		log.info("@@@ dataLibraryConverterJob = {}", dataLibraryConverterJob);
+
+		Map<String, Object> result = new HashMap<>();
+		String errorCode = null;
+		String message = null;
+
+		if(dataLibraryConverterJob.getConverterCheckIds().length() <= 0) {
+			log.info("@@@@@ message = {}", message);
+			result.put("statusCode", HttpStatus.BAD_REQUEST.value());
+			result.put("errorCode", "check.value.required");
+			result.put("message", message);
+			return result;
+		}
+		if(StringUtils.isEmpty(dataLibraryConverterJob.getTitle())) {
+			result.put("statusCode", HttpStatus.BAD_REQUEST.value());
+			result.put("errorCode", "converter.title.empty");
+			result.put("message", message);
+			return result;
+		}
+		if(dataLibraryConverterJob.getUsf() == null) {
+			result.put("statusCode", HttpStatus.BAD_REQUEST.value());
+			result.put("errorCode", "converter.usf.empty");
+			result.put("message", message);
+			return result;
+		}
+
+		UserSession userSession = (UserSession)request.getSession().getAttribute(Key.USER_SESSION.name());
+		dataLibraryConverterJob.setUserId(userSession.getUserId());
+
+		dataLibraryConverterService.insertDataLibraryConverter(dataLibraryConverterJob);
+		int statusCode = HttpStatus.OK.value();
+
+		result.put("statusCode", statusCode);
+		result.put("errorCode", errorCode);
+		result.put("message", message);
+		return result;
+	}
 }

@@ -180,7 +180,7 @@
 			mapping_type = #{mappingType},
 		</if>
 		<if test="converterCount != null and converterCount gt 0">
-			converter_count = converter_count + 1,
+			converter_count = converter_count + #{converterCount},
 		</if>
 		<if test="description != null and description != ''">
 			description = #{description},
