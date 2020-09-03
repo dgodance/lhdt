@@ -7,8 +7,22 @@ const analsSavedEntitiy = {
     }
 }
 
+const LS_POINT_REST_URL = 'http://localhost:9091/adminsvc/ls-point-rest';
+
+
+/**
+ * 표시
+ * @param {string} id 경관 아이디
+ */
 function showData(id) {
-    $.get('http://localhost:9091/adminsvc/ls-point-rest/'+id).done(function(diffObj) {
+    $.get(LS_POINT_REST_URL + '/'+id).done(function(diffObj) {
+		if(Pp.isEmpty(diffObj)){
+			console.log(diffObj);
+			alert('관련 정보가 존재하지 않습니다.');
+			return;
+		}
+		
+		//
         analsSavedEntitiy.removeThis();
         if(diffObj.landScapePointType === '점') {
             const startAlt = diffObj.startAltitude;
