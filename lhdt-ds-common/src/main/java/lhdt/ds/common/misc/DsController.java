@@ -7,19 +7,20 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
+import org.apache.commons.io.FileUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import dev.hyunlab.web.util.PpWebSessionUtil;
 import lhdt.ds.common.domain.DsDomain;
 import lombok.extern.slf4j.Slf4j;
 
@@ -138,5 +139,66 @@ public class DsController {
 		
 		//
 		return null;
+	}
+	
+	
+	/**
+	 * image file을 base64 문자열로 변환
+	 * @param fullname
+	 * @return
+	 */
+	protected String fileToBase64String(String fullname) {
+		if(DsUtils.isEmpty(fullname)) {
+			log.warn("<< empty fullname");
+			return "";
+		}
+		
+		//
+		return fileToBase64String(Paths.get(fullname));
+	}
+	
+	
+	
+	/**
+	 * image file을 base64 문자열로 변환
+	 * @param filepath
+	 * @return
+	 */
+	protected String fileToBase64String(Path filepath) {
+		if(!Files.exists(filepath)) {
+			log.warn("<< not exists file {}", filepath);
+			return "";
+		}
+		
+		//
+		return fileToBase64String(filepath.toFile());
+	}
+	
+	/**
+	 * image file을 base64 문자열로 변환
+	 * @param file
+	 * @return
+	 */
+	protected String fileToBase64String(File file) {
+		if(null == file) {
+			log.warn("<< null file");
+			return "";
+		}
+		
+		if(!file.exists()) {
+			log.warn("<< not exists file {}", file);
+			return "";
+		}
+		
+		//
+		try {
+			byte[] bytes = FileUtils.readFileToByteArray(file);
+			return Base64.getEncoder().encodeToString(bytes);
+		} catch (IOException e) {
+			log.error("{}", e);
+		}
+		
+		//
+		return "";
 	}
 }
