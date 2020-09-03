@@ -17,6 +17,8 @@ const template = Handlebars.compile(source);
 
 let analsLandScapeDiff = undefined;
 
+//
+const	LS_DIFF_REST_URL = 'http://localhost:9091/adminsvc/ls-diff-rest';
 
 /**
  * 경관 비교
@@ -27,6 +29,7 @@ let analsLandScapeDiff = undefined;
 const AnalsLandScapeDiff = function() {
     this._captureList = {};
     this._landScapDiffStatList = [];
+//
 };
 
 AnalsLandScapeDiff.prototype.init = function() {
@@ -34,7 +37,7 @@ AnalsLandScapeDiff.prototype.init = function() {
 
 AnalsLandScapeDiff.prototype.captureScreenProc = function(blob) {
     let the = this;
-    the.captureMap(function(blob) {
+    Ppmap.captureMap(function(blob) {
         const landscapeCameraStatus = new LandScapeCameraStatus()
         landscapeCameraStatus._blob = blob;
         landscapeCameraStatus._captureIdx += 1;
@@ -54,7 +57,7 @@ AnalsLandScapeDiff.prototype.setCaptureImgSrc = function(blob) {
 }
 
 AnalsLandScapeDiff.prototype.captureMap = function(callbackFn) {
-    ppmap.captureMap(function (blob){
+    Ppmap.captureMap(function (blob){
         if(Pp.isNotNull(callbackFn)) {
             callbackFn(blob);
         }
@@ -62,7 +65,7 @@ AnalsLandScapeDiff.prototype.captureMap = function(callbackFn) {
 };
 
 AnalsLandScapeDiff.prototype.captureCameraState = function() {
-    const camera = ppmap.viewer.camera;
+    const camera = MAGO3D_INSTANCE.getViewer().camera;
     const store = {
         position: camera.position.clone(),
         direction: camera.direction.clone(),
@@ -75,7 +78,7 @@ AnalsLandScapeDiff.prototype.captureCameraState = function() {
 }
 
 AnalsLandScapeDiff.prototype.moveCameraByStatus = function(status) {
-    ppmap.viewer.camera.flyTo({
+    MAGO3D_INSTANCE.getViewer().camera.flyTo({
         destination : status.position,
         orientation : {
             direction : status.direction,
@@ -86,25 +89,35 @@ AnalsLandScapeDiff.prototype.moveCameraByStatus = function(status) {
 }
 
 AnalsLandScapeDiff.prototype.renderDiffDropdown = function() {
+	let the = this;
+	
     debugger;
     const html = $('#landscapeDiffSource').html();
     const template_html = Handlebars.compile(html);
-    let the = this;
-    $.get('http://localhost:9091/adminsvc/ls-diff-rest/group').done(function(data) {
+    
+    $.get(LS_DIFF_REST_URL + '/group').done(function(data) {
         debugger;
         const lsGroupData = {
             landscapeGroupList: data
         }
 
         $('#landscapeDiffDataDiv').append(template_html(lsGroupData));
+
+		//경관그룹 선택박스 change 이벤트 등록
         $('#landscapeDiffDataDiv').find('#landscapeGroup').change(function() {
             renderDiffContentDefault();
         })
 
         renderDiffContentDefault();
 
+		//저장 버튼 클릭 이벤트 등록
         $('#landscapeDiffDataDiv').find('#landscapeSaveBtn').click(function() {
-            the.captureMap(function(blob) {
+			if(!confirm('저장하시겠습니까?')){
+				return;
+			}
+			
+			//
+            Ppmap.captureMap(function(blob) {
                 debugger;
                 const formData = new FormData();
 
@@ -115,11 +128,13 @@ AnalsLandScapeDiff.prototype.renderDiffDropdown = function() {
                 formData.append('image', blob);
                 $.ajax({
                     type: 'POST',
-                    url: 'http://localhost:9091/adminsvc/ls-diff-rest',
+                    url: LS_DIFF_REST_URL,
                     data: formData,
                     processData: false,
                     contentType: false
                 }).done(function(data) {
+					alert('저장되었습니다.');
+					//
                     renderDiffContentDefault();
                 });
 
@@ -129,10 +144,23 @@ AnalsLandScapeDiff.prototype.renderDiffDropdown = function() {
     })
 }
 
+
+/**
+ * (저장된)경관명 목록 표시
+ * @param {string} groupId 그룹 아이디
+ * @param {number|undefined} pageNum 페이지번호
+ */
 AnalsLandScapeDiff.prototype.renderDiffContent = function(groupId, pageNum) {
-    if(pageNum === undefined)
-        pageNum = 1;
-    $.get('http://localhost:9091/adminsvc/ls-diff-rest/'+groupId+'?lsDiffPage='+pageNum).done(function(diffObj) {
+	if(Pp.isEmpty(groupId)){
+		return;
+	}
+	//
+    if(pageNum === undefined){
+		pageNum = 1;	
+	}
+	
+	//
+    $.get(LS_DIFF_REST_URL + '/'+groupId+'?lsDiffPage='+pageNum).done(function(diffObj) {
         debugger;
         $('#landscapeDiffDetDataDiv').empty();
         $('#landscapeDiffDetDataDiv').append(template(diffObj));
@@ -148,18 +176,47 @@ function renderDiffContentDefaultWithPage(pageNum) {
 }
 
 function gotoScene(id) {
-    $.get('http://localhost:9091/adminsvc/ls-diff-rest/scene/'+id).done(function(diffObj) {
+    $.get(LS_DIFF_REST_URL + '/scene/'+id).done(function(diffObj) {
         const analsLandScapeDiff = new AnalsLandScapeDiff();
         analsLandScapeDiff.moveCameraByStatus(JSON.parse(diffObj.captureCameraState));
     });
 }
 
+
+/**
+ * (저장된 이미지)확인
+ * @param {string|number} id 경관 아이디
+ */
+function showLsDiffImage(id){
+    $.get(LS_DIFF_REST_URL + '/images/'+id).done(function(res) {
+		//이미지 정보는 base64 문자열로 리턴됨
+        console.log(res);
+	
+		//
+		let el = document.createElement('img');
+		el.src = 'data:image/png;base64,' + res.base64;
+		document.querySelectorAll('body')[0].appendChild(el);
+    });
+}
+
+
+/**
+ * 경관명 삭제
+ * @param {string} id 경관명 아이디
+ */
 function deleteData(id) {
+	if(!confirm('삭제하시겠습니까?')){
+		return;
+	}
+	
+	//
     $.ajax({
-        url : 'http://localhost:9091/adminsvc/ls-diff-rest/scene/'+id,
+        url : LS_DIFF_REST_URL + '/scene/'+id,
         type : "DELETE",
         success: function() {
-            renderDiffContent();
+			alert('삭제되었습니다.');
+			//
+            renderDiffContentDefault();
         }
     });
 }
