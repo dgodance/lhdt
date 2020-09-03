@@ -1,12 +1,30 @@
 package lhdt.admin.svc.landscape.controller.rest;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import lhdt.admin.svc.common.model.PageParam;
 import lhdt.admin.svc.file.domain.FileInfo;
 import lhdt.admin.svc.file.service.FileInfoService;
 import lhdt.admin.svc.landscape.domain.LandScapeDiff;
+import lhdt.admin.svc.landscape.domain.LandScapeDiffGroup;
 import lhdt.admin.svc.landscape.domain.LandScapeDiffDTO.LandScapeDiffDefault;
 import lhdt.admin.svc.landscape.domain.LandScapeDiffDTO.LandScapeDiffScene;
-import lhdt.admin.svc.landscape.domain.LandScapeDiffGroup;
 import lhdt.admin.svc.landscape.model.LandScapeDiffParam;
 import lhdt.admin.svc.landscape.service.LandScapeBizService;
 import lhdt.admin.svc.landscape.service.LandScapeDiffGroupService;
@@ -14,21 +32,13 @@ import lhdt.admin.svc.landscape.service.LandScapeDiffService;
 import lhdt.ds.common.misc.DSPageSize;
 import lhdt.ds.common.misc.DSPaginator;
 import lhdt.ds.common.misc.DSPaginatorInfo;
+import lhdt.ds.common.misc.DsController;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping("/ls-diff-rest")
-public class LandScapeDiffRestController {
+public class LandScapeDiffRestController extends DsController {
     @Autowired
     private LandScapeDiffGroupService landScapeDiffGroupService;
     @Autowired
@@ -101,6 +111,26 @@ public class LandScapeDiffRestController {
             throw new RuntimeException(e);
         }
         return result;
+    }
+    
+    
+    /**
+     * 저장된 경관 이미지 조회. 이미지를 base64 문자열로 리턴
+     * @param id 경관 아이디
+     * @return
+     */
+    @GetMapping("/images/{id}")
+    public ResponseEntity<Map<String,Object>> getImage(@PathVariable(value="id") Long id) {
+    	LandScapeDiff domain = landScapeDiffService.findById(id);
+//    	log.debug("{}", domain.getLsDiffImgInfo());
+    	
+    	
+    	//
+    	Map<String,Object> map = new HashMap<>();
+    	map.put("base64", super.fileToBase64String(domain.getLsDiffImgInfo().toString()));
+    	
+    	//
+    	return new ResponseEntity<Map<String,Object>>(map, HttpStatus.OK);
     }
 
 }
