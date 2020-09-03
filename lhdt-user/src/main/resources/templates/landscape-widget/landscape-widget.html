@@ -5,12 +5,16 @@
         <form id="landscapeDataForm" method="post" onsubmit="return false;">
             <div class="form-group form-group-data">
                 <label for="landscapeGroup">경관그룹</label>
-                <select id="landscapeGroup" name="landscapeGroup">
-                    {{#landscapeGroupList}}
-                    <option value="{{id}}">
-                        {{lsDiffGrupName}}
-                    </option>
-                    {{/landscapeGroupList}}
+                <select id="landscapeGroup" name="landscapeGroup">					
+					{{#if landscapeGroupList}}
+                    	{{#each landscapeGroupList}}
+                    	<option value="{{id}}">
+                        	{{lsDiffGrupName}}
+                    	</option>
+                    	{{/each}}
+					{{else}}
+						<option value=''>데이터가 없습니다.</option>
+					{{/if}}
                 </select>
             </div>
             <div class="form-group form-group-data">
@@ -47,7 +51,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {{#greaterThan size 0}}
+                    {{#if page}}
                         {{#each page}}
                             <tr>
                                 <td><span class="no">{{id}}</span></td>
@@ -62,12 +66,12 @@
                                 </td>
                                 <td>
                                     <button type="button" class="showHideButton show"
-                                            th:text="조회" onclick="showData('{{id}}')">
+                                            th:text="조회" onclick="showLsDiffImage('{{id}}')">
                                     </button>
                                 </td>
                                 <td>
                                     <form method="post" action="">
-                                        <button type="button" class="showHideButton delete"
+                                        <button type="button" class="showHideButton delete" style="background-position: -10px -210px;"
                                                 th:text="삭제" onclick="deleteData('{{id}}')">
                                         </button>
                                     </form>
@@ -79,7 +83,7 @@
                         <tr>
                             <td colspan="5" style="height: 30px;">데이터가 존재하지 않습니다.</td>
                         </tr>
-                    {{/greaterThan}}
+                    {{/if}}
                     </tbody>
                 </table>
             </div>
