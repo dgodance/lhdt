@@ -157,39 +157,39 @@ SkylineObj.prototype.setEventHandler = function(){
 	//원경 클릭 이벤트
 	Ppui.on('.ds-movetop1', 'click', function(){
 		//
-		let heading = ppmap.getHeading(xyz1, xyz2);
+		let heading = Ppmap.getHeading(xyz1, xyz2);
 		
 		//
 		const xyz = Pp.extend(the.getViewPoint(ViewPoint.A), {'alt':30.0});
 		//
 		const hpr = new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(heading), Cesium.Math.toRadians(0), Cesium.Math.toRadians(0));
 		//
-		ppmap.flyTo(xyz, hpr, {'duration':0.5});
+		Ppmap.flyTo(xyz, hpr, {'duration':0.5});
 		
 	});
 
 	//중경 클릭 이벤트
 	Ppui.on('.ds-movetop2', 'click', function(){
-		let heading = ppmap.getHeading(xyz1, xyz2);
+		let heading = Ppmap.getHeading(xyz1, xyz2);
 		
 		//
 		const xyz = Pp.extend(the.getViewPoint(ViewPoint.B), {'alt':30.0});
 		//
 		const hpr = new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(heading), Cesium.Math.toRadians(0), Cesium.Math.toRadians(0));
 		//
-		ppmap.flyTo(xyz, hpr, {'duration':0.5});		
+		Ppmap.flyTo(xyz, hpr, {'duration':0.5});		
 	});
 		
 		
 	//근경 클릭 이벤트
 	Ppui.on('.ds-movetop3', 'click', function(){
-		let heading = ppmap.getHeading(xyz1, xyz2);
+		let heading = Ppmap.getHeading(xyz1, xyz2);
 		
 		//
 		const xyz = Pp.extend(the.getViewPoint(ViewPoint.C), {'alt':30.0});
 		const hpr = new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(heading), Cesium.Math.toRadians(0), Cesium.Math.toRadians(0));
 		//
-		ppmap.flyTo(xyz, hpr, {'duration':0.5});
+		Ppmap.flyTo(xyz, hpr, {'duration':0.5});
 		
 	});
 	
@@ -352,7 +352,7 @@ SkylineObj.prototype.getSkylineBlob = function(gbn){
  * @deprecated 20200902
  */
 SkylineObj.prototype.setViewer = function(viewer){
-	ppmap.viewer = viewer;	
+	Ppmap.viewer = viewer;	
 };
 
 
@@ -418,7 +418,7 @@ SkylineObj.prototype.autoCaptureAll = function(callbackFn){
 SkylineObj.prototype.captureMap = function(callbackFn){
 	
 	//
-	ppmap.captureMap(function(blob){
+	Ppmap.captureMap(function(blob){
 		if(Pp.isNotNull(callbackFn)){
 			callbackFn(blob);
 		}
@@ -499,14 +499,14 @@ SkylineObj.prototype.flyToAndCapture = function(gbn, callbackFn){
 	let the = this;
 	
 	//
-	let heading = ppmap.getHeading(xyz1, xyz2);
+	let heading = Ppmap.getHeading(xyz1, xyz2);
 	//
 	const xyz = Pp.extend(the.getViewPoint(gbn), {'alt':30.0});
 	//
 	const hpr = new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(heading), Cesium.Math.toRadians(0), Cesium.Math.toRadians(0));
 	
 	//
-	ppmap.flyTo(xyz, hpr, {'duration':0.5}, function(){
+	Ppmap.flyTo(xyz, hpr, {'duration':0.5}, function(){
 		//
 		the.captureMap(function(blob){
 			//
