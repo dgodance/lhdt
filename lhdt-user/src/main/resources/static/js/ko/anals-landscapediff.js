@@ -190,12 +190,34 @@ function gotoScene(id) {
 function showLsDiffImage(id){
     $.get(LS_DIFF_REST_URL + '/images/'+id).done(function(res) {
 		//이미지 정보는 base64 문자열로 리턴됨
-        console.log(res);
-	
+        //console.log(res);
+		
 		//
-		let el = document.createElement('img');
-		el.src = 'data:image/png;base64,' + res.base64;
-		document.querySelectorAll('body')[0].appendChild(el);
+		Ppui.remove('#landscapeDiffModal');
+		
+		//
+		let template = Handlebars.compile( $('#landscapeDiffDialog').html() );
+		$('body').append(template(res));
+		
+		//
+		//모달창 실행
+		$('#landscapeDiffModal').dialog({
+			autoOpen: false,
+			width: 1024,
+			height: 768,
+			modal: true,
+			resizable: false,
+			title : '경관 이미지',
+			show:{
+				'effect':'fade',
+				'duration':500
+			},
+			buttons:{
+				'닫기':function(){
+					$(this).dialog('close')
+				}
+			}
+		}).dialog('open');
     });
 }
 
