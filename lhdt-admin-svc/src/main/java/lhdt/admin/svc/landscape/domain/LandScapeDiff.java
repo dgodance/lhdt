@@ -42,7 +42,7 @@ public class LandScapeDiff extends DsDomain {
 
     @JsonIgnore
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="ls_diff_group_id")
     @DsField(bizKey = true, order = 1)
     private LandScapeDiffGroup landScapeDiffGroup;
