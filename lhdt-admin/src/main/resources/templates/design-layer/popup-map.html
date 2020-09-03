@@ -24,6 +24,6 @@
 <script th:inline="javascript">
     var policy = JSON.parse(/*[[${policyJson}]]*/"");
     var layer = JSON.parse(/*[[${designLayerJson}]]*/"");
-    var mapViewer = new mapViewer(policy, layer, [[${versionId}]]);
+    var mapViewer = new mapViewer(policy, layer, [[${versionId}]], [[${designLayerExtent}]]);
 </script>
 </html>

@@ -96,8 +96,8 @@ public class DataLibraryServiceImpl implements DataLibraryService {
 	 * @return
 	 */
 	@Transactional(readOnly=true)
-	public List<DataLibrary> getDataLibraryByConverterJob(DataLibrary dataLibrary) {
-		return dataLibraryMapper.getDataLibraryByConverterJob(dataLibrary);
+	public List<DataLibrary> getDataLibraryByDataLibraryConverterJob(DataLibrary dataLibrary) {
+		return dataLibraryMapper.getDataLibraryByDataLibraryConverterJob(dataLibrary);
 	}
 
 	/**

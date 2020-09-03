@@ -99,6 +99,11 @@ public interface DataGroupMapper {
 	int updateDataGroupViewOrder(DataGroup dataGroup);
 
 	/**
+	 * 자식의 수를 + 또는 - 연산
+	 */
+	int updateDataGroupChildren(DataGroup dataGroup);
+
+	/**
 	 * 데이터 그룹 삭제
 	 * @param dataGroup
 	 * @return

@@ -117,6 +117,18 @@
 		</choose>
 	</select>
 
+	<!-- 데이터 라이브러리 업로딩 파일 -->
+	<select id="getDataLibraryUploadFile" parameterType="dataLibraryUploadFile" resultType="dataLibraryUploadFile">
+		/* getDataLibraryUploadFile */
+		SELECT A.data_library_group_id, A.sharing, A.data_type, A.data_library_name, A.mapping_type, B.*
+		FROM data_library_upload A, data_library_upload_file B
+		WHERE A.data_library_upload_id = B.data_library_upload_id
+		<if test="userId != null and userId != ''">
+			AND B.user_id =#{userId}
+		</if>
+		AND data_library_upload_file_id = #{dataLibraryUploadFileId}
+	</select>
+
 	<!-- 데이터 라이브러리 업로딩 정보 입력 -->
 	<insert id="insertDataLibraryUpload" parameterType="dataLibraryUpload" >
 		/* insertDataLibraryUpload */
@@ -146,5 +158,38 @@
 			#{fileName}, #{fileRealName}, #{filePath}, #{fileSubPath}, #{fileSize}, #{fileExt}, #{depth}, #{errorMessage}
 		)
 	</insert>
+
+	<!-- 데이터 라이브러리 파일 정보 업로딩 -->
+	<update id="updateDataLibraryUpload" parameterType="dataLibraryUpload" >
+		/* updateDataLibraryUpload */
+		UPDATE data_library_upload
+		SET
+		<if test="dataLibraryName != null and dataLibraryName != ''">
+			data_library_name = #{dataLibraryName},
+		</if>
+		<if test="dataLibraryGroupId != null and dataLibraryGroupId gt 0">
+			data_library_group_id = #{dataLibraryGroupId},
+		</if>
+		<if test="sharing != null and sharing != ''">
+			sharing = #{sharing},
+		</if>
+		<if test="dataType != null and dataType != ''">
+			data_type = #{dataType},
+		</if>
+		<if test="mappingType != null and mappingType != ''">
+			mapping_type = #{mappingType},
+		</if>
+		<if test="converterCount != null and converterCount gt 0">
+			converter_count = converter_count + 1,
+		</if>
+		<if test="description != null and description != ''">
+			description = #{description},
+		</if>
+		update_date = NOW()
+		WHERE data_library_upload_id = #{dataLibraryUploadId}
+		<if test="userId != null and userId != ''">
+			AND user_id = #{userId}
+		</if>
+	</update>
 
 </mapper>

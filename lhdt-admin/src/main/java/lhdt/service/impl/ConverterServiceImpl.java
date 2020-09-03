@@ -1,13 +1,11 @@
 package lhdt.service.impl;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lhdt.config.PropertiesConfig;
 import lhdt.domain.LocationUdateType;
 import lhdt.domain.MethodType;
 import lhdt.domain.ServerTarget;
 import lhdt.domain.agent.ConversionJobResult;
-import lhdt.domain.agent.ConverterJobResultStatus;
+import lhdt.domain.ConverterJobResultStatus;
 import lhdt.domain.agent.ConverterLocation;
 import lhdt.domain.agent.ConverterResultLog;
 import lhdt.domain.common.QueueMessage;
@@ -32,14 +30,8 @@ import org.springframework.amqp.AmqpException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
-import java.io.File;
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -305,7 +297,7 @@ public class ConverterServiceImpl implements ConverterService {
 			String key = uploadDataFile.getFileRealName();
 			ConversionJobResult conversionJobResult = converterJobResultMap.get(key);
 
-			if (ConverterJobResultStatus.SUCCESS.equals(conversionJobResult.getResultStatus())) {
+			if (ConverterJobResultStatus.SUCCESS == conversionJobResult.getResultStatus()) {
 				// 상태가 성공인 경우
 
 				// 데이터를 등록 혹은 갱신. 상태를 use(사용중)로 등록.
@@ -445,7 +437,7 @@ public class ConverterServiceImpl implements ConverterService {
 	private void updateConverterLocation(ConverterLocation converterLocation, DataInfo updateDataInfo) {
 		BigDecimal longitude = converterLocation.getLongitude();
 		BigDecimal latitude = converterLocation.getLatitude();
-		if (validationLonLat(longitude, latitude)) {
+		if (isNotNull(longitude, latitude)) {
 			updateDataInfo.setLongitude(longitude);
 			updateDataInfo.setLatitude(latitude);
 			updateDataInfo.setLocation("POINT(" + longitude + " " + latitude + ")");
@@ -525,7 +517,7 @@ public class ConverterServiceImpl implements ConverterService {
 			dataInfo.setLatitude(latitude);
 			dataInfo.setLongitude(longitude);
 			dataInfo.setAltitude(altitude);
-			if (validationLonLat(longitude, latitude)) {
+			if (isNotNull(longitude, latitude)) {
 				dataInfo.setLocation("POINT(" + longitude + " " + latitude + ")");
 			}
 			dataInfo.setMetainfo(metainfo);
@@ -544,7 +536,7 @@ public class ConverterServiceImpl implements ConverterService {
 			dataInfo.setLatitude(latitude);
 			dataInfo.setLongitude(longitude);
 			dataInfo.setAltitude(altitude);
-			if (validationLonLat(longitude, latitude)) {
+			if (isNotNull(longitude, latitude)) {
 				dataInfo.setLocation("POINT(" + longitude + " " + latitude + ")");
 			} else {
 				dataInfo.setLocation(null);
@@ -579,7 +571,7 @@ public class ConverterServiceImpl implements ConverterService {
 		if (LocationUdateType.AUTO == LocationUdateType.valueOf(dbDataGroup.getLocationUpdateType().toUpperCase())) {
 			BigDecimal longitude = dataInfo.getLongitude();
 			BigDecimal latitude = dataInfo.getLatitude();
-			if (validationLonLat(longitude, latitude)) {
+			if (isNotNull(longitude, latitude)) {
 				dataGroup.setLocation("POINT(" + longitude + " " + latitude + ")");
 				dataGroup.setAltitude(dataInfo.getAltitude());
 			}
@@ -613,7 +605,7 @@ public class ConverterServiceImpl implements ConverterService {
 	 * @param latitude	위도
 	 * @return 유효한 값일 경우 true, 아닐경우 false
 	 */
-	private boolean validationLonLat(BigDecimal longitude, BigDecimal latitude) {
+	private boolean isNotNull(BigDecimal longitude, BigDecimal latitude) {
 		return longitude != null && latitude != null;
 	}
 
@@ -622,73 +614,12 @@ public class ConverterServiceImpl implements ConverterService {
 	 * @param dataInfoList	dataInfoList
 	 */
 	private void deleteFailData(List<DataInfo> dataInfoList) {
-		for(DataInfo deleteDataInfo : dataInfoList) {
-			// deleteDataInfo.setUserId(converterJob.getUserId());
-			// deleteDataInfo.setConverterJobId(converterJob.getConverterJobId());
-			// dataService.deleteDataByConverterJob(deleteDataInfo);
-
+		for(DataInfo dataInfo : dataInfoList) {
 			DataGroup dataGroup = new DataGroup();
 			// dataGroup.setUserId(converterJob.getUserId());
-			dataGroup.setDataGroupId(deleteDataInfo.getDataGroupId());
-			dataGroup = dataGroupService.getDataGroup(dataGroup);
-
-			DataGroup updateDataGroup = new DataGroup();
-			// updateDataGroup.setUserId(converterJob.getUserId());
-			updateDataGroup.setDataGroupId(dataGroup.getDataGroupId());
-			updateDataGroup.setDataCount(dataGroup.getDataCount() - 1);
-			dataGroupService.updateDataGroup(updateDataGroup);
+			dataGroup.setDataGroupId(dataInfo.getDataGroupId());
+			dataGroup.setDataCount(-1);
+			dataGroupService.updateDataGroupChildren(dataGroup);
 		}
 	}
-
-
-	private void getCityGmlLocation(String serviceDirectory, DataInfo updateDataInfo) {
-		try {
-			String targetDirectory = serviceDirectory + updateDataInfo.getDataGroupKey() + File.separator + DataInfo.F4D_PREFIX + updateDataInfo.getDataKey();
-			
-			File file = new File(targetDirectory + File.separator + "lonsLats.json");
-			if(file.exists()) {
-				byte[] jsonData = Files.readAllBytes(Paths.get(targetDirectory + File.separator + "lonsLats.json"));
-				String encodingData = new String(jsonData, StandardCharsets.UTF_8);
-					
-				ObjectMapper objectMapper = new ObjectMapper();
-				//read JSON like DOM Parser
-				JsonNode jsonNode = objectMapper.readTree(encodingData);
-				
-				//String dataKey = jsonNode.path("data_key").asText();
-				String longitude = jsonNode.path("longitude").asText().trim();
-				String latitude = jsonNode.path("latitude").asText().trim();
-				if(!StringUtils.isEmpty(longitude)) {
-					updateDataInfo.setLongitude(new BigDecimal(longitude) );
-					updateDataInfo.setLatitude(new BigDecimal(latitude) );
-					updateDataInfo.setLocation("POINT(" + longitude + " " + latitude + ")");
-				}
-			}
-			
-			updateDataInfo.setAltitude(new BigDecimal(0));
-			updateDataInfo.setStatus(DataStatus.USE.name().toLowerCase());
-		} catch(IOException e) {
-			updateDataInfo.setStatus(DataStatus.UNUSED.name().toLowerCase());
-			LogMessageSupport.printMessage(e);
-		}
-
-	}
-
-	private String getCityGmlAttribute(String serviceDirectory, DataInfo updateDataInfo) {
-		String attribute = null;
-		try {
-			String targetDirectory = serviceDirectory + updateDataInfo.getDataGroupKey() + File.separator + DataInfo.F4D_PREFIX + updateDataInfo.getDataKey();
-			
-			File file = new File(targetDirectory + File.separator + "attributes.json");
-			if(file.exists()) {
-				byte[] jsonData = Files.readAllBytes(Paths.get(targetDirectory + File.separator + "attributes.json"));
-				attribute = new String(jsonData, StandardCharsets.UTF_8);
-			}
-		} catch(IOException e) {
-			LogMessageSupport.printMessage(e);
-		}
-		
-		return attribute;
-	}
-
-
 }

@@ -82,6 +82,17 @@
         WHERE A.design_layer_id = #{designLayerId}
     </select>
 
+	<select id="getDesignLayerExtent" parameterType="long" resultType="string">
+		/* getDesignLayerExtent */
+		SELECT
+			concat(st_xmin(st_extent(the_geom)),',',
+				   st_ymin(st_extent(the_geom)),',',
+				   st_xmax(st_extent(the_geom)),',',
+				   st_ymax(st_extent(the_geom)))
+		FROM design_layer_land
+		WHERE design_layer_id = #{designLayerId}
+	</select>
+
 	<!-- 디자인 레이어 Key 중복 체크 -->
     <select id="isDesignLayerKeyDuplication" parameterType="string" resultType="boolean">
     	/* isDesignLayerKeyDuplication */
@@ -113,19 +124,6 @@
         FROM ${value}
         WHERE enable_yn = 'Y'
         LIMIT 1
-    </select>
-
-	<!-- 디자인 레이어 컬럼 취득 -->
-    <select id="getDesignLayerColumn" parameterType="string" resultType="string">
-    	/* getDesignLayerColumn */
-    	SELECT ARRAY_TO_STRING(
-    		ARRAY(
-	    		SELECT ''||A.column_name||''
-	        	FROM information_schema.columns As A
-	            WHERE table_name = #{value}
-	            	AND  A.column_name NOT IN ('enable_yn', 'version_id')
-	    		), ','
-	    	)
     </select>
 
 	<!-- 디자인 레이어 테이블이 존재 하는지 확인 -->
@@ -220,20 +218,22 @@
         DELETE FROM design_layer WHERE design_layer_id = #{designLayerId}
     </delete>
 
-	<!-- 디자인 레이어 테이블 삭제 -->
-    <delete id="deleteDesignLayerTable" parameterType="string">
-        /* deleteDesign */
-        DROP TABLE ${value}
-    </delete>
-
-	<delete id="deleteGeometryLand" parameterType="long">
+	<delete id="deleteGeometryLand" parameterType="map">
 		/* deleteGeometryLand */
-		DELETE FROM design_layer_land WHERE design_layer_id = #{designLayerId}
+		DELETE FROM design_layer_land
+			WHERE design_layer_id = CAST(#{designLayerId} AS bigint)
+			<if test="isDesignLayerFileInfoExist != null and isDesignLayerFileInfoExist != ''">
+				AND version_id IS NULL
+			</if>
 	</delete>
 
-	<delete id="deleteGeometryBuilding" parameterType="long">
+	<delete id="deleteGeometryBuilding" parameterType="map">
 		/* deleteGeometryBuilding */
-		DELETE FROM design_layer_building WHERE design_layer_id = #{designLayerId}
+		DELETE FROM design_layer_building
+			WHERE design_layer_id = CAST(#{designLayerId} AS bigint)
+			<if test="isDesignLayerFileInfoExist != null and isDesignLayerFileInfoExist != ''">
+				AND version_id IS NULL
+			</if>
 	</delete>
 
 

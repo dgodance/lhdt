@@ -29,6 +29,13 @@ public interface DesignLayerService {
     * @return
     */
     DesignLayer getDesignLayer(Long designLayerId);
+
+    /**
+     * design Layer extent 취득
+     * @param designLayerId
+     * @return
+     */
+    String getDesignLayerExtent(Long designLayerId);
     
     /**
      * designLayerKey 중복 체크
@@ -43,13 +50,6 @@ public interface DesignLayerService {
     * @return
     */
     String getGeometryType(String designLayerKey);
-
-    /**
-     * design 레이어의 칼럼 목록을 조회
-     * @param designLayerKey
-     * @return
-     */
-    String getDesignLayerColumn(String designLayerKey);
 
     /**
     * design 레이어 등록

@@ -104,4 +104,12 @@ public class DesignLayer extends Search implements Serializable {
 
 	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime insertDate;
+
+    // shape 파일 종류
+    public enum DesignLayerType {
+        // 토지
+        LAND,
+        // 빌딩
+        BUILDING
+    }
 }

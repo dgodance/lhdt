@@ -176,6 +176,14 @@ public class DataLibraryGroupServiceImpl implements DataLibraryGroupService {
 		return dataLibraryGroupMapper.updateDataLibraryGroupViewOrder(dbDataLibraryGroup);
     }
 
+	/**
+	 * 자식의 수를 + 또는 - 연산
+	 */
+	@Transactional
+	public int updateDataLibraryGroupChildren(DataLibraryGroup dataLibraryGroup) {
+		return dataLibraryGroupMapper.updateDataLibraryGroupChildren(dataLibraryGroup);
+	}
+
     /**
 	 * 데이터 라이브러리 그룹 삭제
 	 * @param dataLibraryGroup

@@ -1,68 +1,63 @@
 package lhdt.service;
 
 import lhdt.domain.agent.ConverterResultLog;
-import lhdt.domain.converter.ConverterJob;
-import lhdt.domain.converter.ConverterJobFile;
+import lhdt.domain.agent.DataLibraryConverterResultLog;
+import lhdt.domain.extrusionmodel.DataLibraryConverterJob;
+import lhdt.domain.extrusionmodel.DataLibraryConverterJobFile;
 
 import java.util.List;
 
 /**
- * f4d converting manager
+ * 자동 변환
  * @author Cheon JeongDae
  *
  */
 public interface DataLibraryConverterService {
 	
 	/**
-	 * converter job 총 건수
-	 * @param converterJob converterJob
+	 * 자동 변환 job 총 건수
+	 * @param dataLibraryConverterJob dataLibraryConverterJob
 	 * @return converter job 총 건수
 	 */
-	Long getConverterJobTotalCount(ConverterJob converterJob);
+	Long getDataLibraryConverterJobTotalCount(DataLibraryConverterJob dataLibraryConverterJob);
 	
 	/**
-	 * converter job file 총 건수
-	 * @param converterJobFile converterJobFile
+	 * 자동 변환 job file 총 건수
+	 * @param dataLibraryConverterJobFile dataLibraryConverterJobFile
 	 * @return converter job file 총 건수
 	 */
-	Long getConverterJobFileTotalCount(ConverterJobFile converterJobFile);
+	Long getDataLibraryConverterJobFileTotalCount(DataLibraryConverterJobFile dataLibraryConverterJobFile);
 	
 	/**
-	 * f4d converter job 목록
-	 * @param converterJob converterJob
+	 * 자동 변환 job 목록
+	 * @param dataLibraryConverterJob dataLibraryConverterJob
 	 * @return f4d converter job 목록
 	 */
-	List<ConverterJob> getListConverterJob(ConverterJob converterJob);
+	List<DataLibraryConverterJob> getListDataLibraryConverterJob(DataLibraryConverterJob dataLibraryConverterJob);
 	
 	/**
-	 * f4d converter job file 목록
-	 * @param converterJobFile converterJobFile
+	 * 자동 변환 job file 목록
+	 * @param dataLibraryConverterJobFile dataLibraryConverterJobFile
 	 * @return f4d converter job file 목록
 	 */
-	List<ConverterJobFile> getListConverterJobFile(ConverterJobFile converterJobFile);
+	List<DataLibraryConverterJobFile> getListDataLibraryConverterJobFile(DataLibraryConverterJobFile dataLibraryConverterJobFile);
 
 	/**
-	 * 데이터 변환 현황
-	 * @return 데이터 변환 현황
+	 * 자동 변환 job 등록
+	 * @param dataLibraryConverterJob    dataLibraryConverterJob
 	 */
-	List<ConverterJobFile> getConverterJobFileStatistics();
-
-	/**
-	 * f4d converter 변환 job 등록
-	 * @param converterJob    converterJob
-	 */
-	void insertConverter(ConverterJob converterJob);
+	void insertDataLibraryConverter(DataLibraryConverterJob dataLibraryConverterJob);
 
 	/**
 	 *
-	 * @param converterJob
+	 * @param dataLibraryConverterJob
 	 */
-	void updateConverterJob(ConverterJob converterJob);
+	void updateDataLibraryConverterJob(DataLibraryConverterJob dataLibraryConverterJob);
 
 	/**
 	 * 로그파일을 통한 데이터 변환 작업 상태를 갱신
-	 * @param converterResultLog converterResultLog
+	 * @param dataLibraryConverterResultLog
 	 */
-	void updateConverterJobStatus(ConverterResultLog converterResultLog);
+	void updateDataLibraryConverterJobStatus(DataLibraryConverterResultLog dataLibraryConverterResultLog);
 
 }

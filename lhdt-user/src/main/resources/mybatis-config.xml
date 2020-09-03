@@ -24,6 +24,8 @@
 		<typeAlias type="lhdt.domain.data.DataObjectAttributeFileInfo" alias="dataObjectAttributeFileInfo" />
 		<typeAlias type="lhdt.domain.extrusionmodel.DesignLayerGroup" alias="designLayerGroup" />
 		<typeAlias type="lhdt.domain.extrusionmodel.DesignLayer" alias="designLayer" />
+		<typeAlias type="lhdt.domain.extrusionmodel.DesignLayerLand" alias="designLayerLand" />
+		<typeAlias type="lhdt.domain.extrusionmodel.DesignLayerBuilding" alias="designLayerBuilding" />
 		<typeAlias type="lhdt.domain.policy.GeoPolicy" alias="geoPolicy" />
     	<typeAlias type="lhdt.domain.issue.Issue" alias="issue" />
     	<typeAlias type="lhdt.domain.issue.IssueDetail" alias="issueDetail" />
@@ -47,6 +49,8 @@
  		<typeAlias type="lhdt.domain.country.SkSdo" alias="skSdo"/>
  		<typeAlias type="lhdt.domain.country.SkSgg" alias="skSgg"/>
  		<typeAlias type="lhdt.domain.country.SkEmd" alias="skEmd"/>
+
+		<typeAlias type="lhdt.domain.common.SpatialOperationInfo" alias="spatialOperationInfo" />
  		
     </typeAliases>
 

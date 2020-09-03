@@ -69,6 +69,11 @@ public interface DataLibraryGroupService {
 	int updateDataLibraryGroupViewOrder(DataLibraryGroup dataLibraryGroup);
 
 	/**
+	 * 자식의 수를 + 또는 - 연산
+	 */
+	int updateDataLibraryGroupChildren(DataLibraryGroup dataLibraryGroup);
+
+	/**
 	 * 데이터 라이브러리 그룹 삭제
 	 * @param dataLibraryGroup
 	 * @return

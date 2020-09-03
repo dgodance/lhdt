@@ -2,17 +2,30 @@ package lhdt.domain.common;
 
 import lombok.*;
 
-import java.math.BigDecimal;
-
+/**
+ * 포인트 정보
+ */
 @ToString
 @Builder
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class GeometryInfo {
     // 경도
-    private BigDecimal longitude;
+    private Double longitude;
     // 위도
-    private BigDecimal latitude;
+    private Double latitude;
+    // 높이
+    private Double altitude;
+
+    public GeometryInfo(Double longitude, Double latitude) {
+        this.longitude = longitude;
+        this.latitude = latitude;
+    }
+
+    public GeometryInfo(Double longitude, Double latitude, Double altitude) {
+        this.longitude = longitude;
+        this.latitude = latitude;
+        this.altitude = altitude;
+    }
 }

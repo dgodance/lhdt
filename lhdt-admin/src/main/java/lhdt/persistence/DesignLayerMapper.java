@@ -7,6 +7,7 @@ import lhdt.domain.extrusionmodel.DesignLayerLand;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public interface DesignLayerMapper {
@@ -31,6 +32,13 @@ public interface DesignLayerMapper {
     * @return
     */
     DesignLayer getDesignLayer(Long designLayerId);
+
+    /**
+     * design Layer extent 취득
+     * @param designLayerId
+     * @return
+     */
+    String getDesignLayerExtent(Long designLayerId);
     
     /**
      * designLayerKey 중복 체크
@@ -66,13 +74,6 @@ public interface DesignLayerMapper {
     * @return
     */
     String getGeometryType(String designLayerKey);
-
-    /**
-     * Design Layer 칼럼 목록을 조회
-     * @param designLayerKey
-     * @return
-     */
-    String getDesignLayerColumn(String designLayerKey);
 
     /**
      * Design Layer 존재 하는지 확인
@@ -132,25 +133,18 @@ public interface DesignLayerMapper {
 
     /**
      * land geometry delete
-     * @param designLayerId
+     * @param map
      * @return
      */
-    int deleteGeometryLand(Long designLayerId);
+    int deleteGeometryLand(Map<String,Object> map);
 
     /**
      * building geometry delete
-     * @param designLayerId
+     * @param map
      * @return
      */
-    int deleteGeometryBuilding(Long designLayerId);
+    int deleteGeometryBuilding(Map<String,Object> map);
     
-    /**
-     * Design Layer 테이블 삭제
-     * @param designLayerKey
-     * @return
-     */
-    int deleteDesignLayerTable(String designLayerKey);
-
     /**
      * 디자인 레이어 그룹 고유번호를 이용한 삭제
      * @param designLayerGroup

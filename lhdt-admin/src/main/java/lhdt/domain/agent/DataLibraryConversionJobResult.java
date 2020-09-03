@@ -13,9 +13,9 @@ import java.io.Serializable;
 @Setter
 @ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ConversionJobResult implements Serializable {
+public class DataLibraryConversionJobResult implements Serializable {
 
-    private static final long serialVersionUID = 9088821716989864642L;
+    private static final long serialVersionUID = -2611799341055794019L;
 
     // 지리참조 여부
     private boolean bGeoReferenced;
@@ -35,13 +35,7 @@ public class ConversionJobResult implements Serializable {
     // 실패 시 메세지
     private String message;
     // 성공여부 (success, failure)
-    private ConverterJobResultStatus resultStatus;
-
-    // 위치정보
-    private ConverterLocation location;
-
-    // 속성정보
-    private String attributes;
+    private ConverterJobResultStatus converterJobResultStatus;
 
     @JsonProperty(value = "bGeoReferenced")
     public boolean getBGeoReferenced() {
