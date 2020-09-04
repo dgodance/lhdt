@@ -51,6 +51,8 @@
  		<typeAlias type="lhdt.domain.country.SkEmd" alias="skEmd"/>
 
 		<typeAlias type="lhdt.domain.common.SpatialOperationInfo" alias="spatialOperationInfo" />
+
+		<typeAlias type="lhdt.domain.urban.UrbanGroup" alias="urbanGroup" />
  		
     </typeAliases>
 
