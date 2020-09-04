@@ -1,3 +1,5 @@
+//흠...전역번수는 싫은데....
+let skylineObj = null;
 
 const lsFreeAnalsWidget = function() {
     this._ele = '#lsFreeAnalsWidget'
@@ -80,10 +82,18 @@ lsAnalsBtn.prototype.init = function() {
 }
 
 lsAnalsBtn.prototype.eventHandler = function() {
+	
+	//
     $(this._ele).click(function() {
         debugger;
         const startPos = cesiumMouseEvt.pos.start;
         const endPos = cesiumMouseEvt.pos.end;
+
+		//
+		if(Pp.isEmpty(startPos) || Pp.isEmpty(endPos)){
+			toastr.warning('지도위에 경관축이 생성되지 않았습니다. 분석을 취소합니다.');
+			return;
+		}
 
         const pos1 = {
             lon: startPos.long,
@@ -97,9 +107,29 @@ lsAnalsBtn.prototype.eventHandler = function() {
             alt: endPos.alt
         }
 
-        const p = new SkylineObj();
-        p.execCalcViewPoint(pos1, pos2);
-        p.autoCaptureAllMenual();
+		//
+		if(Pp.isNull(skylineObj)){
+			skylineObj = new SkylineObj();
+			skylineObj.init();
+		}
+		
+		//
+		toastr.info('경관 분석중입니다. <br/>잠시만 기다리시기 바랍니다.');
+		Ppui.find('body').style.cursor = 'wait';
+		
+		// 현재 카메라 상태 백업
+		let cameraStatusBackup = Ppmap.getCameraStatus();
+
+        //
+        skylineObj.execCalcViewPoint(pos1, pos2);
+        skylineObj.autoCaptureAllMenual(function(){
+			//
+			toastr.info('경관 분석이 완료되었습니다.');		
+			Ppui.find('body').style.cursor = 'default';
+				
+			// 백업된 카메라 상태 복원
+			Ppmap.flyToByCameraStatus(cameraStatusBackup);
+		});
 
 
     })
@@ -290,7 +320,10 @@ $(document).ready(function(){
 	    render.init();
 	
 	    const p = new lsAnalsBtn();
-	    p.init();		
+        p.init();		
+        
+        //
+        console.log(new Date(), 'anals-landscape-free', '<<._init()');
 	};
 
 	//	

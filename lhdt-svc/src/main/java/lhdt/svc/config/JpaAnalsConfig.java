@@ -39,6 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 				,"lhdt.svc.hello.persistence"
 				,"lhdt.svc.landscape.persistence"
 				,"lhdt.svc.lowinfo.persistence" 
+				,"lhdt.svc.common.fileinfo.persistence" 
 				}
 		)
 public class JpaAnalsConfig {

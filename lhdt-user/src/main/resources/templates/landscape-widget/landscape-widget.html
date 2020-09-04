@@ -31,59 +31,40 @@
     <script id="landscapeDiffContentSource" type="text/x-handlebars-template">
         <div id="dataListDHTML" style="height:calc(100% - 255px)">
             <div class="dataBtns"></div>
-            <div class="tableList marT10 yScroll" style="height: calc(100% - 43px)">
-                <table summary="데이터 목록">
-                    <caption class="hiddenTag">데이터 목록</caption>
+            <div class="dataGroupSummary table-data-group-summary " style="height: calc(100% - 43px)">
+                <table class="table-word-break" summary="데이터 공유 유형별 현황">
+                    <caption class="hiddenTag">데이터 공유 유형별 현황</caption>
                     <colgroup>
-                        <col class="col-width-12">
-                        <col class="col-width-12">
-                        <col class="col-width-12">
-                        <col class="col-width-12">
-                        <col class="col-width-12">
+                        <col class="col-number">
+                        <col class="col-number">
+                        <col class="col-width-45">
                     </colgroup>
                     <thead>
-                    <tr>
-                        <th>번호</th>
-                        <th>경관명</th>
-                        <th>이동</th>
-                        <th>확인</th>
-                        <th>삭제</th>
-                    </tr>
+                        <tr>
+                            <th scope="col" class="col-number">번호</th>
+                            <th scope="col" class="col-number">경관</th>
+                            <th scope="col" class="col-number">기능</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    {{#if page}}
-                        {{#each page}}
+                        {{#if page}}
+                            {{#each page}}
                             <tr>
-                                <td><span class="no">{{id}}</span></td>
-                                <td>
-                                    <span class="no">{{lsDiffName}}</span>
+                                <td class="col-number">{{id}}</td>
+                                <td class="col-number text-left">{{lsDiffName}}</td>
+                                <td class="col-number">
+                                    <button type="button" class="goto" th:text="이동"  th:title="이동" style="margin: 0px; padding: 0px;"  onclick="gotoScene('{{id}}')"></button>
+                                    <button type="button" class="showHideButton show" th:title="조회" th:text="조회" onclick="showLsDiffImage('{{id}}')"></button>
+                                    <button type="button" class="showHideButton delete" th:title="삭제"  th:text="삭제" onclick="deleteData('{{id}}')"></button>
                                 </td>
-                                <td>
-                                    <button type="button" class="goto" th:text="이동"
-                                            th:title="이동" style="margin: 0px; padding: 0px;"
-                                            onclick="gotoScene('{{id}}')">
-                                    </button>
-                                </td>
-                                <td>
-                                    <button type="button" class="showHideButton show"
-                                            th:text="조회" onclick="showLsDiffImage('{{id}}')">
-                                    </button>
-                                </td>
-                                <td>
-                                    <form method="post" action="">
-                                        <button type="button" class="showHideButton delete" style="background-position: -10px -210px;"
-                                                th:text="삭제" onclick="deleteData('{{id}}')">
-                                        </button>
-                                    </form>
-
-                                </td>
+                                
                             </tr>
-                        {{/each}}
-                    {{else}}
+                            {{/each}}
+                        {{else}}
                         <tr>
-                            <td colspan="5" style="height: 30px;">데이터가 존재하지 않습니다.</td>
+                            <td class="col-number" colspan="3">데이터가 없습니다.</td>
                         </tr>
-                    {{/if}}
+                        {{/if}}
                     </tbody>
                 </table>
             </div>

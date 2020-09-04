@@ -47,6 +47,42 @@ Ppmap.addDirectionRay = function (ctsnOrXyz, direction) {
 }
 
 
+/**
+ * 현재 카메라 상태 추출
+ * @returns {object} {'position', 'direction', 'up', 'right', 'transform', 'frustum'}
+ * @since 20200904 init
+ */
+Ppmap.getCameraStatus = function() {
+    const camera = MAGO3D_INSTANCE.getViewer().camera;
+    const json = {
+        position: camera.position.clone(),
+        direction: camera.direction.clone(),
+        up: camera.up.clone(),
+        right: camera.right.clone(),
+        transform: camera.transform.clone(),
+        frustum: camera.frustum.clone()
+    }
+    return json;
+}
+
+
+/**
+ * 카메라 상태값에 의한 flyTo
+ * @param {object} status 카메라 상태. Ppmap.getCameraStatus()의 리턴값 참조
+ * @since 20200904 init
+ */
+Ppmap.flyToByCameraStatus = function(status) {
+    MAGO3D_INSTANCE.getViewer().camera.flyTo({
+        destination : status.position,
+        orientation : {
+            direction : status.direction,
+            up : status.up,
+            right : status.right,
+        }
+    });
+}
+
+
 
 /**
  * @param {Cartesian3|LonLatAlt} ctsn1
@@ -127,7 +163,7 @@ Ppmap.flyTo = function (ctsnOrXyz, hpr, option, callbackFn) {
     }
 
     //
-    MAGO3D_INSTANCE.getviewer().scene.camera.flyTo(opt);
+    MAGO3D_INSTANCE.getViewer().scene.camera.flyTo(opt);
 }
 
 

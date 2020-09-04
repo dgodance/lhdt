@@ -3,9 +3,16 @@
  * @author	gravity
  * @since	20200824	init
  */
- let DsObj = function(){
+ let DS = function(){
  	
  };
+
+DS.init = function(){
+	toastr.options = {
+		"positionClass": "toast-top-center"
+	}
+};
+
  
  
  /**
@@ -20,7 +27,7 @@
   * @author gravity
   * @since	20200824	init
   */
- DsObj.prototype.pagination = function(totalItems, currentPage, $el, callbackFn){
+ DS.pagination = function(totalItems, currentPage, $el, callbackFn){
  	let paging = Pp.paginate(totalItems, currentPage, 10, 5);
  	
  	let s = '';
@@ -57,6 +64,6 @@
  };
  
 
- 
- //
- let dsObj = new DsObj();
+window.addEventListener('load', function(){
+	DS.init();
+});

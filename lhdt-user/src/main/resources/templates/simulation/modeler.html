@@ -211,13 +211,13 @@ ModelerObj.prototype.setEventHandler = function(){
 	
 	
 	//데이터 라이브러리 > 페이징
-	dsObj.pagination(100, 1, $('.ds-data-library div.pagination'), function(pageNo){
+	DS.pagination(100, 1, $('.ds-data-library div.pagination'), function(pageNo){
 		mobj.searchDataLibrary(pageNo);
 	});
 	
 	
 	//my모델러 > 페이징
-	dsObj.pagination(100, 1, $('.ds-modeler div.pagination'), function(pageNo){
+	DS.pagination(100, 1, $('.ds-modeler div.pagination'), function(pageNo){
 		mobj.searchModeler(pageNo);
 	});
 	

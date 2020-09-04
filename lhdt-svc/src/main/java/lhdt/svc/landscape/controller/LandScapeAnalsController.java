@@ -37,18 +37,26 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lhdt.svc.common.SvcController;
 import lhdt.svc.common.SvcUtils;
+import lhdt.svc.common.fileinfo.model.FileInfo;
 import lhdt.svc.landscape.domain.LandScapeAnals;
 import lhdt.svc.landscape.model.LandScapeAnalsParam;
 import lhdt.svc.landscape.service.LandScapeAnalsService;
 import lhdt.svc.landscape.types.LandScapeAnalsType;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * 경관 분석
+ * @author gravity
+ * @since 2020. 9. 4.
+ *
+ */
 @Slf4j
 @RestController
 @RequestMapping("/landscape_anals")
 public class LandScapeAnalsController extends SvcController {
 	@Autowired
 	private LandScapeAnalsService landScapeAnalsService;
+	
 
 
 	@Value("${app.file.upload.path}")
@@ -291,25 +299,65 @@ public class LandScapeAnalsController extends SvcController {
 		Map<String,MultipartFile> fileMap = request.getFileMap();
 		
 		//
-		String groupId = registGroupDummy("dummyUserId");
-		
-		//
-		for(int i=0; i<3; i++) {
-			//
-			MultipartFile captureFile = fileMap.get("capture["+i+"]");
-			String captureFilename = groupId + "_" + i + SvcUtils.createShortUid("_") + ".png";
-			saveToFile(captureFile, captureFilename);
-			registDummy(groupId, "capture", i, captureFilename);
-
-			//
-			MultipartFile skylineFile = fileMap.get("skyline["+i+"]");
-			String skylineFilename = groupId + "_" + i + SvcUtils.createShortUid("_") + ".png";
-			saveToFile(skylineFile, skylineFilename);
-			registDummy(groupId, "skyline", i, skylineFilename);
-		}
+		regist(fileMap);
 
 		//
 		return null;
+	}
+	
+	
+	/**
+	 * 1. 이미지 파일 저장
+	 * 2. regist file_info 테이블
+	 * 3. regist 경관 분석 테이블
+	 * TODO 이 메소드는 SERVICE로 이동해야 함
+	 * @param fileMap
+	 * @throws IllegalStateException
+	 * @throws IOException
+	 */
+	private void regist(Map<String,MultipartFile> fileMap ) throws IllegalStateException, IOException {
+		
+		//캡처 이미지 처리
+		for(int i=0; i<3; i++) {
+			//
+			MultipartFile captureFile = fileMap.get("capture["+i+"]");
+			String captureFilename = i + SvcUtils.createShortUid("_") + ".png";
+			saveToFile(captureFile, captureFilename);
+			//
+			FileInfo fileInfo = FileInfo.builder()
+					.fileExt("png")
+					.fileName(captureFilename)
+					.filePath(fileUploadPath)
+					.originFileName("blob")
+					.build();
+			fileInfoService.regist(fileInfo);
+			
+			//
+			registDummy(fileInfo);
+			
+		}
+		
+		
+		//스카이라인 이미지 처리
+		for(int i=0; i<3; i++) {
+			//
+			MultipartFile skylineFile = fileMap.get("skyline["+i+"]");
+			String skylineFilename = i + SvcUtils.createShortUid("_") + ".png";
+			saveToFile(skylineFile, skylineFilename);
+			//
+			FileInfo fileInfo = FileInfo.builder()
+					.fileExt("png")
+					.fileName(skylineFilename)
+					.filePath(fileUploadPath)
+					.originFileName("blob")
+					.build();
+			fileInfoService.regist(fileInfo);
+			
+			//
+			registDummy(fileInfo);
+			
+		}
+		
 	}
 	
 	/**
@@ -319,25 +367,10 @@ public class LandScapeAnalsController extends SvcController {
 	 * @param gbn
 	 * @param filename
 	 */
-	private void registDummy(String groupId, String imageGbn, int gbn, String filename) {
-		log.debug("{} {} {} {}", groupId, imageGbn, gbn, filename);
+	private void registDummy(FileInfo fileInfo) {
+		log.debug("{}", fileInfo);
 	}
 
-	/**
-	 * 그룹에 데이터 등록. 임시
-	 * @param userId
-	 * @return
-	 */
-	private String registGroupDummy(String userId) {
-		String groupId = SvcUtils.createShortUid("G");
-		
-		//
-		log.debug(".registGroup - {} {}", userId, new Date());
-		
-		//
-		return groupId;
-	}
-	
 	
 	/**
 	 * 파일 저장
@@ -351,6 +384,7 @@ public class LandScapeAnalsController extends SvcController {
 		mfile.transferTo(Paths.get(fileUploadPath, filename));
 		
 		//
+		log.debug("<<.saveToFile - {}", Paths.get(fileUploadPath, filename));
 		return filename;
 	}
 

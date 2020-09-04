@@ -64,6 +64,11 @@ AnalsLandScapeDiff.prototype.captureMap = function(callbackFn) {
     });
 };
 
+
+/**
+ * 현재 카메라 상태 추출
+ * @returns {object} {'position', 'direction', 'up', 'right', 'transform', 'frustum'}
+ */
 AnalsLandScapeDiff.prototype.captureCameraState = function() {
     const camera = MAGO3D_INSTANCE.getViewer().camera;
     const store = {
