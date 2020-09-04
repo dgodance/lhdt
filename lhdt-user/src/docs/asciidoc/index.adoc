@@ -120,13 +120,14 @@ include::{snippets}/design-layer-get/response-fields.adoc[]
 
 - 입력 지오메트리와 디자인 레이어가 교차하는 영역에 대한 정보 리턴.
 - **type(land,building), geometry 정보를 필수로 입력해야 한다.**
+- geometry 길이가 길어질 수 있으므로 POST 요청을 사용한다.
 - ** buffer 정보는 1을 넘길 수 없다.**
 - buffer 정보는 좌표계에 따라 달라지며, 4326 기준으로 1도는 약 111km 이다. https://help.sap.com/saphelp_iq1608_iqspat/helpdata/en/3c/207ab56c5f1014a95ba9268e096e6a/content.htm?no_cache=true[참고]
 
 [[resources-geometry-intersection-design-layer-land-point]]
 === Point 입력에 대한 필지 정보
 
-`GET` point 정보외에 추가적으로 buffer 를 설정하여 검색 반경을 설정할 수 있다.
+`POST` point 정보외에 추가적으로 buffer 를 설정하여 검색 반경을 설정할 수 있다.
 
 include::{snippets}/geometry-intersection-design-layer-land-point/curl-request.adoc[]
 include::{snippets}/geometry-intersection-design-layer-land-point/http-response.adoc[]
@@ -134,7 +135,7 @@ include::{snippets}/geometry-intersection-design-layer-land-point/http-response.
 [[resources-geometry-intersection-design-layer-land-linestring]]
 === lineString 입력에 대한 필지 정보
 
-`GET` point 와 마찬가지로 추가적으로 buffer 설정이 가능하며, 시작 지점과 종료 지점이 같지 않을 경우 lineString 으로 판별한다.
+`POST` point 와 마찬가지로 추가적으로 buffer 설정이 가능하며, 시작 지점과 종료 지점이 같지 않을 경우 lineString 으로 판별한다.
 
 include::{snippets}/geometry-intersection-design-layer-land-linestring/curl-request.adoc[]
 include::{snippets}/geometry-intersection-design-layer-land-linestring/http-response.adoc[]
@@ -142,7 +143,7 @@ include::{snippets}/geometry-intersection-design-layer-land-linestring/http-resp
 [[resources-geometry-intersection-design-layer-land-polygon]]
 === polygon 입력에 대한 필지 정보
 
-`GET` 시작 지점과 종료 지점이 같을 경우 polygon 으로 판별한다.
+`POST` 시작 지점과 종료 지점이 같을 경우 polygon 으로 판별한다.
 
 include::{snippets}/geometry-intersection-design-layer-land-polygon/curl-request.adoc[]
 include::{snippets}/geometry-intersection-design-layer-land-polygon/http-response.adoc[]
@@ -150,12 +151,13 @@ include::{snippets}/geometry-intersection-design-layer-land-polygon/http-respons
 [[resources-geometry-intersection-data-list]]
 == 데이터(DataInfo) intersection
 - 입력 지오메트리와 데이터가 교차하는 영역에 대한 정보 리턴.
+- geometry 길이가 길어질 수 있으므로 POST 요청을 사용한다.
 - 데이터는 point 정보만 가지고 있기 때문에 point, lineString 으로 검색 시 버퍼 설정이 필요하다.
 
 [[resources-geometry-intersection-data-point]]
 === point 입력에 대한 데이터 정보
 
-`GET` point 정보외에 추가적으로 buffer 를 설정하여 검색 반경을 설정할 수 있다.
+`POST` point 정보외에 추가적으로 buffer 를 설정하여 검색 반경을 설정할 수 있다.
 
 include::{snippets}/geometry-intersection-data-point/curl-request.adoc[]
 include::{snippets}/geometry-intersection-data-point/http-response.adoc[]
@@ -163,7 +165,7 @@ include::{snippets}/geometry-intersection-data-point/http-response.adoc[]
 [[resources-geometry-intersection-data-linestring]]
 === lineString 입력에 대한 데이터 정보
 
-`GET` point 와 마찬가지로 추가적으로 buffer 설정이 가능하며, 시작 지점과 종료 지점이 같지 않을 경우 lineString 으로 판별한다.
+`POST` point 와 마찬가지로 추가적으로 buffer 설정이 가능하며, 시작 지점과 종료 지점이 같지 않을 경우 lineString 으로 판별한다.
 
 include::{snippets}/geometry-intersection-data-linestring/curl-request.adoc[]
 include::{snippets}/geometry-intersection-data-linestring/http-response.adoc[]
@@ -171,7 +173,7 @@ include::{snippets}/geometry-intersection-data-linestring/http-response.adoc[]
 [[resources-geometry-intersection-data-polygon]]
 === polygon 입력에 대한 데이터 정보
 
-`GET` 시작 지점과 종료 지점이 같을 경우 polygon 으로 판별한다.
+`POST` 시작 지점과 종료 지점이 같을 경우 polygon 으로 판별한다.
 
 include::{snippets}/geometry-intersection-data-polygon/curl-request.adoc[]
 include::{snippets}/geometry-intersection-data-polygon/http-response.adoc[]

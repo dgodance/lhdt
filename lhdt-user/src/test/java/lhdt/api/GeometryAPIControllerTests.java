@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -38,7 +38,7 @@ class GeometryAPIControllerTests extends BaseControllerTest {
                 .geometryInfo(geometry)
                 .maxFeatures(3)
                 .build();
-        this.mockMvc.perform(get("/api/geometry/intersection/design-layers")
+        this.mockMvc.perform(post("/api/geometry/intersection/design-layers")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(info)))
                 .andDo(print())
@@ -65,7 +65,7 @@ class GeometryAPIControllerTests extends BaseControllerTest {
                 .geometryInfo(geometry)
                 .maxFeatures(3)
                 .build();
-        this.mockMvc.perform(get("/api/geometry/intersection/design-layers")
+        this.mockMvc.perform(post("/api/geometry/intersection/design-layers")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(info)))
                 .andDo(print())
@@ -93,7 +93,7 @@ class GeometryAPIControllerTests extends BaseControllerTest {
                 .geometryInfo(geometry)
                 .maxFeatures(3)
                 .build();
-        this.mockMvc.perform(get("/api/geometry/intersection/design-layers")
+        this.mockMvc.perform(post("/api/geometry/intersection/design-layers")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(info)))
                 .andDo(print())
@@ -117,7 +117,7 @@ class GeometryAPIControllerTests extends BaseControllerTest {
                 .geometryInfo(geometry)
                 .maxFeatures(3)
                 .build();
-        this.mockMvc.perform(get("/api/geometry/intersection/design-layers")
+        this.mockMvc.perform(post("/api/geometry/intersection/design-layers")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(info)))
                 .andDo(print())
@@ -156,7 +156,7 @@ class GeometryAPIControllerTests extends BaseControllerTest {
                 .geometryInfo(geometry)
                 .maxFeatures(3)
                 .build();
-        this.mockMvc.perform(get("/api/geometry/intersection/datas")
+        this.mockMvc.perform(post("/api/geometry/intersection/datas")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(info)))
                 .andDo(print())
@@ -181,7 +181,7 @@ class GeometryAPIControllerTests extends BaseControllerTest {
                 .geometryInfo(geometry)
                 .maxFeatures(3)
                 .build();
-        this.mockMvc.perform(get("/api/geometry/intersection/datas")
+        this.mockMvc.perform(post("/api/geometry/intersection/datas")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(info)))
                 .andDo(print())
@@ -207,7 +207,7 @@ class GeometryAPIControllerTests extends BaseControllerTest {
                 .geometryInfo(geometry)
                 .maxFeatures(3)
                 .build();
-        this.mockMvc.perform(get("/api/geometry/intersection/datas")
+        this.mockMvc.perform(post("/api/geometry/intersection/datas")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(info)))
                 .andDo(print())

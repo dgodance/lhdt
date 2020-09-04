@@ -909,8 +909,8 @@ Content-Length: 7555
       "attributes" : null,
       "updateDate" : null,
       "insertDate" : null,
-      "zindex" : 1,
       "viewZIndex" : 1,
+      "zindex" : 1,
       "parameters" : "&amp;searchWord=&amp;searchOption=&amp;searchValue=&amp;startDate=&amp;endDate=&amp;orderWord=&amp;orderValue=&amp;listCounter=10",
       "_links" : {
         "self" : {
@@ -957,8 +957,8 @@ Content-Length: 7555
       "attributes" : null,
       "updateDate" : null,
       "insertDate" : null,
-      "zindex" : 1,
       "viewZIndex" : 1,
+      "zindex" : 1,
       "parameters" : "&amp;searchWord=&amp;searchOption=&amp;searchValue=&amp;startDate=&amp;endDate=&amp;orderWord=&amp;orderValue=&amp;listCounter=10",
       "_links" : {
         "self" : {
@@ -1005,8 +1005,8 @@ Content-Length: 7555
       "attributes" : null,
       "updateDate" : null,
       "insertDate" : null,
-      "zindex" : 1,
       "viewZIndex" : 1,
+      "zindex" : 1,
       "parameters" : "&amp;searchWord=&amp;searchOption=&amp;searchValue=&amp;startDate=&amp;endDate=&amp;orderWord=&amp;orderValue=&amp;listCounter=10",
       "_links" : {
         "self" : {
@@ -1053,8 +1053,8 @@ Content-Length: 7555
       "attributes" : null,
       "updateDate" : null,
       "insertDate" : null,
-      "zindex" : 1,
       "viewZIndex" : 1,
+      "zindex" : 1,
       "parameters" : "&amp;searchWord=&amp;searchOption=&amp;searchValue=&amp;startDate=&amp;endDate=&amp;orderWord=&amp;orderValue=&amp;listCounter=10",
       "_links" : {
         "self" : {
@@ -1101,8 +1101,8 @@ Content-Length: 7555
       "attributes" : null,
       "updateDate" : null,
       "insertDate" : null,
-      "zindex" : 1,
       "viewZIndex" : 1,
+      "zindex" : 1,
       "parameters" : "&amp;searchWord=&amp;searchOption=&amp;searchValue=&amp;startDate=&amp;endDate=&amp;orderWord=&amp;orderValue=&amp;listCounter=10",
       "_links" : {
         "self" : {
@@ -1179,8 +1179,8 @@ Content-Length: 1354
   "attributes" : null,
   "updateDate" : null,
   "insertDate" : null,
-  "zindex" : 1,
   "viewZIndex" : 1,
+  "zindex" : 1,
   "parameters" : "&amp;searchWord=&amp;searchOption=&amp;searchValue=&amp;startDate=&amp;endDate=&amp;orderWord=&amp;orderValue=&amp;listCounter=10",
   "_links" : {
     "self" : {
@@ -1324,6 +1324,9 @@ Content-Length: 1354
 <p><strong>type(land,building), geometry 정보를 필수로 입력해야 한다.</strong></p>
 </li>
 <li>
+<p>geometry 길이가 길어질 수 있으므로 POST 요청을 사용한다.</p>
+</li>
+<li>
 <p><strong> buffer 정보는 1을 넘길 수 없다.</strong></p>
 </li>
 <li>
@@ -1334,11 +1337,11 @@ Content-Length: 1354
 <div class="sect2">
 <h3 id="resources-geometry-intersection-design-layer-land-point"><a class="link" href="#resources-geometry-intersection-design-layer-land-point">Point 입력에 대한 필지 정보</a></h3>
 <div class="paragraph">
-<p><code>GET</code> point 정보외에 추가적으로 buffer 를 설정하여 검색 반경을 설정할 수 있다.</p>
+<p><code>POST</code> point 정보외에 추가적으로 buffer 를 설정하여 검색 반경을 설정할 수 있다.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/geometry/intersection/design-layers' -i -X GET \
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/geometry/intersection/design-layers' -i -X POST \
     -H 'Content-Type: application/json;charset=UTF-8' \
     -d '{
   "wkt" : null,
@@ -1477,11 +1480,11 @@ Content-Length: 6009
 <div class="sect2">
 <h3 id="resources-geometry-intersection-design-layer-land-linestring"><a class="link" href="#resources-geometry-intersection-design-layer-land-linestring">lineString 입력에 대한 필지 정보</a></h3>
 <div class="paragraph">
-<p><code>GET</code> point 와 마찬가지로 추가적으로 buffer 설정이 가능하며, 시작 지점과 종료 지점이 같지 않을 경우 lineString 으로 판별한다.</p>
+<p><code>POST</code> point 와 마찬가지로 추가적으로 buffer 설정이 가능하며, 시작 지점과 종료 지점이 같지 않을 경우 lineString 으로 판별한다.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/geometry/intersection/design-layers' -i -X GET \
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/geometry/intersection/design-layers' -i -X POST \
     -H 'Content-Type: application/json;charset=UTF-8' \
     -d '{
   "wkt" : null,
@@ -1636,11 +1639,11 @@ Content-Length: 4321
 <div class="sect2">
 <h3 id="resources-geometry-intersection-design-layer-land-polygon"><a class="link" href="#resources-geometry-intersection-design-layer-land-polygon">polygon 입력에 대한 필지 정보</a></h3>
 <div class="paragraph">
-<p><code>GET</code> 시작 지점과 종료 지점이 같을 경우 polygon 으로 판별한다.</p>
+<p><code>POST</code> 시작 지점과 종료 지점이 같을 경우 polygon 으로 판별한다.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/geometry/intersection/design-layers' -i -X GET \
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/geometry/intersection/design-layers' -i -X POST \
     -H 'Content-Type: application/json;charset=UTF-8' \
     -d '{
   "wkt" : null,
@@ -1811,6 +1814,9 @@ Content-Length: 4321
 <p>입력 지오메트리와 데이터가 교차하는 영역에 대한 정보 리턴.</p>
 </li>
 <li>
+<p>geometry 길이가 길어질 수 있으므로 POST 요청을 사용한다.</p>
+</li>
+<li>
 <p>데이터는 point 정보만 가지고 있기 때문에 point, lineString 으로 검색 시 버퍼 설정이 필요하다.</p>
 </li>
 </ul>
@@ -1818,11 +1824,11 @@ Content-Length: 4321
 <div class="sect2">
 <h3 id="resources-geometry-intersection-data-point"><a class="link" href="#resources-geometry-intersection-data-point">point 입력에 대한 데이터 정보</a></h3>
 <div class="paragraph">
-<p><code>GET</code> point 정보외에 추가적으로 buffer 를 설정하여 검색 반경을 설정할 수 있다.</p>
+<p><code>POST</code> point 정보외에 추가적으로 buffer 를 설정하여 검색 반경을 설정할 수 있다.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/geometry/intersection/datas' -i -X GET \
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/geometry/intersection/datas' -i -X POST \
     -H 'Content-Type: application/json;charset=UTF-8' \
     -d '{
   "wkt" : null,
@@ -2015,11 +2021,11 @@ Content-Length: 4859
 <div class="sect2">
 <h3 id="resources-geometry-intersection-data-linestring"><a class="link" href="#resources-geometry-intersection-data-linestring">lineString 입력에 대한 데이터 정보</a></h3>
 <div class="paragraph">
-<p><code>GET</code> point 와 마찬가지로 추가적으로 buffer 설정이 가능하며, 시작 지점과 종료 지점이 같지 않을 경우 lineString 으로 판별한다.</p>
+<p><code>POST</code> point 와 마찬가지로 추가적으로 buffer 설정이 가능하며, 시작 지점과 종료 지점이 같지 않을 경우 lineString 으로 판별한다.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/geometry/intersection/datas' -i -X GET \
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/geometry/intersection/datas' -i -X POST \
     -H 'Content-Type: application/json;charset=UTF-8' \
     -d '{
   "wkt" : null,
@@ -2224,11 +2230,11 @@ Content-Length: 4859
 <div class="sect2">
 <h3 id="resources-geometry-intersection-data-polygon"><a class="link" href="#resources-geometry-intersection-data-polygon">polygon 입력에 대한 데이터 정보</a></h3>
 <div class="paragraph">
-<p><code>GET</code> 시작 지점과 종료 지점이 같을 경우 polygon 으로 판별한다.</p>
+<p><code>POST</code> 시작 지점과 종료 지점이 같을 경우 polygon 으로 판별한다.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/geometry/intersection/datas' -i -X GET \
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/geometry/intersection/datas' -i -X POST \
     -H 'Content-Type: application/json;charset=UTF-8' \
     -d '{
   "wkt" : null,
@@ -2443,7 +2449,7 @@ Content-Length: 4859
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-09-03 14:09:29 +0900
+Last updated 2020-09-04 11:20:52 +0900
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/github.min.css">

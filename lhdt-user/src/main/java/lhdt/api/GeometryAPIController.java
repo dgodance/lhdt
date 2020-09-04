@@ -15,10 +15,7 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -43,7 +40,7 @@ public class GeometryAPIController {
      * @param spatialOperationInfo
      * @return
      */
-    @GetMapping("/intersection/design-layers")
+    @PostMapping("/intersection/design-layers")
     public ResponseEntity<?> getIntersectionDesignLayers(@RequestBody @Valid SpatialOperationInfo spatialOperationInfo, Errors errors) {
         if (errors.hasErrors()) {
             return badRequest(errors);
@@ -66,7 +63,7 @@ public class GeometryAPIController {
         return ResponseEntity.ok(model);
     }
 
-    @GetMapping("/intersection/datas")
+    @PostMapping("/intersection/datas")
     public ResponseEntity<?> getIntersectionDatas(@RequestBody @Valid SpatialOperationInfo spatialOperationInfo, Errors errors) {
         if (errors.hasErrors()) {
             return badRequest(errors);
