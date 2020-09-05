@@ -856,35 +856,43 @@ Content-Length: 551
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/design-layers?page=1&amp;size=3' -i -X GET \
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/design-layers?urbanGroupId=1' -i -X GET \
     -H 'Content-Type: application/json;charset=UTF-8' \
     -H 'Accept: application/hal+json'</code></pre>
 </div>
 </div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>urbanGroupId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">도시 그룹 고유번호</p></td>
+</tr>
+</tbody>
+</table>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
 Content-Type: application/hal+json;charset=UTF-8
-Content-Length: 7555
+Content-Length: 3455
 
 {
   "_embedded" : {
     "designLayers" : [ {
-      "totalCount" : null,
-      "offset" : null,
-      "limit" : null,
-      "searchWord" : null,
-      "searchOption" : null,
-      "searchValue" : null,
-      "startDate" : null,
-      "endDate" : null,
-      "orderWord" : null,
-      "orderValue" : null,
-      "listCounter" : 10,
       "parent" : null,
       "parentName" : null,
       "depth" : null,
       "designLayerId" : 1,
+      "urbanGroupId" : 1,
       "designLayerGroupId" : 1,
       "designLayerGroupName" : null,
       "designLayerKey" : "test1",
@@ -911,28 +919,17 @@ Content-Length: 7555
       "insertDate" : null,
       "viewZIndex" : 1,
       "zindex" : 1,
-      "parameters" : "&amp;searchWord=&amp;searchOption=&amp;searchValue=&amp;startDate=&amp;endDate=&amp;orderWord=&amp;orderValue=&amp;listCounter=10",
       "_links" : {
         "self" : {
           "href" : "http://localhost:8080/api/design-layers/1"
         }
       }
     }, {
-      "totalCount" : null,
-      "offset" : null,
-      "limit" : null,
-      "searchWord" : null,
-      "searchOption" : null,
-      "searchValue" : null,
-      "startDate" : null,
-      "endDate" : null,
-      "orderWord" : null,
-      "orderValue" : null,
-      "listCounter" : 10,
       "parent" : null,
       "parentName" : null,
       "depth" : null,
       "designLayerId" : 2,
+      "urbanGroupId" : 1,
       "designLayerGroupId" : 1,
       "designLayerGroupName" : null,
       "designLayerKey" : "test2",
@@ -959,28 +956,17 @@ Content-Length: 7555
       "insertDate" : null,
       "viewZIndex" : 1,
       "zindex" : 1,
-      "parameters" : "&amp;searchWord=&amp;searchOption=&amp;searchValue=&amp;startDate=&amp;endDate=&amp;orderWord=&amp;orderValue=&amp;listCounter=10",
       "_links" : {
         "self" : {
           "href" : "http://localhost:8080/api/design-layers/2"
         }
       }
     }, {
-      "totalCount" : null,
-      "offset" : null,
-      "limit" : null,
-      "searchWord" : null,
-      "searchOption" : null,
-      "searchValue" : null,
-      "startDate" : null,
-      "endDate" : null,
-      "orderWord" : null,
-      "orderValue" : null,
-      "listCounter" : 10,
       "parent" : null,
       "parentName" : null,
       "depth" : null,
       "designLayerId" : 3,
+      "urbanGroupId" : 1,
       "designLayerGroupId" : 1,
       "designLayerGroupName" : null,
       "designLayerKey" : "test3",
@@ -1007,106 +993,9 @@ Content-Length: 7555
       "insertDate" : null,
       "viewZIndex" : 1,
       "zindex" : 1,
-      "parameters" : "&amp;searchWord=&amp;searchOption=&amp;searchValue=&amp;startDate=&amp;endDate=&amp;orderWord=&amp;orderValue=&amp;listCounter=10",
       "_links" : {
         "self" : {
           "href" : "http://localhost:8080/api/design-layers/3"
-        }
-      }
-    }, {
-      "totalCount" : null,
-      "offset" : null,
-      "limit" : null,
-      "searchWord" : null,
-      "searchOption" : null,
-      "searchValue" : null,
-      "startDate" : null,
-      "endDate" : null,
-      "orderWord" : null,
-      "orderValue" : null,
-      "listCounter" : 10,
-      "parent" : null,
-      "parentName" : null,
-      "depth" : null,
-      "designLayerId" : 4,
-      "designLayerGroupId" : 1,
-      "designLayerGroupName" : null,
-      "designLayerKey" : "test4",
-      "designLayerName" : "testName4",
-      "designLayerType" : "land",
-      "userId" : "admin",
-      "sharing" : null,
-      "ogcWebServices" : "wms",
-      "geometryType" : "polygon",
-      "styleFileContent" : null,
-      "layerFillColor" : "#000000",
-      "layerLineColor" : "#000000",
-      "layerLineStyle" : 1.0,
-      "layerAlphaStyle" : 1.0,
-      "viewOrder" : 1,
-      "available" : true,
-      "labelDisplay" : null,
-      "cacheAvailable" : true,
-      "coordinate" : "EPSG:4326",
-      "description" : "test",
-      "theGeom" : null,
-      "attributes" : null,
-      "updateDate" : null,
-      "insertDate" : null,
-      "viewZIndex" : 1,
-      "zindex" : 1,
-      "parameters" : "&amp;searchWord=&amp;searchOption=&amp;searchValue=&amp;startDate=&amp;endDate=&amp;orderWord=&amp;orderValue=&amp;listCounter=10",
-      "_links" : {
-        "self" : {
-          "href" : "http://localhost:8080/api/design-layers/4"
-        }
-      }
-    }, {
-      "totalCount" : null,
-      "offset" : null,
-      "limit" : null,
-      "searchWord" : null,
-      "searchOption" : null,
-      "searchValue" : null,
-      "startDate" : null,
-      "endDate" : null,
-      "orderWord" : null,
-      "orderValue" : null,
-      "listCounter" : 10,
-      "parent" : null,
-      "parentName" : null,
-      "depth" : null,
-      "designLayerId" : 5,
-      "designLayerGroupId" : 1,
-      "designLayerGroupName" : null,
-      "designLayerKey" : "test5",
-      "designLayerName" : "testName5",
-      "designLayerType" : "land",
-      "userId" : "admin",
-      "sharing" : null,
-      "ogcWebServices" : "wms",
-      "geometryType" : "polygon",
-      "styleFileContent" : null,
-      "layerFillColor" : "#000000",
-      "layerLineColor" : "#000000",
-      "layerLineStyle" : 1.0,
-      "layerAlphaStyle" : 1.0,
-      "viewOrder" : 1,
-      "available" : true,
-      "labelDisplay" : null,
-      "cacheAvailable" : true,
-      "coordinate" : "EPSG:4326",
-      "description" : "test",
-      "theGeom" : null,
-      "attributes" : null,
-      "updateDate" : null,
-      "insertDate" : null,
-      "viewZIndex" : 1,
-      "zindex" : 1,
-      "parameters" : "&amp;searchWord=&amp;searchOption=&amp;searchValue=&amp;startDate=&amp;endDate=&amp;orderWord=&amp;orderValue=&amp;listCounter=10",
-      "_links" : {
-        "self" : {
-          "href" : "http://localhost:8080/api/design-layers/5"
         }
       }
     } ]
@@ -1137,24 +1026,14 @@ Content-Length: 7555
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
 Content-Type: application/hal+json;charset=UTF-8
-Content-Length: 1354
+Content-Length: 1006
 
 {
-  "totalCount" : null,
-  "offset" : null,
-  "limit" : null,
-  "searchWord" : null,
-  "searchOption" : null,
-  "searchValue" : null,
-  "startDate" : null,
-  "endDate" : null,
-  "orderWord" : null,
-  "orderValue" : null,
-  "listCounter" : 10,
   "parent" : null,
   "parentName" : null,
   "depth" : null,
   "designLayerId" : 1,
+  "urbanGroupId" : 1,
   "designLayerGroupId" : 1,
   "designLayerGroupName" : null,
   "designLayerKey" : "test",
@@ -1181,7 +1060,6 @@ Content-Length: 1354
   "insertDate" : null,
   "viewZIndex" : 1,
   "zindex" : 1,
-  "parameters" : "&amp;searchWord=&amp;searchOption=&amp;searchValue=&amp;startDate=&amp;endDate=&amp;orderWord=&amp;orderValue=&amp;listCounter=10",
   "_links" : {
     "self" : {
       "href" : "http://localhost:8080/api/design-layers/1"
@@ -1211,6 +1089,11 @@ Content-Length: 1354
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>designLayerId</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">design layer 고유번호</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>urbanGroupId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">도시그룹 고유번호</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>designLayerGroupId</code></p></td>
@@ -2449,7 +2332,7 @@ Content-Length: 4859
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-09-04 11:20:52 +0900
+Last updated 2020-09-05 14:15:47 +0900
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/github.min.css">

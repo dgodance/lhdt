@@ -103,6 +103,7 @@ include::{snippets}/design-layer-group-get/response-fields.adoc[]
 `GET` 요청을 사용하여 서비스의 모든 디자인 레이어를 조회할 수 있다.
 
 include::{snippets}/design-layer-list/curl-request.adoc[]
+include::{snippets}/design-layer-list/request-parameters.adoc[]
 include::{snippets}/design-layer-list/http-response.adoc[]
 
 [[resources-design-layer-get]]

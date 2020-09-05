@@ -1,17 +1,18 @@
 package lhdt.api;
 
-import lhdt.domain.common.Pagination;
 import lhdt.domain.extrusionmodel.DesignLayer;
 import lhdt.domain.extrusionmodel.DesignLayerDto;
 import lhdt.service.DesignLayerService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.hateoas.*;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,19 +33,8 @@ public class DesignLayerAPIController {
      * @return
      */
     @GetMapping
-    public ResponseEntity<CollectionModel<EntityModel<DesignLayerDto>>> getDesignLayers(@RequestParam(defaultValue = "1") Long page,
-                                                                                        @RequestParam(defaultValue = "10") Long size) {
-        DesignLayer designLayer = new DesignLayer();
-        Long totalCount = designLayerService.getDesignLayerTotalCount(designLayer);
-        Pagination pagination = new Pagination(null, null, totalCount, page, size);
-        designLayer.setOffset(pagination.getOffset());
-        designLayer.setLimit(pagination.getPageRows());
-
-        List<DesignLayer> designLayerList = new ArrayList<>();
-        if (totalCount > 0L) {
-            designLayerList = designLayerService.getListDesignLayer(designLayer);
-        }
-
+    public ResponseEntity<CollectionModel<EntityModel<DesignLayerDto>>> getDesignLayers(@RequestParam(defaultValue = "0") Integer urbanGroupId) {
+        List<DesignLayer> designLayerList = designLayerService.getListDesignLayer(DesignLayer.builder().urbanGroupId(urbanGroupId).build());
         List<EntityModel<DesignLayerDto>> designLayerDtoList = designLayerList.stream()
                 .map(f -> EntityModel.of(modelMapper.map(f, DesignLayerDto.class))
                         .add(linkTo(DesignLayerAPIController.class).slash(f.getDesignLayerId()).withSelfRel()))
