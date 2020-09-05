@@ -76,7 +76,7 @@ class DesignLayerGroupAPIControllerTests extends BaseControllerTest {
 
     private List<DesignLayerGroup> getDesignGroupList() {
         List<DesignLayerGroup> mockList = new ArrayList<>();
-        IntStream.range(1, 6).forEach(i -> {
+        IntStream.range(1, 4).forEach(i -> {
             mockList.add(DesignLayerGroup.builder()
                     .designLayerGroupId(i)
                     .designLayerGroupName("groupName" + i)

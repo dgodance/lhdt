@@ -109,7 +109,7 @@ include::{snippets}/design-layer-list/http-response.adoc[]
 [[resources-design-layer-get]]
 === 디자인 레이어 조회
 
-`Get` 요청을 사용해서 기존 디자인 레이어 하나를 조회할 수 있다.
+`GET` 요청을 사용해서 기존 디자인 레이어 하나를 조회할 수 있다.
 
 include::{snippets}/design-layer-get/curl-request.adoc[]
 include::{snippets}/design-layer-get/http-response.adoc[]
@@ -178,5 +178,6 @@ include::{snippets}/geometry-intersection-data-linestring/http-response.adoc[]
 
 include::{snippets}/geometry-intersection-data-polygon/curl-request.adoc[]
 include::{snippets}/geometry-intersection-data-polygon/http-response.adoc[]
+include::{snippets}/geometry-intersection-data-polygon/response-fields.adoc[]
 
 

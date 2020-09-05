@@ -1,7 +1,5 @@
 package lhdt.domain.data;
 
-import lhdt.domain.MethodType;
-import lhdt.domain.common.Search;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.hateoas.server.core.Relation;
@@ -22,24 +20,14 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Relation(collectionRelation = "dataInfos")
-public class DataInfoDto extends Search implements Serializable {
+public class DataInfoDto implements Serializable {
 
 	private static final long serialVersionUID = -5333401848770831812L;
-	public static final String F4D_PREFIX = "F4D_";
 
-	// 고유번호
-	private Integer userGroupId;
-	// 위도
-	private BigDecimal latitude;
-	// 경도
-	private BigDecimal longitude;
 	// 사용자명
 	private String userId;
 	// 수정자 아이디
 	private String updateUserId;
-	private String userName;
-	/****** validator ********/
-	private MethodType methodType;
 	// 고유번호
 	private Long dataId;
 	// Data Group 고유번호
