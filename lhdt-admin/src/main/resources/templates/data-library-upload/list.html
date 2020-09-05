@@ -133,7 +133,7 @@
 											<td class="col-number" th:text="${dataLibraryUploadStat.count + ((pagination.pageNo-1)*10)}"></td>
 											<td class="col-name ellipsis" th:text="${dataLibraryUpload.dataLibraryGroupName}" style="min-width:120px; max-width:120px;"></td>
 											<td class="col-type">
-												<th:block th:text="${#strings.equals(dataLibraryUpload.sharing, 'common')}">공통</th:block>
+												<th:block th:if="${#strings.equals(dataLibraryUpload.sharing, 'common')}">공통</th:block>
 												<!--												<th:block th:text="${#strings.equals(dataLibraryUpload.sharing, 'public')}">공개</th:block>-->
 												<!--												<th:block th:text="${#strings.equals(dataLibraryUpload.sharing, 'private')}">개인</th:block>-->
 												<!--												<th:block th:text="${#strings.equals(dataLibraryUpload.sharing, 'group')}">그룸</th:block>-->

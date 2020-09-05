@@ -180,9 +180,8 @@ public class DataLibraryConverterServiceImpl implements DataLibraryConverterServ
 
         DataLibraryConverterJob dataLibraryConverterJob = dataLibraryConverterResultLog.getDataLibraryConverterJob();
 
-        // 1. 로그파일 정보를 통해 ConvertJob 갱신
+        // 1. 로그파일 정보를 통해 데이터 라이브러리 ConvertJob 갱신
         updateDataLibraryConverterJob(dataLibraryConverterJob, dataLibraryConverterResultLog);
-
         // 2. 로그파일 정보를 통해 ConvertJobFile 갱신
         List<DataLibraryConverterJobFile> dataLibraryConverterJobFiles = dataLibraryConverterMapper.getListDataLibraryConverterJobFileByParent(dataLibraryConverterJob);
 
@@ -192,6 +191,7 @@ public class DataLibraryConverterServiceImpl implements DataLibraryConverterServ
                 .stream()
                 .collect(Collectors.toMap(DataLibraryConversionJobResult::getFileName, result -> result));
 
+        // TODO 그냥 key 로 update 를 바로 해도 될거 같은데..... 왜 upload 를 가지고 오지?
         String userId = dataLibraryConverterJob.getUserId();
         Long dataLibraryConverterJobId = dataLibraryConverterJob.getDataLibraryConverterJobId();
         int converterTargetCount = dataLibraryConverterJobFiles.size();
@@ -204,7 +204,9 @@ public class DataLibraryConverterServiceImpl implements DataLibraryConverterServ
             String key = dataLibraryUploadFile.getFileRealName();
             DataLibraryConversionJobResult conversionJobResult = dataLibraryConverterJobResultMap.get(key);
 
-            if (ConverterJobResultStatus.SUCCESS == conversionJobResult.getConverterJobResultStatus()) {
+            // TODO enum binding 이 잘 안되서, 임시로 string으로 함. 고쳐야 함
+            log.info("### status = {}, dataLibraryConverterJobFile = {}", conversionJobResult.getResultStatus(), dataLibraryConverterJobFile);
+            if (ConverterJobResultStatus.SUCCESS == ConverterJobResultStatus.findByStatus(conversionJobResult.getResultStatus().toLowerCase())) {
                 // 상태가 성공인 경우
                 // 데이터를 등록 혹은 갱신. 상태를 use(사용중)로 등록.
                 DataLibrary dataLibrary = upsertDataLibrary(userId, dataLibraryConverterJobId, converterTargetCount, dataLibraryUploadFile);
@@ -365,6 +367,7 @@ public class DataLibraryConverterServiceImpl implements DataLibraryConverterServ
             dataLibrary.setUserId(userId);
             //dataLibrary.setStatus(DataStatus.PROCESSING.name().toLowerCase());
             dataLibrary.setStatus(DataLibraryStatus.USE.name().toLowerCase());
+            dataLibrary.setMethodType(MethodType.INSERT);
             dataLibraryService.insertDataLibrary(dataLibrary);
 
         } else {
@@ -375,6 +378,7 @@ public class DataLibraryConverterServiceImpl implements DataLibraryConverterServ
             dataLibrary.setUserId(userId);
             //dataLibrary.setStatus(DataStatus.PROCESSING.name().toLowerCase());
             dataLibrary.setStatus(DataLibraryStatus.USE.name().toLowerCase());
+            dataLibrary.setMethodType(MethodType.UPDATE);
             dataLibraryService.updateDataLibrary(dataLibrary);
         }
 

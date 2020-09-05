@@ -130,6 +130,26 @@
 
 							<tr>
 								<th class="col-label" scope="row">
+									<label for="basicWidth">가로 기본값(m)</label>
+								</th>
+								<td class="col-input">
+									<input type="text" id="basicWidth" name="basicWidth" th:field="*{basicWidth}" class="m" />
+								</td>
+								<th class="col-label" scope="row">
+									<label for="basicDepth">세로 기본값(m)</label>
+								</th>
+								<td class="col-input">
+									<input type="text" id="basicDepth" name="basicDepth" th:field="*{basicDepth}" class="m" />
+								</td>
+							</tr>
+							<tr>
+								<th class="col-label" scope="row">
+									<label for="basicHeight">높이 기본값(m)</label>
+								</th>
+								<td class="col-input">
+									<input type="text" id="basicHeight" name="basicHeight" th:field="*{basicHeight}" class="m" />
+								</td>
+								<th class="col-label" scope="row">
 									<label for="description" th:text="#{description}"></label>
 								</th>
 								<td colspan="3" class="col-input">
@@ -246,7 +266,7 @@
 			updateFlag = false;
 			var formData = $("#dataLibraryUpload").serialize();		
 			$.ajax({
-				url: "/data-library-upload/[[${dataLibraryUpload.dataLibraryUploadId}]]",
+				url: "/data-library-uploads/[[${dataLibraryUpload.dataLibraryUploadId}]]",
 				type: "POST",
 				headers: {"X-Requested-With": "XMLHttpRequest"},
 		        data: formData,

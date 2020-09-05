@@ -1,10 +1,9 @@
-package lhdt.sender;
+package lhdt.conversion;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lhdt.LhdtConverterApplication;
 import lhdt.config.PropertiesConfig;
 import lhdt.domain.*;
-import lhdt.support.LogMessageSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,9 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = LhdtConverterApplication.class)

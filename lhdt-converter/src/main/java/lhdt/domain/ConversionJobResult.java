@@ -8,9 +8,9 @@ import lombok.ToString;
 
 import java.io.Serializable;
 
+@ToString(callSuper = true)
 @Getter
 @Setter
-@ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ConversionJobResult implements Serializable {
 
@@ -33,6 +33,7 @@ public class ConversionJobResult implements Serializable {
 
     // 실패 시 메세지
     private String message;
+
     // 성공여부 (success, failure)
     private ConverterJobResultStatus resultStatus;
 

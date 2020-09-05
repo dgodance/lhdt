@@ -162,11 +162,9 @@
     		SELECT NEXTVAL('data_library_seq')
   		</selectKey>
 		INSERT INTO data_library(
-			data_library_id, data_library_group_id, converter_job_id, data_library_key, data_library_name, data_type, user_id,
-			status, description
+			data_library_id, data_library_group_id, data_library_converter_job_id, data_library_key, data_library_name, data_type, user_id, status, description
 		) VALUES (
-			#{dataLibraryId}, #{dataLibraryGroupId}, #{converterJobId}, #{dataLibraryKey}, #{dataLibraryName}, #{dataType}, #{userId},
-			#{status}, #{description}
+			#{dataLibraryId}, #{dataLibraryGroupId}, #{dataLibraryConverterJobId}, #{dataLibraryKey}, #{dataLibraryName}, #{dataType}, #{userId}, #{status}, #{description}
 		)
 	</insert>
 	
@@ -178,8 +176,8 @@
 			<if test="dataLibraryGroupId != null and dataLibraryGroupId > 0">
 			data_library_group_id = #{dataLibraryGroupId},
 			</if>
-			<if test="converterJobId != null and converterJobId > 0">
-			converter_job_id = #{converterJobId},
+			<if test="dataLibraryConverterJobId != null and dataLibraryConverterJobId > 0">
+				data_library_converter_job_id = #{dataLibraryConverterJobId},
 			</if>
 			<if test="dataLibraryName != null and dataLibraryName != ''">
 			data_library_name = #{dataLibraryName},
@@ -239,7 +237,7 @@
 		/* deleteDataLibraryByConverterJob */
 		DELETE
 		FROM data_library 
-		WHERE converter_job_id = #{converterJobId}
+		WHERE data_library_converter_job_id = #{dataLibraryConverterJobId}
 			<if test="userId != null and userId != ''">
 			AND user_id = #{userId}
 			</if>

@@ -9,9 +9,12 @@ import lombok.ToString;
 
 import java.io.Serializable;
 
+/**
+ * TODO extrusion 으로 합쳐야 함
+ */
+@ToString(callSuper = true)
 @Getter
 @Setter
-@ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DataLibraryConversionJobResult implements Serializable {
 
@@ -34,8 +37,14 @@ public class DataLibraryConversionJobResult implements Serializable {
 
     // 실패 시 메세지
     private String message;
+
+    // TODO enum 처리가 잘 안되서 임시로
+    private String resultStatus;
     // 성공여부 (success, failure)
     private ConverterJobResultStatus converterJobResultStatus;
+
+    // 속성정보
+    private String attributes;
 
     @JsonProperty(value = "bGeoReferenced")
     public boolean getBGeoReferenced() {
@@ -44,5 +53,13 @@ public class DataLibraryConversionJobResult implements Serializable {
     public void setBGeoReferenced(boolean bGeoReferenced) {
         this.bGeoReferenced = bGeoReferenced;
     }
+
+//    @JsonProperty(value = "resultStatus")
+//    public ConverterJobResultStatus getResultStatus() {
+//        return resultStatus;
+//    }
+//    public void setResultStatus(String resultStatus) {
+//        this.resultStatus = ConverterJobResultStatus.findByStatus(resultStatus);
+//    }
 
 }

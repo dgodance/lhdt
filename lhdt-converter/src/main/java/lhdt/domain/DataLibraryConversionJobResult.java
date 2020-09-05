@@ -8,9 +8,9 @@ import lombok.ToString;
 
 import java.io.Serializable;
 
+@ToString(callSuper = true)
 @Getter
 @Setter
-@ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DataLibraryConversionJobResult implements Serializable {
 
@@ -33,8 +33,9 @@ public class DataLibraryConversionJobResult implements Serializable {
 
     // 실패 시 메세지
     private String message;
+
     // 성공여부 (success, failure)
-    private ConverterJobResultStatus converterJobResultStatus;
+    private ConverterJobResultStatus resultStatus;
 
     // 속성정보
     private String attributes;
@@ -45,6 +46,14 @@ public class DataLibraryConversionJobResult implements Serializable {
     }
     public void setBGeoReferenced(boolean bGeoReferenced) {
         this.bGeoReferenced = bGeoReferenced;
+    }
+
+    @JsonProperty(value = "resultStatus")
+    public ConverterJobResultStatus getResultStatus() {
+        return resultStatus;
+    }
+    public void setResultStatus(String resultStatus) {
+        this.resultStatus = ConverterJobResultStatus.findByStatus(resultStatus);
     }
 
 }

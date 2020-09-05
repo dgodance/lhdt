@@ -1,5 +1,7 @@
 package lhdt.domain;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +14,7 @@ public enum ConverterJobResultStatus {
 	FAILURE("failure");
 
 	private final String value;
+
 	ConverterJobResultStatus(String value) {
 		this.value = value;
 	}
@@ -19,6 +22,11 @@ public enum ConverterJobResultStatus {
 	public String getValue() {
 		return this.value;
 	}
+
+//	@JsonCreator
+//	public static ConverterJobResultStatus fromString(String symbol) {
+//		return findByStatus(symbol);
+//	}
 
 	public static Map<String, Object> toEnumHashMap() {
 		Map<String, Object> eMap = new HashMap<>();

@@ -7,10 +7,15 @@ import lhdt.domain.extrusionmodel.DataLibrary;
 import lhdt.domain.extrusionmodel.DataLibraryConverterJob;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * TODO extrusion 으로 합쳐야 함
+ */
+@ToString(callSuper = true)
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)

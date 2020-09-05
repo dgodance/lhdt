@@ -1,8 +1,8 @@
 package lhdt.controller.api;
 
-import lhdt.domain.agent.ConverterResultLog;
-import lhdt.domain.converter.ConverterJob;
-import lhdt.service.ConverterService;
+import lhdt.domain.agent.DataLibraryConverterResultLog;
+import lhdt.domain.extrusionmodel.DataLibraryConverterJob;
+import lhdt.service.DataLibraryConverterService;
 import lhdt.support.LogMessageSupport;
 import lhdt.utils.LocaleUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -17,21 +17,27 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Locale;
 
+/**
+ * 데이터 라이브러리 변환 후처리
+ */
 @Slf4j
 @RestController
-@RequestMapping(value = "/api/converters")
-public class ConverterAPIController {
+@RequestMapping(value = "/api/data-library-converters")
+public class DataLibraryConverterAPIController {
 
     @Autowired
-    private ConverterService converterService;
+    private DataLibraryConverterService dataLibraryConverterService;
 
     @Autowired
     private MessageSource messageSource;
 
-    @PostMapping(value = "{converterJobId}/status", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<ConverterJob> status(@RequestBody ConverterJob converterJob,
-                                               @PathVariable("converterJobId") Long converterJobId,
-                                               HttpServletRequest request, HttpServletResponse response) {
+
+    @PostMapping(value = "{dataLibraryConverterJobId}/status", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<DataLibraryConverterJob> status(@RequestBody DataLibraryConverterJob dataLibraryConverterJob,
+                                                          @PathVariable("dataLibraryConverterJobId") Long dataLibraryConverterJobId,
+                                                          HttpServletRequest request, HttpServletResponse response) {
+
+        log.info(" >>>>>> status. dataLibraryConverterJob = {}", dataLibraryConverterJob);
 
         HttpStatus statusCode = HttpStatus.OK;
         String errorCode = null;
@@ -39,8 +45,7 @@ public class ConverterAPIController {
         Locale locale = LocaleUtils.getUserLocale(request);
 
         try {
-            log.info(" >>>>>> converterJobId = {}", converterJobId);
-            converterService.updateConverterJob(converterJob);
+            dataLibraryConverterService.updateDataLibraryConverterJob(dataLibraryConverterJob);
         } catch (DataAccessException e) {
             statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
             errorCode = messageSource.getMessage("db.exception", null, locale);
@@ -57,15 +62,17 @@ public class ConverterAPIController {
             message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
             LogMessageSupport.printMessage(e, "@@ exception. message = {}", message);
         }
-        converterJob.setErrorCode(errorCode);
+        dataLibraryConverterJob.setErrorCode(errorCode);
 
-        return new ResponseEntity<>(converterJob, statusCode);
+        return new ResponseEntity<>(dataLibraryConverterJob, statusCode);
     }
 
-    @PostMapping(value = "{converterJobId}/logs", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<ConverterResultLog> logs(@RequestBody ConverterResultLog converterResultLog,
-                                                   @PathVariable("converterJobId") Long converterJobId,
-                                                   HttpServletRequest request, HttpServletResponse response) {
+    @PostMapping(value = "{dataLibraryConverterJobId}/logs", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<DataLibraryConverterResultLog> logs(@RequestBody DataLibraryConverterResultLog dataLibraryConverterResultLog,
+                                                               @PathVariable("dataLibraryConverterJobId") Long dataLibraryConverterJobId,
+                                                               HttpServletRequest request, HttpServletResponse response) {
+
+        log.info(" >>>>>> logs. dataLibraryConverterResultLog = {}", dataLibraryConverterResultLog);
 
         HttpStatus statusCode = HttpStatus.OK;
         String errorCode = null;
@@ -73,8 +80,7 @@ public class ConverterAPIController {
         Locale locale = LocaleUtils.getUserLocale(request);
 
         try {
-            log.info(" >>>>>> converterJobId = {}", converterJobId);
-            converterService.updateConverterJobStatus(converterResultLog);
+            dataLibraryConverterService.updateDataLibraryConverterJobStatus(dataLibraryConverterResultLog);
         } catch (DataAccessException e) {
             statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
             errorCode = messageSource.getMessage("db.exception", null, locale);
@@ -91,9 +97,8 @@ public class ConverterAPIController {
             message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
             LogMessageSupport.printMessage(e, "@@ exception. message = {}", message);
         }
-        converterResultLog.setFailureLog(errorCode);
+        dataLibraryConverterResultLog.setFailureLog(errorCode);
 
-        return new ResponseEntity<>(converterResultLog, statusCode);
+        return new ResponseEntity<>(dataLibraryConverterResultLog, statusCode);
     }
-
 }

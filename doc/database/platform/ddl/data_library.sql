@@ -141,7 +141,7 @@ comment on column data_library_group.insert_date is '등록일';
 create table data_library (
 	data_library_id					    bigint,
 	data_library_group_id			    integer,
-	converter_job_id			        bigint,
+	data_library_converter_job_id		bigint,
 	data_library_key					varchar(100)					not null,
 	data_library_name				    varchar(256)					not null,
 	data_library_path				    varchar(256),
@@ -161,7 +161,7 @@ create table data_library (
 comment on table data_library is 'data library';
 comment on column data_library.data_library_id is 'data library 고유번호';
 comment on column data_library.data_library_group_id is 'data library 그룹 고유번호';
-comment on column data_library.converter_job_id is 'converter job 고유번호';
+comment on column data_library.data_library_converter_job_id is 'data library converter job 고유번호';
 comment on column data_library.data_library_key is 'data library 고유키(API용)';
 comment on column data_library.data_library_name is 'data library명';
 comment on column data_library.data_library_path is 'data library 경로';

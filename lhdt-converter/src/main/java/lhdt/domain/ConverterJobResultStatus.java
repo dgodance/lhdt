@@ -12,6 +12,7 @@ public enum ConverterJobResultStatus {
 	FAILURE("failure");
 
 	private final String value;
+
 	ConverterJobResultStatus(String value) {
 		this.value = value;
 	}

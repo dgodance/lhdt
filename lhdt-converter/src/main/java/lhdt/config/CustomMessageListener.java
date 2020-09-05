@@ -1,8 +1,9 @@
 package lhdt.config;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lhdt.domain.*;
-import lhdt.sender.PostProcess;
+import lhdt.conversion.PostProcess;
 import lhdt.support.LogMessageSupport;
 import lhdt.support.ProcessBuilderSupport;
 import lombok.extern.slf4j.Slf4j;
@@ -90,7 +91,7 @@ public class CustomMessageListener {
         })
 		// 앞의 비동기 작업의 결과를 받아 사용하며 return이 없다.
 		.thenAccept(status -> {
-			log.info("thenAccept result = {}", status);
+			log.info("thenAccept status = {}", status);
 			try {
 				if(ConverterType.DATA == queueMessage.getConverterType()) {
 					// 데이터 변환
@@ -110,6 +111,8 @@ public class CustomMessageListener {
 					PostProcess.execute(dataLibraryConverterJob, objectMapper, propertiesConfig, restTemplate, queueMessage);
 				}
 			} catch (IOException | URISyntaxException e) {
+				e.printStackTrace();
+
 				// 로그파일 전송 오류 시 변환 실패 전송
 				handlerException(queueMessage, e.getMessage());
 				LogMessageSupport.printMessage(e);

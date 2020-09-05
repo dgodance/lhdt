@@ -5,10 +5,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lhdt.domain.converter.ConverterJob;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * TODO converter 로 합쳐야 함
+ */
+@ToString(callSuper = true)
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)

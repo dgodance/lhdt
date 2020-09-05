@@ -1,4 +1,4 @@
-package lhdt.sender;
+package lhdt.conversion;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lhdt.config.PropertiesConfig;
@@ -47,6 +47,7 @@ public class PostProcess {
 
         // 3. API 호출
         String url = "/api/converters/" + converterJob.getConverterJobId() + "/logs";
+        log.info("##### execute url = {}", url);
         URI uri = getSendURI(propertiesConfig, queueMessage.getServerTarget(), url);
         ResponseEntity<ConverterResultLog> responseEntity = restTemplate.postForEntity(uri, converterResultLog, ConverterResultLog.class);
         log.info(">>>>>>>>>> status : {}, errorCode : {}", responseEntity.getStatusCode(), Objects.requireNonNull(responseEntity.getBody()).getFailureLog());
@@ -67,10 +68,12 @@ public class PostProcess {
 
         // 1. 로그 파일 파싱
         DataLibraryConverterResultLog dataLibraryConverterResultLog = parseDataLibraryLogFile(objectMapper, queueMessage.getLogPath());
+        log.info("=========== dataLibraryConverterResultLog = {}", dataLibraryConverterResultLog);
         dataLibraryConverterResultLog.setDataLibraryConverterJob(dataLibraryConverterJob);
 
         // 3. API 호출
-        String url = "/api/converters/" + dataLibraryConverterJob.getDataLibraryConverterJobId() + "/logs";
+        String url = "/api/data-library-converters/" + dataLibraryConverterJob.getDataLibraryConverterJobId() + "/logs";
+        log.info("##### execute url = {}", url);
         URI uri = getSendURI(propertiesConfig, queueMessage.getServerTarget(), url);
         ResponseEntity<DataLibraryConverterResultLog> responseEntity = restTemplate.postForEntity(uri, dataLibraryConverterResultLog, DataLibraryConverterResultLog.class);
         log.info(">>>>>>>>>> status : {}, errorCode : {}", responseEntity.getStatusCode(), Objects.requireNonNull(responseEntity.getBody()).getFailureLog());
@@ -87,6 +90,7 @@ public class PostProcess {
         try {
             String url = "/api/converters/" + converterJob.getConverterJobId() + "/status";
             uri = getSendURI(propertiesConfig, converterJob.getServerTarget(), url);
+            log.info("##### executeException url = {}", url);
             ResponseEntity<ConverterJob> responseEntity = restTemplate.postForEntity(uri, converterJob, ConverterJob.class);
             log.info(">>>>>>>>>> status : {}", responseEntity.getStatusCode());
             log.info(">>>>>>>>>> errorCode : {}", Objects.requireNonNull(responseEntity.getBody()).getErrorCode());
@@ -104,8 +108,9 @@ public class PostProcess {
     public static void executeException(DataLibraryConverterJob dataLibraryConverterJob, PropertiesConfig propertiesConfig, RestTemplate restTemplate) {
         URI uri;
         try {
-            String url = "/api/converters/" + dataLibraryConverterJob.getDataLibraryConverterJobId() + "/status";
+            String url = "/api/data-library-converters/" + dataLibraryConverterJob.getDataLibraryConverterJobId() + "/status";
             uri = getSendURI(propertiesConfig, dataLibraryConverterJob.getServerTarget(), url);
+            log.info("##### executeException url = {}", url);
             ResponseEntity<DataLibraryConverterJob> responseEntity = restTemplate.postForEntity(uri, dataLibraryConverterJob, DataLibraryConverterJob.class);
             log.info(">>>>>>>>>> status : {}", responseEntity.getStatusCode());
             log.info(">>>>>>>>>> errorCode : {}", Objects.requireNonNull(responseEntity.getBody()).getErrorCode());
@@ -153,6 +158,7 @@ public class PostProcess {
      * @throws IOException  IOException
      */
     private static DataLibraryConverterResultLog parseDataLibraryLogFile(ObjectMapper objectMapper, String logFilePath) throws IOException {
+        log.info("#### logFilePath = {}", logFilePath);
         if (invalidFilePath(logFilePath)) throw new FileNotFoundException("The file in the specified path cannot be found. filePath : [" + logFilePath + "]");
 
         return objectMapper.readValue(Paths.get(logFilePath).toFile(), DataLibraryConverterResultLog.class);

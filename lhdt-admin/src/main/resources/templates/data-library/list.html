@@ -97,7 +97,7 @@
 										<col class="col-name"></col>
 										<col class="col-name"></col>
 										<col class="col-name"></col>
-										<col class="col-name"></col>
+										<col class="col-functions"></col>
 										<col class="col-functions"></col>
 										<col class="col-functions"></col>
 										<col class="col-functions"></col>
@@ -114,8 +114,8 @@
 											<th scope="col" class="col-name">데이터 라이브러리명</th>
 											<th scope="col" class="col-name">아이디</th>
 											<th scope="col" class="col-name">데이터타입</th>
-											<th scope="col" class="col-name">공유유형</th>
 											<th scope="col" class="col-name">상태</th>
+											<th scope="col" class="col-name">지도</th>
 											<th scope="col" class="col-name">삭제</th>
 											<th scope="col" class="col-date">등록일</th>
 										</tr>
@@ -141,12 +141,6 @@
 											</td>
 											<td class="col-name" th:text="${dataLibrary.userId}"></td>
 											<td class="col-name" th:text="${dataLibrary.dataType}"></td>
-											<td class="col-type">
-												<th:block th:text="${#strings.equals(dataLibrary.sharing, 'common')}">공통</th:block>
-<!--												<th:block th:text="${#strings.equals(dataLibrary.sharing, 'public')}">공개</th:block>-->
-<!--												<th:block th:text="${#strings.equals(dataLibrary.sharing, 'private')}">개인</th:block>-->
-<!--												<th:block th:text="${#strings.equals(dataLibrary.sharing, 'group')}">그룸</th:block>-->
-											</td>
 											<td class="col-type">
 												<th:block th:if="${#strings.equals(dataLibrary.status, 'processing')}">변환중</th:block>
 												<th:block th:if="${#strings.equals(dataLibrary.status, 'use')}">사용중</th:block>

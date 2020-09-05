@@ -126,6 +126,7 @@
                                                    th:href="@{/data-library-converter/job-file-list(dataLibraryConverterJobId=${dataLibraryConverterJob.dataLibraryConverterJobId})}"></a>
                                             </td>
                                             <td class="col-count">
+                                                <th:block th:if="${dataLibraryConverterJob.usf >= 1 and dataLibraryConverterJob.usf < 10}" th:text="|${dataLibraryConverterJob.usf}m|"></th:block>
                                                 <th:block th:if="${dataLibraryConverterJob.usf >= 0.1 and dataLibraryConverterJob.usf < 1}" th:text="|${dataLibraryConverterJob.usf}cm|"></th:block>
                                                 <th:block th:if="${dataLibraryConverterJob.usf >= 0.01 and dataLibraryConverterJob.usf < 0.1}" th:text="|${dataLibraryConverterJob.usf}cm|"></th:block>
                                                 <th:block th:if="${dataLibraryConverterJob.usf >= 0.001 and dataLibraryConverterJob.usf < 0.1}" th:text="|${dataLibraryConverterJob.usf}mm|"></th:block>

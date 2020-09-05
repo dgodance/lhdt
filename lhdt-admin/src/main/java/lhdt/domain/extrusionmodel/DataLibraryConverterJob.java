@@ -5,6 +5,7 @@ import lhdt.domain.common.Search;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -19,8 +20,10 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DataLibraryConverterJob extends Search {
-	
+public class DataLibraryConverterJob extends Search implements Serializable {
+
+	private static final long serialVersionUID = -1896808915157573372L;
+
 	/**
 	 * 데이터 라이브러리 변환 대상 업로딩 목록. dataLibraryUploadId 를 ,로 연결
 	 */

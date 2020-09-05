@@ -9,9 +9,12 @@ import lombok.ToString;
 
 import java.io.Serializable;
 
+/**
+ * TODO converter 로 합쳐야 함
+ */
+@ToString(callSuper = true)
 @Getter
 @Setter
-@ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ConversionJobResult implements Serializable {
 

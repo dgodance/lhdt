@@ -76,10 +76,10 @@
 						<form id="dataLibraryUpload" th:object="${dataLibraryUpload}" th:action="@{#}" method="post" onsubmit="return false;">
 							<table class="input-table scope-row">
 								<colgroup>
-									<col class="col-label l" style="width: 13%"></col>
-									<col class="col-input" style="width: 37%"></col>
-									<col class="col-label l" style="width: 13%"></col>
-									<col class="col-input" style="width: 37%"></col>
+									<col class="col-label l" style="width: 15%"></col>
+									<col class="col-input" style="width: 35%"></col>
+									<col class="col-label l" style="width: 15%"></col>
+									<col class="col-input" style="width: 35%"></col>
 								</colgroup>
 								<tr>
 									<th class="col-label" scope="row">
@@ -232,7 +232,7 @@
 	// dropzone 업로딩 결과(n개 파일을 올리면 n개 리턴이 옴)
 	var uploadFileResultCount = 0;
 	Dropzone.options.myDropzone = {
-		url: "/data-librarys/upload",
+		url: "/data-library-uploads",
 		//paramName: "file",
 		// Prevents Dropzone from uploading dropped files immediately
 		timeout: 3600000,
