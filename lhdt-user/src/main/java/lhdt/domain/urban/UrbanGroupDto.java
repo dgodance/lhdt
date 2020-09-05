@@ -49,21 +49,21 @@ public class UrbanGroupDto {
     // 지자체로 양도 시간
     private String transferLocalGovernment;
 
-//	// 조상 고유번호
-//	private Integer ancestor;
-//	// 부모 고유번호
-//	private Integer parent;
-//	// 깊이
-//	private Integer depth;
-//	// 나열 순서
-//	private Integer viewOrder;
-//	// 자식 존재 유무
-//	private Integer children;
-//
-//	// true : 기본(초기 등록), false : 선택
-//	private Boolean basic;
-//	// true : 사용, false : 사용안함
-//	private Boolean available;
+	// 조상 고유번호
+	private Integer ancestor;
+	// 부모 고유번호
+	private Integer parent;
+	// 깊이
+	private Integer depth;
+	// 나열 순서
+	private Integer viewOrder;
+	// 자식 존재 유무
+	private Integer children;
+
+	// true : 기본(초기 등록), false : 선택
+	private Boolean basic;
+	// true : 사용, false : 사용안함
+	private Boolean available;
 
     // 설명
     private String description;
