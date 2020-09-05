@@ -15,13 +15,16 @@
 	<ul id="districtSearchList" style="height:250px" class="yScroll">
 		{{#if districtList}}
 			{{#each districtList}}
-				<li>
-					<span>{{koname}}</span>
-					<button type="button" onclick="event.stopPropagation();district.gotoFly('{{longitude}}', '{{latitude}}', '300', '2');" title="이동" class="basic">이동</button>
-				</li>
+		<li>
+			<span>{{koname}}</span>
+			<button type="button" onclick="district.gotoFly('{{longitude}}', '{{latitude}}', '300', '2');"
+					class="basic" th:title="#{common.move}">
+				<th:block th:text="#{common.move}"></th:block>
+			</button>
+		</li>
 			{{/each}}
 		{{else}}
-			<li th:text="#{search.no.results}"></li>
+		<li th:text="#{search.no.results}"></li>
 		{{/if}}
 	</ul>
 </li>

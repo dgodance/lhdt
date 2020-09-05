@@ -15,6 +15,7 @@
 	<link rel="stylesheet" th:href="@{/css/{lang}/user-style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}" />
 	<link rel="stylesheet" th:href="@{/externlib/json-viewer/json-viewer.css(cacheVersion=${contentCacheVersion})}" />
 	<link rel="stylesheet" th:href="@{/externlib/css-toggle-switch/toggle-switch.css(cacheVersion=${contentCacheVersion})}" />
+	<link rel="stylesheet" th:href="@{/css/fontawesome-free-5.2.0-web/css/all.css(cacheVersion=${contentCacheVersion})}" />
 	<style type="text/css">
 		.mapWrap {
 			float:right;
@@ -26,61 +27,76 @@
 </head>
 <body>
 
+<!-- S: HEADER WRAP -->
 <div th:replace="~{/fragments/header :: #headerWrap}"></div>
+<!-- E: HEADER WRAP -->
+
+<!-- S: LOADING WRAP -->
 <div id="loadingWrap">
 	<div class="loading">
 		<span class="spinner"></span>
 	</div>
 </div>
+<!-- E: LOADING WRAP -->
+
+<!-- S: WRAP -->
 <div id="wrap" style="min-height: 560px;"> <!-- 왼쪽 메뉴 높이에 맞춰서 설정해 줘야함 -->
-	<!-- S: NAVWRAP -->
+
+	<!-- S: NAV WRAP -->
 	<div class="navWrap">
+
+		<!-- S: NAV -->
 		<div th:replace="~{/fragments/menu :: #navWrap}"></div>
-		<!-- E: NAVWRAP -->
+		<!-- E: NAV -->
+
+		<!-- S: CONTENTS WRAP -->
 		<div id="contentsWrap" class="contentsWrap" style="display: none;">
-			<div id="dataContent" class="contents-margin-default fullHeight">
-				<div class="tabs">
-					<ul id="dataInfoTab" class="tab tab-divide">
-						<li id="dataGroupTab" th:text="#{data.group.list.tab.menu}" data-nav="dataGroupInfoContent"></li>
-						<li id="dataListTab" class="on" th:text="#{data.list.tab.menu}" data-nav="dataInfoContent"></li>
-					</ul>
-				</div>
-				<div th:replace="~{/data/map-data :: #dataInfoContent}"></div>
-				<div th:replace="~{/data/map-data-group :: #dataGroupInfoContent}"></div>
-			</div>
-			<!-- E: 데이터 -->
 
+			<!-- S: DATA -->
+			<div th:replace="~{/data/data :: #dataContent}"></div>
+			<!-- E: DATA -->
+
+			<!-- S: LAYER -->
 			<div th:replace="~{/layer/list :: #layerContent}"></div>
+			<!-- E: LAYER -->
 
+			<!-- S: SETTING -->
 			<div th:replace="~{/user-policy/modify :: #userPolicyContent}"></div>
+			<!-- E: SETTING -->
 
-			<!-- E: CONTENTSBTN -->
 		</div>
+		<!-- E: CONTENTS WRAP -->
+
+		<!-- S: CONTENTS BTN -->
 		<div class="contentsBtn">
 			<button type="button" id="closeLeftBtn" th:title="#{common.close}" style="display:none;">Close</button>
 		</div>
-		<!-- E: CONTENTSWRAP -->
+		<!-- E: CONTENTS BTN -->
 
 	</div>
-	<!-- E: NAVWRAP -->
+	<!-- E: NAV WRAP -->
 
-	<!-- CTRLWRAP -->
+	<!-- S: DATA FILTER -->
+	<div th:replace="~{/data/data-filter :: #searchFilterContent}"></div>
+	<!-- E: DATA FILTER -->
+
+	<!-- S: CTRL WRAP -->
 	<!-- <div th:replace="~{/fragments/toolbar :: #toolbarWrap}"></div> -->
-	<!-- E: CTRLWRAP -->
+	<!-- E: CTRL WRAP -->
 
-	<!-- MAP -->
+	<!-- S: MAP -->
 	<div id="magoContainer" class="mapWrap">
 		<!-- S: GNB WRAP -->
 		<div th:replace="~{/fragments/global-search :: #gnbWrap}"></div>
 		<!-- E: GNB WRAP -->
 	</div>
 	<!-- E: MAP -->
+
 </div>
 <!-- E: WRAP -->
+
 <div th:replace="~{/data/data-dialog-template :: #dataDialogWrap}"></div>
 <div th:replace="~{/data/data-group-dialog-template :: #dataGroupDialogWrap}"></div>
-<div th:replace="~{/data/map-data-template :: #dataListSource}"></div>
-<div th:replace="~{/data/map-data-group-template :: #dataGroupListSource}"></div>
 <div th:replace="~{/data/data-attribute-dialog :: #dataAttributeDialog}"></div>
 <div th:replace="~{/data/data-object-attribute-dialog :: #dataObjectAttributeDialog}"></div>
 <div th:replace="~{/data/sample-data-attribute-template :: #sampleDataAttributeDialogWrap}"></div>
@@ -113,8 +129,9 @@
 <script type="text/javascript" th:src="@{/js/{lang}/map-data-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/map-init.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/issue-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/map-data.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/map-data-group.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<!--<script type="text/javascript" th:src="@{/js/{lang}/map-data.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>-->
+<!--<script type="text/javascript" th:src="@{/js/{lang}/map-data-group.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>-->
+<script type="text/javascript" th:src="@{/js/{lang}/map-data-search.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript">
 
 	var MAGO3D_INSTANCE;
@@ -168,8 +185,12 @@
         DistrictControll(magoInstance);
 
         dataGroupList();
-        mapDataGroupList(1, null);
-        mapDataInfoList(1, null, null, null);
+		var dataGroupParams = { searchWord : "data_group_name", searchValue : null, searchOption : "1"};
+		mapDataGroupList(1, dataGroupParams);
+		//var dataInfoParams = { searchWord : "data_name", searchValue : null, searchOption : "1", dataGroupId : null, dataType : null};
+		//mapDataInfoList(1, dataInfoParams);
+		//mapDataGroupList(1, null);
+        //mapDataInfoList(1, null, null, null);
 
         // 환경 설정.
         UserPolicy(magoInstance);
@@ -190,7 +211,7 @@
 
 	// smart tiling data flyTo
 	function gotoFly(longitude, latitude, altitude) {
-
+		event.stopPropagation();
 		if(longitude === null || longitude === '' || latitude === null || latitude === '' || altitude === null || altitude === '') {
 			alert(JS_MESSAGE["location.invalid"]);
 			return;
@@ -201,6 +222,7 @@
 	}
 
 	function flyTo(dataGroupId, dataKey) {
+		event.stopPropagation();
 		if(dataGroupId === null || dataGroupId === '' || dataKey === null || dataKey === '') {
 			alert(JS_MESSAGE["location.invalid"]);
 			return;
@@ -266,6 +288,7 @@
 	}
 
 	function flyToGroup(longitude, latitude, altitude, duration) {
+		event.stopPropagation();
 		if(longitude === null || longitude === '' || latitude === null || latitude === '' || altitude === null || altitude === '') {
 			alert(JS_MESSAGE["location.invalid"]);
 			return;
@@ -575,6 +598,96 @@
 			return false;
 		}
 	}
+
+	function visibleGroup(_this, dataGroupId) {
+		event.stopPropagation();
+		if(dataGroupId === null || dataGroupId === '') {
+			alert(JS_MESSAGE["data.info.incorrect"]);
+			return;
+		}
+
+		var option = true;
+		if ($(_this).hasClass("fa-eye")) {
+			option = false;
+		}
+
+		dataGroupId = parseInt(dataGroupId);
+		var nodeMap = MAGO3D_INSTANCE.getMagoManager().hierarchyManager.getNodesMap(dataGroupId);
+		var flag = false;
+		if (!$.isEmptyObject(nodeMap)) {
+			for (var key in nodeMap) {
+				var node = nodeMap[key];
+				if (!$.isEmptyObject(nodeMap)) {
+					var nodeData = node.data;
+					if (nodeData && nodeData.attributes && nodeData.attributes.isPhysical === true) {
+						var optionObject = { isVisible : option };
+						setNodeAttributeAPI(MAGO3D_INSTANCE, dataGroupId, key, optionObject);
+					}
+				} else {
+					flag = true;
+					break;
+				}
+			}
+		} else {
+			flag = true;
+		}
+
+		if (flag) {
+			alert(JS_MESSAGE["data.not.loaded"]);
+			return;
+		}
+
+		var projectsMap = MAGO3D_INSTANCE.getMagoManager().hierarchyManager.projectsMap;
+		if (!$.isEmptyObject(projectsMap) && projectsMap[dataGroupId] && projectsMap[dataGroupId].attributes) {
+			projectsMap[dataGroupId].attributes.isVisible = option;
+		}
+
+		if ($(_this).hasClass("fa-eye")) {
+			$(_this).removeClass("fa-eye");
+			$(_this).addClass("fa-eye-slash");
+		} else {
+			$(_this).removeClass("fa-eye-slash");
+			$(_this).addClass("fa-eye");
+		}
+
+	}
+
+	function visibleData(_this, dataGroupId, dataKey, dataTiling) {
+		event.stopPropagation();
+		if (dataGroupId === null || dataGroupId === '' ||
+				dataKey === null || dataKey === '' ||
+				dataTiling === null || dataTiling === '') {
+			alert(JS_MESSAGE["data.info.incorrect"]);
+			return;
+		}
+
+		var option = true;
+		if ($(_this).hasClass("fa-eye")) {
+			option = false;
+		}
+
+		if (dataTiling) {
+			dataKey = "F4D_" + dataKey;
+		}
+
+		dataGroupId = parseInt(dataGroupId);
+		if (!isExistDataAPI(MAGO3D_INSTANCE, dataGroupId, dataKey)) {
+			alert(JS_MESSAGE["data.not.loaded"]);
+			return;
+		}
+		var optionObject = { isVisible : option };
+		setNodeAttributeAPI(MAGO3D_INSTANCE, dataGroupId, dataKey, optionObject);
+
+		if ($(_this).hasClass("fa-eye")) {
+			$(_this).removeClass("fa-eye");
+			$(_this).addClass("fa-eye-slash");
+		} else {
+			$(_this).removeClass("fa-eye-slash");
+			$(_this).addClass("fa-eye");
+		}
+
+	}
+
 </script>
 </body>
 </html>

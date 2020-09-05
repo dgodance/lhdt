@@ -1,7 +1,7 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
 <script id="districtSelectNavSource" type="text/x-handlebars-template">
 	<span id="sdoName" {{#if isSelectedSdo}}class="on"{{/if}}>
-		{{#if sdoName.length}}
+		{{#if sdoName}}
 			{{sdoName}}
 		{{else}}
 			<th:block th:text="#{search.administrative.sdo}"></th:block>
