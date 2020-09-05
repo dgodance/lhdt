@@ -36,7 +36,6 @@ class DesignLayerAPIControllerTests extends BaseControllerTest {
     @DisplayName("DesignLayer 목록 조회 하기")
     public void getDesignLayers() throws Exception {
         // given
-        given(designLayerService.getDesignLayerTotalCount(any())).willReturn(5L);
         given(designLayerService.getListDesignLayer(any())).willReturn(getDesignLayerList());
 
         this.mockMvc.perform(get("/api/design-layers")

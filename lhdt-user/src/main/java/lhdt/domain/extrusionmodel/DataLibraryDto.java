@@ -23,9 +23,8 @@ import java.time.LocalDateTime;
 @Relation(collectionRelation = "dataLibraries")
 public class DataLibraryDto implements Serializable {
 
-	private static final long serialVersionUID = 3905446858071298271L;
-	/******** 화면 오류 표시용 ********/
 
+	private static final long serialVersionUID = 3905446858071298271L;
 	// 사용자명
 	private String userId;
 	private String userName;

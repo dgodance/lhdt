@@ -87,7 +87,7 @@ class UrbanGroupAPIControllerTests extends BaseControllerTest {
                                 fieldWithPath("urbanGroupId").description("고유 번호"),
                                 fieldWithPath("urbanGroupKey").description("링크 활용 등을 위한 확장 컬럼"),
                                 fieldWithPath("urbanGroupName").description("그룹명"),
-                                fieldWithPath("userId").description("사용자 아이다"),
+                                fieldWithPath("userId").description("사용자 아이디"),
                                 fieldWithPath("ancestor").description("조상 고유번호"),
                                 fieldWithPath("parent").description("부모 고유번호"),
                                 fieldWithPath("depth").description("깊이"),

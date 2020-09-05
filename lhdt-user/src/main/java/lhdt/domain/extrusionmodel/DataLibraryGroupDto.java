@@ -1,7 +1,5 @@
 package lhdt.domain.extrusionmodel;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lhdt.domain.common.Search;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.hateoas.server.core.Relation;
@@ -20,22 +18,9 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Relation(collectionRelation = "designLayerGroups")
-public class DataLibraryGroupDto extends Search {
+@Relation(collectionRelation = "dataLibraryGroups")
+public class DataLibraryGroupDto {
 
-	/****** 화면 표시용 *******/
-	private String parentName;
-	// 부모 depth
-	private Integer parentDepth;
-	// up : 위로, down : 아래로
-	private String updateType;
-
-	// data_group_key 중복 확인을 위한 화면 전용 값. true 중복
-	private String duplication;
-
-	/****** validator ********/
-	private String methodMode;
-	
 	// 고유번호
 	private Integer dataLibraryGroupId;
 	// 링크 활용 등을 위한 확장 컬럼
@@ -54,7 +39,6 @@ public class DataLibraryGroupDto extends Search {
 	// 사용자명
 	private String userId;
 	private String userName;
-	
 	// 조상
 	private Integer ancestor;
 	// 부모
@@ -73,26 +57,8 @@ public class DataLibraryGroupDto extends Search {
 
 	// 데이터 library 총 건수
 	private Integer dataLibraryCount;
-
 	// 설명
 	private String description;
-	
-	@Getter(AccessLevel.NONE)
-	@Setter(AccessLevel.NONE)
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
-	private LocalDateTime viewUpdateDate;
-	
-	@Getter(AccessLevel.NONE)
-	@Setter(AccessLevel.NONE)
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
-	private LocalDateTime viewInsertDate;
-	
-	public LocalDateTime getViewUpdateDate() {
-		return this.updateDate;
-	}
-	public LocalDateTime getViewInsertDate() {
-		return this.insertDate;
-	}
 	
 	// 수정일
 	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
