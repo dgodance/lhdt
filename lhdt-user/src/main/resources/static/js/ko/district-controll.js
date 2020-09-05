@@ -63,6 +63,7 @@ function District(magoInstance, viewer) {
     },
 
     this.gotoFly = function(longitude, latitude, altitude, duration) {
+        event.stopPropagation();
         gotoFlyAPI(MAGO3D_INSTANCE, longitude, latitude, altitude, duration);
     }
 
@@ -314,19 +315,31 @@ function updateSelectedElement(_parent, _this) {
     $(_this).addClass('on');
 }
 
+// 지역선택
+$('#districtSelect').click(function() {
+    $(this).toggleClass('on');
+    $('#districtSelectContent').toggle();
+    if ($("#districtSearchResultContent").is(':visible')) {
+        $("#districtSearchResultContent").hide();
+    }
+});
+
+// 지역이동
 $("#districtFlyButton").click(function () {
     var name = [sdoName, sggName, emdName].join(" ").trim();
     district.drawDistrict(name, sdoCode, sggCode, emdCode, bjcdLen);
     getEnvelope(name, sdoCode, sggCode, emdCode, bjcdLen);
     //getCentroid(name, sdoCode, sggCode, emdCode);
 });
-
+// 영역 지우기
 $("#districtCancelButton").click(function () {
     district.deleteDistrict();
 });
-
+// 닫기
 $("#districtCloseButton").click(function () {
-    $("#districtSelect").click();
+    if ($("#districtSelectContent").is(':visible')) {
+        $('#districtSelectContent').hide();
+    }
 });
 
 function getEnvelope(name, sdoCode, sggCode, emdCode, bjcdLen) {

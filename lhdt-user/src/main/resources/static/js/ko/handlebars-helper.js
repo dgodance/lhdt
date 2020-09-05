@@ -81,3 +81,7 @@ Handlebars.registerHelper('forEachStep', function(from, to, incr, block) {
         accum += block.fn(i);
     return accum;
 });
+
+Handlebars.registerHelper("numberToAlphabet", function(num) {
+    return String.fromCharCode(65 + num);
+});

@@ -164,15 +164,7 @@ $(function() {
 		var index = parentObj.index();
 		$('#simulationContent ul.listDrop > li').eq(index).toggleClass('on');
 	});
-	
-	// 행정구역 검색
-	$('div.district').click(function() {
-		$(this).toggleClass('on');
-		$('div.districtWrap').toggle();
-		if ($("#searchContent").is(':visible')) {
-			$("#searchContent").hide();
-		}
-	});
+
 	/*
 	$('div.district').hover(function() {
 		$('div.districtWrap').css('display', 'block');
@@ -185,8 +177,6 @@ $(function() {
 		$('div.districtWrap').css('display', 'none');
 	});
 	 */
-
-
 });
 
 function allMenuDisplay() {

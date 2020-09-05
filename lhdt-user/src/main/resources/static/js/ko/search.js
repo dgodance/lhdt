@@ -14,13 +14,13 @@ $("#fullTextSearchButton").click(function() {
 });
 // 닫기 버튼 클릭
 $('#districtSearchCloseButton').click(function() {
-	$('#searchContent').hide();
+	$('#districtSearchResultContent').hide();
 });
 // 지도 클릭
 $('#magoContainer').click(function(e) {
 	e.preventDefault();
-	if ($("#searchContent").is(':visible')) {
-		$("#searchContent").hide();
+	if ($("#districtSearchResultContent").is(':visible')) {
+		$("#districtSearchResultContent").hide();
 	}
 });
 // 입력 체크
@@ -35,8 +35,8 @@ function fullTextSearchCheck() {
 		$("#fullTextSearch").focus();
 		return false;
 	}
-	if ($(".districtWrap").is(':visible')) {
-		$(".districtWrap").hide();
+	if ($("#districtSelectContent").is(':visible')) {
+		$("#districtSelectContent").hide();
 	}
 	return true;
 }
@@ -63,6 +63,7 @@ function showSearchMenu() {
 
 // 행정구역 검색
 function districtSearch(pageNo) {
+	event.stopPropagation();
 	var info = "fullTextSearch=" + $("#fullTextSearch").val();;
 	info += "&searchKey=newAddress";
 	if(pageNo !== null) {
@@ -86,7 +87,7 @@ function districtSearch(pageNo) {
 				var pageTemplate = Handlebars.compile($("#districtPaginationSource").html());
 				$("#districtSearchResultDHTML").html("").append(template(msg))
 				$("#districtPaginationDHTML").html("").append(pageTemplate(msg));
-				$('#searchContent').show();
+				$('#districtSearchResultContent').show();
 				fullTextSearchFlag = true;
 			} else {
 				alert(JS_MESSAGE[msg.errorCode]);
