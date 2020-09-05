@@ -54,6 +54,6 @@
 	</select>
 
 	<select id="getListUrbanGroupByParent" parameterType="int" resultType="urbanGroup">
-		SELECT * FROM urban_group WHERE parent = #{parent}
+		SELECT * FROM urban_group WHERE parent = #{urbanGroupId}
 	</select>
 </mapper>

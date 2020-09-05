@@ -60,7 +60,7 @@ public class UrbanGroupAPIController {
     public ResponseEntity<EntityModel<UrbanGroupDto>> getUrbanGroupById(@PathVariable("id") Integer id) {
         UrbanGroupDto dto = modelMapper.map(urbanGroupService.getUrbanGroup(id), UrbanGroupDto.class);
         EntityModel<UrbanGroupDto> urbanGroup = EntityModel.of(dto);
-        urbanGroup.add(linkTo(DesignLayerGroupAPIController.class).slash(id).withSelfRel());
+        urbanGroup.add(linkTo(UrbanGroupAPIController.class).slash(id).withSelfRel());
         urbanGroup.add(Link.of("/docs/index.html#resource-urban-group-get").withRel("profile"));
 
         return ResponseEntity.ok(urbanGroup);

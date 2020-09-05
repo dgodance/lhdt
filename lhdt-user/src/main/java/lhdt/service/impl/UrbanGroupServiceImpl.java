@@ -48,11 +48,11 @@ public class UrbanGroupServiceImpl implements UrbanGroupService {
 
     /**
      * parent 에 해당하는 도시그룹 정보 목록
-     * @param parent
+     * @param urbanGroupId
      * @return
      */
     @Transactional(readOnly = true)
-    public List<UrbanGroup> getListUrbanGroupByParent(Integer parent) {
-        return urbanGroupMapper.getListUrbanGroupByParent(parent);
+    public List<UrbanGroup> getListUrbanGroupByParent(Integer urbanGroupId) {
+        return urbanGroupMapper.getListUrbanGroupByParent(urbanGroupId);
     }
 }

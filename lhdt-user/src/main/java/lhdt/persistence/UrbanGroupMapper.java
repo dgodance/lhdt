@@ -32,8 +32,8 @@ public interface UrbanGroupMapper {
 
     /**
      * parent 에 해당하는 도시 그룹 목록
-     * @param parent
+     * @param urbanGroupId
      * @return
      */
-    List<UrbanGroup> getListUrbanGroupByParent(Integer parent);
+    List<UrbanGroup> getListUrbanGroupByParent(Integer urbanGroupId);
 }
