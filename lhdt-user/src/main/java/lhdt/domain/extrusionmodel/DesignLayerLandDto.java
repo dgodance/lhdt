@@ -1,6 +1,7 @@
 package lhdt.domain.extrusionmodel;
 
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.hateoas.server.core.Relation;
 
 import java.time.LocalDateTime;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Relation(collectionRelation = "designLayerLands")
-public class DesignLayerLand {
+public class DesignLayerLandDto {
 
     // design layer lnad 고유 번호
     private Long designLayerLandId;
@@ -73,16 +74,11 @@ public class DesignLayerLand {
     // 속성
     private String properties;
     // 수정일
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updateDate;
     // 등록일
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime insertDate;
     // wkt
     private String theGeom;
-    // 활성화 여부 'Y', 'N'
-    private String enableYn;
-    // shape 버전 아이디
-    private Integer versionId;
-    // 좌표계
-    private Integer coordinate;
-
 }

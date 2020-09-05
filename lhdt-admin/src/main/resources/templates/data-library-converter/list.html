@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html th:lang="${accessibility}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="/layouts/default">
 <head>
-    <title>업로딩 데이터 변환 목록</title>
+    <title>데이터 라이브러니 변환 목록</title>
     <th:block layout:fragment="pageCustomStyle">
         <link rel="shortcut icon" th:href="@{/images/favicon.ico(cacheVersion=${contentCacheVersion})}">
         <link rel="stylesheet" th:href="@{/css/{lang}/font/font.css(lang=${lang}, cacheVersion=${contentCacheVersion})}">
@@ -21,15 +21,14 @@
                     <div th:replace="~{/fragments/page-header :: #pageHeaderWrap}"></div>
                     <div class="page-content">
 
-                        <!-- S: 검색 -->
                         <div class="filters">
-                            <form id="searchForm" th:object="${converterJob}" method="get" th:action="@{/converter/list}" onsubmit="return searchCheck();">
+                            <form id="searchForm" th:object="${dataLibraryConverterJob}" method="get" th:action="@{/data-library-converter/list}" onsubmit="return searchCheck();">
                             <div class="input-group row">
                                 <div class="input-set">
                                     <label for="searchWord" th:text="#{search.word}"></label>
                                     <select id="searchWord" name="searchWord" class="selectBoxClass">
                                         <option value="" th:text="#{select}"></option>
-                                        <option value="title" th:text="제목"></option>
+                                        <option value="title">제목</option>
                                     </select>
                                     <select id="searchOption" name="searchOption" class="selectBoxClass">
                                         <option value="0" th:text="#{search.same}"></option>
@@ -47,7 +46,7 @@
                                     <label for="orderWord" th:text="#{search.order}"></label>
                                     <select id="orderWord" name="orderWord" class="selectBoxClass">
                                         <option value="" th:text="#{search.basic}"></option>
-                                        <option value="title" th:text="제목"></option>
+                                        <option value="title">제목</option>
                                         <option value="insert_date" th:text="#{search.insert.date}"></option>
                                     </select>
                                     <select id="orderValue" name="orderValue" class="selectBoxClass">
@@ -67,11 +66,10 @@
                             </div>
                             </form>
                         </div>
-                        <!-- E: 검색 -->
 
-                        <!-- S: 데이터 변환 결과 목록 -->
+                        <!-- S: 데이터 라이브러리 변환 결과 목록 -->
                         <div class="list">
-                            <form id="listForm" th:object="${converterJob}" method="post">
+                            <form id="listForm" th:object="${dataLibraryConverterJob}" method="post">
                                 <input type="hidden" id="checkIds" name="checkIds" />
                                 <div class="list-header row">
                                     <div class="list-desc u-pull-left">
@@ -83,7 +81,7 @@
                                     </div>
                                 </div>
                                 <table class="list-table scope-col">
-                                    <caption class="hiddenTag">데이터 변환 결과</caption>
+                                    <caption class="hiddenTag">데이터 라이브러리 변환 결과</caption>
                                     <colgroup>
                                         <col class="col-number"></col>
                                         <col class="col-name"></col>
@@ -109,49 +107,57 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr th:if="${converterJobList.empty}">
-                                            <td colspan="9" class="col-none">Converter Job이 존재하지 않습니다.</td>
+<th:block th:if="${dataLibraryConverterJobList.empty}">
+                                        <tr>
+                                            <td colspan="9" class="col-none">데이터 라이브러리 변환 결과가 존재하지 않습니다.</td>
                                         </tr>
-
-                                        <tr th:if="${!converterJobList.empty}" th:each="converterJob: ${converterJobList}">
-                                            <td class="col-number" th:text="${converterJobStat.count + ((pagination.pageNo-1)*10)}"></td>
-                                            <td class="col-type" th:if="${#strings.equals(converterJob.converterTemplate, 'basic')}" th:text="기본"></td>
-                                            <td class="col-type" th:if="${#strings.equals(converterJob.converterTemplate, 'building')}" th:text="빌딩"></td>
-                                            <td class="col-type" th:if="${#strings.equals(converterJob.converterTemplate, 'extra-big-building')}" th:text="초대형 빌딩"></td>
-                                            <td class="col-type" th:if="${#strings.equals(converterJob.converterTemplate, 'point-cloud')}" th:text="point cloud"></td>
-                                            <td class="col-name ellipsis" style="min-width:200px;max-width:200px;">
-                                            <a th:text="${converterJob.title}"  th:href="@{/converter/converter-job-file-list(converterJobId=${converterJob.converterJobId})}"></a>
+</th:block>
+<th:block th:if="${!dataLibraryConverterJobList.empty}" th:each="dataLibraryConverterJob: ${dataLibraryConverterJobList}">
+                                        <tr>
+                                            <td class="col-number" th:text="${dataLibraryConverterJobStat.count + ((pagination.pageNo-1)*10)}"></td>
+                                            <td class="col-type">
+    <th:block th:if="${#strings.equals(dataLibraryConverterJob.converterTemplate, 'basic')}">기본</th:block>
+    <th:block th:if="${#strings.equals(dataLibraryConverterJob.converterTemplate, 'building')}">빌딩</th:block>
+    <th:block th:if="${#strings.equals(dataLibraryConverterJob.converterTemplate, 'extra-big-building')}">초대형 빌딩</th:block>
+    <th:block th:if="${#strings.equals(dataLibraryConverterJob.converterTemplate, 'point-cloud')}">point cloud</th:block>
                                             </td>
-                                            
-                                            <td class="col-count" th:if="${converterJob.usf >= 1 and converterJob.usf < 10}" th:text="|${converterJob.usf}m|">
-                                            <td class="col-count" th:if="${converterJob.usf >= 0.1 and converterJob.usf < 1}" th:text="|${converterJob.usf}cm|">
-                                            <td class="col-count" th:if="${converterJob.usf >= 0.01 and converterJob.usf < 0.1}" th:text="|${converterJob.usf}cm|">
-                                            <td class="col-count" th:if="${converterJob.usf >= 0.001 and converterJob.usf < 0.1}" th:text="|${converterJob.usf}mm|">
-                                            <td class="col-count" th:if="${converterJob.usf >= 10}" th:text="|${converterJob.usf}m|">
-
-                                            <td class="col-type" th:if="${#strings.equals(converterJob.viewYAxisUp, 'N')}" th:text="Z축"></td>
-                                            <td class="col-type" th:if="${#strings.equals(converterJob.viewYAxisUp, 'Y')}" th:text="Y축"></td>
-                                            <td class="col-type" th:if="${#strings.equals(converterJob.status, 'ready')}" th:text="준비"></td>
-                                            <td class="col-type" th:if="${#strings.equals(converterJob.status, 'success')}" th:text="성공"></td>
-                                            <td class="col-type" th:if="${#strings.equals(converterJob.status, 'waiting')}" th:text="승인대기"></td>
-                                            <td class="col-type" th:if="${#strings.equals(converterJob.status, 'fail')}" th:text="실패"></td>
-                                            <td class="col-type" th:if="${#strings.equals(converterJob.status, 'partial_success')}" th:text="부분성공"></td>
-                                            
-                                            <td class="col-count" th:text="|${converterJob.fileCount}개|"></td>
-                                            <td class="col-type" th:if="${#strings.isEmpty(converterJob.errorCode)}" th:text="없음">
-                                            <td class="col-type" th:unless="${#strings.isEmpty(converterJob.errorCode)}">
-                                                <a href="#" th:onclick="detailErrorCode([[${converterJob.errorCode}]]); return false;">[보기]</a>
+                                            <td class="col-name ellipsis" style="min-width:200px;max-width:200px;">
+                                                <a th:text="${dataLibraryConverterJob.title}"
+                                                   th:href="@{/data-library-converter/job-file-list(dataLibraryConverterJobId=${dataLibraryConverterJob.dataLibraryConverterJobId})}"></a>
+                                            </td>
+                                            <td class="col-count">
+                                                <th:block th:if="${dataLibraryConverterJob.usf >= 0.1 and dataLibraryConverterJob.usf < 1}" th:text="|${dataLibraryConverterJob.usf}cm|"></th:block>
+                                                <th:block th:if="${dataLibraryConverterJob.usf >= 0.01 and dataLibraryConverterJob.usf < 0.1}" th:text="|${dataLibraryConverterJob.usf}cm|"></th:block>
+                                                <th:block th:if="${dataLibraryConverterJob.usf >= 0.001 and dataLibraryConverterJob.usf < 0.1}" th:text="|${dataLibraryConverterJob.usf}mm|"></th:block>
+                                                <th:block th:if="${dataLibraryConverterJob.usf >= 10}" th:text="|${dataLibraryConverterJob.usf}m|"></th:block>
                                             </td>
                                             <td class="col-type">
-                                                <th:block th:text="${#temporals.format(converterJob.insertDate,'yyyy-MM-dd HH:mm')}"></th:block>
+                                                <th:block th:if="${#strings.equals(dataLibraryConverterJob.viewYAxisUp, 'N')}">Z축</th:block>
+                                                <th:block th:if="${#strings.equals(dataLibraryConverterJob.viewYAxisUp, 'Y')}">Y축</th:block>
+                                            </td>
+                                            <td class="col-type">
+                                                <th:block th:if="${#strings.equals(dataLibraryConverterJob.status, 'ready')}">준비</th:block>
+                                                <th:block th:if="${#strings.equals(dataLibraryConverterJob.status, 'success')}">성공</th:block>
+                                                <th:block th:if="${#strings.equals(dataLibraryConverterJob.status, 'waiting')}">승인대기</th:block>
+                                                <th:block th:if="${#strings.equals(dataLibraryConverterJob.status, 'fail')}">실패</th:block>
+                                                <th:block th:if="${#strings.equals(dataLibraryConverterJob.status, 'partial_success')}">부분성공</th:block>
+                                            </td>
+                                            <td class="col-count" th:text="|${dataLibraryConverterJob.fileCount}개|"></td>
+                                            <td class="col-type" th:if="${#strings.isEmpty(dataLibraryConverterJob.errorCode)}" th:text="없음">
+                                            <td class="col-type" th:unless="${#strings.isEmpty(dataLibraryConverterJob.errorCode)}">
+                                                <a href="#" th:onclick="detailErrorCode([[${dataLibraryConverterJob.errorCode}]]); return false;">[보기]</a>
+                                            </td>
+                                            <td class="col-type">
+                                                <th:block th:text="${#temporals.format(dataLibraryConverterJob.insertDate,'yyyy-MM-dd HH:mm')}"></th:block>
                                             </td>
                                         </tr>
+</th:block>
                                     </tbody>
                                 </table>
                             </form>
                             <!-- E: 데이터 변환 결과 목록 -->
                             <!-- error dialog -->
-						<div th:replace="~{/converter/error-dialog :: #errorDialog}"></div>
+						<div th:replace="~{/data-library-converter/error-dialog :: #errorDialog}"></div>
                         </div>
                         <!-- 페이지 -->
                         <div th:replace="~{/common/pagination :: #paginationArea}"></div>
@@ -169,20 +175,20 @@
 <script type="text/javascript" th:src="@{/js/navigation.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript">
     $(document).ready(function() {
-		var searchWord = "[[${converterJob.searchWord}]]";
-		var searchOption = "[[${converterJob.searchOption}]]";
-		var orderWord = "[[${converterJob.orderWord}]]";
-		var orderValue = "[[${converterJob.orderValue}]]";
-		var listCounter = "[[${converterJob.listCounter}]]";
+		var searchWord = "[[${dataLibraryConverterJob.searchWord}]]";
+		var searchOption = "[[${dataLibraryConverterJob.searchOption}]]";
+		var orderWord = "[[${dataLibraryConverterJob.orderWord}]]";
+		var orderValue = "[[${dataLibraryConverterJob.orderValue}]]";
+		var listCounter = "[[${dataLibraryConverterJob.listCounter}]]";
 
-		if(searchWord != "") $("#searchWord").val("${converterJob.searchWord}");
-		if(searchOption != "") $("#searchOption").val("${converterJob.searchOption}");
-		if(orderWord != "") $("#orderWord").val("${converterJob.orderWord}");
-		if(orderValue != "") $("#orderValue").val("${converterJob.orderValue}");
-		if(listCounter != "") $("#listCounter").val("${converterJob.listCounter}");
+		if(searchWord != "") $("#searchWord").val("${dataLibraryConverterJob.searchWord}");
+		if(searchOption != "") $("#searchOption").val("${dataLibraryConverterJob.searchOption}");
+		if(orderWord != "") $("#orderWord").val("${dataLibraryConverterJob.orderWord}");
+		if(orderValue != "") $("#orderValue").val("${dataLibraryConverterJob.orderValue}");
+		if(listCounter != "") $("#listCounter").val("${dataLibraryConverterJob.listCounter}");
 
 		initDatePicker();
-		initCalendar(new Array("startDate", "endDate"), new Array("[[${converterJob.startDate}]]", "[[${converterJob.endDate}]]"));
+		initCalendar(new Array("startDate", "endDate"), new Array("[[${dataLibraryConverterJob.startDate}]]", "[[${dataLibraryConverterJob.endDate}]]"));
 	});
 
 	//전체 선택

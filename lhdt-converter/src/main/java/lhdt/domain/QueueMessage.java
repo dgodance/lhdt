@@ -25,6 +25,8 @@ public class QueueMessage implements Serializable {
 	
 	private Long converterJobId;
 	private Long converterJobFileId;
+	private Long dataLibraryConverterJobId;
+	private Long dataLibraryConverterJobFileId;
 	private String inputFolder;
 	private String outputFolder;
 	private String meshType;

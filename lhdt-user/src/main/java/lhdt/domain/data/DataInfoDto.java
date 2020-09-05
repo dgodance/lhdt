@@ -1,10 +1,8 @@
 package lhdt.domain.data;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lhdt.domain.MethodType;
-import lhdt.domain.common.Search;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.hateoas.server.core.Relation;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -21,24 +19,15 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DataInfoDto extends Search implements Serializable {
+@Relation(collectionRelation = "dataInfos")
+public class DataInfoDto implements Serializable {
 
-	private static final long serialVersionUID = 427092836283161392L;
-	public static final String F4D_PREFIX = "F4D_";
+	private static final long serialVersionUID = -5333401848770831812L;
 
-	// 고유번호
-	private Integer userGroupId;
-	// 위도
-	private BigDecimal latitude;
-	// 경도
-	private BigDecimal longitude;
 	// 사용자명
 	private String userId;
 	// 수정자 아이디
 	private String updateUserId;
-	private String userName;
-	/****** validator ********/
-	private MethodType methodType;
 	// 고유번호
 	private Long dataId;
 	// Data Group 고유번호
@@ -102,35 +91,10 @@ public class DataInfoDto extends Search implements Serializable {
 	private Boolean objectAttributeExist;
 	// 설명
 	private String description;
-	
-	@Getter(AccessLevel.NONE)
-	@Setter(AccessLevel.NONE)
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
-	private LocalDateTime viewUpdateDate;
-	
-	@Getter(AccessLevel.NONE)
-	@Setter(AccessLevel.NONE)
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
-	private LocalDateTime viewInsertDate;
-	
-	public LocalDateTime getViewUpdateDate() {
-		return this.updateDate;
-	}
-	public LocalDateTime getViewInsertDate() {
-		return this.insertDate;
-	}
-	
-	// 수정일 
+	// 수정일
 	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime updateDate;
 	// 등록일
 	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime insertDate;
-	
-	public String getViewMetainfo() {
-		if(this.metainfo == null || "".equals( metainfo) || metainfo.length() < 20) {
-			return metainfo;
-		}
-		return metainfo.substring(0, 20) + "...";
-	}
 }

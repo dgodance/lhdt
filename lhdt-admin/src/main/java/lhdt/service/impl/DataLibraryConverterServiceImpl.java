@@ -89,7 +89,7 @@ public class DataLibraryConverterServiceImpl implements DataLibraryConverterServ
     }
 
     /**
-     * 데이터 라이브러리 f4d converter 변환 job 등록
+     * 데이터 라이브러리 converter job 등록
      * @param dataLibraryConverterJob    dataLibraryConverterJob
      */
     @Transactional
@@ -267,6 +267,7 @@ public class DataLibraryConverterServiceImpl implements DataLibraryConverterServ
         log.info("-------------------------------------------------------");
 
         QueueMessage queueMessage = new QueueMessage();
+        queueMessage.setConverterType(ConverterType.DATA_LIBRARY);
         queueMessage.setServerTarget(ServerTarget.ADMIN);
         queueMessage.setDataLibraryConverterJobId(dataLibraryConverterJobId);
         //queueMessage.setDataLibraryConverterJobFileId(inDataLibraryConverterJob.getDataLibraryConverterJobFileId());

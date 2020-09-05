@@ -1,6 +1,5 @@
 package lhdt.domain.extrusionmodel;
 
-import lhdt.domain.common.Search;
 import lombok.*;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -21,16 +20,14 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Relation(collectionRelation = "designLayers")
-public class DesignLayerDto extends Search implements Serializable {
+public class DesignLayerDto implements Serializable {
 
     private static final long serialVersionUID = -5868177119090810270L;
 
-    private Integer parent;
-    private String parentName;
-    private Integer depth;
-
     // 고유키
     private Long designLayerId;
+    // 도시 그룹 아이디
+    private Integer urbanGroupId;
     // 디자인 레이어 그룹 아이디
     private Integer designLayerGroupId;
     // 디자인 레이어 그룹명
@@ -53,7 +50,6 @@ public class DesignLayerDto extends Search implements Serializable {
 
     // style file 내용
     private String styleFileContent;
-
     // 레이어 색상
     private String layerFillColor;
     // 레이어 선 색상
@@ -64,7 +60,6 @@ public class DesignLayerDto extends Search implements Serializable {
     // 레이어 투명도
     @Range(min = 1, max = 100)
     private Float layerAlphaStyle;
-
     // 나열 순서
     private Integer viewOrder;
 
@@ -85,9 +80,6 @@ public class DesignLayerDto extends Search implements Serializable {
     private String coordinate;
     // 설명
     private String description;
-
-    private String theGeom;
-    private String attributes;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updateDate;

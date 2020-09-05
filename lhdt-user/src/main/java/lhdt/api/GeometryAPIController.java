@@ -12,14 +12,16 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -38,8 +40,12 @@ public class GeometryAPIController {
      * @param spatialOperationInfo
      * @return
      */
-    @GetMapping("/intersection/design-layers")
-    public ResponseEntity<CollectionModel<EntityModel<?>>> getIntersectionDesignLayers(@RequestBody SpatialOperationInfo spatialOperationInfo) {
+    @PostMapping("/intersection/design-layers")
+    public ResponseEntity<?> getIntersectionDesignLayers(@RequestBody @Valid SpatialOperationInfo spatialOperationInfo, Errors errors) {
+        if (errors.hasErrors()) {
+            return badRequest(errors);
+        }
+
         String type = spatialOperationInfo.getType().toUpperCase();
         List<?> designLayerList = new ArrayList<>();
         if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(type)) {
@@ -57,8 +63,12 @@ public class GeometryAPIController {
         return ResponseEntity.ok(model);
     }
 
-    @GetMapping("/intersection/datas")
-    public ResponseEntity<CollectionModel<EntityModel<DataInfoDto>>> getIntersectionDatas(@RequestBody SpatialOperationInfo spatialOperationInfo) {
+    @PostMapping("/intersection/datas")
+    public ResponseEntity<?> getIntersectionDatas(@RequestBody @Valid SpatialOperationInfo spatialOperationInfo, Errors errors) {
+        if (errors.hasErrors()) {
+            return badRequest(errors);
+        }
+
         List<DataInfo> dataList = geometryService.getIntersectionDatas(spatialOperationInfo);
         List<EntityModel<DataInfoDto>> dataInfoEntity = dataList.stream()
                 .map(f -> EntityModel.of(modelMapper.map(f, DataInfoDto.class)))
@@ -70,5 +80,18 @@ public class GeometryAPIController {
         model.add(Link.of("/docs/index.html#resource-geometry-intersection-data-list").withRel("profile"));
 
         return ResponseEntity.ok(model);
+    }
+
+    private ResponseEntity<?> badRequest(Errors errors) {
+        Map<String, Object> result = new HashMap<>();
+        int statusCode = HttpStatus.BAD_REQUEST.value();
+        String field = errors.getFieldErrors().get(0).getField();
+        String message = errors.getFieldErrors().get(0).getDefaultMessage();
+
+        result.put("statusCode", statusCode);
+        result.put("errorCode", errors.getFieldErrors().get(0).getCode());
+        result.put("message", "field: " + field + ", message: " + message);
+
+        return ResponseEntity.badRequest().body(result);
     }
 }

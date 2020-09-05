@@ -19,6 +19,8 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.relaxedResponseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -33,8 +35,6 @@ class DesignLayerAPIControllerTests extends BaseControllerTest {
     @Test
     @DisplayName("DesignLayer 목록 조회 하기")
     public void getDesignLayers() throws Exception {
-        // mock 데이터 add
-        getDesignLayerList();
         // given
         given(designLayerService.getDesignLayerTotalCount(any())).willReturn(5L);
         given(designLayerService.getListDesignLayer(any())).willReturn(getDesignLayerList());
@@ -42,15 +42,14 @@ class DesignLayerAPIControllerTests extends BaseControllerTest {
         this.mockMvc.perform(get("/api/design-layers")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaTypes.HAL_JSON)
-                .param("page", "1")
-                .param("size", "3"))
+                .param("urbanGroupId", "1"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 //.andExpect(jsonPath("page").exists())
                 .andExpect(jsonPath("_embedded.designLayers[0]._links.self").exists())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.profile").exists())
-                .andDo(document("design-layer-list"));
+                .andDo(document("design-layer-list", requestParameters(parameterWithName("urbanGroupId").description("도시 그룹 고유번호"))));
     }
 
     @Test
@@ -73,6 +72,7 @@ class DesignLayerAPIControllerTests extends BaseControllerTest {
                          */
                         relaxedResponseFields(
                                 fieldWithPath("designLayerId").description("design layer 고유번호"),
+                                fieldWithPath("urbanGroupId").description("도시그룹 고유번호"),
                                 fieldWithPath("designLayerGroupId").description("design layer 그룹 고유번호"),
                                 fieldWithPath("designLayerKey").description("design layer 고유키(API용)"),
                                 fieldWithPath("designLayerName").description("design layer 명"),
@@ -98,9 +98,10 @@ class DesignLayerAPIControllerTests extends BaseControllerTest {
 
     private List<DesignLayer> getDesignLayerList() {
         List<DesignLayer> mockList = new ArrayList<>();
-        IntStream.range(1, 6).forEach(i -> {
+        IntStream.range(1, 4).forEach(i -> {
             mockList.add(DesignLayer.builder()
                     .designLayerId((long) i)
+                    .urbanGroupId(1)
                     .designLayerGroupId(1)
                     .designLayerKey("test" + i)
                     .designLayerName("testName" + i)
@@ -126,6 +127,7 @@ class DesignLayerAPIControllerTests extends BaseControllerTest {
     private DesignLayer getDesignLayerById() {
         return DesignLayer.builder()
                 .designLayerId(1L)
+                .urbanGroupId(1)
                 .designLayerGroupId(1)
                 .designLayerKey("test")
                 .designLayerName("testName")

@@ -10,27 +10,9 @@
         FROM design_layer a
         LEFT JOIN design_layer_group b
         ON a.design_layer_group_id = b.design_layer_group_id
-		<trim prefix="WHERE" prefixOverrides="AND">
-			<if test="designLayerGroupId != null and designLayerGroupId gt 0">
-			AND a.design_layer_group_id = #{designLayerGroupId}
-			</if>
-			<if test="searchWord != null and searchWord != '' and searchValue != null and searchValue != '' and searchOption == '0'.toString()">
-			AND ${searchWord} = #{searchValue}
-			</if>
-			<if test="searchWord != null and searchWord != '' and searchValue != null and searchValue != '' and searchOption == '1'.toString()">
-			AND ${searchWord} LIKE '%' || #{searchValue} || '%'
-			</if>
-			<if test="startDate != null and startDate != ''">
-			<![CDATA[
-			AND a.insert_date >= TO_TIMESTAMP(#{startDate}, 'YYYYMMDDHH24MISSUS')
-			]]>
-			</if>
-			<if test="endDate != null and endDate != ''">
-			<![CDATA[
-			AND a.insert_date <= TO_TIMESTAMP(#{endDate}, 'YYYYMMDDHH24MISSUS')
-			]]>
-			</if>
-		</trim>
+		<if test="urbanGroupId != null and urbanGroupId gt 0">
+		WHERE a.urban_group_id = #{urbanGroupId}
+		</if>
     </select>
 
     <!-- 디자인 레이어 목록 -->
@@ -40,36 +22,10 @@
         FROM design_layer a
         LEFT JOIN design_layer_group b
         ON a.design_layer_group_id = b.design_layer_group_id
-		<trim prefix="WHERE" prefixOverrides="AND">
-        	<if test="designLayerGroupId != null and designLayerGroupId gt 0">
-			AND a.design_layer_group_id = #{designLayerGroupId}
-			</if>
-			<if test="searchWord != null and searchWord != '' and searchValue != null and searchValue != '' and searchOption == '0'.toString()">
-			AND ${searchWord} = #{searchValue}
-			</if>
-			<if test="searchWord != null and searchWord != '' and searchValue != null and searchValue != '' and searchOption == '1'.toString()">
-			AND ${searchWord} LIKE '%' || #{searchValue} || '%'
-			</if>
-			<if test="startDate != null and startDate != ''">
-			<![CDATA[
-			AND a.insert_date >= TO_TIMESTAMP(#{startDate}, 'YYYYMMDDHH24MISSUS')
-			]]>
-			</if>
-			<if test="endDate != null and endDate != ''">
-			<![CDATA[
-			AND a.insert_date <= TO_TIMESTAMP(#{endDate}, 'YYYYMMDDHH24MISSUS')
-			]]>
-			</if>
-		</trim>
-		<choose>
-		<when test="orderWord != null and orderWord != '' and orderValue != null and orderValue != ''">
-		ORDER BY a.${orderWord} ${orderValue}
-		</when>
-		<otherwise>
+		<if test="urbanGroupId != null and urbanGroupId gt 0">
+			WHERE a.urban_group_id = #{urbanGroupId}
+		</if>
 		ORDER BY a.insert_date DESC, design_layer_id DESC
-		</otherwise>
-		</choose>
-		OFFSET #{offset} LIMIT #{limit}
     </select>
 
     <!-- 디자인 레이어 정보 취득 -->

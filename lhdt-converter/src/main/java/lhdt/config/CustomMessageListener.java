@@ -2,7 +2,7 @@ package lhdt.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lhdt.domain.*;
-import lhdt.sender.ResultSender;
+import lhdt.sender.PostProcess;
 import lhdt.support.LogMessageSupport;
 import lhdt.support.ProcessBuilderSupport;
 import lombok.extern.slf4j.Slf4j;
@@ -39,23 +39,7 @@ public class CustomMessageListener {
     @Async
     @RabbitListener(queues = {"${lhdt.queue-name}"})
     public void receiveMessage(final QueueMessage queueMessage) {
-
-        log.info("--------------- queueMessage = {}", queueMessage);
-		Long converterJobId = queueMessage.getConverterJobId();
-		log.info(" @@@@@@ handleMessage start. converterJobId = {}", converterJobId);
-
-		//Long converterJobFileId = queueMessage.getConverterJobFileId();
-		String userId = queueMessage.getUserId();
-
-		String logPath = queueMessage.getLogPath();
-		String outputPath = queueMessage.getOutputFolder();
-
-		ConverterJob converterJob = new ConverterJob();
-		//converterJob.setConverterJobFileId(converterJobFileId);
-		//log.info(" >>>>>> converterJobFileId = {}", converterJobFileId);
-		converterJob.setUserId(userId);
-		converterJob.setConverterJobId(converterJobId);
-		ServerTarget target = queueMessage.getServerTarget();
+		log.info("--------------- queueMessage = {}", queueMessage);
 
 		CompletableFuture.supplyAsync( () -> {
 			List<String> command = new ArrayList<>();
@@ -63,7 +47,7 @@ public class CustomMessageListener {
 			command.add("#inputFolder");
 			command.add(queueMessage.getInputFolder());
 			command.add("#outputFolder");
-			command.add(outputPath);
+			command.add(queueMessage.getOutputFolder());
 			command.add("#meshType");
 			command.add(queueMessage.getMeshType());
 			if (!StringUtils.isEmpty(queueMessage.getSkinLevel())) {
@@ -71,7 +55,7 @@ public class CustomMessageListener {
 				command.add(queueMessage.getSkinLevel());
 			}
 			command.add("#log");
-			command.add(logPath);
+			command.add(queueMessage.getLogPath());
 			command.add("#indexing");
 			command.add(queueMessage.getIndexing());
 			command.add("#usf");
@@ -99,9 +83,7 @@ public class CustomMessageListener {
 			return result;
         })
 		.exceptionally(e -> {
-			converterJob.setStatus(ConverterJobStatus.FAIL.name().toLowerCase());
-			converterJob.setErrorCode(e.getMessage());
-			ResultSender.sendConverterJobStatus(converterJob, propertiesConfig, restTemplate, target);
+			handlerException(queueMessage, e.getMessage());
 			log.info("exceptionally exception = {}", e.getMessage());
         	return null;
 
@@ -109,17 +91,27 @@ public class CustomMessageListener {
 		// 앞의 비동기 작업의 결과를 받아 사용하며 return이 없다.
 		.thenAccept(status -> {
 			log.info("thenAccept result = {}", status);
-			converterJob.setStatus(status);
-			converterJob.setErrorCode(null);
-
 			try {
-				// 로그파일 전송
-				ResultSender.sendLog(converterJob, objectMapper, propertiesConfig, restTemplate, queueMessage);
+				if(ConverterType.DATA == queueMessage.getConverterType()) {
+					// 데이터 변환
+					ConverterJob converterJob = new ConverterJob();
+					converterJob.setUserId(queueMessage.getUserId());
+					converterJob.setConverterJobId(queueMessage.getConverterJobId());
+					converterJob.setStatus(status);
+					converterJob.setErrorCode(null);
+					// 로그파일 전송
+					PostProcess.execute(converterJob, objectMapper, propertiesConfig, restTemplate, queueMessage);
+				} else {
+					DataLibraryConverterJob dataLibraryConverterJob = new DataLibraryConverterJob();
+					dataLibraryConverterJob.setUserId(queueMessage.getUserId());
+					dataLibraryConverterJob.setDataLibraryConverterJobId(queueMessage.getDataLibraryConverterJobId());
+					dataLibraryConverterJob.setStatus(status);
+					dataLibraryConverterJob.setErrorCode(null);
+					PostProcess.execute(dataLibraryConverterJob, objectMapper, propertiesConfig, restTemplate, queueMessage);
+				}
 			} catch (IOException | URISyntaxException e) {
 				// 로그파일 전송 오류 시 변환 실패 전송
-				converterJob.setStatus(ConverterJobStatus.FAIL.name().toLowerCase());
-				converterJob.setErrorCode(e.getMessage());
-				ResultSender.sendConverterJobStatus(converterJob, propertiesConfig, restTemplate, target);
+				handlerException(queueMessage, e.getMessage());
 				LogMessageSupport.printMessage(e);
 			}
 
@@ -128,63 +120,32 @@ public class CustomMessageListener {
 		log.info("receiveMessage end");
 	}
 
-//	/**
-//	 * 데이터 변환 job 상태 변경
-//	 * @param userId
-//	 * @param serverTarget
-//	 * @param converterJobId
-//	 * @param status
-//	 * @param errorCode
-//	 */
-//	private void updateConverterJobStatus(String userId, String serverTarget, Long converterJobId, Long converterJobFileId, String status, String errorCode) {
-//		log.info("@@ updateConverterJobStatus converterJobId = {}, status = {}, errorCode = {}", converterJobId, status, errorCode);
-//
-//		ConverterJob converterJob = new ConverterJob();
-//		converterJob.setConverterJobFileId(converterJobFileId);
-//		converterJob.setUserId(userId);
-//		converterJob.setConverterJobId(converterJobId);
-//		converterJob.setStatus(status);
-//		converterJob.setErrorCode(errorCode);
-//
-//		try {
-//			URI uri;
-//			if(ServerTarget.USER == ServerTarget.valueOf(serverTarget)) {
-//				uri = new URI(propertiesConfig.getCmsUserRestServer() + "/api/converters/status");
-//			} else {
-//				uri = new URI(propertiesConfig.getCmsAdminRestServer() + "/api/converters/status");
-//			}
-//			ResponseEntity<ConverterJob> responseEntity = restTemplate.postForEntity(uri, converterJob, ConverterJob.class);
-//			log.info(responseEntity.toString());
-//
-//		} catch (URISyntaxException e) {
-//			log.info("데이터 converter 상태 변경 api 호출 실패 = {}", e.getMessage());
-//		}
-//
-//	}
+	/**
+	 * 예외 처리
+	 * @param queueMessage
+	 * @param message
+	 */
+	private void handlerException(QueueMessage queueMessage, String message) {
+		if(ConverterType.DATA == queueMessage.getConverterType()) {
+			// 데이터 변환
+			ConverterJob converterJob = new ConverterJob();
+			converterJob.setServerTarget(queueMessage.getServerTarget());
+			converterJob.setUserId(queueMessage.getUserId());
+			converterJob.setConverterJobId(queueMessage.getConverterJobId());
+			converterJob.setStatus(ConverterJobStatus.FAIL.name().toLowerCase());
+			converterJob.setErrorCode(message);
 
-//	public void handleMessage2(QueueMessage queueMessage) {
-//		log.info("@@ Subscribe receive message");
-//		log.info("@@ queueMessage = {}", queueMessage);
-//
-//		Runnable connverterRun = () -> {
-//			List<String> command = new ArrayList<>();
-//			command.add(propertiesConfig.getConverterDir());
-//			command.add("-inputFolder");
-//			command.add(queueMessage.getInputFolder());
-//			command.add("-outputFolder");
-//			command.add(queueMessage.getOutputFolder());
-//			command.add("-meshType");
-//			command.add(queueMessage.getMeshType());
-//			command.add("-log");
-//			command.add(queueMessage.getLogPath());
-//			command.add("-indexing");
-//			command.add(queueMessage.getIndexing());
-//
-//			log.info(" >>>>>> command = {}", command.toString());
-//
-//			ProcessBuilderSupport.execute(command);
-//		};
-//
-//		new Thread(connverterRun, "F4D-Converter-Thread-JobId=" + queueMessage.getConverterJobId()).start();
-//	}
+			PostProcess.executeException(converterJob, propertiesConfig, restTemplate);
+		} else {
+			// 데이터 라이브러리 변환
+			DataLibraryConverterJob dataLibraryConverterJob = new DataLibraryConverterJob();
+			dataLibraryConverterJob.setServerTarget(queueMessage.getServerTarget());
+			dataLibraryConverterJob.setUserId(queueMessage.getUserId());
+			dataLibraryConverterJob.setDataLibraryConverterJobId(queueMessage.getDataLibraryConverterJobId());
+			dataLibraryConverterJob.setStatus(ConverterJobStatus.FAIL.name().toLowerCase());
+			dataLibraryConverterJob.setErrorCode(message);
+
+			PostProcess.executeException(dataLibraryConverterJob, propertiesConfig, restTemplate);
+		}
+	}
 }
