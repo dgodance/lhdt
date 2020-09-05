@@ -13,6 +13,7 @@
 		<trim prefix="WHERE" prefixOverrides="AND">
 			<if test="dataLibraryGroupId != null and dataLibraryGroupId > 0">
 			AND A.data_library_group_id = #{dataLibraryGroupId}
+			</if>
 		</trim>
 		ORDER BY A.insert_date DESC, A.data_library_id DESC
 	</select>
