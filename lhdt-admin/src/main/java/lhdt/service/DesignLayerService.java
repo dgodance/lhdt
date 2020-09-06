@@ -32,10 +32,10 @@ public interface DesignLayerService {
 
     /**
      * design Layer extent 취득
-     * @param designLayerId
+     * @param designLayer
      * @return
      */
-    String getDesignLayerExtent(Long designLayerId);
+    String getDesignLayerExtent(DesignLayer designLayer);
     
     /**
      * designLayerKey 중복 체크
@@ -115,6 +115,14 @@ public interface DesignLayerService {
     * @return
     */
     int updateDesignLayerByDesignLayerFileInfoId(Long designLayerId, Long deleteDesignLayerFileInfoTeamId, Long designLayerFileInfoId);
+
+    /**
+     * 속성 정보 업데이트
+     * @param fileName
+     * @param type
+     * @return
+     */
+    int updateDesignLayerAttributes(String fileName, String type);
 
      /**
     * design 레이어 삭제

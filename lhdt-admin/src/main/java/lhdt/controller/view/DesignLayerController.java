@@ -169,7 +169,7 @@ public class DesignLayerController implements AuthorizationController {
 
         GeoPolicy policy = geoPolicyService.getGeoPolicy();
         DesignLayer designLayer = designLayerService.getDesignLayer(designLayerId);
-        String designLayerExtent = designLayerService.getDesignLayerExtent(designLayerId);
+        String designLayerExtent = designLayerService.getDesignLayerExtent(designLayer);
         Integer versionId = 0;
         if (designLayerFileInfoId != null) {
             versionId = designLayerFileInfoService.getDesignLayerShapeFileVersion(designLayerFileInfoId);

@@ -34,11 +34,18 @@ public interface DesignLayerMapper {
     DesignLayer getDesignLayer(Long designLayerId);
 
     /**
-     * design Layer extent 취득
+     * design Layer land extent 취득
      * @param designLayerId
      * @return
      */
-    String getDesignLayerExtent(Long designLayerId);
+    String getDesignLayerLandExtent(Long designLayerId);
+
+    /**
+     * design Layer building extent 취득
+     * @param designLayerId
+     * @return
+     */
+    String getDesignLayerBuildingExtent(Long designLayerId);
     
     /**
      * designLayerKey 중복 체크

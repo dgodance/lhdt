@@ -14,6 +14,8 @@ import lhdt.service.DesignLayerService;
 import lhdt.service.GeoPolicyService;
 import lhdt.support.LogMessageSupport;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,8 +27,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.File;
+import java.io.*;
+import java.nio.charset.Charset;
 import java.util.*;
+
+import static org.springframework.amqp.core.ExchangeTypes.HEADERS;
 
 /**
  * 여기서는 Geoserver Rest API 결과를 가지고 파싱 하기 때문에 RestTemplate을 커스트마이징하면 안됨
@@ -90,12 +95,20 @@ public class DesignLayerServiceImpl implements DesignLayerService {
 
     /**
      * design layer 정보 취득
-     * @param designLayerId
+     * @param designLayer
      * @return
      */
     @Transactional(readOnly=true)
-    public String getDesignLayerExtent(Long designLayerId) {
-       return designLayerMapper.getDesignLayerExtent(designLayerId);
+    public String getDesignLayerExtent(DesignLayer designLayer) {
+        String extent = null;
+        Long designLayerId = designLayer.getDesignLayerId();
+        if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
+            extent = designLayerMapper.getDesignLayerLandExtent(designLayerId);
+        } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
+            extent = designLayerMapper.getDesignLayerBuildingExtent(designLayerId);
+        }
+
+       return extent;
     }
 
     /**
@@ -200,7 +213,7 @@ public class DesignLayerServiceImpl implements DesignLayerService {
                 // 이 design 레이어의 지난 데이터를 비 활성화 상태로 update 함
                 if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
                     designLayerFileInfoMapper.updateLandPreDataDisable(designLayerId);
-                } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toLowerCase())) {
+                } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
                     designLayerFileInfoMapper.updateBuildingPreDataDisable(designLayerId);
                 }
             }
@@ -255,7 +268,7 @@ public class DesignLayerServiceImpl implements DesignLayerService {
                 f.setCoordinate(designLayer.getCoordinate().split(":")[1]);
                 designLayerMapper.insertGeometryLand(modelMapper.map(f, DesignLayerLand.class));
             });
-        } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toLowerCase())) {
+        } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
             shapeInfoList.forEach(f -> {
                 f.setDesignLayerId(designLayer.getDesignLayerId());
                 f.setDesignLayerGroupId(designLayer.getDesignLayerGroupId());
@@ -311,7 +324,7 @@ public class DesignLayerServiceImpl implements DesignLayerService {
         if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
             designLayerFileInfoMapper.updateLandPreDataDisable(designLayerId);
             designLayerFileInfoMapper.updateLandStatus(fileVersion);
-        } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toLowerCase())) {
+        } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
             designLayerFileInfoMapper.updateBuildingPreDataDisable(designLayerId);
             designLayerFileInfoMapper.updateBuildingStatus(fileVersion);
         }
@@ -321,6 +334,28 @@ public class DesignLayerServiceImpl implements DesignLayerService {
         designLayerFileInfo.setDesignLayerFileInfoTeamId(designLayerFileInfoTeamId);
 
         return designLayerFileInfoMapper.updateDesignLayerFileInfoByTeamId(designLayerFileInfo);
+    }
+
+    @Transactional
+    public int updateDesignLayerAttributes(String fileName, String type) {
+        try {
+            InputStreamReader isr = new InputStreamReader(new FileInputStream(fileName), Charset.forName("CP949"));
+            Iterable<CSVRecord> records = CSVFormat.DEFAULT
+                    .withHeader(HEADERS)
+                    .withFirstRecordAsHeader()
+                    .parse(isr);
+            for (CSVRecord record : records) {
+                if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(type.toUpperCase())) {
+                } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(type.toUpperCase())) {
+                }
+            }
+        } catch (FileNotFoundException e) {
+            LogMessageSupport.printMessage(e, "-------- FileNotFoundException message = {}", e.getMessage());
+        } catch (IOException e) {
+            LogMessageSupport.printMessage(e, "-------- IOException message = {}", e.getMessage());
+        }
+
+        return 0;
     }
 
     /**
@@ -348,7 +383,7 @@ public class DesignLayerServiceImpl implements DesignLayerService {
                 designLayerFileInfoMapper.updateLandPreDataDisable(designLayer.getDesignLayerId());
                 designLayerFileInfoMapper.updateLandStatus(fileVersion);
                 designLayerMapper.deleteGeometryLand(map);
-            } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toLowerCase())) {
+            } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
                 designLayerFileInfoMapper.updateBuildingPreDataDisable(designLayer.getDesignLayerId());
                 designLayerFileInfoMapper.updateBuildingStatus(fileVersion);
                 designLayerMapper.deleteGeometryBuilding(map);
@@ -390,7 +425,7 @@ public class DesignLayerServiceImpl implements DesignLayerService {
 			// geometry 정보 삭제
             if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
                 designLayerMapper.deleteGeometryLand(map);
-            } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toLowerCase())) {
+            } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
                 designLayerMapper.deleteGeometryBuilding(map);
             }
 		}
@@ -437,7 +472,7 @@ public class DesignLayerServiceImpl implements DesignLayerService {
             String tableName = null;
             if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
                 tableName = propertiesConfig.getDesignLayerLandTable();
-            } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toLowerCase())) {
+            } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
                 tableName = propertiesConfig.getDesignLayerBuildingTable();
             }
             String xmlString = "<?xml version=\"1.0\" encoding=\"utf-8\"?><featureType><name>" + designLayerKey + "</name><nativeName>"+tableName+"</nativeName></featureType>";

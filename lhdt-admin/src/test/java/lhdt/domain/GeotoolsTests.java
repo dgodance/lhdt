@@ -13,7 +13,7 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.feature.type.GeometryTypeImpl;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -27,7 +27,7 @@ import java.util.*;
 @Slf4j
 public class GeotoolsTests {
 
-    @Test
+    @Disabled
     void 필드_확인() throws IOException {
         ShpFiles shpFile = new ShpFiles("D:\\test\\shape\\02_과천과천_시범단지샘플_1_필지.dxf(byLay)L.shp");
         DbaseFileReader r = new DbaseFileReader(shpFile, false, Charset.forName("UTF-8"));
@@ -39,7 +39,7 @@ public class GeotoolsTests {
         }
     }
 
-    @Test
+    @Disabled
     void 필드값_확인() throws IOException {
         FeatureSource<SimpleFeatureType, SimpleFeature> shapeFeatureSource = getShape();
         FeatureCollection<SimpleFeatureType, SimpleFeature> collection = shapeFeatureSource.getFeatures();
@@ -59,7 +59,7 @@ public class GeotoolsTests {
         }
     }
 
-    @Test
+    @Disabled
     void 특정필드_필터() throws IOException {
         String extrusionRequiredColumns = "the_geom, layer, angle, flnum";
         String[] columns = extrusionRequiredColumns.split(",");
@@ -76,7 +76,7 @@ public class GeotoolsTests {
         }
     }
 
-    @Test
+    @Disabled
     void 특정필드_추출() throws IOException {
         List<DesignLayer> extrusionModelList = new ArrayList<>();
         String extrusionColumns = "the_geom, layer, angle, flnum";
@@ -103,11 +103,11 @@ public class GeotoolsTests {
         log.info("extrutionModelList =========== {} ", extrusionModelList);
     }
 
-    @Test
+    @Disabled
     void 필드_추가() throws IOException {
     }
 
-    @Test
+    @Disabled
     void 필드_삭제() throws IOException {
         FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = getShape();
         FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureSource.getFeatures();
@@ -130,7 +130,7 @@ public class GeotoolsTests {
         }
     }
 
-    @Test
+    @Disabled
     void shape파일_인코딩_설정() throws IOException {
         FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = getShape();
         FeatureCollection<SimpleFeatureType, SimpleFeature> result = featureSource.getFeatures();
@@ -151,17 +151,17 @@ public class GeotoolsTests {
         }
     }
 
-    @Test
+    @Disabled
     void 인코딩판별() {
 
     }
 
-    @Test
+    @Disabled
     void 좌표계_변경() {
 
     }
 
-    @Test
+    @Disabled
     void shape스키마_이름변경_DB_insert() throws IOException {
         // db init
         Map<String, Object> params = new HashMap<>();
@@ -233,7 +233,7 @@ public class GeotoolsTests {
 
     }
 
-    @Test
+    @Disabled
     void sqlExport() {
 
     }

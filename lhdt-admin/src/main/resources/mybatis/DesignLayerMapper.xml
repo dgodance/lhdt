@@ -82,14 +82,25 @@
         WHERE A.design_layer_id = #{designLayerId}
     </select>
 
-	<select id="getDesignLayerExtent" parameterType="long" resultType="string">
-		/* getDesignLayerExtent */
+	<select id="getDesignLayerLandExtent" parameterType="long" resultType="string">
+		/* getDesignLayerLandExtent */
 		SELECT
 			concat(st_xmin(st_extent(the_geom)),',',
 				   st_ymin(st_extent(the_geom)),',',
 				   st_xmax(st_extent(the_geom)),',',
 				   st_ymax(st_extent(the_geom)))
 		FROM design_layer_land
+		WHERE design_layer_id = #{designLayerId}
+	</select>
+
+	<select id="getDesignLayerBuildingExtent" parameterType="long" resultType="string">
+		/* getDesignLayerBuildingExtent */
+		SELECT
+			concat(st_xmin(st_extent(the_geom)),',',
+				   st_ymin(st_extent(the_geom)),',',
+				   st_xmax(st_extent(the_geom)),',',
+				   st_ymax(st_extent(the_geom)))
+		FROM design_layer_building
 		WHERE design_layer_id = #{designLayerId}
 	</select>
 
