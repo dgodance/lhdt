@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -23,7 +24,7 @@ import java.util.Map;
  * extrusion model 예제
  */
 @Slf4j
-@Controller
+@RestController
 @RequestMapping("/extrusions")
 public class ExtrusionRestController {
 
@@ -43,12 +44,13 @@ public class ExtrusionRestController {
         String errorCode = null;
         String message = null;
 
-        List<UrbanGroup> oneDepthUrbanGroupList  = urbanGroupService.getListUrbanGroupByDepth(1);
-        log.info("##########################################  oneDepthUrbanGroupList = {}", oneDepthUrbanGroupList);
+        List<UrbanGroup> oneDepthUrbanGroupList = urbanGroupService.getListUrbanGroupByDepth(1);
+        List<UrbanGroup> twoDepthUrbanGroupList = urbanGroupService.getListUrbanGroupByParent(oneDepthUrbanGroupList.get(0).getUrbanGroupId());
 
         int statusCode = HttpStatus.OK.value();
 
         result.put("oneDepthUrbanGroupList", oneDepthUrbanGroupList);
+        result.put("twoDepthUrbanGroupList", twoDepthUrbanGroupList);
         result.put("statusCode", statusCode);
         result.put("errorCode", errorCode);
         result.put("message", message);

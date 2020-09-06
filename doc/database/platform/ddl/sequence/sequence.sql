@@ -41,6 +41,7 @@ drop sequence if exists policy_seq;
 drop sequence if exists role_seq;
 drop sequence if exists upload_data_seq;
 drop sequence if exists upload_data_file_seq;
+drop sequence if exists urban_group_seq;
 drop sequence if exists user_group_seq;
 drop sequence if exists user_group_role_seq;
 drop sequence if exists user_group_menu_seq;

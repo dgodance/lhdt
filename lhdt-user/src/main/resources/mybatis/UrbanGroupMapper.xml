@@ -50,7 +50,10 @@
 	</select>
 
 	<select id="getListUrbanGroupByDepth" parameterType="int" resultType="urbanGroup">
-		SELECT * FROM urban_group WHERE depth = #{depth}
+		SELECT *
+		FROM urban_group
+		WHERE depth = #{depth}
+		ORDER BY view_order
 	</select>
 
 	<select id="getListUrbanGroupByParent" parameterType="int" resultType="urbanGroup">

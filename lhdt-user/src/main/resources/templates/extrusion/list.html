@@ -1,19 +1,19 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
 <div id="extrusionContent" class="contents yScroll fullHeight" style="display:none;">
 	<div class="contents contents-margin-none fullHeight" style="display:block;">
+		<div style="margin: 5px;padding: 5px;border-bottom: 1px solid #ccc;">
+			<h3>Extrusion Model</h3>
+		</div>
 		<div class="form-group form-group-data">
 			<label for="oneDepthUrbanGroup">신도시</label>
 			<select id="oneDepthUrbanGroup" name="oneDepthUrbanGroup">
-	<th:block th:each="oneDepthUrbanGroup : ${oneDepthUrbanGroupList}">
-				<option th:value="${oneDepthUrbanGroup.urbanGroupId}">
-					<th:block th:text="${oneDepthUrbanGroup.urbanGroupName}"></th:block>
-				</option>
-	</th:block>
+				<option value="">선택</option>
 			</select>
 		</div>
 		<div class="form-group form-group-data">
-			<label for="urbanName">지역</label>
-			<select id="urbanName" name="urbanName">
+			<label for="twoDepthUrbanGroup">지역</label>
+			<select id="twoDepthUrbanGroup" name="twoDepthUrbanGroup">
+				<option value="">선택</option>
 			</select>
 		</div>
 		<div id="extrusionModel" style="border: 1px solid #ccc;border-top: none;">
