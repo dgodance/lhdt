@@ -57,6 +57,10 @@
 			<!-- E: DATA -->
 
 			<!-- S: LAYER -->
+			<div th:replace="~{/extrusion/list :: #extrusionContent}"></div>
+			<!-- E: LAYER -->
+
+			<!-- S: LAYER -->
 			<div th:replace="~{/layer/list :: #layerContent}"></div>
 			<!-- E: LAYER -->
 
@@ -192,10 +196,11 @@
 		//mapDataGroupList(1, null);
         //mapDataInfoList(1, null, null, null);
 
+		extrusion();
+
         // 환경 설정.
         UserPolicy(magoInstance);
-        // 시민참여
-        // CivilVoice(magoInstance);
+
         // 기본 레이어 랜더링
         setTimeout(function(){
         	NDTP.map = new mapInit(magoInstance, NDTP.baseLayers, geoPolicyJson);
@@ -686,6 +691,26 @@
 			$(_this).addClass("fa-eye");
 		}
 
+	}
+
+	function extrusion() {
+		$.ajax({
+			url: "/extrusion",
+			type: "GET",
+			headers: {"X-Requested-With": "XMLHttpRequest"},
+			dataType: "json",
+			success: function(msg){
+				if(msg.statusCode <= 200) {
+					$('#issueTitle,#issueContents').prop('readonly',true);
+					var issue = msg.issue;
+				} else {
+					alert(JS_MESSAGE[msg.errorCode]);
+				}
+			},
+			error:function(request,status,error){
+				alert(JS_MESSAGE["ajax.error.message"]);
+			}
+		});
 	}
 
 </script>
