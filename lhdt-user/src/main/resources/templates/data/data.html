@@ -12,12 +12,12 @@
     <form id="searchDataForm" class="searchDataWrap" th:object="${searchDataForm}" method="post" onsubmit="return false;">
         <div class="searchDataType">
             <div>
-                <input type="radio" id="radioGroup" name="searchWord" class="fas fa-layer-group" value="data_group_name" checked>
-                <label for="radioGroup" th:text="#{common.group}"></label>
+                <input type="radio" id="radioData" name="searchWord" class="fas fa-database" value="data_name" checked>
+                <label for="radioData" th:text="#{common.data}"></label>
             </div>
             <div>
-                <input type="radio" id="radioData" name="searchWord" class="fas fa-database" value="data_name">
-                <label for="radioData" th:text="#{common.data}"></label>
+                <input type="radio" id="radioGroup" name="searchWord" class="fas fa-layer-group" value="data_group_name">
+                <label for="radioGroup" th:text="#{common.group}"></label>
             </div>
             <div>
                 <input type="radio" id="radioRoad" name="searchWord" class="fas fa-road" value="data_road_name">
