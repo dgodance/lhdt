@@ -122,6 +122,11 @@ $(function() {
         $('#'+ active).toggle(display);
         $('#contentsWrap').toggle(display);
         $('button#closeLeftBtn').toggle(display);
+
+        // 데이터 검색 필터가 열려있다면 닫기
+        if ($('#searchFilterContent').is(':visible')) {
+			$('#searchFilterContent').hide();
+		}
     });
 
     
