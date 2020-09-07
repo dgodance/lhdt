@@ -45,7 +45,7 @@ public class UrbanGroupAPIController {
         CollectionModel<EntityModel<UrbanGroupDto>> model = CollectionModel.of(urbanGroupList);
 
         model.add(linkTo(UrbanGroupAPIController.class).withSelfRel());
-        model.add(Link.of("/docs/index.html#resource-urban-group-list").withRel("profile"));
+        model.add(Link.of("/docs/index.html#resources-urban-group-list").withRel("profile"));
 
         return ResponseEntity.ok(model);
     }
@@ -61,7 +61,7 @@ public class UrbanGroupAPIController {
         UrbanGroupDto dto = modelMapper.map(urbanGroupService.getUrbanGroup(id), UrbanGroupDto.class);
         EntityModel<UrbanGroupDto> urbanGroup = EntityModel.of(dto);
         urbanGroup.add(linkTo(UrbanGroupAPIController.class).slash(id).withSelfRel());
-        urbanGroup.add(Link.of("/docs/index.html#resource-urban-group-get").withRel("profile"));
+        urbanGroup.add(Link.of("/docs/index.html#resources-urban-group-get").withRel("profile"));
 
         return ResponseEntity.ok(urbanGroup);
     }
@@ -82,7 +82,7 @@ public class UrbanGroupAPIController {
         CollectionModel<EntityModel<UrbanGroupDto>> model = CollectionModel.of(urbanGroupList);
 
         model.add(linkTo(UrbanGroupAPIController.class).withSelfRel());
-        model.add(Link.of("/docs/index.html#resource-urban-group-depth").withRel("profile"));
+        model.add(Link.of("/docs/index.html#resources-urban-group-depth").withRel("profile"));
 
         return ResponseEntity.ok(model);
     }
@@ -103,7 +103,7 @@ public class UrbanGroupAPIController {
         CollectionModel<EntityModel<UrbanGroupDto>> model = CollectionModel.of(urbanGroupList);
 
         model.add(linkTo(UrbanGroupAPIController.class).withSelfRel());
-        model.add(Link.of("/docs/index.html#resource-urban-group-parent").withRel("profile"));
+        model.add(Link.of("/docs/index.html#resources-urban-group-parent").withRel("profile"));
 
         return ResponseEntity.ok(model);
     }

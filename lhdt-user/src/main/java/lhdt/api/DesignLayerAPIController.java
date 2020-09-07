@@ -43,7 +43,7 @@ public class DesignLayerAPIController {
         CollectionModel<EntityModel<DesignLayerDto>> model = CollectionModel.of(designLayerDtoList);
 
         model.add(linkTo(DesignLayerAPIController.class).withSelfRel());
-        model.add(Link.of("/docs/index.html#resource-design-layer-list").withRel("profile"));
+        model.add(Link.of("/docs/index.html#resources-design-layer-list").withRel("profile"));
 
         return ResponseEntity.ok(model);
     }
@@ -59,7 +59,7 @@ public class DesignLayerAPIController {
         DesignLayerDto dto = modelMapper.map(designLayerService.getDesignLayer(id), DesignLayerDto.class);
         EntityModel<DesignLayerDto> designLayer = EntityModel.of(dto);
         designLayer.add(linkTo(DesignLayerAPIController.class).slash(id).withSelfRel());
-        designLayer.add(Link.of("/docs/index.html#resource-design-layer-get").withRel("profile"));
+        designLayer.add(Link.of("/docs/index.html#resources-design-layer-get").withRel("profile"));
 
         return ResponseEntity.ok(designLayer);
     }

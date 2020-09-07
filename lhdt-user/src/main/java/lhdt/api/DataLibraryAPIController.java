@@ -43,7 +43,7 @@ public class DataLibraryAPIController {
         CollectionModel<EntityModel<DataLibraryDto>> model = CollectionModel.of(dataLibraryDtoList);
 
         model.add(linkTo(DataLibraryAPIController.class).withSelfRel());
-        model.add(Link.of("/docs/index.html#resource-data-library-list").withRel("profile"));
+        model.add(Link.of("/docs/index.html#resources-data-library-list").withRel("profile"));
 
         return ResponseEntity.ok(model);
     }
@@ -59,7 +59,7 @@ public class DataLibraryAPIController {
         DataLibraryDto dto = modelMapper.map(dataLibraryService.getDataLibrary(DataLibrary.builder().dataLibraryId(id).build()), DataLibraryDto.class);
         EntityModel<DataLibraryDto> dataLibrary = EntityModel.of(dto);
         dataLibrary.add(linkTo(DataLibraryAPIController.class).slash(id).withSelfRel());
-        dataLibrary.add(Link.of("/docs/index.html#resource-data-library-get").withRel("profile"));
+        dataLibrary.add(Link.of("/docs/index.html#resources-data-library-get").withRel("profile"));
 
         return ResponseEntity.ok(dataLibrary);
     }
