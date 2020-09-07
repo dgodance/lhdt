@@ -175,9 +175,9 @@
 			SELECT NEXTVAL('design_layer_land_seq')
 		</selectKey>
 		INSERT INTO design_layer_land (
-		design_layer_land_id, design_layer_id, design_layer_group_id, shape_id, the_geom
+			design_layer_land_id, design_layer_id, design_layer_group_id, shape_id, the_geom
 		) VALUES (
-		#{designLayerLandId}, #{designLayerId}, #{designLayerGroupId}, #{shapeId}, st_transform(ST_GeomFromText(#{theGeom},#{coordinate}),4326)
+			#{designLayerLandId}, #{designLayerId}, #{designLayerGroupId}, #{shapeId}, st_transform(ST_GeomFromText(#{theGeom},#{coordinate}),4326)
 		)
 	</insert>
 
@@ -187,17 +187,17 @@
 			SELECT NEXTVAL('design_layer_building_seq')
 		</selectKey>
 		INSERT INTO design_layer_building (
-		design_layer_building_id, design_layer_id, design_layer_group_id, shape_id, the_geom
+			design_layer_building_id, design_layer_id, design_layer_group_id, shape_id, the_geom
 		) VALUES (
-		#{designLayerBuildingId}, #{designLayerId}, #{designLayerGroupId}, #{shapeId}, st_transform(ST_GeomFromText(#{theGeom},#{coordinate}),4326)
+			#{designLayerBuildingId}, #{designLayerId}, #{designLayerGroupId}, #{shapeId}, st_transform(ST_GeomFromText(#{theGeom},#{coordinate}),4326)
 		)
 	</insert>
 
     <!-- 디자인 레이어 정보 수정 -->
     <update id="updateDesignLayer" parameterType="designLayer">
         /* updateDesignLayer */
-        UPDATE design_layer SET
-			design_layer_name = #{designLayerName},
+        UPDATE design_layer
+        SET design_layer_name = #{designLayerName},
 			urban_group_id = #{urbanGroupId},
 			design_layer_group_id = #{designLayerGroupId},
 	        design_layer_key = #{designLayerKey},
@@ -224,8 +224,8 @@
     </update>
 
 	<update id="updateDesignLayerLandAttributes" parameterType="designLayerLand">
-		UPDATE design_layer_land SET
-			business_type = #{businessType},
+		UPDATE design_layer_land
+		SET business_type = #{businessType},
 			business_district = #{businessDistrict},
 			block_number = #{blockNumber},
 			land_number = #{landNumber},
@@ -254,8 +254,8 @@
 	</update>
 
 	<update id="updateDesignLayerBuildingAttributes" parameterType="designLayerBuilding">
-		UPDATE design_layer_building SET
-			building_height = #{buildingHeight},
+		UPDATE design_layer_building
+		SET building_height = #{buildingHeight},
 			building_floors = #{buildingFloors},
 			building_area = #{buildingArea},
 			complex_building = #{complexBuilding},
