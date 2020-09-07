@@ -7,8 +7,6 @@ const analsSavedEntitiy = {
     }
 }
 
-const LS_POINT_REST_URL = 'http://localhost:9091/adminsvc/ls-point-rest';
-
 
 /**
  * 표시
@@ -23,6 +21,25 @@ function showData(id) {
 		}
 		
 		//
+		let xyz1 = {
+			'lon': diffObj.startLandScapePos.x, 
+			'lat': diffObj.startLandScapePos.y
+		};
+		//
+		let xyz2 = {
+			'lon': diffObj.endLandScapePos.x, 
+			'lat': diffObj.endLandScapePos.y
+		};
+		
+		//
+		Ppmap.removeAll();
+		//
+		Ppmap.createPolyline('ls-diff', [xyz1.lon, xyz1.lat, xyz2.lon, xyz2.lat]);
+		//
+		new SkylineObj().init().process(xyz1, xyz2);
+		
+		//
+		/*
         analsSavedEntitiy.removeThis();
         if(diffObj.landScapePointType === '점') {
             const startAlt = diffObj.startAltitude;
@@ -55,5 +72,6 @@ function showData(id) {
             analsSavedEntitiy.line.push(resultEntitiy.line);
             MAGO3D_INSTANCE.getViewer().zoomTo(resultEntitiy.line);
         }
+		*/
     });
 }
