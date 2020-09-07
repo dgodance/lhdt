@@ -29,9 +29,12 @@
 
 <!-- S: HEADER WRAP -->
 <div th:replace="~{/fragments/header :: #headerWrap}"></div>
-<!-- E: HEADER WRAP -->
-
-<!-- S: LOADING WRAP -->
+<!--	탬플릿 Warp		-->
+<div id="template-warp">
+	<div th:replace="~{/landscape-widget/landscape-widget :: #landscapeDiffWarp}"></div>
+	<div th:replace="~{/landscape-widget/ls-free-anals-widget :: #lsFreeAnalsWarp}"></div>
+	<div th:replace="~{/landscape-widget/ls-saved-anals-widget :: #lsSavedAnalsWrap}"></div>
+</div>
 <div id="loadingWrap">
 	<div class="loading">
 		<span class="spinner"></span>
@@ -51,6 +54,12 @@
 
 		<!-- S: CONTENTS WRAP -->
 		<div id="contentsWrap" class="contentsWrap" style="display: none;">
+<div th:replace="~{/simulation/simulation :: #simulationContent}"></div>
+<!--			<div th:replace="~{/simulation/modeler :: #modelerContent}"></div>-->
+
+			<div th:replace="~{/cityplan/cityplan :: #cityPlanContent}"></div>
+			<div th:replace="~{/landscape/landscape :: #landscapeContent}"></div>
+			<div th:replace="~{/sunshine/sunshine :: #sunshineContent}"></div>
 
 			<!-- S: DATA -->
 			<div th:replace="~{/data/data :: #dataContent}"></div>
@@ -67,6 +76,8 @@
 			<!-- S: SETTING -->
 			<div th:replace="~{/user-policy/modify :: #userPolicyContent}"></div>
 			<!-- E: SETTING -->
+			
+						
 
 		</div>
 		<!-- E: CONTENTS WRAP -->
@@ -129,6 +140,27 @@
 <script type="text/javascript" th:src="@{/js/{lang}/search.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/data-info.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/user-policy.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+
+<!--DS lib-->
+<script type="text/javascript" th:src="@{/externlib/toastr/toastr.min.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>
+<script type="text/javascript" th:src="@{/externlib/ds/pp-0.9-legacy.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>
+<script type="text/javascript" th:src="@{/externlib/ds/ppui-0.9-legacy.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>
+<script type="text/javascript" th:src="@{/externlib/ds/ppmap-0.9-legacy.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>
+<script type="text/javascript" th:src="@{/externlib/ds/dsobj-0.1-snapshot.js(lang=${lang},cacheVersion=${contentCacheVersion})}"  defer></script>
+
+<script type="text/javascript" th:src="@{/js/{lang}/anals-buildheight.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/anals-landscapedirect.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/anals-landscape.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/anals-landscape-free.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/anals-landscape-saved.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/anals-landscapediff.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/sunshine.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+
+<script type="text/javascript" th:src="@{/js/{lang}/anals-buildheight.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<!--<script type="text/javascript" th:src="@{/js/{lang}/anals-landscape.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>-->
+<!--//DS lib-->
+
+
 <script type="text/javascript" th:src="@{/js/{lang}/layer.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/map-data-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/map-init.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
@@ -136,6 +168,9 @@
 <!--<script type="text/javascript" th:src="@{/js/{lang}/map-data.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>-->
 <!--<script type="text/javascript" th:src="@{/js/{lang}/map-data-group.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>-->
 <script type="text/javascript" th:src="@{/js/{lang}/map-data-search.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+
+
+
 <script type="text/javascript">
 
 	var MAGO3D_INSTANCE;
