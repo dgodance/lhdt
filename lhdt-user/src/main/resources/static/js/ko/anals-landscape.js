@@ -78,6 +78,8 @@ SkylineObj.prototype.init = function(){
 	
 	//
 	console.log(new Date(), 'SkylineObj', '<<.init');
+	//
+	return this;
 	
 };
 
@@ -777,6 +779,48 @@ SkylineObj.prototype.saveAllImages = function(){
 		toastr.info('저장되었습니다.');
 	});
 };
+
+
+
+/**
+ * 두점 사이 경관(스카이라인) 분석
+ * 1. 처리중 메시지 표시
+ * 2. 현재 카메라 상태 백업
+ * 3. 경관점 설정
+ * 4. 경관점 이동하면서 지도 캡처
+ * 5. 스카이라인 분석 요청
+ * 6. 모달창 실행
+ * 7. 캡처 결과, 분석 결과 표시
+ * 8. 카메라 상태 복원
+ */
+SkylineObj.prototype.process = function(xyz1, xyz2){
+	//
+	if(Pp.isEmpty(xyz1) || Pp.isEmpty(xyz2)){
+		toastr.warning('지도위에 경관축이 생성되지 않았습니다. 분석을 취소합니다.');
+		return;
+	}
+
+	
+	//
+	toastr.info('경관 분석중입니다. <br/>잠시만 기다리시기 바랍니다.');
+	Ppui.find('body').style.cursor = 'wait';
+	
+	// 현재 카메라 상태 백업
+	let cameraStatusBackup = Ppmap.getCameraStatus();
+
+    //
+    this.execCalcViewPoint(xyz1, xyz2);
+    this.autoCaptureAllMenual(function(){
+		//
+		toastr.info('경관 분석이 완료되었습니다.');		
+		Ppui.find('body').style.cursor = 'default';
+			
+		// 백업된 카메라 상태 복원
+		Ppmap.flyToByCameraStatus(cameraStatusBackup);
+	});
+};
+
+
 
 $(document).ready(function() {
 	new lsDropDownList().init();
