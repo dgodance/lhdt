@@ -1,7 +1,9 @@
 package lhdt.controller;
 
 import lhdt.common.BaseControllerTest;
+import lhdt.controller.view.SigninController;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -9,6 +11,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@WebMvcTest(SigninController.class)
 class SigninControllerTest extends BaseControllerTest {
 
     @Test

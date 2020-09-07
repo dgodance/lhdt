@@ -68,8 +68,8 @@ public interface DesignLayerFileInfoService {
 	 * @param map
 	 * @return
 	 */
-	int updateOgr2OgrDataFileVersion(Map<String, String> map);
-	
+	int updateDataFileVersion(Map<String, String> map);
+
 	/**
 	 * team id 로 design 레이어 파일 이력을 삭제
 	 * @param deleteDesignLayerFileInfoTeamId

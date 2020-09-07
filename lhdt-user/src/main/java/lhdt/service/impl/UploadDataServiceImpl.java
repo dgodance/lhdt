@@ -87,7 +87,17 @@ public class UploadDataServiceImpl implements UploadDataService {
 	public List<UploadDataFile> getListUploadDataFile(UploadData uploadData) {
 		return uploadDataMapper.getListUploadDataFile(uploadData);
 	}
-	
+
+	/**
+	 * 업로딩 데이터 파일
+	 * @param uploadDataFile
+	 * @return	업로딩 데이터 파일
+	 */
+	@Transactional(readOnly=true)
+	public UploadDataFile getUploadDataFile(UploadDataFile uploadDataFile) {
+		return uploadDataMapper.getUploadDataFile(uploadDataFile);
+	}
+
 	/**
 	 * 사용자 파일 정보 업로딩
 	 * @param uploadData

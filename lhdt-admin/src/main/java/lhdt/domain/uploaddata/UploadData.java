@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import lhdt.domain.UploadDataType;
 import lhdt.domain.common.Search;
 import org.springframework.format.annotation.DateTimeFormat;
 

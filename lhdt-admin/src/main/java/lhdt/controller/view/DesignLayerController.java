@@ -11,6 +11,7 @@ import lhdt.domain.extrusionmodel.DesignLayerGroup;
 import lhdt.domain.policy.GeoPolicy;
 import lhdt.domain.policy.Policy;
 import lhdt.domain.role.RoleKey;
+import lhdt.domain.urban.UrbanGroup;
 import lhdt.domain.user.UserSession;
 import lhdt.service.*;
 import lhdt.support.LogMessageSupport;
@@ -51,6 +52,8 @@ public class DesignLayerController implements AuthorizationController {
     private GeoPolicyService geoPolicyService;
     @Autowired
     private PolicyService policyService;
+    @Autowired
+    private UrbanGroupService urbanGroupService;
 
     /**
      * 디자인 레이어 목록
@@ -108,10 +111,12 @@ public class DesignLayerController implements AuthorizationController {
         if (roleValidate(request) != null) return roleCheckResult;
 
         Policy policy = policyService.getPolicy();
+        List<UrbanGroup> urbanGroupList = urbanGroupService.getListUrbanGroup();
         List<DesignLayerGroup> designLayerGroupList = designLayerGroupService.getListDesignLayerGroup();
 
         model.addAttribute("policy", policy);
         model.addAttribute("designLayer", new DesignLayer());
+        model.addAttribute("urbanGroupList", urbanGroupList);
         model.addAttribute("designLayerGroupList", designLayerGroupList);
 
         return "/design-layer/input";
@@ -131,6 +136,7 @@ public class DesignLayerController implements AuthorizationController {
         Policy policy = policyService.getPolicy();
         DesignLayer designLayer = designLayerService.getDesignLayer(designLayerId);
         List<DesignLayerGroup> designLayerGroupList = designLayerGroupService.getListDesignLayerGroup();
+        List<UrbanGroup> urbanGroupList = urbanGroupService.getListUrbanGroup();
 
         model.addAttribute("policy", policy);
         model.addAttribute("designLayer", designLayer);
@@ -146,6 +152,7 @@ public class DesignLayerController implements AuthorizationController {
         model.addAttribute("designLayerFileInfo", designLayerFileInfo);
         model.addAttribute("designLayerFileInfoList", designLayerFileInfoList);
         model.addAttribute("designLayerFileInfoListSize", designLayerFileInfoList.size());
+        model.addAttribute("urbanGroupList", urbanGroupList);
 
         return "/design-layer/modify-upload";
     }
@@ -162,6 +169,7 @@ public class DesignLayerController implements AuthorizationController {
 
         GeoPolicy policy = geoPolicyService.getGeoPolicy();
         DesignLayer designLayer = designLayerService.getDesignLayer(designLayerId);
+        String designLayerExtent = designLayerService.getDesignLayerExtent(designLayer);
         Integer versionId = 0;
         if (designLayerFileInfoId != null) {
             versionId = designLayerFileInfoService.getDesignLayerShapeFileVersion(designLayerFileInfoId);
@@ -179,6 +187,7 @@ public class DesignLayerController implements AuthorizationController {
         model.addAttribute("policyJson", policyJson);
         model.addAttribute("designLayerJson", designLayerJson);
         model.addAttribute("versionId", versionId);
+        model.addAttribute("designLayerExtent", designLayerExtent);
 
         return "/design-layer/popup-map";
     }

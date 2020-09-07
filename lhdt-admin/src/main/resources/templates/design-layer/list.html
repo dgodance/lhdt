@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html th:lang="${accessibility}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="/layouts/default">
 <head>
+	<meta charset="utf-8">
 	<title>디자인 레이어 목록</title>
 	<th:block layout:fragment="pageCustomStyle">
 		<link rel="stylesheet" th:href="@{/css/{lang}/font/font.css(lang=${lang},cacheVersion=${contentCacheVersion})}" />
@@ -85,6 +86,11 @@
 									/
 									<th:block th:text="${pagination.lastPage}"></th:block>
 									<th:block th:text="#{search.page}"></th:block>
+								</div>
+								<div class="list-functions u-pull-right">
+									<div class="button-group">
+										<a href="/design-layer/input" class="button">디자인 레이어 등록</a>
+									</div>
 								</div>
 							</div>
 							<table class="list-table scope-col" summary="디자인 레이어 목록">
@@ -192,7 +198,7 @@ function deleteLayer(designLayerId) {
 		if(confirm(JS_MESSAGE["delete.confirm"])) {
 			deleteLayerFlag = false;
 			$.ajax({
-				url: "/design-layer/delete/" + designLayerId,
+				url: "/design-layers/delete/" + designLayerId,
 				type: "DELETE",
 				headers: {"X-Requested-With": "XMLHttpRequest"},
 				dataType: "json",

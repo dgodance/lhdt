@@ -198,7 +198,11 @@ public class SearchMapRestController {
 			bboxWkt = searchMapService.getEnvelopEmd(skEmd);
 			log.info("@@@@ emd bbox {}", bboxWkt);
 		}
-		
+
+		if (bboxWkt == null) {
+			bboxWkt = "POLYGON((124.609708885853 33.1137120723124,124.609708885853 38.6151323380178,131.872766214216 38.6151323380178,131.872766214216 33.1137120723124,124.609708885853 33.1137120723124))";
+		}
+
 		bboxWkt = bboxWkt.replace("POLYGON((", "");
 		bboxWkt = bboxWkt.replace("))", "");
 		

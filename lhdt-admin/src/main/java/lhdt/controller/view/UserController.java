@@ -248,7 +248,7 @@ public class UserController implements AuthorizationController {
 
 	/**
 	 * 검색 조건
-	 * @param search
+	 * @param userInfo
 	 * @return
 	 */
 	private String getSearchParameters(PageType pageType, UserInfo userInfo) {

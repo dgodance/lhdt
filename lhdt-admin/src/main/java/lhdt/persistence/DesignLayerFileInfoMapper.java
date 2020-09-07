@@ -113,24 +113,45 @@ public interface DesignLayerFileInfoMapper {
 	
 	/**
 	 * 해당 design 레이어의 이전 데이터를 전부 비활성화 상태로 수정
-	 * @param tableName
+	 * @param designLayerId
 	 * @return
 	 */
-	int updateShapePreDataDisable(String tableName);
+	int updateLandPreDataDisable(Long designLayerId);
+
+	/**
+	 * 해당 design 레이어의 이전 데이터를 전부 비활성화 상태로 수정
+	 * @param designLayerId
+	 * @return
+	 */
+	int updateBuildingPreDataDisable(Long designLayerId);
 	
 	/**
-	 * org2org를 이용해서 생성한 테이블을 데이터 version 갱신
-	 * @param map
+	 * land 테이블 데이터 version 갱신
+	 * @param fileVersion
 	 * @return
 	 */
-	int updateOgr2OgrDataFileVersion(Map<String, String> map);
+	int updateLandDataFileVersion(Integer fileVersion);
+
+	/**
+	 * building 테이블 데이터 version 갱신
+	 * @param fileVersion
+	 * @return
+	 */
+	int updateBuildingDataFileVersion(Integer fileVersion);
 	
 	/**
 	 * shape 테이블 데이터 상태 변경
 	 * @param map
 	 * @return
 	 */
-	int updateOgr2OgrStatus(Map<String, String> map);
+	int updateLandStatus(Integer fileVersion);
+
+	/**
+	 * shape 테이블 데이터 상태 변경
+	 * @param map
+	 * @return
+	 */
+	int updateBuildingStatus(Integer fileVersion);
 	
 	/**
 	 * design 레이어 삭제

@@ -325,7 +325,7 @@
 
 	$( "#rootParentSelect" ).on( "click", function() {
 		$("#parent").val(0);
-		$("#parentName").val("[[${dataGroup.parentName}]]");
+		$("#parentName").val([[${dataGroup.parentName}]]);
 		dataGroupDialog.dialog( "close" );
 	});
 

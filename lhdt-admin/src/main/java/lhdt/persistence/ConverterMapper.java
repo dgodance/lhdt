@@ -37,11 +37,18 @@ public interface ConverterMapper {
 	List<ConverterJob> getListConverterJob(ConverterJob converterJob);
 
 	/**
-	 * f4d converter job 목록
+	 * f4d converter job 파일 목록
 	 * @param converterJobFile
 	 * @return
 	 */
 	List<ConverterJobFile> getListConverterJobFile(ConverterJobFile converterJobFile);
+
+	/**
+	 * converter job에 해당하는 f4d converter job 파일 목록
+	 * @param converterJob
+	 * @return converter job에 해당하는 f4d converter job 파일 목록
+	 */
+	List<ConverterJobFile> getListConverterJobFileByConverterJob(ConverterJob converterJob);
 
 	/**
 	 * 데이터 변환 현황
@@ -64,8 +71,17 @@ public interface ConverterMapper {
 	Long insertConverterJobFile(ConverterJobFile converterJobFile);
 	
 	/**
-	 * update
+	 * update converter job
 	 * @param converterJob
+	 * @return 갱신된 converter job 아이디
 	 */
 	int updateConverterJob(ConverterJob converterJob);
+
+	/**
+	 * update converter job file
+	 * @param converterJobFile
+	 * @return 갱신된 converter job file 아이디
+	 */
+	int updateConverterJobFile(ConverterJobFile converterJobFile);
+
 }

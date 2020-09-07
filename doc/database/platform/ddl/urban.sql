@@ -2,10 +2,10 @@
 drop table if exists urban_group cascade;
 drop table if exists urban cascade;
 
--- 신도시 그룹
+-- 도시 그룹
 create table urban_group (
-	urban_group_id				integer,
-	urban_group_key				varchar(60)							not null ,
+	urban_group_id				    integer,
+	urban_group_key				    varchar(60)							not null ,
 	urban_group_name				varchar(100)						not null,
 	user_id						    varchar(32),
 	ancestor					    integer								default 0,
@@ -13,6 +13,7 @@ create table urban_group (
 	depth						    integer								default 1,
 	view_order					    integer								default 1,
 	children					    integer								default 0,
+	basic					    	boolean								default false,
 	available					    boolean								default true,
 
     start_date                      timestamp with time zone,
@@ -25,6 +26,7 @@ create table urban_group (
     transfer_local_government       varchar(30),
 
     description					    varchar(256),
+    update_date             	    timestamp with time zone,
 	insert_date					    timestamp with time zone			default now(),
 	constraint urban_group_pk 	    primary key (urban_group_id)
 );
@@ -39,6 +41,7 @@ comment on column urban_group.parent is '부모 고유번호';
 comment on column urban_group.depth is '깊이';
 comment on column urban_group.view_order is '나열 순서';
 comment on column urban_group.children is '자식 존재 개수';
+comment on column urban_group.basic is 'true : 기본(초기 등록), false : 선택';
 comment on column urban_group.available is '사용유무, true : 사용, false : 사용안함';
 
 comment on column urban_group.start_date is '시작일';

@@ -28,6 +28,13 @@ public interface DesignLayerGroupMapper {
      */
     DesignLayerGroup getDesignLayerGroupByParentAndViewOrder(DesignLayerGroup designLayerGroup);
 
+	/**
+	 * 나를 부모로 가지는 자식 데이터 그룹 목록을 취득
+	 * @param designLayerGroup
+	 * @return
+	 */
+	List<DesignLayerGroup> getChildrenDesignLayerGroupListByParent(DesignLayerGroup designLayerGroup);
+
     /**
      * 디자인 레이어 그룹 등록
      * @param designLayerGroup
@@ -48,6 +55,11 @@ public interface DesignLayerGroupMapper {
 	 * @return
 	 */
 	int updateDesignLayerGroupViewOrder(DesignLayerGroup designLayerGroup);
+
+	/**
+	 * 자식의 수를 + 또는 - 연산
+	 */
+	int updateDesignLayerGroupChildren(DesignLayerGroup designLayerGroup);
 
 	/**
 	 * 디자인 레이어 그룹 삭제

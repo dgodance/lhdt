@@ -28,6 +28,13 @@ public interface UrbanGroupMapper {
      */
     UrbanGroup getUrbanGroupByParentAndViewOrder(UrbanGroup urbanGroup);
 
+	/**
+	 * 도시 그룹 Key 중복 확인
+	 * @param urbanGroup
+	 * @return
+	 */
+	Boolean isUrbanGroupKeyDuplication(UrbanGroup urbanGroup);
+
     /**
      * 도시 그룹 등록
      * @param urbanGroup

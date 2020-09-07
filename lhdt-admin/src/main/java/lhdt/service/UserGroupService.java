@@ -48,6 +48,13 @@ public interface UserGroupService {
 	 */
 	List<String> getListUserGroupRoleKey(UserGroupRole userGroupRole);
 
+	/**
+	 * 사용자 그룹 Key 중복 확인
+	 * @param userGroup
+	 * @return
+	 */
+	Boolean isUserGroupKeyDuplication(UserGroup userGroup);
+
     /**
      * 사용자 그룹 등록
      * @param userGroup
@@ -56,13 +63,6 @@ public interface UserGroupService {
     int insertUserGroup(UserGroup userGroup);
 
     /**
-     * 사용자 그룹 Key 중복 확인
-     * @param userGroup
-     * @return
-     */
-    Boolean isUserGroupKeyDuplication(UserGroup userGroup);
-
-	/**
 	 * 사용자 그룹 수정
 	 * @param userGroup
 	 * @return

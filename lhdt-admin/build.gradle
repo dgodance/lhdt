@@ -106,6 +106,7 @@ dependencies {
     implementation 'org.geotools.jdbc:gt-jdbc-postgis:22.2'
 
     implementation 'org.apache.commons:commons-compress:1.18'
+    compile 'org.apache.commons:commons-csv:1.8'
 
 	implementation 'org.modelmapper:modelmapper:2.3.6'
 

@@ -75,11 +75,34 @@
     <!-- 디자인 레이어 정보 취득 -->
     <select id="getDesignLayer" parameterType="long" resultType="designLayer">
         /* getDesignLayer */
-        SELECT A.*, B.design_layer_group_name
+        SELECT A.*, B.design_layer_group_name, C.urban_group_name
         FROM design_layer A
         LEFT JOIN design_layer_group B on B.design_layer_group_id = A.design_layer_group_id
+		LEFT JOIN urban_group C on C.urban_group_id = A.urban_group_id
         WHERE A.design_layer_id = #{designLayerId}
     </select>
+
+	<select id="getDesignLayerLandExtent" parameterType="long" resultType="string">
+		/* getDesignLayerLandExtent */
+		SELECT
+			concat(st_xmin(st_extent(the_geom)),',',
+				   st_ymin(st_extent(the_geom)),',',
+				   st_xmax(st_extent(the_geom)),',',
+				   st_ymax(st_extent(the_geom)))
+		FROM design_layer_land
+		WHERE design_layer_id = #{designLayerId}
+	</select>
+
+	<select id="getDesignLayerBuildingExtent" parameterType="long" resultType="string">
+		/* getDesignLayerBuildingExtent */
+		SELECT
+			concat(st_xmin(st_extent(the_geom)),',',
+				   st_ymin(st_extent(the_geom)),',',
+				   st_xmax(st_extent(the_geom)),',',
+				   st_ymax(st_extent(the_geom)))
+		FROM design_layer_building
+		WHERE design_layer_id = #{designLayerId}
+	</select>
 
 	<!-- 디자인 레이어 Key 중복 체크 -->
     <select id="isDesignLayerKeyDuplication" parameterType="string" resultType="boolean">
@@ -96,7 +119,7 @@
     <!-- 자식 디자인 레이어 중 순서가 최대인 디자인 레이어를 검색 -->
     <select id="getMaxViewOrderChildDesignLayer" parameterType="long" resultType="designLayer">
         /* getMaxViewOrderChildDesignLayer */
-        SELECT * FROM design_ayer WHERE parent = #{parent} ORDER BY view_order DESC LIMIT 1
+        SELECT * FROM design_layer WHERE parent = #{parent} ORDER BY view_order DESC LIMIT 1
     </select>
 
     <!-- 자식 디자인 레이어 개수 -->
@@ -112,19 +135,6 @@
         FROM ${value}
         WHERE enable_yn = 'Y'
         LIMIT 1
-    </select>
-
-	<!-- 디자인 레이어 컬럼 취득 -->
-    <select id="getDesignLayerColumn" parameterType="string" resultType="string">
-    	/* getDesignLayerColumn */
-    	SELECT ARRAY_TO_STRING(
-    		ARRAY(
-	    		SELECT ''||A.column_name||''
-	        	FROM information_schema.columns As A
-	            WHERE table_name = #{value}
-	            	AND  A.column_name NOT IN ('enable_yn', 'version_id')
-	    		), ','
-	    	)
     </select>
 
 	<!-- 디자인 레이어 테이블이 존재 하는지 확인 -->
@@ -143,33 +153,58 @@
             SELECT NEXTVAL('design_layer_seq')
         </selectKey>
         INSERT INTO design_layer (
-            design_layer_id, design_layer_group_id, design_layer_name, design_layer_key, design_Layer_type, sharing, ogc_web_services, geometry_type,
+            design_layer_id, urban_group_id, design_layer_group_id, design_layer_name, design_layer_key, design_Layer_type, sharing, ogc_web_services, geometry_type,
             layer_line_color, layer_line_style, layer_fill_color, layer_alpha_style, available,
-            coordinate, description, z_index, user_id, cache_available
+            coordinate, description, z_index, user_id, cache_available, design_layer_group_type
             <if test="viewOrder != null and viewOrder gt 0">
 				, view_order
 			</if>
         ) VALUES (
-         	#{designLayerId}, #{designLayerGroupId}, #{designLayerName}, #{designLayerKey}, #{designLayerType}, #{sharing}, #{ogcWebServices}, #{geometryType},
+         	#{designLayerId}, #{urbanGroupId}, #{designLayerGroupId}, #{designLayerName}, #{designLayerKey}, #{designLayerType}, #{sharing}, #{ogcWebServices}, #{geometryType},
          	#{layerLineColor}, #{layerLineStyle}, #{layerFillColor}, #{layerAlphaStyle}, #{available},
-         	#{coordinate}, #{description}, #{zIndex}, #{userId}, #{cacheAvailable}
+         	#{coordinate}, #{description}, #{zIndex}, #{userId}, #{cacheAvailable}, #{designLayerGroupType}
          <if test="viewOrder != null and viewOrder gt 0">
 			, #{viewOrder}
 		 </if>
         )
     </insert>
 
+	<insert id="insertGeometryLand" parameterType="designLayerLand">
+		/* insertGeometryLand */
+		<selectKey keyProperty="designLayerLandId" resultType="long" order="BEFORE">
+			SELECT NEXTVAL('design_layer_land_seq')
+		</selectKey>
+		INSERT INTO design_layer_land (
+		design_layer_land_id, design_layer_id, design_layer_group_id, shape_id, the_geom
+		) VALUES (
+		#{designLayerLandId}, #{designLayerId}, #{designLayerGroupId}, #{shapeId}, st_transform(ST_GeomFromText(#{theGeom},#{coordinate}),4326)
+		)
+	</insert>
+
+	<insert id="insertGeometryBuilding" parameterType="designLayerBuilding">
+		/* insertGeometryBuilding */
+		<selectKey keyProperty="designLayerBuildingId" resultType="long" order="BEFORE">
+			SELECT NEXTVAL('design_layer_building_seq')
+		</selectKey>
+		INSERT INTO design_layer_building (
+		design_layer_building_id, design_layer_id, design_layer_group_id, shape_id, the_geom
+		) VALUES (
+		#{designLayerBuildingId}, #{designLayerId}, #{designLayerGroupId}, #{shapeId}, st_transform(ST_GeomFromText(#{theGeom},#{coordinate}),4326)
+		)
+	</insert>
+
     <!-- 디자인 레이어 정보 수정 -->
     <update id="updateDesignLayer" parameterType="designLayer">
         /* updateDesignLayer */
         UPDATE design_layer SET
 			design_layer_name = #{designLayerName},
+			urban_group_id = #{urbanGroupId},
 			design_layer_group_id = #{designLayerGroupId},
 	        design_layer_key = #{designLayerKey},
+			design_layer_group_type = #{designLayerGroupType},
 			design_Layer_type = #{designLayerType},
 			sharing = #{sharing},
 			ogc_web_services = #{ogcWebServices},
-			design_layer_type = #{designLayerType},
 	        geometry_type = #{geometryType},
 	        layer_line_color = #{layerLineColor},
 	        layer_line_style = #{layerLineStyle},
@@ -194,9 +229,33 @@
         DELETE FROM design_layer WHERE design_layer_id = #{designLayerId}
     </delete>
 
-	<!-- 디자인 레이어 테이블 삭제 -->
-    <delete id="deleteDesignLayerTable" parameterType="string">
-        /* deleteDesign */
-        DROP TABLE ${value}
-    </delete>
+	<delete id="deleteGeometryLand" parameterType="map">
+		/* deleteGeometryLand */
+		DELETE FROM design_layer_land
+			WHERE design_layer_id = CAST(#{designLayerId} AS bigint)
+			<if test="isDesignLayerFileInfoExist != null and isDesignLayerFileInfoExist != ''">
+				AND version_id IS NULL
+			</if>
+	</delete>
+
+	<delete id="deleteGeometryBuilding" parameterType="map">
+		/* deleteGeometryBuilding */
+		DELETE FROM design_layer_building
+			WHERE design_layer_id = CAST(#{designLayerId} AS bigint)
+			<if test="isDesignLayerFileInfoExist != null and isDesignLayerFileInfoExist != ''">
+				AND version_id IS NULL
+			</if>
+	</delete>
+
+
+	<!-- 디자인 레이어 그룹 고유번호를 이용한 삭제 -->
+	<delete id="deleteDesignLayerByDesignLayerGroupId" parameterType="designLayerGroup">
+		/* deleteDesignLayerByDesignLayerGroupId */
+		DELETE
+		FROM design_layer
+		WHERE design_layer_group_id = #{designLayerGroupId}
+		<if test="userId != null and userId != ''">
+			AND user_id = #{userId}
+		</if>
+	</delete>
 </mapper>

@@ -28,6 +28,8 @@ public class DesignLayerGroup implements Serializable {
 	private Integer designLayerGroupId;
 	// design layer 그룹 그룹명
 	private String designLayerGroupName;
+	// design layer 그룹 분류. land : 땅, building : 빌딩'
+	private String designLayerGroupType;
 	// 사용자 아이디
 	private String userId;
 	// 조상
@@ -42,6 +44,8 @@ public class DesignLayerGroup implements Serializable {
 	private Integer viewOrder;
 	// 자식 존재 유무
 	private Integer children;
+	// true : 기본(초기 등록), false : 선택
+	private Boolean basic;
 	// 사용 유무
 	private Boolean available;
 	// 설명

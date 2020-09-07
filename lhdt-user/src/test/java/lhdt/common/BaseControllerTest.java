@@ -1,13 +1,10 @@
 package lhdt.common;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lhdt.LhdtUserApplication;
+import lhdt.service.AccessLogService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.mock.web.MockHttpSession;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.test.context.ContextConfiguration;
@@ -24,21 +21,21 @@ import static org.springframework.restdocs.operation.preprocess.Preprocessors.pr
 
 @ExtendWith({RestDocumentationExtension.class, SpringExtension.class})
 @ContextConfiguration(classes = LhdtUserApplication.class)
-@SpringBootTest
+//@SpringBootTest
 public class BaseControllerTest {
 
 	protected MockMvc mockMvc;
-	@Autowired
-	protected WebApplicationContext ctx;
-	@Autowired
-	protected MockHttpSession session;
-	@Autowired
-	protected ObjectMapper objectMapper;
-	@Autowired
-	protected ModelMapper modelMapper;
+	@MockBean
+	protected AccessLogService accessLogService;
+//	@Autowired
+//	protected MockHttpSession session;
+//	@Autowired
+//	protected ObjectMapper objectMapper;
+//	@Autowired
+//	protected ModelMapper modelMapper;
 
 	@BeforeEach
-	public void setup(RestDocumentationContextProvider restDocumentation) {
+	public void setup(WebApplicationContext ctx, RestDocumentationContextProvider restDocumentation) {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(ctx)
 				.addFilter(new CharacterEncodingFilter(StandardCharsets.UTF_8.name(), true))
 				.apply(

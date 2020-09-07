@@ -42,9 +42,6 @@ $(function() {
 			} else if( currentUrl.indexOf("#simulation") >= 0) {
 				$("#simulationMenu").addClass('on');
 				$('#simulationContent').toggle(true);
-			} else if( currentUrl.indexOf("#civilVoice") >= 0) {
-				$("#civilVoiceMenu").addClass('on');
-				$('#civilVoiceContent').toggle(true);
 			} else if( currentUrl.indexOf("#userPolicy") >= 0) {
 				$("#userPolicyMenu").addClass('on');
 				$('#userPolicyContent').toggle(true);
@@ -56,24 +53,7 @@ $(function() {
 				$('#dataContent').toggle(true);
 			}
 			$('#contentsWrap').toggle(true);
-		}  
-
-		//지구설계 gravity
-		if(0 < currentUrl.indexOf('cityplan')){
-			$('#cityPlanMenu').addClass('on');
-		}
-		
-		//경관분석 gravity
-		if(0 < currentUrl.indexOf('landscapeanals')){
-			$('#landscapeAnalsMenu').addClass('on');
-		}
-		
-		//일조분석 gravity
-		if(0 < currentUrl.indexOf('sunshineanals')){
-			$('#sunshineAnalsMenu').addClass('on');
-		}
-		
-		else {
+		} else {
 			// 데이터 변환
 			$("#converterMenu").addClass('on');
 			//$('#contentsWrap').toggle(true);
@@ -132,23 +112,6 @@ $(function() {
         // 변환 클릭 이벤트시 url 변경 
         if(active === "converterContent") {
         	window.location="../upload-data/list";
-        }
-
-        //지구설계 클릭 이벤트시 url 변경	gravity
-        // if('cityPlanContent' === active){
-        // 	window.location = '../cityplan/city-unit-plan-confm';
-        // }
-
-        //시민참여 벗어날 시 지도 클리어.
-        if(active !== 'civilVoiceContent') {
-        	if(window.civilVoice) {
-        		civilVoice.clear();
-            	civilVoice.showContent('list');
-            	var cluster = civilVoice.cluster
-            	if(cluster && cluster.magoCluster) {
-            		civilVoice.cluster.stopRender();
-            	}
-        	}
         }
         
         $("ul.nav li[data-nav]:not(:empty)").not($(this)).each(function() {

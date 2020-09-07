@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html th:lang="${accessibility}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="/layouts/default">
 <head>
+	<meta charset="utf-8">
 	<title>디자인 레이어 그룹 수정</title>
 	<th:block layout:fragment="pageCustomStyle">
 		<link rel="stylesheet" th:href="@{/css/{lang}/font/font.css(lang=${lang},cacheVersion=${contentCacheVersion})}" />
@@ -28,7 +29,6 @@
 						</div>
 						<form id="designLayerGroup" th:object="${designLayerGroup}" method="post" th:action="@{#}" onsubmit="return false;">
 							<input type="hidden" name="_method" value="PUT" />
-							<input type="hidden" id="designLayerGroupId" name="designLayerGroupId" th:field="*{designLayerGroupId}" />
 						<table class="input-table scope-row" summary="디자인 레이어 그룹 수정">
 						<caption class="hiddenTag">디자인 레이어 그룹 수정</caption>
 							<col class="col-label l" />
@@ -54,11 +54,23 @@
 							</tr>
 							<tr>
 								<th class="col-label l" scope="row">
+									<span>디자인 레이어 그룹 타입</span>
+									<span class="icon-glyph glyph-emark-dot color-warning"></span>
+								</th>
+								<td class="col-input radio-set">
+									<input type="radio" id="designLayerGroupTypeLand" name="designLayerGroupType" th:field="*{designLayerGroupType}" />
+									<label for="designLayerGroupTypeLand">필지</label>
+									<input type="radio" id="designLayerGroupTypeBuilding" name="designLayerGroupType" th:field="*{designLayerGroupType}" />
+									<label for="designLayerGroupTypeBuilding">빌딩</label>
+								</td>
+							</tr>
+							<tr>
+								<th class="col-label l" scope="row">
 									<span>사용여부</span>
 									<span class="icon-glyph glyph-emark-dot color-warning"></span>
 								</th>
 								<td class="col-input radio-set">
-									<input type="radio" id="available1" name="available" th:field="*{available}" value="true" checked />
+									<input type="radio" id="available1" name="available" th:field="*{available}" value="true" />
 									<label for="available1" th:text="#{use}"></label>
 									<input type="radio" id="available2" name="available" th:field="*{available}" value="false" />
 									<label for="available2" th:text="#{not.use}"></label>

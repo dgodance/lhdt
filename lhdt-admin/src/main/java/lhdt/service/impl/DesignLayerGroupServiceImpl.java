@@ -166,41 +166,28 @@ public class DesignLayerGroupServiceImpl implements DesignLayerGroupService {
 	 */
     @Transactional
 	public int deleteDesignLayerGroup(DesignLayerGroup designLayerGroup) {
-    	// 삭제하고, children update
+    	// TODO gesoerver 삭제해 줘야 함
 
-    	designLayerGroup = designLayerGroupMapper.getDesignLayerGroup(designLayerGroup);
-    	log.info("--- 111111111 delete dataGroup = {}", designLayerGroup);
+		int result = 0;
+		List<DesignLayerGroup> childrenDesignLayerGroupList = designLayerGroupMapper.getChildrenDesignLayerGroupListByParent(designLayerGroup);
+		if(childrenDesignLayerGroupList == null || childrenDesignLayerGroupList.isEmpty()) {
+			// 내 데이터 라이브러리 그룹에 있는 모든 데이터 라이브러를 삭제
+			designLayerService.deleteDesignLayerByDesignLayerGroupId(designLayerGroup);
 
-    	int result = 0;
-    	if(Depth.ONE == Depth.findBy(designLayerGroup.getDepth())) {
-    		log.info("--- one ================");
-    		result = designLayerGroupMapper.deleteDesignLayerGroupByAncestor(designLayerGroup);
-    	} else if(Depth.TWO == Depth.findBy(designLayerGroup.getDepth())) {
-    		log.info("--- two ================");
+			// 부모의 children -1
+			designLayerGroup.setChildren(-1);
+			designLayerGroupMapper.updateDesignLayerGroupChildren(designLayerGroup);
 
-    		DesignLayerGroup ancestorDesignLayerGroup = new DesignLayerGroup();
-    		ancestorDesignLayerGroup.setDesignLayerGroupId(designLayerGroup.getAncestor());
-    		ancestorDesignLayerGroup = designLayerGroupMapper.getDesignLayerGroup(ancestorDesignLayerGroup);
-    		ancestorDesignLayerGroup.setChildren(ancestorDesignLayerGroup.getChildren() - 1);
-			designLayerGroupMapper.updateDesignLayerGroup(ancestorDesignLayerGroup);
-	    	
-	    	result = designLayerGroupMapper.deleteDesignLayerGroupByParent(designLayerGroup);
-    		// ancestor - 1
-    	} else if(Depth.THREE == Depth.findBy(designLayerGroup.getDepth())) {
-    		log.info("--- three ================");
-    		log.info("--- dataGroup ================ {}", designLayerGroup);
+			// 내 자신을 삭제
+			designLayerGroupMapper.deleteDesignLayerGroup(designLayerGroup);
+		} else {
+			designLayerGroupMapper.deleteDesignLayerGroup(designLayerGroup);
+			for(DesignLayerGroup childDesignLayerGroup : childrenDesignLayerGroupList) {
+				childDesignLayerGroup.setUserId(null);
+				deleteDesignLayerGroup(childDesignLayerGroup);
+			}
+		}
 
-    		DesignLayerGroup parentDataGroup = new DesignLayerGroup();
-	    	parentDataGroup.setDesignLayerGroupId(designLayerGroup.getParent());
-	    	parentDataGroup = designLayerGroupMapper.getDesignLayerGroup(parentDataGroup);
-	    	parentDataGroup.setChildren(parentDataGroup.getChildren() - 1);
-			designLayerGroupMapper.updateDesignLayerGroup(parentDataGroup);
-	    	
-	    	result = designLayerGroupMapper.deleteDesignLayerGroup(designLayerGroup);
-    	} else {
-
-    	}
-
-    	return result;
+		return result;
     }
 }

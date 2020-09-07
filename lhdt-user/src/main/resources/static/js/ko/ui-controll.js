@@ -39,12 +39,9 @@ $(function() {
 			} else if( currentUrl.indexOf("#spatial") >= 0) {
 				$("#spatialMenu").addClass('on');
 				$('#spatialContent').toggle(true);
-			} else if( currentUrl.indexOf("#simulation") >= 0) {
-				$("#simulationMenu").addClass('on');
-				$('#simulationContent').toggle(true);
-			} else if( currentUrl.indexOf("#civilVoice") >= 0) {
-				$("#civilVoiceMenu").addClass('on');
-				$('#civilVoiceContent').toggle(true);
+			} else if( currentUrl.indexOf("#extrusion") >= 0) {
+				$("#extrusionMenu").addClass('on');
+				$('#extrusionContent').toggle(true);
 			} else if( currentUrl.indexOf("#userPolicy") >= 0) {
 				$("#userPolicyMenu").addClass('on');
 				$('#userPolicyContent').toggle(true);
@@ -56,10 +53,7 @@ $(function() {
 				$('#dataContent').toggle(true);
 			}
 			$('#contentsWrap').toggle(true);
-		} else if(0 < currentUrl.indexOf('cityplan')){
-			//지구설계 gravity
-			$('#cityPlanMenu').addClass('on');
-		}else {
+		} else {
 			// 데이터 변환
 			$("#converterMenu").addClass('on');
 			//$('#contentsWrap').toggle(true);
@@ -109,8 +103,7 @@ $(function() {
         	|| location.href.indexOf("/data/list") > 0 
         	|| location.href.indexOf("/data/modify") > 0 
         	|| location.href.indexOf("/data-adjust-log") > 0
-        	|| location.href.indexOf("/data-log") > 0 
-        	|| location.href.indexOf("/cityplan") > 0	/*gravity*/) {
+        	|| location.href.indexOf("/data-log") > 0) {
         	$(this).removeClass('on');
         	var classId = $(this).attr('class');
         	window.location="../data/map#" + classId;
@@ -120,24 +113,7 @@ $(function() {
         if(active === "converterContent") {
         	window.location="../upload-data/list";
         }
-        
-        //지구설계 클릭 이벤트시 url 변경	gravity
-        // if('cityPlanContent' === active){
-        // 	window.location = '../cityplan/city-unit-plan-confm';
-        // }
-        
-        //시민참여 벗어날 시 지도 클리어.
-        if(active !== 'civilVoiceContent') {
-        	if(window.civilVoice) {
-        		civilVoice.clear();
-            	civilVoice.showContent('list');
-            	var cluster = civilVoice.cluster
-            	if(cluster && cluster.magoCluster) {
-            		civilVoice.cluster.stopRender();
-            	}
-        	}
-        }
-        
+
         $("ul.nav li[data-nav]:not(:empty)").not($(this)).each(function() {
             $(this).removeClass('on');
             $('#' + $(this).attr('data-nav')).hide();
@@ -173,19 +149,19 @@ $(function() {
 		var index = parentObj.index();
 		$('#simulationContent ul.listDrop > li').eq(index).toggleClass('on');
 	});
-	
-	// 행정구역 검색
+
+	/*
 	$('div.district').hover(function() {
 		$('div.districtWrap').css('display', 'block');
 	}, function(){
 		$('div.districtWrap').css('display', 'none');
 	});
-
 	$('div.districtWrap').hover(function() {
 		$('div.districtWrap').css('display', 'block');
 	}, function(){
 		$('div.districtWrap').css('display', 'none');
 	});
+	 */
 });
 
 function allMenuDisplay() {

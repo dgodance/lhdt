@@ -171,8 +171,6 @@ public class UserServiceImpl implements UserService {
 		// TODO user_id 참조하는 모든 테이블 삭제는 추후에..
 		/*
 		access_log 
-		tn_civil_voice
-		tn_civil_voice_comment
 		converter_job
 		converter_job_file
 		data_adjust_log

@@ -3,6 +3,7 @@ package lhdt.service.impl;
 import lhdt.domain.Depth;
 import lhdt.domain.Move;
 import lhdt.domain.urban.UrbanGroup;
+import lhdt.domain.user.UserGroup;
 import lhdt.persistence.UrbanGroupMapper;
 import lhdt.service.UrbanGroupService;
 import lombok.extern.slf4j.Slf4j;
@@ -38,46 +39,25 @@ public class UrbanGroupServiceImpl implements UrbanGroupService {
 	}
 
 	/**
-	 * 데이터 그룹 표시 순서 수정 (up/down)
+	 * 부모와 표시 순서로 메뉴 조회
 	 * @param urbanGroup
 	 * @return
 	 */
-    @Transactional
-	public int updateUrbanGroupViewOrder(UrbanGroup urbanGroup) {
+	private UrbanGroup getDataLayerByParentAndViewOrder(UrbanGroup urbanGroup) {
+		return urbanGroupMapper.getUrbanGroupByParentAndViewOrder(urbanGroup);
+	}
 
-    	UrbanGroup dbUrbanGroup = urbanGroupMapper.getUrbanGroup(urbanGroup);
-    	dbUrbanGroup.setUpdateType(urbanGroup.getUpdateType());
+	/**
+	 * 도시 그룹 Key 중복 확인
+	 * @param urbanGroup
+	 * @return
+	 */
+	@Transactional(readOnly = true)
+	public Boolean isUrbanGroupKeyDuplication(UrbanGroup urbanGroup) {
+		return urbanGroupMapper.isUrbanGroupKeyDuplication(urbanGroup);
+	}
 
-    	Integer modifyViewOrder = dbUrbanGroup.getViewOrder();
-    	UrbanGroup searchUrbanGroup = new UrbanGroup();
-    	searchUrbanGroup.setUpdateType(dbUrbanGroup.getUpdateType());
-    	searchUrbanGroup.setParent(dbUrbanGroup.getParent());
-
-    	if(Move.UP == Move.valueOf(dbUrbanGroup.getUpdateType())) {
-    		// 바로 위 메뉴의 view_order 를 +1
-    		searchUrbanGroup.setViewOrder(dbUrbanGroup.getViewOrder());
-    		searchUrbanGroup = getDataLayerByParentAndViewOrder(searchUrbanGroup);
-
-    		if(searchUrbanGroup == null) return 0;
-
-	    	dbUrbanGroup.setViewOrder(searchUrbanGroup.getViewOrder());
-	    	searchUrbanGroup.setViewOrder(modifyViewOrder);
-    	} else {
-    		// 바로 아래 메뉴의 view_order 를 -1 함
-    		searchUrbanGroup.setViewOrder(dbUrbanGroup.getViewOrder());
-    		searchUrbanGroup = getDataLayerByParentAndViewOrder(searchUrbanGroup);
-
-    		if(searchUrbanGroup == null) return 0;
-
-    		dbUrbanGroup.setViewOrder(searchUrbanGroup.getViewOrder());
-    		searchUrbanGroup.setViewOrder(modifyViewOrder);
-    	}
-
-    	updateViewOrderUrbanGroup(searchUrbanGroup);
-		return updateViewOrderUrbanGroup(dbUrbanGroup);
-    }
-
-    /**
+	/**
 	 * 도시 그룹 등록
 	 */
 	@Transactional
@@ -112,6 +92,46 @@ public class UrbanGroupServiceImpl implements UrbanGroupService {
 	}
 
 	/**
+	 * 데이터 그룹 표시 순서 수정 (up/down)
+	 * @param urbanGroup
+	 * @return
+	 */
+	@Transactional
+	public int updateUrbanGroupViewOrder(UrbanGroup urbanGroup) {
+
+		UrbanGroup dbUrbanGroup = urbanGroupMapper.getUrbanGroup(urbanGroup);
+		dbUrbanGroup.setUpdateType(urbanGroup.getUpdateType());
+
+		Integer modifyViewOrder = dbUrbanGroup.getViewOrder();
+		UrbanGroup searchUrbanGroup = new UrbanGroup();
+		searchUrbanGroup.setUpdateType(dbUrbanGroup.getUpdateType());
+		searchUrbanGroup.setParent(dbUrbanGroup.getParent());
+
+		if(Move.UP == Move.valueOf(dbUrbanGroup.getUpdateType())) {
+			// 바로 위 메뉴의 view_order 를 +1
+			searchUrbanGroup.setViewOrder(dbUrbanGroup.getViewOrder());
+			searchUrbanGroup = getDataLayerByParentAndViewOrder(searchUrbanGroup);
+
+			if(searchUrbanGroup == null) return 0;
+
+			dbUrbanGroup.setViewOrder(searchUrbanGroup.getViewOrder());
+			searchUrbanGroup.setViewOrder(modifyViewOrder);
+		} else {
+			// 바로 아래 메뉴의 view_order 를 -1 함
+			searchUrbanGroup.setViewOrder(dbUrbanGroup.getViewOrder());
+			searchUrbanGroup = getDataLayerByParentAndViewOrder(searchUrbanGroup);
+
+			if(searchUrbanGroup == null) return 0;
+
+			dbUrbanGroup.setViewOrder(searchUrbanGroup.getViewOrder());
+			searchUrbanGroup.setViewOrder(modifyViewOrder);
+		}
+
+		updateViewOrderUrbanGroup(searchUrbanGroup);
+		return updateViewOrderUrbanGroup(dbUrbanGroup);
+	}
+
+	/**
 	 * 도시 그룹 수정
 	 * @param urbanGroup
 	 * @return
@@ -119,15 +139,6 @@ public class UrbanGroupServiceImpl implements UrbanGroupService {
     @Transactional
 	public int updateUrbanGroup(UrbanGroup urbanGroup) {
     	return urbanGroupMapper.updateUrbanGroup(urbanGroup);
-    }
-
-    /**
-     * 부모와 표시 순서로 메뉴 조회
-     * @param urbanGroup
-     * @return
-     */
-    private UrbanGroup getDataLayerByParentAndViewOrder(UrbanGroup urbanGroup) {
-    	return urbanGroupMapper.getUrbanGroupByParentAndViewOrder(urbanGroup);
     }
 
     /**
@@ -141,6 +152,7 @@ public class UrbanGroupServiceImpl implements UrbanGroupService {
 
     /**
 	 * 도시 그룹 삭제
+	 * TODO 넘 무식하다. recusive 로 바꿔라.
 	 * @param urbanGroup
 	 * @return
 	 */

@@ -1,8 +1,10 @@
 package lhdt.service.impl;
 
+import lhdt.domain.extrusionmodel.DesignLayer;
 import lhdt.domain.extrusionmodel.DesignLayerFileInfo;
 import lhdt.persistence.DesignLayerFileInfoMapper;
 import lhdt.service.DesignLayerFileInfoService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class DesignLayerFileInfoServiceImpl implements DesignLayerFileInfoService {
 
@@ -101,8 +104,17 @@ public class DesignLayerFileInfoServiceImpl implements DesignLayerFileInfoServic
 	 * @return
 	 */
 	@Transactional
-	public int updateOgr2OgrDataFileVersion(Map<String, String> map) {
-		return designLayerFileInfoMapper.updateOgr2OgrDataFileVersion(map);
+	public int updateDataFileVersion(Map<String, String> map) {
+		String designLayerGroupType = map.get("designLayerGroupType").toUpperCase();
+		Integer fileVersion = Integer.valueOf(map.get("fileVersion"));
+		int result = 0;
+		if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayerGroupType)) {
+			result = designLayerFileInfoMapper.updateLandDataFileVersion(fileVersion);
+		} else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayerGroupType)) {
+			result = designLayerFileInfoMapper.updateBuildingDataFileVersion(fileVersion);
+		}
+
+		return result;
 	}
 	
 	/**

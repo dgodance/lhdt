@@ -46,7 +46,7 @@ public class UserGroupRestController implements AuthorizationController {
 	 * @return
 	 */
 	@GetMapping(value = "/duplication")
-	public Map<String, Object> ajaxKeyDuplicationCheck(HttpServletRequest request, UserGroup userGroup) {
+	public Map<String, Object> keyDuplicationCheck(HttpServletRequest request, UserGroup userGroup) {
 		Map<String, Object> result = new HashMap<>();
 		String errorCode = null;
 		String message = null;
