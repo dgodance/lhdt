@@ -47,7 +47,7 @@ License: You must have a valid license purchased only from themeforest(the above
             <!-- begin:: Header -->
             <div th:insert="~{fragments/header :: header}"/>
             <!-- end:: Header -->
-            <form id="lsAnalsForm" class="ui form">
+            <form id="lsAnalsForm" class="ui form" method="post">
                 <div class="kt-content  kt-grid__item kt-grid__item--fluid kt-grid kt-grid--hor" id="kt_content">
                     <!-- Top Nav Bar -->
                     <div class="kt-subheader   kt-grid__item" id="kt_subheader">
@@ -103,8 +103,7 @@ License: You must have a valid license purchased only from themeforest(the above
                                        hidden>
                                 <div class="kt-subheader__wrapper">
                                     <input type="button" value="저장"
-                                           onclick="checkform()"
-                                           class="btn kt-subheader__btn-primary">
+                                           class="btn kt-subheader__btn-primary" onclick="registForm()">
                                     <!--<i class="flaticon2-calendar-1"></i>-->
                                     </input>
                                 </div>

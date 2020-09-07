@@ -6,8 +6,8 @@ $(()=> {
     lsDropDownList.initDropDownVal();
     editEvt();
 
-    const p = new asideMenuComponent('ls-point-wrap', 'ls-diff-point');
-    p.setMenu();
+    //const p = new asideMenuComponent('ls-point-wrap', 'ls-diff-point');
+    //p.setMenu();
 });
 
 const landScapeTypeSelect = {

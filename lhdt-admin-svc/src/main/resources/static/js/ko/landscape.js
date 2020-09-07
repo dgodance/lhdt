@@ -159,6 +159,6 @@ function lsDiffModiBtn(id, value) {
 
 $(document).ready(function() {
     KTDatatableRemoteAjaxDemo.init();
-    const p = new asideMenuComponent('ls-point-wrap', 'ls-point-regist');
-    p.setMenu();
+    //const p = new asideMenuComponent('ls-point-wrap', 'ls-point-regist');
+    //p.setMenu();
 });
