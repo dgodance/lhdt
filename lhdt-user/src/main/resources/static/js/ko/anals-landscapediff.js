@@ -15,10 +15,6 @@ const LandScapeCameraStatus = function() {
 const source = $('#landscapeDiffContentSource').html();
 const template = Handlebars.compile(source);
 
-let analsLandScapeDiff = undefined;
-
-//
-const	LS_DIFF_REST_URL = 'http://localhost:9091/adminsvc/ls-diff-rest';
 
 /**
  * 경관 비교
@@ -173,6 +169,23 @@ AnalsLandScapeDiff.prototype.renderDiffContent = function(groupId, pageNum) {
     });
 }
 
+
+/**
+ * flyToByCameraStatus
+ * @param {string} id
+ */
+AnalsLandScapeDiff.prototype.flyToByCameraStatus = function(id){
+	Ppmap.removeAll();
+	
+	//
+    $.get(LS_DIFF_REST_URL + '/scene/' + id).done(function(res) {
+        //console.log(res);
+		//
+		Ppmap.flyToByCameraStatus(JSON.parse(res.captureCameraState));
+    });	
+};
+
+
 function renderDiffContentDefault() {
     new AnalsLandScapeDiff().renderDiffContent($('#landscapeGroup').val());
 }
@@ -180,10 +193,38 @@ function renderDiffContentDefaultWithPage(pageNum) {
     new AnalsLandScapeDiff().renderDiffContent($('#landscapeGroup').val(), pageNum);
 }
 
+
+/**
+ * zoomTo
+ */
 function gotoScene(id) {
-    $.get(LS_DIFF_REST_URL + '/scene/'+id).done(function(diffObj) {
-        const analsLandScapeDiff = new AnalsLandScapeDiff();
-        analsLandScapeDiff.moveCameraByStatus(JSON.parse(diffObj.captureCameraState));
+	$.get(LS_POINT_REST_URL + '/'+id).done(function(res) {
+		//console.log(res);
+		if(Pp.isEmpty(res)){
+			console.log('empty res');
+			return;
+		}
+		
+		// 
+		let entityName = 'ls-point';
+		
+		//
+		Ppmap.removeAll();
+
+		//
+		let entity = null;
+		
+		//
+		if('점' === res.landScapePointType){
+			entity = Ppmap.createPoint(entityName, res.startLandScapePos.x, res.startLandScapePos.y);
+		}
+		if('선' === res.landScapePointType){
+			entity = Ppmap.createPolyline(entityName, [res.startLandScapePos.x, res.startLandScapePos.y, res.endLandScapePos.x, res.endLandScapePos.y]);
+		}
+
+
+		//
+		MAGO3D_INSTANCE.getViewer().zoomTo(entity);			
     });
 }
 
@@ -256,8 +297,10 @@ function paginLandScapeList(paginNum) {
     renderDiffContentDefaultWithPage(paginNum);
 }
 
+//
+const analsLandScapeDiff = new AnalsLandScapeDiff();
+//
 $(document).ready(function() {
-    const analsLandScapeDiff = new AnalsLandScapeDiff();
     analsLandScapeDiff.renderDiffDropdown();
     analsLandScapeDiff.init();
 })
