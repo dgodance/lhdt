@@ -39,6 +39,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -227,13 +228,18 @@ public class DesignLayerRestController implements AuthorizationController {
 				// 3. geometry 정보 insert
 				List<DesignLayer> shapePropertiesList = shapeFileParser.getExtrusionModelList(objectMapper, extrusionColumns);
 				designLayerService.insertShapeInfo(designLayer, shapePropertiesList);
+				// 4. 속성 파일이 있다면 업데이트(geometry insert 후에 versionId 가 없는 것들 중에서 업데이트)
+				String attributeFileName = getAttributeFile(designLayerFileInfoList);
+				if(attributeFileName != null) {
+					designLayerService.updateDesignLayerAttributes(attributeFileName, designLayer.getDesignLayerGroupType());
+				}
 				// org2ogr 로 등록한 데이터의 version을 갱신
 				Map<String, String> orgMap = new HashMap<>();
 				orgMap.put("fileVersion", ((Integer)updateDesignLayerMap.get("fileVersion")).toString());
 				orgMap.put("designLayerGroupType", designLayer.getDesignLayerGroupType());
-				// 4. shape 파일 테이블의 현재 데이터를 활성화
+				// 5. shape 파일 테이블의 현재 데이터를 활성화
 				designLayerFileInfoService.updateDataFileVersion(orgMap);
-				// 5. geoserver에 신규 등록일 경우 등록, 아닐경우 통과
+				// 6. geoserver에 신규 등록일 경우 등록, 아닐경우 통과
 				designLayerService.registerDesignLayer(geoPolicy, designLayer);
 				designLayerService.updateDesignLayerStyle(designLayer);
 			}
@@ -430,14 +436,18 @@ public class DesignLayerRestController implements AuthorizationController {
                 // 4. org2ogr 실행
 				List<DesignLayer> shapePropertiesList = shapeFileParser.getExtrusionModelList(objectMapper, extrusionColumns);
 				designLayerService.insertShapeInfo(designLayer, shapePropertiesList);
-
+				// 5. 속성 파일이 있다면 업데이트(geometry insert 후에 versionId 가 없는 것들 중에서 업데이트)
+				String attributeFileName = getAttributeFile(designLayerFileInfoList);
+				if(attributeFileName != null) {
+					designLayerService.updateDesignLayerAttributes(attributeFileName, designLayer.getDesignLayerGroupType());
+				}
                 // org2ogr 로 등록한 데이터의 version을 갱신
                 Map<String, String> orgMap = new HashMap<>();
 				orgMap.put("fileVersion", ((Integer)updateDesignLayerMap.get("fileVersion")).toString());
 				orgMap.put("designLayerGroupType", designLayer.getDesignLayerGroupType());
-                // 5. shape 파일 테이블의 현재 데이터의 활성화 하고 날짜를 업데이트
+                // 6. shape 파일 테이블의 현재 데이터의 활성화 하고 날짜를 업데이트
                 designLayerFileInfoService.updateDataFileVersion(orgMap);
-                // 6. geoserver에 신규 등록일 경우 등록, 아닐경우 통과
+                // 7. geoserver에 신규 등록일 경우 등록, 아닐경우 통과
                 designLayerService.registerDesignLayer(geoPolicy, designLayer);
             }
 			// 스타일 업데이트
@@ -871,6 +881,18 @@ public class DesignLayerRestController implements AuthorizationController {
         
         return null;
     }
+
+    private String getAttributeFile(List<DesignLayerFileInfo> designLayerFileInfoList) {
+		return designLayerFileInfoList.stream()
+				.map(f-> {
+					if(DesignLayer.AttributeType.findBy(f.getFileExt()) != null) {
+						return f.getFilePath() + f.getFileRealName();
+					} else {
+						return "";
+					}
+				})
+				.collect(Collectors.joining());
+	}
 
     /**
     * 다운로드시 한글 깨짐 방지 처리

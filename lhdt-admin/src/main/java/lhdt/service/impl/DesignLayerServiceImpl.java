@@ -339,15 +339,60 @@ public class DesignLayerServiceImpl implements DesignLayerService {
     @Transactional
     public int updateDesignLayerAttributes(String fileName, String type) {
         try {
+            // TODO : UTF-8로 저장시 엑셀에서 csv가 깨져서 일단 CP949로 읽도록 함.
             InputStreamReader isr = new InputStreamReader(new FileInputStream(fileName), Charset.forName("CP949"));
-            Iterable<CSVRecord> records = CSVFormat.DEFAULT
-                    .withHeader(HEADERS)
-                    .withFirstRecordAsHeader()
-                    .parse(isr);
-            for (CSVRecord record : records) {
-                if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(type.toUpperCase())) {
-                } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(type.toUpperCase())) {
+            String[] divideFileName = fileName.split("\\.");
+            String extension = divideFileName[divideFileName.length - 1].toUpperCase();
+
+            if(DesignLayer.AttributeType.CSV == DesignLayer.AttributeType.valueOf(extension)) {
+                Iterable<CSVRecord> records = CSVFormat.DEFAULT
+                        .withHeader(HEADERS)
+                        .withFirstRecordAsHeader()
+                        .parse(isr);
+                for (CSVRecord record : records) {
+                    if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(type.toUpperCase())) {
+                        DesignLayerLand designLayerLand = DesignLayerLand.builder()
+                                .shapeId(Long.valueOf(record.get(0)))
+                                .businessType(record.get(1))
+                                .businessDistrict(record.get(2))
+                                .blockNumber(record.get(3))
+                                .landNumber(record.get(4))
+                                .landArea(record.get(5))
+                                .useageArea(record.get(6))
+                                .landUseage(record.get(7))
+                                .landDivision(record.get(8))
+                                .useage(record.get(9))
+                                .useageSpecification(record.get(10))
+                                .useageRecommended(record.get(11))
+                                .useageAllowed(record.get(12))
+                                .useageLimited(record.get(13))
+                                .useageDisapproval(record.get(14))
+                                .buildingLandRatio(record.get(15))
+                                .floorAreaRatio(record.get(16))
+                                .floorAreaRatioStandard(record.get(17))
+                                .floorAreaRatioAllowed(record.get(18))
+                                .floorAreaRatioUpperLimit(record.get(19))
+                                .highestHeight(record.get(20))
+                                .highestFloor(record.get(21))
+                                .housingType(record.get(22))
+                                .householdsNumber(record.get(23))
+                                .standardPoint(record.get(24))
+                                .build();
+                        designLayerMapper.updateDesignLayerLandAttributes(designLayerLand);
+                    } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(type.toUpperCase())) {
+                        DesignLayerBuilding building = DesignLayerBuilding.builder()
+                                .shapeId(Long.valueOf(record.get(0)))
+                                .buildingHeight(record.get(1))
+                                .buildingFloors(record.get(2))
+                                .buildingArea(record.get(3))
+                                .complexBuilding(record.get(4))
+                                .parentId(Long.valueOf(record.get(5)))
+                                .build();
+                        designLayerMapper.updateDesignLayerBuildingAttributes(building);
+                    }
                 }
+            } else {
+                // TODO : xlsx, xls
             }
         } catch (FileNotFoundException e) {
             LogMessageSupport.printMessage(e, "-------- FileNotFoundException message = {}", e.getMessage());

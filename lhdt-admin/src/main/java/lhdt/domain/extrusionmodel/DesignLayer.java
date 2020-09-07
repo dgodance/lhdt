@@ -131,6 +131,29 @@ public class DesignLayer extends Search implements Serializable {
         BUILDING
     }
 
+    public enum AttributeType {
+	    CSV("csv"),
+        XLSX("xlsx"),
+        XLS("xls");
+
+	    private String value;
+
+	    AttributeType(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+	        return this.value;
+        }
+
+        public static AttributeType findBy(String value) {
+            for(AttributeType attributeType : values()) {
+                if(attributeType.getValue().equals(value)) return attributeType;
+            }
+            return null;
+        }
+    }
+
 	public enum RequiredColumn {
         SHAPE_ID("id"),
 	    THE_GEOM("the_geom");
