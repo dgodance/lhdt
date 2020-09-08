@@ -111,6 +111,8 @@ ModelerObj.prototype.setEventHandler = function(){
 		//
 		_renderDatas();
 		
+		//
+		
 	});
 	
 	//TODO 도구 - 선택 클릭
@@ -246,9 +248,9 @@ ModelerObj.prototype.getGroups = function(){
 
 //TODO 데이터 라이브러리 > 카테고리그룹 목록 로드
 ModelerObj.prototype.getCategoryGroups = function(){
-	Pp.submitAjax('./data-library/category-groups', {}, function(res){
+	Pp.get('./data-library/category-groups', {}, function(res){
 		console.log(res);
-	}, {'method':'get'});
+	});
 	
 };
 
@@ -260,9 +262,9 @@ ModelerObj.prototype.searchDataLibrary = function(pageNo){
 	param.categoryGroupNo = document.querySelector('.categoryGroupNo').value;
 	
 	//
-	Pp.submitAjax('./data-library/datas', param, function(res){
+	Pp.get('./data-library/datas', param, function(res){
 		console.log(res);
-	}, {'method':'get'});
+	});
 	
 };
 
