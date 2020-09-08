@@ -14,17 +14,15 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
     var activeShape;
     var activeLabel;
 
-    // 	면적 측정 버튼
-    $('#heightAvgToggle').click(function() {
-        debugger;
-        var statusChecked = $("#heightAvgToggle").is(":checked");
-        if(statusChecked) {
+
+    $('#heightAvgToggle').change(function() {
+        if($('#heightAvgToggle').is(':checked')) {
             drawingMode = 'heightAvgAnals';
             startDrawPolyLine();
         } else {
             drawingMode = "";
         }
-    });
+    })
 
     function getColor(v, min, max) {
         function getC(f, l, r) {
@@ -46,7 +44,7 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
     }
 
     $('#heightAvgBtn').click(function() {
-        debugger;
+        // 현부장님 마무리
         const param = {
             wkt: wktManager.geoByPOLYGON(_polyPoint)
         };
@@ -114,13 +112,13 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
                     });
                     this._polylines.push(createPoint(tempPosition));
                 }
-                $('#heightAvgToggle').click();
             }
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
         handler.setInputAction(function (event) {
             if(drawingMode === 'heightAvgAnals') {
                 terminateShape();
+                $('#heightAvgToggle').click();
             }
         }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
     }
