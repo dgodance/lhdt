@@ -39,9 +39,9 @@ public class DataLibraryConversionJobResult implements Serializable {
     private String message;
 
     // TODO enum 처리가 잘 안되서 임시로
-    private String resultStatus;
+    //private String resultStatus;
     // 성공여부 (success, failure)
-    private ConverterJobResultStatus converterJobResultStatus;
+    private ConverterJobResultStatus resultStatus;
 
     // 속성정보
     private String attributes;

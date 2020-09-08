@@ -206,7 +206,7 @@ public class DataLibraryConverterServiceImpl implements DataLibraryConverterServ
 
             // TODO enum binding 이 잘 안되서, 임시로 string으로 함. 고쳐야 함
             log.info("### status = {}, dataLibraryConverterJobFile = {}", conversionJobResult.getResultStatus(), dataLibraryConverterJobFile);
-            if (ConverterJobResultStatus.SUCCESS == ConverterJobResultStatus.findByStatus(conversionJobResult.getResultStatus().toLowerCase())) {
+            if (ConverterJobResultStatus.SUCCESS == conversionJobResult.getResultStatus()) {
                 // 상태가 성공인 경우
                 // 데이터를 등록 혹은 갱신. 상태를 use(사용중)로 등록.
                 DataLibrary dataLibrary = upsertDataLibrary(userId, dataLibraryConverterJobId, converterTargetCount, dataLibraryUploadFile);
