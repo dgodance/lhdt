@@ -100,11 +100,21 @@ Ppmap.createPoint = function(entityName, lon, lat, option) {
 /**
  * polyline entity 생성
  * @param {string} entityName
- * @param {array} arr [lon1,lat1,lon2,lat2,...]
+ * @param {array} arr [LonLat,LonLat,...]
  * @param {object} option TODO
  * @returns {Entity}
  */
-Ppmap.createPolyline = function(entityName, arr, option) {
+Ppmap.createPolyline = function(entityName, lonLats, option) {
+	//
+	let arr=[];
+	//
+	for(let i=0; i<lonLats.length; i++){
+		let d = lonLats[i];
+		//
+		arr.push(d.lon);
+		arr.push(d.lat);
+	}
+	
 	//	
     var entity = MAGO3D_INSTANCE.getViewer().entities.add({
 		name: entityName,

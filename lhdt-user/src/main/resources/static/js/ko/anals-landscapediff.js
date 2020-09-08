@@ -219,7 +219,15 @@ function gotoScene(id) {
 			entity = Ppmap.createPoint(entityName, res.startLandScapePos.x, res.startLandScapePos.y);
 		}
 		if('선' === res.landScapePointType){
-			entity = Ppmap.createPolyline(entityName, [res.startLandScapePos.x, res.startLandScapePos.y, res.endLandScapePos.x, res.endLandScapePos.y]);
+			let xyz1 = {
+				'lon': res.startLandScapePos.x,
+				'lat': res.startLandScapePos.y
+			};
+			let xyz2 = {
+				'lon': res.endLandScapePos.x,
+				'lat': res.endLandScapePos.y
+			}
+			entity = Ppmap.createPolyline(entityName, [xyz1, xyz2]);
 		}
 
 

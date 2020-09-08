@@ -102,7 +102,7 @@ lsAnalsBtn.prototype.eventHandler = function() {
 		//
 		Ppmap.removeAll();
 		//
-		Ppmap.createPolyline('ls-diff', [xyz1.lon, xyz1.lat, xyz2.lon, xyz2.lat]);
+		Ppmap.createPolyline('ls-diff', [xyz1, xyz2]);
 		//
 		new SkylineObj().init().process(xyz1, xyz2);
 
