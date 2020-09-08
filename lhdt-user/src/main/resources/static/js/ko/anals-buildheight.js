@@ -20,11 +20,9 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
         var statusChecked = $("#heightAvgToggle").is(":checked");
         if(statusChecked) {
             drawingMode = 'heightAvgAnals';
-
             startDrawPolyLine();
         } else {
-            drawingMode = "line";
-
+            drawingMode = "";
         }
     });
 
@@ -47,9 +45,15 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
             getC((v - min - mid) / mid, middle, right);
     }
 
-    $('#heightAnalsObserverBtn').click(function() {
+    $('#heightAvgBtn').click(function() {
+        debugger;
+        const param = {
+            wkt: wktManager.geoByPOLYGON(_polyPoint)
+        };
         $.ajax({
-            url: "http://localhost:8090/anals/gis/get_data_info_by_poly"
+            url: "/api/geometry/intersection/datas",
+            type: "POST",
+            data: param
         }).done(function(data) {
             const jsonData = JSON.parse(data);
 
@@ -110,6 +114,7 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
                     });
                     this._polylines.push(createPoint(tempPosition));
                 }
+                $('#heightAvgToggle').click();
             }
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
@@ -271,4 +276,44 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
         return formatDistance(lengthInMeters);
     }
 
+    const wktManager = {
+        geoByPoint: function(geographic) {
+            let wkt = 'POINT (';
+            wkt += geographic.lon;
+            wkt += ' ';
+            wkt += geographic.lat;
+            wkt += ')';
+            return wkt;
+        },
+        geoByLINE: function(geographicList) {
+            let wkt = 'LINESTRING (';
+            for(let i=0,len=geographicList.length;i<len;i++) {
+                if(i>0) {
+                    wkt += ',';
+                }
+                wkt += geographic[i].lon;
+                wkt += ' ';
+                wkt += geographic[i].lat;
+            }
+            wkt += ')';
+            return wkt;
+        },
+        geoByPOLYGON: function(geographicList) {
+            let wkt = 'POLYGON ((';
+            for(var i=0,len=geographicList.length;i<len;i++) {
+                if(i>0) {
+                    wkt += ',';
+                }
+                wkt += geographicList[i].lon;
+                wkt += ' ';
+                wkt += geographicList[i].lat;
+            }
+            wkt += ',';
+            wkt += geographicList[0].lon;
+            wkt += ' ';
+            wkt += geographicList[0].lat;
+            wkt += '))';
+            return wkt;
+        }
+    }
 };
