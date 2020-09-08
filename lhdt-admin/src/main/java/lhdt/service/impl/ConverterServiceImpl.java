@@ -1,26 +1,19 @@
 package lhdt.service.impl;
 
 import lhdt.config.PropertiesConfig;
-import lhdt.domain.LocationUdateType;
-import lhdt.domain.MethodType;
-import lhdt.domain.ServerTarget;
+import lhdt.domain.*;
 import lhdt.domain.agent.ConversionJobResult;
-import lhdt.domain.ConverterJobResultStatus;
 import lhdt.domain.agent.ConverterLocation;
 import lhdt.domain.agent.ConverterResultLog;
 import lhdt.domain.common.QueueMessage;
 import lhdt.domain.converter.ConverterJob;
 import lhdt.domain.converter.ConverterJobFile;
-import lhdt.domain.ConverterJobStatus;
-import lhdt.domain.ConverterTemplate;
 import lhdt.domain.data.DataAttribute;
 import lhdt.domain.data.DataGroup;
 import lhdt.domain.data.DataInfo;
 import lhdt.domain.data.DataStatus;
 import lhdt.domain.uploaddata.UploadData;
 import lhdt.domain.uploaddata.UploadDataFile;
-import lhdt.domain.UploadDataType;
-import lhdt.domain.UploadDirectoryType;
 import lhdt.persistence.ConverterMapper;
 import lhdt.service.*;
 import lhdt.support.LogMessageSupport;
@@ -373,6 +366,7 @@ public class ConverterServiceImpl implements ConverterService {
 		log.info("-------------------------------------------------------");
 
 		QueueMessage queueMessage = new QueueMessage();
+		queueMessage.setConverterType(ConverterType.DATA);
 		queueMessage.setServerTarget(ServerTarget.ADMIN);
 		queueMessage.setConverterJobId(converterJobId);
 		//queueMessage.setConverterJobFileId(inConverterJob.getConverterJobFileId());
