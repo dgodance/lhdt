@@ -176,7 +176,7 @@ include::{snippets}/urban-group-get/response-fields.adoc[]
 
 디자인 레이어 그룹 또는 목록을 조회 한다.
 
-[[resources-design-layer-groups-list]]
+[[resources-design-layer-group-list]]
 === 디자인 레이어 그룹 목록 조회
 
 `GET` 요청을 사용하여 서비스의 모든 디자인 레이어 그룹을 조회할 수 있다.
@@ -244,7 +244,7 @@ include::{snippets}/data-library-group-list-by-depth/curl-request.adoc[]
 
 include::{snippets}/data-library-group-list-by-parent/curl-request.adoc[]
 
-[[resources-data-library-layer-group-get]]
+[[resources-data-library-group-get]]
 === 데이터 라이브러리 그룹 조회
 
 `GET` 요청을 사용해서 도시 그룹 하나를 조회할 수 있다.

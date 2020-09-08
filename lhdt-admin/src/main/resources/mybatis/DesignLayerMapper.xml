@@ -175,9 +175,9 @@
 			SELECT NEXTVAL('design_layer_land_seq')
 		</selectKey>
 		INSERT INTO design_layer_land (
-		design_layer_land_id, design_layer_id, design_layer_group_id, shape_id, the_geom
+			design_layer_land_id, design_layer_id, design_layer_group_id, shape_id, the_geom
 		) VALUES (
-		#{designLayerLandId}, #{designLayerId}, #{designLayerGroupId}, #{shapeId}, st_transform(ST_GeomFromText(#{theGeom},#{coordinate}),4326)
+			#{designLayerLandId}, #{designLayerId}, #{designLayerGroupId}, #{shapeId}, st_transform(ST_GeomFromText(#{theGeom},#{coordinate}),4326)
 		)
 	</insert>
 
@@ -187,17 +187,17 @@
 			SELECT NEXTVAL('design_layer_building_seq')
 		</selectKey>
 		INSERT INTO design_layer_building (
-		design_layer_building_id, design_layer_id, design_layer_group_id, shape_id, the_geom
+			design_layer_building_id, design_layer_id, design_layer_group_id, shape_id, the_geom
 		) VALUES (
-		#{designLayerBuildingId}, #{designLayerId}, #{designLayerGroupId}, #{shapeId}, st_transform(ST_GeomFromText(#{theGeom},#{coordinate}),4326)
+			#{designLayerBuildingId}, #{designLayerId}, #{designLayerGroupId}, #{shapeId}, st_transform(ST_GeomFromText(#{theGeom},#{coordinate}),4326)
 		)
 	</insert>
 
     <!-- 디자인 레이어 정보 수정 -->
     <update id="updateDesignLayer" parameterType="designLayer">
         /* updateDesignLayer */
-        UPDATE design_layer SET
-			design_layer_name = #{designLayerName},
+        UPDATE design_layer
+        SET design_layer_name = #{designLayerName},
 			urban_group_id = #{urbanGroupId},
 			design_layer_group_id = #{designLayerGroupId},
 	        design_layer_key = #{designLayerKey},
@@ -222,6 +222,47 @@
 	        update_date = NOW()
         WHERE design_layer_id = #{designLayerId}
     </update>
+
+	<update id="updateDesignLayerLandAttributes" parameterType="designLayerLand">
+		UPDATE design_layer_land
+		SET business_type = #{businessType},
+			business_district = #{businessDistrict},
+			block_number = #{blockNumber},
+			land_number = #{landNumber},
+			land_area = #{landArea},
+			useage_area = #{useageArea},
+			land_useage = #{landUseage},
+			land_division = #{landDivision},
+			useage = #{useage},
+			useage_specification = #{useageSpecification},
+			useage_recommended = #{useageRecommended},
+			useage_allowed = #{useageAllowed},
+			useage_limited = #{useageLimited},
+			useage_disapproval = #{useageDisapproval},
+			building_land_ratio = #{buildingLandRatio},
+			floor_area_ratio = #{floorAreaRatio},
+			floor_area_ratio_standard = #{floorAreaRatioStandard},
+			floor_area_ratio_allowed = #{floorAreaRatioAllowed},
+			floor_area_ratio_upper_limit = #{floorAreaRatioUpperLimit},
+			highest_height = #{highestHeight},
+			highest_floor = #{highestFloor},
+			housing_type = #{housingType},
+			households_number = #{householdsNumber},
+			standard_point = #{standardPoint}
+		WHERE shape_id = #{shapeId}
+			AND version_id IS NULL
+	</update>
+
+	<update id="updateDesignLayerBuildingAttributes" parameterType="designLayerBuilding">
+		UPDATE design_layer_building
+		SET building_height = #{buildingHeight},
+			building_floors = #{buildingFloors},
+			building_area = #{buildingArea},
+			complex_building = #{complexBuilding},
+			parent_id = #{parentId}
+		WHERE shape_id = #{shapeId}
+			AND version_id IS NULL
+	</update>
 
     <!-- 디자인 레이어 삭제 -->
     <delete id="deleteDesignLayer" parameterType="long">

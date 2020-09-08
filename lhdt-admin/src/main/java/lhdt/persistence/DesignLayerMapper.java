@@ -132,6 +132,20 @@ public interface DesignLayerMapper {
     int updateDesignLayer(DesignLayer designLayer);
 
     /**
+     * design layer land 속성 정보 업데이트
+     * @param designLayerLand
+     * @return
+     */
+    int updateDesignLayerLandAttributes(DesignLayerLand designLayerLand);
+
+    /**
+     * design layer building 속성 정보 업데이트
+     * @param designLayerBuilding
+     * @return
+     */
+    int updateDesignLayerBuildingAttributes(DesignLayerBuilding designLayerBuilding);
+
+    /**
     * Design Layer 삭제
     * @param designLayerId
     * @return

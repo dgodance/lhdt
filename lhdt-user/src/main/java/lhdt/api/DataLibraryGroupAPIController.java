@@ -46,7 +46,7 @@ public class DataLibraryGroupAPIController {
         CollectionModel<EntityModel<DataLibraryGroupDto>> model = CollectionModel.of(dataLibraryGroupList);
 
         model.add(linkTo(DataLibraryGroupAPIController.class).withSelfRel());
-        model.add(Link.of("/docs/index.html#resource-data-library-group-list").withRel("profile"));
+        model.add(Link.of("/docs/index.html#resources-data-library-group-list").withRel("profile"));
 
         return ResponseEntity.ok(model);
     }
@@ -63,7 +63,7 @@ public class DataLibraryGroupAPIController {
                 DataLibraryGroup.builder().dataLibraryGroupId(id).build()), DataLibraryGroupDto.class);
         EntityModel<DataLibraryGroupDto> dataLibraryGroup = EntityModel.of(dto);
         dataLibraryGroup.add(linkTo(DataLibraryGroupAPIController.class).slash(id).withSelfRel());
-        dataLibraryGroup.add(Link.of("/docs/index.html#resource-data-library-group-get").withRel("profile"));
+        dataLibraryGroup.add(Link.of("/docs/index.html#resources-data-library-group-get").withRel("profile"));
 
         return ResponseEntity.ok(dataLibraryGroup);
     }
@@ -85,7 +85,7 @@ public class DataLibraryGroupAPIController {
         CollectionModel<EntityModel<DataLibraryGroupDto>> model = CollectionModel.of(urbanGroupList);
 
         model.add(linkTo(DataLibraryGroupAPIController.class).withSelfRel());
-        model.add(Link.of("/docs/index.html#resource-data-library-group-depth").withRel("profile"));
+        model.add(Link.of("/docs/index.html#resources-data-library-group-depth").withRel("profile"));
 
         return ResponseEntity.ok(model);
     }
@@ -107,7 +107,7 @@ public class DataLibraryGroupAPIController {
         CollectionModel<EntityModel<DataLibraryGroupDto>> model = CollectionModel.of(urbanGroupList);
 
         model.add(linkTo(DataLibraryGroupAPIController.class).withSelfRel());
-        model.add(Link.of("/docs/index.html#resource-data-library-group-parent").withRel("profile"));
+        model.add(Link.of("/docs/index.html#resources-data-library-group-parent").withRel("profile"));
 
         return ResponseEntity.ok(model);
     }

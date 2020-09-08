@@ -226,7 +226,7 @@
         <if test="errorCode != null and errorCode != ''">
             error_code = #{errorCode},
         </if>
-        update_date = now()
+            update_date = now()
         WHERE data_library_converter_job_id = #{dataLibraryConverterJobId}
         <if test="userId != null and userId != ''">
             AND user_id = #{userId}

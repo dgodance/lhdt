@@ -45,7 +45,7 @@ public class DesignLayerGroupAPIController {
         CollectionModel<EntityModel<DesignLayerGroupDto>> model = CollectionModel.of(designLayerGroupList);
 
         model.add(linkTo(DesignLayerGroupAPIController.class).withSelfRel());
-        model.add(Link.of("/docs/index.html#resource-design-layer-group-list").withRel("profile"));
+        model.add(Link.of("/docs/index.html#resources-design-layer-group-list").withRel("profile"));
 
         return ResponseEntity.ok(model);
     }
@@ -61,7 +61,7 @@ public class DesignLayerGroupAPIController {
         DesignLayerGroupDto dto = modelMapper.map(designLayerGroupService.getDesignLayerGroup(id), DesignLayerGroupDto.class);
         EntityModel<DesignLayerGroupDto> designLayerGroup = EntityModel.of(dto);
         designLayerGroup.add(linkTo(DesignLayerGroupAPIController.class).slash(id).withSelfRel());
-        designLayerGroup.add(Link.of("/docs/index.html#resource-design-layer-group-get").withRel("profile"));
+        designLayerGroup.add(Link.of("/docs/index.html#resources-design-layer-group-get").withRel("profile"));
 
         return ResponseEntity.ok(designLayerGroup);
     }

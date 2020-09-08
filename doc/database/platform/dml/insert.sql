@@ -232,4 +232,21 @@ values
 
 	;
 
+
+INSERT INTO public.urban_group(
+	urban_group_id, urban_group_key, urban_group_name, user_id, ancestor, parent, depth, view_order, children, available, basic)
+VALUES
+    (1, '', '3기 신도시', 'admin', 1, 0, 1, 1, 10, true, true),
+    (2, '', '남양주 왕숙 신도시', 'admin', 1, 1, 2, 2, 0, true, true),
+    (3, '', '하남 교산 신도시', 'admin', 1, 1, 2, 3, 0, true, true),
+    (4, '', '인천 계양 신도시', 'admin', 1, 1, 2, 4, 0, true, true),
+    (5, '', '고양 창릉 신도시', 'admin', 1, 1, 2, 5, 0, true, true),
+    (6, '', '부천 대장 신도시', 'admin', 1, 1, 2, 6, 0, true, true),
+    (7, '', '과천 과천 지구', 'admin', 1, 1, 2, 7, 0, true, true),
+    (8, '', '안산 장상지구', 'admin', 1, 1, 2, 8, 0, true, true),
+    (9, '', '용인 구성역', 'admin', 1, 1, 2, 9, 0, true, true),
+    (10, '', '안산 신길2지구', 'admin', 1, 1, 2, 10, 0, true, true),
+    (11, '', '수원 당수2지구', 'admin', 1, 1, 2, 11, 0, true, true)
+;
+
 commit;
