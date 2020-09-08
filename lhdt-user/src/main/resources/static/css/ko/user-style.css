@@ -134,7 +134,19 @@ background-position: -445px -190px;
 ul.nav li.spatial {
 background-position: -445px -290px;
 }
-ul.nav li.simulation {
+ul.nav li.cityPlan {
+letter-spacing: -2px;
+background-position: -445px -390px;
+}
+ul.nav li.landscape {
+letter-spacing: -2px;
+background-position: -445px -390px;
+}
+ul.nav li.dataLibrary {
+letter-spacing: -2px;
+background-position: -445px -390px;
+}
+ul.nav li.sunShine {
 letter-spacing: -2px;
 background-position: -445px -390px;
 }

@@ -54,7 +54,7 @@ DS.init = function(){
 	s += '</ul>';
  	
  	//화면에 표시
- 	$el.append(s);
+ 	$el.html(s);
  	
  	//페이지 클릭 이벤트
  	$('ul.pagination > li').click(function(){
