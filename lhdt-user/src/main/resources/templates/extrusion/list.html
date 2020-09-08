@@ -17,31 +17,24 @@
 			</select>
 		</div>
 		<div id="extrusionModel" style="border: 1px solid #ccc;border-top: none;">
-			<h3 style="display: inline-block;margin: 5px 5px 10px 5px;padding: 5px;border-bottom: 1px solid #ccc;">지구계획 데이터</h3>
-			<button id="extrusionModelToolToggle" type="button" style="display: inline-block;margin: 5px 5px 10px 5px;padding: 5px;">도구모음</button>
+			<h3 style="display: inline-block;margin: 5px 5px 10px 5px;padding: 5px;border-bottom: 1px solid #ccc;">디자인 레이어</h3>
+			<button id="designLayerToolToggle" type="button" style="display: inline-block;margin: 5px 5px 10px 5px;padding: 5px; float: right;">도구모음</button>
 			<div style="margin: 5px;padding: 5px;border-bottom: 1px solid #ccc;">
-				<h4>영역</h4>
-				<ul id="extrusionAreaList">
-				</ul>
-			</div>
-			<div style="margin: 5px;padding: 5px;border-bottom: 1px solid #ccc;">
-				<h4>건물</h4>
-				<ul id="extrusionBuildingList">
-				</ul>
-			</div>
-			<div style="margin: 5px;padding: 5px;border-bottom: 1px solid #ccc;">
-				<h4>라인</h4>
-				<ul id="extrusionLineList">
+				<ul id="designLayerDHTML">
 				</ul>
 			</div>
 		</div>
 		<div id="dataLibrary" style="border: 1px solid #ccc;margin-top: 20px;">
 			<h3 style="margin: 5px 5px 10px 5px;padding: 5px;border-bottom: 1px solid #ccc;">데이터 라이브러리</h3>
+			<button id="dataLibraryToolToggle" type="button" style="display: inline-block;margin: 5px 5px 10px 5px;padding: 5px; float: right;">도구모음</button>
 			<div style="margin: 5px;padding: 5px;border-bottom: 1px solid #ccc;">
-				<ul id="dataLibraryList">
+				<ul id="dataLibraryDHTML">
 				</ul>
 			</div>
 		</div>
 	</div>
+
+	<div th:replace="~{/extrusion/design-layer-template :: #designLayerSource}"></div>
+	<div th:replace="~{/extrusion/data-library-template :: #dataLibrarySource}"></div>
 </div>
 </html>

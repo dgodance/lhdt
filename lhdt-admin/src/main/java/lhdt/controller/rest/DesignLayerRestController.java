@@ -857,6 +857,7 @@ public class DesignLayerRestController implements AuthorizationController {
     	if(!designLayerFileInfoList.isEmpty()) {
     		long validCount = designLayerFileInfoList.stream()
     				.filter(designLayerFileInfo -> {
+    					log.info("==== designLayerFileInfo = {}", designLayerFileInfo);
     					String fileExt = designLayerFileInfo.getFileExt().toLowerCase().trim();
     					return fileExt.equals(ShapeFileExt.SHP.getValue()) || fileExt.equals(ShapeFileExt.DBF.getValue()) || fileExt.equals(ShapeFileExt.SHX.getValue());
     				})

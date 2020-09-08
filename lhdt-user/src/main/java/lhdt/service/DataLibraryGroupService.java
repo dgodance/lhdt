@@ -13,6 +13,12 @@ public interface DataLibraryGroupService {
 	List<DataLibraryGroup> getListDataLibraryGroup();
 
 	/**
+	 * 모든 데이러 라이브러리 그룹에 속하는 데이터 라이브러리 목록
+ 	 * @return
+	 */
+	List<DataLibraryGroup> getListDataLibraryGroupAndDataLibrary();
+
+	/**
 	 * 데이터 라이브러리 그룹 정보
 	 * @param dataLibraryGroup
 	 * @return
