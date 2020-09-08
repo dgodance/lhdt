@@ -143,6 +143,7 @@
 
 <!--DS lib-->
 <link rel="stylesheet" th:href="@{/externlib/toastr/toastr.css(cacheVersion=${contentCacheVersion})}" />
+<link rel="stylesheet" th:href="@{/css/{lang}/ds-style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}" />
 <script type="text/javascript" th:src="@{/externlib/toastr/toastr.min.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>
 <script type="text/javascript" th:src="@{/externlib/ds/pp-0.9-legacy.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>
 <script type="text/javascript" th:src="@{/externlib/ds/ppui-0.9-legacy.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>

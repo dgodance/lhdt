@@ -26,6 +26,30 @@ Ppmap.setViewer = function (viewer) {
     this._viewer = viewer;
 }
 
+/**
+ * 커서 백업
+ */
+Ppmap.backupCursor = function(){
+	window['cursor'] = MAGO3D_INSTANCE.getViewer()._container.style.cursor;
+};
+
+/**
+ * 커서 복원
+ */
+Ppmap.restoreCursor = function(){
+	MAGO3D_INSTANCE.getViewer()._container.style.cursor = window['cursor'];
+};
+
+/**
+ * 커서 복원
+ */
+Ppmap.setCursor = function(cursor){
+    //
+    Ppmap.backupCursor();
+    //
+	MAGO3D_INSTANCE.getViewer()._container.style.cursor = cursor;
+};
+
 
 /**
  * @param {Cartesian3|LonLatAlt} ctsnOrXyz
@@ -80,14 +104,17 @@ Ppmap.removeEntity = function(entity){
  */
 Ppmap.createPoint = function(entityName, lon, lat, option) {
     let worldPosition = Cesium.Cartesian3.fromDegrees(lon, lat);
+
+	//
+	let opt = Pp.extend({}, option);
     
     var entity = MAGO3D_INSTANCE.getViewer().entities.add({
         name: entityName,
         position: worldPosition,
         point: {
-            color: Cesium.Color.RED,
+            color: (opt.color ? opt.color : Cesium.Color.RED),
             pixelSize: 10,
-            outlineColor: Cesium.Color.RED,
+            outlineColor: Cesium.Color.YELLOW,
             outlineWidth: 2,
             disableDepthTestDistance: Number.POSITIVE_INFINITY,
             heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
@@ -118,13 +145,54 @@ Ppmap.createPolyline = function(entityName, lonLats, option) {
 	//	
     var entity = MAGO3D_INSTANCE.getViewer().entities.add({
 		name: entityName,
-        polyline: {
-	        positions: Cesium.Cartesian3.fromDegreesArray(arr),
-            width : 5,
-			material : Cesium.Color.RED
-        }
-    });
+		 polyline: {
+            // This callback updates positions each frame.
+            positions: new Cesium.CallbackProperty(function() {
+				return Cesium.Cartesian3.fromDegreesArray(arr);                    
+            }, false),
+            width: 10,
+            clampToGround: true,
+            material: new Cesium.PolylineOutlineMaterialProperty({
+                color: Cesium.Color.YELLOW,
+            })
+        },
+	});
+
+	//
     return entity;
+}
+
+
+/**
+ * cartesian2를 LonLat을 변환
+ */
+Ppmap.cartesian2ToLonLat = function(ctsn2){
+	const cartesian = MAGO3D_INSTANCE.getViewer().scene.pickPosition(ctsn2);
+	const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+	
+	//
+	return Ppmap.cartoToLonLat(cartographic);
+};
+
+
+/**
+cartographic을 {'lon', 'lat'}으로 변환
+ * @param {Cartographic} cartographic
+ * @returns {LonLat}
+ */
+Ppmap.cartoToLonLat = function(cartographic){
+	if(Pp.isEmpty(cartographic)){
+		return {
+			'lon': NaN,	
+			'lat': NaN,	
+		}
+	}
+	
+	//
+	return {
+		'lon':Cesium.Math.toDegrees(cartographic.longitude),
+		'lat': Cesium.Math.toDegrees(cartographic.latitude)
+	};
 }
 
 
@@ -339,15 +407,27 @@ Ppmap.toCartesian3 = function () {
 /**
 * 지도 방향? 초기화
 */
-Ppmap.resetRotate = function () {
-    MAGO3D_INSTANCE.getViewer().scene.camera.flyTo({
-        destination: MAGO3D_INSTANCE.getViewer().scene.camera.positionWC,
-        duration: 1
-    });
-    /*
-    this._viewer.scene.camera.flyTo({
-        destination: camera.positionWC,
-        duration : 0
-    });
-    */
+Ppmap.resetRotate = function (callbackFn) {
+	let json={};
+	json.destination = MAGO3D_INSTANCE.getViewer().scene.camera.positionWC;
+	json.duration = 1;
+	if(Pp.isNotEmpty(callbackFn)){
+		json.complete = callbackFn;
+	}
+	
+    MAGO3D_INSTANCE.getViewer().scene.camera.flyTo(json);
+}
+
+
+/**
+ * zoomTo with headingPitchRoll
+ */
+Ppmap.zoomTo = function(entity){
+	//
+	let heading = 0.0;
+	let pitch = Cesium.Math.toRadians(-90);
+	let roll = 0.0;
+	
+	//	
+	MAGO3D_INSTANCE.getViewer().zoomTo(entity, new Cesium.HeadingPitchRoll(heading, pitch, roll) );
 }

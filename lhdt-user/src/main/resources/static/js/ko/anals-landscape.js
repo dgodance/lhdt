@@ -22,13 +22,25 @@ lsDropDownList.prototype.initProperty = function() {
 lsDropDownList.prototype.change = function () {
 	let that = this;
 	$(that._ele).change(function() {
+		Ppmap.removeAll();
+		
+		
+		//
 		const val = that._val = $(this).val();
 		if(val === "0") {
 			const p = new lsFreeAnalsWidget();
 			p.defaultRender()
+			
+			//
+			lsAnalsAutoObj = new LsAnalsAutoObj();
+			lsAnalsAutoObj.init();
 		} else {
 			const p = new lsSavedAnalsWidget();
 			p.reqeustDataBylsAnalsPg();
+			
+			//
+			lsAnalsSavedObj = new LsAnalsSavedObj();
+			lsAnalsSavedObj.init();
 		}
 	});
 }
@@ -283,10 +295,14 @@ SkylineObj.prototype.execCalcViewPoint = function(xyz1, xyz2) {
 
 	const that = this;
 	let viewPoint = that.calcViewPoint(xyz1, xyz2);
+	
+	//
+	let colors = [Cesium.Color.ORANGE, Cesium.Color.GREEN, Cesium.Color.BLUE];
 
 	//점 표시
 	for(let i=0; i<3; i++){
-		that.drawPoint(viewPoint[i].lon, viewPoint[i].lat);
+		Ppmap.createPoint('ls-anals-saved-' + i, viewPoint[i].lon, viewPoint[i].lat, {color:colors[i]});
+		//that.drawPoint(viewPoint[i].lon, viewPoint[i].lat);
 	}
 
 	//
