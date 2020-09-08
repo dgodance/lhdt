@@ -795,8 +795,22 @@
 	$("#designLayerToolToggle").click(function() {
 		designLayerDialog.dialog( "open" );
 	});
-	// 이슈 다이얼 로그
+	// 디자인 레이어 로그
 	var designLayerDialog = $( "#designLayerDialog" ).dialog({
+		autoOpen: false,
+		width: 500,
+		height: 500,
+		modal: true,
+		overflow : "auto",
+		resizable: false
+	});
+	
+	// 데이터라이브러리 레이어 버튼 클릭
+	$("#dataLibraryToolToggle").click(function() {
+		designLayerDialog.dialog( "open" );
+	});
+	// 데이터라이브러리 다이얼 로그
+	var dataLibraryDialog = $( "#dataLibraryDialog" ).dialog({
 		autoOpen: false,
 		width: 500,
 		height: 500,
