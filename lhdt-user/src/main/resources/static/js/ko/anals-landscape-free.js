@@ -148,7 +148,6 @@ lsAnalsBtn.prototype.eventHandler = function() {
 			Ppmap.flyToByCameraStatus(cameraStatusBackup);
 		});
 		*/
-
     })
 }
 
