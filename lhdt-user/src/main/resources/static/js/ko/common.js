@@ -367,3 +367,30 @@ function locationValidation(longitude, latitude, altitude) {
 		return false;
 	}
 }
+
+/**
+ * 스크린픽셀을 월드좌표로 변경
+ * @param screen
+ * @returns {Mago3D.Point3D}
+ */
+function screenToWorldCoord(screen){
+	return Mago3D.ManagerUtils.screenCoordToWorldCoord(undefined, screen.x, screen.y, undefined, undefined, undefined, undefined, magoManager);
+}
+
+/**
+ * 월드좌표를 경위도좌표로 변경
+ * @param wc
+ * @returns {Mago3D.GeographicCoord}
+ */
+function worldCoordToGeographic(wc){
+	return Mago3D.ManagerUtils.pointToGeographicCoord(wc, undefined, magoManager);
+}
+
+/**
+ * 스크린픽셀을 경위도좌표로 변경
+ * @param screen
+ * @returns {Mago3D.Point3D}
+ */
+function screenToGeographicCoord(screen){
+	return worldCoordToGeographic(screenToWorldCoord(screen));
+}

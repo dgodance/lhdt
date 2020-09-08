@@ -141,6 +141,19 @@
 <script type="text/javascript" th:src="@{/js/{lang}/map-data-search.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript">
 
+	function webMercatorToCartesian3(coordinates){
+		var wmp = new Cesium.WebMercatorProjection();
+		var carto = wmp.unproject(new Cesium.Cartesian3(coordinates[0], coordinates[1], 0));
+		return Cesium.Cartesian3.fromDegrees(Cesium.Math.toDegrees(carto.longitude), Cesium.Math.toDegrees(carto.latitude), carto.height);
+	}
+	if(!Cesium.GeoJsonDataSource.crsNames['urn:ogc:def:crs:EPSG::900913']) {
+		Cesium.GeoJsonDataSource.crsNames['urn:ogc:def:crs:EPSG::900913'] = webMercatorToCartesian3;
+	}
+	if(!Cesium.GeoJsonDataSource.crsNames['urn:ogc:def:crs:EPSG::3857']) {
+		Cesium.GeoJsonDataSource.crsNames['urn:ogc:def:crs:EPSG::3857'] = webMercatorToCartesian3;
+	}
+
+
 	var MAGO3D_INSTANCE;
 	var NDTP = NDTP || {
 		policy : {},
@@ -794,27 +807,29 @@
 	// 디자인 레이어 버튼 클릭
 	$("#designLayerToolToggle").click(function() {
 		designLayerDialog.dialog( "open" );
+		dataLibraryDialog.dialog( "close" );
 	});
 	// 디자인 레이어 로그
 	var designLayerDialog = $( "#designLayerDialog" ).dialog({
 		autoOpen: false,
-		width: 500,
-		height: 500,
-		modal: true,
+		width: 300,
+		height: 200,
+		modal: false,
 		overflow : "auto",
 		resizable: false
 	});
 	
 	// 데이터라이브러리 레이어 버튼 클릭
 	$("#dataLibraryToolToggle").click(function() {
-		designLayerDialog.dialog( "open" );
+		dataLibraryDialog.dialog( "open" );
+		designLayerDialog.dialog( "close" );
 	});
 	// 데이터라이브러리 다이얼 로그
 	var dataLibraryDialog = $( "#dataLibraryDialog" ).dialog({
 		autoOpen: false,
-		width: 500,
-		height: 500,
-		modal: true,
+		width: 300,
+		height: 200,
+		modal: false,
 		overflow : "auto",
 		resizable: false
 	});
