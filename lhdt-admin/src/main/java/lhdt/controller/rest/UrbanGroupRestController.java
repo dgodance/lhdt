@@ -7,6 +7,7 @@ import lhdt.service.UrbanGroupService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,13 +28,46 @@ public class UrbanGroupRestController {
 	private UrbanGroupService urbanGroupService;
 
 	/**
+	 * 그룹 Key 중복 체크
+	 * @param request
+	 * @param urbanGroup
+	 * @return
+	 */
+	@GetMapping(value = "/duplication")
+	public Map<String, Object> ajaxKeyDuplicationCheck(HttpServletRequest request, UrbanGroup urbanGroup) {
+		Map<String, Object> result = new HashMap<>();
+		String errorCode = null;
+		String message = null;
+
+		// TODO @Valid 로 구현해야 함
+		if(StringUtils.isEmpty(urbanGroup.getUrbanGroupKey())) {
+			result.put("statusCode", HttpStatus.BAD_REQUEST.value());
+			result.put("errorCode", "urban.group.key.empty");
+			result.put("message", message);
+
+			return result;
+		}
+
+		Boolean duplication = urbanGroupService.isUrbanGroupKeyDuplication(urbanGroup);
+		log.info("@@ duplication = {}", duplication);
+		int statusCode = HttpStatus.OK.value();
+
+		result.put("duplication", duplication);
+		result.put("statusCode", statusCode);
+		result.put("errorCode", errorCode);
+		result.put("message", message);
+
+		return result;
+	}
+
+	/**
 	 * 도시 그룹 등록
 	 * @param request
 	 * @param urbanGroup
 	 * @param bindingResult
 	 * @return
 	 */
-	@PostMapping(value = "/insert")
+	@PostMapping
 	public Map<String, Object> insert(HttpServletRequest request, @Valid @ModelAttribute UrbanGroup urbanGroup, BindingResult bindingResult) {
 		log.info("@@@@@ insert urbanGroup = {}", urbanGroup);
 
@@ -70,7 +104,7 @@ public class UrbanGroupRestController {
 	 * @param bindingResult
 	 * @return
 	 */
-	@PostMapping(value = "/update")
+	@PutMapping("/{urbanGroupId:[0-9]+}")
 	public Map<String, Object> update(HttpServletRequest request, @Valid UrbanGroup urbanGroup, BindingResult bindingResult) {
 		log.info("@@ urbanGroup = {}", urbanGroup);
 		Map<String, Object> result = new HashMap<>();

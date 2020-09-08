@@ -201,10 +201,10 @@ function mapDataGroupList(pageNo, searchDataGroupName) {
 					if (dataGroupList.length > 0) {
 						for (i in dataGroupList) {
 							var dataGroup = dataGroupList[i];
-							var dataId = parseInt(dataGroup.dataGroupId);
+							var dataGroupId = parseInt(dataGroup.dataGroupId);
 							var isVisible = true;
 							if (!$.isEmptyObject(projectsMap)) {
-								var projects = projectsMap[dataId];
+								var projects = projectsMap[dataGroupId];
 								if ($.isEmptyObject(projects)) {
 									dataGroup.groupVisible = isVisible;
 									continue;

@@ -1,6 +1,7 @@
 package lhdt.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,15 +13,35 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ConverterResultLog implements Serializable {
 
+    // TODO 사용자, 관리자 동시에 들어올 경우 테스트 필요
     private static final long serialVersionUID = -5428363369463462634L;
 
     private ConverterJob converterJob;
-    private List<ConversionJobResult> conversionJobResult;  // ConverterJob 변환결과
-    private String startTime;   // 시작시각
-    private String endTime;     // 종료시각
-    private String failureLog;  // 실패로그
-    private boolean isSuccess;  // 성공여부
-    private int numberOfFilesConverted;     // 변환된 파일갯수
-    private int numberOfFilesToBeConverted; // 변환되어야할 파일갯수
+
+    // ConverterJob 변환결과
+    private List<ConversionJobResult> conversionJobResult;
+
+    // 시작시각
+    private String startTime;
+    // 종료시각
+    private String endTime;
+
+    // 실패로그
+    private String failureLog;
+    // 성공여부
+    private boolean isSuccess;
+
+    // 변환된 파일 갯수
+    private int numberOfFilesConverted;
+    // 변환 되어야 할 파일 갯수
+    private int numberOfFilesToBeConverted;
+
+    @JsonProperty(value="isSuccess")
+    public boolean getIsSuccess() {
+        return isSuccess;
+    }
+    public void setIsSuccess(boolean isSuccess) {
+        this.isSuccess = isSuccess;
+    }
 
 }

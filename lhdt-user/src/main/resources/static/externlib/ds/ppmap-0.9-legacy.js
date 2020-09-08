@@ -48,6 +48,87 @@ Ppmap.addDirectionRay = function (ctsnOrXyz, direction) {
 
 
 /**
+ * 모든 entity 삭제
+ */
+Ppmap.removeAll = function(){
+	//
+	MAGO3D_INSTANCE.getViewer().entities.removeAll();
+}
+
+
+/**
+ * entity 삭제
+ * @param {Entity} entity 엔티티 인스턴스
+ */
+Ppmap.removeEntity = function(entity){
+	if(Pp.isNull(entity)){
+		return;
+	}
+	
+	//
+	MAGO3D_INSTANCE.getViewer().entities.remove(entity);
+}
+
+
+/**
+ * point entity 생성
+ * @param {string} entityName
+ * @param {number} lon
+ * @param {number} lat
+ * @param {object} option TODO
+ * @returns {Entity}
+ */
+Ppmap.createPoint = function(entityName, lon, lat, option) {
+    let worldPosition = Cesium.Cartesian3.fromDegrees(lon, lat);
+    
+    var entity = MAGO3D_INSTANCE.getViewer().entities.add({
+        name: entityName,
+        position: worldPosition,
+        point: {
+            color: Cesium.Color.RED,
+            pixelSize: 10,
+            outlineColor: Cesium.Color.RED,
+            outlineWidth: 2,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
+        }
+    });
+    return entity;
+}
+
+
+/**
+ * polyline entity 생성
+ * @param {string} entityName
+ * @param {array} arr [LonLat,LonLat,...]
+ * @param {object} option TODO
+ * @returns {Entity}
+ */
+Ppmap.createPolyline = function(entityName, lonLats, option) {
+	//
+	let arr=[];
+	//
+	for(let i=0; i<lonLats.length; i++){
+		let d = lonLats[i];
+		//
+		arr.push(d.lon);
+		arr.push(d.lat);
+	}
+	
+	//	
+    var entity = MAGO3D_INSTANCE.getViewer().entities.add({
+		name: entityName,
+        polyline: {
+	        positions: Cesium.Cartesian3.fromDegreesArray(arr),
+            width : 5,
+			material : Cesium.Color.RED
+        }
+    });
+    return entity;
+}
+
+
+/**
  * 현재 카메라 상태 추출
  * @returns {object} {'position', 'direction', 'up', 'right', 'transform', 'frustum'}
  * @since 20200904 init

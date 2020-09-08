@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html th:lang="${accessibility}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="/layouts/default">
 <head>
+	<meta charset="utf-8">
 	<title>업로딩 데이터</title>
 	<th:block layout:fragment="pageCustomStyle">
 		<link rel="shortcut icon" th:href="@{/images/favicon.ico(cacheVersion=${contentCacheVersion})}">
@@ -81,24 +82,25 @@
 							</colgroup>
 							<tr>
 								<th class="col-label" scope="row">
-									<label id="dataName" name="dataName">데이터명</label>
+									<label for="dataName">데이터명</label>
 									<span class="icon-glyph glyph-emark-dot color-warning"></span>
 								</th>
 								<td class="col-input">
 									<input type="text" id="dataName" name="dataName" th:field="*{dataName}" class="l" />
 								</td>
 								<th class="col-label" scope="row">
-									<label id="dataGroupName" name="dataGroupName">데이터 그룹</label>
+									<label for="dataGroupName">데이터 그룹</label>
 									<span class="icon-glyph glyph-emark-dot color-warning"></span>
 								</th>
 								<td class="col-input">
-									<input type="text" id="dataGroupId" name="dataGroupId" th:field="*{dataGroupId}" class="ml" readonly="true" />
+									<input type="hidden" id="dataGroupId" name="dataGroupId" />
+									<input type="text" id="dataGroupName" name="dataGroupName" th:field="*{dataGroupName}" class="ml" readonly="true" />
 									<input type="button" id="dataGroupButtion" value="데이터 그룹 선택" />
 								</td>
 							</tr>
 							<tr>
 								<th class="col-label" scope="row">
-									<label id="sharing" name="sharing">공유 유형</label>
+									<label for="sharing">공유 유형</label>
 									<span class="icon-glyph glyph-emark-dot color-warning"></span>
 								</th>
 								<td class="col-input">
@@ -110,7 +112,7 @@
 									</select>
 								</td>
 								<th class="col-label m" scope="row">
-									<label id="dataType" name="dataType">데이터 타입</label>
+									<label for="dataType">데이터 타입</label>
 									<span class="icon-glyph glyph-emark-dot color-warning"></span>
 								</th>
 								<td class="col-input">
@@ -127,7 +129,7 @@
 							</tr>
 							<tr>
 								<th class="col-label" scope="row">
-									<label id="longitude" name="longitude">대표 위치 (경도/위도/높이)</label>
+									<label for="longitude">대표 위치 (경도/위도/높이)</label>
 									<span class="icon-glyph glyph-emark-dot color-warning"></span>
 								</th>
 								<td class="col-input">
@@ -138,7 +140,7 @@
 									<input type="text" id="altitude" name="altitude" class="m" placeholder="altitude" />
 								</td>
 								<th class="col-label m" scope="row">
-									<label id="mappingType" name="mappingType">매핑 타입</label>
+									<label for="mappingType">매핑 타입</label>
 									<span class="icon-glyph glyph-emark-dot color-warning"></span>
 								</th>
 								<td class="col-input">
@@ -150,7 +152,7 @@
 							</tr>
 							<tr>
 								<th class="col-label" scope="row">
-									<label id="description" name="description" th:text="#{description}"></label>
+									<label for="description" th:text="#{description}"></label>
 								</th>
 								<td colspan="3" class="col-input">
 									<input type="text" id="description" name="description" th:field="*{description}" class="xl" />

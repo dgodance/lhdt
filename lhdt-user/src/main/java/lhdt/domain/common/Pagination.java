@@ -32,6 +32,19 @@ public class Pagination {
     }
 
     /**
+     * @param totalCount
+     * @param pageNo
+     * @param pageRows
+     */
+    public Pagination(long totalCount, long pageNo, long pageRows) {
+        this.totalCount = totalCount;
+        this.pageNo = pageNo;
+        this.pageRows = pageRows;
+        this.pageListCount = 10L;
+        init();
+    }
+
+    /**
     * @param uri
     * @param searchParameters
     * @param totalCount

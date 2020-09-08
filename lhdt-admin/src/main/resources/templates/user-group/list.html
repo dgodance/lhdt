@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html th:lang="${accessibility}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="/layouts/default">
 <head>
+	<meta charset="utf-8">
 	<title>사용자 그룹</title>
 	<th:block layout:fragment="pageCustomStyle">
 		<link rel="stylesheet" th:href="@{/css/{lang}/font/font.css(lang=${lang}, cacheVersion=${contentCacheVersion})}" />
@@ -29,6 +30,11 @@
 										<a href="#" onclick="closeAll(); return false;" class="button">접기</a>
 									</div>
 								</div>
+								<div class="list-functions u-pull-right">
+									<div class="button-group">
+										<a href="/user-group/input" class="button">사용자 그룹 등록</a>
+									</div>
+								</div>
 							</div>
 							<!-- S: 사용자 그룹 목록 -->
 							<table class="list-table scope-col" summary="사용자 그룹 리스트를 트리 형태로 조회 ">
@@ -45,7 +51,7 @@
 								</colgroup>
 								<thead>
 									<tr>
-										<th scope="col"><spring:message code='user.group.name'/></th>
+										<th scope="col"><th:block th:text="#{user.group.name}"></th:block></th>
 					                    <th scope="col">그룹Key</th>
 					                    <th scope="col">기본 여부</th>
 					                    <th scope="col">사용 여부</th>
@@ -58,7 +64,7 @@
 								</thead>
 								<tbody>
 									<tr th:if="${userGroupList.empty}">
-										<td colspan="8" class="col-none"><spring:message code='user.group.empty'/></td>
+										<td colspan="8" class="col-none"><th:block th:text="#{user.group.empty}"></th:block></td>
 									</tr>
 
 									<th:block th:if="${!userGroupList.empty}">

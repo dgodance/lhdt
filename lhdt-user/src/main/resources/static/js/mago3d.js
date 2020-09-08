@@ -378,7 +378,7 @@ function clearAllDataAPI(managerFactoryInstance)
 	if (managerFactoryInstance === null) { return; } 
 	
 	var api = new Mago3D.API("clearAllData");
-	Mago3D.MagoConfig.clearAllData();
+	managerFactoryInstance.getMagoManager().config.clearAllData();
 	managerFactoryInstance.callAPI(api);
 }
 
@@ -421,8 +421,8 @@ function gotoProjectAPI(managerFactoryInstance, projectId, projectData, projectD
 {
 	if (managerFactoryInstance === null) { return; } 
 	
-	Mago3D.MagoConfig.setData(Mago3D.CODE.PROJECT_ID_PREFIX + projectId, projectData);
-	Mago3D.MagoConfig.setProjectDataFolder(Mago3D.CODE.PROJECT_DATA_FOLDER_PREFIX + projectDataFolder, projectDataFolder);
+	managerFactoryInstance.getMagoManager().config.setData(Mago3D.CODE.PROJECT_ID_PREFIX + projectId, projectData);
+	managerFactoryInstance.getMagoManager().config.setProjectDataFolder(Mago3D.CODE.PROJECT_DATA_FOLDER_PREFIX + projectDataFolder, projectDataFolder);
 	
 	var api = new Mago3D.API("gotoProject");
 	api.setProjectId(projectId);
@@ -449,8 +449,8 @@ function gotoIssueAPI(managerFactoryInstance, projectId, projectData, projectDat
 {
 	if (managerFactoryInstance === null) { return; } 
 	
-	Mago3D.MagoConfig.setData(Mago3D.CODE.PROJECT_ID_PREFIX + projectId, projectData);
-	Mago3D.MagoConfig.setProjectDataFolder(Mago3D.CODE.PROJECT_DATA_FOLDER_PREFIX + projectDataFolder, projectDataFolder);
+	managerFactoryInstance.getMagoManager().config.setData(Mago3D.CODE.PROJECT_ID_PREFIX + projectId, projectData);
+	managerFactoryInstance.getMagoManager().config.setProjectDataFolder(Mago3D.CODE.PROJECT_DATA_FOLDER_PREFIX + projectDataFolder, projectDataFolder);
 	
 	var api = new Mago3D.API("gotoIssue");
 	api.setProjectId(projectId);
@@ -510,23 +510,25 @@ function searchDataAPI(managerFactoryInstance, projectId, dataKey)
 
 /**
  * 환경 설정 data Object에 key 값의 존재 유무를 판별
+ * @param {ManagerFactory} managerFactoryInstance
  * @param {string} key 검색 키
  * @param 
  */
-function isDataExistAPI(key) 
+function isDataExistAPI(managerFactoryInstance, key) 
 {
-	if (Mago3D.MagoConfig.isDataExist(key)) { return true; }
+	if (managerFactoryInstance.getMagoManager().config.isDataExist(key)) { return true; }
 	else { return false; }
 }
 
 /**
  * 환경 설정 data map에서 key 값을 취득
+ * @param {ManagerFactory} managerFactoryInstance
  * @param {string} key 검색 키
  * @param 
  */
-function getDataAPI(key) 
+function getDataAPI(managerFactoryInstance, key) 
 {
-	return Mago3D.MagoConfig.getData(key);
+	return managerFactoryInstance.getMagoManager().config.getData(key);
 }
 
 /**
@@ -565,8 +567,8 @@ function drawAppendDataAPI(managerFactoryInstance, projectIdArray, projectDataAr
 	projectIdArray.forEach(function(dataName, index) 
 	{
 			
-		Mago3D.MagoConfig.setData(Mago3D.CODE.PROJECT_ID_PREFIX + dataName, projectDataArray[index]);
-		Mago3D.MagoConfig.setProjectDataFolder(Mago3D.CODE.PROJECT_DATA_FOLDER_PREFIX + projectDataFolderArray[index], projectDataFolderArray[index]);
+		managerFactoryInstance.getMagoManager().config.setData(Mago3D.CODE.PROJECT_ID_PREFIX + dataName, projectDataArray[index]);
+		managerFactoryInstance.getMagoManager().config.setProjectDataFolder(Mago3D.CODE.PROJECT_DATA_FOLDER_PREFIX + projectDataFolderArray[index], projectDataFolderArray[index]);
 		
 		api.setProjectId(dataName);
 		api.setProjectDataFolder(projectDataFolderArray[index]);
@@ -14616,6 +14618,16 @@ Interaction.prototype.clear = function()
 {
 	return abstract();
 };
+
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ * @abstract
+ */
+Interaction.prototype.handle = function(browserEvent) 
+{
+	return abstract();
+};
 'use strict';
 
 var MagoRenderable = function(options) 
@@ -14827,7 +14839,7 @@ MagoRenderable.prototype.render = function(magoManager, shader, renderType, glPr
 		if (bIsSelected && this.options.renderWireframe)
 		{
 			var shaderThickLine = magoManager.postFxShadersManager.getShader("thickLine");
-			shaderThickLine.useProgram();
+			magoManager.postFxShadersManager.useProgram(shaderThickLine);
 			shaderThickLine.bindUniformGenerals();
 			var gl = magoManager.getGl();
 			gl.uniform1i(shaderThickLine.bUseLogarithmicDepth_loc, magoManager.postFxShadersManager.bUseLogarithmicDepth);
@@ -14855,7 +14867,7 @@ MagoRenderable.prototype.render = function(magoManager, shader, renderType, glPr
 			this.renderAsChild(magoManager, shaderThickLine, renderType, glPrimitive, bIsSelected, this.options, bWireframe);
 			
 			// Return to the currentShader.
-			shader.useProgram();
+			magoManager.postFxShadersManager.useProgram(shader);
 		}
 	}
 };
@@ -14883,7 +14895,7 @@ MagoRenderable.prototype.renderAsChild = function(magoManager, shader, renderTyp
 
 		if (selectionManager.isObjectSelected(this))
 		{ bIsSelected = true; }
-		bIsSelected = false;
+		
 		if (bIsSelected)
 		{
 			var selColor = [0.9, 0.1, 0.1, 1.0];
@@ -14900,7 +14912,7 @@ MagoRenderable.prototype.renderAsChild = function(magoManager, shader, renderTyp
 				}
 			}
 			
-			//gl.uniform4fv(shader.oneColor4_loc, selColor);
+			gl.uniform4fv(shader.oneColor4_loc, selColor);
 		}
 		else 
 		{
@@ -15140,6 +15152,23 @@ MagoRenderable.prototype.getGeoLocDataManager = function()
 {
 	return this.geoLocDataManager;
 };
+
+/**
+ * set model position
+ * @param {GeographicCoord} geographicCoord 
+ */
+MagoRenderable.prototype.setGeographicPosition = function(geographicCoord) 
+{
+	if (this.geoLocDataManager === undefined)
+	{ this.geoLocDataManager = new GeoLocationDataManager(); }
+
+	var geoLocData = this.geoLocDataManager.getCurrentGeoLocationData();
+	if (geoLocData === undefined)
+	{
+		geoLocData = this.geoLocDataManager.newGeoLocationData("default");
+		geoLocData = ManagerUtils.calculateGeoLocationData(geographicCoord.longitude, geographicCoord.latitude, geographicCoord.altitude, undefined, undefined, undefined, geoLocData);
+	}
+};
 'use strict';
 
 var ViewerInit = function(containerId, serverPolicy) 
@@ -15149,14 +15178,17 @@ var ViewerInit = function(containerId, serverPolicy)
 	{
 		throw new Error('containerId is required.');
 	}
-	MagoConfig.init(serverPolicy, null, null);
+	var magoConfig = new MagoConfig();
+	magoConfig.init(serverPolicy, null, null);
 
+	this.config = magoConfig;
 	this.targetId = containerId;
 	this.magoManager;
 	this.viewer;
-	this.policy = MagoConfig.getPolicy();
+	this.policy = magoConfig.getPolicy();
+	
 
-	MagoConfig.setContainerId(this.targetId);
+	magoConfig.setContainerId(this.targetId);
 	this.init();
 	this.createElement();
 };
@@ -15197,11 +15229,12 @@ ViewerInit.prototype.initPosition = function()
 
 ViewerInit.prototype.createElement = function()
 {
-	var viewElement = this.magoManager.isCesiumGlobe() ? document.getElementsByClassName('cesium-viewer')[0] : document.getElementById(this.targetId);
+	var container = document.getElementById(this.targetId);
+	var viewElement = this.magoManager.isCesiumGlobe() ? container.getElementsByClassName('cesium-viewer')[0] : container;
 
 	this.magoManager.overlayContainer = document.createElement('div');
 	this.magoManager.overlayContainer.style.position = 'absolute';
-	this.magoManager.overlayContainer.style.zIndex = '0';
+	this.magoManager.overlayContainer.style.zIndex = '1';
 	this.magoManager.overlayContainer.style.width = '100%';
 	this.magoManager.overlayContainer.style.height = '100%';
 	this.magoManager.overlayContainer.style.top = '0px';
@@ -15211,12 +15244,28 @@ ViewerInit.prototype.createElement = function()
 	this.magoManager.defaultControlContainer = document.createElement('div');
 	this.magoManager.defaultControlContainer.style.position = 'absolute';
 	this.magoManager.defaultControlContainer.style.right = '0px';
-	this.magoManager.defaultControlContainer.style.width = '220px';
+	this.magoManager.defaultControlContainer.style.width = '320px';
 	this.magoManager.defaultControlContainer.style.height = '100%';
 	this.magoManager.defaultControlContainer.style.float = 'right';
 	this.magoManager.defaultControlContainer.className = 'mago3d-overlayContainer-defaultControl';
 
+	this.magoManager.defaultContentContainer = document.createElement('div');
+	this.magoManager.defaultContentContainer.style.position = 'absolute';
+	this.magoManager.defaultContentContainer.style.right = '-320px';
+	this.magoManager.defaultContentContainer.style.width = '320px';
+	//advanceToolDiv.style.height = 'calc(100% - 30px)';
+	this.magoManager.defaultContentContainer.style.height = '100%';
+	this.magoManager.defaultContentContainer.style.float = 'right';
+	//advanceToolDiv.style.marginTop = '15px';
+	this.magoManager.defaultContentContainer.style.border = '2px solid rgb(204, 229, 236)';
+	this.magoManager.defaultContentContainer.style.borderRadius = '4px';
+	this.magoManager.defaultContentContainer.style.backgroundColor = '#EAEAEA';
+	this.magoManager.defaultContentContainer.style.pointerEvents = 'auto';
+	this.magoManager.defaultContentContainer.style.display = 'none';
+	this.magoManager.defaultContentContainer.className = 'mago3d-overlayContainer-defaultContent';
+
 	this.magoManager.overlayContainer.appendChild(this.magoManager.defaultControlContainer);
+	this.magoManager.overlayContainer.appendChild(this.magoManager.defaultContentContainer);
 	viewElement.appendChild(this.magoManager.overlayContainer);
 
 	var defaultControl = this.options.defaultControl;
@@ -15340,7 +15389,7 @@ ColorAPI.changeColor = function(api, magoManager)
 	for (var i=0; i<historiesCount; i++)
 	{
 		changeHistory = changeHistorys[i];
-		MagoConfig.saveColorHistory(projectId, dataKey, changeHistory.getObjectId(), changeHistory);
+		magoManager.config.saveColorHistory(projectId, dataKey, changeHistory.getObjectId(), changeHistory);
 	}
 };
 'use strict';
@@ -15496,8 +15545,8 @@ AbsControl.prototype.setBtnStyle = function(element)
 	element.style.fontWeight = 'bold';
 	element.style.textDecoration = 'none';
 	element.style.textAlign = 'center';
-	element.style.height = '50px';
-	element.style.width = '50px';
+	element.style.height = '42px';
+	element.style.width = '42px';
 	element.style.lineHeight = '.4em';
 	element.style.border = 'none';
 	element.style.backgroundColor = 'rgba(148,216,246, 0.8)';
@@ -15536,7 +15585,7 @@ AbsControl.prototype.setTextBtn = function(element)
 	element.style.textDecoration = 'none';
 	element.style.textAlign = 'center';
 	element.style.height = '1.75em';
-	element.style.width = '4.675em';
+	element.style.width = '4.575em';
 	element.style.lineHeight = '.4em';
 	element.style.border = 'none';
 	element.style.backgroundColor = 'rgba(148,216,246, 0.8)';
@@ -15683,7 +15732,7 @@ var FullScreen = function(options)
 
 	var textSpan = document.createElement('span');
 	textSpan.appendChild(document.createTextNode('전체화면'));
-	textSpan.style.fontSize = '12px';
+	textSpan.style.fontSize = '10px';
 	textSpan.style.verticalAlign = 'baseline';
 	textSpan.style.lineHeight = '0.6em';
 	fullButton.appendChild(textSpan);
@@ -15712,7 +15761,7 @@ var FullScreen = function(options)
 
 	var cancleTextSpan = document.createElement('span');
 	cancleTextSpan.appendChild(document.createTextNode('취소'));
-	cancleTextSpan.style.fontSize = '12px';
+	cancleTextSpan.style.fontSize = '10px';
 	cancleTextSpan.style.verticalAlign = 'baseline';
 	cancleTextSpan.style.lineHeight = '0.6em';
 	cancleButton.appendChild(cancleTextSpan);
@@ -15737,7 +15786,7 @@ FullScreen.prototype.constructor = FullScreen;
 
 FullScreen.prototype.handleClick = function()
 {
-	var target = document.getElementById(MagoConfig.getContainerId());
+	var target = document.getElementById(this.magoManager.config.getContainerId());
 	if (this.full)
 	{
 		if (isFullScreen())
@@ -15859,7 +15908,7 @@ var InitCamera = function(options)
 
 	var textSpan = document.createElement('span');
 	textSpan.appendChild(document.createTextNode('처음으로'));
-	textSpan.style.fontSize = '12px';
+	textSpan.style.fontSize = '10px';
 	textSpan.style.verticalAlign = 'baseline';
 	textSpan.style.lineHeight = '0.6em';
 	homeButton.appendChild(textSpan);
@@ -15932,7 +15981,7 @@ var Measure = function(options)
 	element.style.backgroundColor = 'rgba(255,255,255,0.4)';
 	element.style.borderRadius = '4px';
 	element.style.padding = '2px';
-	element.style.top = '16.0em';
+	element.style.bottom = '9.5em';
 	element.style.right = '.5em';
 
 
@@ -15956,14 +16005,14 @@ var Measure = function(options)
 
 		var textSpan = document.createElement('span');
 		textSpan.appendChild(document.createTextNode(description));
-		textSpan.style.fontSize = '12px';
+		textSpan.style.fontSize = '10px';
 		textSpan.style.verticalAlign = 'baseline';
 		textSpan.style.lineHeight = '0.6em';
 		button.appendChild(textSpan);
 
 		thisArg.setBtnStyle(button);
 		button.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
-		
+		button.style.display = 'inline-block';
 		thisArg.buttons[type] = {
 			status  : false,
 			element : button
@@ -16043,8 +16092,8 @@ var OverviewMap = function(options)
 	element.style.padding = '2px';
 	element.style.bottom = '.5em';
 	element.style.right = '.5em';
-	element.style.width = '200px';
-	element.style.height = '200px';
+	element.style.width = '135px';
+	element.style.height = '135px';
 	element.style.borderRadius = '4px';
 	element.style.border = '2px solid #CCE5EC';
 };
@@ -16323,7 +16372,7 @@ var Tools = function(options)
 	element.style.backgroundColor = 'rgba(255,255,255,0.4)';
 	element.style.borderRadius = '4px';
 	element.style.padding = '2px';
-	element.style.top = '26.0em';
+	element.style.top = '7.5em';
 	element.style.right = '.5em';
     
 	element.addEventListener(
@@ -16337,6 +16386,40 @@ var Tools = function(options)
 		this.handleMouseOut.bind(this),
 		false
 	);
+
+	var that = this;
+	element.addEventListener('click',
+		function() 
+		{
+			var mainContainer = document.getElementById(that.magoManager.config.getContainerId()).getElementsByClassName('mago3d-overlayContainer-defaultContent').item(0);
+			var thisContainer = mainContainer.getElementsByClassName('mago3d-tools-advance').item(0);
+			var on = element.className.indexOf('on') >= 0;
+			if (!on)
+			{
+				that.target.style.right = '320px';
+				mainContainer.style.display = 'block';
+				mainContainer.style.right = '0px';
+				var toolsDivs = mainContainer.getElementsByClassName('mago3d-tools-div');
+				for (var i =0, len=toolsDivs.length;i<len;i++)
+				{
+					var toolDiv = toolsDivs.item(i);
+					toolDiv.style.display = 'none';
+				}
+				thisContainer.style.display = 'block';
+				element.className = 'on';
+				element.getElementsByTagName('button')[0].style.backgroundColor = 'rgba(148,216,246, 0.8)';
+			}
+			else 
+			{
+				thisContainer.style.display = 'none';
+				that.target.style.right = '0px';
+				mainContainer.style.display = 'none';
+				mainContainer.style.right = '0px';
+				element.className = '';
+				element.getElementsByTagName('button')[0].style.backgroundColor = 'rgba(70, 70, 70, 0.8)';
+			}
+		}
+		, false);
     
 	var button = document.createElement('button');
 	button.setAttribute('type', 'button');
@@ -16352,178 +16435,14 @@ var Tools = function(options)
 
 	var textSpan = document.createElement('span');
 	textSpan.appendChild(document.createTextNode('설정'));
-	textSpan.style.fontSize = '12px';
+	textSpan.style.fontSize = '10px';
 	textSpan.style.verticalAlign = 'baseline';
 	textSpan.style.lineHeight = '0.6em';
 	button.appendChild(textSpan);
 
 	this.setBtnStyle(button);
-	
+	button.style.backgroundColor = 'rgba(217, 217, 217, 0.8)';
 	element.appendChild(button);
-    
-	var toolsDiv = document.createElement('div');
-	toolsDiv.style.position = 'absolute';
-	toolsDiv.style.pointerEvents = 'auto';
-	toolsDiv.style.backgroundColor = 'rgba(255,255,255,0.4)';
-	toolsDiv.style.borderRadius = '4px';
-	toolsDiv.style.padding = '2px';
-	toolsDiv.style.top = '0';
-	toolsDiv.style.right = '53px';
-	toolsDiv.style.display = 'none';
-	toolsDiv.style.width = '195px';
-	toolsDiv.style.lineHeight = '1.0em';
-    
-	this.toolsDiv = toolsDiv;
-	element.appendChild(toolsDiv);
-
-	var toggleBbox = document.createElement('button');
-	toggleBbox.setAttribute('type', 'button');
-	toggleBbox.dataset.type= 'bbox';
-	toggleBbox.dataset.status= 'off';
-	toggleBbox.title = 'BoundingBox Toggle';
-	toggleBbox.appendChild(document.createTextNode('BBOX'));
-	this.setTextBtn(toggleBbox, 'bbox');
-	toggleBbox.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
-    
-	this.tools.bbox = {
-		runType : 'toggle',
-		element : toggleBbox,
-		action  : function(value) 
-		{
-			this.magoManager.magoPolicy.setShowBoundingBox(value);
-		}
-	};
-	toolsDiv.appendChild(toggleBbox);
-
-	var toggleLabel = document.createElement('button');
-	toggleLabel.setAttribute('type', 'button');
-	toggleLabel.dataset.type=  'label';
-	toggleLabel.dataset.status= 'off';
-	toggleLabel.title = 'Label Toggle';
-	toggleLabel.appendChild(document.createTextNode('Label'));
-	this.setTextBtn(toggleLabel, 'label');
-	toggleLabel.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
-	this.tools.label = {
-		runType : 'toggle',
-		element : toggleLabel,
-		action  : function(value) 
-		{
-			this.magoManager.magoPolicy.setShowLabelInfo(value);
-		
-			// clear the text canvas.
-			var canvas = document.getElementById("objectLabel");
-			var ctx = canvas.getContext("2d");
-			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-		}
-	};
-	toolsDiv.appendChild(toggleLabel);
-
-	var toggleOrigin = document.createElement('button');
-	toggleOrigin.setAttribute('type', 'button');
-	toggleOrigin.dataset.type=  'origin';
-	toggleOrigin.dataset.status= 'off';
-	toggleOrigin.title = 'Origin Toggle';
-	toggleOrigin.appendChild(document.createTextNode('Origin'));
-	this.setTextBtn(toggleOrigin, 'origin');
-	toggleOrigin.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
-	this.tools.origin = {
-		runType : 'toggle',
-		element : toggleOrigin,
-		action  : function(value) 
-		{
-			this.magoManager.magoPolicy.setShowOrigin(value);
-		}
-	};
-	toolsDiv.appendChild(toggleOrigin);
-    
-	var toggleShadow = document.createElement('button');
-	toggleShadow.setAttribute('type', 'button');
-	toggleShadow.dataset.type=  'shadow';
-	toggleShadow.dataset.status= 'off';
-	toggleShadow.title = 'Shadow Toggle';
-	toggleShadow.appendChild(document.createTextNode('Shadow'));
-	this.setTextBtn(toggleShadow, 'shadow');
-	toggleShadow.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
-	toolsDiv.appendChild(toggleShadow);
-	this.tools.shadow = {
-		runType : 'toggle',
-		element : toggleShadow,
-		action  : function(value) 
-		{
-			this.magoManager.sceneState.setApplySunShadows(value);
-		}
-	};
-
-	var toggleAdvance = document.createElement('button');
-	toggleAdvance.setAttribute('type', 'button');
-	toggleAdvance.dataset.type=  'advance';
-	toggleAdvance.dataset.status= 'off';
-	toggleAdvance.title = 'Advance Toggle';
-	toggleAdvance.appendChild(document.createTextNode('Advance'));
-	this.setTextBtn(toggleAdvance, 'advance');
-	toggleAdvance.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
-	toolsDiv.appendChild(toggleAdvance);
-	this.tools.advance = {
-		runType : 'toggle',
-		element : toggleAdvance,
-		action  : function(value) 
-		{
-			var mainContainer = document.getElementById(MagoConfig.getContainerId());
-			var thisContainer = mainContainer.getElementsByClassName('mago3d-tools-advance').item(0);
-			if (value === true)
-			{
-				var toolsDivs = mainContainer.getElementsByClassName('mago3d-tools-div');
-				for (var i =0, len=toolsDivs.length;i<len;i++)
-				{
-					var toolDiv = toolsDivs.item(i);
-					toolDiv.style.display = 'none';
-				}
-				thisContainer.style.display = 'block';
-
-				this.target.style.right = '220px';
-			}
-			else 
-			{
-				thisContainer.style.display = 'none';
-				this.target.style.right = '0px';
-			}
-		}
-	};
-
-	var buttons = toolsDiv.getElementsByTagName('button');
-	for (var i=0, len = buttons.length;i<len;i++)
-	{
-		var btn = buttons.item(i);
-		var btnType = btn.dataset.type;
-		var tool = this.tools[btnType];
-
-		btn.addEventListener(
-			'click',
-			this.handleToolClick.bind(this, tool),
-			false
-		);
-        
-		btn.addEventListener(
-			'mouseenter',
-			function(e)
-			{
-				e.target.style.backgroundColor = 'rgba(148,216,246, 0.8)';
-			},
-			false
-		);
-        
-		btn.addEventListener(
-			'mouseleave',
-			function(e)
-			{
-				if (e.target.dataset.status !== 'on')
-				{
-					e.target.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
-				}
-			},
-			false
-		);
-	}
 };
 
 Tools.prototype = Object.create(AbsControl.prototype);
@@ -16533,37 +16452,529 @@ Tools.prototype.setControl = function(magoManager)
 {
 	this.magoManager = magoManager;
 
-	var target = this.target ? this.target : this.magoManager.defaultControlContainer;
+	var target = this.target ? this.target : magoManager.defaultControlContainer;
 	target.appendChild(this.element);
 	this.target = target;
 
 	var advanceToolDiv = document.createElement('div');
 	advanceToolDiv.style.position = 'absolute';
-	advanceToolDiv.style.right = '-220px';
-	advanceToolDiv.style.width = '220px';
-	//advanceToolDiv.style.height = 'calc(100% - 30px)';
-	advanceToolDiv.style.height = '100%';
 	advanceToolDiv.style.float = 'right';
-	//advanceToolDiv.style.marginTop = '15px';
-	advanceToolDiv.style.border = '2px solid rgb(204, 229, 236)';
-	advanceToolDiv.style.borderRadius = '4px';
-	advanceToolDiv.style.backgroundColor = 'white';
+	advanceToolDiv.style.width = '100%';
+	advanceToolDiv.style.backgroundColor = '#FFFFFF';
 	advanceToolDiv.style.pointerEvents = 'auto';
 	advanceToolDiv.style.display = 'none';
 	advanceToolDiv.className = 'mago3d-tools-div mago3d-tools-advance';
-	advanceToolDiv.appendChild(document.createTextNode('test'));
 
-	this.target.appendChild(advanceToolDiv);
+	magoManager.defaultContentContainer.appendChild(advanceToolDiv);
+
+	var basicSettingsDiv = getGroupDiv('기본 설정');
+	advanceToolDiv.appendChild(basicSettingsDiv);
+
+	var basicSettingBtnDiv = document.createElement('div');
+	basicSettingBtnDiv.style.marginTop = '5px';
+	basicSettingsDiv.appendChild(basicSettingBtnDiv);
+
+	var that = this;
+	var basicBtns = [];
+	var bboxBtnObj = getBasicButtonObject('bbox', 'BoundingBox Toggle', 'BBOX', 'toggle', function(value) 
+	{
+		that.magoManager.magoPolicy.setShowBoundingBox(value);
+	});
+	var labelBtnObj = getBasicButtonObject('label', 'Label Toggle', 'LABEL', 'toggle', function(value) 
+	{
+		that.magoManager.magoPolicy.setShowLabelInfo(value);
+		
+		// clear the text canvas.
+		var canvas = that.magoManager.getObjectLabel();
+		var ctx = canvas.getContext("2d");
+		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+	});
+	var originBtnObj = getBasicButtonObject('orgin', 'Origin Toggle', 'ORIGIN', 'toggle', function(value) 
+	{
+		that.magoManager.magoPolicy.setShowOrigin(value);
+	});
+	var shadowBtnObj = getBasicButtonObject('shadow', 'Shadow Toggle', 'SHADOW', 'toggle', function(value) 
+	{
+		that.magoManager.sceneState.setApplySunShadows(value);
+	});
+
+	basicBtns.push(bboxBtnObj);
+	basicBtns.push(labelBtnObj);
+	basicBtns.push(originBtnObj);
+	basicBtns.push(shadowBtnObj);
+
+	for (var i=0, btnLength=basicBtns.length;i<btnLength;i++)
+	{
+		var basicBtn = basicBtns[i];
+		var elem = basicBtn.element;
+		basicSettingBtnDiv.appendChild(elem);
+
+		elem.addEventListener(
+			'click',
+			that.handleToolClick.bind(this, basicBtn),
+			false
+		);
+	}
+
+	var basicSettingInputDiv = document.createElement('div');
+	basicSettingInputDiv.style.padding = '0 5px 0 0';
+	basicSettingInputDiv.style.margin = '5px 5px 0 5px';
+	basicSettingsDiv.appendChild(basicSettingInputDiv);
+
+	var ssaoDiv = document.createElement('div'); 
+	ssaoDiv.style.padding = '4px';
+	ssaoDiv.style.margin = '10px 0px 4px';
+	ssaoDiv.style.outline = '0px 0px 4px';
+	ssaoDiv.style.verticalAlign = 'top';
+	ssaoDiv.style.backgroundColor = 'rgb(243,243,243)';
+	ssaoDiv.style.borderRadius = '12px';
+	ssaoDiv.style.borderStyle = 'none';
+	ssaoDiv.className = 'mago3d-tools-ssao-div';
+	basicSettingInputDiv.appendChild(ssaoDiv);
+
+	var ssaoLabel = document.createElement('label');
+	ssaoLabel.style.width = '25%';
+	ssaoLabel.style.padding = '2px';
+	ssaoLabel.style.verticalAlign = 'middle';
+	ssaoLabel.style.display = 'inline-block';
+	ssaoLabel.style.textAlign = 'justify';
+	ssaoLabel.style.fontSize = '13.33333px';
+	ssaoLabel.setAttribute('for', 'ssaoRadius');
+	ssaoLabel.appendChild(document.createTextNode('SSAO'));
+	ssaoDiv.appendChild(ssaoLabel);
+
+	var ssaoInput = document.createElement('input');
+	ssaoInput.style.width = '45%';
+	ssaoInput.style.marginRight = '5px';
+	ssaoInput.style.padding = '5px';
+	ssaoInput.style.fontSize = 'small';
+	ssaoInput.style.verticalAlign = 'middle';
+	ssaoInput.style.lineHeight = '1.5em';
+	ssaoInput.style.color = '#444';
+	ssaoInput.setAttribute('id', 'ssaoRadius');
+	ssaoInput.setAttribute('name', 'ssaoRadius');
+	ssaoInput.setAttribute('type', 'text');
+	ssaoInput.setAttribute('value', magoManager.configInformation.ssaoRadius);
+	ssaoDiv.appendChild(ssaoInput);
+
+	var ssaoBtn = document.createElement('button');
+	ssaoBtn.setAttribute('type', 'button');
+	ssaoBtn.style.display = 'inline-block';
+	ssaoBtn.style.verticalAlign = 'middle';
+	ssaoBtn.style.padding = '2px 10px';
+	ssaoBtn.style.fontSize = '12px';
+	ssaoBtn.style.color = '#FFFFFF';
+	ssaoBtn.style.borderRadius = '12px';
+	ssaoBtn.style.borderStyle = 'none';
+	ssaoBtn.style.backgroundColor = '#636363';
+	ssaoBtn.appendChild(document.createTextNode('적용'));
+	ssaoBtn.addEventListener(
+		'click',
+		function() 
+		{
+			var ssao = ssaoInput.value;
+			if (isNaN(ssao)) 
+			{
+				alert('숫자만 입력 가능합니다.');
+				return;
+			} 
+			magoManager.magoPolicy.setSsaoRadius(ssao);
+			magoManager.sceneState.ssaoRadius[0] = Number(ssao);
+		},
+		false
+	);
+	ssaoDiv.appendChild(ssaoBtn); 
+	
+	var lodDiv = document.createElement('div'); 
+	lodDiv.style.padding = '4px';
+	lodDiv.style.margin = '10px 0px 4px';
+	lodDiv.style.outline = '0px 0px 4px';
+	lodDiv.style.verticalAlign = 'top';
+	lodDiv.style.backgroundColor = 'rgb(243,243,243)';
+	lodDiv.style.borderRadius = '12px';
+	lodDiv.style.borderStyle = 'none';
+	lodDiv.className = 'mago3d-tools-lod-div';
+	basicSettingInputDiv.appendChild(lodDiv);
+
+	var lodh3 = document.createElement('h3');
+	lodh3.style.fontSize = '15px';
+	lodh3.appendChild(document.createTextNode('Level of Detail'));
+	lodDiv.appendChild(lodh3);
+	
+	for (var i=0;i<6;i++)
+	{
+		var id = 'geoLod' + i;
+		var name = 'lod' + i;
+
+		var lodLabel = document.createElement('label');
+		lodLabel.style.width = '25%';
+		lodLabel.style.padding = '2px';
+		lodLabel.style.verticalAlign = 'middle';
+		lodLabel.style.display = 'inline-block';
+		lodLabel.style.textAlign = 'justify';
+		lodLabel.style.fontSize = '13.33333px';
+		lodLabel.setAttribute('for', id);
+		lodLabel.appendChild(document.createTextNode(name.toUpperCase()));
+		lodDiv.appendChild(lodLabel);
+
+		var lodInput = document.createElement('input');
+		lodInput.style.width = '45%';
+		lodInput.style.marginRight = '5px';
+		lodInput.style.padding = '5px';
+		lodInput.style.fontSize = 'small';
+		lodInput.style.verticalAlign = 'middle';
+		lodInput.style.lineHeight = '1.5em';
+		lodInput.style.color = '#444';
+		lodInput.setAttribute('id', id);
+		lodInput.setAttribute('name', name);
+		lodInput.setAttribute('type', 'text');
+		lodInput.setAttribute('value', magoManager.configInformation[name]);
+		lodDiv.appendChild(lodInput);
+	}
+
+	var lodBtn = document.createElement('button');
+	lodBtn.setAttribute('type', 'button');
+	lodBtn.style.display = 'inline-block';
+	lodBtn.style.verticalAlign = 'middle';
+	lodBtn.style.padding = '2px 10px';
+	lodBtn.style.fontSize = '12px';
+	lodBtn.style.color = '#FFFFFF';
+	lodBtn.style.borderRadius = '12px';
+	lodBtn.style.borderStyle = 'none';
+	lodBtn.style.backgroundColor = '#636363';
+	lodBtn.appendChild(document.createTextNode('적용'));
+	lodBtn.addEventListener(
+		'click',
+		function() 
+		{
+			var lod0 = document.getElementById('geoLod0').value;
+			var lod1 = document.getElementById('geoLod1').value;
+			var lod2 = document.getElementById('geoLod2').value;
+			var lod3 = document.getElementById('geoLod3').value;
+			var lod4 = document.getElementById('geoLod4').value;
+			var lod5 = document.getElementById('geoLod5').value;
+			if (isNaN(lod0) || isNaN(lod1) || isNaN(lod2)|| isNaN(lod3) || isNaN(lod4) || isNaN(lod5)) 
+			{
+				alert('숫자만 입력 가능합니다.');
+				return;
+			}
+
+			if (lod0 !== null && lod0 !== "") { magoManager.magoPolicy.setLod0DistInMeters(lod0); }
+			if (lod1 !== null && lod1 !== "") { magoManager.magoPolicy.setLod1DistInMeters(lod1); }
+			if (lod2 !== null && lod2 !== "") { magoManager.magoPolicy.setLod2DistInMeters(lod2); }
+			if (lod3 !== null && lod3 !== "") { magoManager.magoPolicy.setLod3DistInMeters(lod3); }
+			if (lod4 !== null && lod4 !== "") { magoManager.magoPolicy.setLod4DistInMeters(lod4); }
+			if (lod5 !== null && lod5 !== "") { magoManager.magoPolicy.setLod5DistInMeters(lod5); }
+		},
+		false
+	);
+	lodDiv.appendChild(lodBtn); 
+
+	var dataDiv = getGroupDiv('데이터 선택');
+	advanceToolDiv.appendChild(dataDiv);
+
+	var dataControlDiv = document.createElement('div'); 
+	dataControlDiv.style.padding = '4px';
+	dataControlDiv.style.margin = '10px 0px 4px';
+	dataControlDiv.style.outline = '0px 0px 4px';
+	dataControlDiv.style.verticalAlign = 'top';
+	dataControlDiv.style.backgroundColor = 'rgb(243,243,243)';
+	dataControlDiv.style.borderRadius = '12px';
+	dataControlDiv.style.borderStyle = 'none';
+	dataControlDiv.className = 'mago3d-tools-data-div';
+	dataDiv.appendChild(dataControlDiv);
+
+	var allText = document.createElement('strong');
+	allText.style.width = '35%';
+	allText.style.padding = '2px';
+	allText.style.verticalAlign = 'middle';
+	allText.style.display = 'inline-block';
+	allText.style.textAlign = 'justify';
+	allText.style.fontSize = '13.33333px';
+	allText.appendChild(document.createTextNode('F4D 모델'));
+	dataControlDiv.appendChild(allText);
+
+	var allSelectBtn = document.createElement('button');
+	allSelectBtn.setAttribute('type', 'button');
+	allSelectBtn.dataset.type = InteractionTargetType.F4D;
+	allSelectBtn.dataset.function = 'select';
+	allSelectBtn.dataset.active = 'off';
+	allSelectBtn.className = 'mago3d-tools-select';
+	allSelectBtn.name = 'btn-' + InteractionTargetType.F4D;
+	allSelectBtn.style.display = 'inline-block';
+	allSelectBtn.style.verticalAlign = 'middle';
+	allSelectBtn.style.padding = '2px 10px';
+	allSelectBtn.style.fontSize = '12px';
+	allSelectBtn.style.color = 'rgb(20, 20, 20)';
+	allSelectBtn.style.borderRadius = '12px';
+	allSelectBtn.style.borderStyle = 'none';
+	allSelectBtn.style.backgroundColor = 'rgb(255, 255, 255)';
+	allSelectBtn.appendChild(document.createTextNode('선택'));
+	dataControlDiv.appendChild(allSelectBtn);
+
+	var allMoveBtn = document.createElement('button');
+	allMoveBtn.setAttribute('type', 'button');
+	allMoveBtn.dataset.type = InteractionTargetType.F4D;
+	allMoveBtn.dataset.function = 'translate';
+	allMoveBtn.dataset.active = 'off';
+	allMoveBtn.className = 'mago3d-tools-translate';
+	allMoveBtn.name = 'btn-' + InteractionTargetType.F4D;
+	allMoveBtn.style.display = 'inline-block';
+	allMoveBtn.style.verticalAlign = 'middle';
+	allMoveBtn.style.marginLeft = '5px';
+	allMoveBtn.style.padding = '2px 10px';
+	allMoveBtn.style.fontSize = '12px';
+	allMoveBtn.style.color = 'rgb(20, 20, 20)';
+	allMoveBtn.style.borderRadius = '12px';
+	allMoveBtn.style.borderStyle = 'none';
+	allMoveBtn.style.backgroundColor = 'rgb(255, 255, 255)';
+	allMoveBtn.appendChild(document.createTextNode('이동'));
+	dataControlDiv.appendChild(allMoveBtn);
+
+	dataControlDiv.appendChild(document.createElement('br'));
+
+	var partText = document.createElement('strong');
+	partText.style.width = '35%';
+	partText.style.padding = '2px';
+	partText.style.verticalAlign = 'middle';
+	partText.style.display = 'inline-block';
+	partText.style.textAlign = 'justify';
+	partText.style.fontSize = '13.33333px';
+	partText.appendChild(document.createTextNode('F4D 모델 부분'));
+	dataControlDiv.appendChild(partText);
+
+	var partSelectBtn = document.createElement('button');
+	partSelectBtn.setAttribute('type', 'button');
+	partSelectBtn.dataset.type = InteractionTargetType.OBJECT;
+	partSelectBtn.dataset.function = 'select';
+	partSelectBtn.dataset.active = 'off';
+	partSelectBtn.className = 'mago3d-tools-select';
+	partSelectBtn.name = 'btn-' + InteractionTargetType.OBJECT;
+	partSelectBtn.style.display = 'inline-block';
+	partSelectBtn.style.verticalAlign = 'middle';
+	partSelectBtn.style.padding = '2px 10px';
+	partSelectBtn.style.fontSize = '12px';
+	partSelectBtn.style.color = 'rgb(20, 20, 20)';
+	partSelectBtn.style.borderRadius = '12px';
+	partSelectBtn.style.borderStyle = 'none';
+	partSelectBtn.style.backgroundColor = 'rgb(255, 255, 255)';
+	partSelectBtn.appendChild(document.createTextNode('선택'));
+	dataControlDiv.appendChild(partSelectBtn);
+
+	var partMoveBtn = document.createElement('button');
+	partMoveBtn.setAttribute('type', 'button');
+	partMoveBtn.dataset.type = InteractionTargetType.OBJECT;
+	partMoveBtn.dataset.function = 'translate';
+	partMoveBtn.dataset.active = 'off';
+	partMoveBtn.className = 'mago3d-tools-translate';
+	partMoveBtn.name = 'btn-' + InteractionTargetType.OBJECT;
+	partMoveBtn.style.display = 'inline-block';
+	partMoveBtn.style.verticalAlign = 'middle';
+	partMoveBtn.style.marginLeft = '5px';
+	partMoveBtn.style.padding = '2px 10px';
+	partMoveBtn.style.fontSize = '12px';
+	partMoveBtn.style.color = 'rgb(20, 20, 20)';
+	partMoveBtn.style.borderRadius = '12px';
+	partMoveBtn.style.borderStyle = 'none';
+	partMoveBtn.style.backgroundColor = 'rgb(255, 255, 255)';
+	partMoveBtn.appendChild(document.createTextNode('이동'));
+	dataControlDiv.appendChild(partMoveBtn);
+
+	dataControlDiv.appendChild(document.createElement('br'));
+
+	var nativeText = document.createElement('strong');
+	nativeText.style.width = '35%';
+	nativeText.style.padding = '2px';
+	nativeText.style.verticalAlign = 'middle';
+	nativeText.style.display = 'inline-block';
+	nativeText.style.textAlign = 'justify';
+	nativeText.style.fontSize = '13.33333px';
+	nativeText.appendChild(document.createTextNode('원시 모델 부분'));
+	dataControlDiv.appendChild(nativeText);
+
+	var nativeSelectBtn = document.createElement('button');
+	nativeSelectBtn.setAttribute('type', 'button');
+	nativeSelectBtn.dataset.type = InteractionTargetType.NATIVE;
+	nativeSelectBtn.dataset.function = 'select';
+	nativeSelectBtn.dataset.active = 'off';
+	nativeSelectBtn.className = 'mago3d-tools-select';
+	nativeSelectBtn.name = 'btn-' + InteractionTargetType.NATIVE;
+	nativeSelectBtn.style.display = 'inline-block';
+	nativeSelectBtn.style.verticalAlign = 'middle';
+	nativeSelectBtn.style.padding = '2px 10px';
+	nativeSelectBtn.style.fontSize = '12px';
+	nativeSelectBtn.style.color = 'rgb(20, 20, 20)';
+	nativeSelectBtn.style.borderRadius = '12px';
+	nativeSelectBtn.style.borderStyle = 'none';
+	nativeSelectBtn.style.backgroundColor = 'rgb(255, 255, 255)';
+	nativeSelectBtn.appendChild(document.createTextNode('선택'));
+	dataControlDiv.appendChild(nativeSelectBtn);
+
+	var nativeMoveBtn = document.createElement('button');
+	nativeMoveBtn.setAttribute('type', 'button');
+	nativeMoveBtn.dataset.type = InteractionTargetType.NATIVE;
+	nativeMoveBtn.dataset.function = 'translate';
+	nativeMoveBtn.dataset.active = 'off';
+	nativeMoveBtn.className = 'mago3d-tools-translate';
+	nativeMoveBtn.name = 'btn-' + InteractionTargetType.NATIVE;
+	nativeMoveBtn.style.display = 'inline-block';
+	nativeMoveBtn.style.verticalAlign = 'middle';
+	nativeMoveBtn.style.marginLeft = '5px';
+	nativeMoveBtn.style.padding = '2px 10px';
+	nativeMoveBtn.style.fontSize = '12px';
+	nativeMoveBtn.style.color = 'rgb(20, 20, 20)';
+	nativeMoveBtn.style.borderRadius = '12px';
+	nativeMoveBtn.style.borderStyle = 'none';
+	nativeMoveBtn.style.backgroundColor = 'rgb(255, 255, 255)';
+	nativeMoveBtn.appendChild(document.createTextNode('이동'));
+	dataControlDiv.appendChild(nativeMoveBtn);
+
+	var selectBtns = magoManager.defaultContentContainer.getElementsByClassName('mago3d-tools-select');
+	var selectInteraction = magoManager.defaultSelectInteraction;
+	var translateBtns = magoManager.defaultContentContainer.getElementsByClassName('mago3d-tools-translate');
+	var translateInteraction = magoManager.defaultTranslateInteraction;
+	var names = [InteractionTargetType.NATIVE, InteractionTargetType.OBJECT, InteractionTargetType.F4D];
+	
+
+	for(var i=0,sLength=selectBtns.length;i<sLength;i++)
+	{
+		(function (idx){
+			var sBtn = selectBtns.item(idx);
+			sBtn.addEventListener('click',function(){
+				var type = sBtn.dataset.type;
+				
+				if(!selectInteraction.getActive())
+				{
+					selectInteraction.setTargetType(type);
+					selectInteraction.setActive(true);
+					sBtn.dataset.active = 'on';
+					
+				} else {
+					var nowTargetType = selectInteraction.getTargetType();
+					if(type === nowTargetType)
+					{
+						selectInteraction.setActive(false);
+						sBtn.dataset.active = 'off';
+					}
+					else
+					{
+						var nowBtn = selectBtns.namedItem('btn-'+nowTargetType);
+						nowBtn.dataset.active = 'off';
+						btnActiveStyle(nowBtn);
+						selectInteraction.setTargetType(type);
+						sBtn.dataset.active = 'on';
+					}
+				}
+				btnActiveStyle(sBtn);
+			},false);
+		})(i)
+	}
+
+	for(var i=0,tLength=translateBtns.length;i<tLength;i++)
+	{
+		(function (idx){
+			var tBtn = translateBtns.item(idx);
+			tBtn.addEventListener('click',function(){
+				var type = tBtn.dataset.type;
+
+				if(!translateInteraction.getActive())
+				{
+					translateInteraction.setTargetType(type);
+					translateInteraction.setActive(true);
+					tBtn.dataset.active = 'on';
+				} else {
+					var nowTargetType = translateInteraction.getTargetType();
+					if(type === nowTargetType)
+					{
+						translateInteraction.setActive(false);
+						tBtn.dataset.active = 'off';
+					}
+					else
+					{
+						var nowBtn = translateBtns.namedItem('btn-'+nowTargetType);
+						nowBtn.dataset.active = 'off';
+						btnActiveStyle(nowBtn);
+						translateInteraction.setTargetType(type);
+						tBtn.dataset.active = 'on';
+					}
+				}
+				btnActiveStyle(tBtn);
+			},false);
+		})(i)
+	}
+
+	function btnActiveStyle (b)
+	{
+		if(b.dataset.active === 'on')
+		{
+			b.style.backgroundColor = 'rgb(160, 160, 160)';
+			b.style.color = 'rgb(230, 230, 230)';
+		} else {
+			b.style.backgroundColor = 'rgb(255, 255, 255)';
+			b.style.color = 'rgb(20, 20, 20)';
+		}
+	}
+
+	function getBasicButtonObject (type, title, text, runtype, action)
+	{
+		var btn = document.createElement('button');
+		btn.setAttribute('type', 'button');
+		btn.dataset.type=  type;
+		btn.dataset.status= 'off';
+		btn.title = title;
+		btn.appendChild(document.createTextNode(text));
+		
+		btn.style.display = 'inline-block';
+		btn.style.margin = '1px 1px 1px 5px';
+		btn.style.padding = '0';
+		btn.style.color = 'rgb(136, 136, 136)';
+		btn.style.fontWeight = 'bold';
+		btn.style.height = '33px';
+		btn.style.width = '66px';
+		btn.style.backgroundColor = '#f3f3f3';
+		btn.style.borderRadius = '12px';
+		btn.style.borderStyle = 'none';
+		
+		return {
+			runType : runtype,
+			element : btn,
+			action  : action
+		};
+	}
+
+	function getGroupDiv(category)
+	{
+		var div = document.createElement('div');
+		div.style.padding = '5px 10px';
+		div.style.margin = '0 0 20px 0';
+		div.style.outline = '0px';
+		div.style.verticalAlign = 'top';
+		div.style.fontSize = '16PX';
+		div.style.fontWeight = 'bold';
+		div.style.color = '#888';
+
+		var strong = document.createElement('strong');
+		strong.style.display = 'block';
+		strong.style.padding = '10px 6px';
+		strong.style.borderBottom = '1px solid #e2e2e2';
+		strong.appendChild(document.createTextNode(category));
+		div.appendChild(strong);
+
+		return div;
+	}
 };
 
 Tools.prototype.handleMouseOver = function()
 {
-	this.toolsDiv.style.display = 'block';
+	this.element.getElementsByTagName('button')[0].style.backgroundColor = 'rgba(148,216,246, 0.8)';
 };
 
 Tools.prototype.handleMouseOut = function()
 {
-	this.toolsDiv.style.display = 'none';
+	if (this.element.className !== 'on')
+	{
+		this.element.getElementsByTagName('button')[0].style.backgroundColor = 'rgba(217, 217, 217, 0.8)';
+	}
 };
 
 Tools.prototype.handleToolClick = function(tool)
@@ -16617,8 +17028,8 @@ var Zoom = function(options)
 	element.style.backgroundColor = 'rgba(255,255,255,0.4)';
 	element.style.borderRadius = '4px';
 	element.style.padding = '2px';
-	element.style.top = '8.5em';
-	element.style.right = '.5em';
+	element.style.bottom = '0.5em';
+	element.style.right = '9.5em';
 
 	var that = this;
 	var upButton = document.createElement('button');
@@ -16631,17 +17042,19 @@ var Zoom = function(options)
 	imageSpan.style.lineHeight = '0.6em';
 	upButton.appendChild(imageSpan);
 
-	upButton.appendChild(document.createElement('br'));
+	/*upButton.appendChild(document.createElement('br'));
 
 	var textSpan = document.createElement('span');
 	textSpan.appendChild(document.createTextNode('줌인'));
-	textSpan.style.fontSize = '12px';
+	textSpan.style.fontSize = '10px';
 	textSpan.style.verticalAlign = 'baseline';
 	textSpan.style.lineHeight = '0.6em';
-	upButton.appendChild(textSpan);
+	upButton.appendChild(textSpan);*/
     
 	this.setBtnStyle(upButton);
-
+	upButton.style.width='25px';
+	upButton.style.height='25px';
+	upButton.style.display='inline-block';
 	upButton.addEventListener(
 		'click',
 		that.handleClick.bind(that, 1),
@@ -16658,17 +17071,19 @@ var Zoom = function(options)
 	downImageSpan.style.lineHeight = '0.6em';
 	downButton.appendChild(downImageSpan);
 
-	downButton.appendChild(document.createElement('br'));
+	/*downButton.appendChild(document.createElement('br'));
 
 	var downTextSpan = document.createElement('span');
 	downTextSpan.appendChild(document.createTextNode('줌아웃'));
-	downTextSpan.style.fontSize = '12px';
+	downTextSpan.style.fontSize = '10px';
 	downTextSpan.style.verticalAlign = 'baseline';
 	downTextSpan.style.lineHeight = '0.6em';
-	downButton.appendChild(downTextSpan);
+	downButton.appendChild(downTextSpan);*/
 
 	this.setBtnStyle(downButton);
-    
+	downButton.style.width='25px';
+	downButton.style.height='25px';
+	downButton.style.display='inline-block';
 	downButton.addEventListener(
 		'click',
 		that.handleClick.bind(that, 0),
@@ -16700,6 +17115,1995 @@ Zoom.prototype.handleClick = function(type)
 			scene.camera.zoomOut(alt * 0.1);
 		}
 	}
+};
+'use strict';
+
+/**
+ * mago3djs API
+ * 
+ * @alias API
+ * @class API
+ * @constructor
+ * 
+ * @param {any} apiName api이름
+ */
+function API(apiName)
+{
+	if (!(this instanceof API)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+
+	// mago3d 활성화/비활성화 여부
+	this.magoEnable = true;
+	// return
+	this.returnable = false;
+
+	// api 이름
+	this.apiName = apiName;
+	
+	// project id
+	this.projectId = null;
+	this.projectDataFolder = null;
+	// objectIds
+	this.objectIds = null;
+	// data_key
+	this.dataKey = null;
+	// issueId
+	this.issueId = null;
+	// issueType
+	this.issueType = null;
+	// drawType 이미지를 그리는 유형 0 : DB, 1 : 이슈등록
+	this.drawType = 0;
+
+	// 위도
+	this.latitude = 0;
+	// 경도
+	this.longitude = 0;
+	// 높이
+	this.elevation = 0;
+	// heading
+	this.heading = 0;
+	// pitch
+	this.pitch = 0;
+	// roll
+	this.roll = 0;
+	// duration
+	this.duration = 0;
+
+	// 속성
+	this.property = null;
+	// 색깔
+	this.color = 0;
+	// structs = MSP, outfitting = MOP
+	this.blockType = null;
+	// outfitting 표시/비표시
+	this.showOutFitting = false;
+	// label 표시/비표시
+	this.showLabelInfo = true;
+	// origin 표시/비표시
+	this.showOrigin = false;
+	// boundingBox 표시/비표시
+	this.showBoundingBox = false;
+	// 그림자 표시/비표시
+	this.showShadow = false;
+	// frustum culling 가시 거리(M단위)
+	this.frustumFarDistance = 0;
+	// move mode 
+	this.objectMoveMode = CODE.moveMode.NONE;
+	// 이슈 등록 표시
+	this.issueInsertEnable = false;
+	// object 정보 표시
+	this.objectInfoViewEnable = false;
+	// 이슈 목록 표시
+	this.nearGeoIssueListEnable = false;
+	// occlusion culling
+	this.occlusionCullingEnable = false;
+	//
+	this.insertIssueState = 0;
+	
+	// LOD1
+	this.lod0DistInMeters = null;
+	this.lod1DistInMeters = null;
+	this.lod2DistInMeters = null;
+	this.lod3DistInMeters = null;
+	this.lod4DistInMeters = null;
+	this.lod5DistInMeters = null;
+	
+	// Lighting
+	this.ambientReflectionCoef = null;
+	this.diffuseReflectionCoef = null;
+	this.specularReflectionCoef = null;
+	this.ambientColor = null;
+	this.specularColor = null;
+	
+	this.ssaoRadius = null;
+	//
+	this.FPVMode = false;
+
+	// input x, y, z
+	this.inputPoint = null;
+	// result x, y, z
+	this.resultPoint = null;
+	
+	// General magoMode.
+	this.magoMode = CODE.magoMode.NORMAL;
+
+	//position unit
+	this.unit = CODE.units.DEGREE;
+
+	//for staticModel instantiate
+	this.instantiateObj = null;
+
+	//for staticModel add
+	this.staticModelAttributeObj = null;
+
+	//animation option. 
+	this.animationOption = null;
+
+	/**
+	 * @type {trackOption}
+	 */
+	this.trackOption = null;
+
+	/**
+	 * @type {nodeAttribute}
+	 */
+	this.nodeAttribute = null;
+};
+
+API.prototype.getMagoEnable = function() 
+{
+	return this.magoEnable;
+};
+API.prototype.setMagoEnable = function(magoEnable) 
+{
+	this.magoEnable = magoEnable;
+};
+
+API.prototype.getReturnable = function()
+{
+	return this.returnable;
+};
+API.prototype.setReturnable = function(returnable)
+{
+	this.returnable = returnable;
+};
+
+API.prototype.getAPIName = function() 
+{
+	return this.apiName;
+};
+
+API.prototype.getProjectId = function() 
+{
+	return this.projectId;
+};
+API.prototype.setProjectId = function(projectId) 
+{
+	this.projectId = projectId;
+};
+
+API.prototype.getProjectDataFolder = function() 
+{
+	return this.projectDataFolder;
+};
+API.prototype.setProjectDataFolder = function(projectDataFolder) 
+{
+	this.projectDataFolder = projectDataFolder;
+};
+
+API.prototype.getObjectIds = function() 
+{
+	return this.objectIds;
+};
+API.prototype.setObjectIds = function(objectIds) 
+{
+	this.objectIds = objectIds;
+};
+
+API.prototype.getIssueId = function() 
+{
+	return this.issueId;
+};
+API.prototype.setIssueId = function(issueId) 
+{
+	this.issueId = issueId;
+};
+API.prototype.getIssueType = function() 
+{
+	return this.issueType;
+};
+API.prototype.setIssueType = function(issueType) 
+{
+	this.issueId = issueType;
+};
+
+API.prototype.getDataKey = function() 
+{
+	return this.dataKey;
+};
+API.prototype.setDataKey = function(dataKey) 
+{
+	this.dataKey = dataKey;
+};
+
+API.prototype.getLatitude = function() 
+{
+	return this.latitude;
+};
+API.prototype.setLatitude = function(latitude) 
+{
+	this.latitude = latitude;
+};
+
+API.prototype.getLongitude = function() 
+{
+	return this.longitude;
+};
+API.prototype.setLongitude = function(longitude) 
+{
+	this.longitude = longitude;
+};
+
+API.prototype.getElevation = function() 
+{
+	return this.elevation;
+};
+API.prototype.setElevation = function(elevation) 
+{
+	this.elevation = elevation;
+};
+
+API.prototype.getHeading = function() 
+{
+	return this.heading;
+};
+API.prototype.setHeading = function(heading) 
+{
+	this.heading = heading;
+};
+
+API.prototype.getPitch = function() 
+{
+	return this.pitch;
+};
+API.prototype.setPitch = function(pitch) 
+{
+	this.pitch = pitch;
+};
+
+API.prototype.getRoll = function() 
+{
+	return this.roll;
+};
+API.prototype.setRoll = function(roll) 
+{
+	this.roll = roll;
+};
+
+API.prototype.getProperty = function() 
+{
+	return this.property;
+};
+API.prototype.setProperty = function(property) 
+{
+	this.property = property;
+};
+
+API.prototype.getColor = function() 
+{
+	return this.color;
+};
+API.prototype.setColor = function(color) 
+{
+	this.color = color;
+};
+
+API.prototype.getBlockType = function() 
+{
+	return this.blockType;
+};
+API.prototype.setBlockType = function(blockType) 
+{
+	this.blockType = blockType;
+};
+
+API.prototype.getShowOutFitting = function() 
+{
+	return this.showOutFitting;
+};
+API.prototype.setShowOutFitting = function(showOutFitting) 
+{
+	this.showOutFitting = showOutFitting;
+};
+
+
+API.prototype.getShowLabelInfo = function() 
+{
+	return this.showLabelInfo;
+};
+API.prototype.setShowLabelInfo = function(showLabelInfo) 
+{
+	this.showLabelInfo = showLabelInfo;
+};
+
+API.prototype.getShowOrigin = function()
+{
+	return this.showOrigin;
+};
+API.prototype.setShowOrigin = function(showOrigin)
+{
+	this.showOrigin = showOrigin;
+};
+
+API.prototype.getShowBoundingBox = function() 
+{
+	return this.showBoundingBox;
+};
+API.prototype.setShowBoundingBox = function(showBoundingBox) 
+{
+	this.showBoundingBox = showBoundingBox;
+};
+
+API.prototype.getShowShadow = function() 
+{
+	return this.showShadow;
+};
+API.prototype.setShowShadow = function(showShadow) 
+{
+	this.showShadow = showShadow;
+};
+
+API.prototype.getFrustumFarDistance = function() 
+{
+	return this.frustumFarDistance;
+};
+API.prototype.setFrustumFarDistance = function(frustumFarDistance) 
+{
+	this.frustumFarDistance = frustumFarDistance;
+};
+
+API.prototype.getObjectMoveMode = function() 
+{
+	return this.objectMoveMode;
+};
+API.prototype.setObjectMoveMode = function(objectMoveMode) 
+{
+	this.objectMoveMode = objectMoveMode;
+};
+
+API.prototype.getIssueInsertEnable = function() 
+{
+	return this.issueInsertEnable;
+};
+API.prototype.setIssueInsertEnable = function(issueInsertEnable) 
+{
+	this.issueInsertEnable = issueInsertEnable;
+};
+API.prototype.getObjectInfoViewEnable = function() 
+{
+	return this.objectInfoViewEnable;
+};
+API.prototype.setObjectInfoViewEnable = function(objectInfoViewEnable) 
+{
+	this.objectInfoViewEnable = objectInfoViewEnable;
+};
+API.prototype.getOcclusionCullingEnable = function() 
+{
+	return this.occlusionCullingEnable;
+};
+API.prototype.setOcclusionCullingEnable = function(occlusionCullingEnable) 
+{
+	this.occlusionCullingEnable = occlusionCullingEnable;
+};
+API.prototype.getNearGeoIssueListEnable = function() 
+{
+	return this.nearGeoIssueListEnable;
+};
+API.prototype.setNearGeoIssueListEnable = function(nearGeoIssueListEnable) 
+{
+	this.nearGeoIssueListEnable = nearGeoIssueListEnable;
+};
+
+API.prototype.getInsertIssueState = function() 
+{
+	return this.insertIssueState;
+};
+API.prototype.setInsertIssueState = function(insertIssueState) 
+{
+	this.insertIssueState = insertIssueState;
+};
+
+API.prototype.getDrawType = function() 
+{
+	return this.drawType;
+};
+API.prototype.setDrawType = function(drawType) 
+{
+	this.drawType = drawType;
+};
+
+API.prototype.getLod0DistInMeters = function() 
+{
+	return this.lod0DistInMeters;
+};
+API.prototype.setLod0DistInMeters = function(lod0DistInMeters) 
+{
+	this.lod0DistInMeters = lod0DistInMeters;
+};
+API.prototype.getLod1DistInMeters = function() 
+{
+	return this.lod1DistInMeters;
+};
+API.prototype.setLod1DistInMeters = function(lod1DistInMeters) 
+{
+	this.lod1DistInMeters = lod1DistInMeters;
+};
+API.prototype.getLod2DistInMeters = function() 
+{
+	return this.lod2DistInMeters;
+};
+API.prototype.setLod2DistInMeters = function(lod2DistInMeters) 
+{
+	this.lod2DistInMeters = lod2DistInMeters;
+};
+API.prototype.getLod3DistInMeters = function() 
+{
+	return this.lod3DistInMeters;
+};
+API.prototype.setLod3DistInMeters = function(lod3DistInMeters) 
+{
+	this.lod3DistInMeters = lod3DistInMeters;
+};
+API.prototype.getLod4DistInMeters = function() 
+{
+	return this.lod4DistInMeters;
+};
+API.prototype.setLod4DistInMeters = function(lod4DistInMeters) 
+{
+	this.lod4DistInMeters = lod4DistInMeters;
+};
+API.prototype.getLod5DistInMeters = function() 
+{
+	return this.lod5DistInMeters;
+};
+API.prototype.setLod5DistInMeters = function(lod5DistInMeters) 
+{
+	this.lod5DistInMeters = lod5DistInMeters;
+};
+
+API.prototype.getAmbientReflectionCoef = function() 
+{
+	return this.ambientReflectionCoef;
+};
+API.prototype.setAmbientReflectionCoef = function(ambientReflectionCoef) 
+{
+	this.ambientReflectionCoef = ambientReflectionCoef;
+};
+API.prototype.getDiffuseReflectionCoef = function() 
+{
+	return this.diffuseReflectionCoef;
+};
+API.prototype.setDiffuseReflectionCoef = function(diffuseReflectionCoef) 
+{
+	this.diffuseReflectionCoef = diffuseReflectionCoef;
+};
+API.prototype.getSpecularReflectionCoef = function() 
+{
+	return this.specularReflectionCoef;
+};
+API.prototype.setSpecularReflectionCoef = function(specularReflectionCoef) 
+{
+	this.specularReflectionCoef = specularReflectionCoef;
+};
+API.prototype.getAmbientColor = function() 
+{
+	return this.ambientColor;
+};
+API.prototype.setAmbientColor = function(ambientColor) 
+{
+	this.ambientColor = ambientColor;
+};
+API.prototype.getSpecularColor = function() 
+{
+	return this.specularColor;
+};
+API.prototype.setSpecularColor = function(specularColor) 
+{
+	this.specularColor = specularColor;
+};
+API.prototype.getSsaoRadius = function() 
+{
+	return this.ssaoRadius;
+};
+API.prototype.setSsaoRadius = function(ssaoRadius) 
+{
+	this.ssaoRadius = ssaoRadius;
+};
+API.prototype.getFPVMode = function()
+{
+	return this.FPVMode;
+};
+API.prototype.setFPVMode = function(value)
+{
+	this.FPVMode = value;
+};
+API.prototype.getMagoMode = function()
+{
+	return this.magoMode;
+};
+API.prototype.setMagoMode = function(value)
+{
+	this.magoMode = value;
+};
+API.prototype.getDuration = function()
+{
+	return this.duration;
+};
+API.prototype.setDuration = function(duration)
+{
+	this.duration = duration;
+};
+
+API.prototype.getInputPoint = function()
+{
+	return this.inputPoint;
+};
+API.prototype.setInputPoint = function(inputPoint)
+{
+	this.inputPoint = inputPoint;
+};
+
+API.prototype.getResultPoint = function()
+{
+	return this.resultPoint;
+};
+API.prototype.setResultPoint = function(resultPoint)
+{
+	this.resultPoint = resultPoint;
+};
+
+API.prototype.getUnit = function()
+{
+	return this.unit;
+};
+API.prototype.setUnit = function(unit)
+{
+	if (unit !== undefined)
+	{
+		if (isNaN(unit) || unit > CODE.units.RADIAN)
+		{
+			throw new Error('unit parameter needs CODE.units');
+		}
+		this.unit = unit;
+	}
+};
+
+API.prototype.getInstantiateObj = function()
+{
+	return this.instantiateObj;
+};
+API.prototype.setInstantiateObj = function(instantiateObj)
+{
+	this.instantiateObj = instantiateObj;
+};
+
+API.prototype.getStaticModelAttributeObj = function()
+{
+	return this.staticModelAttributeObj;
+};
+API.prototype.setStaticModelAttributeObj = function(staticModelAttributeObj)
+{
+	this.staticModelAttributeObj = staticModelAttributeObj;
+};
+
+API.prototype.getAnimationOption = function()
+{
+	return this.animationOption;
+};
+API.prototype.setAnimationOption = function(animationOption)
+{
+	this.animationOption = animationOption;
+};
+
+API.prototype.getTrackOption = function()
+{
+	return this.trackOption;
+};
+API.prototype.setTrackOption = function(trackOption)
+{
+	this.trackOption = trackOption;
+};
+
+API.prototype.getNodeAttribute = function()
+{
+	return this.nodeAttribute;
+};
+API.prototype.setNodeAttribute = function(nodeAttribute)
+{
+	this.nodeAttribute = nodeAttribute;
+};
+
+'use strict';
+
+/**
+ * 사용자가 변경한 moving, color, rotation 등 이력 정보를 위한 domain
+ * @class Policy
+ */
+var ChangeHistory = function() 
+{
+	if (!(this instanceof ChangeHistory)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+
+	this.moveHistory = false;
+	this.colorHistory = false;
+	this.rotationHistory = false;
+	
+	// move mode. ALL : 0 , OBJECT : 1, NONE : 2
+	this.objectMoveMode = null;
+	
+	// project id
+	this.projectId = null;
+	// project data folder
+	this.projectDataFolder = null;
+	// data_key
+	this.dataKey = null;	
+	// objectId
+	this.objectId = null;
+	// objectIndexOrder
+	this.objectIndexOrder = 0;
+	
+	// referenceObject aditional movement.
+	this.refObjectAditionalMove;
+	this.refObjectAditionalMoveRelToBuilding;
+	
+	// 위도
+	this.latitude = 0.0;
+	// 경도
+	this.longitude = 0.0;
+	// 높이
+	this.elevation = 0.0;
+	// heading
+	this.heading = 0.0;
+	// pitch
+	this.pitch = 0.0;
+	// roll
+	this.roll = 0.0;
+	// duration
+	this.duration = 0;
+	// 색깔
+	this.color = 0;
+	// color rgb
+	this.rgbColor = [];
+	// 속성
+	this.property = null;
+	this.propertyKey = null;
+	this.propertyValue = null;
+};
+
+ChangeHistory.prototype.getReferenceObjectAditionalMovement = function() 
+{
+	if (this.refObjectAditionalMove === undefined)
+	{ this.refObjectAditionalMove = new Point3D(); }
+	
+	return this.refObjectAditionalMove;
+};
+
+ChangeHistory.prototype.getReferenceObjectAditionalMovementRelToBuilding = function() 
+{
+	if (this.refObjectAditionalMoveRelToBuilding === undefined)
+	{ this.refObjectAditionalMoveRelToBuilding = new Point3D(); }
+	
+	return this.refObjectAditionalMoveRelToBuilding;
+};
+
+ChangeHistory.prototype.getProjectId = function() 
+{
+	return this.projectId;
+};
+ChangeHistory.prototype.setProjectId = function(projectId) 
+{
+	this.projectId = projectId;
+};
+
+ChangeHistory.prototype.getProjectDataFolder = function() 
+{
+	return this.projectDataFolder;
+};
+ChangeHistory.prototype.setProjectDataFolder = function(projectDataFolder) 
+{
+	this.projectDataFolder = projectDataFolder;
+};
+
+ChangeHistory.prototype.getDataKey = function() 
+{
+	return this.dataKey;
+};
+ChangeHistory.prototype.setDataKey = function(dataKey) 
+{
+	this.dataKey = dataKey;
+};
+
+ChangeHistory.prototype.getObjectId = function() 
+{
+	return this.objectId;
+};
+ChangeHistory.prototype.setObjectId = function(objectId) 
+{
+	this.objectId = objectId;
+};
+
+ChangeHistory.prototype.getObjectIndexOrder = function() 
+{
+	return this.objectIndexOrder;
+};
+ChangeHistory.prototype.setObjectIndexOrder = function(objectIndexOrder) 
+{
+	this.objectIndexOrder = objectIndexOrder;
+};
+
+ChangeHistory.prototype.getLatitude = function() 
+{
+	return this.latitude;
+};
+ChangeHistory.prototype.setLatitude = function(latitude) 
+{
+	this.latitude = latitude;
+};
+
+ChangeHistory.prototype.getLongitude = function() 
+{
+	return this.longitude;
+};
+ChangeHistory.prototype.setLongitude = function(longitude) 
+{
+	this.longitude = longitude;
+};
+
+ChangeHistory.prototype.getElevation = function() 
+{
+	return this.elevation;
+};
+ChangeHistory.prototype.setElevation = function(elevation) 
+{
+	this.elevation = elevation;
+};
+
+ChangeHistory.prototype.getHeading = function() 
+{
+	return this.heading;
+};
+ChangeHistory.prototype.setHeading = function(heading) 
+{
+	this.heading = heading;
+};
+
+ChangeHistory.prototype.getPitch = function() 
+{
+	return this.pitch;
+};
+ChangeHistory.prototype.setPitch = function(pitch) 
+{
+	this.pitch = pitch;
+};
+
+ChangeHistory.prototype.getRoll = function() 
+{
+	return this.roll;
+};
+ChangeHistory.prototype.setRoll = function(roll) 
+{
+	this.roll = roll;
+};
+
+ChangeHistory.prototype.getColor = function() 
+{
+	return this.color;
+};
+ChangeHistory.prototype.setColor = function(color) 
+{
+	this.color = color;
+};
+ChangeHistory.prototype.getRgbColor = function() 
+{
+	return this.rgbColor;
+};
+ChangeHistory.prototype.setRgbColor = function(rgbColor) 
+{
+	this.rgbColor = rgbColor;
+};
+
+ChangeHistory.prototype.getProperty = function() 
+{
+	return this.property;
+};
+ChangeHistory.prototype.setProperty = function(property) 
+{
+	this.property = property;
+};
+ChangeHistory.prototype.getPropertyKey = function() 
+{
+	return this.propertyKey;
+};
+ChangeHistory.prototype.setPropertyKey = function(propertyKey) 
+{
+	this.propertyKey = propertyKey;
+};
+ChangeHistory.prototype.getPropertyValue = function() 
+{
+	return this.propertyValue;
+};
+ChangeHistory.prototype.setPropertyValue = function(propertyValue) 
+{
+	this.propertyValue = propertyValue;
+};
+
+ChangeHistory.prototype.getDuration = function()
+{
+	return this.duration;
+};
+ChangeHistory.prototype.setDuration = function(duration)
+{
+	this.duration = duration;
+};
+
+ChangeHistory.prototype.getObjectMoveMode = function() 
+{
+	return this.objectMoveMode;
+};
+ChangeHistory.prototype.setObjectMoveMode = function(objectMoveMode) 
+{
+	this.objectMoveMode = objectMoveMode;
+};
+"use strict";
+
+var CODE = {};
+
+// magoManager가 다 로딩 되지 않은 상태에서 화면으로 부터 호출 되는 것을 막기 위해
+CODE.magoManagerState = {
+	"INIT"   	: 0,
+	"STARTED"	: 1,
+	"READY"   : 2
+};
+
+//0 = no started to load. 1 = started loading. 2 = finished loading. 3 = parse started. 4 = parse finished.
+CODE.fileLoadState = {
+	"READY"            : 0,
+	"LOADING_STARTED"  : 1,
+	"LOADING_FINISHED" : 2,
+	"PARSE_STARTED"    : 3,
+	"PARSE_FINISHED"   : 4,
+	"IN_QUEUE"         : 5,
+	"IN_PARSE_QUEUE"   : 6,
+	"BINDING_STARTED"  : 7,
+	"BINDING_FINISHED" : 8,
+	"LOAD_FAILED"      : 9
+};
+
+CODE.moveMode = {
+	"ALL"              : "0",
+	"OBJECT"           : "1",
+	"GEOGRAPHICPOINTS" : "2",
+	"NONE"             : "3"
+};
+
+CODE.magoMode = {
+	"NORMAL"  : 0,
+	"DRAWING" : 1
+};
+
+CODE.magoCurrentProcess = {
+	"Unknown"                    : 0,
+	"DepthRendering"             : 1,
+	"ColorRendering"             : 2,
+	"ColorCodeRendering"         : 3,
+	"DepthShadowRendering"       : 4,
+	"SilhouetteDepthRendering"   : 5,
+	"StencilSilhouetteRendering" : 6
+};
+
+CODE.modelerMode = {
+	"INACTIVE"                 : 0,
+	"DRAWING_POLYLINE"         : 1,
+	"DRAWING_PLANEGRID"        : 2,
+	"DRAWING_GEOGRAPHICPOINTS" : 3,
+	"DRAWING_EXCAVATIONPOINTS" : 4,
+	"DRAWING_TUNNELPOINTS"     : 5,
+	"DRAWING_BSPLINE"          : 6,
+	"DRAWING_BASICFACTORY"     : 7,
+	"DRAWING_STATICGEOMETRY"   : 8,
+	"DRAWING_PIPE"             : 9,
+	"DRAWING_SPHERE"           : 10,
+	"DRAWING_BOX"              : 11,
+	"DRAWING_CUTTINGPLANE"     : 12,
+	"DRAWING_CLIPPINGBOX"      : 13,
+	"DRAWING_CONCENTRICTUBES"  : 14,
+	"DRAWING_TUBE"             : 15,
+	"DRAWING_FREECONTOURWALL"  : 16,
+	"DRAWING_CYLYNDER"         : 17
+};
+
+CODE.boxFace = {
+	"UNKNOWN" : 0,
+	"LEFT"    : 1,
+	"RIGHT"   : 2,
+	"FRONT"   : 3,
+	"REAR"    : 4,
+	"TOP"     : 5,
+	"BOTTOM"  : 6
+};
+
+CODE.modelerDrawingState = {
+	"NO_STARTED" : 0,
+	"STARTED"    : 1
+};
+
+CODE.modelerDrawingElement = {
+	"NOTHING"          : 0,
+	"POINTS"           : 1,
+	"LINES"            : 2,
+	"POLYLINES"        : 3,
+	"GEOGRAPHICPOINTS" : 4,
+};
+
+CODE.units = {
+	"METRE"  : 0,
+	"DEGREE" : 1,
+	"RADIAN" : 2
+};
+
+
+CODE.trackMode = {
+	"TRACKING" : 0,
+	"DRIVER"   : 1
+};
+
+CODE.movementType = {
+	"NO_MOVEMENT" : 0,
+	"TRANSLATION" : 1,
+	"ROTATION"    : 2,
+	"ROTATION_ZX" : 3
+};
+
+CODE.imageryType = {
+	"UNKNOWN"      : 0,
+	"CRS84"        : 1,
+	"WEB_MERCATOR" : 2
+};
+
+CODE.animationType = {
+	"UNKNOWN"         : 0,
+	"REALTIME_POINTS" : 1,
+	"PATH"            : 2
+};
+
+CODE.relativePosition2D = {
+	"UNKNOWN"    : 0,
+	"LEFT"       : 1,
+	"RIGHT"      : 2,
+	"COINCIDENT" : 3
+};
+CODE.imageFilter = {
+	"UNKNOWN"    : 0,
+	"BATHYMETRY" : 1
+};
+CODE.cesiumTerrainType = {
+	GEOSERVER          : 'geoserver',
+	CESIUM_DEFAULT     : 'cesium-default',
+	CESIUM_ION_DEFAULT : 'cesium-ion-default',
+	CESIUM_ION_CDN     : 'cesium-ion-cdn',
+	CESIUM_CUSTOMER    : 'cesium-customer'
+};
+CODE.magoEarthTerrainType = {
+	PLAIN     : 'plain',
+	ELEVATION : 'elevation',
+	REALTIME  : 'realtime'
+};
+
+CODE.drawGeometryType = {
+	POINT     : 'point',
+	LINE    	 : 'line',
+	POLYGON   : 'polygon',
+	RECTANGLE : 'rectangle'
+};
+
+CODE.PROJECT_ID_PREFIX = "projectId_";
+CODE.PROJECT_DATA_FOLDER_PREFIX = "projectDataFolder_";
+
+CODE.parametricCurveState = {
+	"NORMAL" : 0,
+	"EDITED" : 1
+};
+
+'use strict';
+
+/**
+ * 상수 설정
+ * @class Constant
+ */
+var Constant = {};
+
+Constant.CESIUM = "cesium";
+Constant.WORLDWIND = "worldwind";
+Constant.MAGOWORLD = "magoworld";
+Constant.OBJECT_INDEX_FILE = "/objectIndexFile.ihe";
+Constant.TILE_INDEX_FILE = "/smartTile_f4d_indexFile.sii";
+Constant.CACHE_VERSION = "?cache_version=";
+Constant.SIMPLE_BUILDING_TEXTURE3x3_BMP = "/SimpleBuildingTexture3x3.bmp";
+Constant.RESULT_XDO2F4D = "/Result_xdo2f4d/Images/";
+Constant.RESULT_XDO2F4D_TERRAINTILES = "/Result_xdo2f4d/F4D_TerrainTiles/";
+Constant.RESULT_XDO2F4D_TERRAINTILEFILE_TXT = "/Result_xdo2f4d/f4dTerranTileFile.txt";
+
+Constant.INTERSECTION_OUTSIDE = 0;
+Constant.INTERSECTION_INTERSECT= 1;
+Constant.INTERSECTION_INSIDE = 2;
+Constant.INTERSECTION_POINT_A = 3;
+Constant.INTERSECTION_POINT_B = 4;
+
+'use strict';
+
+/**
+ * mago3D 전체 환경 설정을 관리
+ * @class MagoConfig
+ */
+var MagoConfig = function()
+{
+	this.containerId = undefined;
+	this.serverPolicy = undefined;
+	this.geoserver = undefined;
+	this.dataObject = {};
+	this.selectHistoryObject = {};
+	this.movingHistoryObject = {};
+	this.colorHistoryObject = {};
+	this.locationAndRotationHistoryObject = {};
+	this.scriptRootPath = undefined;
+	this.twoDimension = false;
+};
+
+MagoConfig.prototype.setContainerId = function(containerId) 
+{
+	this.containerId = containerId;
+};
+
+MagoConfig.prototype.getContainerId = function() 
+{
+	return this.containerId;
+};
+
+MagoConfig.prototype.getPolicy = function() 
+{
+	return this.serverPolicy;
+};
+
+MagoConfig.prototype.getGeoserver = function() 
+{
+	return this.geoserver;
+};
+
+MagoConfig.prototype.getData = function(key) 
+{
+	return this.dataObject[key];
+};
+
+MagoConfig.prototype.isDataExist = function(key) 
+{
+	return this.dataObject.hasOwnProperty(key);
+};
+
+MagoConfig.prototype.deleteData = function(key) 
+{
+	return delete this.dataObject[key];
+};
+
+/**
+ * data 를 map에 저장
+ * @param key map에 저장될 key
+ * @param value map에 저장될 value
+ */
+MagoConfig.prototype.setData = function(key, value) 
+{
+	if (!this.isDataExist(key)) 
+	{
+		this.dataObject[key] = value;
+	}
+};
+
+/**
+ * F4D Converter 실행 결과물이 저장된 project data folder 명을 획득
+ * @param projectDataFolder data folder
+ */
+MagoConfig.prototype.getProjectDataFolder = function(projectDataFolder) 
+{
+	var key = CODE.PROJECT_DATA_FOLDER_PREFIX + projectDataFolder;
+	return this.dataObject[key];
+};
+
+/**
+ * project map에 data folder명의 존재 유무를 검사
+ * @param projectDataFolder
+ */
+MagoConfig.prototype.isProjectDataFolderExist = function(projectDataFolder) 
+{
+	var key = CODE.PROJECT_DATA_FOLDER_PREFIX + projectDataFolder;
+	return this.dataObject.hasOwnProperty(key);
+};
+
+/**
+ * project data folder명을 map에서 삭제
+ * @param projectDataFolder
+ */
+MagoConfig.prototype.deleteProjectDataFolder = function(projectDataFolder) 
+{
+	var key = CODE.PROJECT_DATA_FOLDER_PREFIX + projectDataFolder;
+	return delete this.dataObject[key];
+};
+
+/**
+ * project data folder명을 Object에서 삭제
+ * @param projectDataFolder Object에 저장될 key
+ * @param value Object에 저장될 value
+ */
+MagoConfig.prototype.setProjectDataFolder = function(projectDataFolder, value) 
+{
+	var key = CODE.PROJECT_DATA_FOLDER_PREFIX + projectDataFolder;
+	if (!this.isProjectDataFolderExist(key))
+	{
+		this.dataObject[key] = value;
+	}
+};
+
+/**
+ * 환경설정 초기화
+ * @param serverPolicy mago3d policy(json)
+ * @param projectIdArray data 정보를 map 저장할 key name
+ * @param projectDataArray data 정보(json)
+ */
+MagoConfig.prototype.init = function(serverPolicy, projectIdArray, projectDataArray) 
+{
+	if (!serverPolicy || !serverPolicy instanceof Object) 
+	{
+		throw new Error('geopolicy is required object.');
+	}
+	this.dataObject = {};
+	
+	this.selectHistoryObject = {};
+	this.movingHistoryObject = {};
+	this.colorHistoryObject = {};
+	this.locationAndRotationHistoryObject = {};
+
+	this.serverPolicy = serverPolicy;
+	this.scriptRootPath = getScriptRootPath();
+	this.twoDimension = false;
+
+	if (this.serverPolicy.geoserverEnable) 
+	{
+		this.geoserver = new GeoServer();
+
+		var info = {
+			"wmsVersion"    : this.serverPolicy.geoserverWmsVersion,
+			"dataUrl"       : this.serverPolicy.geoserverDataUrl,
+			"dataWorkspace" : this.serverPolicy.geoserverDataWorkspace,
+			"dataStore"     : this.serverPolicy.geoserverDataStore,
+			"user"          : this.serverPolicy.geoserverUser,
+			"password"      : this.serverPolicy.geoserverPassword
+		};
+		this.geoserver.setServerInfo(info);
+	}
+
+
+	if (projectIdArray && projectIdArray.length > 0) 
+	{
+		for (var i=0; i<projectIdArray.length; i++) 
+		{
+			if (!this.isDataExist(CODE.PROJECT_ID_PREFIX + projectIdArray[i])) 
+			{
+				this.setData(CODE.PROJECT_ID_PREFIX + projectIdArray[i], projectDataArray[i]);
+				this.setProjectDataFolder(CODE.PROJECT_DATA_FOLDER_PREFIX + projectDataArray[i].data_key, projectDataArray[i].data_key);
+			}
+		}
+	}
+
+	function getScriptRootPath() 
+	{
+		var magoScriptQueryStrRegex = /((?:.*\/)|^)(mago3d|mago3d.min)\.js\?(?:&?[^=&]*=[^=&]*)*/;
+		var magoScriptRegex = /((?:.*\/)|^)(mago3d|mago3d.min)\.js$/;
+		var magoScriptPath;
+		var scripts = document.getElementsByTagName('script');
+		for ( var j = 0, len = scripts.length; j < len; ++j) 
+		{
+			var src = scripts[j].getAttribute('src');
+			var nomalResult = magoScriptRegex.exec(src);
+			var queryStrResult = magoScriptQueryStrRegex.exec(src);
+
+			var result = nomalResult||queryStrResult;
+			if (result !== null) 
+			{
+				magoScriptPath = result[1];
+			}
+		}
+		return magoScriptPath;
+	}
+};
+
+/**
+ * 모든 데이터를 삭제함
+ */
+MagoConfig.prototype.clearAllData = function() 
+{
+	this.dataObject = {};
+};
+
+/**
+ * 모든 선택 히스토리 삭제
+ */
+MagoConfig.prototype.clearSelectHistory = function() 
+{
+	this.selectHistoryObject = {};
+};
+
+/**
+ * 모든 object 선택 내용 이력을 취득
+ */
+MagoConfig.prototype.getAllSelectHistory = function()
+{
+	return this.selectHistoryObject;
+};
+
+/**
+ * project 별 해당 키에 해당하는 모든 object 선택 내용 이력을 취득
+ */
+MagoConfig.prototype.getSelectHistoryObjects = function(projectId, dataKey)
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.selectHistoryObject[projectId];
+	if (projectIdObject === undefined) { return undefined; }
+	// dataKey 별 Object을 검사
+	var dataKeyObject = projectIdObject[dataKey];
+	return dataKeyObject;
+};
+
+/**
+ * object 선택 내용 이력을 취득
+ */
+MagoConfig.prototype.getSelectHistoryObject = function(projectId, dataKey, objectIndexOrder)
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.selectHistoryObject[projectId];
+	if (projectIdObject === undefined) { return undefined; }
+	// dataKey 별 Object을 검사
+	var dataKeyObject = projectIdObject[dataKey];
+	if (dataKeyObject === undefined) { return undefined; }
+	// objectIndexOrder 를 저장
+	return dataKeyObject[objectIndexOrder];
+};
+
+/**
+ * object 선택 내용을 저장
+ */
+MagoConfig.prototype.saveSelectHistory = function(projectId, dataKey, objectIndexOrder, changeHistory) 
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.selectHistoryObject.get(projectId);
+	if (projectIdObject === undefined)
+	{
+		projectIdObject = {};
+		this.selectHistoryObject[projectId] = projectIdObject;
+	}
+	
+	// dataKey 별 Object을 검사
+	var dataKeyObject = projectIdObject[dataKey];
+	if (dataKeyObject === undefined)
+	{
+		dataKeyObject = {};
+		projectIdObject[dataKey] = dataKeyObject;
+	}
+	
+	// objectIndexOrder 를 저장
+	dataKeyObject[objectIndexOrder] = changeHistory;
+};
+
+/**
+ * object 선택 내용을 삭제
+ */
+MagoConfig.prototype.deleteSelectHistoryObject = function(projectId, dataKey, objectIndexOrder)
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.selectHistoryObject[projectId];
+	if (projectIdObject === undefined) { return undefined; }
+	// dataKey 별 Object을 검사
+	var dataKeyObject = projectIdObject[dataKey];
+	if (dataKeyObject === undefined) { return undefined; }
+	// objectIndexOrder 를 저장
+	return delete dataKeyObject[objectIndexOrder];
+};
+
+/**
+ * 모든 이동 히스토리 삭제
+ */
+MagoConfig.prototype.clearMovingHistory = function() 
+{
+	this.movingHistoryObject = {};
+};
+
+/**
+ * 모든 object 선택 내용 이력을 취득
+ */
+MagoConfig.prototype.getAllMovingHistory = function()
+{
+	return this.movingHistoryObject;
+};
+
+/**
+ * project별 입력키 값과 일치하는 object 이동 내용 이력을 취득
+ */
+MagoConfig.prototype.getMovingHistoryObjects = function(projectId, dataKey)
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.movingHistoryObject[projectId];
+	if (projectIdObject === undefined) { return undefined; }
+	// dataKey 별 Object을 검사
+	var dataKeyObject = projectIdObject[dataKey];
+	return dataKeyObject;
+};
+
+/**
+ * object 이동 내용 이력을 취득
+ */
+MagoConfig.prototype.getMovingHistoryObject = function(projectId, dataKey, objectIndexOrder)
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.movingHistoryObject[projectId];
+	if (projectIdObject === undefined) { return undefined; }
+	// dataKey 별 Object을 검사
+	var dataKeyObject = projectIdObject[dataKey];
+	if (dataKeyObject === undefined) { return undefined; }
+	// objectIndexOrder 를 저장
+	return dataKeyObject[objectIndexOrder];
+};
+
+/**
+ * object 이동 내용을 저장
+ */
+MagoConfig.prototype.saveMovingHistory = function(projectId, dataKey, objectIndexOrder, changeHistory) 
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.movingHistoryObject[projectId];
+	if (projectIdObject === undefined)
+	{
+		projectIdObject = {};
+		this.movingHistoryObject[projectId] = projectIdObject;
+	}
+	
+	// dataKey 별 Object을 검사
+	var dataKeyObject = projectIdObject[dataKey];
+	if (dataKeyObject === undefined)
+	{
+		dataKeyObject = {};
+		projectIdObject[dataKey] = dataKeyObject;
+	}
+	
+	// objectIndexOrder 를 저장
+	dataKeyObject[objectIndexOrder] = changeHistory;
+};
+
+/**
+ * object 이동 내용을 삭제
+ */
+MagoConfig.prototype.deleteMovingHistoryObject = function(projectId, dataKey, objectIndexOrder)
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.movingHistoryObject[projectId];
+	if (projectIdObject === undefined) { return undefined; }
+	// dataKey 별 Object을 검사
+	var dataKeyObject = projectIdObject[dataKey];
+	if (dataKeyObject === undefined) { return undefined; }
+	// objectIndexOrder 를 저장
+	return delete dataKeyObject[objectIndexOrder];
+};
+
+/**
+ * 모든 색깔 변경 이력을 획득
+ */
+MagoConfig.prototype.getAllColorHistory = function() 
+{
+	return this.colorHistoryObject;
+};
+
+/**
+ * 모든 색깔변경 히스토리 삭제
+ */
+MagoConfig.prototype.clearColorHistory = function() 
+{
+	this.colorHistoryObject = {};
+};
+
+/**
+ * project별 키에 해당하는 모든 색깔 변경 이력을 획득
+ */
+MagoConfig.prototype.getColorHistorys = function(projectId, dataKey)
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.colorHistoryObject[projectId];
+	if (projectIdObject === undefined) { return undefined; }
+	// dataKey 별 Object을 검사
+	var dataKeyObject = projectIdObject[dataKey];
+	return dataKeyObject;
+};
+
+/**
+ * 색깝 변경 이력을 획득
+ */
+MagoConfig.prototype.getColorHistory = function(projectId, dataKey, objectId)
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.colorHistoryObject[projectId];
+	if (projectIdObject === undefined) { return undefined; }
+	// dataKey 별 Object을 검사
+	var dataKeyObject = projectIdObject[dataKey];
+	if (dataKeyObject === undefined) { return undefined; }
+	// objectId 를 저장
+	return dataKeyObject[objectId];
+};
+
+/**
+ * 색깝 변경 내용을 저장
+ */
+MagoConfig.prototype.saveColorHistory = function(projectId, dataKey, objectId, changeHistory) 
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.colorHistoryObject[projectId];
+	if (projectIdObject === undefined)
+	{
+		projectIdObject = {};
+		this.colorHistoryObject[projectId] = projectIdObject;
+	}
+	
+	// dataKey 별 Object을 검사
+	var dataKeyObject = projectIdObject[dataKey];
+	if (dataKeyObject === undefined)
+	{
+		dataKeyObject = {};
+		projectIdObject[dataKey] = dataKeyObject;
+	}
+
+	if (objectId === null || objectId === "") 
+	{
+		dataKeyObject[dataKey] = changeHistory;
+	}
+	else 
+	{
+		dataKeyObject[objectId] = changeHistory;
+	}
+};
+
+/**
+ * 색깔 변경 이력을 삭제
+ */
+MagoConfig.prototype.deleteColorHistory = function(projectId, dataKey, objectId)
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.colorHistoryObject[projectId];
+	if (projectIdObject === undefined) { return undefined; }
+	// dataKey 별 Object을 검사
+	var dataKeyObject = projectIdObject[dataKey];
+	if (dataKeyObject === undefined) { return undefined; }
+	// objectIndexOrder 를 저장
+	return delete dataKeyObject[objectId];
+};
+
+/**
+ * 모든 색깔변경 히스토리 삭제
+ */
+MagoConfig.prototype.clearColorHistory = function() 
+{
+	this.colorHistoryObject = {};
+};
+
+/**
+ * 모든 location and rotation 변경 이력을 획득
+ */
+MagoConfig.prototype.getAllLocationAndRotationHistory = function() 
+{
+	return this.locationAndRotationHistoryObject;
+};
+
+/**
+ * 프로젝트별 해당 키 값을 갖는 모든 location and rotation 이력을 획득
+ */
+MagoConfig.prototype.getLocationAndRotationHistorys = function(projectId, dataKey)
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.locationAndRotationHistoryObject[projectId];
+	if (projectIdObject === undefined) { return undefined; }
+	// dataKey 별 Object을 검사
+	var dataKeyObject = projectIdObject[dataKey];
+	return dataKeyObject;
+};
+
+/**
+ * location and rotation 이력을 획득
+ */
+MagoConfig.prototype.getLocationAndRotationHistory = function(projectId, dataKey)
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.locationAndRotationHistoryObject[projectId];
+	if (projectIdObject === undefined) { return undefined; }
+	// dataKey 별 Object을 검사
+	var dataKeyObject = projectIdObject[dataKey];
+	
+	return dataKeyObject;
+};
+
+/**
+ * location and rotation 내용을 저장
+ */
+MagoConfig.prototype.saveLocationAndRotationHistory = function(projectId, dataKey, changeHistory) 
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.locationAndRotationHistoryObject[projectId];
+	if (projectIdObject === undefined)
+	{
+		projectIdObject = {};
+		this.locationAndRotationHistoryObject[projectId] = projectIdObject;
+	}
+	
+	// dataKey 별 Object을 검사
+	var dataKeyObject = projectIdObject[dataKey];
+	if (dataKeyObject === undefined)
+	{
+		dataKeyObject = {};
+	}
+
+	dataKeyObject[dataKey] = changeHistory;
+};
+
+/**
+ * location and rotation 이력을 삭제
+ */
+MagoConfig.prototype.deleteLocationAndRotationHistory = function(projectId, dataKey)
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.locationAndRotationHistoryObject[projectId];
+	if (projectIdObject === undefined) { return undefined; }
+	// dataKey 별 Object을 검사
+	var dataKeyObject = delete projectIdObject[dataKey];
+};
+
+/**
+ * 모든 location and rotation 히스토리 삭제
+ */
+MagoConfig.prototype.clearLocationAndRotationHistory = function() 
+{
+	this.locationAndRotationHistoryObject = {};
+};
+	
+MagoConfig.prototype.setTwoDimension = function(twoDimension) 
+{
+	this.twoDimension = twoDimension;
+};
+MagoConfig.prototype.isTwoDimension = function()
+{
+	return this.twoDimension;
+};
+'use strict';
+
+/**
+ * Policy
+ * @class Policy
+ */
+var Policy = function(policy) 
+{
+	if (!(this instanceof Policy)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+
+	// mago3d 활성화/비활성화 여부
+	this.magoEnable = true;
+
+	// outfitting 표시 여부
+	this.showOutFitting = false;
+	// label 표시/비표시
+	this.showLabelInfo = false;
+	// boundingBox 표시/비표시
+	this.showBoundingBox = false;
+	// 그림자 표시/비표시
+	this.showShadow = false;
+	// squared far frustum 거리
+	this.frustumFarSquaredDistance = 5000000;
+	// far frustum
+	this.frustumFarDistance = 20000;
+
+	// highlighting
+	this.highLightedBuildings = [];
+	// color
+	this.colorBuildings = [];
+	// color
+	this.color = [];
+	// show/hide
+	this.hideBuildings = [];
+	// move mode
+	this.objectMoveMode = CODE.moveMode.NONE;
+	// 이슈 등록 표시
+	this.issueInsertEnable = false;
+	// object 정보 표시
+	this.objectInfoViewEnable = false;
+	// 이슈 목록 표시
+	this.nearGeoIssueListEnable = false;
+	// occlusion culling
+	this.occlusionCullingEnable = false;
+	// origin axis XYZ
+	this.showOrigin = false;
+	// mago generalMode
+	this.magoMode = CODE.magoMode.NORMAL;
+	
+	// 이미지 경로
+	this.imagePath = "";
+	
+	// provisional.
+	this.colorChangedObjectId;
+	
+	// LOD1
+	//this.lod0DistInMeters = 15;
+	//this.lod1DistInMeters = 50;
+	//this.lod2DistInMeters = 90;
+	//this.lod3DistInMeters = 200;
+	//this.lod4DistInMeters = 1000;
+	//this.lod5DistInMeters = 50000;
+
+	this.lod0DistInMeters = 50;
+	this.lod1DistInMeters = 200;
+	this.lod2DistInMeters = 600;
+	this.lod3DistInMeters = 1200;
+	this.lod4DistInMeters = 3000;
+	this.lod5DistInMeters = 50000;
+	
+	// Lighting
+	this.ambientReflectionCoef = 0.45; // 0.2.
+	this.diffuseReflectionCoef = 0.75; // 1.0
+	this.specularReflectionCoef = 0.6; // 0.7
+	this.ambientColor = null;
+	this.specularColor = new Float32Array([0.6, 0.6, 0.6]);
+	
+	this.ssaoRadius = 0.15;
+
+	this.modelMovable = true;
+	
+	// PointsCloud.
+	this.pointsCloudSettings = {};
+	if (defined(policy)) 
+	{
+		this.pointsCloudSettings.maxPartitionsLod0 = defaultValueCheckLength(policy.maxPartitionsLod0, 4);
+		this.pointsCloudSettings.maxPartitionsLod1 = defaultValueCheckLength(policy.maxPartitionsLod1, 2);
+		this.pointsCloudSettings.maxPartitionsLod2orLess = defaultValueCheckLength(policy.maxPartitionsLod2OrLess, 1);
+		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam0m = 1.0/defaultValueCheckLength(policy.maxRatioPointsDist0m, 10.0);
+		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam100m = 1.0/defaultValueCheckLength(policy.maxRatioPointsDist100m, 120.0);
+		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam200m = 1.0/defaultValueCheckLength(policy.maxRatioPointsDist200m, 240.0);
+		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam400m = 1.0/defaultValueCheckLength(policy.maxRatioPointsDist400m, 480.0);
+		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam800m = 1.0/defaultValueCheckLength(policy.maxRatioPointsDist800m, 960.0);
+		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam1600m = 1.0/defaultValueCheckLength(policy.maxRatioPointsDist1600m, 1920.0);
+		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCamMoreThan1600m = 1.0/defaultValueCheckLength(policy.maxRatioPointsDistOver1600m, 3840.0);
+		this.pointsCloudSettings.maxPointSize = defaultValueCheckLength(policy.maxPointSizeForPc, 40.0);
+		this.pointsCloudSettings.minPointSize = defaultValueCheckLength(policy.minPointSizeForPc, 3.0);
+		this.pointsCloudSettings.pendentPointSize = defaultValueCheckLength(policy.pendentPointSizeForPc, 60.0);
+		this.pointsCloudSettings.minHeightRainbow = defaultValueCheckLength(policy.minHeight_rainbow_loc, 0.0);
+		this.pointsCloudSettings.maxHeightRainbow = defaultValueCheckLength(policy.maxHeight_rainbow_loc, 100.0);
+	}
+	else 
+	{
+		this.pointsCloudSettings.maxPartitionsLod0 = 4;
+		this.pointsCloudSettings.maxPartitionsLod1 = 2;
+		this.pointsCloudSettings.maxPartitionsLod2orLess = 1;
+		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam0m = 1.0/10.0;
+		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam100m = 1.0/120.0;
+		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam200m = 1.0/240.0;
+		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam400m = 1.0/480.0;
+		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam800m = 1.0/960.0;
+		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam1600m = 1.0/1920.0;
+		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCamMoreThan1600m = 1.0/3840.0;
+		this.pointsCloudSettings.maxPointSize = 40.0;
+		this.pointsCloudSettings.minPointSize = 3.0;
+		this.pointsCloudSettings.pendentPointSize = 60.0;
+		this.pointsCloudSettings.minHeightRainbow = 0.0;
+		this.pointsCloudSettings.maxHeightRainbow = 100.0;
+	}
+};
+
+Policy.prototype.getPointsCloudSettings = function() 
+{
+	return this.pointsCloudSettings;
+};
+
+Policy.prototype.getShowOrigin = function() 
+{
+	return this.showOrigin;
+};
+Policy.prototype.setShowOrigin = function(showOrigin) 
+{
+	this.showOrigin = showOrigin;
+};
+
+Policy.prototype.getMagoEnable = function() 
+{
+	return this.magoEnable;
+};
+Policy.prototype.setMagoEnable = function(magoEnable) 
+{
+	this.magoEnable = magoEnable;
+};
+
+Policy.prototype.getShowOutFitting = function() 
+{
+	return this.showOutFitting;
+};
+Policy.prototype.setShowOutFitting = function(showOutFitting) 
+{
+	this.showOutFitting = showOutFitting;
+};
+Policy.prototype.getShowLabelInfo = function() 
+{
+	return this.showLabelInfo;
+};
+Policy.prototype.setShowLabelInfo = function(showLabelInfo) 
+{
+	this.showLabelInfo = showLabelInfo;
+};
+Policy.prototype.getShowBoundingBox = function() 
+{
+	return this.showBoundingBox;
+};
+Policy.prototype.setShowBoundingBox = function(showBoundingBox) 
+{
+	this.showBoundingBox = showBoundingBox;
+};
+
+Policy.prototype.getShowShadow = function() 
+{
+	return this.showShadow;
+};
+Policy.prototype.setShowShadow = function(showShadow) 
+{
+	this.showShadow = showShadow;
+};
+
+Policy.prototype.getFrustumFarSquaredDistance = function() 
+{
+	return this.frustumFarSquaredDistance;
+};
+Policy.prototype.setFrustumFarSquaredDistance = function(frustumFarSquaredDistance) 
+{
+	this.frustumFarSquaredDistance = frustumFarSquaredDistance;
+};
+
+Policy.prototype.getFrustumFarDistance = function() 
+{
+	return this.frustumFarDistance;
+};
+Policy.prototype.setFrustumFarDistance = function(frustumFarDistance) 
+{
+	this.frustumFarDistance = frustumFarDistance;
+};
+
+Policy.prototype.getHighLightedBuildings = function() 
+{
+	return this.highLightedBuildings;
+};
+Policy.prototype.setHighLightedBuildings = function(highLightedBuildings) 
+{
+	this.highLightedBuildings = highLightedBuildings;
+};
+
+Policy.prototype.getColorBuildings = function() 
+{
+	return this.colorBuildings;
+};
+Policy.prototype.setColorBuildings = function(colorBuildings) 
+{
+	this.colorBuildings = colorBuildings;
+};
+
+Policy.prototype.getColor = function() 
+{
+	return this.color;
+};
+Policy.prototype.setColor = function(color) 
+{
+	this.color = color;
+};
+
+Policy.prototype.getHideBuildings = function() 
+{
+	return this.hideBuildings;
+};
+Policy.prototype.setHideBuildings = function(hideBuildings) 
+{
+	this.hideBuildings = hideBuildings;
+};
+
+Policy.prototype.getObjectMoveMode = function() 
+{
+	return this.objectMoveMode;
+};
+Policy.prototype.setObjectMoveMode = function(objectMoveMode) 
+{
+	this.objectMoveMode = objectMoveMode;
+};
+
+Policy.prototype.getMagoMode = function() 
+{
+	return this.magoMode;
+};
+Policy.prototype.setMagoMode = function(magoMode) 
+{
+	this.magoMode = magoMode;
+};
+
+Policy.prototype.getIssueInsertEnable = function() 
+{
+	return this.issueInsertEnable;
+};
+Policy.prototype.setIssueInsertEnable = function(issueInsertEnable) 
+{
+	this.issueInsertEnable = issueInsertEnable;
+};
+Policy.prototype.getObjectInfoViewEnable = function() 
+{
+	return this.objectInfoViewEnable;
+};
+Policy.prototype.setObjectInfoViewEnable = function(objectInfoViewEnable) 
+{
+	this.objectInfoViewEnable = objectInfoViewEnable;
+};
+Policy.prototype.getOcclusionCullingEnable = function() 
+{
+	return this.occlusionCullingEnable;
+};
+Policy.prototype.setOcclusionCullingEnable = function(occlusionCullingEnable) 
+{
+	this.occlusionCullingEnable = occlusionCullingEnable;
+};
+Policy.prototype.getNearGeoIssueListEnable = function() 
+{
+	return this.nearGeoIssueListEnable;
+};
+Policy.prototype.setNearGeoIssueListEnable = function(nearGeoIssueListEnable) 
+{
+	this.nearGeoIssueListEnable = nearGeoIssueListEnable;
+};
+
+Policy.prototype.getImagePath = function() 
+{
+	return this.imagePath;
+};
+Policy.prototype.setImagePath = function(imagePath) 
+{
+	this.imagePath = imagePath;
+};
+
+Policy.prototype.getLod = function(distInMeters) 
+{
+	var lod = -1;
+	if (distInMeters < this.lod0DistInMeters)
+	{ lod = 0; }
+	else if (distInMeters < this.lod1DistInMeters)
+	{ lod = 1; }
+	else if (distInMeters < this.lod2DistInMeters)
+	{ lod = 2; }
+	else if (distInMeters < this.lod3DistInMeters)
+	{ lod = 3; }
+	else if (distInMeters < this.lod4DistInMeters)
+	{ lod = 4; }
+	else 
+	{ lod = 5; }
+	
+	return lod;	
+};
+Policy.prototype.getLod0DistInMeters = function() 
+{
+	return this.lod0DistInMeters;
+};
+Policy.prototype.setLod0DistInMeters = function(lod0DistInMeters) 
+{
+	this.lod0DistInMeters = lod0DistInMeters;
+};
+Policy.prototype.getLod1DistInMeters = function() 
+{
+	return this.lod1DistInMeters;
+};
+Policy.prototype.setLod1DistInMeters = function(lod1DistInMeters) 
+{
+	this.lod1DistInMeters = lod1DistInMeters;
+};
+Policy.prototype.getLod2DistInMeters = function() 
+{
+	return this.lod2DistInMeters;
+};
+Policy.prototype.setLod2DistInMeters = function(lod2DistInMeters) 
+{
+	this.lod2DistInMeters = lod2DistInMeters;
+};
+Policy.prototype.getLod3DistInMeters = function() 
+{
+	return this.lod3DistInMeters;
+};
+Policy.prototype.setLod3DistInMeters = function(lod3DistInMeters) 
+{
+	this.lod3DistInMeters = lod3DistInMeters;
+};
+Policy.prototype.getLod4DistInMeters = function() 
+{
+	return this.lod4DistInMeters;
+};
+Policy.prototype.setLod4DistInMeters = function(lod4DistInMeters) 
+{
+	this.lod4DistInMeters = lod4DistInMeters;
+};
+Policy.prototype.getLod5DistInMeters = function() 
+{
+	return this.lod5DistInMeters;
+};
+Policy.prototype.setLod5DistInMeters = function(lod5DistInMeters) 
+{
+	this.lod5DistInMeters = lod5DistInMeters;
+};
+Policy.prototype.getAmbientReflectionCoef = function() 
+{
+	return this.ambientReflectionCoef;
+};
+Policy.prototype.setAmbientReflectionCoef = function(ambientReflectionCoef) 
+{
+	this.ambientReflectionCoef = ambientReflectionCoef;
+};
+Policy.prototype.getDiffuseReflectionCoef = function() 
+{
+	return this.diffuseReflectionCoef;
+};
+Policy.prototype.setDiffuseReflectionCoef = function(diffuseReflectionCoef) 
+{
+	this.diffuseReflectionCoef = diffuseReflectionCoef;
+};
+Policy.prototype.getSpecularReflectionCoef = function() 
+{
+	return this.specularReflectionCoef;
+};
+Policy.prototype.setSpecularReflectionCoef = function(specularReflectionCoef) 
+{
+	this.specularReflectionCoef = specularReflectionCoef;
+};
+Policy.prototype.getAmbientColor = function() 
+{
+	return this.ambientColor;
+};
+Policy.prototype.setAmbientColor = function(ambientColor) 
+{
+	this.ambientColor = ambientColor;
+};
+Policy.prototype.getSpecularColor = function() 
+{
+	return this.specularColor;
+};
+Policy.prototype.setSpecularColor = function(specularColor) 
+{
+	this.specularColor = specularColor;
+};
+Policy.prototype.getSsaoRadius = function() 
+{
+	return this.ssaoRadius;
+};
+Policy.prototype.setSsaoRadius = function(ssaoRadius) 
+{
+	this.ssaoRadius = ssaoRadius;
+};
+Policy.prototype.setModelMovable = function(movable)
+{
+	this.modelMovable = movable;
+};
+Policy.prototype.isModelMovable = function()
+{
+	return this.modelMovable;
 };
 'use strict';
 
@@ -17995,7 +20399,7 @@ BoundingSphere.prototype.addBSphere = function(bSphere)
 /**
  * browser event instance
  * @param {string} type required. 
- * @param {object} position 
+ * @param {object} position is screen coord, if mousemove has startPosition and endPositon, otherwise one position
  * @param {MagoManager} magoManager 
  */
 var BrowserEvent = function(type, position, magoManager) 
@@ -18017,11 +20421,60 @@ var BrowserEvent = function(type, position, magoManager)
 	{
 		if (position.hasOwnProperty('x') && position.hasOwnProperty('y'))
 		{
-			var eventCoordinate = ManagerUtils.getComplexCoordinateByScreenCoord(magoManager.getGl(), position.x, position.y, undefined, undefined, undefined, magoManager);
+			var worldCoordinate;
+			var sceneState = magoManager.sceneState;
+			var gl = magoManager.getGl();
+			var camera = sceneState.camera;
 
-			if (!eventCoordinate)
+			var maxDepth = 0.996;
+			var currentDepthFbo;
+			var currentFrustumFar;
+			var currentFrustumNear;
+			var currentLinearDepth;
+			var depthDetected = false;
+			var frustumsCount = magoManager.numFrustums;
+			for (var i = 0; i < frustumsCount; i++)
 			{
-				eventCoordinate = {screenCoordinate: new Point2D(position.x, position.y)};
+				var frustumVolume = magoManager.frustumVolumeControl.getFrustumVolumeCulling(i); 
+				var depthFbo = frustumVolume.depthFbo;
+
+				currentLinearDepth = ManagerUtils.calculatePixelLinearDepth(gl, position.x, position.y, depthFbo, magoManager);
+				if (currentLinearDepth < maxDepth) // maxDepth/255 = 0.99607...
+				{ 
+					currentDepthFbo = depthFbo;
+					var frustum = camera.getFrustum(i);
+					currentFrustumFar = frustum.far[0];
+					currentFrustumNear = frustum.near[0];
+					depthDetected = true;
+					break;
+				}
+			}
+
+			if (!depthDetected && magoManager.isCesiumGlobe())
+			{
+				var scene = magoManager.scene;
+				var camera = scene.frameState.camera;
+				var ray = camera.getPickRay(new Cesium.Cartesian2(position.x, position.y));
+				worldCoordinate = scene.globe.pick(ray, scene);
+			} else 
+			{
+				var camCoord = MagoWorld.screenToCamCoord(position.x, position.y, magoManager, camCoord);
+				if(!camCoord)
+				{
+					worldCoordinate = undefined;
+				} 
+				else 
+				{
+					worldCoordinate = ManagerUtils.cameraCoordPositionToWorldCoord(camCoord, worldCoordinate, magoManager);
+				}
+			}
+
+			var eventCoordinate = {};
+			eventCoordinate.screenCoordinate = new Point2D(position.x, position.y);
+			if (worldCoordinate)
+			{
+				eventCoordinate.worldCoordinate = worldCoordinate;
+				eventCoordinate.geographicCoordinate = ManagerUtils.pointToGeographicCoord(worldCoordinate);
 			}
             
 			this.point = eventCoordinate;
@@ -20648,7 +23101,7 @@ CesiumViewerInit.prototype.providerBuild = function()
 CesiumViewerInit.prototype.geoserverImageProviderBuild = function() 
 {
 	var policy = this.policy;
-	var geoserver = MagoConfig.getGeoserver();
+	var geoserver = this.config.getGeoserver();
     
 	if (!policy.geoserverImageproviderEnable) 
 	{
@@ -20805,7 +23258,7 @@ CesiumViewerInit.prototype.initMagoManager = function()
 	var serverPolicy = this.policy;
 	var viewer = this.viewer;
 	
-	this.viewer.scene.magoManager = new MagoManager();
+	this.viewer.scene.magoManager = new MagoManager(this.config);
 	this.viewer.scene.magoManager.sceneState.textureFlipYAxis = false;
 
 	this.viewer.camera.frustum.fov = Cesium.Math.PI_OVER_THREE;
@@ -20854,54 +23307,75 @@ CesiumViewerInit.prototype.setEventHandler = function()
 	
 	magoManager.handler.setInputAction(function(click) 
 	{
-		magoManager.mouseActionLeftDown(click.position.x, click.position.y);
+		
+		magoManager.handleBrowserEvent(new BrowserEvent(MagoManager.EVENT_TYPE.LEFTDOWN, click.position, magoManager));
+		//magoManager.mouseActionLeftDown(click.position.x, click.position.y);
 	}, Cesium.ScreenSpaceEventType.LEFT_DOWN);
 
 	magoManager.handler.setInputAction(function(click) 
 	{
-		magoManager.mouseActionMiddleDown(click.position.x, click.position.y);
+		magoManager.handleBrowserEvent(new BrowserEvent(MagoManager.EVENT_TYPE.MIDDLEDOWN, click.position, magoManager));
+		//magoManager.mouseActionMiddleDown(click.position.x, click.position.y);
 	}, Cesium.ScreenSpaceEventType.MIDDLE_DOWN);
     
 	magoManager.handler.setInputAction(function(click) 
 	{
+		magoManager.handleBrowserEvent(new BrowserEvent(MagoManager.EVENT_TYPE.RIGHTDOWN, click.position, magoManager));
 		magoManager.mouseActionRightDown(click.position.x, click.position.y);
 	}, Cesium.ScreenSpaceEventType.RIGHT_DOWN);
 
 	magoManager.handler.setInputAction(function(movement) 
 	{
-		magoManager.mouseActionMove(movement.startPosition, movement.endPosition);
+		magoManager.handleBrowserEvent(new BrowserEvent(MagoManager.EVENT_TYPE.MOUSEMOVE, movement, magoManager));
+		//magoManager.mouseActionMove(movement.startPosition, movement.endPosition);
 	}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
 	magoManager.handler.setInputAction(function(movement) 
 	{
-		magoManager.mouseActionLeftUp(movement.position.x, movement.position.y);
+		magoManager.handleBrowserEvent(new BrowserEvent(MagoManager.EVENT_TYPE.LEFTUP, movement.position, magoManager));
+		//magoManager.mouseActionLeftUp(movement.position.x, movement.position.y);
 	}, Cesium.ScreenSpaceEventType.LEFT_UP);
 
 	magoManager.handler.setInputAction(function(movement) 
 	{
-		magoManager.mouseActionMiddleUp(movement.position.x, movement.position.y);
+		magoManager.handleBrowserEvent(new BrowserEvent(MagoManager.EVENT_TYPE.MIDDLEUP, movement.position, magoManager));
+		//magoManager.mouseActionMiddleUp(movement.position.x, movement.position.y);
 	}, Cesium.ScreenSpaceEventType.MIDDLE_UP);
     
 	magoManager.handler.setInputAction(function(movement) 
 	{
+		magoManager.handleBrowserEvent(new BrowserEvent(MagoManager.EVENT_TYPE.RIGHTUP, movement.position, magoManager));
 		magoManager.mouseActionRightUp(movement.position.x, movement.position.y);
 	}, Cesium.ScreenSpaceEventType.RIGHT_UP);
     
 	magoManager.handler.setInputAction(function(movement) 
 	{
-		magoManager.mouseActionLeftClick(movement.position.x, movement.position.y);
+		magoManager.handleBrowserEvent(new BrowserEvent(MagoManager.EVENT_TYPE.CLICK, movement.position, magoManager));
+		//magoManager.mouseActionLeftClick(movement.position.x, movement.position.y);
 	}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
 	magoManager.handler.setInputAction(function(movement) 
 	{
+		magoManager.handleBrowserEvent(new BrowserEvent(MagoManager.EVENT_TYPE.DBCLICK, movement.position, magoManager));
 		magoManager.mouseActionLeftDoubleClick(movement.position.x, movement.position.y);
 	}, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
 
 	magoManager.handler.setInputAction(function(movement) 
 	{
+		magoManager.handleBrowserEvent(new BrowserEvent(MagoManager.EVENT_TYPE.RIGHTCLICK, movement.position, magoManager));
 		magoManager.mouseActionRightClick(movement.position.x, movement.position.y);
 	}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 
+	magoManager.handler.setInputAction(function(delta) 
+	{
+		magoManager.handleBrowserEvent(new BrowserEvent(MagoManager.EVENT_TYPE.WHEEL, {delta: delta}, magoManager));
+	}, Cesium.ScreenSpaceEventType.WHEEL);
+
+	window.addEventListener('resize', function(event)
+	{
+
+		magoManager.isCameraMoved = true;
+	}, false);
 	 
 	this.viewer.clock.onTick.addEventListener(function(clock) 
 	{
@@ -21617,8 +24091,8 @@ F4dController.prototype.addF4dGroup = function(f4dLayerObject)
 			groupDataFolder = groupDataFolder.replace(/\/+$/, '');
 		}
 
-		MagoConfig.setData(CODE.PROJECT_ID_PREFIX + groupId, f4dLayerObject);
-		MagoConfig.setProjectDataFolder(CODE.PROJECT_DATA_FOLDER_PREFIX + groupDataFolder, groupDataFolder);
+		this.magoManager.config.setData(CODE.PROJECT_ID_PREFIX + groupId, f4dLayerObject);
+		this.magoManager.config.setProjectDataFolder(CODE.PROJECT_DATA_FOLDER_PREFIX + groupDataFolder, groupDataFolder);
         
 		magoManager.getObjectIndexFile(groupId, groupDataFolder);
 	}
@@ -21730,7 +24204,8 @@ var FBO = function(gl, width, height, options)
 	{
 		throw new Error(Messages.CONSTRUCT_ERROR);
 	}
-	
+	options = options ? options : {};
+	this.options = options;
 	/**
 	 * WebGL rendering context.
 	 * @type {WebGLRenderingContext}
@@ -21757,34 +24232,21 @@ var FBO = function(gl, width, height, options)
 	 * @type {WebGLFramebuffer}
 	 * @default WebGLFramebuffer
 	 */
-	this.fbo = gl.createFramebuffer();
-	
+	this.fbo = undefined;
 	
 	/**
 	 * WebGL Renderbuffer.
 	 * @type {WebGLRenderbuffer}
 	 * @default WebGLRenderbuffer
 	 */
-	this.depthBuffer = gl.createRenderbuffer();
+	this.depthBuffer = undefined;
 	
 	/**
 	 * WebGL texture.
 	 * @type {WebGLTexture}
 	 * @default WebGLTexture
 	 */
-	var colorBuffer;
-	if (options)
-	{
-		if (options.colorBuffer !== undefined)
-		{
-			colorBuffer = options.colorBuffer;
-		}
-	}
-
-	if (colorBuffer !== undefined)
-	{ this.colorBuffer = colorBuffer; }
-	else
-	{ this.colorBuffer = gl.createTexture(); }
+	this.colorBuffer = undefined;
 	
 	/**
 	 * Boolean var that indicates that the parameters must be updated.
@@ -21796,7 +24258,36 @@ var FBO = function(gl, width, height, options)
 	// Init process.
 	this.width[0] = width;
 	this.height[0] = height;
-  
+
+	this.init();
+
+	if (options.matchCanvasSize)
+	{
+		var that = this;
+		window.addEventListener('resize', function()
+		{
+			var canvas = that.gl.canvas;
+
+			that.width[0] = canvas.offsetWidth;
+			that.height[0] = canvas.offsetHeight;
+
+			that.deleteObjects(that.gl);
+			that.init();
+		}, false);
+	}
+};   
+
+FBO.prototype.init = function() 
+{
+	var gl = this.gl;
+	this.fbo = gl.createFramebuffer();
+	this.depthBuffer = gl.createRenderbuffer();
+
+	if (this.options.colorBuffer)
+	{ this.colorBuffer = this.options.colorBuffer; }
+	else
+	{ this.colorBuffer = gl.createTexture(); }
+
 	gl.activeTexture(gl.TEXTURE0);
 	gl.bindTexture(gl.TEXTURE_2D, this.colorBuffer);  
 	
@@ -21806,11 +24297,11 @@ var FBO = function(gl, width, height, options)
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 	//gl.generateMipmap(gl.TEXTURE_2D)
 
-	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width[0], height[0], 0, gl.RGBA, gl.UNSIGNED_BYTE, null); 
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width[0], this.height[0], 0, gl.RGBA, gl.UNSIGNED_BYTE, null); 
   
 	gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbo);
 	gl.bindRenderbuffer(gl.RENDERBUFFER, this.depthBuffer);
-	gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width[0], height[0]);
+	gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, this.width[0], this.height[0]);
 	gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this.depthBuffer);
 	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.colorBuffer, 0);
 	if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) 
@@ -21819,7 +24310,7 @@ var FBO = function(gl, width, height, options)
 	}
 
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-};   
+};
 
 FBO.prototype.setColorBuffer = function(colorBuffer) 
 {
@@ -21883,8 +24374,6 @@ FBO.prototype.deleteObjects = function(gl)
 	if (this.fbo)
 	{ gl.deleteFramebuffer(this.fbo); }
 	this.fbo = undefined;
-	
-	
 };
 
 /**
@@ -23794,7 +26283,7 @@ GeographicCoordsList.prototype.renderLines = function(magoManager, shader, rende
 	{ return false; }
 	
 	var shader = magoManager.postFxShadersManager.getShader("pointsCloud");
-	shader.useProgram();
+	magoManager.postFxShadersManager.useProgram(shader);
 	shader.disableVertexAttribArrayAll();
 	shader.resetLastBuffersBinded();
 	shader.enableVertexAttribArray(shader.position3_loc);
@@ -23832,7 +26321,7 @@ GeographicCoordsList.prototype.renderPoints = function(magoManager, shader, rend
 	//	gl.disableVertexAttribArray(i);
 
 	var shaderLocal = magoManager.postFxShadersManager.getShader("pointsCloud"); // provisional. Use the currentShader of argument.
-	shaderLocal.useProgram();
+	magoManager.postFxShadersManager.useProgram(shaderLocal);
 	
 	shaderLocal.disableVertexAttribArrayAll();
 	shaderLocal.resetLastBuffersBinded();
@@ -23908,7 +26397,7 @@ GeographicCoordsList.prototype.renderPoints = function(magoManager, shader, rend
 	ctx.restore();
 	
 	// return the current shader.
-	shader.useProgram();
+	magoManager.postFxShadersManager.useProgram(shader);
 };
 
 /**
@@ -25976,6 +28465,7 @@ var InteractionCollection = function(magoManager)
 		target.manager = magoManager;
 	});
 
+	/*
 	this.on(InteractionCollection.EVENT_TYPE.ACTIVE, function(target)
 	{
 		for (var i=0, len = that.array.length; i<len; i++)
@@ -25993,7 +28483,7 @@ var InteractionCollection = function(magoManager)
 			}
 		}
 	});
-
+	*/
 	this.on(InteractionCollection.EVENT_TYPE.DEACTIVE, function()
 	{
 		for (var i=0, len = that.array.length; i<len; i++)
@@ -26024,6 +28514,24 @@ InteractionCollection.prototype.add = function(interaction)
 	this.array.push(interaction);
 	this.emit(InteractionCollection.EVENT_TYPE.ADD, interaction);
 };
+
+/**
+ * return select type
+ * @param {DrawGeometryInteraction} interaction
+ * @return {string}
+ */
+InteractionCollection.prototype.getSelectType = function() 
+{
+	var selects = this.array.filter(function(i)
+	{
+		if (i instanceof Mago3D.PointSelectInteraction) { return i; }
+	});
+	var pointSelectInteraction = selects[0];
+	return pointSelectInteraction.targetType;
+};
+
+
+
 'use strict';
 
 /**
@@ -26283,7 +28791,7 @@ MagoEarthViewerInit.prototype.constructor = MagoEarthViewerInit;
 
 MagoEarthViewerInit.prototype.init = function() 
 {
-	this.magoManager = new MagoManager();
+	this.magoManager = new MagoManager(this.config);
 	this.viewer = new MagoWorld(this.magoManager);
 	
 	this.magoManager.magoWorld = this.viewer;
@@ -26386,6 +28894,9 @@ MagoEarthViewerInit.prototype.setEventHandler = function()
 		var magomanager = magoWorld.magoManager;
 		var sceneState = magomanager.sceneState;
 		sceneState.setDrawingBufferSize(canvas.offsetWidth, canvas.offsetHeight);
+
+		//when resized, must do render color selection buffer
+		magomanager.isCameraMoved = true;
 	}, false);
 	
 	var handlekeydown = function(event) 
@@ -26666,13 +29177,23 @@ MagoLayerCollection.prototype.removeById = function(id)
  * @class MagoManager
  * @constructor
  */
-var MagoManager = function(options) 
+var MagoManager = function(config) 
 {
 	if (!(this instanceof MagoManager)) 
 	{
 		throw new Error(Messages.CONSTRUCT_ERROR);
 	}
 	Emitter.call(this);
+
+	/**
+	 * mago config.
+	 * @type {MagoConfig}
+	 * @default MagoConfig.
+	 * 
+	 * @private
+	 */
+	this.config = config;
+
 	/**
 	 * Auxiliary renderer.
 	 * @type {Renderer}
@@ -26689,7 +29210,7 @@ var MagoManager = function(options)
 	 * 
 	 * @private
 	 */
-	this.selectionManager = new SelectionManager(this);
+	this.selectionManager = undefined;
 	
 	/**
 	 * Manages the shaders.
@@ -26699,7 +29220,8 @@ var MagoManager = function(options)
 	 * @private
 	 */
 	this.postFxShadersManager = new PostFxShadersManager();
-	
+
+	this.configInformation = this.config.getPolicy();
 	/**
 	 * Manages the request & loading files.
 	 * @type {ReaderWriter}
@@ -26707,7 +29229,7 @@ var MagoManager = function(options)
 	 * 
 	 * @private
 	 */
-	this.readerWriter = new ReaderWriter();
+	this.readerWriter = new ReaderWriter(this.configInformation);
 	
 	/**
 	 * Contains the Mago3D policy data.
@@ -26716,7 +29238,7 @@ var MagoManager = function(options)
 	 * 
 	 * @private
 	 */
-	this.magoPolicy = new Policy();
+	this.magoPolicy = new Policy(this.configInformation);
 	
 	/**
 	 * Manages & controls the movement of the objects in the scene.
@@ -26834,14 +29356,14 @@ var MagoManager = function(options)
 	this.thereAreStartMovePoint = false;
 	this.startMovPoint = new Point3D();
 	
-	this.configInformation = MagoConfig.getPolicy();
+	
 	this.cameraFPV = new FirstPersonView();
 	this.myCameraSCX;
 	// var to delete.*********************************************
 	this.loadQueue = new LoadQueue(this); // Old. delete.***
 
 	// Vars.****************************************************************
-	this.sceneState = new SceneState(); // this contains all scene mtrices and camera position.***
+	this.sceneState = new SceneState(this.config); // this contains all scene mtrices and camera position.***
 	this.sceneState.setApplySunShadows(false);
 
 	
@@ -26849,7 +29371,7 @@ var MagoManager = function(options)
 	this.magoPolicy.objectMoveMode = CODE.moveMode.NONE;
 
 	this.selectionColor = new SelectionColor();
-	this.vboMemoryManager = new VBOMemoryManager();
+	this.vboMemoryManager = new VBOMemoryManager(this.configInformation);
 	
 	if (this.configInformation !== undefined)
 	{
@@ -26983,7 +29505,11 @@ var MagoManager = function(options)
 	 * Interaction collection.
 	 * @type {InteractionCollection}
 	 */
-	this.interactions = new InteractionCollection(this);
+	this.interactionCollection = new InteractionCollection(this);
+	this.defaultSelectInteraction = new PointSelectInteraction();
+	this.defaultTranslateInteraction = new TranslateInteraction();
+	this.interactionCollection.add(this.defaultSelectInteraction);
+	this.interactionCollection.add(this.defaultTranslateInteraction);
 
 	/**
      * Control collection.
@@ -27007,6 +29533,11 @@ MagoManager.EVENT_TYPE = {
 	'MOUSEMOVE'              	: 'mousemove',
 	'LEFTDOWN'              		: 'leftdown',
 	'LEFTUP'                		: 'leftup',
+	'MIDDLEDOWN'            		: 'middledown',
+	'MIDDLEUP'              		: 'middleup',
+	'RIGHTDOWN'             		: 'rightdown',
+	'RIGHTUP'               		: 'rightup',
+	'WHEEL'                 		: 'wheel',
 	'SMARTTILELOADSTART'     	: 'smarttileloadstart',
 	'SMARTTILELOADEND'       	: 'smarttileloadend',
 	'F4DLOADSTART'           	: 'f4dloadstart',
@@ -27048,6 +29579,8 @@ MagoManager.prototype.init = function(gl)
 	{ this.vboMemoryManager.gl = gl; }
 	if (this.effectsManager.gl === undefined)
 	{ this.effectsManager.gl = gl; }
+
+	this.selectionManager = new SelectionManager(this);
 };
 
 /**
@@ -27070,6 +29603,7 @@ MagoManager.prototype.start = function(scene, pass, frustumIdx, numFrustums)
 	var isLastFrustum = false;
 	this.numFrustums = numFrustums;
 	this.currentFrustumIdx = this.numFrustums-frustumIdx-1;
+	
 	if (this.currentFrustumIdx === numFrustums-1) 
 	{
 		isLastFrustum = true;
@@ -27078,16 +29612,15 @@ MagoManager.prototype.start = function(scene, pass, frustumIdx, numFrustums)
 
 	if (this.configInformation === undefined)
 	{
-		this.configInformation = MagoConfig.getPolicy();
+		this.configInformation = this.config.getPolicy();
 	}
-	if (scene)
-	{
-		var gl = scene.context._gl;
+
+	if (!this.bInit)
+	{ 
+		var gl = scene ? scene.context._gl : this.sceneState.gl;
 		gl.getExtension("EXT_frag_depth");
-		
-		if (!this.bInit)
-		{ this.init(gl); }
-	
+		this.init(gl); 
+
 		if (gl.isContextLost())
 		{ return; }
 	}
@@ -27099,7 +29632,6 @@ MagoManager.prototype.start = function(scene, pass, frustumIdx, numFrustums)
  */
 MagoManager.prototype.updateSize = function() 
 {
-
 	var sceneState = this.sceneState;
 	var canvas = sceneState.canvas;
 	canvas.width = canvas.offsetWidth;
@@ -27112,6 +29644,47 @@ MagoManager.prototype.updateSize = function()
 MagoManager.prototype.isCesiumGlobe = function() 
 {
 	return this.configInformation.basicGlobe === Constant.CESIUM;
+};
+
+/**
+ * handle browser event
+ * @param {BrowserEvent} browserEvent 
+ */
+MagoManager.prototype.handleBrowserEvent = function(browserEvent) 
+{
+	this.emit(browserEvent.type, browserEvent);
+	var interactionArray = this.interactionCollection.array;
+
+	for (var i=interactionArray.length - 1; i>=0;i--)
+	{
+		var interaction = interactionArray[i];
+
+		/**
+		 * @example 
+		 * interaction can be pointSelectInteraction.
+		 */
+		if (!interaction.getActive())
+		{
+			continue;
+		}
+
+		interaction.handle(browserEvent);
+	}
+	
+	/*if (browserEvent.type === 'click')
+	{
+		//
+		var infoPromise = loadWithXhr('./persistence/json/mago3d-building_4326');
+
+		infoPromise.done(function(e)
+		{
+			
+			var pbf = new Pbf(e);
+			console.info(pbf);
+			var c = MBTile.read(pbf);
+			console.info(c);
+		});
+	}*/
 };
 
 /**
@@ -27826,7 +30399,7 @@ MagoManager.prototype.renderToSelectionBuffer = function()
 	var gl = this.getGl();
 	
 	if (this.selectionFbo === undefined) 
-	{ this.selectionFbo = new FBO(gl, this.sceneState.drawingBufferWidth, this.sceneState.drawingBufferHeight); }
+	{ this.selectionFbo = new FBO(gl, this.sceneState.drawingBufferWidth, this.sceneState.drawingBufferHeight, {matchCanvasSize: true}); }
 	
 	if (this.isCameraMoved || this.bPicking) // 
 	{
@@ -27846,13 +30419,9 @@ MagoManager.prototype.renderToSelectionBuffer = function()
 			gl.clearColor(0, 0, 0, 1); // return to black background.***
 		}
 
-		
-		
-		this.renderer.renderGeometryColorCoding(this.visibleObjControlerNodes); 
+		this.renderer.renderGeometryColorCoding(this.visibleObjControlerNodes, ''); 
 		this.swapRenderingFase();
 
-		
-		
 		if (this.currentFrustumIdx === 0)
 		{
 			this.isCameraMoved = false;
@@ -27882,46 +30451,8 @@ MagoManager.prototype.managePickingProcess = function()
 	var gl = this.getGl();
 	
 	if (this.selectionFbo === undefined) 
-	{ this.selectionFbo = new FBO(gl, this.sceneState.drawingBufferWidth, this.sceneState.drawingBufferHeight); }
-	/*
-	if (this.isCameraMoved || this.bPicking) // 
-	{
-		this.selectionFbo.bind(); // framebuffer for color selection.***
-		gl.enable(gl.DEPTH_TEST);
-		gl.depthFunc(gl.LEQUAL);
-		gl.depthRange(0, 1);
-		gl.disable(gl.CULL_FACE);
-		if (this.isLastFrustum)
-		{
-			// this is the farest frustum, so init selection process.***
-			gl.clearColor(1, 1, 1, 1); // white background.***
-			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // clear buffer.***
-			this.selectionManager.clearCandidates();
-			gl.clearColor(0, 0, 0, 1); // return to black background.***
-		}
-		
-		this.renderer.renderGeometryColorCoding(this.visibleObjControlerNodes);
-		this.swapRenderingFase();
-		
-		if (this.currentFrustumIdx === 0)
-		{
-			this.isCameraMoved = false;
-
-			//TODO : MOVEEND EVENT TRIGGER
-			//PSEUDO CODE FOR CLUSTER
-			//if (this.modeler && this.modeler.objectsArray) 
-			//{
-			//	for (var i=0, len=this.modeler.objectsArray.length;i<len;i++) 
-			//	{
-			//		var obj = this.modeler.objectsArray[i];
-			//		if (!obj instanceof Cluster) { continue; }
-			//
-			//		if (!obj.dirty && !obj.isMaking) { obj.setDirty(true); }
-			//	}
-			//}
-		}
-	}
-	*/
+	{ this.selectionFbo = new FBO(gl, this.sceneState.drawingBufferWidth, this.sceneState.drawingBufferHeight, {matchCanvasSize: true}); }
+	
 	
 	if (this.currentFrustumIdx === 0)
 	{
@@ -28014,99 +30545,6 @@ MagoManager.prototype.managePickingProcess = function()
 					type: MagoManager.EVENT_TYPE.DESELECTEDGENERALOBJECT
 				});
 			}
-	
-			// Test flyTo by topology.******************************************************************************
-			var selCandidatesEdges = selectionManager.getSelectionCandidatesFamily("networkEdges");
-			var selCandidatesNodes = selectionManager.getSelectionCandidatesFamily("networkNodes");
-			var flyed = false;
-			if (selCandidatesEdges)
-			{
-				var edgeSelected = selCandidatesEdges.currentSelected;
-				if (edgeSelected && edgeSelected.vtxSegment)
-				{
-					// calculate the 2 positions of the edge.***
-					var camPos = this.sceneState.camera.position;
-					var vtxSeg = edgeSelected.vtxSegment;
-					var pos1 = new Point3D();
-					var pos2 = new Point3D();
-					pos1.copyFrom(vtxSeg.startVertex.point3d);
-					pos2.copyFrom(vtxSeg.endVertex.point3d);
-					pos1.add(0.0, 0.0, 1.7); // add person height.***
-					pos2.add(0.0, 0.0, 1.7); // add person height.***
-						
-						
-					// calculate pos1 & pos2 to worldCoordinate.***
-					// Need the building tMatrix.***
-					var network = edgeSelected.networkOwner;
-					var node = network.nodeOwner;
-					var geoLocDataManager = node.data.geoLocDataManager;
-					var geoLoc = geoLocDataManager.getCurrentGeoLocationData();
-					var tMat = geoLoc.tMatrix;
-						
-					// To positions must add "pivotPointTraslation" if exist.***
-					// If building moved to bboxCenter, for example, then exist "pivotPointTraslation".***
-					var pivotTranslation = geoLoc.pivotPointTraslationLC;
-					if (pivotTranslation)
-					{
-						pos1.add(pivotTranslation.x, pivotTranslation.y, pivotTranslation.z);
-						pos2.add(pivotTranslation.x, pivotTranslation.y, pivotTranslation.z);
-					}
-
-					var worldPos1 = tMat.transformPoint3D(pos1, undefined);
-					var worldPos2 = tMat.transformPoint3D(pos2, undefined);
-
-					// select the farestPoint to camera.***
-					var dist1 = camPos.squareDistToPoint(worldPos1);
-					var dist2 = camPos.squareDistToPoint(worldPos2);
-					var pointSelected;
-					if (dist1<dist2)
-					{
-						pointSelected = worldPos2;
-					}
-					else
-					{ pointSelected = worldPos1; }
-						
-					// now flyTo pointSelected.***
-					this.flyToTopology(pointSelected, 2);
-					flyed = true;
-				}
-			}
-			if (!flyed && selCandidatesNodes)
-			{
-				var nodeSelected = selCandidatesNodes.currentSelected;
-				if (nodeSelected)
-				{
-					// calculate the 2 positions of the edge.***
-					var camPos = this.sceneState.camera.position;
-					var pos1 = new Point3D(nodeSelected.position.x, nodeSelected.position.y, nodeSelected.position.z);
-					pos1.add(0.0, 0.0, 1.7); // add person height.***
-						
-						
-					// calculate pos1 & pos2 to worldCoordinate.***
-					// Need the building tMatrix.***
-					var network = nodeSelected.networkOwner;
-					var node = network.nodeOwner;
-					var geoLocDataManager = node.data.geoLocDataManager;
-					var geoLoc = geoLocDataManager.getCurrentGeoLocationData();
-					var tMat = geoLoc.tMatrix;
-						
-					// To positions must add "pivotPointTraslation" if exist.***
-					// If building moved to bboxCenter, for example, then exist "pivotPointTraslation".***
-					var pivotTranslation = geoLoc.pivotPointTraslationLC;
-					if (pivotTranslation)
-					{
-						pos1.add(pivotTranslation.x, pivotTranslation.y, pivotTranslation.z);
-					}
-						
-					var worldPos1 = tMat.transformPoint3D(pos1, undefined);
-						
-					// now flyTo pointSelected.***
-					this.flyToTopology(worldPos1, 2);
-					flyed = true;
-				}
-			}
-			// End Test flyTo by topology.******************************************************************************
-			
 		}
 		
 		this.selectionColor.init(); // selection colors manager.***
@@ -28127,14 +30565,7 @@ MagoManager.prototype.getSilhouetteDepthFbo = function()
 	// Provisional function.***
 	var gl = this.getGl();
 	
-	if (this.silhouetteDepthFboNeo === undefined) { this.silhouetteDepthFboNeo = new FBO(gl, this.sceneState.drawingBufferWidth, this.sceneState.drawingBufferHeight); }
-	if (this.sceneState.drawingBufferWidth[0] !== this.silhouetteDepthFboNeo.width[0] || this.sceneState.drawingBufferHeight[0] !== this.silhouetteDepthFboNeo.height[0])
-	{
-		// move this to onResize.***
-		this.silhouetteDepthFboNeo.deleteObjects(gl);
-		this.silhouetteDepthFboNeo = new FBO(gl, this.sceneState.drawingBufferWidth, this.sceneState.drawingBufferHeight);
-		this.sceneState.camera.frustum.dirty = true;
-	}
+	if (this.silhouetteDepthFboNeo === undefined) { this.silhouetteDepthFboNeo = new FBO(gl, this.sceneState.drawingBufferWidth, this.sceneState.drawingBufferHeight, {matchCanvasSize: true}); }
 	
 	return this.silhouetteDepthFboNeo;
 };
@@ -28156,47 +30587,16 @@ MagoManager.prototype.doRender = function(frustumVolumenObject)
 	
 	// Take the depFrameBufferObject of the current frustumVolume.***
 	/*
-	if (this.depthFboNeo === undefined) { this.depthFboNeo = new FBO(gl, this.sceneState.drawingBufferWidth, this.sceneState.drawingBufferHeight); }
-	if (this.sceneState.drawingBufferWidth[0] !== this.depthFboNeo.width[0] || this.sceneState.drawingBufferHeight[0] !== this.depthFboNeo.height[0])
-	{
-		// move this to onResize.***
-		this.depthFboNeo.deleteObjects(gl);
-		this.depthFboNeo = new FBO(gl, this.sceneState.drawingBufferWidth, this.sceneState.drawingBufferHeight);
-		this.sceneState.camera.frustum.dirty = true;
-	}
+	if (this.depthFboNeo === undefined) { this.depthFboNeo = new FBO(gl, this.sceneState.drawingBufferWidth, this.sceneState.drawingBufferHeight, {matchCanvasSize : true}); }
 	*/
 	
 	
-	if (frustumVolumenObject.depthFbo === undefined) { frustumVolumenObject.depthFbo = new FBO(gl, this.sceneState.drawingBufferWidth, this.sceneState.drawingBufferHeight); }
-	//if (this.ssaoFromDepthFbo === undefined) { this.ssaoFromDepthFbo = new FBO(gl, new Float32Array([this.sceneState.drawingBufferWidth[0]/2.0]), new Float32Array([this.sceneState.drawingBufferHeight/2.0])); }
-	if (this.ssaoFromDepthFbo === undefined) { this.ssaoFromDepthFbo = new FBO(gl, this.sceneState.drawingBufferWidth, this.sceneState.drawingBufferHeight); }
-	if (this.sceneState.drawingBufferWidth[0] !== frustumVolumenObject.depthFbo.width[0] || this.sceneState.drawingBufferHeight[0] !== frustumVolumenObject.depthFbo.height[0])
-	{
-		// move this to onResize.***
-		frustumVolumenObject.depthFbo.deleteObjects(gl);
-		frustumVolumenObject.depthFbo = new FBO(gl, this.sceneState.drawingBufferWidth, this.sceneState.drawingBufferHeight);
+	if (frustumVolumenObject.depthFbo === undefined) { frustumVolumenObject.depthFbo = new FBO(gl, this.sceneState.drawingBufferWidth, this.sceneState.drawingBufferHeight, {matchCanvasSize: true}); }
+	//if (this.ssaoFromDepthFbo === undefined) { this.ssaoFromDepthFbo = new FBO(gl, new Float32Array([this.sceneState.drawingBufferWidth[0]/2.0]), new Float32Array([this.sceneState.drawingBufferHeight/2.0]), {matchCanvasSize : true}); }
+	if (this.ssaoFromDepthFbo === undefined) { this.ssaoFromDepthFbo = new FBO(gl, this.sceneState.drawingBufferWidth, this.sceneState.drawingBufferHeight, {matchCanvasSize: true}); }
 
-		// move this to onResize.***
-		this.ssaoFromDepthFbo.deleteObjects(gl);
-		//this.ssaoFromDepthFbo = new FBO(gl, new Float32Array([this.sceneState.drawingBufferWidth[0]/2.0]), new Float32Array([this.sceneState.drawingBufferHeight/2.0]));
-		this.ssaoFromDepthFbo = new FBO(gl, this.sceneState.drawingBufferWidth, this.sceneState.drawingBufferHeight);
-
-		this.sceneState.camera.frustum.dirty = true;
-
-		// delete selection buffer too.
-		this.selectionFbo.deleteObjects(gl);
-		this.selectionFbo = undefined;
-	}
-	
 	// test silhouette depthFbo.***
-	//if (frustumVolumenObject.silhouetteDepthFboNeo === undefined) { frustumVolumenObject.silhouetteDepthFboNeo = new FBO(gl, this.sceneState.drawingBufferWidth, this.sceneState.drawingBufferHeight); }
-	//if (this.sceneState.drawingBufferWidth[0] !== frustumVolumenObject.silhouetteDepthFboNeo.width[0] || this.sceneState.drawingBufferHeight[0] !== frustumVolumenObject.silhouetteDepthFboNeo.height[0])
-	//{
-	//	// move this to onResize.***
-	//	frustumVolumenObject.silhouetteDepthFboNeo.deleteObjects(gl);
-	//	frustumVolumenObject.silhouetteDepthFboNeo = new FBO(gl, this.sceneState.drawingBufferWidth, this.sceneState.drawingBufferHeight);
-	//	this.sceneState.camera.frustum.dirty = true;
-	//}
+	//if (frustumVolumenObject.silhouetteDepthFboNeo === undefined) { frustumVolumenObject.silhouetteDepthFboNeo = new FBO(gl, this.sceneState.drawingBufferWidth, this.sceneState.drawingBufferHeight, {matchCanvasSize : true}); }
 	
 
 	this.depthFboNeo = frustumVolumenObject.depthFbo;
@@ -28405,7 +30805,13 @@ MagoManager.prototype.startRender = function(isLastFrustum, frustumIdx, numFrust
 	{
 		this.loadAndPrepareData();
 		this.renderToSelectionBuffer();
-		this.managePickingProcess();
+		//this.managePickingProcess();
+	}
+	
+	if (frustumIdx === 0)
+	{
+		this.selectionColor.init();
+		this.emit('lastFrustum');
 	}
 	
 	// Render process.***
@@ -28592,7 +30998,10 @@ MagoManager.prototype.drawBuildingNames = function(visibleObjControlerNodes)
 			worldPosition = nodeRoot.getBBoxCenterPositionWorldCoord(geoLoc);
 			screenCoord = ManagerUtils.calculateWorldPositionToScreenCoord(gl, worldPosition.x, worldPosition.y, worldPosition.z, screenCoord, this);
 			
-			if (screenCoord.x >= 0 && screenCoord.y >= 0)
+			var elemFromPoints = document.elementsFromPoint(screenCoord.x,screenCoord.y);
+			if(elemFromPoints.length === 0) continue;
+
+			if (elemFromPoints[0].nodeName === 'CANVAS' && screenCoord.x >= 0 && screenCoord.y >= 0)
 			{
 				ctx.font = "13px Arial";
 				//ctx.strokeText(nodeRoot.data.nodeId, screenCoord.x, screenCoord.y);
@@ -28620,7 +31029,7 @@ MagoManager.prototype.cameraMoved = function()
 	{ 
 		if (this.sceneState.gl) 
 		{
-			this.selectionFbo = new FBO(this.sceneState.gl, this.sceneState.drawingBufferWidth, this.sceneState.drawingBufferHeight); 
+			this.selectionFbo = new FBO(this.sceneState.gl, this.sceneState.drawingBufferWidth, this.sceneState.drawingBufferHeight, {matchCanvasSize: true}); 
 		}
 	}
 	if (this.selectionFbo)
@@ -28800,6 +31209,10 @@ MagoManager.prototype.TEST__ObjectMarker_toNeoReference = function()
  */
 MagoManager.prototype.getSelectedObjects = function(gl, mouseX, mouseY, resultSelectedArray, bSelectObjects) 
 {
+	var selectionManager = this.selectionManager;
+	if (!selectionManager)
+	{ return resultSelectedArray; }
+
 	if (bSelectObjects === undefined)
 	{ bSelectObjects = false; }
 
@@ -28823,7 +31236,7 @@ MagoManager.prototype.getSelectedObjects = function(gl, mouseX, mouseY, resultSe
 	gl.readPixels(pixelX, pixelY, mosaicWidth, mosaicHeight, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null); // unbind framebuffer.***
 	
-	var selectionManager = this.selectionManager;
+	
 
 	// now, select the object.***
 	// The center pixel of the selection is 12, 13, 14.***
@@ -28901,7 +31314,7 @@ MagoManager.prototype.calculateSelObjMovePlaneAsimetricMode = function(gl, pixel
 	if (this.pointSC2 === undefined)
 	{ this.pointSC2 = new Point3D(); }
 	
-	var geoLocDataManager = this.nodeSelected.getNodeGeoLocDataManager();
+	var geoLocDataManager = this.selectionManager.getSelectedF4dNode().getNodeGeoLocDataManager();
 	
 	ManagerUtils.calculatePixelPositionWorldCoord(gl, pixelX, pixelY, this.pointSC2, undefined, undefined, undefined, this);
 	var buildingGeoLocation = geoLocDataManager.getCurrentGeoLocationData();
@@ -28917,7 +31330,7 @@ MagoManager.prototype.calculateSelObjMovePlaneAsimetricMode = function(gl, pixel
 
 /**
  * Returns true if is dragging.
- * 
+ * pointer interaction으로 대체 soon
  * @returns {Boolean} 드래그 여부
  * 
  * @private
@@ -28938,13 +31351,18 @@ MagoManager.prototype.isDragging = function()
 		return false;
 	}
 
+	var selectionManager = this.selectionManager;
+	if (!selectionManager)
+	{ return false; }
+
 	this.selectionFbo.bind();
 	var current_objectSelected = this.getSelectedObjects(gl, this.mouse_x, this.mouse_y, this.arrayAuxSC);
+	
 
 	if (this.magoPolicy.objectMoveMode === CODE.moveMode.ALL)	// Moving all
 	{
-		var currentBuildingSelected = this.arrayAuxSC[0];
-		var currentNodeSelected = this.arrayAuxSC[3];
+		var currentBuildingSelected = this.selectionManager.getSelectedF4dBuilding();
+		var currentNodeSelected = this.selectionManager.getSelectedF4dNode();
 		var currentRootNodeSelected;
 		if (currentNodeSelected)
 		{
@@ -28965,7 +31383,7 @@ MagoManager.prototype.isDragging = function()
 	{
 		if (current_objectSelected === undefined)
 		{ bIsDragging = false; }
-		else if (current_objectSelected === this.objectSelected) 
+		else if (current_objectSelected === this.selectionManager.getSelectedF4dObject()) 
 		{
 			bIsDragging = true;
 		}
@@ -29057,7 +31475,7 @@ MagoManager.prototype.isDragging = function()
  */
 MagoManager.prototype.setCameraMotion = function(state)
 {
-	if (MagoConfig.isTwoDimension()) 
+	if (this.config.isTwoDimension()) 
 	{
 		return;
 	}
@@ -29088,7 +31506,7 @@ MagoManager.prototype.mouseActionLeftUp = function(mouseX, mouseY)
 		if (nodeSelected === undefined)
 		{ return; }
 		
-		this.saveHistoryObjectMovement(this.objectSelected, nodeSelected);
+		this.saveHistoryObjectMovement(this.selectionManager.getSelectedF4dObject(), nodeSelected);
 	}
 
 	var eventCoordinate = ManagerUtils.getComplexCoordinateByScreenCoord(this.getGl(), mouseX, mouseY, undefined, undefined, undefined, this);
@@ -29719,7 +32137,7 @@ MagoManager.prototype.doTest__ObjectMarker = function()
 			};
 
 			//SpeechBubble을 통해서 png 만들어서 가져오기
-			var img = sb.getPng([64, 64], bubbleColor, commentTextOption);
+			var img = sb.getPng([256, 256], bubbleColor, commentTextOption);
 
 			//ObjectMarker 옵션, 위치정보와 이미지 정보
 			var geoCoord = geoCoordsList.getGeoCoord(i);
@@ -29873,7 +32291,7 @@ MagoManager.prototype.saveHistoryObjectMovement = function(refObject, node)
 	changeHistory.setProjectId(projectId);
 	changeHistory.setDataKey(dataKey);
 	changeHistory.setObjectIndexOrder(objectIndex);
-	MagoConfig.saveMovingHistory(projectId, dataKey, objectIndex, changeHistory);
+	this.config.saveMovingHistory(projectId, dataKey, objectIndex, changeHistory);
 };
 
 
@@ -30044,7 +32462,8 @@ MagoManager.prototype.manageMouseDragging = function(mouseX, mouseY)
 	// distinguish 2 modes.******************************************************
 	if (this.magoPolicy.objectMoveMode === CODE.moveMode.ALL) // blocks move.***
 	{
-		if (this.buildingSelected !== undefined && this.selectionManager.currentNodeSelected) 
+		
+		if (this.selectionManager.getSelectedF4dBuilding() !== undefined && this.selectionManager.getSelectedF4dNode()) 
 		{
 			// 1rst, check if there are objects to move.***
 			if (this.mustCheckIfDragging) 
@@ -30107,7 +32526,7 @@ MagoManager.prototype.manageMouseDragging = function(mouseX, mouseY)
 	}
 	else if (this.magoPolicy.objectMoveMode === CODE.moveMode.OBJECT) // objects move.***
 	{
-		if (this.objectSelected !== undefined && this.selectionManager.currentOctreeSelected) 
+		if (this.selectionManager.getSelectedF4dObject() !== undefined && this.selectionManager.currentOctreeSelected) 
 		{
 			// 1rst, check if there are objects to move.***
 			if (this.mustCheckIfDragging) 
@@ -30361,10 +32780,10 @@ MagoManager.prototype.moveSelectedObjectAsimetricMode = function(gl)
 	
 	if (this.magoPolicy.objectMoveMode === CODE.moveMode.ALL) // buildings move.***
 	{
-		if (this.selectionManager.currentNodeSelected === undefined)
+		if (this.selectionManager.getSelectedF4dNode() === undefined)
 		{ return; }
 		
-		var geoLocDataManager = this.selectionManager.currentNodeSelected.getNodeGeoLocDataManager();
+		var geoLocDataManager = this.selectionManager.getSelectedF4dNode().getNodeGeoLocDataManager();
 		var geoLocationData = geoLocDataManager.getCurrentGeoLocationData();
 		
 		var mouseAction = this.sceneState.mouseAction;
@@ -30434,12 +32853,12 @@ MagoManager.prototype.moveSelectedObjectAsimetricMode = function(gl)
 			if (attributes.movementInAxisZ)
 			{
 				//geoLocationData = ManagerUtils.calculateGeoLocationData(undefined, undefined, newAltitude, undefined, undefined, undefined, geoLocationData, this);
-				this.changeLocationAndRotationNode(this.selectionManager.currentNodeSelected, undefined, undefined, newAltitude, undefined, undefined, undefined);
+				this.changeLocationAndRotationNode(this.selectionManager.getSelectedF4dNode(), undefined, undefined, newAltitude, undefined, undefined, undefined);
 			}
 			else 
 			{
 				//geoLocationData = ManagerUtils.calculateGeoLocationData(newLongitude, newlatitude, undefined, undefined, undefined, undefined, geoLocationData, this);
-				this.changeLocationAndRotationNode(this.selectionManager.currentNodeSelected, newlatitude, newLongitude, undefined, undefined, undefined, undefined);
+				this.changeLocationAndRotationNode(this.selectionManager.getSelectedF4dNode(), newlatitude, newLongitude, undefined, undefined, undefined, undefined);
 			}
 			
 			this.displayLocationAndRotation(this.buildingSelected);
@@ -30447,10 +32866,11 @@ MagoManager.prototype.moveSelectedObjectAsimetricMode = function(gl)
 	}
 	else if (this.magoPolicy.objectMoveMode === CODE.moveMode.OBJECT) // objects move.***
 	{
-		if (this.objectSelected === undefined)
+		var selectedObjtect= this.selectionManager.getSelectedF4dObject();
+		if (selectedObjtect === undefined)
 		{ return; }
 	
-		if (this.objectSelected.constructor.name !== "NeoReference")
+		if (selectedObjtect.constructor.name !== "NeoReference")
 		{ return; }
 
 		// create a XY_plane in the selected_pixel_position.***
@@ -30459,7 +32879,7 @@ MagoManager.prototype.moveSelectedObjectAsimetricMode = function(gl)
 			this.selObjMovePlane = this.calculateSelObjMovePlaneAsimetricMode(gl, this.mouse_x, this.mouse_y, this.selObjMovePlane);
 		}
 		
-		var geoLocDataManager = this.selectionManager.currentNodeSelected.getNodeGeoLocDataManager();
+		var geoLocDataManager = this.selectionManager.getSelectedF4dNode().getNodeGeoLocDataManager();
 
 		// world ray = camPos + lambda*camDir.***
 		if (this.lineSC === undefined)
@@ -30481,14 +32901,15 @@ MagoManager.prototype.moveSelectedObjectAsimetricMode = function(gl)
 		intersectionPoint = this.selObjMovePlane.intersectionLine(line, intersectionPoint);
 
 		//the movement of an object must multiply by buildingRotMatrix.***
-		if (this.objectSelected.moveVectorRelToBuilding === undefined)
-		{ this.objectSelected.moveVectorRelToBuilding = new Point3D(); }
+		
+		if (selectedObjtect.moveVectorRelToBuilding === undefined)
+		{ selectedObjtect.moveVectorRelToBuilding = new Point3D(); }
 	
 		// move vector rel to building.
 		if (!this.thereAreStartMovePoint) 
 		{
 			this.startMovPoint = intersectionPoint;
-			this.startMovPoint.add(-this.objectSelected.moveVectorRelToBuilding.x, -this.objectSelected.moveVectorRelToBuilding.y, -this.objectSelected.moveVectorRelToBuilding.z);
+			this.startMovPoint.add(-selectedObjtect.moveVectorRelToBuilding.x, -selectedObjtect.moveVectorRelToBuilding.y, -selectedObjtect.moveVectorRelToBuilding.z);
 			this.thereAreStartMovePoint = true;
 		}
 		else 
@@ -30497,15 +32918,15 @@ MagoManager.prototype.moveSelectedObjectAsimetricMode = function(gl)
 			var difY = intersectionPoint.y - this.startMovPoint.y;
 			var difZ = intersectionPoint.z - this.startMovPoint.z;
 
-			this.objectSelected.moveVectorRelToBuilding.set(difX, difY, difZ);
-			this.objectSelected.moveVector = buildingGeoLocation.tMatrix.rotatePoint3D(this.objectSelected.moveVectorRelToBuilding, this.objectSelected.moveVector); 
+			selectedObjtect.moveVectorRelToBuilding.set(difX, difY, difZ);
+			selectedObjtect.moveVector = buildingGeoLocation.tMatrix.rotatePoint3D(selectedObjtect.moveVectorRelToBuilding, selectedObjtect.moveVector); 
 		}
 		
-		var projectId = this.selectionManager.currentNodeSelected.data.projectId;
-		var data_key = this.selectionManager.currentNodeSelected.data.nodeId;
-		var objectIndexOrder = this.objectSelected._id;
+		var projectId = this.selectionManager.getSelectedF4dNode().data.projectId;
+		var data_key = this.selectionManager.getSelectedF4dNode().data.nodeId;
+		var objectIndexOrder = selectedObjtect._id;
 		
-		MagoConfig.deleteMovingHistoryObject(projectId, data_key, objectIndexOrder);
+		this.config.deleteMovingHistoryObject(projectId, data_key, objectIndexOrder);
 		this.objectMoved = true; // this provoques that on leftMouseUp -> saveHistoryObjectMovement
 		
 	}
@@ -30639,14 +33060,9 @@ MagoManager.prototype.test_renderDepth_objectSelected = function(currObjectSelec
 	
 	if (this.depthFboAux === undefined)
 	{
-		this.depthFboAux = new FBO(gl, this.sceneState.drawingBufferWidth, this.sceneState.drawingBufferHeight);
+		this.depthFboAux = new FBO(gl, this.sceneState.drawingBufferWidth, this.sceneState.drawingBufferHeight, {matchCanvasSize: true});
 	}
-	if (this.sceneState.drawingBufferWidth[0] !== this.depthFboAux.width[0] || this.sceneState.drawingBufferHeight[0] !== this.depthFboAux.height[0])
-	{
-		// move this to onResize.***
-		this.depthFboAux.deleteObjects(gl);
-		this.depthFboAux = new FBO(gl, this.sceneState.drawingBufferWidth, this.sceneState.drawingBufferHeight);
-	}
+
 	this.depthFboAux.bind(); 
 	
 	if (this.isFarestFrustum())
@@ -31091,7 +33507,7 @@ MagoManager.prototype.checkChangesHistoryMovements = function(nodesArray)
 		dataKey = node.data.nodeId;
 		
 		// objects movement.
-		moveHistoryMap = MagoConfig.getMovingHistoryObjects(projectId, dataKey);
+		moveHistoryMap = this.config.getMovingHistoryObjects(projectId, dataKey);
 		if (moveHistoryMap)
 		{
 			node.data.moveHistoryMap = moveHistoryMap;
@@ -31215,7 +33631,7 @@ MagoManager.prototype.checkChangesHistoryColors = function(nodesArray)
 		projectId = node.data.projectId;
 		dataKey = node.data.nodeId;
 
-		colorChangedHistoryMap = MagoConfig.getColorHistorys(projectId, dataKey);
+		colorChangedHistoryMap = this.config.getColorHistorys(projectId, dataKey);
 		if (colorChangedHistoryMap)
 		{
 			var data = node.data;
@@ -31225,7 +33641,7 @@ MagoManager.prototype.checkChangesHistoryColors = function(nodesArray)
 		}
 	}
 	
-	var allColorHistoryMap = MagoConfig.getAllColorHistory();
+	var allColorHistoryMap = this.config.getAllColorHistory();
 	if (allColorHistoryMap)
 	{
 		for (var key in allColorHistoryMap) 
@@ -31323,28 +33739,30 @@ MagoManager.prototype.getObjectLabel = function()
 {
 	if (this.canvasObjectLabel === undefined)
 	{
-		this.canvasObjectLabel = document.getElementById("objectLabel");
-		if (this.canvasObjectLabel === undefined)
-		{ return; }
+		this.canvasObjectLabel = document.createElement('canvas');
 
-		var magoDiv = document.getElementById(MagoConfig.getContainerId());
+		var magoDiv = document.getElementById(this.config.getContainerId());
 		var offsetLeft = magoDiv.offsetLeft;
 		var offsetTop = magoDiv.offsetTop;
+		var canvasStyleLeft = offsetLeft.toString()+"px";
+		var canvasStyleTop = offsetTop.toString()+"px";
 		var offsetWidth = magoDiv.offsetWidth;
 		var offsetHeight = magoDiv.offsetHeight;
 		
-		this.canvasObjectLabel.style.opacity = 1.0;
-		this.canvasObjectLabel.width = this.sceneState.drawingBufferWidth;
-		this.canvasObjectLabel.height = this.sceneState.drawingBufferHeight;
-		var canvasStyleLeft = offsetLeft.toString()+"px";
-		var canvasStyleTop = offsetTop.toString()+"px";
-		this.canvasObjectLabel.style.left = canvasStyleLeft;
-		this.canvasObjectLabel.style.top = canvasStyleTop;
-		this.canvasObjectLabel.style.position = "absolute";
+		this.canvasObjectLabel.className = 'mago3d-object-label';
 		
-		this.canvasObjectLabel.style.opacity = 1.0;
 		this.canvasObjectLabel.width = this.sceneState.drawingBufferWidth;
 		this.canvasObjectLabel.height = this.sceneState.drawingBufferHeight;
+
+		this.canvasObjectLabel.style.left = '0';
+		this.canvasObjectLabel.style.top = '0';
+		this.canvasObjectLabel.style.width = "100%";
+		this.canvasObjectLabel.style.height = '100%';
+		this.canvasObjectLabel.style.position = "absolute";
+		this.canvasObjectLabel.style.opacity = 1.0;
+		this.canvasObjectLabel.style.backgroundColor = 'transparent';
+		this.canvasObjectLabel.style.pointerEvents = 'none';
+
 		var ctx = this.canvasObjectLabel.getContext("2d");
 		//ctx.strokeStyle = 'SlateGrey';
 		//ctx.strokeStyle = 'MidnightBlue';
@@ -31360,6 +33778,9 @@ MagoManager.prototype.getObjectLabel = function()
 		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
 		var lineHeight = ctx.measureText("M").width * 1.1;
+
+		var parent = this.isCesiumGlobe() ? magoDiv.getElementsByClassName('cesium-viewer')[0] : magoDiv;
+		parent.appendChild(this.canvasObjectLabel);
 	}
 	
 	return this.canvasObjectLabel;
@@ -31531,6 +33952,8 @@ MagoManager.prototype.createDefaultShaders = function(gl)
 	shader.uTileGeoExtent_loc = gl.getUniformLocation(shader.program, "uTileGeoExtent");
 	shader.uTileDepthOfBindedTextures_loc = gl.getUniformLocation(shader.program, "uTileDepthOfBindedTextures");
 	shader.uTileGeoExtentOfBindedTextures_loc = gl.getUniformLocation(shader.program, "uTileGeoExtentOfBindedTextures");
+
+	shader.uDebug_texCorrectionFactor_loc = gl.getUniformLocation(shader.program, "uDebug_texCorrectionFactor");
 	
 	//shader.uSsaoRadius_loc = gl.getUniformLocation(shader.program, "radius");
 	
@@ -31823,6 +34246,8 @@ MagoManager.prototype.createDefaultShaders = function(gl)
 	shader.uExternalTexCoordsArray_loc = gl.getUniformLocation(shader.program, "uExternalTexCoordsArray");
 	shader.uMinMaxAltitudes_loc = gl.getUniformLocation(shader.program, "uMinMaxAltitudes");
 	shader.uMinMaxAltitudesBathymetryToGradient_loc = gl.getUniformLocation(shader.program, "uMinMaxAltitudesBathymetryToGradient");
+	shader.uGradientSteps_loc = gl.getUniformLocation(shader.program, "uGradientSteps");
+	shader.uGradientStepsCount_loc = gl.getUniformLocation(shader.program, "uGradientStepsCount");
 	shader.tex_0_loc = gl.getUniformLocation(shader.program, "texture_0");
 	shader.tex_1_loc = gl.getUniformLocation(shader.program, "texture_1");
 	shader.tex_2_loc = gl.getUniformLocation(shader.program, "texture_2");
@@ -32257,7 +34682,7 @@ MagoManager.prototype.flyToBuilding = function(apiName, projectId, dataKey)
 	var node = this.hierarchyManager.getNodeByDataName(projectId, "nodeId", dataKey);
 	if (node === undefined)
 	{ 
-		apiResultCallback( MagoConfig.getPolicy().geo_callback_apiresult, apiName, "-1");
+		apiResultCallback( this.config.getPolicy().geo_callback_apiresult, apiName, "-1");
 		return; 
 	}
 	
@@ -32269,7 +34694,7 @@ MagoManager.prototype.flyToBuilding = function(apiName, projectId, dataKey)
 		geoLoc = node.calculateGeoLocData(this);
 		if (geoLoc === undefined)
 		{
-			apiResultCallback( MagoConfig.getPolicy().geo_callback_apiresult, apiName, "-1");
+			apiResultCallback( this.config.getPolicy().geo_callback_apiresult, apiName, "-1");
 			return; 
 		}
 	}
@@ -32331,16 +34756,17 @@ MagoManager.prototype.selectedObjectNotice = function(neoBuilding)
 	var dataKey = node.data.nodeId;
 	var projectId = node.data.projectId;
 
-	if (MagoConfig.getPolicy().geo_callback_enable === "true") 
+	if (this.config.getPolicy().geo_callback_enable === "true") 
 	{
 		//if (this.objMarkerSC === undefined) { return; }
 		var objectId = null;
-		if (this.objectSelected !== undefined) { objectId = this.objectSelected.objectId; }
+		var selectedObjtect = this.selectionManager.getSelectedF4dObject();
+		if (selectedObjtect !== undefined) { objectId = selectedObjtect.objectId; }
 		
 		// click object 정보를 표시
 		if (this.magoPolicy.getObjectInfoViewEnable()) 
 		{
-			selectedObjectCallback(		MagoConfig.getPolicy().geo_callback_selectedobject,
+			selectedObjectCallback(		this.config.getPolicy().geo_callback_selectedobject,
 				projectId,
 				dataKey,
 				objectId,
@@ -32357,7 +34783,7 @@ MagoManager.prototype.selectedObjectNotice = function(neoBuilding)
 		{
 			//if (this.objMarkerSC === undefined) { return; }
 			
-			insertIssueCallback(	MagoConfig.getPolicy().geo_callback_insertissue,
+			insertIssueCallback(	this.config.getPolicy().geo_callback_insertissue,
 				projectId,
 				dataKey,
 				objectId,
@@ -32419,7 +34845,7 @@ MagoManager.prototype.getObjectIndexFile = function(projectId, projectDataFolder
 {
 	if (this.configInformation === undefined)
 	{
-		this.configInformation = MagoConfig.getPolicy();
+		this.configInformation = this.config.getPolicy();
 	}
 	
 	//this.buildingSeedList = new BuildingSeedList();
@@ -32438,10 +34864,10 @@ MagoManager.prototype.getObjectIndexFileForData = function(projectId, f4dObject)
 {
 	if (this.configInformation === undefined)
 	{
-		this.configInformation = MagoConfig.getPolicy();
+		this.configInformation = this.config.getPolicy();
 	}
 	
-	var f4dGroupObject = MagoConfig.getData(CODE.PROJECT_ID_PREFIX + projectId);
+	var f4dGroupObject = this.config.getData(CODE.PROJECT_ID_PREFIX + projectId);
 	var node = this.hierarchyManager.getNodeByDataKey(projectId, f4dGroupObject.dataGroupKey);
 
 	var groupDataFolder = node.data.projectFolderName;
@@ -32485,7 +34911,7 @@ MagoManager.prototype.getObjectIndexFileForData = function(projectId, f4dObject)
 	}
 	
 	var geometrySubDataPath = groupDataFolder;
-	var fileName = this.readerWriter.geometryDataPath + "/" + geometrySubDataPath + Constant.OBJECT_INDEX_FILE + Constant.CACHE_VERSION + MagoConfig.getPolicy().content_cache_version;
+	var fileName = this.readerWriter.geometryDataPath + "/" + geometrySubDataPath + Constant.OBJECT_INDEX_FILE + Constant.CACHE_VERSION + this.config.getPolicy().content_cache_version;
 	this.readerWriter.getObjectIndexFileForData(fileName, this, projectId, newDataKeys, f4dObject);
 };
 
@@ -32498,7 +34924,7 @@ MagoManager.prototype.getObjectIndexFileSmartTileF4d = function(projectDataFolde
 {
 	if (this.configInformation === undefined)
 	{
-		this.configInformation = MagoConfig.getPolicy();
+		this.configInformation = this.config.getPolicy();
 	}
 
 	var geometrySubDataPath = projectDataFolder;
@@ -32888,7 +35314,7 @@ MagoManager.prototype.makeSmartTile = function(buildingSeedMap, projectId, f4dOb
 	}
 	//var realTimeLocBlocksList = MagoConfig.getData().alldata; // original.***
 	// "projectId" = json file name.
-	var realTimeLocBlocksList = f4dObjectJson || MagoConfig.getData(CODE.PROJECT_ID_PREFIX + projectId);
+	var realTimeLocBlocksList = f4dObjectJson || this.config.getData(CODE.PROJECT_ID_PREFIX + projectId);
 	var buildingSeed;
 	var buildingId;
 	var newLocation;
@@ -33236,7 +35662,7 @@ MagoManager.prototype.callAPI = function(api)
 		this.magoPolicy.setShowLabelInfo(api.getShowLabelInfo());
 		
 		// clear the text canvas.
-		var canvas = document.getElementById("objectLabel");
+		var canvas = this.getObjectLabel();
 		var ctx = canvas.getContext("2d");
 		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
@@ -33287,10 +35713,10 @@ MagoManager.prototype.callAPI = function(api)
 	else if (apiName === "deleteAllObjectMove") 
 	{
 		// delete "aditionalMove" of the objects.***
-		var moveHistoryMap = MagoConfig.getAllMovingHistory(); // get colorHistoryMap.***
+		var moveHistoryMap = this.config.getAllMovingHistory(); // get colorHistoryMap.***
 		if (moveHistoryMap === undefined)
 		{
-			MagoConfig.clearMovingHistory();
+			this.config.clearMovingHistory();
 			return;
 		}
 		
@@ -33339,16 +35765,16 @@ MagoManager.prototype.callAPI = function(api)
 			}
 		}
 		
-		MagoConfig.clearMovingHistory();
+		this.config.clearMovingHistory();
 	}
 	else if (apiName === "deleteAllChangeColor") 
 	{
 		// 1rst, must delete the aditionalColors of objects.***
-		var colorHistoryMap = MagoConfig.getAllColorHistory(); // get colorHistoryMap.***
+		var colorHistoryMap = this.config.getAllColorHistory(); // get colorHistoryMap.***
 		
 		if (colorHistoryMap === undefined)
 		{
-			MagoConfig.clearColorHistory();
+			this.config.clearColorHistory();
 			return;
 		}
 		
@@ -33405,7 +35831,7 @@ MagoManager.prototype.callAPI = function(api)
 			}
 		}
 		
-		MagoConfig.clearColorHistory();
+		this.config.clearColorHistory();
 	}
 	else if (apiName === "changeInsertIssueMode") 
 	{
@@ -33595,7 +36021,7 @@ MagoManager.prototype.callAPI = function(api)
 		
 		if (node === undefined)
 		{
-			apiResultCallback( MagoConfig.getPolicy().geo_callback_apiresult, apiName, "-1");
+			apiResultCallback( this.config.getPolicy().geo_callback_apiresult, apiName, "-1");
 			return;
 		}
 		
@@ -33604,7 +36030,7 @@ MagoManager.prototype.callAPI = function(api)
 		
 		if (dataName === undefined || geoLocDataManager === undefined)
 		{
-			apiResultCallback( MagoConfig.getPolicy().geo_callback_apiresult, apiName, "-1");
+			apiResultCallback( this.config.getPolicy().geo_callback_apiresult, apiName, "-1");
 			return;
 		}
 		
@@ -33612,7 +36038,7 @@ MagoManager.prototype.callAPI = function(api)
 		
 		if (geoLocdata === undefined || geoLocdata.geographicCoord === undefined)
 		{
-			apiResultCallback( MagoConfig.getPolicy().geo_callback_apiresult, apiName, "-1");
+			apiResultCallback( this.config.getPolicy().geo_callback_apiresult, apiName, "-1");
 			return;
 		}
 		
@@ -33950,12 +36376,11 @@ MagoManager.prototype.callAPI = function(api)
 
 		this.magoPolicy.setObjectMoveMode(CODE.moveMode.ALL);
 
-		this.nodeSelected = node;
-		this.buildingSelected = node.data.neoBuilding;
-		this.rootNodeSelected = this.nodeSelected.getRoot();
+		//this.nodeSelected = node;
+		//this.buildingSelected = node.data.neoBuilding;
+		//this.rootNodeSelected = this.nodeSelected.getRoot();
 
-		this.selectionManager.currentBuildingSelected = this.buildingSelected;
-		this.selectionManager.currentNodeSelected = this.nodeSelected;
+		this.selectionManager.setSelectedF4dNode(node);
 
 		this.emit(MagoManager.EVENT_TYPE.SELECTEDF4D, {
 			type      : MagoManager.EVENT_TYPE.SELECTEDF4D, 
@@ -34002,11 +36427,10 @@ MagoManager.prototype.checkCollision = function (position, direction)
 	var posX = this.sceneState.drawingBufferWidth * 0.5;
 	var posY = this.sceneState.drawingBufferHeight * 0.5;
 	
-	var objects = this.getSelectedObjects(gl, posX, posY, this.arrayAuxSC);
-	if (objects === undefined)	{ return; }
+	//var objects = this.getSelectedObjects(gl, posX, posY, this.arrayAuxSC);
 
-	var current_building = this.buildingSelected;
-	this.buildingSelected = this.arrayAuxSC[0];
+	this.selectionManager.selectObjectByPixel(gl, posX, posY);
+	if (objects === undefined)	{ return; }
 
 	var collisionPosition = new Point3D();
 	var bottomPosition = new Point3D();
@@ -34015,7 +36439,8 @@ MagoManager.prototype.checkCollision = function (position, direction)
 	this.swapRenderingFase();
 	ManagerUtils.calculatePixelPositionWorldCoord(gl, posX, this.sceneState.drawingBufferHeight, undefined, undefined, undefined, this);
 
-	this.buildingSelected = current_building;
+	//this.buildingSelected = current_building;
+	//selectedBuilding = this.selectionManager.currentBuildingSelected;
 	var distance = collisionPosition.squareDistTo(position.x, position.y, position.z);
 	this.swapRenderingFase();
 
@@ -36473,6 +38898,7 @@ ObjectMarkerManager.prototype.render = function(magoManager, renderType)
 		var lastTexId = undefined;
 		if (renderType === 1)
 		{
+			gl.enable(gl.BLEND);
 			var executedEffects = false;
 			for (var i=0; i<objectsMarkersCount; i++)
 			{
@@ -41524,80 +43950,98 @@ var TextureLayerFilter = function(option)
  * @param {number} height
  * @param {number} step
  */
-TextureLayerFilter.prototype.getLegendImage = function(width, height, step) 
+TextureLayerFilter.prototype.getLegendImage = function(width, height)
 {
 	if (this.type !== CODE.imageFilter.BATHYMETRY)
 	{
 		throw new Error('This filter not support legend.');
 	}
-
 	var imageMaker;
-	step = !step ? 10 : step;
 	switch (this.type)
 	{
 	case CODE.imageFilter.BATHYMETRY : imageMaker = bathymetry;break;
 	}
-	
-	return imageMaker.call(this, this, width, height, step);
-    
+
+	return imageMaker.call(this, this, width, height, this.properties.stepGradient);
+
 
 	//lint not allow this..
-	function bathymetry(thisArg, canvasWidth, canvasHeight, legendStep)
+	function bathymetry(thisArg, canvasWidth, canvasHeight, stepGradient)
 	{
-		var minAlt = thisArg.properties.minAltitude;
-		var maxAlt = 0;
+		var legendStep = stepGradient.length;
+		var minAlt = stepGradient[legendStep-1];
+		var maxAlt = stepGradient[0];
 		var offset = minAlt / legendStep;
 		var level = maxAlt;
 
 		var canvas = _makeCanvas(canvasWidth, canvasHeight);
 		var ctx = canvas.getContext('2d');
-        
-		var titleHeight = Math.floor((canvasHeight / legendStep) * 0.7);
-        
-		ctx.font = titleHeight * 0.5 + "px Arial";
-		ctx.textBaseline = 'bottom';
-		ctx.fillStyle = 'rgba(0, 0, 0, 1.0)';
-        
-		var title = '수심 ( m )';
-		ctx.fillText(title, 0, titleHeight * 0.7, canvasWidth);
-        
-		ctx.fillStyle = 'rgba(255, 255, 255, 1.0)';
-		ctx.fillRect(0, titleHeight * 0.7, canvasWidth, titleHeight * 0.3);
 
-		ctx.font = titleHeight * 0.7 + "px Arial";
-        
-		canvasHeight = canvasHeight - titleHeight;
+		ctx.fillStyle = "#f1f1f1";
+		ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+		// ==========commented by soyijun
+		//
+		//		var titleHeight = Math.floor((canvasHeight / legendStep) * 0.7);
+		//
+		//		ctx.font = titleHeight * 0.5 + "px Arial";
+		//		ctx.textBaseline = 'bottom';
+		//		ctx.fillStyle = 'rgba(0, 0, 0, 1.0)';
+		//
+		//		var title = '수심 ( m )';
+		//		ctx.fillText(title, 0, titleHeight * 0.7, canvasWidth);
+		//
+		//		ctx.fillStyle = 'rgba(255, 255, 255, 1.0)';
+		//		ctx.fillRect(0, titleHeight * 0.7, canvasWidth, titleHeight * 0.3);
+		//
+		//		ctx.font = titleHeight * 0.7 + "px Arial";
+
+		//		canvasHeight = canvasHeight - titleHeight;
+		// ===========commented by soyijun
+
 		// Create gradient
-		var grd = ctx.createLinearGradient(0, titleHeight, 0, canvasHeight);
+		var grd = ctx.createLinearGradient(0, 0, canvasWidth, 0);
+		//		var grd = ctx.createLinearGradient(0, titleHeight, 0, canvasHeight);
+		ctx.font = "12px Arial";
 		for (var i=0;i<legendStep;i++)
 		{
 			level = i * offset;
 			var color = Color.getWhiteToBlueColor_byHeight(level, minAlt, maxAlt);
 			grd.addColorStop((1 / legendStep) * i, 'rgba(' + color.r * 255 +', ' + color.g * 255 +', ' + color.b * 255 +', 1.0)');
-            
+
 			/*if (color.r === 1 && color.g === 1 && color.b === 1)
 			{
 				ctx.lineWidth = 0.2;
 				ctx.strokeStyle = '#404040';
 				ctx.strokeRect(0, titleHeight + i * canvasHeight * (1/legendStep), canvasWidth * 0.75, canvasHeight * (1/legendStep));
 			}
-			else 
+			else
 			{
-				ctx.fillStyle = 'rgba(' + color.r * 255 +', ' + color.g * 255 +', ' + color.b * 255 +', 1.0)';    
+				ctx.fillStyle = 'rgba(' + color.r * 255 +', ' + color.g * 255 +', ' + color.b * 255 +', 1.0)';
 			    ctx.fillRect(0, titleHeight + i * canvasHeight * (1/legendStep), canvasWidth * 0.75, canvasHeight * (1/legendStep));
 			}*/
 
-			ctx.fillStyle = 'rgba(0, 0, 0, 1.0)';
-			ctx.fillText(parseInt(level, 10), canvasWidth*0.75+2, titleHeight + (i+1) * canvasHeight * (1/legendStep) - canvasHeight * (1/legendStep)/legendStep, canvasWidth * 0.25 - 2);
+			ctx.fillStyle = 'rgba(102, 102, 102, 1.0)';
+			//			ctx.fillStyle = 'rgba(0, 0, 0, 1.0)';
+			ctx.textAlign = "center";
+			ctx.fillText(parseInt(stepGradient[i], 10),
+				((i+1) * canvasWidth * (1/legendStep))-20,
+				//					(i+1) * canvasWidth * (1/legendStep) - canvasWidth * (1/legendStep)/legendStep,
+				canvasHeight * 0.8 + 4
+				//					40
+				//					canvasWidth * 0.25,
+				//					canvasHeight*0.75+2
+			);
+			//			ctx.fillText(parseInt(level, 10), canvasWidth*0.75+2, titleHeight + (i+1) * canvasHeight * (1/legendStep) - canvasHeight * (1/legendStep)/legendStep, canvasWidth * 0.25 - 2);
 		}
-        
 		ctx.fillStyle = grd;
-		ctx.fillRect(0, titleHeight, canvasWidth * 0.75, canvasHeight);
+		ctx.fillRect(canvasWidth * 0.035, 0, canvasWidth * 0.91, canvasHeight * 0.6);
+		//		ctx.fillRect(0, 0, canvasWidth, canvasHeight * 0.6);
+		//		ctx.fillRect(0, titleHeight, canvasWidth * 0.75, canvasHeight);
 
 		return canvas.toDataURL();
 	}
 
-	function _makeCanvas(w, h) 
+	function _makeCanvas(w, h)
 	{
 		var c = document.createElement("canvas");
 		c.width = w;
@@ -41606,12 +44050,11 @@ TextureLayerFilter.prototype.getLegendImage = function(width, height, step)
 		var ctx = c.getContext("2d");
 		ctx.fillStyle = 'rgba(255, 255, 255, 1.0)';
 		ctx.fillRect(0, 0, w, h);
-		
+
 		ctx.save();
 		return c;
 	}
 };
-
 'use strict';
 
 /**
@@ -42817,7 +45260,7 @@ VBOKeysWorld.prototype.getClassifiedBufferSize = function(currentBufferSize)
  * @class VBOMemoryManager
  * @constructor
  */
-var VBOMemoryManager = function() 
+var VBOMemoryManager = function(policy) 
 {
 	if (!(this instanceof VBOMemoryManager)) 
 	{
@@ -42826,7 +45269,7 @@ var VBOMemoryManager = function()
 	this.gl;
 	
 	// if "enableMemoryManagement" == false -> no management of the gpu memory.
-	this.enableMemoryManagement = defaultValue(MagoConfig.getPolicy().enableMemoryManagement, false);
+	this.enableMemoryManagement = defaultValue(policy.enableMemoryManagement, false);
 	
 	this.buffersKeyWorld = new VBOKeysWorld();
 	this.elementKeyWorld = new VBOKeysWorld();
@@ -44138,8 +46581,8 @@ WMSLayer.DEAFULT_PARAM = {
 	SERVICE     : 'WMS',
 	VERSION     : '1.1.1',
 	REQUEST     : 'GetMap',
-	SRS         : 'EPSG:3857',
-	CRS         : 'EPSG:3857',
+	SRS         : 'EPSG:900913',
+	CRS         : 'EPSG:900913',
 	WIDTH       : 256,
 	HEIGHT      : 256,
 	FORMAT      : 'image/png',
@@ -44175,6 +46618,88 @@ WMSLayer.prototype.getUrl = function(info)
 	var bbox = minx + ',' + miny + ',' + maxx + ',' + maxy;
 
 	this._requestParam.set('BBOX', bbox);
+	return this.url + '?' + this._requestParam.toString();
+};
+'use strict';
+/**
+ * @typedef {TextureLayer~option} WMTSLayer~option
+ * @property {string} url wmts request url. required.
+ * @property {string} param wmts GetTile paramter. Optional.
+ * @property {string} filter Optional. we can support only BATHYMETRY, when call dem data.
+ */
+/**
+ * @constructor
+ * @class this layer is imager service class for web map service (WMS).
+ * @extends TextureLayer
+ * 
+ * @param {WMTSLayer~option} options
+ * 
+ * @example
+ *  var wmsLayer = new Mago3D.WMSLayer({
+ *  	url: 'http://localhost:8080/geoserver/mago3d/wms/', 
+ *      param: {layers: 'mago3d:dem', tiled: true}
+ *  });
+ *  magoManager.addLayer(wmsLayer);
+ * 
+ *  //GeoWebCache 사용 시.
+ *  var wmsLayer = new Mago3D.WMSLayer({
+ *      url: 'http://localhost:8080/geoserver/mago3d/gwc/service/wms', 
+ *      show: true, 
+ *      //BATHYMETRY filter는 dem 형태의 데이터에서만 사용. 
+ *      filter:Mago3D.CODE.imageFilter.BATHYMETRY,  
+ *      param: {layers: 'mago3d:dem', tiled: true}
+ *  });
+ *  magoManager.addLayer(wmsLayer);
+ */
+var WMTSLayer = function(options) 
+{
+	if (!(this instanceof WMTSLayer)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+
+	TextureLayer.call(this, options);
+
+	this.url = options.url;
+	this.param = Object.assign({}, WMTSLayer.DEAFULT_PARAM, options.param||{});
+	/**
+  * 
+  * filter : {
+  * 	type : Mago3D.CODE.imageFilter.BATHYMETRY,
+  * 	property : {min, max, caustics}
+  * }
+  */
+	//var filter = defaultValue(options.filter, undefined);
+	//this.filter = filter ? new TextureLayerFilter(filter) : undefined;
+	this._requestParam = new URLSearchParams(this.param);
+};
+WMTSLayer.prototype = Object.create(TextureLayer.prototype);
+WMTSLayer.prototype.constructor = WMTSLayer;
+
+/**
+ * DEFAULT WMS REQUEST PARAMETER.
+ * @static
+ */
+WMTSLayer.DEAFULT_PARAM = {
+	SERVICE       : 'WMTS',
+	VERSION       : '1.0.0',
+	REQUEST       : 'GetTile',
+	TILEMATRIXSET : 'EPSG:3857',
+	FORMAT        : 'image/png'
+};
+
+/**
+ * @private
+ */
+WMTSLayer.prototype.getUrl = function(info) 
+{
+	var tileMatrix = this.param.TILEMATRIXSET + ':' + info.z;
+	var tileCol = info.x;
+	var tileRow = Math.pow(2, info.z) - (-parseInt(info.y) - 1) - 1;
+
+	this._requestParam.set('TileMatrix', tileMatrix);
+	this._requestParam.set('TileCol', tileRow);
+	this._requestParam.set('TileRow', tileCol);
 	return this.url + '?' + this._requestParam.toString();
 };
 'use strict';
@@ -44565,2005 +47090,6 @@ EffectsManager.prototype.executeEffects = function(id, currTime)
 'use strict';
 
 /**
- * mago3djs API
- * 
- * @alias API
- * @class API
- * @constructor
- * 
- * @param {any} apiName api이름
- */
-function API(apiName)
-{
-	if (!(this instanceof API)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-
-	// mago3d 활성화/비활성화 여부
-	this.magoEnable = true;
-	// return
-	this.returnable = false;
-
-	// api 이름
-	this.apiName = apiName;
-	
-	// project id
-	this.projectId = null;
-	this.projectDataFolder = null;
-	// objectIds
-	this.objectIds = null;
-	// data_key
-	this.dataKey = null;
-	// issueId
-	this.issueId = null;
-	// issueType
-	this.issueType = null;
-	// drawType 이미지를 그리는 유형 0 : DB, 1 : 이슈등록
-	this.drawType = 0;
-
-	// 위도
-	this.latitude = 0;
-	// 경도
-	this.longitude = 0;
-	// 높이
-	this.elevation = 0;
-	// heading
-	this.heading = 0;
-	// pitch
-	this.pitch = 0;
-	// roll
-	this.roll = 0;
-	// duration
-	this.duration = 0;
-
-	// 속성
-	this.property = null;
-	// 색깔
-	this.color = 0;
-	// structs = MSP, outfitting = MOP
-	this.blockType = null;
-	// outfitting 표시/비표시
-	this.showOutFitting = false;
-	// label 표시/비표시
-	this.showLabelInfo = true;
-	// origin 표시/비표시
-	this.showOrigin = false;
-	// boundingBox 표시/비표시
-	this.showBoundingBox = false;
-	// 그림자 표시/비표시
-	this.showShadow = false;
-	// frustum culling 가시 거리(M단위)
-	this.frustumFarDistance = 0;
-	// move mode 
-	this.objectMoveMode = CODE.moveMode.NONE;
-	// 이슈 등록 표시
-	this.issueInsertEnable = false;
-	// object 정보 표시
-	this.objectInfoViewEnable = false;
-	// 이슈 목록 표시
-	this.nearGeoIssueListEnable = false;
-	// occlusion culling
-	this.occlusionCullingEnable = false;
-	//
-	this.insertIssueState = 0;
-	
-	// LOD1
-	this.lod0DistInMeters = null;
-	this.lod1DistInMeters = null;
-	this.lod2DistInMeters = null;
-	this.lod3DistInMeters = null;
-	this.lod4DistInMeters = null;
-	this.lod5DistInMeters = null;
-	
-	// Lighting
-	this.ambientReflectionCoef = null;
-	this.diffuseReflectionCoef = null;
-	this.specularReflectionCoef = null;
-	this.ambientColor = null;
-	this.specularColor = null;
-	
-	this.ssaoRadius = null;
-	//
-	this.FPVMode = false;
-
-	// input x, y, z
-	this.inputPoint = null;
-	// result x, y, z
-	this.resultPoint = null;
-	
-	// General magoMode.
-	this.magoMode = CODE.magoMode.NORMAL;
-
-	//position unit
-	this.unit = CODE.units.DEGREE;
-
-	//for staticModel instantiate
-	this.instantiateObj = null;
-
-	//for staticModel add
-	this.staticModelAttributeObj = null;
-
-	//animation option. 
-	this.animationOption = null;
-
-	/**
-	 * @type {trackOption}
-	 */
-	this.trackOption = null;
-
-	/**
-	 * @type {nodeAttribute}
-	 */
-	this.nodeAttribute = null;
-};
-
-API.prototype.getMagoEnable = function() 
-{
-	return this.magoEnable;
-};
-API.prototype.setMagoEnable = function(magoEnable) 
-{
-	this.magoEnable = magoEnable;
-};
-
-API.prototype.getReturnable = function()
-{
-	return this.returnable;
-};
-API.prototype.setReturnable = function(returnable)
-{
-	this.returnable = returnable;
-};
-
-API.prototype.getAPIName = function() 
-{
-	return this.apiName;
-};
-
-API.prototype.getProjectId = function() 
-{
-	return this.projectId;
-};
-API.prototype.setProjectId = function(projectId) 
-{
-	this.projectId = projectId;
-};
-
-API.prototype.getProjectDataFolder = function() 
-{
-	return this.projectDataFolder;
-};
-API.prototype.setProjectDataFolder = function(projectDataFolder) 
-{
-	this.projectDataFolder = projectDataFolder;
-};
-
-API.prototype.getObjectIds = function() 
-{
-	return this.objectIds;
-};
-API.prototype.setObjectIds = function(objectIds) 
-{
-	this.objectIds = objectIds;
-};
-
-API.prototype.getIssueId = function() 
-{
-	return this.issueId;
-};
-API.prototype.setIssueId = function(issueId) 
-{
-	this.issueId = issueId;
-};
-API.prototype.getIssueType = function() 
-{
-	return this.issueType;
-};
-API.prototype.setIssueType = function(issueType) 
-{
-	this.issueId = issueType;
-};
-
-API.prototype.getDataKey = function() 
-{
-	return this.dataKey;
-};
-API.prototype.setDataKey = function(dataKey) 
-{
-	this.dataKey = dataKey;
-};
-
-API.prototype.getLatitude = function() 
-{
-	return this.latitude;
-};
-API.prototype.setLatitude = function(latitude) 
-{
-	this.latitude = latitude;
-};
-
-API.prototype.getLongitude = function() 
-{
-	return this.longitude;
-};
-API.prototype.setLongitude = function(longitude) 
-{
-	this.longitude = longitude;
-};
-
-API.prototype.getElevation = function() 
-{
-	return this.elevation;
-};
-API.prototype.setElevation = function(elevation) 
-{
-	this.elevation = elevation;
-};
-
-API.prototype.getHeading = function() 
-{
-	return this.heading;
-};
-API.prototype.setHeading = function(heading) 
-{
-	this.heading = heading;
-};
-
-API.prototype.getPitch = function() 
-{
-	return this.pitch;
-};
-API.prototype.setPitch = function(pitch) 
-{
-	this.pitch = pitch;
-};
-
-API.prototype.getRoll = function() 
-{
-	return this.roll;
-};
-API.prototype.setRoll = function(roll) 
-{
-	this.roll = roll;
-};
-
-API.prototype.getProperty = function() 
-{
-	return this.property;
-};
-API.prototype.setProperty = function(property) 
-{
-	this.property = property;
-};
-
-API.prototype.getColor = function() 
-{
-	return this.color;
-};
-API.prototype.setColor = function(color) 
-{
-	this.color = color;
-};
-
-API.prototype.getBlockType = function() 
-{
-	return this.blockType;
-};
-API.prototype.setBlockType = function(blockType) 
-{
-	this.blockType = blockType;
-};
-
-API.prototype.getShowOutFitting = function() 
-{
-	return this.showOutFitting;
-};
-API.prototype.setShowOutFitting = function(showOutFitting) 
-{
-	this.showOutFitting = showOutFitting;
-};
-
-
-API.prototype.getShowLabelInfo = function() 
-{
-	return this.showLabelInfo;
-};
-API.prototype.setShowLabelInfo = function(showLabelInfo) 
-{
-	this.showLabelInfo = showLabelInfo;
-};
-
-API.prototype.getShowOrigin = function()
-{
-	return this.showOrigin;
-};
-API.prototype.setShowOrigin = function(showOrigin)
-{
-	this.showOrigin = showOrigin;
-};
-
-API.prototype.getShowBoundingBox = function() 
-{
-	return this.showBoundingBox;
-};
-API.prototype.setShowBoundingBox = function(showBoundingBox) 
-{
-	this.showBoundingBox = showBoundingBox;
-};
-
-API.prototype.getShowShadow = function() 
-{
-	return this.showShadow;
-};
-API.prototype.setShowShadow = function(showShadow) 
-{
-	this.showShadow = showShadow;
-};
-
-API.prototype.getFrustumFarDistance = function() 
-{
-	return this.frustumFarDistance;
-};
-API.prototype.setFrustumFarDistance = function(frustumFarDistance) 
-{
-	this.frustumFarDistance = frustumFarDistance;
-};
-
-API.prototype.getObjectMoveMode = function() 
-{
-	return this.objectMoveMode;
-};
-API.prototype.setObjectMoveMode = function(objectMoveMode) 
-{
-	this.objectMoveMode = objectMoveMode;
-};
-
-API.prototype.getIssueInsertEnable = function() 
-{
-	return this.issueInsertEnable;
-};
-API.prototype.setIssueInsertEnable = function(issueInsertEnable) 
-{
-	this.issueInsertEnable = issueInsertEnable;
-};
-API.prototype.getObjectInfoViewEnable = function() 
-{
-	return this.objectInfoViewEnable;
-};
-API.prototype.setObjectInfoViewEnable = function(objectInfoViewEnable) 
-{
-	this.objectInfoViewEnable = objectInfoViewEnable;
-};
-API.prototype.getOcclusionCullingEnable = function() 
-{
-	return this.occlusionCullingEnable;
-};
-API.prototype.setOcclusionCullingEnable = function(occlusionCullingEnable) 
-{
-	this.occlusionCullingEnable = occlusionCullingEnable;
-};
-API.prototype.getNearGeoIssueListEnable = function() 
-{
-	return this.nearGeoIssueListEnable;
-};
-API.prototype.setNearGeoIssueListEnable = function(nearGeoIssueListEnable) 
-{
-	this.nearGeoIssueListEnable = nearGeoIssueListEnable;
-};
-
-API.prototype.getInsertIssueState = function() 
-{
-	return this.insertIssueState;
-};
-API.prototype.setInsertIssueState = function(insertIssueState) 
-{
-	this.insertIssueState = insertIssueState;
-};
-
-API.prototype.getDrawType = function() 
-{
-	return this.drawType;
-};
-API.prototype.setDrawType = function(drawType) 
-{
-	this.drawType = drawType;
-};
-
-API.prototype.getLod0DistInMeters = function() 
-{
-	return this.lod0DistInMeters;
-};
-API.prototype.setLod0DistInMeters = function(lod0DistInMeters) 
-{
-	this.lod0DistInMeters = lod0DistInMeters;
-};
-API.prototype.getLod1DistInMeters = function() 
-{
-	return this.lod1DistInMeters;
-};
-API.prototype.setLod1DistInMeters = function(lod1DistInMeters) 
-{
-	this.lod1DistInMeters = lod1DistInMeters;
-};
-API.prototype.getLod2DistInMeters = function() 
-{
-	return this.lod2DistInMeters;
-};
-API.prototype.setLod2DistInMeters = function(lod2DistInMeters) 
-{
-	this.lod2DistInMeters = lod2DistInMeters;
-};
-API.prototype.getLod3DistInMeters = function() 
-{
-	return this.lod3DistInMeters;
-};
-API.prototype.setLod3DistInMeters = function(lod3DistInMeters) 
-{
-	this.lod3DistInMeters = lod3DistInMeters;
-};
-API.prototype.getLod4DistInMeters = function() 
-{
-	return this.lod4DistInMeters;
-};
-API.prototype.setLod4DistInMeters = function(lod4DistInMeters) 
-{
-	this.lod4DistInMeters = lod4DistInMeters;
-};
-API.prototype.getLod5DistInMeters = function() 
-{
-	return this.lod5DistInMeters;
-};
-API.prototype.setLod5DistInMeters = function(lod5DistInMeters) 
-{
-	this.lod5DistInMeters = lod5DistInMeters;
-};
-
-API.prototype.getAmbientReflectionCoef = function() 
-{
-	return this.ambientReflectionCoef;
-};
-API.prototype.setAmbientReflectionCoef = function(ambientReflectionCoef) 
-{
-	this.ambientReflectionCoef = ambientReflectionCoef;
-};
-API.prototype.getDiffuseReflectionCoef = function() 
-{
-	return this.diffuseReflectionCoef;
-};
-API.prototype.setDiffuseReflectionCoef = function(diffuseReflectionCoef) 
-{
-	this.diffuseReflectionCoef = diffuseReflectionCoef;
-};
-API.prototype.getSpecularReflectionCoef = function() 
-{
-	return this.specularReflectionCoef;
-};
-API.prototype.setSpecularReflectionCoef = function(specularReflectionCoef) 
-{
-	this.specularReflectionCoef = specularReflectionCoef;
-};
-API.prototype.getAmbientColor = function() 
-{
-	return this.ambientColor;
-};
-API.prototype.setAmbientColor = function(ambientColor) 
-{
-	this.ambientColor = ambientColor;
-};
-API.prototype.getSpecularColor = function() 
-{
-	return this.specularColor;
-};
-API.prototype.setSpecularColor = function(specularColor) 
-{
-	this.specularColor = specularColor;
-};
-API.prototype.getSsaoRadius = function() 
-{
-	return this.ssaoRadius;
-};
-API.prototype.setSsaoRadius = function(ssaoRadius) 
-{
-	this.ssaoRadius = ssaoRadius;
-};
-API.prototype.getFPVMode = function()
-{
-	return this.FPVMode;
-};
-API.prototype.setFPVMode = function(value)
-{
-	this.FPVMode = value;
-};
-API.prototype.getMagoMode = function()
-{
-	return this.magoMode;
-};
-API.prototype.setMagoMode = function(value)
-{
-	this.magoMode = value;
-};
-API.prototype.getDuration = function()
-{
-	return this.duration;
-};
-API.prototype.setDuration = function(duration)
-{
-	this.duration = duration;
-};
-
-API.prototype.getInputPoint = function()
-{
-	return this.inputPoint;
-};
-API.prototype.setInputPoint = function(inputPoint)
-{
-	this.inputPoint = inputPoint;
-};
-
-API.prototype.getResultPoint = function()
-{
-	return this.resultPoint;
-};
-API.prototype.setResultPoint = function(resultPoint)
-{
-	this.resultPoint = resultPoint;
-};
-
-API.prototype.getUnit = function()
-{
-	return this.unit;
-};
-API.prototype.setUnit = function(unit)
-{
-	if (unit !== undefined)
-	{
-		if (isNaN(unit) || unit > CODE.units.RADIAN)
-		{
-			throw new Error('unit parameter needs CODE.units');
-		}
-		this.unit = unit;
-	}
-};
-
-API.prototype.getInstantiateObj = function()
-{
-	return this.instantiateObj;
-};
-API.prototype.setInstantiateObj = function(instantiateObj)
-{
-	this.instantiateObj = instantiateObj;
-};
-
-API.prototype.getStaticModelAttributeObj = function()
-{
-	return this.staticModelAttributeObj;
-};
-API.prototype.setStaticModelAttributeObj = function(staticModelAttributeObj)
-{
-	this.staticModelAttributeObj = staticModelAttributeObj;
-};
-
-API.prototype.getAnimationOption = function()
-{
-	return this.animationOption;
-};
-API.prototype.setAnimationOption = function(animationOption)
-{
-	this.animationOption = animationOption;
-};
-
-API.prototype.getTrackOption = function()
-{
-	return this.trackOption;
-};
-API.prototype.setTrackOption = function(trackOption)
-{
-	this.trackOption = trackOption;
-};
-
-API.prototype.getNodeAttribute = function()
-{
-	return this.nodeAttribute;
-};
-API.prototype.setNodeAttribute = function(nodeAttribute)
-{
-	this.nodeAttribute = nodeAttribute;
-};
-
-'use strict';
-
-/**
- * 사용자가 변경한 moving, color, rotation 등 이력 정보를 위한 domain
- * @class Policy
- */
-var ChangeHistory = function() 
-{
-	if (!(this instanceof ChangeHistory)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-
-	this.moveHistory = false;
-	this.colorHistory = false;
-	this.rotationHistory = false;
-	
-	// move mode. ALL : 0 , OBJECT : 1, NONE : 2
-	this.objectMoveMode = null;
-	
-	// project id
-	this.projectId = null;
-	// project data folder
-	this.projectDataFolder = null;
-	// data_key
-	this.dataKey = null;	
-	// objectId
-	this.objectId = null;
-	// objectIndexOrder
-	this.objectIndexOrder = 0;
-	
-	// referenceObject aditional movement.
-	this.refObjectAditionalMove;
-	this.refObjectAditionalMoveRelToBuilding;
-	
-	// 위도
-	this.latitude = 0.0;
-	// 경도
-	this.longitude = 0.0;
-	// 높이
-	this.elevation = 0.0;
-	// heading
-	this.heading = 0.0;
-	// pitch
-	this.pitch = 0.0;
-	// roll
-	this.roll = 0.0;
-	// duration
-	this.duration = 0;
-	// 색깔
-	this.color = 0;
-	// color rgb
-	this.rgbColor = [];
-	// 속성
-	this.property = null;
-	this.propertyKey = null;
-	this.propertyValue = null;
-};
-
-ChangeHistory.prototype.getReferenceObjectAditionalMovement = function() 
-{
-	if (this.refObjectAditionalMove === undefined)
-	{ this.refObjectAditionalMove = new Point3D(); }
-	
-	return this.refObjectAditionalMove;
-};
-
-ChangeHistory.prototype.getReferenceObjectAditionalMovementRelToBuilding = function() 
-{
-	if (this.refObjectAditionalMoveRelToBuilding === undefined)
-	{ this.refObjectAditionalMoveRelToBuilding = new Point3D(); }
-	
-	return this.refObjectAditionalMoveRelToBuilding;
-};
-
-ChangeHistory.prototype.getProjectId = function() 
-{
-	return this.projectId;
-};
-ChangeHistory.prototype.setProjectId = function(projectId) 
-{
-	this.projectId = projectId;
-};
-
-ChangeHistory.prototype.getProjectDataFolder = function() 
-{
-	return this.projectDataFolder;
-};
-ChangeHistory.prototype.setProjectDataFolder = function(projectDataFolder) 
-{
-	this.projectDataFolder = projectDataFolder;
-};
-
-ChangeHistory.prototype.getDataKey = function() 
-{
-	return this.dataKey;
-};
-ChangeHistory.prototype.setDataKey = function(dataKey) 
-{
-	this.dataKey = dataKey;
-};
-
-ChangeHistory.prototype.getObjectId = function() 
-{
-	return this.objectId;
-};
-ChangeHistory.prototype.setObjectId = function(objectId) 
-{
-	this.objectId = objectId;
-};
-
-ChangeHistory.prototype.getObjectIndexOrder = function() 
-{
-	return this.objectIndexOrder;
-};
-ChangeHistory.prototype.setObjectIndexOrder = function(objectIndexOrder) 
-{
-	this.objectIndexOrder = objectIndexOrder;
-};
-
-ChangeHistory.prototype.getLatitude = function() 
-{
-	return this.latitude;
-};
-ChangeHistory.prototype.setLatitude = function(latitude) 
-{
-	this.latitude = latitude;
-};
-
-ChangeHistory.prototype.getLongitude = function() 
-{
-	return this.longitude;
-};
-ChangeHistory.prototype.setLongitude = function(longitude) 
-{
-	this.longitude = longitude;
-};
-
-ChangeHistory.prototype.getElevation = function() 
-{
-	return this.elevation;
-};
-ChangeHistory.prototype.setElevation = function(elevation) 
-{
-	this.elevation = elevation;
-};
-
-ChangeHistory.prototype.getHeading = function() 
-{
-	return this.heading;
-};
-ChangeHistory.prototype.setHeading = function(heading) 
-{
-	this.heading = heading;
-};
-
-ChangeHistory.prototype.getPitch = function() 
-{
-	return this.pitch;
-};
-ChangeHistory.prototype.setPitch = function(pitch) 
-{
-	this.pitch = pitch;
-};
-
-ChangeHistory.prototype.getRoll = function() 
-{
-	return this.roll;
-};
-ChangeHistory.prototype.setRoll = function(roll) 
-{
-	this.roll = roll;
-};
-
-ChangeHistory.prototype.getColor = function() 
-{
-	return this.color;
-};
-ChangeHistory.prototype.setColor = function(color) 
-{
-	this.color = color;
-};
-ChangeHistory.prototype.getRgbColor = function() 
-{
-	return this.rgbColor;
-};
-ChangeHistory.prototype.setRgbColor = function(rgbColor) 
-{
-	this.rgbColor = rgbColor;
-};
-
-ChangeHistory.prototype.getProperty = function() 
-{
-	return this.property;
-};
-ChangeHistory.prototype.setProperty = function(property) 
-{
-	this.property = property;
-};
-ChangeHistory.prototype.getPropertyKey = function() 
-{
-	return this.propertyKey;
-};
-ChangeHistory.prototype.setPropertyKey = function(propertyKey) 
-{
-	this.propertyKey = propertyKey;
-};
-ChangeHistory.prototype.getPropertyValue = function() 
-{
-	return this.propertyValue;
-};
-ChangeHistory.prototype.setPropertyValue = function(propertyValue) 
-{
-	this.propertyValue = propertyValue;
-};
-
-ChangeHistory.prototype.getDuration = function()
-{
-	return this.duration;
-};
-ChangeHistory.prototype.setDuration = function(duration)
-{
-	this.duration = duration;
-};
-
-ChangeHistory.prototype.getObjectMoveMode = function() 
-{
-	return this.objectMoveMode;
-};
-ChangeHistory.prototype.setObjectMoveMode = function(objectMoveMode) 
-{
-	this.objectMoveMode = objectMoveMode;
-};
-"use strict";
-
-var CODE = {};
-
-// magoManager가 다 로딩 되지 않은 상태에서 화면으로 부터 호출 되는 것을 막기 위해
-CODE.magoManagerState = {
-	"INIT"   	: 0,
-	"STARTED"	: 1,
-	"READY"   : 2
-};
-
-//0 = no started to load. 1 = started loading. 2 = finished loading. 3 = parse started. 4 = parse finished.
-CODE.fileLoadState = {
-	"READY"            : 0,
-	"LOADING_STARTED"  : 1,
-	"LOADING_FINISHED" : 2,
-	"PARSE_STARTED"    : 3,
-	"PARSE_FINISHED"   : 4,
-	"IN_QUEUE"         : 5,
-	"IN_PARSE_QUEUE"   : 6,
-	"BINDING_STARTED"  : 7,
-	"BINDING_FINISHED" : 8,
-	"LOAD_FAILED"      : 9
-};
-
-CODE.moveMode = {
-	"ALL"              : "0",
-	"OBJECT"           : "1",
-	"GEOGRAPHICPOINTS" : "2",
-	"NONE"             : "3"
-};
-
-CODE.magoMode = {
-	"NORMAL"  : 0,
-	"DRAWING" : 1
-};
-
-CODE.magoCurrentProcess = {
-	"Unknown"                    : 0,
-	"DepthRendering"             : 1,
-	"ColorRendering"             : 2,
-	"ColorCodeRendering"         : 3,
-	"DepthShadowRendering"       : 4,
-	"SilhouetteDepthRendering"   : 5,
-	"StencilSilhouetteRendering" : 6
-};
-
-CODE.modelerMode = {
-	"INACTIVE"                 : 0,
-	"DRAWING_POLYLINE"         : 1,
-	"DRAWING_PLANEGRID"        : 2,
-	"DRAWING_GEOGRAPHICPOINTS" : 3,
-	"DRAWING_EXCAVATIONPOINTS" : 4,
-	"DRAWING_TUNNELPOINTS"     : 5,
-	"DRAWING_BSPLINE"          : 6,
-	"DRAWING_BASICFACTORY"     : 7,
-	"DRAWING_STATICGEOMETRY"   : 8,
-	"DRAWING_PIPE"             : 9,
-	"DRAWING_SPHERE"           : 10,
-	"DRAWING_BOX"              : 11,
-	"DRAWING_CUTTINGPLANE"     : 12,
-	"DRAWING_CLIPPINGBOX"      : 13,
-	"DRAWING_CONCENTRICTUBES"  : 14,
-	"DRAWING_TUBE"             : 15,
-	"DRAWING_FREECONTOURWALL"  : 16,
-	"DRAWING_CYLYNDER"         : 17
-};
-
-CODE.boxFace = {
-	"UNKNOWN" : 0,
-	"LEFT"    : 1,
-	"RIGHT"   : 2,
-	"FRONT"   : 3,
-	"REAR"    : 4,
-	"TOP"     : 5,
-	"BOTTOM"  : 6
-};
-
-CODE.modelerDrawingState = {
-	"NO_STARTED" : 0,
-	"STARTED"    : 1
-};
-
-CODE.modelerDrawingElement = {
-	"NOTHING"          : 0,
-	"POINTS"           : 1,
-	"LINES"            : 2,
-	"POLYLINES"        : 3,
-	"GEOGRAPHICPOINTS" : 4,
-};
-
-CODE.units = {
-	"METRE"  : 0,
-	"DEGREE" : 1,
-	"RADIAN" : 2
-};
-
-
-CODE.trackMode = {
-	"TRACKING" : 0,
-	"DRIVER"   : 1
-};
-
-CODE.movementType = {
-	"NO_MOVEMENT" : 0,
-	"TRANSLATION" : 1,
-	"ROTATION"    : 2,
-	"ROTATION_ZX" : 3
-};
-
-CODE.imageryType = {
-	"UNKNOWN"      : 0,
-	"CRS84"        : 1,
-	"WEB_MERCATOR" : 2
-};
-
-CODE.animationType = {
-	"UNKNOWN"         : 0,
-	"REALTIME_POINTS" : 1,
-	"PATH"            : 2
-};
-
-CODE.relativePosition2D = {
-	"UNKNOWN"    : 0,
-	"LEFT"       : 1,
-	"RIGHT"      : 2,
-	"COINCIDENT" : 3
-};
-CODE.imageFilter = {
-	"UNKNOWN"    : 0,
-	"BATHYMETRY" : 1
-};
-CODE.cesiumTerrainType = {
-	GEOSERVER          : 'geoserver',
-	CESIUM_DEFAULT     : 'cesium-default',
-	CESIUM_ION_DEFAULT : 'cesium-ion-default',
-	CESIUM_ION_CDN     : 'cesium-ion-cdn',
-	CESIUM_CUSTOMER    : 'cesium-customer'
-};
-CODE.magoEarthTerrainType = {
-	PLAIN     : 'plain',
-	ELEVATION : 'elevation',
-	REALTIME  : 'realtime'
-};
-
-CODE.drawGeometryType = {
-	POINT     : 'point',
-	LINE    	 : 'line',
-	POLYGON   : 'polygon',
-	RECTANGLE : 'rectangle'
-};
-
-CODE.PROJECT_ID_PREFIX = "projectId_";
-CODE.PROJECT_DATA_FOLDER_PREFIX = "projectDataFolder_";
-
-CODE.parametricCurveState = {
-	"NORMAL" : 0,
-	"EDITED" : 1
-};
-
-'use strict';
-
-/**
- * 상수 설정
- * @class Constant
- */
-var Constant = {};
-
-Constant.CESIUM = "cesium";
-Constant.WORLDWIND = "worldwind";
-Constant.MAGOWORLD = "magoworld";
-Constant.OBJECT_INDEX_FILE = "/objectIndexFile.ihe";
-Constant.TILE_INDEX_FILE = "/smartTile_f4d_indexFile.sii";
-Constant.CACHE_VERSION = "?cache_version=";
-Constant.SIMPLE_BUILDING_TEXTURE3x3_BMP = "/SimpleBuildingTexture3x3.bmp";
-Constant.RESULT_XDO2F4D = "/Result_xdo2f4d/Images/";
-Constant.RESULT_XDO2F4D_TERRAINTILES = "/Result_xdo2f4d/F4D_TerrainTiles/";
-Constant.RESULT_XDO2F4D_TERRAINTILEFILE_TXT = "/Result_xdo2f4d/f4dTerranTileFile.txt";
-
-Constant.INTERSECTION_OUTSIDE = 0;
-Constant.INTERSECTION_INTERSECT= 1;
-Constant.INTERSECTION_INSIDE = 2;
-Constant.INTERSECTION_POINT_A = 3;
-Constant.INTERSECTION_POINT_B = 4;
-
-'use strict';
-
-/**
- * mago3D 전체 환경 설정을 관리
- * @class MagoConfig
- */
-var MagoConfig = {};
-
-MagoConfig.setContainerId = function(containerId) 
-{
-	this.containerId = containerId;
-};
-
-MagoConfig.getContainerId = function() 
-{
-	return this.containerId;
-};
-
-MagoConfig.getPolicy = function() 
-{
-	return this.serverPolicy;
-};
-
-MagoConfig.getGeoserver = function() 
-{
-	return this.geoserver;
-};
-
-MagoConfig.getData = function(key) 
-{
-	return this.dataObject[key];
-};
-
-MagoConfig.isDataExist = function(key) 
-{
-	return this.dataObject.hasOwnProperty(key);
-};
-
-MagoConfig.deleteData = function(key) 
-{
-	return delete this.dataObject[key];
-};
-
-/**
- * data 를 map에 저장
- * @param key map에 저장될 key
- * @param value map에 저장될 value
- */
-MagoConfig.setData = function(key, value) 
-{
-	if (!this.isDataExist(key)) 
-	{
-		this.dataObject[key] = value;
-	}
-};
-
-/**
- * F4D Converter 실행 결과물이 저장된 project data folder 명을 획득
- * @param projectDataFolder data folder
- */
-MagoConfig.getProjectDataFolder = function(projectDataFolder) 
-{
-	var key = CODE.PROJECT_DATA_FOLDER_PREFIX + projectDataFolder;
-	return this.dataObject[key];
-};
-
-/**
- * project map에 data folder명의 존재 유무를 검사
- * @param projectDataFolder
- */
-MagoConfig.isProjectDataFolderExist = function(projectDataFolder) 
-{
-	var key = CODE.PROJECT_DATA_FOLDER_PREFIX + projectDataFolder;
-	return this.dataObject.hasOwnProperty(key);
-};
-
-/**
- * project data folder명을 map에서 삭제
- * @param projectDataFolder
- */
-MagoConfig.deleteProjectDataFolder = function(projectDataFolder) 
-{
-	var key = CODE.PROJECT_DATA_FOLDER_PREFIX + projectDataFolder;
-	return delete this.dataObject[key];
-};
-
-/**
- * project data folder명을 Object에서 삭제
- * @param projectDataFolder Object에 저장될 key
- * @param value Object에 저장될 value
- */
-MagoConfig.setProjectDataFolder = function(projectDataFolder, value) 
-{
-	var key = CODE.PROJECT_DATA_FOLDER_PREFIX + projectDataFolder;
-	if (!this.isProjectDataFolderExist(key))
-	{
-		this.dataObject[key] = value;
-	}
-};
-
-/**
- * 환경설정 초기화
- * @param serverPolicy mago3d policy(json)
- * @param projectIdArray data 정보를 map 저장할 key name
- * @param projectDataArray data 정보(json)
- */
-MagoConfig.init = function(serverPolicy, projectIdArray, projectDataArray) 
-{
-	if (!serverPolicy || !serverPolicy instanceof Object) 
-	{
-		throw new Error('geopolicy is required object.');
-	}
-	this.dataObject = {};
-	
-	this.selectHistoryObject = {};
-	this.movingHistoryObject = {};
-	this.colorHistoryObject = {};
-	this.locationAndRotationHistoryObject = {};
-
-	this.serverPolicy = serverPolicy;
-	this.scriptRootPath = getScriptRootPath();
-	this.twoDimension = false;
-
-	if (this.serverPolicy.geoserverEnable) 
-	{
-		this.geoserver = new GeoServer();
-
-		var info = {
-			"wmsVersion"    : this.serverPolicy.geoserverWmsVersion,
-			"dataUrl"       : this.serverPolicy.geoserverDataUrl,
-			"dataWorkspace" : this.serverPolicy.geoserverDataWorkspace,
-			"dataStore"     : this.serverPolicy.geoserverDataStore,
-			"user"          : this.serverPolicy.geoserverUser,
-			"password"      : this.serverPolicy.geoserverPassword
-		};
-		this.geoserver.setServerInfo(info);
-	}
-
-
-	if (projectIdArray && projectIdArray.length > 0) 
-	{
-		for (var i=0; i<projectIdArray.length; i++) 
-		{
-			if (!this.isDataExist(CODE.PROJECT_ID_PREFIX + projectIdArray[i])) 
-			{
-				this.setData(CODE.PROJECT_ID_PREFIX + projectIdArray[i], projectDataArray[i]);
-				this.setProjectDataFolder(CODE.PROJECT_DATA_FOLDER_PREFIX + projectDataArray[i].data_key, projectDataArray[i].data_key);
-			}
-		}
-	}
-
-	function getScriptRootPath() 
-	{
-		var magoScriptQueryStrRegex = /((?:.*\/)|^)mago3d\.js\?(?:&?[^=&]*=[^=&]*)*/;
-		var magoScriptRegex = /((?:.*\/)|^)mago3d\.js$/;
-		var magoScriptPath;
-		var scripts = document.getElementsByTagName('script');
-		for ( var j = 0, len = scripts.length; j < len; ++j) 
-		{
-			var src = scripts[j].getAttribute('src');
-			var nomalResult = magoScriptRegex.exec(src);
-			var queryStrResult = magoScriptQueryStrRegex.exec(src);
-
-			var result = nomalResult||queryStrResult;
-			if (result !== null) 
-			{
-				magoScriptPath = result[1];
-			}
-		}
-		return magoScriptPath;
-	}
-};
-
-/**
- * 모든 데이터를 삭제함
- */
-MagoConfig.clearAllData = function() 
-{
-	this.dataObject = {};
-};
-
-/**
- * 모든 선택 히스토리 삭제
- */
-MagoConfig.clearSelectHistory = function() 
-{
-	this.selectHistoryObject = {};
-};
-
-/**
- * 모든 object 선택 내용 이력을 취득
- */
-MagoConfig.getAllSelectHistory = function()
-{
-	return this.selectHistoryObject;
-};
-
-/**
- * project 별 해당 키에 해당하는 모든 object 선택 내용 이력을 취득
- */
-MagoConfig.getSelectHistoryObjects = function(projectId, dataKey)
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.selectHistoryObject[projectId];
-	if (projectIdObject === undefined) { return undefined; }
-	// dataKey 별 Object을 검사
-	var dataKeyObject = projectIdObject[dataKey];
-	return dataKeyObject;
-};
-
-/**
- * object 선택 내용 이력을 취득
- */
-MagoConfig.getSelectHistoryObject = function(projectId, dataKey, objectIndexOrder)
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.selectHistoryObject[projectId];
-	if (projectIdObject === undefined) { return undefined; }
-	// dataKey 별 Object을 검사
-	var dataKeyObject = projectIdObject[dataKey];
-	if (dataKeyObject === undefined) { return undefined; }
-	// objectIndexOrder 를 저장
-	return dataKeyObject[objectIndexOrder];
-};
-
-/**
- * object 선택 내용을 저장
- */
-MagoConfig.saveSelectHistory = function(projectId, dataKey, objectIndexOrder, changeHistory) 
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.selectHistoryObject.get(projectId);
-	if (projectIdObject === undefined)
-	{
-		projectIdObject = {};
-		this.selectHistoryObject[projectId] = projectIdObject;
-	}
-	
-	// dataKey 별 Object을 검사
-	var dataKeyObject = projectIdObject[dataKey];
-	if (dataKeyObject === undefined)
-	{
-		dataKeyObject = {};
-		projectIdObject[dataKey] = dataKeyObject;
-	}
-	
-	// objectIndexOrder 를 저장
-	dataKeyObject[objectIndexOrder] = changeHistory;
-};
-
-/**
- * object 선택 내용을 삭제
- */
-MagoConfig.deleteSelectHistoryObject = function(projectId, dataKey, objectIndexOrder)
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.selectHistoryObject[projectId];
-	if (projectIdObject === undefined) { return undefined; }
-	// dataKey 별 Object을 검사
-	var dataKeyObject = projectIdObject[dataKey];
-	if (dataKeyObject === undefined) { return undefined; }
-	// objectIndexOrder 를 저장
-	return delete dataKeyObject[objectIndexOrder];
-};
-
-/**
- * 모든 이동 히스토리 삭제
- */
-MagoConfig.clearMovingHistory = function() 
-{
-	this.movingHistoryObject = {};
-};
-
-/**
- * 모든 object 선택 내용 이력을 취득
- */
-MagoConfig.getAllMovingHistory = function()
-{
-	return this.movingHistoryObject;
-};
-
-/**
- * project별 입력키 값과 일치하는 object 이동 내용 이력을 취득
- */
-MagoConfig.getMovingHistoryObjects = function(projectId, dataKey)
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.movingHistoryObject[projectId];
-	if (projectIdObject === undefined) { return undefined; }
-	// dataKey 별 Object을 검사
-	var dataKeyObject = projectIdObject[dataKey];
-	return dataKeyObject;
-};
-
-/**
- * object 이동 내용 이력을 취득
- */
-MagoConfig.getMovingHistoryObject = function(projectId, dataKey, objectIndexOrder)
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.movingHistoryObject[projectId];
-	if (projectIdObject === undefined) { return undefined; }
-	// dataKey 별 Object을 검사
-	var dataKeyObject = projectIdObject[dataKey];
-	if (dataKeyObject === undefined) { return undefined; }
-	// objectIndexOrder 를 저장
-	return dataKeyObject[objectIndexOrder];
-};
-
-/**
- * object 이동 내용을 저장
- */
-MagoConfig.saveMovingHistory = function(projectId, dataKey, objectIndexOrder, changeHistory) 
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.movingHistoryObject[projectId];
-	if (projectIdObject === undefined)
-	{
-		projectIdObject = {};
-		this.movingHistoryObject[projectId] = projectIdObject;
-	}
-	
-	// dataKey 별 Object을 검사
-	var dataKeyObject = projectIdObject[dataKey];
-	if (dataKeyObject === undefined)
-	{
-		dataKeyObject = {};
-		projectIdObject[dataKey] = dataKeyObject;
-	}
-	
-	// objectIndexOrder 를 저장
-	dataKeyObject[objectIndexOrder] = changeHistory;
-};
-
-/**
- * object 이동 내용을 삭제
- */
-MagoConfig.deleteMovingHistoryObject = function(projectId, dataKey, objectIndexOrder)
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.movingHistoryObject[projectId];
-	if (projectIdObject === undefined) { return undefined; }
-	// dataKey 별 Object을 검사
-	var dataKeyObject = projectIdObject[dataKey];
-	if (dataKeyObject === undefined) { return undefined; }
-	// objectIndexOrder 를 저장
-	return delete dataKeyObject[objectIndexOrder];
-};
-
-/**
- * 모든 색깔 변경 이력을 획득
- */
-MagoConfig.getAllColorHistory = function() 
-{
-	return this.colorHistoryObject;
-};
-
-/**
- * 모든 색깔변경 히스토리 삭제
- */
-MagoConfig.clearColorHistory = function() 
-{
-	this.colorHistoryObject = {};
-};
-
-/**
- * project별 키에 해당하는 모든 색깔 변경 이력을 획득
- */
-MagoConfig.getColorHistorys = function(projectId, dataKey)
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.colorHistoryObject[projectId];
-	if (projectIdObject === undefined) { return undefined; }
-	// dataKey 별 Object을 검사
-	var dataKeyObject = projectIdObject[dataKey];
-	return dataKeyObject;
-};
-
-/**
- * 색깝 변경 이력을 획득
- */
-MagoConfig.getColorHistory = function(projectId, dataKey, objectId)
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.colorHistoryObject[projectId];
-	if (projectIdObject === undefined) { return undefined; }
-	// dataKey 별 Object을 검사
-	var dataKeyObject = projectIdObject[dataKey];
-	if (dataKeyObject === undefined) { return undefined; }
-	// objectId 를 저장
-	return dataKeyObject[objectId];
-};
-
-/**
- * 색깝 변경 내용을 저장
- */
-MagoConfig.saveColorHistory = function(projectId, dataKey, objectId, changeHistory) 
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.colorHistoryObject[projectId];
-	if (projectIdObject === undefined)
-	{
-		projectIdObject = {};
-		this.colorHistoryObject[projectId] = projectIdObject;
-	}
-	
-	// dataKey 별 Object을 검사
-	var dataKeyObject = projectIdObject[dataKey];
-	if (dataKeyObject === undefined)
-	{
-		dataKeyObject = {};
-		projectIdObject[dataKey] = dataKeyObject;
-	}
-
-	if (objectId === null || objectId === "") 
-	{
-		dataKeyObject[dataKey] = changeHistory;
-	}
-	else 
-	{
-		dataKeyObject[objectId] = changeHistory;
-	}
-};
-
-/**
- * 색깔 변경 이력을 삭제
- */
-MagoConfig.deleteColorHistory = function(projectId, dataKey, objectId)
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.colorHistoryObject[projectId];
-	if (projectIdObject === undefined) { return undefined; }
-	// dataKey 별 Object을 검사
-	var dataKeyObject = projectIdObject[dataKey];
-	if (dataKeyObject === undefined) { return undefined; }
-	// objectIndexOrder 를 저장
-	return delete dataKeyObject[objectId];
-};
-
-/**
- * 모든 색깔변경 히스토리 삭제
- */
-MagoConfig.clearColorHistory = function() 
-{
-	this.colorHistoryObject = {};
-};
-
-/**
- * 모든 location and rotation 변경 이력을 획득
- */
-MagoConfig.getAllLocationAndRotationHistory = function() 
-{
-	return this.locationAndRotationHistoryObject;
-};
-
-/**
- * 프로젝트별 해당 키 값을 갖는 모든 location and rotation 이력을 획득
- */
-MagoConfig.getLocationAndRotationHistorys = function(projectId, dataKey)
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.locationAndRotationHistoryObject[projectId];
-	if (projectIdObject === undefined) { return undefined; }
-	// dataKey 별 Object을 검사
-	var dataKeyObject = projectIdObject[dataKey];
-	return dataKeyObject;
-};
-
-/**
- * location and rotation 이력을 획득
- */
-MagoConfig.getLocationAndRotationHistory = function(projectId, dataKey)
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.locationAndRotationHistoryObject[projectId];
-	if (projectIdObject === undefined) { return undefined; }
-	// dataKey 별 Object을 검사
-	var dataKeyObject = projectIdObject[dataKey];
-	
-	return dataKeyObject;
-};
-
-/**
- * location and rotation 내용을 저장
- */
-MagoConfig.saveLocationAndRotationHistory = function(projectId, dataKey, changeHistory) 
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.locationAndRotationHistoryObject[projectId];
-	if (projectIdObject === undefined)
-	{
-		projectIdObject = {};
-		this.locationAndRotationHistoryObject[projectId] = projectIdObject;
-	}
-	
-	// dataKey 별 Object을 검사
-	var dataKeyObject = projectIdObject[dataKey];
-	if (dataKeyObject === undefined)
-	{
-		dataKeyObject = {};
-	}
-
-	dataKeyObject[dataKey] = changeHistory;
-};
-
-/**
- * location and rotation 이력을 삭제
- */
-MagoConfig.deleteLocationAndRotationHistory = function(projectId, dataKey)
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.locationAndRotationHistoryObject[projectId];
-	if (projectIdObject === undefined) { return undefined; }
-	// dataKey 별 Object을 검사
-	var dataKeyObject = delete projectIdObject[dataKey];
-};
-
-/**
- * 모든 location and rotation 히스토리 삭제
- */
-MagoConfig.clearLocationAndRotationHistory = function() 
-{
-	this.locationAndRotationHistoryObject = {};
-};
-	
-/**
- * TODO 이건 나중에 활요. 사용하지 않음
- * check 되지 않은 데이터들을 삭제함
- * @param keyObject 비교할 맵
- */
-/*MagoConfig.clearUnSelectedData = function(keyObject)
-{
-	for (var key of this.dataObject.keys())
-	{
-		if (!keyObject.hasxxxxx(key))
-		{
-			// data folder path가 존재하면....
-			if (key.indexOf(CODE.PROJECT_DATA_FOLDER_PREFIX) >= 0) 
-			{
-				// 지우는 처리가 있어야 함
-			}
-			this.dataObject.delete(key);
-		}
-	}
-};*/
-
-MagoConfig.setTwoDimension = function(twoDimension) 
-{
-	this.twoDimension = twoDimension;
-};
-MagoConfig.isTwoDimension = function()
-{
-	return this.twoDimension;
-};
-'use strict';
-
-/**
- * Policy
- * @class Policy
- */
-var Policy = function() 
-{
-	if (!(this instanceof Policy)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-
-	// mago3d 활성화/비활성화 여부
-	this.magoEnable = true;
-
-	// outfitting 표시 여부
-	this.showOutFitting = false;
-	// label 표시/비표시
-	this.showLabelInfo = false;
-	// boundingBox 표시/비표시
-	this.showBoundingBox = false;
-	// 그림자 표시/비표시
-	this.showShadow = false;
-	// squared far frustum 거리
-	this.frustumFarSquaredDistance = 5000000;
-	// far frustum
-	this.frustumFarDistance = 20000;
-
-	// highlighting
-	this.highLightedBuildings = [];
-	// color
-	this.colorBuildings = [];
-	// color
-	this.color = [];
-	// show/hide
-	this.hideBuildings = [];
-	// move mode
-	this.objectMoveMode = CODE.moveMode.NONE;
-	// 이슈 등록 표시
-	this.issueInsertEnable = false;
-	// object 정보 표시
-	this.objectInfoViewEnable = false;
-	// 이슈 목록 표시
-	this.nearGeoIssueListEnable = false;
-	// occlusion culling
-	this.occlusionCullingEnable = false;
-	// origin axis XYZ
-	this.showOrigin = false;
-	// mago generalMode
-	this.magoMode = CODE.magoMode.NORMAL;
-	
-	// 이미지 경로
-	this.imagePath = "";
-	
-	// provisional.
-	this.colorChangedObjectId;
-	
-	// LOD1
-	//this.lod0DistInMeters = 15;
-	//this.lod1DistInMeters = 50;
-	//this.lod2DistInMeters = 90;
-	//this.lod3DistInMeters = 200;
-	//this.lod4DistInMeters = 1000;
-	//this.lod5DistInMeters = 50000;
-
-	this.lod0DistInMeters = 50;
-	this.lod1DistInMeters = 200;
-	this.lod2DistInMeters = 600;
-	this.lod3DistInMeters = 1200;
-	this.lod4DistInMeters = 3000;
-	this.lod5DistInMeters = 50000;
-	
-	// Lighting
-	this.ambientReflectionCoef = 0.45; // 0.2.
-	this.diffuseReflectionCoef = 0.75; // 1.0
-	this.specularReflectionCoef = 0.6; // 0.7
-	this.ambientColor = null;
-	this.specularColor = new Float32Array([0.6, 0.6, 0.6]);
-	
-	this.ssaoRadius = 0.15;
-
-	this.modelMovable = true;
-	
-	var policy = MagoConfig.getPolicy();
-	// PointsCloud.
-	this.pointsCloudSettings = {};
-	if (defined(policy)) 
-	{
-		this.pointsCloudSettings.maxPartitionsLod0 = defaultValueCheckLength(policy.maxPartitionsLod0, 4);
-		this.pointsCloudSettings.maxPartitionsLod1 = defaultValueCheckLength(policy.maxPartitionsLod1, 2);
-		this.pointsCloudSettings.maxPartitionsLod2orLess = defaultValueCheckLength(policy.maxPartitionsLod2OrLess, 1);
-		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam0m = 1.0/defaultValueCheckLength(policy.maxRatioPointsDist0m, 10.0);
-		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam100m = 1.0/defaultValueCheckLength(policy.maxRatioPointsDist100m, 120.0);
-		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam200m = 1.0/defaultValueCheckLength(policy.maxRatioPointsDist200m, 240.0);
-		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam400m = 1.0/defaultValueCheckLength(policy.maxRatioPointsDist400m, 480.0);
-		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam800m = 1.0/defaultValueCheckLength(policy.maxRatioPointsDist800m, 960.0);
-		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam1600m = 1.0/defaultValueCheckLength(policy.maxRatioPointsDist1600m, 1920.0);
-		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCamMoreThan1600m = 1.0/defaultValueCheckLength(policy.maxRatioPointsDistOver1600m, 3840.0);
-		this.pointsCloudSettings.maxPointSize = defaultValueCheckLength(policy.maxPointSizeForPc, 40.0);
-		this.pointsCloudSettings.minPointSize = defaultValueCheckLength(policy.minPointSizeForPc, 3.0);
-		this.pointsCloudSettings.pendentPointSize = defaultValueCheckLength(policy.pendentPointSizeForPc, 60.0);
-		this.pointsCloudSettings.minHeightRainbow = defaultValueCheckLength(policy.minHeight_rainbow_loc, 0.0);
-		this.pointsCloudSettings.maxHeightRainbow = defaultValueCheckLength(policy.maxHeight_rainbow_loc, 100.0);
-	}
-	else 
-	{
-		this.pointsCloudSettings.maxPartitionsLod0 = 4;
-		this.pointsCloudSettings.maxPartitionsLod1 = 2;
-		this.pointsCloudSettings.maxPartitionsLod2orLess = 1;
-		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam0m = 1.0/10.0;
-		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam100m = 1.0/120.0;
-		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam200m = 1.0/240.0;
-		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam400m = 1.0/480.0;
-		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam800m = 1.0/960.0;
-		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam1600m = 1.0/1920.0;
-		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCamMoreThan1600m = 1.0/3840.0;
-		this.pointsCloudSettings.maxPointSize = 40.0;
-		this.pointsCloudSettings.minPointSize = 3.0;
-		this.pointsCloudSettings.pendentPointSize = 60.0;
-		this.pointsCloudSettings.minHeightRainbow = 0.0;
-		this.pointsCloudSettings.maxHeightRainbow = 100.0;
-	}
-};
-
-Policy.prototype.getPointsCloudSettings = function() 
-{
-	return this.pointsCloudSettings;
-};
-
-Policy.prototype.getShowOrigin = function() 
-{
-	return this.showOrigin;
-};
-Policy.prototype.setShowOrigin = function(showOrigin) 
-{
-	this.showOrigin = showOrigin;
-};
-
-Policy.prototype.getMagoEnable = function() 
-{
-	return this.magoEnable;
-};
-Policy.prototype.setMagoEnable = function(magoEnable) 
-{
-	this.magoEnable = magoEnable;
-};
-
-Policy.prototype.getShowOutFitting = function() 
-{
-	return this.showOutFitting;
-};
-Policy.prototype.setShowOutFitting = function(showOutFitting) 
-{
-	this.showOutFitting = showOutFitting;
-};
-Policy.prototype.getShowLabelInfo = function() 
-{
-	return this.showLabelInfo;
-};
-Policy.prototype.setShowLabelInfo = function(showLabelInfo) 
-{
-	this.showLabelInfo = showLabelInfo;
-};
-Policy.prototype.getShowBoundingBox = function() 
-{
-	return this.showBoundingBox;
-};
-Policy.prototype.setShowBoundingBox = function(showBoundingBox) 
-{
-	this.showBoundingBox = showBoundingBox;
-};
-
-Policy.prototype.getShowShadow = function() 
-{
-	return this.showShadow;
-};
-Policy.prototype.setShowShadow = function(showShadow) 
-{
-	this.showShadow = showShadow;
-};
-
-Policy.prototype.getFrustumFarSquaredDistance = function() 
-{
-	return this.frustumFarSquaredDistance;
-};
-Policy.prototype.setFrustumFarSquaredDistance = function(frustumFarSquaredDistance) 
-{
-	this.frustumFarSquaredDistance = frustumFarSquaredDistance;
-};
-
-Policy.prototype.getFrustumFarDistance = function() 
-{
-	return this.frustumFarDistance;
-};
-Policy.prototype.setFrustumFarDistance = function(frustumFarDistance) 
-{
-	this.frustumFarDistance = frustumFarDistance;
-};
-
-Policy.prototype.getHighLightedBuildings = function() 
-{
-	return this.highLightedBuildings;
-};
-Policy.prototype.setHighLightedBuildings = function(highLightedBuildings) 
-{
-	this.highLightedBuildings = highLightedBuildings;
-};
-
-Policy.prototype.getColorBuildings = function() 
-{
-	return this.colorBuildings;
-};
-Policy.prototype.setColorBuildings = function(colorBuildings) 
-{
-	this.colorBuildings = colorBuildings;
-};
-
-Policy.prototype.getColor = function() 
-{
-	return this.color;
-};
-Policy.prototype.setColor = function(color) 
-{
-	this.color = color;
-};
-
-Policy.prototype.getHideBuildings = function() 
-{
-	return this.hideBuildings;
-};
-Policy.prototype.setHideBuildings = function(hideBuildings) 
-{
-	this.hideBuildings = hideBuildings;
-};
-
-Policy.prototype.getObjectMoveMode = function() 
-{
-	return this.objectMoveMode;
-};
-Policy.prototype.setObjectMoveMode = function(objectMoveMode) 
-{
-	this.objectMoveMode = objectMoveMode;
-};
-
-Policy.prototype.getMagoMode = function() 
-{
-	return this.magoMode;
-};
-Policy.prototype.setMagoMode = function(magoMode) 
-{
-	this.magoMode = magoMode;
-};
-
-Policy.prototype.getIssueInsertEnable = function() 
-{
-	return this.issueInsertEnable;
-};
-Policy.prototype.setIssueInsertEnable = function(issueInsertEnable) 
-{
-	this.issueInsertEnable = issueInsertEnable;
-};
-Policy.prototype.getObjectInfoViewEnable = function() 
-{
-	return this.objectInfoViewEnable;
-};
-Policy.prototype.setObjectInfoViewEnable = function(objectInfoViewEnable) 
-{
-	this.objectInfoViewEnable = objectInfoViewEnable;
-};
-Policy.prototype.getOcclusionCullingEnable = function() 
-{
-	return this.occlusionCullingEnable;
-};
-Policy.prototype.setOcclusionCullingEnable = function(occlusionCullingEnable) 
-{
-	this.occlusionCullingEnable = occlusionCullingEnable;
-};
-Policy.prototype.getNearGeoIssueListEnable = function() 
-{
-	return this.nearGeoIssueListEnable;
-};
-Policy.prototype.setNearGeoIssueListEnable = function(nearGeoIssueListEnable) 
-{
-	this.nearGeoIssueListEnable = nearGeoIssueListEnable;
-};
-
-Policy.prototype.getImagePath = function() 
-{
-	return this.imagePath;
-};
-Policy.prototype.setImagePath = function(imagePath) 
-{
-	this.imagePath = imagePath;
-};
-
-Policy.prototype.getLod = function(distInMeters) 
-{
-	var lod = -1;
-	if (distInMeters < this.lod0DistInMeters)
-	{ lod = 0; }
-	else if (distInMeters < this.lod1DistInMeters)
-	{ lod = 1; }
-	else if (distInMeters < this.lod2DistInMeters)
-	{ lod = 2; }
-	else if (distInMeters < this.lod3DistInMeters)
-	{ lod = 3; }
-	else if (distInMeters < this.lod4DistInMeters)
-	{ lod = 4; }
-	else 
-	{ lod = 5; }
-	
-	return lod;	
-};
-Policy.prototype.getLod0DistInMeters = function() 
-{
-	return this.lod0DistInMeters;
-};
-Policy.prototype.setLod0DistInMeters = function(lod0DistInMeters) 
-{
-	this.lod0DistInMeters = lod0DistInMeters;
-};
-Policy.prototype.getLod1DistInMeters = function() 
-{
-	return this.lod1DistInMeters;
-};
-Policy.prototype.setLod1DistInMeters = function(lod1DistInMeters) 
-{
-	this.lod1DistInMeters = lod1DistInMeters;
-};
-Policy.prototype.getLod2DistInMeters = function() 
-{
-	return this.lod2DistInMeters;
-};
-Policy.prototype.setLod2DistInMeters = function(lod2DistInMeters) 
-{
-	this.lod2DistInMeters = lod2DistInMeters;
-};
-Policy.prototype.getLod3DistInMeters = function() 
-{
-	return this.lod3DistInMeters;
-};
-Policy.prototype.setLod3DistInMeters = function(lod3DistInMeters) 
-{
-	this.lod3DistInMeters = lod3DistInMeters;
-};
-Policy.prototype.getLod4DistInMeters = function() 
-{
-	return this.lod4DistInMeters;
-};
-Policy.prototype.setLod4DistInMeters = function(lod4DistInMeters) 
-{
-	this.lod4DistInMeters = lod4DistInMeters;
-};
-Policy.prototype.getLod5DistInMeters = function() 
-{
-	return this.lod5DistInMeters;
-};
-Policy.prototype.setLod5DistInMeters = function(lod5DistInMeters) 
-{
-	this.lod5DistInMeters = lod5DistInMeters;
-};
-Policy.prototype.getAmbientReflectionCoef = function() 
-{
-	return this.ambientReflectionCoef;
-};
-Policy.prototype.setAmbientReflectionCoef = function(ambientReflectionCoef) 
-{
-	this.ambientReflectionCoef = ambientReflectionCoef;
-};
-Policy.prototype.getDiffuseReflectionCoef = function() 
-{
-	return this.diffuseReflectionCoef;
-};
-Policy.prototype.setDiffuseReflectionCoef = function(diffuseReflectionCoef) 
-{
-	this.diffuseReflectionCoef = diffuseReflectionCoef;
-};
-Policy.prototype.getSpecularReflectionCoef = function() 
-{
-	return this.specularReflectionCoef;
-};
-Policy.prototype.setSpecularReflectionCoef = function(specularReflectionCoef) 
-{
-	this.specularReflectionCoef = specularReflectionCoef;
-};
-Policy.prototype.getAmbientColor = function() 
-{
-	return this.ambientColor;
-};
-Policy.prototype.setAmbientColor = function(ambientColor) 
-{
-	this.ambientColor = ambientColor;
-};
-Policy.prototype.getSpecularColor = function() 
-{
-	return this.specularColor;
-};
-Policy.prototype.setSpecularColor = function(specularColor) 
-{
-	this.specularColor = specularColor;
-};
-Policy.prototype.getSsaoRadius = function() 
-{
-	return this.ssaoRadius;
-};
-Policy.prototype.setSsaoRadius = function(ssaoRadius) 
-{
-	this.ssaoRadius = ssaoRadius;
-};
-Policy.prototype.setModelMovable = function(movable)
-{
-	this.modelMovable = movable;
-};
-Policy.prototype.isModelMovable = function()
-{
-	return this.modelMovable;
-};
-'use strict';
-
-/**
  * 버퍼 안의 데이터를 어떻게 읽어야 할지 키가 되는 객체
  * @deprecated NeoSimpleBuilding에서 인스턴스 생성하는 부분이 있으나 NeoSimpleBuilding도 사용하지 않고 있음
  * 
@@ -46706,7 +47232,7 @@ Block.prototype.isReadyToRender = function(neoReference, magoManager, maxSizeToR
 	if (maxSizeToRender && (this.radius < maxSizeToRender))
 	{ return false; }
 	
-	if (magoManager.isCameraMoving && this.radius < magoManager.smallObjectSize && magoManager.objectSelected !== neoReference)
+	if (magoManager.isCameraMoving && this.radius < magoManager.smallObjectSize && magoManager.selectionManager.getSelectedF4dObject() !== neoReference)
 	{ return false; }
 
 	return true;
@@ -51690,7 +52216,7 @@ NeoBuilding.prototype.renderSkin = function(magoManager, shader, renderType)
 
 	var gl = magoManager.sceneState.gl;
 
-	magoManager.renderer.currentObjectsRendering.curOctree = this;
+	//magoManager.renderer.currentObjectsRendering.curOctree = this;
 	
 	var currentObjectsRendering = magoManager.renderer.currentObjectsRendering;
 	var selCandidates;
@@ -51780,110 +52306,6 @@ NeoBuilding.prototype.renderSkin = function(magoManager, shader, renderType)
 	
 	gl.uniform1i(shader.refMatrixType_loc, 0); // in this case, there are not referencesMatrix.
 	skinLego.render(magoManager, renderType, renderTexture, shader, this);
-};
-
-/**
- * 어떤 일을 하고 있습니까?
- */
-NeoBuilding.prototype.renderSkin__original = function(magoManager, shader, renderType) 
-{
-	var skinLego = this.getCurrentSkin();
-		
-	if (skinLego === undefined)
-	{ return; }
-
-	if (skinLego.fileLoadState !== CODE.fileLoadState.PARSE_FINISHED)
-	{ return; }
-
-	var gl = magoManager.sceneState.gl;
-	
-	magoManager.renderer.currentObjectsRendering.curOctree = this;
-	
-	var currentObjectsRendering = magoManager.renderer.currentObjectsRendering;
-	var selCandidates;
-	var selectionColor;
-	var currentNode;
-	var currentOctree;
-	
-	if (renderType === 2)
-	{
-		selCandidates = magoManager.selectionManager;
-		selectionColor = magoManager.selectionColor;
-		renderTexture = false; // reassign value for this var.
-		currentNode = currentObjectsRendering.curNode;
-		currentOctree = currentObjectsRendering.curOctree;
-	}
-	
-	var renderTexture = true;
-	
-	// if the building is highlighted, the use highlight oneColor4.
-	if (renderType === 1)
-	{
-		gl.uniform4fv(shader.oneColor4_loc, [0.7, 0.7, 0.7, 1.0]);
-		if (this.isHighLighted)
-		{
-			//gl.uniform1i(shader.bUse1Color_loc, true);
-			gl.uniform1i(shader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
-			gl.uniform4fv(shader.oneColor4_loc, this.highLightColor4); //.
-			renderTexture = false;
-		}
-		else if (this.isColorChanged)
-		{
-			//gl.uniform1i(shader.bUse1Color_loc, true);
-			gl.uniform1i(shader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
-			gl.uniform4fv(shader.oneColor4_loc, [this.aditionalColor.r, this.aditionalColor.g, this.aditionalColor.b, this.aditionalColor.a]); //.
-			renderTexture = false;
-		}
-		else
-		{
-			//gl.uniform1i(shader.bUse1Color_loc, false);
-		}
-		//----------------------------------------------------------------------------------
-		if (renderTexture)
-		{
-			if (skinLego.texture !== undefined && skinLego.texture.texId)
-			{
-				
-				shader.enableVertexAttribArray(shader.texCoord2_loc);
-				gl.uniform1i(shader.colorType_loc, 2); // 0= oneColor, 1= attribColor, 2= texture.
-				if (shader.last_tex_id !== skinLego.texture.texId)
-				{
-					gl.activeTexture(gl.TEXTURE2);
-					gl.bindTexture(gl.TEXTURE_2D, skinLego.texture.texId);
-					shader.last_tex_id = skinLego.texture.texId;
-				}
-			}
-			else 
-			{
-				//return;
-				if (magoManager.textureAux_1x1 !== undefined)
-				{
-					shader.enableVertexAttribArray(shader.texCoord2_loc);
-					gl.uniform1i(shader.colorType_loc, 2); // 0= oneColor, 1= attribColor, 2= texture.
-					gl.activeTexture(gl.TEXTURE2);
-					gl.bindTexture(gl.TEXTURE_2D, magoManager.textureAux_1x1);
-				}
-				else 
-				{
-					gl.uniform1i(shader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
-				}
-			}
-		}
-	}
-	else if (renderType === 2)
-	{
-		// Color selction mode.
-		var colorAux;
-		colorAux = magoManager.selectionColor.getAvailableColor(colorAux);
-		var idxKey = magoManager.selectionColor.decodeColor3(colorAux.r, colorAux.g, colorAux.b);
-		magoManager.selectionManager.setCandidates(idxKey, undefined, undefined, this, currentNode);
-		
-		gl.uniform1i(shader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
-		gl.uniform4fv(shader.oneColor4_loc, [colorAux.r/255.0, colorAux.g/255.0, colorAux.b/255.0, 1.0]);
-	}
-	
-	gl.uniform1i(shader.refMatrixType_loc, 0); // in this case, there are not referencesMatrix.
-	skinLego.render(magoManager, renderType, renderTexture, shader);
 };
 
 /**
@@ -52393,7 +52815,7 @@ NeoReference.prototype.solveReferenceColorOrTexture = function(magoManager, neoB
 	// Check if we are under a selected data structure.
 	var selectionManager = magoManager.selectionManager;
 	var referenceObjectIsSelected = false;
-	if (selectionManager.parentSelected && magoManager.objectSelected === this)
+	if (selectionManager.parentSelected && magoManager.selectionManager.getSelectedF4dObject() === this)
 	{
 		referenceObjectIsSelected = true;
 	}
@@ -52657,7 +53079,7 @@ NeoReference.prototype.render = function(magoManager, neoBuilding, renderType, r
 	{ 
 		if (!block.isReadyToRender(neoReference, magoManager, minSizeToRender))
 		{
-			if (magoManager.objectSelected !== neoReference)
+			if (magoManager.selectionManager.getSelectedF4dObject() !== neoReference)
 			{ return false; } 
 		}
 	}
@@ -54420,7 +54842,7 @@ Node.prototype.renderContent = function(magoManager, shader, renderType, refMatr
 	
 	// Check if we are under selected data structure.***
 	var selectionManager = magoManager.selectionManager;
-	if (magoManager.nodeSelected === this)
+	if (selectionManager.getSelectedF4dNode() === this)
 	{ selectionManager.parentSelected = true; }
 	else 
 	{ selectionManager.parentSelected = false; }
@@ -58500,11 +58922,9 @@ ProcessQueue.prototype.deleteNeoBuilding = function(gl, neoBuilding, magoManager
 {
 	// check if the neoBuilding id the selected building.
 	var vboMemoryManager = magoManager.vboMemoryManager;
-	if (neoBuilding === magoManager.buildingSelected)
+	if (neoBuilding === magoManager.selectionManager.getSelectedF4dBuilding())
 	{
-		magoManager.buildingSelected = undefined;
-		magoManager.octreeSelected = undefined;
-		magoManager.objectSelected = undefined;
+		magoManager.selectionManager.clearCurrents();
 	}
 	
 	neoBuilding.deleteObjects(gl, vboMemoryManager);
@@ -58822,7 +59242,7 @@ var ProjectTree = function()
  * 어떤 일을 하고 있습니까?
  * @class ReaderWriter
  */
-var ReaderWriter = function() 
+var ReaderWriter = function(policy) 
 {
 	if (!(this instanceof ReaderWriter)) 
 	{
@@ -58830,7 +59250,7 @@ var ReaderWriter = function()
 	}
 
 	//this.geometryDataPath = "/F4D_GeometryData";
-	var serverPolicy = MagoConfig.getPolicy();
+	var serverPolicy = policy;
 	if (serverPolicy !== undefined)
 	{ this.geometryDataPath = serverPolicy.geo_data_path; }
 	
@@ -59716,7 +60136,6 @@ ReaderWriter.prototype.getObjectIndexFileForSmartTile = function(fileName, magoM
 			var buildingSeedMap = new BuildingSeedMap();
 			buildingSeedMap.dataArrayBuffer = arrayBuffer;
 			buildingSeedMap.parseBuildingSeedArrayBuffer();
-
 			magoManager.makeSmartTile(buildingSeedMap, projectId);
 			arrayBuffer = null;
 		}
@@ -61087,8 +61506,11 @@ TinTerrain.prototype.isTexturePrepared = function(texturesMap)
 		var texture = texturesMap[textureKeys[i]];
 		if (texture.fileLoadState !== CODE.fileLoadState.LOADING_FINISHED || !texture.texId) 
 		{
+			//if (this.depth > this.tinTerrainManager.maxTextureGuranteedDepth)
+			//{
 			isTexturePrepared = false;
 			break;
+			//}
 		}
 	}
 	return isTexturePrepared;
@@ -61214,7 +61636,23 @@ TinTerrain.prototype.mergeTexturesToTextureMaster = function(gl, shader, texture
 			// bathymetry image.
 			var properties = texture.imagery.filter.properties;
 			gl.uniform2fv(shader.uMinMaxAltitudes_loc, new Float32Array([properties.minAltitude, properties.maxAltitude]));
-			gl.uniform2fv(shader.uMinMaxAltitudesBathymetryToGradient_loc, new Float32Array([properties.minAltitudeToGradient, properties.maxAltitudeToGradient]));
+			//gl.uniform2fv(shader.uMinMaxAltitudesBathymetryToGradient_loc, new Float32Array([properties.minAltitudeToGradient, properties.maxAltitudeToGradient]));
+			// set whiteToBlue gradient params.***
+			var stepGradient = properties.stepGradient;
+			if (stepGradient)
+			{
+				var stepsCount = stepGradient.length;
+				gl.uniform1fv(shader.uGradientSteps_loc, new Float32Array(stepGradient));
+				gl.uniform1i(shader.uGradientStepsCount_loc, stepsCount);
+			}
+			else
+			{
+				// gradient default 0m to -200m.***
+				var gradientSteps = new Float32Array([0.0, -200.0]);
+				var stepsCount = gradientSteps.length;
+				gl.uniform1fv(shader.uGradientSteps_loc, gradientSteps);
+				gl.uniform1i(shader.uGradientStepsCount_loc, stepsCount);
+			}
 		}
 	}
 
@@ -61551,22 +61989,18 @@ TinTerrain.prototype.getTextureForVectorMeshObject = function(objToClamp, gl, sh
 
 TinTerrain.prototype.bindTexture = function(gl, shader, currDepth)
 {
-	// Binding textureMaster.
-	var activeTexturesLayers = new Int32Array([1, 1, 0, 0, 1, 0, 0, 0]); // note: the 1rst & 2nd are shadowMap textures.
-	var externalAlphaLayers = new Float32Array([1, 1, 1, 1, 1, 1, 1, 1]); 
-	var useThisTex = true;
-
-	//if (this.depth < currDepth)
-	//{ useThisTex = true; }
-
-	if (this.textureMaster)// && useThisTex)// && this.textureMasterPrepared === true)
+	if (this.textureMaster)
 	{
+		// Binding textureMaster.
+		var activeTexturesLayers = new Int32Array([1, 1, 0, 0, 1, 0, 0, 0]); // note: the 1rst & 2nd are shadowMap textures.
+		var externalAlphaLayers = new Float32Array([1, 1, 1, 1, 1, 1, 1, 1]); 
+
 		gl.activeTexture(gl.TEXTURE4 + 0); 
 		gl.bindTexture(gl.TEXTURE_2D, this.textureMaster);
 
 		var geoExtentVec4 = this.geographicExtent.getExtentVec4();
-		gl.uniform4fv(shader.uTileGeoExtentOfBindedTextures_loc, geoExtentVec4); //[minLon, minLat, maxLon, maxLat].
-		gl.uniform1i(shader.uTileDepthOfBindedTextures_loc, this.depth);
+		gl.uniform4fv(shader.uTileGeoExtentOfBindedTextures_loc, new Float32Array(geoExtentVec4)); //[minLon, minLat, maxLon, maxLat].
+		gl.uniform1i(shader.uTileDepthOfBindedTextures_loc, new Int32Array([this.depth])[0]);
 
 		// bind filter textures (for example : Bathymetry).
 		var textureKeys = Object.keys(this.texture);
@@ -61723,242 +62157,65 @@ TinTerrain.prototype.prepareTinTerrainPlain = function(magoManager, tinTerrainMa
 	return true;
 };
 
-TinTerrain.prototype.prepareTinTerrain = function(magoManager, tinTerrainManager)
-{
-	// first, read terrainTiles-info.json
-	if (!this.tinTerrainManager.terrainReady) 
+TinTerrain.prototype.prepareTinTerrainForward = function(magoManager, tinTerrainManager)
+{	
+	var isPrepared = false;
+
+	if (this.depth <= this.tinTerrainManager.maxTextureGuranteedDepth)
 	{
-		return false;
+		isPrepared = this.isPrepared();
+	}
+	else
+	{
+		isPrepared = this.isMeshPrepared();
 	}
 
-	if (this.owner !== undefined && !this.owner.isMeshPrepared())// &&  this.owner.hasAnyChildVisible()))
+	if (isPrepared)
 	{
-
-		// Prepare ownerTinTerrain.
-		return this.owner.prepareTinTerrain(magoManager, tinTerrainManager);
-	}
-
-	/*
-	if (!this.isVisible())
-	{
-		if (this.owner.isVisible())
+		// prepare children.***
+		if (!this.isLeaf && this.childMap)
 		{
-			return this.owner.prepareTinTerrain(magoManager, tinTerrainManager);
-		}
-	
-		return false;
-	}*/
-
-	// This function 1- loads file & 2- parses file & 3- makes vbo.
-	// 1rst, check if the parent is prepared. If parent is not prepared, then prepare the parent.
-	
-	// 1rst, try to erase from procesQueue_deleting if exist.
-	magoManager.processQueue.eraseTinTerrainToDelete(this);
-		
-	// Prepare this tinTerrain.
-	if (this.fileLoadState === CODE.fileLoadState.READY)
-	{
-		if (magoManager.fileRequestControler.tinTerrainFilesRequested > 5)
-		{ return false; }
-		
-		//해당 터레인 xyz를 terrainInfo와 비교하여 유효한 파일이면 통과, 아닐시 plain으로 처리
-		if (!this.checkAvailableTerrain()) 
-		{
-			this.fileLoadState = CODE.fileLoadState.LOAD_FAILED;
-			return false;
+			this.childMap.LU.prepareTinTerrainForward(magoManager, tinTerrainManager);
+			this.childMap.LD.prepareTinTerrainForward(magoManager, tinTerrainManager);
+			this.childMap.RU.prepareTinTerrainForward(magoManager, tinTerrainManager);
+			this.childMap.RD.prepareTinTerrainForward(magoManager, tinTerrainManager);
 		}
 
-		var pathName = this.getPathName();
-		var geometryDataPath = magoManager.readerWriter.geometryDataPath;
-		//var fileName = geometryDataPath + "/Terrain/" + pathName + ".terrain";
-
-		var fileName = this.tinTerrainManager.terrainValue + pathName + ".terrain";
-		magoManager.readerWriter.loadTINTerrain(fileName, this, magoManager);
-			
-		return false;
-	}
-	else if (this.fileLoadState === CODE.fileLoadState.LOADING_FINISHED)
-	{
-		// put the terrain into parseQueue.
-		magoManager.parseQueue.putTinTerrainToParse(this, 0);
-		return false;
-	}
-	else if (this.fileLoadState === CODE.fileLoadState.PARSE_STARTED) 
-	{
-		var parsedTerrainMap = tinTerrainManager.textureParsedTerrainMap;
-		var z = this.depth;
-		var x = this.X;
-		var y = this.Y;
-		if (!parsedTerrainMap[z]) { return; }
-		if (!parsedTerrainMap[z][x]) { return; }
-		if (!parsedTerrainMap[z][x][y]) { return; }
-
-		var result = parsedTerrainMap[z][x][y];
-
-		this.centerX = result.centerX;
-		this.centerY = result.centerY;
-		this.centerZ = result.centerZ;
-			
-		this.minHeight = result.minHeight;
-		this.maxHeight = result.maxHeight;
-			
-		// In this moment set the altitudes for the geographicExtension.
-		this.geographicExtent.setExtent(undefined, undefined, this.minHeight[0], undefined, undefined, this.maxHeight[0]);
-			
-		this.boundingSphereCenterX = result.boundingSphereCenterX;
-		this.boundingSphereCenterY = result.boundingSphereCenterY;
-		this.boundingSphereCenterZ = result.boundingSphereCenterZ;
-		this.boundingSphereRadius = result.boundingSphereRadius;
-			
-		this.horizonOcclusionPointX = result.horizonOcclusionPointX;
-		this.horizonOcclusionPointY = result.horizonOcclusionPointY;
-		this.horizonOcclusionPointZ = result.horizonOcclusionPointZ;
-			
-		// 2. vertex data.
-		this.vertexCount = result.vertexCount;
-		this.uValues = result.uValues;
-		this.vValues = result.vValues;
-		this.hValues = result.hValues;
-			
-		// 3. indices.
-		this.trianglesCount = result.trianglesCount;
-		this.indices = result.indices;
-			
-		// 4. edges indices.
-		this.westVertexCount = result.westVertexCount;
-		this.westIndices = result.westIndices;
-			
-		this.southVertexCount = result.southVertexCount;
-		this.southIndices = result.southIndices;
-			
-		this.eastVertexCount = result.eastVertexCount; 
-		this.eastIndices = result.eastIndices;
-			
-		this.northVertexCount = result.northVertexCount;
-		this.northIndices = result.northIndices;
-
-		// 5. extension header.
-		this.extensionId = result.extensionId;
-		this.extensionLength = result.extensionLength;
-			
-		this.fileLoadState = CODE.fileLoadState.PARSE_FINISHED;
-		delete this.tinTerrainManager.textureParsedTerrainMap[z][x][y];
-
-		return false;
-	}
-	else if (this.fileLoadState === CODE.fileLoadState.PARSE_FINISHED && this.vboKeyContainer === undefined)
-	{
-		if (!this.requestDecodeData) 
+		// Test making textureMaster.
+		// If there are 2 or more layers, then must create textureMaster.
+		// Check if tinTerrain is syncronized with this.tinTerrainManager.
+		if (this.layersStyleId !== this.tinTerrainManager.layersStyleId)
 		{ 
-			this.decodeData(tinTerrainManager.imageryType); 
-			return false;
+			this.textureMasterImageryLayersPrepared = undefined; 
+			this.textureMasterPrepared = undefined; 
 		}
-			
-		var z = this.depth;
-		var x = this.X;
-		var y = this.Y;
-		var decodedTerrainMap = tinTerrainManager.textureDecodedTerrainMap;
-		if (!decodedTerrainMap[z]) { return false; }
-		if (!decodedTerrainMap[z][x]) { return false; }
-		if (!decodedTerrainMap[z][x][y]) { return false; }
 
-		var result = decodedTerrainMap[z][x][y];
+		//if (this.objToClampToTerrainStyleId !== this.tinTerrainManager.objToClampToTerrainStyleId)
+		//{ 
+		//	this.textureMasterPrepared = undefined; 
+		//}
 
-		this.texCoordsArray = result.texCoordsArray;
-		this.cartesiansArray = result.cartesiansArray;
-		this.skirtCartesiansArray = result.skirtCartesiansArray;
-		this.skirtTexCoordsArray = result.skirtTexCoordsArray;
-		this.skirtAltitudesArray = result.skirtAltitudesArray;
-		this.altArray = result.altArray;
-		this.normalsArray = result.normalsArray;
-		this.lonArray = result.longitudesArray;
-		this.latArray = result.latitudesArray;
-
-		delete this.tinTerrainManager.textureDecodedTerrainMap[z][x][y];
-		this.makeVbo(magoManager.vboMemoryManager);
-
-		// Make sea mesh too.
-		this.makeSeaMeshVirtually(undefined);
-		this.makeVboSea(magoManager.vboMemoryManager);
-		return false;
-	}
-	else if (!this.isTexturePrepared(this.texture))
-	{
-		if (this.depth <= tinTerrainManager.maxTextureGuranteedDepth)
+		if (!this.textureMasterPrepared && this.isTexturePrepared(this.texture))
 		{
-			this.prepareTexture(this.texture, tinTerrainManager.imagerys, magoManager, tinTerrainManager);
+			this.makeTextureMaster();
 		}
-		return false;
 	}
-	
-	if (this.fileLoadState === CODE.fileLoadState.LOAD_FAILED)
+	else
 	{
-		// Test.***
-		return this.prepareTinTerrainPlain(magoManager, tinTerrainManager);
-		//return false;
-		// End test.---
-	}
-
-	// Test making textureMaster.
-	// If there are 2 or more layers, then must create textureMaster.
-	// Check if tinTerrain is syncronized with this.tinTerrainManager.
-	if (this.layersStyleId !== this.tinTerrainManager.layersStyleId)
-	{ 
-		this.textureMasterImageryLayersPrepared = undefined; 
-		this.textureMasterPrepared = undefined; 
-	}
-
-	//if (this.objToClampToTerrainStyleId !== this.tinTerrainManager.objToClampToTerrainStyleId)
-	//{ 
-	//	this.textureMasterPrepared = undefined; 
-	//}
-
-	if (!this.textureMasterPrepared && this.isTexturePrepared(this.texture))
-	{
-		this.makeTextureMaster();
-	}
-
-
-		
-	if (this.owner !== undefined && !this.owner.isPrepared())// &&  this.owner.hasAnyChildVisible()))
-	{
-
-		// Prepare ownerTinTerrain.
-		//return this.owner.prepareTinTerrain(magoManager, tinTerrainManager);
-	}
-
-	return true;
-};
-
-TinTerrain.prototype.prepareTinTerrain__original = function(magoManager, tinTerrainManager)
-{
-	// first, read terrainTiles-info.json
-	if (!this.tinTerrainManager.terrainReady) 
-	{
-		return false;
-	}
-
-	/*
-	if (!this.isVisible())
-	{
-		if (this.owner.isVisible())
-		{
-			return this.owner.prepareTinTerrain(magoManager, tinTerrainManager);
-		}
-	
-		return false;
-	}*/
-
-	// This function 1- loads file & 2- parses file & 3- makes vbo.
-	// 1rst, check if the parent is prepared. If parent is not prepared, then prepare the parent.
-	if (this.owner === undefined || (this.owner.isPrepared() &&  this.owner.hasAnyChildVisible()))
-	{
-		// 1rst, try to erase from procesQueue_deleting if exist.
+		// prepare this tile.***
 		magoManager.processQueue.eraseTinTerrainToDelete(this);
+
+		if (this.fileLoadState === CODE.fileLoadState.LOAD_FAILED)
+		{
+			return this.prepareTinTerrainPlain(magoManager, tinTerrainManager);
+		}
 		
 		// Prepare this tinTerrain.
 		if (this.fileLoadState === CODE.fileLoadState.READY)
 		{
+			if (magoManager.fileRequestControler.tinTerrainFilesRequested > 5)
+			{ return false; }
+			
 			//해당 터레인 xyz를 terrainInfo와 비교하여 유효한 파일이면 통과, 아닐시 plain으로 처리
 			if (!this.checkAvailableTerrain()) 
 			{
@@ -61972,7 +62229,7 @@ TinTerrain.prototype.prepareTinTerrain__original = function(magoManager, tinTerr
 
 			var fileName = this.tinTerrainManager.terrainValue + pathName + ".terrain";
 			magoManager.readerWriter.loadTINTerrain(fileName, this, magoManager);
-			
+				
 			return false;
 		}
 		else if (this.fileLoadState === CODE.fileLoadState.LOADING_FINISHED)
@@ -61996,49 +62253,49 @@ TinTerrain.prototype.prepareTinTerrain__original = function(magoManager, tinTerr
 			this.centerX = result.centerX;
 			this.centerY = result.centerY;
 			this.centerZ = result.centerZ;
-			
+				
 			this.minHeight = result.minHeight;
 			this.maxHeight = result.maxHeight;
-			
+				
 			// In this moment set the altitudes for the geographicExtension.
 			this.geographicExtent.setExtent(undefined, undefined, this.minHeight[0], undefined, undefined, this.maxHeight[0]);
-			
+				
 			this.boundingSphereCenterX = result.boundingSphereCenterX;
 			this.boundingSphereCenterY = result.boundingSphereCenterY;
 			this.boundingSphereCenterZ = result.boundingSphereCenterZ;
 			this.boundingSphereRadius = result.boundingSphereRadius;
-			
+				
 			this.horizonOcclusionPointX = result.horizonOcclusionPointX;
 			this.horizonOcclusionPointY = result.horizonOcclusionPointY;
 			this.horizonOcclusionPointZ = result.horizonOcclusionPointZ;
-			
+				
 			// 2. vertex data.
 			this.vertexCount = result.vertexCount;
 			this.uValues = result.uValues;
 			this.vValues = result.vValues;
 			this.hValues = result.hValues;
-			
+				
 			// 3. indices.
 			this.trianglesCount = result.trianglesCount;
 			this.indices = result.indices;
-			
+				
 			// 4. edges indices.
 			this.westVertexCount = result.westVertexCount;
 			this.westIndices = result.westIndices;
-			
+				
 			this.southVertexCount = result.southVertexCount;
 			this.southIndices = result.southIndices;
-			
+				
 			this.eastVertexCount = result.eastVertexCount; 
 			this.eastIndices = result.eastIndices;
-			
+				
 			this.northVertexCount = result.northVertexCount;
 			this.northIndices = result.northIndices;
 
 			// 5. extension header.
 			this.extensionId = result.extensionId;
 			this.extensionLength = result.extensionLength;
-			
+				
 			this.fileLoadState = CODE.fileLoadState.PARSE_FINISHED;
 			delete this.tinTerrainManager.textureParsedTerrainMap[z][x][y];
 
@@ -62051,7 +62308,7 @@ TinTerrain.prototype.prepareTinTerrain__original = function(magoManager, tinTerr
 				this.decodeData(tinTerrainManager.imageryType); 
 				return false;
 			}
-			
+				
 			var z = this.depth;
 			var x = this.X;
 			var y = this.Y;
@@ -62082,38 +62339,43 @@ TinTerrain.prototype.prepareTinTerrain__original = function(magoManager, tinTerr
 		}
 		else if (!this.isTexturePrepared(this.texture))
 		{
-			this.prepareTexture(this.texture, tinTerrainManager.imagerys, magoManager, tinTerrainManager);
+			if (this.depth <= tinTerrainManager.maxTextureGuranteedDepth)
+			{
+				this.prepareTexture(this.texture, tinTerrainManager.imagerys, magoManager, tinTerrainManager);
+			}
 			return false;
 		}
-		else if (this.fileLoadState === CODE.fileLoadState.LOAD_FAILED)
-		{
-			// Test.***
-			return this.prepareTinTerrainPlain(magoManager, tinTerrainManager);
-			//return false;
-			// End test.---
-		}
+		
+		
 
 		// Test making textureMaster.
 		// If there are 2 or more layers, then must create textureMaster.
 		// Check if tinTerrain is syncronized with this.tinTerrainManager.
+		/*
 		if (this.layersStyleId !== this.tinTerrainManager.layersStyleId)
 		{ 
+			this.textureMasterImageryLayersPrepared = undefined; 
 			this.textureMasterPrepared = undefined; 
 		}
 
-		if (this.textureMasterPrepared === undefined && this.isTexturePrepared(this.texture))
+		//if (this.objToClampToTerrainStyleId !== this.tinTerrainManager.objToClampToTerrainStyleId)
+		//{ 
+		//	this.textureMasterPrepared = undefined; 
+		//}
+
+		if (!this.textureMasterPrepared && this.isTexturePrepared(this.texture))
 		{
 			this.makeTextureMaster();
 		}
-
-
-		return true;
+		*/
 	}
-	else
-	{
-		// Prepare ownerTinTerrain.
-		return this.owner.prepareTinTerrain(magoManager, tinTerrainManager);
-	}
+
+	
+	
+	
+	
+	
+	return true;
 };
 
 TinTerrain.prototype.prepareTinTerrainRealTimeElevation = function(magoManager, tinTerrainManager)
@@ -62370,10 +62632,10 @@ TinTerrain.prototype.renderForward = function(currentShader, magoManager, bDepth
 		gl.uniform3fv(currentShader.buildingPosHIGH_loc, this.terrainPositionHIGH);
 		gl.uniform3fv(currentShader.buildingPosLOW_loc, this.terrainPositionLOW);
 			
-		gl.uniform1i(currentShader.uTileDepth_loc, this.depth);
+		gl.uniform1i(currentShader.uTileDepth_loc, new Int32Array([this.depth])[0]);
 		gl.uniform1i(currentShader.uSeaOrTerrainType_loc, 0); // 0= terrain. 1= ocean.
 		var geoExtentVec4 = this.geographicExtent.getExtentVec4();
-		gl.uniform4fv(currentShader.uTileGeoExtent_loc, geoExtentVec4); //[minLon, minLat, maxLon, maxLat].
+		gl.uniform4fv(currentShader.uTileGeoExtent_loc, new Float32Array(geoExtentVec4)); //[minLon, minLat, maxLon, maxLat].
 			
 			
 			
@@ -62428,7 +62690,7 @@ TinTerrain.prototype.renderForward = function(currentShader, magoManager, bDepth
 			{ this.owner.render(currentShader, magoManager, bDepth, renderType, succesfullyRenderedTilesArray); }
 			return false; 
 		}
-			
+		var selectionManager = magoManager.selectionManager;
 		var indicesCount = vboKey.indicesCount;
 			
 		//var currSelObject = magoManager.selectionManager.getSelectedGeneral();
@@ -62444,9 +62706,12 @@ TinTerrain.prototype.renderForward = function(currentShader, magoManager, bDepth
 			}
 			else
 			{
-				var currSelObject = magoManager.selectionManager.getSelectedGeneral();
-				if (currSelObject !== this)
-				{ gl.drawElements(gl.TRIANGLES, indicesCount, gl.UNSIGNED_SHORT, 0); } // Fill.
+				if (selectionManager)
+				{
+					var currSelObject = selectionManager.getSelectedGeneral();
+					if (currSelObject !== this)
+					{ gl.drawElements(gl.TRIANGLES, indicesCount, gl.UNSIGNED_SHORT, 0); } // Fill.
+				}
 			}
 		}
 			
@@ -62456,34 +62721,38 @@ TinTerrain.prototype.renderForward = function(currentShader, magoManager, bDepth
 		this.intersectionType = Constant.INTERSECTION_OUTSIDE;
 			
 		// Test Render wireframe if selected.*************************************************************
-			
+		
 		if (renderType === 1)
 		{
 			gl.uniform1i(currentShader.colorType_loc, 2); // 0= oneColor, 1= attribColor, 2= texture.
-			var currSelObject = magoManager.selectionManager.getSelectedGeneral();
-			if (currSelObject === this)
+		
+			if (selectionManager)
 			{
-				gl.uniform1i(currentShader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
-				gl.uniform4fv(currentShader.oneColor4_loc, [0.0, 0.9, 0.9, 1.0]);
-					
-				gl.drawElements(gl.LINES, indicesCount-1, gl.UNSIGNED_SHORT, 0); 
-					
-				//if (this.tinTerrainManager.getTerrainType() === 0)
-				//{
-				//	gl.drawElements(gl.LINE_STRIP, indicesCount-1, gl.UNSIGNED_SHORT, 0); 
-				//}
-				//else 
-				//{
-				//var trianglesCount = indicesCount;
-				//for (var i=0; i<trianglesCount-1; i++)
-				//{
-				//	gl.drawElements(gl.LINE_LOOP, 3, gl.UNSIGNED_SHORT, i*3); 
-				//}
-				//}
-					
-				this.drawTerrainName(magoManager);
+				var currSelObject = selectionManager.getSelectedGeneral();
+				if (currSelObject === this)
+				{
+					gl.uniform1i(currentShader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
+					gl.uniform4fv(currentShader.oneColor4_loc, [0.0, 0.9, 0.9, 1.0]);
+						
+					gl.drawElements(gl.LINES, indicesCount-1, gl.UNSIGNED_SHORT, 0); 
+						
+					//if (this.tinTerrainManager.getTerrainType() === 0)
+					//{
+					//	gl.drawElements(gl.LINE_STRIP, indicesCount-1, gl.UNSIGNED_SHORT, 0); 
+					//}
+					//else 
+					//{
+					//var trianglesCount = indicesCount;
+					//for (var i=0; i<trianglesCount-1; i++)
+					//{
+					//	gl.drawElements(gl.LINE_LOOP, 3, gl.UNSIGNED_SHORT, i*3); 
+					//}
+					//}
+						
+					this.drawTerrainName(magoManager);
+				}
+				//this.drawTerrainName(magoManager); // test. delete.
 			}
-			//this.drawTerrainName(magoManager); // test. delete.
 		}
 		// End test.--------------------------------------------------------------------------------------
 			
@@ -62517,14 +62786,16 @@ TinTerrain.prototype.renderForward = function(currentShader, magoManager, bDepth
 		//	gl.uniform1i(currentShader.bExistAltitudes_loc, false);
 		//}
 		gl.uniform1i(currentShader.bApplySsao_loc, false); // no apply ssao on skirt.***
-
-		var currSelObject = magoManager.selectionManager.getSelectedGeneral();
-		if (currSelObject !== this)// && renderType !== 0)
-		{ 
-			//gl.depthRange(0.5, 1);
-			gl.drawArrays(gl.TRIANGLE_STRIP, 0, vboKey.vertexCount); 
-			//gl.depthRange(0, 1);
-		} 
+		if (selectionManager)
+		{
+			var currSelObject = selectionManager.getSelectedGeneral();
+			if (currSelObject !== this)// && renderType !== 0)
+			{ 
+				//gl.depthRange(0.5, 1);
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, vboKey.vertexCount); 
+				//gl.depthRange(0, 1);
+			} 
+		}
 
 		this.renderingFase = this.tinTerrainManager.renderingFase;
 	}
@@ -64061,7 +64332,7 @@ TinTerrain.prototype.decodeData = function(imageryType)
 	var tinTerrainManager = this.tinTerrainManager;
 	if (!this.tinTerrainManager.workerDecodedTerrain) 
 	{ 
-		this.tinTerrainManager.workerDecodedTerrain = new Worker(MagoConfig.scriptRootPath + 'Worker/workerDecodeTerrain.js'); 
+		this.tinTerrainManager.workerDecodedTerrain = new Worker(this.tinTerrainManager.magoManager.config.scriptRootPath + 'Worker/workerDecodeTerrain.js'); 
 		this.tinTerrainManager.workerDecodedTerrain.onmessage = function(e)
 		{
 			var tileInfo = e.data.info;
@@ -64109,7 +64380,7 @@ TinTerrain.prototype.parseData = function(dataArrayBuffer)
 	this.fileLoadState = CODE.fileLoadState.PARSE_STARTED;
 	if (!this.tinTerrainManager.workerParseTerrain) 
 	{ 
-		this.tinTerrainManager.workerParseTerrain = new Worker(MagoConfig.scriptRootPath + 'Worker/workerParseTerrain.js'); 
+		this.tinTerrainManager.workerParseTerrain = new Worker(this.tinTerrainManager.magoManager.config.scriptRootPath + 'Worker/workerParseTerrain.js'); 
 		this.tinTerrainManager.workerParseTerrain.onmessage = function(e)
 		{
 			var tileInfo = e.data.info;
@@ -64209,7 +64480,7 @@ var TinTerrainManager = function(magoManager, options)
 	// terrainType = 'plain' -> terrainPlainModel. CODE.magoEarthTerrainType.PLAIN
 	// terrainType = 'elevation' -> terrainElevationModel. CODE.magoEarthTerrainType.ELEVATION
 	// terrainType = 'realtime' -> real time terrainElevationModel. CODE.magoEarthTerrainType.REALTIME
-	var policy = MagoConfig.getPolicy();
+	var policy = magoManager.config.getPolicy();
 	this.terrainType = defaultValue(policy.terrainType, CODE.magoEarthTerrainType.PLAIN);
 	this.terrainValue = policy.terrainValue;
 	this.terrainReady = false;
@@ -64274,7 +64545,7 @@ var TinTerrainManager = function(magoManager, options)
 	this.objectsToClampToTerrainArray;
 
 	// Max textureGuaranteedDepth.
-	this.maxTextureGuranteedDepth = 5;
+	this.maxTextureGuranteedDepth = 1;
 
 	this.init();
 	this.makeTinTerrainWithDEMIndex(); // provisional.
@@ -64796,75 +65067,42 @@ TinTerrainManager.prototype.prepareVisibleTinTerrains = function(magoManager)
 
 	if (!this.visibleTilesArrayMap)
 	{ return; }
-	
+
+	if (this.tinTerrainQuadTreeMercator.childMap)
+	{
+		if (this.tinTerrainQuadTreeMercator.childMap.LU) { this.tinTerrainQuadTreeMercator.childMap.LU.prepareTinTerrainForward(magoManager, this); }
+		if (this.tinTerrainQuadTreeMercator.childMap.LD) { this.tinTerrainQuadTreeMercator.childMap.LD.prepareTinTerrainForward(magoManager, this); }
+		if (this.tinTerrainQuadTreeMercator.childMap.RU) { this.tinTerrainQuadTreeMercator.childMap.RU.prepareTinTerrainForward(magoManager, this); }
+		if (this.tinTerrainQuadTreeMercator.childMap.RD) { this.tinTerrainQuadTreeMercator.childMap.RD.prepareTinTerrainForward(magoManager, this); }
+	}
+	//return;
+
 	// For the visible tinTerrains prepare its.
 	// Preparing rule: First prepare the tinTerrain-owner if the owner is no prepared yet.
 	//for (var depth = 0; depth <= this.maxDepth; depth++) 
 	for (var depth = 0; depth <= this.maxDepth; depth++) 
 	{
-		if (magoManager.fileRequestControler.tinTerrainFilesRequested >= 6)// || magoManager.fileRequestControler.tinTerrainTexturesRequested >= 2)
-		{ break; }
-
-		var visibleTilesArray = this.visibleTilesArrayMap[depth];
-		if (visibleTilesArray && visibleTilesArray.length > 0)
+			
+		// 2nd, for all terrains that exist, if there are not in the visiblesMap, then delete its.
+		// Deleting rule: If a tinTerrain has children, then delete first the children.
+		var deletedCount = 0;
+		var noVisiblesTilesCount = this.noVisibleTilesArray.length;
+		for (var i=0; i<noVisiblesTilesCount; i++)
 		{
-			//*********************************************************
-			var visiblesTilesCount = visibleTilesArray.length;
-			if (this.terrainType === CODE.magoEarthTerrainType.PLAIN) // PlainTerrain.
+			tinTerrain = this.noVisibleTilesArray[i];
+			if (tinTerrain !== undefined)
 			{
-				for (var i=0; i<visiblesTilesCount; i++)
+				if (tinTerrain.depth > 2)
 				{
-					tinTerrain = visibleTilesArray[i];
-					tinTerrain.prepareTinTerrainPlain(magoManager, this);
-				}
-			}
-			else if (this.terrainType === CODE.magoEarthTerrainType.ELEVATION)// ElevationTerrain.
-			{
-				var maxProcessCounter = 0;
-				for (var i=0; i<visiblesTilesCount; i++)
-				{
-					tinTerrain = visibleTilesArray[i];
-					{
-						if (!tinTerrain.prepareTinTerrain(magoManager, this))
-						{ maxProcessCounter += 1; }
-					}
-				}
-			}
-			else if (this.terrainType === CODE.magoEarthTerrainType.REALTIME)// Real time ElevationTerrain.
-			{
-				var maxProcessCounter = 0;
-				for (var i=0; i<visiblesTilesCount; i++)
-				{
-					tinTerrain = visibleTilesArray[i];
-					if (!tinTerrain.prepareTinTerrainRealTimeElevation(magoManager, this))
-					{ maxProcessCounter += 1; }
-				
-					if (maxProcessCounter > 5)
-					{ break; }
+					tinTerrain.deleteTinTerrain(magoManager);
+					deletedCount++;
 				}
 			}
 			
-			// 2nd, for all terrains that exist, if there are not in the visiblesMap, then delete its.
-			// Deleting rule: If a tinTerrain has children, then delete first the children.
-			var deletedCount = 0;
-			var noVisiblesTilesCount = this.noVisibleTilesArray.length;
-			for (var i=0; i<visiblesTilesCount; i++)
-			{
-				tinTerrain = this.noVisibleTilesArray[i];
-				if (tinTerrain !== undefined)
-				{
-					if (tinTerrain.depth > 2)
-					{
-						tinTerrain.deleteTinTerrain(magoManager);
-						deletedCount++;
-					}
-				}
-				
-				if (deletedCount > 50)
-				{ break; }
-			}
-			//---------------------------------------------------------
+			if (deletedCount > 50)
+			{ break; }
 		}
+		
 	}
 };
 
@@ -64937,87 +65175,6 @@ TinTerrainManager.prototype.prepareVisibleTinTerrainsTextures = function(magoMan
 
 };
 
-
-/**
- * Prepare tinTerrains.
- */
-TinTerrainManager.prototype.prepareVisibleTinTerrains__original = function(magoManager) 
-{
-	var tinTerrain;
-	
-	// For the visible tinTerrains prepare its.
-	// Preparing rule: First prepare the tinTerrain-owner if the owner is no prepared yet.
-	for (var depth = 0; depth <= this.maxDepth; depth++) 
-	{
-		if (magoManager.fileRequestControler.tinTerrainFilesRequested >= 4 || magoManager.fileRequestControler.tinTerrainTexturesRequested >= 2)
-		{ break; }
-
-		var visibleTilesArray = this.visibleTilesArrayMap[depth];
-		if (visibleTilesArray && visibleTilesArray.length > 0)
-		{
-			//*********************************************************
-			var visiblesTilesCount = visibleTilesArray.length;
-			if (this.terrainType === CODE.magoEarthTerrainType.PLAIN) // PlainTerrain.
-			{
-				for (var i=0; i<visiblesTilesCount; i++)
-				{
-					tinTerrain = visibleTilesArray[i];
-					tinTerrain.prepareTinTerrainPlain(magoManager, this);
-				}
-			}
-			else if (this.terrainType === CODE.magoEarthTerrainType.ELEVATION)// ElevationTerrain.
-			{
-				var maxProcessCounter = 0;
-				for (var i=0; i<visiblesTilesCount; i++)
-				{
-					tinTerrain = visibleTilesArray[i];
-					if (!tinTerrain.prepareTinTerrain(magoManager, this))
-					{ maxProcessCounter += 1; }
-
-				}
-			}
-			else if (this.terrainType === CODE.magoEarthTerrainType.REALTIME)// Real time ElevationTerrain.
-			{
-				var maxProcessCounter = 0;
-				for (var i=0; i<visiblesTilesCount; i++)
-				{
-					tinTerrain = visibleTilesArray[i];
-					if (!tinTerrain.prepareTinTerrainRealTimeElevation(magoManager, this))
-					{ maxProcessCounter += 1; }
-				
-					if (maxProcessCounter > 5)
-					{ break; }
-				}
-			}
-			
-			// 2nd, for all terrains that exist, if there are not in the visiblesMap, then delete its.
-			// Deleting rule: If a tinTerrain has children, then delete first the children.
-			var deletedCount = 0;
-			var noVisiblesTilesCount = this.noVisibleTilesArray.length;
-			for (var i=0; i<visiblesTilesCount; i++)
-			{
-				tinTerrain = this.noVisibleTilesArray[i];
-				if (tinTerrain !== undefined)
-				{
-					if (tinTerrain.depth > 2)
-					{
-						tinTerrain.deleteTinTerrain(magoManager);
-						deletedCount++;
-					}
-				}
-				
-				if (deletedCount > 50)
-				{ break; }
-			}
-			//---------------------------------------------------------
-		}
-
-		
-	}
-
-	//this.prepareObjectToClampToTerrain();
-};
-
 TinTerrainManager.prototype.getAltitudes = function(geoCoordsArray, resultGeoCoordsArray) 
 {
 	var geoCoordsCount = geoCoordsArray.length;
@@ -65038,6 +65195,15 @@ TinTerrainManager.prototype.render = function(magoManager, bDepth, renderType, s
 	{ currentShader = shader; }
 	else
 	{ currentShader = magoManager.postFxShadersManager.getShader("tinTerrain"); }
+
+	if (renderType === 0)
+	{ var hola = 0; }
+
+	if (renderType === 1)
+	{ var hola = 0; }
+
+	if (renderType === 2)
+	{ var hola = 0; }
 	
 	currentShader.resetLastBuffersBinded();
 	magoManager.postFxShadersManager.useProgram(currentShader);
@@ -65050,6 +65216,7 @@ TinTerrainManager.prototype.render = function(magoManager, bDepth, renderType, s
 	//gl.disableVertexAttribArray(currentShader.color4_loc);
 	
 	currentShader.bindUniformGenerals();
+
 	
 	
 	magoManager.test__makingTerrainByAltitudesImage = 0;
@@ -65181,7 +65348,6 @@ TinTerrainManager.prototype.render = function(magoManager, bDepth, renderType, s
 		gl.uniform1i(currentShader.bApplySpecularLighting_loc, false);
 		gl.uniform1i(currentShader.uRenderType_loc, 2);
 	}
-	
 
 	
 	var succesfullyRenderedTilesArray = [];
@@ -65233,7 +65399,7 @@ TinTerrainManager.prototype.render = function(magoManager, bDepth, renderType, s
 	currentShader.disableVertexAttribArray(currentShader.position3_loc); 
 	currentShader.disableVertexAttribArray(currentShader.normal3_loc); 
 	currentShader.disableVertexAttribArray(currentShader.color4_loc); 
-	gl.useProgram(null);
+	magoManager.postFxShadersManager.useProgram(null);
 
 	this.renderingFase +=1;
 	if (this.renderingFase > 1000000)
@@ -65312,6 +65478,1584 @@ TinTerrainManager.prototype.clearMap = function(id)
 
 	this.imageryLayersChanged();
 };
+'use strict';
+
+/**
+ * This is the interaction for draw geometry.
+ * @constructor
+ * @class AbsClickInteraction
+ * 
+ * @abstract
+ * @param {object} option layer object.
+ */
+var AbsClickInteraction = function(option) 
+{
+	if (!(this instanceof AbsClickInteraction)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	option = option ? option : {};
+	Interaction.call(this);
+	
+	if (option.handleDownEvent)
+	{
+		this.handleDownEvent = option.handleDownEvent;
+	}
+
+	if (option.handleUpEvent)
+	{
+		this.handleUpEvent = option.handleUpEvent;
+	}
+    
+	if (option.handleMoveEvent)
+	{
+		this.handleMoveEvent = option.handleMoveEvent;
+	}
+
+	this.begin = false;
+	this.startPoint = undefined;
+	this.startTime;
+	this.endPoint = undefined;
+
+	this.tolerance = 0;
+};
+AbsClickInteraction.prototype = Object.create(Interaction.prototype);
+AbsClickInteraction.prototype.constructor = AbsClickInteraction;
+
+/**
+ * interaction init
+ */
+AbsClickInteraction.prototype.init = function() 
+{
+	this.begin = false;
+	this.startPoint = undefined;
+	this.endPoint = undefined;
+};
+/**
+ * set active. set true, this interaction active, another interaction deactive.
+ * @param {boolean} active
+ * @fires AbsClickInteraction#ACTIVE
+ * @fires AbsClickInteraction#DEACTIVE
+ */
+AbsClickInteraction.prototype.setActive = function(active) 
+{
+	if (!this.manager || !(this.manager instanceof MagoManager)) 
+	{
+		throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
+	}
+
+	if (this.active === active) { return; }
+    
+	this.active = active;
+	if (active) 
+	{
+		//this.manager.interactionCollection.emit(InteractionCollection.EVENT_TYPE.ACTIVE, that);
+		this.emit(this.constructor.EVENT_TYPE.ACTIVE, this);
+	}
+	else 
+	{
+		//this.manager.interactionCollection.emit(InteractionCollection.EVENT_TYPE.DEACTIVE);
+		this.emit(this.constructor.EVENT_TYPE.DEACTIVE);
+	}
+};
+
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+AbsClickInteraction.prototype.handle = function(browserEvent) 
+{
+	var type = browserEvent.type;
+	if (!(type === MagoManager.EVENT_TYPE.MOUSEMOVE || type === MagoManager.EVENT_TYPE.LEFTDOWN || type === MagoManager.EVENT_TYPE.RIGHTDOWN || type === MagoManager.EVENT_TYPE.MIDDLEDOWN || type === MagoManager.EVENT_TYPE.LEFTUP || type === MagoManager.EVENT_TYPE.RIGHTUP || type === MagoManager.EVENT_TYPE.MIDDLEUP))
+	{
+		return false;
+	}
+	if (this.begin && type !== MagoManager.EVENT_TYPE.MOUSEMOVE)
+	{
+		this.begin = false;
+		this.dragtype = undefined;
+		this.endPoint = browserEvent.point;
+
+		if ((browserEvent.timestamp - this.startTime) < 1500)
+		{
+			var startScreenCoordinate = this.startPoint.screenCoordinate;
+			var endScreenCoordinate = this.endPoint.screenCoordinate;
+
+			var diffX = Math.abs(startScreenCoordinate.x - endScreenCoordinate.x);
+			var diffY = Math.abs(startScreenCoordinate.y - endScreenCoordinate.y);
+
+			if (diffX <= this.tolerance && diffY  <= this.tolerance)
+			{
+				var that = this;
+				this.manager.once('lastFrustum', function() 
+				{
+					that.handleUpEvent.call(that, browserEvent);
+				});
+			}
+		}
+	}
+	else 
+	{
+		if (type === MagoManager.EVENT_TYPE.MOUSEMOVE)
+		{
+			this.handleMoveEvent.call(this, browserEvent);
+		}
+		else
+		{
+			this.begin = true;
+			this.startPoint = browserEvent.point;
+			this.startTime = browserEvent.timestamp;
+
+			this.handleDownEvent.call(this, browserEvent);
+		}
+	}
+};
+
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+AbsClickInteraction.prototype.handleDownEvent = function(browserEvent)
+{
+	return abstract();
+};
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+AbsClickInteraction.prototype.handleUpEvent = function(browserEvent)
+{
+	return abstract();
+};
+
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+AbsClickInteraction.prototype.handleMoveEvent = function(browserEvent)
+{
+	return abstract();
+};
+'use strict';
+
+/**
+ * This is the interaction for draw geometry.
+ * @constructor
+ * @class AbsPointerInteraction
+ * 
+ * @abstract
+ * @param {object} option layer object.
+ */
+var AbsPointerInteraction = function(option) 
+{
+	if (!(this instanceof AbsPointerInteraction)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+
+	option = option ? option : {};
+	Interaction.call(this);
+	
+	if (option.handleDownEvent)
+	{
+		this.handleDownEvent = option.handleDownEvent;
+	}
+
+	if (option.handleDragEvent)
+	{
+		this.handleDragEvent = option.handleDragEvent;
+	}
+
+	if (option.handleMoveEvent)
+	{
+		this.handleMoveEvent = option.handleMoveEvent;
+	}
+
+	if (option.handleUpEvent)
+	{
+		this.handleUpEvent = option.handleUpEvent;
+	}
+
+	this.begin = false;
+	this.dragging = false;
+	this.mouseBtn = undefined;
+	this.startPoint = undefined;
+	this.endPoint = undefined;
+};
+AbsPointerInteraction.prototype = Object.create(Interaction.prototype);
+AbsPointerInteraction.prototype.constructor = AbsPointerInteraction;
+
+/**
+ * interaction init
+ */
+AbsPointerInteraction.prototype.init = function() 
+{
+	this.begin = false;
+	this.dragging = false;
+	this.mouseBtn = undefined;
+	this.startPoint = undefined;
+	this.endPoint = undefined;
+};
+/**
+ * set active. set true, this interaction active, another interaction deactive.
+ * @param {boolean} active
+ * @fires AbsPointInteraction#ACTIVE
+ * @fires AbsPointInteraction#DEACTIVE
+ */
+AbsPointerInteraction.prototype.setActive = function(active) 
+{
+	if (!this.manager || !(this.manager instanceof MagoManager)) 
+	{
+		throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
+	}
+
+	if (this.active === active) { return; }
+    
+	var that = this;
+	this.active = active;
+	if (active) 
+	{
+		//this.manager.interactionCollection.emit(InteractionCollection.EVENT_TYPE.ACTIVE, that);
+		this.emit(this.constructor.EVENT_TYPE.ACTIVE, this);
+	}
+	else 
+	{
+		//this.manager.interactionCollection.emit(InteractionCollection.EVENT_TYPE.DEACTIVE);
+		this.emit(this.constructor.EVENT_TYPE.DEACTIVE);
+	}
+};
+
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+AbsPointerInteraction.prototype.handle = function(browserEvent) 
+{
+	var type = browserEvent.type;
+
+	if (this.dragging)
+	{
+		if (type === MagoManager.EVENT_TYPE.LEFTUP || type === MagoManager.EVENT_TYPE.RIGHTUP || type === MagoManager.EVENT_TYPE.MIDDLEUP)
+		{
+			this.dragging = false;
+			this.mouseBtn = undefined;
+			this.endPoint = browserEvent.point;
+			this.handleUpEvent.call(this, browserEvent);
+		} 
+		else if (type === MagoManager.EVENT_TYPE.MOUSEMOVE)
+		{
+			this.handleDragEvent.call(this, browserEvent);
+		}
+	}
+	else 
+	{
+		if (type === MagoManager.EVENT_TYPE.LEFTDOWN || type === MagoManager.EVENT_TYPE.RIGHTDOWN || type === MagoManager.EVENT_TYPE.MIDDLEDOWN)
+		{
+			this.dragging = true;
+			this.mouseBtn = type;
+			this.endPoint = undefined;
+			this.startPoint = browserEvent.point;
+			this.handleDownEvent.call(this, browserEvent);
+		} 
+		else if (type === MagoManager.EVENT_TYPE.MOUSEMOVE)
+		{
+			this.handleMoveEvent.call(this, browserEvent);
+		}
+	}
+};
+
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+AbsPointerInteraction.prototype.handleDownEvent = function(browserEvent)
+{
+	return abstract();
+};
+
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+AbsPointerInteraction.prototype.handleDragEvent = function(browserEvent)
+{
+	return abstract();
+};
+
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+AbsPointerInteraction.prototype.handleMoveEvent = function(browserEvent)
+{
+	return abstract();
+};
+
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+AbsPointerInteraction.prototype.handleUpEvent = function(browserEvent)
+{
+	return abstract();
+};
+'use strict';
+
+/**
+ * This is the interaction for draw geometry.
+ * @constructor
+ * @class DrawGeometryInteraction
+ * 
+ * @abstract
+ * @param {object} layer layer object.
+ */
+var DrawGeometryInteraction = function(style) 
+{
+	if (!(this instanceof DrawGeometryInteraction)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	Interaction.call(this);
+
+	/**
+	 * geometry style
+	 * @type {Object}
+	 * @default {}
+	 */
+	this.style;
+
+	if (style) 
+	{
+		this.setStyle(style);
+	}
+	else 
+	{
+		this.style = {};
+	}
+	this.collection;
+	this.result = [];
+};
+DrawGeometryInteraction.prototype = Object.create(Interaction.prototype);
+DrawGeometryInteraction.prototype.constructor = DrawGeometryInteraction;
+
+/**
+ * get style
+ * @return {object}
+ */
+DrawGeometryInteraction.prototype.getStyle = function() 
+{
+	return this.style;
+};
+
+/**
+ * set style
+ * @param {object} style
+ */
+DrawGeometryInteraction.prototype.setStyle = function(style) 
+{
+	this.style = style;
+};
+
+/**
+ * set active. set true, this interaction active, another interaction deactive.
+ * @param {boolean} active
+ * @fires DrawGeometryInteraction#ACTIVE
+ * @fires DrawGeometryInteraction#DEACTIVE
+ */
+DrawGeometryInteraction.prototype.setActive = function(active) 
+{
+	if (!this.manager || !(this.manager instanceof MagoManager)) 
+	{
+		throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
+	}
+
+	if (this.active === active) { return; }
+    
+	if (!this.collection) 
+	{
+		this.collection = this.manager.interactionCollection;
+	}
+
+	var that = this;
+	if (active) 
+	{
+		this.collection.emit(InteractionCollection.EVENT_TYPE.ACTIVE, that);
+		this.emit(this.constructor.EVENT_TYPE.ACTIVE, this);
+	}
+	else 
+	{
+		this.collection.emit(InteractionCollection.EVENT_TYPE.DEACTIVE);
+		this.emit(this.constructor.EVENT_TYPE.DEACTIVE);
+	}
+};
+
+/**
+ * make DrawGeometryInteraction. PointDrawer, LineDrawer, RectangleDrawer
+ * @static
+ * @param {string} type point, line, polygon, rectangle. polygon is not  ready.
+ * @return {DrawGeometryInteraction}
+ */
+DrawGeometryInteraction.createDrawGeometryInteraction = function(type) 
+{
+	if (!type) 
+	{
+		throw new Error(Messages.REQUIRED_EMPTY_ERROR('geometry type'));
+	}
+
+	var interaction;
+	switch (type)
+	{
+	case CODE.drawGeometryType.POINT : {
+		interaction = new PointDrawer();
+		break;
+	}
+	case CODE.drawGeometryType.LINE : {
+		interaction = new LineDrawer();
+		break;
+	}
+	case CODE.drawGeometryType.POLYGON : {
+		interaction = new PolygonDrawer();
+		break;
+	}
+	case CODE.drawGeometryType.RECTANGLE : {
+		interaction = new RectangleDrawer();
+		break;
+	}
+	}
+
+	return interaction;
+};
+'use strict';
+/**
+ * Interaction target type enum
+ */
+var InteractionTargetType = {
+	'F4D'    : 'f4d',
+	'OBJECT' : 'object',
+	'NATIVE' : 'native',
+	'ALL'    : 'all'
+};
+'use strict';
+
+/**
+ * This is the interaction for draw polyline.
+ * Last point use 'right click'
+ * @class LineDrawer
+ * 
+ * @param {MagoPolyline~MagoPolylineStyle} style line style object.
+ * 
+ * @extends {DrawGeometryInteraction}
+ */
+var LineDrawer = function(style) 
+{
+	if (!(this instanceof LineDrawer)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	DrawGeometryInteraction.call(this, style);
+    
+	this.points = [];
+	this.height = 200;
+
+	this.tempLine;
+	this.result = [];
+};
+LineDrawer.prototype = Object.create(DrawGeometryInteraction.prototype);
+LineDrawer.prototype.constructor = LineDrawer;
+
+LineDrawer.EVENT_TYPE = {
+	'DRAWEND': 'drawend'
+};
+/**
+ * @private
+ */
+LineDrawer.prototype.setHeight = function(height) 
+{
+	this.height = height;
+};
+/**
+ * @private
+ */
+LineDrawer.prototype.getHeight = function() 
+{
+	return this.height;
+};
+/**
+ * @private
+ */
+LineDrawer.prototype.init = function() 
+{
+	this.points = [];
+	this.tempLine = undefined;
+	clearTimeout(this.timeout);
+};
+/**
+ * @private
+ */
+LineDrawer.prototype.clear = function() 
+{
+	this.init();
+	var modeler = this.manager.modeler;
+	var result = this.result;
+	for (var i=0, len=result.length;i < len; i++) 
+	{
+		var rec = result[i];
+		modeler.removeObject(rec);
+	}
+	this.result.length = 0;
+};
+/**
+ * @private
+ */
+LineDrawer.prototype.start = function() 
+{
+	if (!this.manager || !(this.manager instanceof MagoManager)) 
+	{
+		throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
+	}
+	
+	var that = this;
+	var manager = that.manager;
+    
+	manager.on(MagoManager.EVENT_TYPE.LEFTUP, function(e)
+	{
+		if (!that.getActive()) { return; }
+
+		that.points.push(e.point.geographicCoordinate);
+	});
+
+	manager.on(MagoManager.EVENT_TYPE.MOUSEMOVE, function(e)
+	{
+		if (!that.getActive()) { return; }
+		if (that.points.length > 0) 
+		{   
+			var clonePoints = that.points.slice();
+			var auxPoint = e.endEvent.geographicCoordinate;
+			clonePoints.push(auxPoint);
+            
+			var position = {coordinates: clonePoints};
+			if (!that.tempLine)
+			{
+				if (Object.keys(that.style).length < 1) 
+				{
+					that.style = {
+						color     : '#ff0000',
+						thickness : 2.0
+					};
+				}
+				
+				that.tempLine = new MagoPolyline(position, that.style);
+				manager.modeler.magoRectangle = that.tempLine;
+			}
+			else 
+			{
+				that.tempLine.init(manager);
+				that.tempLine.setPosition(position);
+			}
+		}
+	});
+    
+	manager.on(MagoManager.EVENT_TYPE.RIGHTCLICK, function(e)
+	{
+		if (!that.getActive() || !that.tempLine) { return; }
+		that.points.push(e.clickCoordinate.geographicCoordinate);
+
+		var position = {coordinates: that.points};
+		that.tempLine.init(manager);
+		that.tempLine.setPosition(position);
+        
+		that.end();
+	});
+};
+/**
+ * @private
+ */
+LineDrawer.prototype.end = function()
+{
+	this.result.push(this.tempLine);
+
+	this.manager.modeler.addObject(this.tempLine, 1);
+
+	this.emit(LineDrawer.EVENT_TYPE.DRAWEND, this.tempLine);
+	this.init();
+};
+'use strict';
+
+/**
+ * This is the interaction for draw point.
+ * @class PointDrawer
+ * 
+ * @param {MagoPoint~MagoPointStyle} style layer object.
+ * 
+ * @extends {DrawGeometryInteraction}
+ */
+var PointDrawer = function(style) 
+{
+	if (!(this instanceof PointDrawer)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	DrawGeometryInteraction.call(this, style);
+
+	this.startDraw = false;
+	this.startTime = undefined;
+	this.startPoint = undefined;
+	this.result = [];
+};
+PointDrawer.prototype = Object.create(DrawGeometryInteraction.prototype);
+PointDrawer.prototype.constructor = PointDrawer;
+
+PointDrawer.EVENT_TYPE = {
+	'DRAWEND': 'drawend'
+};
+/**
+ * @private
+ */
+PointDrawer.prototype.init = function() 
+{
+	this.startDraw = false;
+	this.startTime = undefined;
+	this.startPoint = undefined;
+};
+/**
+ * @private
+ */
+PointDrawer.prototype.clear = function() 
+{
+	this.init();
+	var modeler = this.manager.modeler;
+	var result = this.result;
+	for (var i=0, len=result.length;i < len; i++) 
+	{
+		var rec = result[i];
+		modeler.removeObject(rec);
+	}
+	this.result.length = 0;
+};
+/**
+ * @private
+ */
+PointDrawer.prototype.start = function() 
+{
+	if (!this.manager || !(this.manager instanceof MagoManager)) 
+	{
+		throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
+	}
+	
+	var that = this;
+	var manager = that.manager;
+
+	manager.on(MagoManager.EVENT_TYPE.LEFTDOWN, function(e)
+	{
+		if (!that.getActive()) { return; }
+		if (!that.startDraw) 
+		{
+			that.startDraw = true;
+			that.startTime = e.timestamp;
+			that.startPoint = e.point.screenCoordinate;
+		}
+	});
+	manager.on(MagoManager.EVENT_TYPE.LEFTUP, function(e)
+	{
+		if (!that.getActive()) { return; }
+		if (that.startDraw) 
+		{
+			var moveless = false;
+			if ((e.timestamp - that.startTime) < 1500)
+			{
+				var startScreenCoordinate = that.startPoint;
+				var endScreenCoordinate = e.point.screenCoordinate;
+
+				var diffX = Math.abs(startScreenCoordinate.x - endScreenCoordinate.x);
+				var diffY = Math.abs(startScreenCoordinate.y - endScreenCoordinate.y);
+
+				if (diffX <= 0 && diffY  <= 0)
+				{
+					moveless = true;
+				}
+			}
+			if (!moveless)
+			{
+				that.init();
+				return;
+			} 
+
+			var position = e.point.geographicCoordinate;
+
+			if (Object.keys(that.style).length < 1) 
+			{
+				that.style = {
+					size  : 10,
+					color : '#00FF00'
+				};
+			}
+
+			that.end(new MagoPoint(position, that.style));
+		}
+	});
+};
+/**
+ * @private
+ */
+PointDrawer.prototype.end = function(point)
+{
+	this.result.push(point);
+	this.manager.modeler.addObject(point, 1);
+    
+	this.emit(PointDrawer.EVENT_TYPE.DRAWEND, point);
+	this.init();
+};
+'use strict';
+
+/**
+ * This is the interaction for draw geometry.
+ * @constructor
+ * @class GeometrySelectInteraction
+ * 
+ * 
+ * @param {object} option layer object.
+ */
+var PointSelectInteraction = function(option) 
+{
+	if (!(this instanceof PointSelectInteraction)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	option = option ? option : {};
+	AbsClickInteraction.call(this, option);
+	
+	this.selected = undefined;
+
+	this.targetType = defaultValue(option.targetType, InteractionTargetType.F4D);
+	this.targetHighlight = defaultValue(option.targetHighlight, true);
+
+	var that = this;
+	this.on(PointSelectInteraction.EVENT_TYPE.DEACTIVE, function(){
+		that.init();
+		that.selected = undefined;
+		that.manager.selectionManager.clearCurrents();
+	});
+};
+PointSelectInteraction.prototype = Object.create(AbsClickInteraction.prototype);
+PointSelectInteraction.prototype.constructor = PointSelectInteraction;
+
+PointSelectInteraction.EVENT_TYPE = {
+	'ACTIVE'  	: 'active',
+	'DEACTIVE'	: 'deactive'
+};
+/**
+ * interaction init
+ */
+PointSelectInteraction.prototype.init = function() 
+{
+	this.begin = false;
+	this.startPoint = undefined;
+	this.endPoint = undefined;
+};
+/**
+ * set TargetType
+ * @param {boolean} type 
+ */
+PointSelectInteraction.prototype.setTargetType = function(type)
+{
+	var oldType = this.targetType;
+	if(oldType !== type)
+	{
+		this.init();
+		this.selected = undefined;
+		this.manager.isCameraMoved = true;
+		this.manager.selectionManager.clearCurrents();
+	}
+	this.targetType = type;
+};
+
+/**
+ * get TargetType
+ * @return {boolean}
+ */
+PointSelectInteraction.prototype.getTargetType = function()
+{
+	return this.targetType;
+};
+
+/**
+ * set TargetHighlight
+ * @param {boolean} highlight 
+ */
+PointSelectInteraction.prototype.setTargetHighlight = function(highlight)
+{
+	if(!highlight)
+	{
+		this.init();
+		this.manager.selectionManager.clearCurrents();
+	}
+	this.targetHighlight = highlight;
+};
+
+/**
+ * get selected object
+ * @return {Object}
+ */
+PointSelectInteraction.prototype.getSelected = function()
+{
+	return this.selected;
+};
+
+/**
+ * get TargetHighlight
+ * @return {boolean}
+ */
+PointSelectInteraction.prototype.getTargetHighlight = function()
+{
+	return this.targetHighlight;
+};
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+PointSelectInteraction.prototype.handleDownEvent = function(browserEvent)
+{
+	return;
+};
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+PointSelectInteraction.prototype.handleUpEvent = function(browserEvent)
+{
+	this.select(browserEvent.point.screenCoordinate);
+	var selectionManager = this.manager.selectionManager;
+	var oldSelected = this.selected;
+	switch (this.targetType)
+	{
+	case InteractionTargetType.F4D : {
+		this.selected = selectionManager.getSelectedF4dNode();
+		break;
+	}
+	case InteractionTargetType.OBJECT : {
+		this.selected = selectionManager.getSelectedF4dObject();
+		break;
+	}
+	case InteractionTargetType.NATIVE : {
+		this.selected = selectionManager.getSelectedGeneral();
+		break;
+	}
+	}
+	if (oldSelected)
+	{
+		this.emitEvent(oldSelected, false);
+	}
+	this.emitEvent(this.selected, true);
+};
+PointSelectInteraction.prototype.emitEvent = function(selectedObj, selected)
+{
+	if (selectedObj)
+	{
+		var type = PointSelectInteraction.getEventType(this.targetType, selected);
+		var eventObj = {
+			type      : type,
+			timestamp : new Date()
+		};
+		selected ? eventObj.selected = selectedObj : eventObj.deselected = selectedObj;
+		this.manager.emit(type, eventObj);
+	}
+};
+PointSelectInteraction.getEventType = function(target, selected)
+{
+	var eventType;
+	switch (target)
+	{
+	case InteractionTargetType.F4D : {
+		eventType = selected ? MagoManager.EVENT_TYPE.SELECTEDF4D : MagoManager.EVENT_TYPE.DESELECTEDF4D;
+		break;
+	}
+	case InteractionTargetType.OBJECT : {
+		eventType = selected ? MagoManager.EVENT_TYPE.SELECTEDF4DOBJECT : MagoManager.EVENT_TYPE.DESELECTEDF4DOBJECT;
+		break;
+	}
+	case InteractionTargetType.NATIVE : {
+		eventType = selected ? MagoManager.EVENT_TYPE.SELECTEDGENERALOBJECT : MagoManager.EVENT_TYPE.DESELECTEDGENERALOBJECT;
+		break;
+	}
+	}
+	return eventType;
+};
+
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+PointSelectInteraction.prototype.handleMoveEvent = function(browserEvent)
+{
+	if (this.targetHighlight && !this.selected)
+	{
+		this.select(browserEvent.endEvent.screenCoordinate);
+	}
+};
+
+/**
+ * select 
+ * @param {Point2D} screenCoordinate
+ * @param {boolean} bObject
+ */
+PointSelectInteraction.prototype.select = function(screenCoordinate)
+{
+	var manager = this.manager;
+	var selectManager = manager.selectionManager;
+
+	if (manager.selectionFbo === undefined) 
+	{ manager.selectionFbo = new FBO(gl, manager.sceneState.drawingBufferWidth, manager.sceneState.drawingBufferHeight, {matchCanvasSize: true}); }
+
+	var gl = manager.getGl();
+	selectManager.selectProvisionalObjectByPixel(gl, screenCoordinate.x, screenCoordinate.y);
+	selectManager.provisionalToCurrent(this.targetType);
+	
+	//selectManager.selectObjectByPixel(gl, screenCoordinate.x, screenCoordinate.y, bObject);
+};
+
+/**
+ * clear 
+ */
+PointSelectInteraction.prototype.clear = function()
+{
+	this.emitEvent(this.selected, false);
+	this.manager.selectionManager.clearCurrents();
+	this.init();
+	this.selected = undefined;
+};
+'use strict';
+
+/**
+ * This is the interaction for draw rectangle.
+ * @class RectangleDrawer
+ * 
+ * @param {MagoRectangle~MagoRectangleStyle} style style object.
+ * @extends {DrawGeometryInteraction}
+ */
+var RectangleDrawer = function(style) 
+{
+	if (!(this instanceof RectangleDrawer)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	DrawGeometryInteraction.call(this, style);
+    
+	this.startDraw = false;
+	this.dragging = false;
+	this.startPoint;
+	this.endPoint;
+	this.height = 200;
+
+	this.tempRectangle;
+	this.result = [];
+};
+RectangleDrawer.prototype = Object.create(DrawGeometryInteraction.prototype);
+RectangleDrawer.prototype.constructor = RectangleDrawer;
+
+RectangleDrawer.EVENT_TYPE = {
+	'DRAWEND'  : 'drawend',
+	'ACTIVE'   : 'active',
+	'DEACTIVE' : 'deactive'
+};
+/**
+ * @private
+ */
+RectangleDrawer.prototype.setHeight = function(height) 
+{
+	this.height = height;
+};
+/**
+ * @private
+ */
+RectangleDrawer.prototype.getHeight = function() 
+{
+	return this.height;
+};
+/**
+ * @private
+ */
+RectangleDrawer.prototype.init = function() 
+{
+	this.startDraw = false;
+	this.dragging = false;
+	this.startPoint = undefined;
+	this.endPoint = undefined;
+	this.tempRectangle = undefined;
+	this.manager.magoWorld.cameraMovable = true;
+
+	if (this.manager.modeler.magoRectangle) 
+	{
+		this.manager.modeler.magoRectangle.deleteObjects(this.manager.vboMemoryManager);
+		this.manager.modeler.magoRectangle = undefined;
+	}
+};
+/**
+ * @private
+ */
+RectangleDrawer.prototype.clear = function() 
+{
+	this.init();
+	var modeler = this.manager.modeler;
+	var result = this.result;
+	for (var i=0, len=result.length;i < len; i++) 
+	{
+		var rec = result[i];
+		modeler.removeObject(rec);
+	}
+	this.result.length = 0;
+};
+/**
+ * @private
+ */
+RectangleDrawer.prototype.start = function() 
+{
+	if (!this.manager || !(this.manager instanceof MagoManager)) 
+	{
+		throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
+	}
+	
+	var that = this;
+	var manager = that.manager;
+
+	manager.on(MagoManager.EVENT_TYPE.LEFTDOWN, function(e)
+	{
+		if (!that.getActive()) { return; }
+		if (!that.startDraw) 
+		{
+			manager.magoWorld.cameraMovable = false;
+			that.startDraw = true;
+			that.startPoint = e.point.geographicCoordinate;
+		}
+	});
+    
+	manager.on(MagoManager.EVENT_TYPE.MOUSEMOVE, function(e)
+	{
+		if (!that.getActive()) { return; }
+		if (that.startDraw && that.startPoint) 
+		{
+			that.dragging = true;
+            
+			var auxPoint = e.endEvent.geographicCoordinate;
+			var minLon = (that.startPoint.longitude < auxPoint.longitude) ? that.startPoint.longitude : auxPoint.longitude;
+			var minLat = (that.startPoint.latitude < auxPoint.latitude) ? that.startPoint.latitude : auxPoint.latitude;
+			var maxLon = (that.startPoint.longitude < auxPoint.longitude) ? auxPoint.longitude : that.startPoint.longitude;
+			var maxLat = (that.startPoint.latitude < auxPoint.latitude) ? auxPoint.latitude : that.startPoint.latitude;
+
+			var position = {
+				minLongitude : minLon,
+				minLatitude  : minLat,
+				maxLongitude : maxLon,
+				maxLatitude  : maxLat,
+				altitude     : -3000
+			};
+
+			if (!that.tempRectangle)
+			{
+				if (Object.keys(that.style).length < 1) 
+				{
+					that.style = {
+						fillColor: '#ff0000'
+					};
+				}
+				that.tempRectangle = new MagoRectangleGround(position, that.style);
+				manager.modeler.magoRectangle = that.tempRectangle;
+			}
+			else 
+			{
+				that.tempRectangle.init(manager);
+				that.tempRectangle.setPosition(position);
+			}
+		}
+	});
+    
+	manager.on(MagoManager.EVENT_TYPE.LEFTUP, function(e)
+	{
+		if (!that.getActive()) { return; }
+		if (that.dragging) 
+		{
+			that.endPoint = e.point;
+			that.end();
+		}
+	});
+};
+/**
+ * @private
+ */
+RectangleDrawer.prototype.end = function()
+{
+	this.manager.magoWorld.cameraMovable = true;
+
+	this.result.push(this.tempRectangle);
+
+	this.manager.modeler.addObject(this.tempRectangle, 1);
+
+	this.emit(RectangleDrawer.EVENT_TYPE.DRAWEND, this.tempRectangle);
+	this.init();
+};
+
+/**
+ * remove last drawed rectangle
+ */
+RectangleDrawer.prototype.cancle = function()
+{
+	var idx = this.result.length - 1;
+	var removalRectangle = this.result[idx];
+	this.manager.modeler.removeObject(removalRectangle);
+	this.result = this.result.slice(0, idx);
+};
+'use strict';
+
+/**
+ * This is the interaction for draw geometry.
+ * @constructor
+ * @class TranslateInteraction
+ * 
+ * 
+ * @param {object} option layer object.
+ */
+var TranslateInteraction = function(option) 
+{
+	if (!(this instanceof TranslateInteraction)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	option = option ? option : {};
+	AbsPointerInteraction.call(this, option);
+    
+    this.targetType = defaultValue(option.targetType, InteractionTargetType.F4D);
+    this.filter = defaultValue(option.filter, 'selected');
+    this.filter_;
+    
+
+    this.target = undefined;
+    this.parentNode = undefined;
+    this.selObjMovePlaneCC = undefined;
+    this.selObjMovePlane = undefined;
+    this.lineCC = new Line();
+    this.lineSC = new Line();
+    this.startGeoCoordDif = undefined;
+    this.startMovPoint = undefined;
+};
+TranslateInteraction.prototype = Object.create(AbsPointerInteraction.prototype);
+TranslateInteraction.prototype.constructor = TranslateInteraction;
+
+TranslateInteraction.EVENT_TYPE = {
+	'ACTIVE'  	: 'active',
+	'DEACTIVE'	: 'deactive'
+};
+/**
+ * interaction init
+ * @override
+ */
+TranslateInteraction.prototype.init = function() 
+{
+	this.begin = false;
+	this.dragging = false;
+	this.mouseBtn = undefined;
+	this.startPoint = undefined;
+    this.endPoint = undefined;
+    this.selObjMovePlaneCC = undefined;
+    this.selObjMovePlane = undefined;
+    this.startGeoCoordDif = undefined;
+    this.startMovPoint = undefined;
+    this.target = undefined;
+    this.parentNode = undefined;
+};
+
+/**
+ * set TargetType
+ * @param {boolean} type 
+ */
+TranslateInteraction.prototype.setTargetType = function(type)
+{
+	this.targetType = type;
+};
+
+/**
+ * get TargetType
+ * @return {boolean}
+ */
+TranslateInteraction.prototype.getTargetType = function()
+{
+	return this.targetType;
+};
+
+/**
+ * set TargetType
+ * @param {string} filter 
+ */
+TranslateInteraction.prototype.setFilter = function(filter)
+{
+    var oldFilter = this.filter;
+    this.filter = filter;
+    if(oldFilter !== filter)
+	{
+		this.setFilterFunction();
+	}
+};
+
+/**
+ * get TargetType
+ * @return {boolean}
+ */
+TranslateInteraction.prototype.getFilter = function()
+{
+	return this.filter;
+};
+
+TranslateInteraction.prototype.handleDownEvent = function(browserEvent)
+{
+    var manager = this.manager;
+    if(browserEvent.type !== "leftdown") return;
+
+    var selectManager = manager.selectionManager;
+
+    if (manager.selectionFbo === undefined) 
+    { manager.selectionFbo = new FBO(gl, manager.sceneState.drawingBufferWidth, manager.sceneState.drawingBufferHeight, {matchCanvasSize: true}); }
+
+    var gl = manager.getGl();
+    selectManager.selectProvisionalObjectByPixel(gl, browserEvent.point.screenCoordinate.x, browserEvent.point.screenCoordinate.y);
+
+    if(!this.filter_)
+    {
+        this.setFilterFunction();
+    }
+
+    var filterProvisional = selectManager.filterProvisional(this.targetType, this.filter_);
+
+    if(!isEmpty(filterProvisional))
+    {
+        this.target = filterProvisional[this.targetType][0];
+        if(this.targetType === InteractionTargetType.OBJECT){
+            this.parentNode = filterProvisional[InteractionTargetType.F4D][0];
+        }
+    } else {
+        this.init();
+    }
+}
+
+TranslateInteraction.prototype.handleDragEvent = function(browserEvent)
+{
+    if(this.target && this.dragging)
+    {
+        this.manager.setCameraMotion(false);
+        switch (this.targetType)
+        {
+        case InteractionTargetType.F4D : {
+            this.handleF4dDrag(browserEvent);
+            break;
+        }
+        case InteractionTargetType.OBJECT : {
+            this.handleObjectDrag(browserEvent);
+            break;
+        }
+        case InteractionTargetType.NATIVE : {
+            this.handleNativeDrag(browserEvent);
+            break;
+        }
+        }
+    }
+}
+
+TranslateInteraction.prototype.handleF4dDrag = function(browserEvent)
+{
+    var manager = this.manager;
+    var geoLocDataManager = this.target.getNodeGeoLocDataManager();
+    var geoLocationData = geoLocDataManager.getCurrentGeoLocationData();
+    var attributes = this.target.data.attributes;
+    if(!this.selObjMovePlaneCC)
+    {
+        this.selObjMovePlaneCC = new Plane();
+
+        var geoLocMatrix = geoLocationData.geoLocMatrix;
+        var mvMat = manager.sceneState.modelViewMatrix;
+        var mvMatRelToEye = manager.sceneState.modelViewRelToEyeMatrix;
+
+        var sc = this.startPoint.screenCoordinate;
+        var magoWC = ManagerUtils.calculatePixelPositionWorldCoord(manager.getGl(), sc.x, sc.y, magoWC, undefined, undefined, undefined, manager);
+        var pixelPosCC = mvMat.transformPoint3D(this.startPoint.worldCoordinate, pixelPosCC);
+        
+        if (attributes.movementInAxisZ)
+        {
+            // movement in plane XZ.
+            var globeYaxisWC = new Point3D(geoLocMatrix._floatArrays[4], geoLocMatrix._floatArrays[5], geoLocMatrix._floatArrays[6]);
+            var globeYaxisCC = mvMatRelToEye.transformPoint3D(globeYaxisWC, undefined);
+            this.selObjMovePlaneCC.setPointAndNormal(pixelPosCC.x, pixelPosCC.y, pixelPosCC.z,    globeYaxisCC.x, globeYaxisCC.y, globeYaxisCC.z); 
+        }
+        else 
+        {
+            // movement in plane XY.
+            var globeZaxisWC = new Point3D(geoLocMatrix._floatArrays[8], geoLocMatrix._floatArrays[9], geoLocMatrix._floatArrays[10]);
+            var globeZaxisCC = mvMatRelToEye.transformPoint3D(globeZaxisWC, undefined);
+            this.selObjMovePlaneCC.setPointAndNormal(pixelPosCC.x, pixelPosCC.y, pixelPosCC.z,    globeZaxisCC.x, globeZaxisCC.y, globeZaxisCC.z); 
+        }
+    }
+
+    var screenCoordinate = browserEvent.endEvent.screenCoordinate;
+    var camRay = ManagerUtils.getRayCamSpace(screenCoordinate.x, screenCoordinate.y, camRay, manager);
+    this.lineCC.setPointAndDir(0, 0, 0,  camRay[0], camRay[1], camRay[2]);
+    
+    var intersectionPointCC = new Point3D();
+    intersectionPointCC = this.selObjMovePlaneCC.intersectionLine(this.lineCC, intersectionPointCC);
+    
+    var mvMat = manager.sceneState.getModelViewMatrixInv();
+    var intersectionPointWC = mvMat.transformPoint3D(intersectionPointCC, intersectionPointWC);
+    
+    var cartographic = ManagerUtils.pointToGeographicCoord(intersectionPointWC, cartographic, this);
+    if(!this.startGeoCoordDif)
+    {
+        var buildingGeoCoord = geoLocationData.geographicCoord;
+        this.startGeoCoordDif = new GeographicCoord(cartographic.longitude-buildingGeoCoord.longitude, cartographic.latitude-buildingGeoCoord.latitude, cartographic.altitude-buildingGeoCoord.altitude);
+    }
+    
+    var difX = cartographic.longitude - this.startGeoCoordDif.longitude;
+    var difY = cartographic.latitude - this.startGeoCoordDif.latitude;
+    var difZ = cartographic.altitude - this.startGeoCoordDif.altitude;
+    
+    if (attributes.movementInAxisZ)
+    {
+        //geoLocationData = ManagerUtils.calculateGeoLocationData(undefined, undefined, newAltitude, undefined, undefined, undefined, geoLocationData, this);
+        manager.changeLocationAndRotationNode(this.target, undefined, undefined, difZ, undefined, undefined, undefined);
+    }
+    else 
+    {
+        //geoLocationData = ManagerUtils.calculateGeoLocationData(newLongitude, newlatitude, undefined, undefined, undefined, undefined, geoLocationData, this);
+        manager.changeLocationAndRotationNode(this.target, difY, difX, undefined, undefined, undefined, undefined);
+    }
+}
+
+TranslateInteraction.prototype.handleObjectDrag = function(browserEvent)
+{
+    var selectedObjtect= this.target;
+    var geoLocDataManager = this.parentNode.getNodeGeoLocDataManager();
+    var buildingGeoLocation = geoLocDataManager.getCurrentGeoLocationData();
+    var tMatrixInv = buildingGeoLocation.getTMatrixInv();
+    var gl = this.manager.getGl();
+    if (this.selObjMovePlane === undefined)
+    {
+        this.selObjMovePlane = new Plane();
+        var sc = this.startPoint.screenCoordinate;
+        var magoWC = ManagerUtils.calculatePixelPositionWorldCoord(gl, sc.x, sc.y, magoWC, undefined, undefined, undefined, this.manager);
+        //var lc = tMatrixInv.transformPoint3D(magoWC, lc);
+        var lc = tMatrixInv.transformPoint3D(this.startPoint.worldCoordinate, lc);
+
+        // the plane is in local coord.***
+        this.selObjMovePlane.setPointAndNormal(lc.x, lc.y, lc.z, 0.0, 0.0, 1.0);
+    }
+
+    var screenCoordinate = browserEvent.endEvent.screenCoordinate;
+    this.lineSC = ManagerUtils.getRayWorldSpace(gl, screenCoordinate.x, screenCoordinate.y, this.lineSC, this.manager); // rayWorldSpace.***
+    var camPosBuilding = new Point3D();
+    var camDirBuilding = new Point3D();
+
+    camPosBuilding = tMatrixInv.transformPoint3D(this.lineSC.point, camPosBuilding);
+    camDirBuilding = tMatrixInv.rotatePoint3D(this.lineSC.direction, camDirBuilding);
+
+    // now, intersect building_ray with the selObjMovePlane.***
+    var line = new Line();
+    line.setPointAndDir(camPosBuilding.x, camPosBuilding.y, camPosBuilding.z, camDirBuilding.x, camDirBuilding.y, camDirBuilding.z);// original.***
+
+    var intersectionPoint = new Point3D();
+    intersectionPoint = this.selObjMovePlane.intersectionLine(line, intersectionPoint);
+
+    //the movement of an object must multiply by buildingRotMatrix.***
+    
+    if (selectedObjtect.moveVectorRelToBuilding === undefined)
+    { selectedObjtect.moveVectorRelToBuilding = new Point3D(); }
+
+    if(!this.startMovPoint)
+    {
+        this.startMovPoint = intersectionPoint;
+        this.startMovPoint.add(-selectedObjtect.moveVectorRelToBuilding.x, -selectedObjtect.moveVectorRelToBuilding.y, -selectedObjtect.moveVectorRelToBuilding.z);
+    }
+
+    var difX = intersectionPoint.x - this.startMovPoint.x;
+    var difY = intersectionPoint.y - this.startMovPoint.y;
+    var difZ = intersectionPoint.z - this.startMovPoint.z;
+
+    selectedObjtect.moveVectorRelToBuilding.set(difX, difY, difZ);
+    selectedObjtect.moveVector = buildingGeoLocation.tMatrix.rotatePoint3D(selectedObjtect.moveVectorRelToBuilding, selectedObjtect.moveVector); 
+    
+    var projectId = this.parentNode.data.projectId;
+    var data_key = this.parentNode.data.nodeId;
+    var objectIndexOrder = selectedObjtect._id;
+    
+    this.manager.config.deleteMovingHistoryObject(projectId, data_key, objectIndexOrder);
+    this.manager.objectMoved = true; // this provoques that on leftMouseUp -> saveHistoryObjectMovement
+}
+
+TranslateInteraction.prototype.handleNativeDrag = function(browserEvent)
+{
+    var object = this.target;
+    if (object instanceof ObjectMarker)
+	{ return; }
+    object = object.getRootOwner();
+
+    var attributes = object.attributes;
+	if (attributes === undefined)
+    { return; }
+    
+    var isMovable = attributes.isMovable;
+	if (isMovable === undefined || isMovable === false)
+    { return; }
+    
+    var geoLocDataManager = object.getGeoLocDataManager();
+	if (geoLocDataManager === undefined)
+    { return; }
+    
+    var geoLocationData = geoLocDataManager.getCurrentGeoLocationData();
+    var manager = this.manager;
+    var gl = manager.getGl();
+    var sceneState = manager.sceneState;
+    if (this.selObjMovePlaneCC === undefined) 
+	{
+		this.selObjMovePlaneCC = new Plane();
+		// calculate the pixelPos in camCoord.
+		var geoLocMatrix = geoLocationData.geoLocMatrix;
+		var mvMat = sceneState.modelViewMatrix;
+        var mvMatRelToEye = sceneState.modelViewRelToEyeMatrix;
+        
+        var sc = this.startPoint.screenCoordinate;
+        var magoWC = ManagerUtils.calculatePixelPositionWorldCoord(gl, sc.x, sc.y, magoWC, undefined, undefined, undefined, manager);
+        //var pixelPosCC = mvMat.transformPoint3D(magoWC, undefined);
+        var pixelPosCC = mvMat.transformPoint3D(this.startPoint.worldCoordinate, undefined);
+
+		if (attributes.movementInAxisZ)
+		{
+			// movement in plane XZ.
+			var globeYaxisWC = new Point3D(geoLocMatrix._floatArrays[4], geoLocMatrix._floatArrays[5], geoLocMatrix._floatArrays[6]);
+			var globeYaxisCC = mvMatRelToEye.transformPoint3D(globeYaxisWC, undefined);
+			this.selObjMovePlaneCC.setPointAndNormal(pixelPosCC.x, pixelPosCC.y, pixelPosCC.z,    globeYaxisCC.x, globeYaxisCC.y, globeYaxisCC.z); 
+		}
+		else 
+		{
+			// movement in plane XY.
+			var globeZaxisWC = new Point3D(geoLocMatrix._floatArrays[8], geoLocMatrix._floatArrays[9], geoLocMatrix._floatArrays[10]);
+			var globeZaxisCC = mvMatRelToEye.transformPoint3D(globeZaxisWC, undefined);
+			this.selObjMovePlaneCC.setPointAndNormal(pixelPosCC.x, pixelPosCC.y, pixelPosCC.z,    globeZaxisCC.x, globeZaxisCC.y, globeZaxisCC.z); 
+		}
+    }
+    
+    var screenCoordinate = browserEvent.endEvent.screenCoordinate;
+    var camRay = ManagerUtils.getRayCamSpace(screenCoordinate.x, screenCoordinate.y, camRay, manager);
+    this.lineCC.setPointAndDir(0, 0, 0,  camRay[0], camRay[1], camRay[2]);
+
+    // Calculate intersection cameraRay with planeCC.
+	var intersectionPointCC = new Point3D();
+    intersectionPointCC = this.selObjMovePlaneCC.intersectionLine(this.lineCC, intersectionPointCC);
+    
+    var mvMat = sceneState.getModelViewMatrixInv();
+    var intersectionPointWC = mvMat.transformPoint3D(intersectionPointCC, intersectionPointWC);
+    
+    var cartographic = ManagerUtils.pointToGeographicCoord(intersectionPointWC, cartographic, manager);
+    if(!this.startGeoCoordDif)
+    {
+        var buildingGeoCoord = geoLocationData.geographicCoord;
+        this.startGeoCoordDif = new GeographicCoord(cartographic.longitude - buildingGeoCoord.longitude, cartographic.latitude-buildingGeoCoord.latitude, cartographic.altitude-buildingGeoCoord.altitude);
+    }
+
+    var difX = cartographic.longitude - this.startGeoCoordDif.longitude;
+    var difY = cartographic.latitude - this.startGeoCoordDif.latitude;
+    var difZ = cartographic.altitude - this.startGeoCoordDif.altitude;
+
+    var attributes = object.attributes;
+		
+    if (attributes.minAltitude !== undefined)
+    {
+        if (difZ < attributes.minAltitude)
+        { difZ = attributes.minAltitude; }
+    }
+    
+    if (attributes.maxAltitude !== undefined)
+    {
+        if (difZ > attributes.maxAltitude)
+        { difZ = attributes.maxAltitude; }
+    }
+
+    if (attributes && attributes.movementRestriction)
+    {
+        var movementRestriction = attributes.movementRestriction;
+        if (movementRestriction)
+        {
+            var movementRestrictionType = movementRestriction.restrictionType;
+            var movRestrictionElem = movementRestriction.element;
+            if (movRestrictionElem && movRestrictionElem.constructor.name === "GeographicCoordSegment")
+            {
+                // restriction.***
+                var geoCoordSegment = movRestrictionElem;
+                var newGeoCoord = new GeographicCoord(difX, difY, 0.0);
+                var projectedCoord = GeographicCoordSegment.getProjectedCoordToLine(geoCoordSegment, newGeoCoord, undefined);
+                
+                // check if is inside.***
+                if (!GeographicCoordSegment.intersectionWithGeoCoord(geoCoordSegment, projectedCoord))
+                {
+                    var nearestGeoCoord = GeographicCoordSegment.getNearestGeoCoord(geoCoordSegment, projectedCoord);
+                    difX = nearestGeoCoord.longitude;
+                    difY = nearestGeoCoord.latitude;
+                }
+                else 
+                {
+                    difX = projectedCoord.longitude;
+                    difY = projectedCoord.latitude;
+                }
+            }
+        }
+    }
+    if (attributes && attributes.hasStaticModel)
+    {
+        var projectId = attributes.projectId;
+        var dataKey = attributes.instanceId;
+        if (!defined(projectId))
+        {
+            return false;
+        }
+        if (!defined(dataKey))
+        {
+            return false;
+        }
+        var node = manager.hierarchyManager.getNodeByDataKey(projectId, dataKey);
+        if (node !== undefined)
+        {
+            node.changeLocationAndRotation(difY, difX, 0, attributes.f4dHeading, 0, 0, this);
+        }
+    }
+
+    if (attributes.movementInAxisZ)
+    {
+        geoLocationData = ManagerUtils.calculateGeoLocationData(undefined, undefined, difZ, undefined, undefined, undefined, geoLocationData, this);
+    }
+    else 
+    {
+        geoLocationData = ManagerUtils.calculateGeoLocationData(difX, difY, undefined, undefined, undefined, undefined, geoLocationData, this);
+    }
+
+    object.moved();
+}
+
+TranslateInteraction.prototype.handleMoveEvent = function(){
+    return;
+}
+
+TranslateInteraction.prototype.handleUpEvent = function(){
+    this.init();
+    this.manager.setCameraMotion(true);
+    this.manager.isCameraMoved = true;
+    return;
+}
+
+
+TranslateInteraction.prototype.setFilterFunction = function()
+{
+    var manager = this.manager;
+    if(this.filter === 'selected')
+    {
+        this.filter_ = function(prov){
+            return prov === manager.defaultSelectInteraction.getSelected();
+        }
+    } else {
+        this.filter_ = function(){return true;}
+    }
+}
 'use strict';
 
 /**
@@ -72176,7 +73920,7 @@ MagoWorld.prototype.doTest__ObjectMarker = function()
 			};
 
 			//SpeechBubble을 통해서 png 만들어서 가져오기
-			var img = sb.getPng([64, 64], bubbleColor, commentTextOption);
+			var img = sb.getPng([256, 256], bubbleColor, commentTextOption);
 
 			//ObjectMarker 옵션, 위치정보와 이미지 정보
 			var geoCoord = geoCoordsList.getGeoCoord(i);
@@ -72310,6 +74054,8 @@ MagoWorld.prototype.keydown = function(event)
 	//if (!bool)
 	//{ return; }
 
+	var factorAux = 0.0005;
+
 	var key = event.key;
 	var magoManager = this.magoManager;
 	var modeler = magoManager.modeler;
@@ -72341,7 +74087,7 @@ MagoWorld.prototype.keydown = function(event)
 
 		//this.doTest__BSpline3DCubic();
 		//this.doTest__ExtrudedObject();
-		//this.doTest__ObjectMarker();
+		this.doTest__ObjectMarker();
 		//this.doTest__TerrainScanner();
 		//this.doTest__MagoRectangle();
 		//this.doTest__MagoRectangleGround();
@@ -87570,897 +89316,6 @@ VtxSegment.prototype.intersectionWithPoint = function(point, error)
 'use strict';
 
 /**
- * This is the interaction for draw geometry.
- * @constructor
- * @class AbsPointInteraction
- * 
- * @abstract
- * @param {object} eventObject layer object.
- */
-var AbsPointInteraction = function(eventObject) 
-{
-	if (!(this instanceof AbsPointInteraction)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	Interaction.call(this);
-    
-	this.handleDownEvent = eventObject.handleDownEvent;
-
-	this.handleDragEvent  = eventObject.handleDragEvent;
-
-	this.handleMoveEvent = eventObject.handleMoveEvent;
-
-	this.handleUpEvent = eventObject.handleUpEvent;
-
-	this.begin = false;
-	this.dragging = false;
-	this.startPoint = undefined;
-	this.endPoint = undefined;
-};
-AbsPointInteraction.prototype = Object.create(Interaction.prototype);
-AbsPointInteraction.prototype.constructor = AbsPointInteraction;
-
-/**
- * interaction init
- */
-AbsPointInteraction.prototype.init = function() 
-{
-	this.begin = false;
-	this.dragging = false;
-	this.startPoint = undefined;
-	this.endPoint = undefined;
-};
-/**
- * set active. set true, this interaction active, another interaction deactive.
- * @param {boolean} active
- * @fires AbsPointInteraction#ACTIVE
- * @fires AbsPointInteraction#DEACTIVE
- */
-AbsPointInteraction.prototype.setActive = function(active) 
-{
-	if (!this.manager || !(this.manager instanceof MagoManager)) 
-	{
-		throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
-	}
-
-	if (this.active === active) { return; }
-    
-	var that = this;
-	if (active) 
-	{
-		this.manager.interactions.emit(InteractionCollection.EVENT_TYPE.ACTIVE, that);
-		this.emit(this.constructor.EVENT_TYPE.ACTIVE, this);
-	}
-	else 
-	{
-		this.manager.interactions.emit(InteractionCollection.EVENT_TYPE.DEACTIVE);
-		this.emit(this.constructor.EVENT_TYPE.DEACTIVE);
-	}
-};
-
-/**
- * start interaction
- */
-AbsPointInteraction.prototype.start = function() 
-{
-	return abstract();
-};
-'use strict';
-
-/**
- * This is the interaction for draw geometry.
- * @constructor
- * @class AbsSelectInteraction
- * 
- * @abstract
- * @param {object} option layer object.
- */
-var AbsSelectInteraction = function(option) 
-{
-	if (!(this instanceof AbsSelectInteraction)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	option = option ? option : {};
-	Interaction.call(this);
-	
-	if (option.handleDownEvent)
-	{
-		this.handleDownEvent = option.handleDownEvent;
-	}
-
-	if (option.handleUpEvent)
-	{
-		this.handleUpEvent = option.handleUpEvent;
-	}
-    
-	if (option.handleMoveEvent)
-	{
-		this.handleMoveEvent = option.handleMoveEvent;
-	}
-
-	this.begin = false;
-	this.startPoint = undefined;
-	this.startTime;
-	this.endPoint = undefined;
-
-	this.tolerance = 0;
-};
-AbsSelectInteraction.prototype = Object.create(Interaction.prototype);
-AbsSelectInteraction.prototype.constructor = AbsSelectInteraction;
-
-/**
- * interaction init
- */
-AbsSelectInteraction.prototype.init = function() 
-{
-	this.begin = false;
-	this.startPoint = undefined;
-	this.endPoint = undefined;
-};
-/**
- * set active. set true, this interaction active, another interaction deactive.
- * @param {boolean} active
- * @fires AbsSelectInteraction#ACTIVE
- * @fires AbsSelectInteraction#DEACTIVE
- */
-AbsSelectInteraction.prototype.setActive = function(active) 
-{
-	if (!this.manager || !(this.manager instanceof MagoManager)) 
-	{
-		throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
-	}
-
-	if (this.active === active) { return; }
-    
-	this.active = active;
-	if (active) 
-	{
-		//this.manager.interactions.emit(InteractionCollection.EVENT_TYPE.ACTIVE, that);
-		this.emit(this.constructor.EVENT_TYPE.ACTIVE, this);
-	}
-	else 
-	{
-		//this.manager.interactions.emit(InteractionCollection.EVENT_TYPE.DEACTIVE);
-		this.emit(this.constructor.EVENT_TYPE.DEACTIVE);
-	}
-};
-
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-AbsSelectInteraction.prototype.handle = function(browserEvent) 
-{
-	var type = browserEvent.type;
-	if (!(type === MagoManager.EVENT_TYPE.MOUSEMOVE || type === MagoManager.EVENT_TYPE.LEFTDOWN || type === MagoManager.EVENT_TYPE.RIGHTDOWN || type === MagoManager.EVENT_TYPE.MIDDLEDOWN || type === MagoManager.EVENT_TYPE.LEFTUP || type === MagoManager.EVENT_TYPE.RIGHTUP || type === MagoManager.EVENT_TYPE.MIDDLEUP))
-	{
-		return false;
-	}
-	if (this.begin && type !== MagoManager.EVENT_TYPE.MOUSEMOVE)
-	{
-		this.begin = false;
-		this.dragtype = undefined;
-		this.endPoint = browserEvent.point;
-
-		if ((browserEvent.timestamp - this.startTime) < 1500)
-		{
-			var startScreenCoordinate = this.startPoint.screenCoordinate;
-			var endScreenCoordinate = this.endPoint.screenCoordinate;
-
-			var diffX = Math.abs(startScreenCoordinate.x - endScreenCoordinate.x);
-			var diffY = Math.abs(startScreenCoordinate.y - endScreenCoordinate.y);
-
-			if (diffX <= this.tolerance && diffY  <= this.tolerance)
-			{
-				this.handleUpEvent.call(this, browserEvent);
-			}
-		}
-	}
-	else 
-	{
-		if (type === MagoManager.EVENT_TYPE.MOUSEMOVE)
-		{
-			this.handleMoveEvent.call(this, browserEvent);
-		}
-		else
-		{
-			this.begin = true;
-			this.startPoint = browserEvent.point;
-			this.startTime = browserEvent.timestamp;
-			this.handleDownEvent.call(this, browserEvent);
-		}
-	}
-};
-
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-AbsPointInteraction.prototype.handleDownEvent = function(browserEvent)
-{
-	return abstract();
-};
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-AbsPointInteraction.prototype.handleUpEvent = function(browserEvent)
-{
-	return abstract();
-};
-
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-AbsPointInteraction.prototype.handleMoveEvent = function(browserEvent)
-{
-	return abstract();
-};
-'use strict';
-
-/**
- * This is the interaction for draw geometry.
- * @constructor
- * @class DrawGeometryInteraction
- * 
- * @abstract
- * @param {object} layer layer object.
- */
-var DrawGeometryInteraction = function(style) 
-{
-	if (!(this instanceof DrawGeometryInteraction)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	Interaction.call(this);
-
-	/**
-	 * geometry style
-	 * @type {Object}
-	 * @default {}
-	 */
-	this.style;
-
-	if (style) 
-	{
-		this.setStyle(style);
-	}
-	else 
-	{
-		this.style = {};
-	}
-	this.collection;
-	this.result = [];
-};
-DrawGeometryInteraction.prototype = Object.create(Interaction.prototype);
-DrawGeometryInteraction.prototype.constructor = DrawGeometryInteraction;
-
-/**
- * get style
- * @return {object}
- */
-DrawGeometryInteraction.prototype.getStyle = function() 
-{
-	return this.style;
-};
-
-/**
- * set style
- * @param {object} style
- */
-DrawGeometryInteraction.prototype.setStyle = function(style) 
-{
-	this.style = style;
-};
-
-/**
- * set active. set true, this interaction active, another interaction deactive.
- * @param {boolean} active
- * @fires DrawGeometryInteraction#ACTIVE
- * @fires DrawGeometryInteraction#DEACTIVE
- */
-DrawGeometryInteraction.prototype.setActive = function(active) 
-{
-	if (!this.manager || !(this.manager instanceof MagoManager)) 
-	{
-		throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
-	}
-
-	if (this.active === active) { return; }
-    
-	if (!this.collection) 
-	{
-		this.collection = this.manager.interactions;
-	}
-
-	var that = this;
-	if (active) 
-	{
-		this.collection.emit(InteractionCollection.EVENT_TYPE.ACTIVE, that);
-		this.emit(this.constructor.EVENT_TYPE.ACTIVE, this);
-	}
-	else 
-	{
-		this.collection.emit(InteractionCollection.EVENT_TYPE.DEACTIVE);
-		this.emit(this.constructor.EVENT_TYPE.DEACTIVE);
-	}
-};
-
-/**
- * make DrawGeometryInteraction. PointDrawer, LineDrawer, RectangleDrawer
- * @static
- * @param {string} type point, line, polygon, rectangle. polygon is not  ready.
- * @return {DrawGeometryInteraction}
- */
-DrawGeometryInteraction.createDrawGeometryInteraction = function(type) 
-{
-	if (!type) 
-	{
-		throw new Error(Messages.REQUIRED_EMPTY_ERROR('geometry type'));
-	}
-
-	var interaction;
-	switch (type)
-	{
-	case CODE.drawGeometryType.POINT : {
-		interaction = new PointDrawer();
-		break;
-	}
-	case CODE.drawGeometryType.LINE : {
-		interaction = new LineDrawer();
-		break;
-	}
-	case CODE.drawGeometryType.POLYGON : {
-		interaction = new PolygonDrawer();
-		break;
-	}
-	case CODE.drawGeometryType.RECTANGLE : {
-		interaction = new RectangleDrawer();
-		break;
-	}
-	}
-
-	return interaction;
-};
-'use strict';
-
-/**
- * This is the interaction for draw geometry.
- * @constructor
- * @class F4dSelectInteraction
- * 
- * 
- * @param {object} option layer object.
- */
-var F4dSelectInteraction = function(option) 
-{
-	if (!(this instanceof F4dSelectInteraction)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	option = option ? option : {};
-	AbsSelectInteraction.call(this, option);
-    
-	this.targetHighlight = defaultValue(option.targetHighlight, true);
-};
-F4dSelectInteraction.prototype = Object.create(AbsSelectInteraction.prototype);
-F4dSelectInteraction.prototype.constructor = F4dSelectInteraction;
-
-F4dSelectInteraction.EVENT_TYPE = {
-	'ACTIVE'  	: 'active',
-	'DEACTIVE'	: 'deactive'
-};
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-F4dSelectInteraction.prototype.handleDownEvent = function(browserEvent)
-{
-	return abstract();
-};
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-F4dSelectInteraction.prototype.handleUpEvent = function(browserEvent)
-{
-	return abstract();
-};
-
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-F4dSelectInteraction.prototype.handleMoveEvent = function(browserEvent)
-{
-	if (this.targetHighlight)
-	{
-		var manager = this.manager;
-		var gl = manager.getGl();
-		if (manager.selectionFbo === undefined) 
-		{ manager.selectionFbo = new FBO(gl, manager.sceneState.drawingBufferWidth, manager.sceneState.drawingBufferHeight); }
-        
-		var position = browserEvent.endEvent.screenCoordinate;
-
-		manager.objectSelected = manager.getSelectedObjects(gl, position.x, position.y, manager.arrayAuxSC, true);
-
-		var auxBuildingSelected = manager.arrayAuxSC[0];
-		var auxOctreeSelected = manager.arrayAuxSC[1];
-		var auxNodeSelected = manager.arrayAuxSC[3]; 
-
-		manager.buildingSelected = auxBuildingSelected;
-		manager.octreeSelected = auxOctreeSelected;
-		manager.nodeSelected = auxNodeSelected;
-		manager.arrayAuxSC.length = 0;
-	}
-};
-'use strict';
-
-/**
- * This is the interaction for draw polyline.
- * Last point use 'right click'
- * @class LineDrawer
- * 
- * @param {MagoPolyline~MagoPolylineStyle} style line style object.
- * 
- * @extends {DrawGeometryInteraction}
- */
-var LineDrawer = function(style) 
-{
-	if (!(this instanceof LineDrawer)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	DrawGeometryInteraction.call(this, style);
-    
-	this.points = [];
-	this.height = 200;
-
-	this.tempLine;
-	this.result = [];
-};
-LineDrawer.prototype = Object.create(DrawGeometryInteraction.prototype);
-LineDrawer.prototype.constructor = LineDrawer;
-
-LineDrawer.EVENT_TYPE = {
-	'DRAWEND': 'drawend'
-};
-/**
- * @private
- */
-LineDrawer.prototype.setHeight = function(height) 
-{
-	this.height = height;
-};
-/**
- * @private
- */
-LineDrawer.prototype.getHeight = function() 
-{
-	return this.height;
-};
-/**
- * @private
- */
-LineDrawer.prototype.init = function() 
-{
-	this.points = [];
-	this.tempLine = undefined;
-	clearTimeout(this.timeout);
-};
-/**
- * @private
- */
-LineDrawer.prototype.clear = function() 
-{
-	this.init();
-	var modeler = this.manager.modeler;
-	var result = this.result;
-	for (var i=0, len=result.length;i < len; i++) 
-	{
-		var rec = result[i];
-		modeler.removeObject(rec);
-	}
-	this.result.length = 0;
-};
-/**
- * @private
- */
-LineDrawer.prototype.start = function() 
-{
-	if (!this.manager || !(this.manager instanceof MagoManager)) 
-	{
-		throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
-	}
-	
-	var that = this;
-	var manager = that.manager;
-    
-	manager.on(MagoManager.EVENT_TYPE.LEFTUP, function(e)
-	{
-		if (!that.getActive()) { return; }
-
-		that.points.push(e.point.geographicCoordinate);
-	});
-
-	manager.on(MagoManager.EVENT_TYPE.MOUSEMOVE, function(e)
-	{
-		if (!that.getActive()) { return; }
-		if (that.points.length > 0) 
-		{   
-			var clonePoints = that.points.slice();
-			var auxPoint = e.endEvent.geographicCoordinate;
-			clonePoints.push(auxPoint);
-            
-			var position = {coordinates: clonePoints};
-			if (!that.tempLine)
-			{
-				if (Object.keys(that.style).length < 1) 
-				{
-					that.style = {
-						color     : '#ff0000',
-						thickness : 2.0
-					};
-				}
-				
-				that.tempLine = new MagoPolyline(position, that.style);
-				manager.modeler.magoRectangle = that.tempLine;
-			}
-			else 
-			{
-				that.tempLine.init(manager);
-				that.tempLine.setPosition(position);
-			}
-		}
-	});
-    
-	manager.on(MagoManager.EVENT_TYPE.RIGHTCLICK, function(e)
-	{
-		if (!that.getActive() || !that.tempLine) { return; }
-		that.points.push(e.clickCoordinate.geographicCoordinate);
-
-		var position = {coordinates: that.points};
-		that.tempLine.init(manager);
-		that.tempLine.setPosition(position);
-        
-		that.end();
-	});
-};
-/**
- * @private
- */
-LineDrawer.prototype.end = function()
-{
-	this.result.push(this.tempLine);
-
-	this.manager.modeler.addObject(this.tempLine, 1);
-
-	this.emit(LineDrawer.EVENT_TYPE.DRAWEND, this.tempLine);
-	this.init();
-};
-'use strict';
-
-/**
- * This is the interaction for draw point.
- * @class PointDrawer
- * 
- * @param {MagoPoint~MagoPointStyle} style layer object.
- * 
- * @extends {DrawGeometryInteraction}
- */
-var PointDrawer = function(style) 
-{
-	if (!(this instanceof PointDrawer)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	DrawGeometryInteraction.call(this, style);
-
-	this.startDraw = false;
-	this.result = [];
-};
-PointDrawer.prototype = Object.create(DrawGeometryInteraction.prototype);
-PointDrawer.prototype.constructor = PointDrawer;
-
-PointDrawer.EVENT_TYPE = {
-	'DRAWEND': 'drawend'
-};
-/**
- * @private
- */
-PointDrawer.prototype.init = function() 
-{
-	this.startDraw = false;
-};
-/**
- * @private
- */
-PointDrawer.prototype.clear = function() 
-{
-	this.init();
-	var modeler = this.manager.modeler;
-	var result = this.result;
-	for (var i=0, len=result.length;i < len; i++) 
-	{
-		var rec = result[i];
-		modeler.removeObject(rec);
-	}
-	this.result.length = 0;
-};
-/**
- * @private
- */
-PointDrawer.prototype.start = function() 
-{
-	if (!this.manager || !(this.manager instanceof MagoManager)) 
-	{
-		throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
-	}
-	
-	var that = this;
-	var manager = that.manager;
-
-	manager.on(MagoManager.EVENT_TYPE.LEFTDOWN, function(e)
-	{
-		if (!that.getActive()) { return; }
-		if (!that.startDraw) 
-		{
-			that.startDraw = true;
-		}
-	});
-	manager.on(MagoManager.EVENT_TYPE.LEFTUP, function(e)
-	{
-		if (!that.getActive()) { return; }
-		if (that.startDraw) 
-		{
-			var position = e.point.geographicCoordinate;
-            
-
-			if (Object.keys(that.style).length < 1) 
-			{
-				that.style = {
-					size  : 10,
-					color : '#00FF00'
-				};
-			}
-
-			that.end(new MagoPoint(position, that.style));
-		}
-	});
-};
-/**
- * @private
- */
-PointDrawer.prototype.end = function(point)
-{
-	this.result.push(point);
-	this.manager.modeler.addObject(point, 1);
-    
-	this.emit(PointDrawer.EVENT_TYPE.DRAWEND, point);
-	this.init();
-};
-'use strict';
-
-/**
- * This is the interaction for draw rectangle.
- * @class RectangleDrawer
- * 
- * @param {MagoRectangle~MagoRectangleStyle} style style object.
- * @extends {DrawGeometryInteraction}
- */
-var RectangleDrawer = function(style) 
-{
-	if (!(this instanceof RectangleDrawer)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	DrawGeometryInteraction.call(this, style);
-    
-	this.startDraw = false;
-	this.dragging = false;
-	this.startPoint;
-	this.endPoint;
-	this.height = 200;
-
-	this.tempRectangle;
-	this.result = [];
-};
-RectangleDrawer.prototype = Object.create(DrawGeometryInteraction.prototype);
-RectangleDrawer.prototype.constructor = RectangleDrawer;
-
-RectangleDrawer.EVENT_TYPE = {
-	'DRAWEND'  : 'drawend',
-	'ACTIVE'   : 'active',
-	'DEACTIVE' : 'deactive'
-};
-/**
- * @private
- */
-RectangleDrawer.prototype.setHeight = function(height) 
-{
-	this.height = height;
-};
-/**
- * @private
- */
-RectangleDrawer.prototype.getHeight = function() 
-{
-	return this.height;
-};
-/**
- * @private
- */
-RectangleDrawer.prototype.init = function() 
-{
-	this.startDraw = false;
-	this.dragging = false;
-	this.startPoint = undefined;
-	this.endPoint = undefined;
-	this.tempRectangle = undefined;
-	this.manager.magoWorld.cameraMovable = true;
-
-	if (this.manager.modeler.magoRectangle) 
-	{
-		this.manager.modeler.magoRectangle.deleteObjects(this.manager.vboMemoryManager);
-		this.manager.modeler.magoRectangle = undefined;
-	}
-};
-/**
- * @private
- */
-RectangleDrawer.prototype.clear = function() 
-{
-	this.init();
-	var modeler = this.manager.modeler;
-	var result = this.result;
-	for (var i=0, len=result.length;i < len; i++) 
-	{
-		var rec = result[i];
-		modeler.removeObject(rec);
-	}
-	this.result.length = 0;
-};
-/**
- * @private
- */
-RectangleDrawer.prototype.start = function() 
-{
-	if (!this.manager || !(this.manager instanceof MagoManager)) 
-	{
-		throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
-	}
-	
-	var that = this;
-	var manager = that.manager;
-
-	manager.on(MagoManager.EVENT_TYPE.LEFTDOWN, function(e)
-	{
-		if (!that.getActive()) { return; }
-		if (!that.startDraw) 
-		{
-			manager.magoWorld.cameraMovable = false;
-			that.startDraw = true;
-			that.startPoint = e.point.geographicCoordinate;
-		}
-	});
-    
-	manager.on(MagoManager.EVENT_TYPE.MOUSEMOVE, function(e)
-	{
-		if (!that.getActive()) { return; }
-		if (that.startDraw && that.startPoint) 
-		{
-			that.dragging = true;
-            
-			var auxPoint = e.endEvent.geographicCoordinate;
-			var minLon = (that.startPoint.longitude < auxPoint.longitude) ? that.startPoint.longitude : auxPoint.longitude;
-			var minLat = (that.startPoint.latitude < auxPoint.latitude) ? that.startPoint.latitude : auxPoint.latitude;
-			var maxLon = (that.startPoint.longitude < auxPoint.longitude) ? auxPoint.longitude : that.startPoint.longitude;
-			var maxLat = (that.startPoint.latitude < auxPoint.latitude) ? auxPoint.latitude : that.startPoint.latitude;
-
-			var position = {
-				minLongitude : minLon,
-				minLatitude  : minLat,
-				maxLongitude : maxLon,
-				maxLatitude  : maxLat,
-				altitude     : -3000
-			};
-
-			if (!that.tempRectangle)
-			{
-				if (Object.keys(that.style).length < 1) 
-				{
-					that.style = {
-						fillColor: '#ff0000'
-					};
-				}
-				that.tempRectangle = new MagoRectangleGround(position, that.style);
-				manager.modeler.magoRectangle = that.tempRectangle;
-			}
-			else 
-			{
-				that.tempRectangle.init(manager);
-				that.tempRectangle.setPosition(position);
-			}
-		}
-	});
-    
-	manager.on(MagoManager.EVENT_TYPE.LEFTUP, function(e)
-	{
-		if (!that.getActive()) { return; }
-		if (that.dragging) 
-		{
-			that.endPoint = e.point;
-			that.end();
-		}
-	});
-};
-/**
- * @private
- */
-RectangleDrawer.prototype.end = function()
-{
-	this.manager.magoWorld.cameraMovable = true;
-
-	this.result.push(this.tempRectangle);
-
-	this.manager.modeler.addObject(this.tempRectangle, 1);
-
-	this.emit(RectangleDrawer.EVENT_TYPE.DRAWEND, this.tempRectangle);
-	this.init();
-};
-
-/**
- * remove last drawed rectangle
- */
-RectangleDrawer.prototype.cancle = function()
-{
-	var idx = this.result.length - 1;
-	var removalRectangle = this.result[idx];
-	this.manager.modeler.removeObject(removalRectangle);
-	this.result = this.result.slice(0, idx);
-};
-'use strict';
-
-/**
- * Geoserver for mago3Djs object.
- * @class Geoserver
- */
-var GeoServer = function() 
-{
-
-	this.serverInfo = {};
-}; 
-
-GeoServer.prototype.setServerInfo = function(info) 
-{
-	this.serverInfo = info;
-};
-
-GeoServer.prototype.getDataUrl = function() 
-{
-	return this.serverInfo.dataUrl;
-};
-
-GeoServer.prototype.getDataWorkspace = function() 
-{
-	return this.serverInfo.dataWorkspace;
-};
-
-GeoServer.prototype.getDataRequestUrl = function() 
-{
-	return this.getDataUrl() + '/' + this.getDataWorkspace();
-};
-
-GeoServer.prototype.getWmsVersion = function() 
-{
-	return this.serverInfo.wmsVersion;
-};
-'use strict';
-
-/**
  * 메세지
  * 
  * @class
@@ -88563,6 +89418,42 @@ MessageSource.ko = {
     }
   };
 
+'use strict';
+
+/**
+ * Geoserver for mago3Djs object.
+ * @class Geoserver
+ */
+var GeoServer = function() 
+{
+
+	this.serverInfo = {};
+}; 
+
+GeoServer.prototype.setServerInfo = function(info) 
+{
+	this.serverInfo = info;
+};
+
+GeoServer.prototype.getDataUrl = function() 
+{
+	return this.serverInfo.dataUrl;
+};
+
+GeoServer.prototype.getDataWorkspace = function() 
+{
+	return this.serverInfo.dataWorkspace;
+};
+
+GeoServer.prototype.getDataRequestUrl = function() 
+{
+	return this.getDataUrl() + '/' + this.getDataWorkspace();
+};
+
+GeoServer.prototype.getWmsVersion = function() 
+{
+	return this.serverInfo.wmsVersion;
+};
 'use strict';
 
 /**
@@ -91378,7 +92269,7 @@ SpeechBubble.prototype.makeDefault = function(imageSize)
  * @param {Color} color
  * @param {object} textOption
  */
-SpeechBubble.prototype.getPng = function (imageSize, color, textOption) 
+SpeechBubble.prototype.getPng = function (imageSize, color, textOption)
 {
 	//need validation
 	//var hexColor = color.getHexCode();
@@ -91398,7 +92289,7 @@ SpeechBubble.prototype.getPng = function (imageSize, color, textOption)
 	this.repository[id] = canvas;
 	return canvas.toDataURL();
 
-	function makeCanvas(size, hex, tOption, p2dArray) 
+	function makeCanvas(size, hex, tOption, p2dArray)
 	{
 		var c = document.createElement("canvas");
 		var w = size[0];
@@ -91409,19 +92300,19 @@ SpeechBubble.prototype.getPng = function (imageSize, color, textOption)
 		var ctx = c.getContext("2d");
 		ctx.save();
 		ctx.fillStyle = hex;
-		ctx.strokeStyle = '#000000';
+		ctx.strokeStyle = '#364049';
 		ctx.lineWidth = 2;
 		ctx.beginPath();
-		
+
 		var p2dLength = p2dArray.length;
-		for (var i=0;i<p2dLength;i++) 
+		for (var i=0;i<p2dLength;i++)
 		{
 			var p2d = p2dArray[i];
-			if (p2d.point.length === 2) 
+			if (p2d.point.length === 2)
 			{
 				ctx[p2d.command].call(ctx, p2d.point[0], p2d.point[1]);
 			}
-			else 
+			else
 			{
 				ctx[p2d.command].call(ctx, p2d.point[0], p2d.point[1], p2d.point[2], p2d.point[3]);
 			}
@@ -91429,20 +92320,21 @@ SpeechBubble.prototype.getPng = function (imageSize, color, textOption)
 
 		ctx.closePath();
 		ctx.fill();
-		ctx.stroke();
-		
-		if (tOption) 
+		//ctx.stroke();
+
+		if (tOption)
 		{
 			var textValue = tOption.text; //required.
 			var fontPixel = defaultValue(tOption.pixel, 10);
-			var fontType = defaultValue(tOption.font, 'sans-serif');
+			var fontType = defaultValue(tOption.font, 'Dotum');
 			var fontColor = defaultValue(tOption.color, 'white');
 			var fontBorderColor = defaultValue(tOption.borderColor, 'black');
 
 			ctx.font = 'bold ' + fontPixel + "px " + fontType;
+			//			ctx.font = fontPixel + "px " + fontType;
 			ctx.fillStyle = fontColor;
 			ctx.strokeStyle = fontBorderColor;
-			ctx.textAlign = "center";
+			ctx.textAlign = "start";
 
 			var splitText = textValue.split('\n');
 			var tlen = splitText.length;
@@ -91450,11 +92342,15 @@ SpeechBubble.prototype.getPng = function (imageSize, color, textOption)
 			for (var ti=0;ti<tlen;ti++)
 			{
 				var tVal = splitText[ti];
-				if (tVal.length > 0) 
+				if (tVal.length > 0)
 				{
-					var ty = (h / denomin) * (ti+1) - (tlen-1) * (h / (denomin * 10));
-					ctx.strokeText(tVal, w /2, ty);
-					ctx.fillText(tVal, w /2, ty);
+					var ty = ((h / denomin) * (ti+1) - (tlen-1) * (h / (denomin * 10))) - (ti * 3);
+					var mt = ctx.measureText(tVal);
+					console.log(mt);
+					//ctx.strokeText(tVal, 20, ty, mt.width * 0.8);
+					ctx.fillText(tVal, 20, ty, mt.width * 0.8);
+					//					ctx.strokeText(tVal, w /2, ty);
+					//					ctx.fillText(tVal, w /2, ty);
 				}
 			}
 		}
@@ -94335,9 +95231,6 @@ Renderer.prototype.renderNodes = function(gl, visibleNodesArray, magoManager, sh
 			node.renderContent(magoManager, shader, renderType, refMatrixIdxKey);
 		}
 	}
-	
-	
-	
 };
 
 /**
@@ -94657,7 +95550,6 @@ Renderer.prototype.renderGeometryDepth = function(gl, renderType, visibleObjCont
 
 		currentShader.bindUniformGenerals();
 		gl.uniform3fv(currentShader.scaleLC_loc, [1.0, 1.0, 1.0]); // init referencesMatrix.
-		
 		gl.uniform1i(currentShader.bApplySsao_loc, false); // apply ssao.***
 
 		var refTMatrixIdxKey = 0;
@@ -94684,6 +95576,7 @@ Renderer.prototype.renderGeometryDepth = function(gl, renderType, visibleObjCont
 
 		currentShader.bindUniformGenerals();
 		gl.uniform3fv(currentShader.scaleLC_loc, [1.0, 1.0, 1.0]); // init referencesMatrix.
+		gl.uniform3fv(currentShader.aditionalMov_loc, [0.0, 0.0, 0.0]); //.***
 		
 		// check if exist clippingPlanes.
 		if (magoManager.modeler.clippingBox !== undefined)
@@ -94778,44 +95671,64 @@ Renderer.prototype.renderGeometryDepth = function(gl, renderType, visibleObjCont
 	if (magoManager.weatherStation)
 	{ magoManager.weatherStation.test_renderCuttingPlanes(magoManager, renderType); }
 	
-	
+	var selectionManager = magoManager.selectionManager;
 	
 	// Test.***
-	var selGeneralObjects = magoManager.selectionManager.getSelectionCandidatesFamily("general");
-	if (selGeneralObjects)
+	if (selectionManager)
 	{
-		var currObjectSelected = selGeneralObjects.currentSelected;
-		if (currObjectSelected)
+		var selGeneralObjects = selectionManager.getSelectionCandidatesFamily("general");
+		if (selGeneralObjects)
 		{
-			// check if is a cuttingPlane.***
-			if (currObjectSelected instanceof CuttingPlane)
+			var currObjectSelected = selGeneralObjects.currentSelected;
+			if (currObjectSelected)
 			{
-				// Test. Render depth only for the selected object.***************************
-				magoManager.test_renderDepth_objectSelected(currObjectSelected);
+				// check if is a cuttingPlane.***
+				if (currObjectSelected instanceof CuttingPlane)
+				{
+					// Test. Render depth only for the selected object.***************************
+					magoManager.test_renderDepth_objectSelected(currObjectSelected);
+				}
 			}
 		}
 	}
+	this.renderSilhouetteDepth();
 	
-	// Depth for silhouette.***************************************************************************************
+};
+
+Renderer.prototype.renderSilhouetteDepth = function()
+{
+// Depth for silhouette.***************************************************************************************
 	// Check if there are node selected.***********************************************************
-	if (magoManager.nodeSelected && magoManager.magoPolicy.getObjectMoveMode() === CODE.moveMode.ALL && magoManager.buildingSelected)
+	//if (magoManager.nodeSelected && magoManager.magoPolicy.getObjectMoveMode() === CODE.moveMode.ALL && magoManager.buildingSelected)
+	//{
+	
+	/*
+	*	TODO: MUST BE CHANGE WITHOUT YOUR AUTHORIZATION, YOU AND ME
+	*/
+	var magoManager = this.magoManager;
+	var selectionManager = magoManager.selectionManager;
+	var selectType = magoManager.interactionCollection.getSelectType();
+	var renderTexture = false;
+	if (selectionManager)
 	{
-		var node = magoManager.nodeSelected;
-		if (node !== undefined) // test code.***
+		var gl = magoManager.getGl();
+		var node = selectionManager.getSelectedF4dNode();
+		var selectedRef = selectionManager.getSelectedF4dObject();
+		if (node !== undefined && !selectedRef) // test code.***
 		{
 			magoManager.currentProcess = CODE.magoCurrentProcess.SilhouetteDepthRendering;
 			var silhouetteDepthFbo = magoManager.getSilhouetteDepthFbo();
 			silhouetteDepthFbo.bind(); 
-			
+				
 			if (magoManager.isFarestFrustum())
 			{
 				gl.clearColor(0, 0, 0, 1);
 				gl.clearDepth(1);
 				gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 			}
-			
+				
 			magoManager.swapRenderingFase();
-			
+				
 			var currentShader;
 			currentShader = magoManager.postFxShadersManager.getShader("modelRefDepth"); 
 			currentShader.resetLastBuffersBinded();
@@ -94826,13 +95739,13 @@ Renderer.prototype.renderGeometryDepth = function(gl, renderType, visibleObjCont
 
 			currentShader.bindUniformGenerals();
 			gl.uniform3fv(currentShader.scaleLC_loc, [1.0, 1.0, 1.0]); // init referencesMatrix.
-			
+				
 			// check if exist clippingPlanes.
 			if (magoManager.modeler.clippingBox !== undefined)
 			{
 				var planesVec4Array = magoManager.modeler.clippingBox.getPlanesRelToEyevec4Array(magoManager);
 				var planesVec4FloatArray = new Float32Array(planesVec4Array);
-				
+					
 				gl.uniform1i(currentShader.bApplyClippingPlanes_loc, true);
 				gl.uniform1i(currentShader.clippingPlanesCount_loc, 6);
 				gl.uniform4fv(currentShader.clippingPlanes_loc, planesVec4FloatArray);
@@ -94841,7 +95754,7 @@ Renderer.prototype.renderGeometryDepth = function(gl, renderType, visibleObjCont
 			{
 				gl.uniform1i(currentShader.bApplyClippingPlanes_loc, false);
 			}
-			
+				
 			var renderType = 0;
 			var refMatrixIdxKey = 0;
 			node.renderContent(magoManager, currentShader, renderType, refMatrixIdxKey);
@@ -94849,65 +95762,67 @@ Renderer.prototype.renderGeometryDepth = function(gl, renderType, visibleObjCont
 			silhouetteDepthFbo.unbind(); 
 			magoManager.swapRenderingFase();
 		}
-	}
-	
-	// Check if there are a object selected.**********************************************************************
-	if (magoManager.magoPolicy.getObjectMoveMode() === CODE.moveMode.OBJECT && magoManager.objectSelected)
-	{
-		var node = magoManager.nodeSelected;
-		var neoBuilding = magoManager.buildingSelected;
-		if (magoManager.objectSelected instanceof NeoReference && node !== undefined && neoBuilding !== undefined) // test code.***
+
+		//}
+		
+		// Check if there are a object selected.**********************************************************************
+		//if (magoManager.magoPolicy.getObjectMoveMode() === CODE.moveMode.OBJECT && magoManager.selectionManager.currentReferenceSelected)
+		if (selectionManager.currentReferenceSelected)
 		{
-			magoManager.currentProcess = CODE.magoCurrentProcess.SilhouetteDepthRendering;
-			var geoLocDataManager = node.getNodeGeoLocDataManager();
-
-			var buildingGeoLocation = geoLocDataManager.getCurrentGeoLocationData();
-			var neoReferencesMotherAndIndices = magoManager.octreeSelected.neoReferencesMotherAndIndices;
-			var glPrimitive = gl.POINTS;
-			glPrimitive = gl.TRIANGLES;
-			var maxSizeToRender = 0.0;
-			var refMatrixIdxKey = 0;
-			
-			magoManager.currentProcess = CODE.magoCurrentProcess.StencilSilhouetteRendering;
-			
-			// do as the "getSelectedObjectPicking".**********************************************************
-			var silhouetteDepthFbo = magoManager.getSilhouetteDepthFbo();
-			silhouetteDepthFbo.bind(); 
-				
-			if (magoManager.isFarestFrustum())
+			var node = selectionManager.getSelectedF4dNode();
+			var neoBuilding = selectionManager.getSelectedF4dBuilding();
+			if (selectionManager.currentReferenceSelected instanceof NeoReference && node !== undefined && neoBuilding !== undefined) // test code.***
 			{
-				gl.clearColor(0, 0, 0, 1);
-				gl.clearDepth(1);
-				gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-			}
+				magoManager.currentProcess = CODE.magoCurrentProcess.SilhouetteDepthRendering;
+				var geoLocDataManager = node.getNodeGeoLocDataManager();
+
+				var buildingGeoLocation = geoLocDataManager.getCurrentGeoLocationData();
+				var glPrimitive = gl.POINTS;
+				glPrimitive = gl.TRIANGLES;
+				var maxSizeToRender = 0.0;
+				var refMatrixIdxKey = 0;
 				
-			var currentShader;
-			currentShader = magoManager.postFxShadersManager.getShader("modelRefDepth"); 
-			currentShader.resetLastBuffersBinded();
+				magoManager.currentProcess = CODE.magoCurrentProcess.StencilSilhouetteRendering;
+				
+				// do as the "getSelectedObjectPicking".**********************************************************
+				var silhouetteDepthFbo = magoManager.getSilhouetteDepthFbo();
+				silhouetteDepthFbo.bind(); 
+					
+				if (magoManager.isFarestFrustum())
+				{
+					gl.clearColor(0, 0, 0, 1);
+					gl.clearDepth(1);
+					gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+				}
+					
+				var currentShader;
+				currentShader = magoManager.postFxShadersManager.getShader("modelRefDepth"); 
+				currentShader.resetLastBuffersBinded();
 
-			currentShader.useProgram();
-			currentShader.disableVertexAttribArrayAll();
-			currentShader.enableVertexAttribArray(currentShader.position3_loc);
+				currentShader.useProgram();
+				currentShader.disableVertexAttribArrayAll();
+				currentShader.enableVertexAttribArray(currentShader.position3_loc);
 
-			currentShader.bindUniformGenerals();
-			gl.uniform3fv(currentShader.scaleLC_loc, [1.0, 1.0, 1.0]); // init referencesMatrix.
-			
-			buildingGeoLocation.bindGeoLocationUniforms(gl, currentShader);
+				currentShader.bindUniformGenerals();
+				gl.uniform3fv(currentShader.scaleLC_loc, [1.0, 1.0, 1.0]); // init referencesMatrix.
+				
+				buildingGeoLocation.bindGeoLocationUniforms(gl, currentShader);
 
-			glPrimitive = gl.TRIANGLES;
-			var localRenderType = 0; // only need positions.***
-			var minSizeToRender = 0.0;
-			var offsetSize = 3/1000;
-			
-			gl.disable(gl.CULL_FACE);
-			
-			magoManager.objectSelected.render(magoManager, neoBuilding, localRenderType, renderTexture, currentShader, refMatrixIdxKey, minSizeToRender);
-			silhouetteDepthFbo.unbind(); 
-			
-			gl.enable(gl.CULL_FACE);
+				glPrimitive = gl.TRIANGLES;
+				var localRenderType = 0; // only need positions.***
+				var minSizeToRender = 0.0;
+				var offsetSize = 3/1000;
+				
+				gl.disable(gl.CULL_FACE);
+				
+				selectionManager.getSelectedF4dObject().render(magoManager, neoBuilding, localRenderType, renderTexture, currentShader, refMatrixIdxKey, minSizeToRender);
+				silhouetteDepthFbo.unbind(); 
+				
+				gl.enable(gl.CULL_FACE);
+			}
 		}
 	}
-};
+}
 
 /**
  * This function renders the sunPointOfView depth.
@@ -95859,6 +96774,7 @@ Renderer.prototype.renderGeometry = function(gl, renderType, visibleObjControler
 	var renderingSettings = magoManager._settings.getRenderingSettings();
 
 	var renderTexture = false;
+	var selectionManager = magoManager.selectionManager;
 	
 	if (renderType === 0 ) 
 	{
@@ -95866,9 +96782,9 @@ Renderer.prototype.renderGeometry = function(gl, renderType, visibleObjControler
 		magoManager.renderer.renderGeometryDepth(gl, renderType, visibleObjControlerNodes);
 		
 		// Draw the axis.***
-		if (magoManager.magoPolicy.getShowOrigin() && magoManager.nodeSelected !== undefined)
+		if (selectionManager && magoManager.magoPolicy.getShowOrigin() && selectionManager.getSelectedF4dNode() !== undefined)
 		{
-			node = magoManager.nodeSelected;
+			node = selectionManager.getSelectedF4dNode();
 			var nodes = [node];
 			
 			this.renderAxisNodes(nodes, renderType);
@@ -96103,17 +97019,17 @@ Renderer.prototype.renderGeometry = function(gl, renderType, visibleObjControler
 			gl.useProgram(null);
 		}
 		
-
-		if (magoManager.nodeSelected) // if there are an object selected then there are a building selected.***
+		
+		if (selectionManager && selectionManager.getSelectedF4dNode()) // if there are an object selected then there are a building selected.***
 		{
-			if (magoManager.magoPolicy.getObjectMoveMode() === CODE.moveMode.OBJECT && magoManager.objectSelected)
+			if (selectionManager.getSelectedF4dBuilding())
 			{
 				this.renderSilhouette();
 			}
 			
-			if (magoManager.magoPolicy.getObjectMoveMode() === CODE.moveMode.ALL && magoManager.buildingSelected)
+			if (selectionManager.getSelectedF4dBuilding())
 			{
-				node = magoManager.nodeSelected;
+				node = selectionManager.getSelectedF4dNode();
 				if (node !== undefined) // test code.***
 				{
 					// New.
@@ -96124,7 +97040,7 @@ Renderer.prototype.renderGeometry = function(gl, renderType, visibleObjControler
 			// draw the axis.***
 			if (magoManager.magoPolicy.getShowOrigin())
 			{
-				var node = magoManager.nodeSelected;
+				var node = selectionManager.getSelectedF4dNode();
 				//var geoLocDataManager = node.getNodeGeoLocDataManager();
 				var nodes = [node];
 				
@@ -96568,7 +97484,16 @@ Renderer.prototype.renderFilter = function()
  */
 Renderer.prototype.renderGeometryColorCoding = function(visibleObjControlerNodes) 
 {
+/*
+	'F4D' : 'f4d',
+	'OBJECT' : 'object',
+	'NATIVE' : 'native',
+	'ALL'  : 'all'
+*/
+
 	var magoManager = this.magoManager;
+	var selectType = magoManager.interactionCollection.getSelectType();
+
 	var gl = magoManager.getGl();
 	var renderType = 2; // 0 = depthRender, 1= colorRender, 2 = selectionRender.***
 	
@@ -96576,7 +97501,8 @@ Renderer.prototype.renderGeometryColorCoding = function(visibleObjControlerNodes
 	
 	// Render mago modeler objects.***
 	
-	if (magoManager.modeler !== undefined)
+	//지금 당장은 필요없음. 테스트용 코드들임.
+	/*if (selectType === 'native' && magoManager.modeler !== undefined)
 	{
 		currentShader = magoManager.postFxShadersManager.getShader("modelRefColorCoding"); 
 		currentShader.useProgram();
@@ -96593,7 +97519,7 @@ Renderer.prototype.renderGeometryColorCoding = function(visibleObjControlerNodes
 
 		currentShader.disableVertexAttribArrayAll();
 		gl.useProgram(null);
-	}
+	}*/
 	
 	
 	// Render f4d objects.***
@@ -96613,12 +97539,19 @@ Renderer.prototype.renderGeometryColorCoding = function(visibleObjControlerNodes
 		gl.disable(gl.CULL_FACE);
 		// do the colorCoding render.***
 		var minSizeToRender = 0.0;
-		magoManager.renderer.renderNodes(gl, visibleObjControlerNodes.currentVisibles0, magoManager, currentShader, renderTexture, renderType, minSizeToRender, refTMatrixIdxKey);
-		magoManager.renderer.renderNodes(gl, visibleObjControlerNodes.currentVisibles2, magoManager, currentShader, renderTexture, renderType, minSizeToRender, refTMatrixIdxKey);
-		magoManager.renderer.renderNodes(gl, visibleObjControlerNodes.currentVisibles3, magoManager, currentShader, renderTexture, renderType, minSizeToRender, refTMatrixIdxKey);
+		if (selectType !== 'native')
+		{
+			magoManager.renderer.renderNodes(gl, visibleObjControlerNodes.currentVisibles0, magoManager, currentShader, renderTexture, renderType, minSizeToRender, refTMatrixIdxKey);
+			magoManager.renderer.renderNodes(gl, visibleObjControlerNodes.currentVisibles2, magoManager, currentShader, renderTexture, renderType, minSizeToRender, refTMatrixIdxKey);
+			magoManager.renderer.renderNodes(gl, visibleObjControlerNodes.currentVisibles3, magoManager, currentShader, renderTexture, renderType, minSizeToRender, refTMatrixIdxKey);
+		}
+		
 		// native objects.
-		var glPrimitive = undefined;
-		this.renderNativeObjects(gl, currentShader, renderType, visibleObjControlerNodes);
+		if (selectType === 'native' || selectType === 'all')
+		{
+			this.renderNativeObjects(gl, currentShader, renderType, visibleObjControlerNodes);
+		}
+		
 		/*
 		var nativeObjectsCount = visibleObjControlerNodes.currentVisibleNativeObjects.length;
 		for (var i=0; i<nativeObjectsCount; i++)
@@ -96634,6 +97567,7 @@ Renderer.prototype.renderGeometryColorCoding = function(visibleObjControlerNodes
 		if (magoManager.weatherStation)
 		{ magoManager.weatherStation.test_renderCuttingPlanes(magoManager, renderType); }
 	}
+
 	if (magoManager.magoPolicy.objectMoveMode === CODE.moveMode.GEOGRAPHICPOINTS)
 	{
 		// render geographicCoords of the modeler.***
@@ -96918,7 +97852,7 @@ RenderingSettings.prototype.setPointsCloudInColorRamp = function(bPointsCloudInC
  * This class contains the camera transformation matrices and other parameters that affects the scene.
  * @class SceneState
  */
-var SceneState = function() 
+var SceneState = function(config) 
 {
 	if (!(this instanceof SceneState)) 
 	{
@@ -97065,17 +97999,17 @@ var SceneState = function()
 	this.fps = 0.0;
 
 	//mago earth 사용 시 초기 scene 세팅
-	if (MagoConfig.getPolicy().basicGlobe !== 'cesium') 
+	if (config.getPolicy().basicGlobe !== 'cesium') 
 	{
-		this.initMagoSceneState();
+		this.initMagoSceneState(config.getContainerId());
 	}
 };
 /**
  * mago earth 사용 시 초기 scene 세팅
  */
-SceneState.prototype.initMagoSceneState = function() 
+SceneState.prototype.initMagoSceneState = function(cId) 
 {
-	var containerDiv = document.getElementById(MagoConfig.getContainerId());
+	var containerDiv = document.getElementById(cId);
 	if (!containerDiv) 
 	{
 		throw new Error('container is empty.');
@@ -97445,24 +98379,37 @@ var SelectionManager = function(magoManager)
 
 	// General candidates. 
 	this.selCandidatesMap = {};
-	this.currentGeneralObjectSelected;
+	
 	
 	// Default f4d objectsMap. // Deprecated.
 	this.referencesMap = {}; // Deprecated.
 	this.octreesMap = {}; // Deprecated.
 	this.buildingsMap = {}; // Deprecated.
 	this.nodesMap = {}; // Deprecated.
+
+	this.provisionalF4dArray = [];
+	this.provisionalF4dObjectArray = [];
+	this.provisionalNativeArray = [];
 	
 	this.currentReferenceSelected; // Deprecated.
 	this.currentOctreeSelected; // Deprecated.
 	this.currentBuildingSelected; // Deprecated.
 	this.currentNodeSelected; // Deprecated.
+	this.currentGeneralObjectSelected;
+	
+	this.currentReferenceSelectedArray = [];
+	this.currentOctreeSelectedArray = [];
+	this.currentBuildingSelectedArray = [];
+	this.currentNodeSelectedArray = [];
+	this.currentGeneralObjectSelectedArray = [];
 	
 	// Custom candidates.
 	this.selCandidatesFamilyMap = {};
 
 	// Parameter that indicates that we are rendering selected data structure.
 	this.parentSelected = false;
+
+	this.selectionFbo = new FBO(this.magoManager.getGl(), this.magoManager.sceneState.drawingBufferWidth, this.magoManager.sceneState.drawingBufferHeight, {matchCanvasSize: true});
 };
 
 /**
@@ -97547,6 +98494,76 @@ SelectionManager.prototype.getSelectedGeneral = function()
 SelectionManager.prototype.setSelectedGeneral = function(selectedObject)
 {
 	this.currentGeneralObjectSelected = selectedObject;
+};
+
+/**
+ * SelectionManager
+ * 
+ * @alias SelectionManager
+ * @class SelectionManager
+ */
+SelectionManager.prototype.getSelectedF4dBuilding = function()
+{
+	if(this.currentNodeSelected)
+	{
+		return this.currentNodeSelected.data.neoBuilding;
+	}
+	return undefined;
+};
+
+/**
+ * SelectionManager
+ * 
+ * @alias SelectionManager
+ * @class SelectionManager
+ */
+SelectionManager.prototype.setSelectedF4dBuilding = function(building)
+{
+	this.currentBuildingSelected = building;
+};
+
+/**
+ * SelectionManager
+ * 
+ * @alias SelectionManager
+ * @class SelectionManager
+ */
+SelectionManager.prototype.getSelectedF4dObject = function()
+{
+	return this.currentReferenceSelected;
+};
+
+/**
+ * SelectionManager
+ * 
+ * @alias SelectionManager
+ * @class SelectionManager
+ */
+SelectionManager.prototype.setSelectedF4dObject = function(object)
+{
+	this.currentReferenceSelected = object;
+};
+
+/**
+ * SelectionManager
+ * 
+ * @alias SelectionManager
+ * @class SelectionManager
+ */
+SelectionManager.prototype.getSelectedF4dNode = function()
+{
+	return this.currentNodeSelected;
+};
+
+/**
+ * SelectionManager
+ * 
+ * @alias SelectionManager
+ * @class SelectionManager
+ */
+SelectionManager.prototype.setSelectedF4dNode = function(node)
+{
+	this.currentNodeSelected = node;
 };
 
 /**
@@ -97676,7 +98693,24 @@ SelectionManager.prototype.clearCurrents = function()
 	}
 
 	this.currentGeneralObjectSelected = undefined;
+
+	this.currentReferenceSelectedArray = [];
+	this.currentOctreeSelectedArray = [];
+	this.currentBuildingSelectedArray = [];
+	this.currentNodeSelectedArray = [];
+	this.currentGeneralObjectSelectedArray = [];
 };
+/**
+ * SelectionManager
+ * 
+ * @alias SelectionManager
+ * @class SelectionManager
+ */
+SelectionManager.prototype.clearProvisionals = function(){
+	this.provisionalF4dArray = [];
+	this.provisionalF4dObjectArray = [];
+	this.provisionalNativeArray = [];
+}
 
 /**
  * SelectionManager
@@ -97692,1770 +98726,278 @@ SelectionManager.prototype.TEST__CurrGeneralObjSel = function()
 	{ return false; }
 };
 
-'use strict';
-
-function abstract() 
-{
-	return  ((function() 
-	{
-		throw new Error('Unimplemented abstract method.');
-	})());
-}
-'use strict';
-
 /**
- * 어떤 일을 하고 있습니까?
- * @class ByteColor
- */
-var ByteColor = function() 
-{
-	if (!(this instanceof ByteColor)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-
-	this.ByteR = 0;
-	this.ByteG = 0;
-	this.ByteB = 0;
-	this.ByteAlfa = 255;
-};
-
-/**
- * 어떤 일을 하고 있습니까?
- */
-ByteColor.prototype.destroy = function() 
-{
-	this.ByteR = null;
-	this.ByteG = null;
-	this.ByteB = null;
-	this.ByteAlfa = null;
-};
-
-/**
- * 어떤 일을 하고 있습니까?
- * @param byteRed 변수
- * @param byteGreen 변수
- * @param byteBlue 변수
- */
-ByteColor.prototype.set = function(byteRed, byteGreen, byteBlue) 
-{
-	this.ByteR = byteRed;
-	this.ByteG = byteGreen;
-	this.ByteB = byteBlue;
-};
-
-'use strict';
-
-/**
- * This class is used to control the movement of objects.
- * @class CameraController
- */
-var CameraController = function() 
-{
-	if (!(this instanceof CameraController)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	
-	this.startGeoCoord;
-	this.targetGeoCoord;
-	this.travelDurationInSeconds;
-	
-	this.acceleration; // m/s2.***
-	this.velocity; // m/s.***
-	
-	
-};
-'use strict';
-
-/**
- * Returns guid
- */
-function createGuid() 
-{
-	return 'xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) 
-	{
-		var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-		return v.toString(16);
-	});
-}
-'use strict';
-
-/**
- * Returns the first parameter if not undefined, otherwise the second parameter.
- * Useful for setting a default value for a parameter.
- *
- * @param {*} a
- * @param {*} b
- * @returns {*} Returns the first parameter if not undefined, otherwise the second parameter. 
- */
-function defaultValue(a, b) 
-{
-	if (a !== undefined && a !== null) 
-	{
-		return a;
-	}
-	return b;
-}
-'use strict';
-
-/**
- * Returns the first parameter if not undefined, otherwise the second parameter.
- * Useful for setting a default value for a parameter.
- *
- * @param {*} a
- * @param {*} b
- * @returns {*} Returns the first parameter if not undefined, otherwise the second parameter. 
- */
-function defaultValueCheckLength(a, b) 
-{
-	if (a !== undefined && a !== null && a.toString().trim().length > 0) 
-	{
-		return a;
-	}
-	return b;
-}
-'use strict';
-
-/**
- *
- * @param {*} value The object.
- * @returns {Boolean} Returns true if the object is defined, returns false otherwise.
- */
-function defined(value) 
-{
-	return value !== undefined && value !== null;
-}
-'use strict';
-/**
-* Utils for geometry.
-* @class GeometryUtils
-*/
-var GeometryUtils = function() 
-{
-	if (!(this instanceof GeometryUtils)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	
-};
-
-/**
- * Given an idx, this function returns the next idx of an array.
- * @param {Number} currIdx 
- * @param {Number} pointsCount The points count of the array.
- * @Return {Number} The next idx.
- */
-GeometryUtils.projectPoint3DInToBestPlaneToProject = function(point3d, bestPlaneToProject, resultPoint2d)
-{
-	// This function returns projected point2d.
-	if (resultPoint2d === undefined)
-	{ resultPoint2d = new Point2D(); }
-	
-	if (bestPlaneToProject === 0)
-	{
-		//"xy";
-		resultPoint2d.set(point3d.x, point3d.y);
-	}
-	else if (bestPlaneToProject === 1)
-	{
-		//"yz";
-		resultPoint2d.set(point3d.y, point3d.z);
-	}
-	else if (bestPlaneToProject === 2)
-	{
-		//"xz";
-		resultPoint2d.set(point3d.x, point3d.z);
-	}
-	
-	return resultPoint2d;
-};
-
-/**
- * Given an idx, this function returns the next idx of an array.
- * @param {Number} currIdx 
- * @param {Number} pointsCount The points count of the array.
- * @Return {Number} The next idx.
- */
-GeometryUtils.projectTriangle3DInToBestPlaneToProject = function(triangle3d, bestPlaneToProject, resultTriangle2d)
-{
-	// This function returns projected triangle2d.
-	if (resultTriangle2d === undefined)
-	{ resultTriangle2d = new Triangle2D(); }
-	
-	var point3d0 = triangle3d.vertex0.getPosition();
-	var point2d0 = GeometryUtils.projectPoint3DInToBestPlaneToProject(point3d0, bestPlaneToProject, undefined);
-	
-	var point3d1 = triangle3d.vertex1.getPosition();
-	var point2d1 = GeometryUtils.projectPoint3DInToBestPlaneToProject(point3d1, bestPlaneToProject, undefined);
-	
-	var point3d2 = triangle3d.vertex2.getPosition();
-	var point2d2 = GeometryUtils.projectPoint3DInToBestPlaneToProject(point3d2, bestPlaneToProject, undefined);
-	
-	resultTriangle2d.setPoints(point2d0, point2d1, point2d2);
-	
-	return resultTriangle2d;
-};
-
-/**
- * Given an idx, this function returns the next idx of an array.
- * @param {Number} currIdx 
- * @param {Number} pointsCount The points count of the array.
- * @Return {Number} The next idx.
- */
-GeometryUtils.getNextIdx = function(currIdx, pointsCount)
-{
-	if (currIdx === pointsCount - 1)
-	{ return 0; }
-	else
-	{ return currIdx + 1; }
-};
-
-/**
- * Given an idx, this function returns the previous idx of an array.
- * @param {Number} currIdx 
- * @param {Number} pointsCount The points count of the array.
- * @Return {Number} The previous idx.
- */
-GeometryUtils.getPrevIdx = function(currIdx, pointsCount)
-{
-	if (currIdx === 0)
-	{ return pointsCount - 1; }
-	else
-	{ return currIdx - 1; }
-};
-
-/**
- * This function makes the triangles vertices indices for a regular grid.
- * @param {Number} numCols Grid columns count.
- * @param {Number} numRows Grid rows count.
- * @param {Uint16Array/undefined} resultIndicesArray
- * @param {Object} options 
- * @Return {Uint16Array} resultIndicesArray
- */
-GeometryUtils.getIndicesTrianglesRegularNet = function(numCols, numRows, resultIndicesArray, resultSouthIndices, resultEastIndices, resultNorthIndices, resultWestIndices, options)
-{
-	// given a regular net this function returns triangles vertices indices of the net.
-	var verticesCount = numCols * numRows;
-	var trianglesCount = (numCols-1) * (numRows-1) * 2;
-	if (resultIndicesArray === undefined)
-	{ resultIndicesArray = new Uint16Array(trianglesCount * 3); }
-	
-	var idx_1, idx_2, idx_3;
-	var idxCounter = 0;
-	
-	var resultObject = {};
-	
-	// bLoopColumns : if want object like a cilinder or sphere where the 1rstCol touch with the last col.
-	var bLoopColumns = false; // Default.***
-	var bTrianglesSenseCCW = true;
-	if (options !== undefined)
-	{
-		if (options.bLoopColumns !== undefined)
-		{ bLoopColumns = options.bLoopColumns; }
-	
-		if (options.bTrianglesSenseCCW !== undefined)
-		{ bTrianglesSenseCCW = options.bTrianglesSenseCCW; }
-	}
-	
-	for (var row = 0; row<numRows-1; row++)
-	{
-		for (var col=0; col<numCols-1; col++)
-		{
-			// there are 2 triangles: triA, triB.
-			idx_1 = VertexMatrix.getIndexOfArray(numCols, numRows, col, row);
-			idx_2 = VertexMatrix.getIndexOfArray(numCols, numRows, col+1, row);
-			idx_3 = VertexMatrix.getIndexOfArray(numCols, numRows, col, row+1);
-			
-			if (bTrianglesSenseCCW)
-			{
-				resultIndicesArray[idxCounter] = idx_1; idxCounter++;
-				resultIndicesArray[idxCounter] = idx_2; idxCounter++;
-				resultIndicesArray[idxCounter] = idx_3; idxCounter++;
-			}
-			else
-			{
-				resultIndicesArray[idxCounter] = idx_1; idxCounter++;
-				resultIndicesArray[idxCounter] = idx_3; idxCounter++;
-				resultIndicesArray[idxCounter] = idx_2; idxCounter++;
-			}
-			
-			idx_1 = VertexMatrix.getIndexOfArray(numCols, numRows, col+1, row);
-			idx_2 = VertexMatrix.getIndexOfArray(numCols, numRows, col+1, row+1);
-			idx_3 = VertexMatrix.getIndexOfArray(numCols, numRows, col, row+1);
-			
-			if (bTrianglesSenseCCW)
-			{
-				resultIndicesArray[idxCounter] = idx_1; idxCounter++;
-				resultIndicesArray[idxCounter] = idx_2; idxCounter++;
-				resultIndicesArray[idxCounter] = idx_3; idxCounter++;
-			}
-			else 
-			{
-				resultIndicesArray[idxCounter] = idx_1; idxCounter++;
-				resultIndicesArray[idxCounter] = idx_3; idxCounter++;
-				resultIndicesArray[idxCounter] = idx_2; idxCounter++;
-			}
-		}
-	}
-	
-	resultObject.indicesArray = resultIndicesArray;
-	
-	var bCalculateBorderIndices = false;
-	if (options)
-	{
-		if (options.bCalculateBorderIndices !== undefined && options.bCalculateBorderIndices === true)
-		{ bCalculateBorderIndices = true; }
-	}
-	
-	// Border indices.***
-	if (bCalculateBorderIndices)
-	{
-		// South.
-		if (!resultSouthIndices)
-		{ resultSouthIndices = new Uint16Array(numCols); }
-		
-		for (var col=0; col<numCols; col++)
-		{
-			var idx = VertexMatrix.getIndexOfArray(numCols, numRows, col, 0);
-			resultSouthIndices[col] = idx;
-		}
-		
-		resultObject.southIndicesArray = resultSouthIndices;
-		
-		// East.
-		if (!resultEastIndices)
-		{ resultEastIndices = new Uint16Array(numRows); }
-		
-		for (var row = 0; row<numRows; row++)
-		{
-			var idx = VertexMatrix.getIndexOfArray(numCols, numRows, numCols-1, row);
-			resultEastIndices[row] = idx;
-		}
-		
-		resultObject.eastIndicesArray = resultEastIndices;
-		
-		// North.
-		if (!resultNorthIndices)
-		{ resultNorthIndices = new Uint16Array(numCols); }
-		
-		var counter = 0;
-		for (var col=numCols-1; col>=0; col--)
-		{
-			var idx = VertexMatrix.getIndexOfArray(numCols, numRows, col, numRows-1);
-			resultNorthIndices[counter] = idx;
-			counter ++;
-		}
-		
-		resultObject.northIndicesArray = resultNorthIndices;
-		
-		// West.
-		if (!resultWestIndices)
-		{ resultWestIndices = new Uint16Array(numRows); }
-		
-		counter = 0;
-		for (var row = numRows-1; row>=0; row--)
-		{
-			var idx = VertexMatrix.getIndexOfArray(numCols, numRows, 0, row);
-			resultWestIndices[counter] = idx;
-			counter ++;
-		}
-		
-		resultObject.westIndicesArray = resultWestIndices;
-	}
-	
-	if (bLoopColumns)
-	{
-		var firstCol = 0;
-		var endCol = numCols;
-		for (var row = 0; row<numRows-1; row++)
-		{
-			// there are triangles between lastColumn & 1rstColumn.
-			// there are 2 triangles: triA, triB.
-			idx_1 = VertexMatrix.getIndexOfArray(numCols, numRows, endCol, row);
-			idx_2 = VertexMatrix.getIndexOfArray(numCols, numRows, firstCol, row);
-			idx_3 = VertexMatrix.getIndexOfArray(numCols, numRows, endCol, row+1);
-			if (bTrianglesSenseCCW)
-			{
-				resultIndicesArray[idxCounter] = idx_1; idxCounter++;
-				resultIndicesArray[idxCounter] = idx_2; idxCounter++;
-				resultIndicesArray[idxCounter] = idx_3; idxCounter++;
-			}
-			else 
-			{
-				resultIndicesArray[idxCounter] = idx_1; idxCounter++;
-				resultIndicesArray[idxCounter] = idx_3; idxCounter++;
-				resultIndicesArray[idxCounter] = idx_2; idxCounter++;
-			}
-			
-			idx_1 = VertexMatrix.getIndexOfArray(numCols, numRows, firstCol, row);
-			idx_2 = VertexMatrix.getIndexOfArray(numCols, numRows, firstCol, row+1);
-			idx_3 = VertexMatrix.getIndexOfArray(numCols, numRows, endCol, row+1);
-			if (bTrianglesSenseCCW)
-			{
-				resultIndicesArray[idxCounter] = idx_1; idxCounter++;
-				resultIndicesArray[idxCounter] = idx_2; idxCounter++;
-				resultIndicesArray[idxCounter] = idx_3; idxCounter++;
-			}
-			else 
-			{
-				resultIndicesArray[idxCounter] = idx_1; idxCounter++;
-				resultIndicesArray[idxCounter] = idx_3; idxCounter++;
-				resultIndicesArray[idxCounter] = idx_2; idxCounter++;
-			}
-		}
-	}
-	
-	return resultObject;
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-'use strict';
-
-/**
- *
- * @param {*} value The object.
- * @returns {Boolean} Returns true if the object is empty, returns false otherwise.
- */
-function isEmpty(value)
-{ 
-	if ( value === "" || value === null || value === undefined || ( value !== null && typeof value === "object" && !Object.keys(value).length ) )
-	{ 
-		return true; 
-	}
-	else
-	{ 
-		return false; 
-	} 
-};
-
-
-'use strict';
-
-/**
- *
- * @param {String} url Required.
- * @param {XMLHttpRequest} xhr Optional.
- * @param {number} timeOut Optional. timeout time. milliseconds
- * @param {String} responseType Optional. Default is 'arraybuffer'
- * @param {String} method Optional. Default is 'GET'
+ * Selects an object of the current visible objects that's under mouse.
+ * @param {GL} gl.
+ * @param {int} mouseX Screen x position of the mouse.
+ * @param {int} mouseY Screen y position of the mouse.
  * 
- * @returns {Promise} Promise.js object
- *
- * @example
- * loadWithXhr('url', undefined, undefined, 'json', 'GET').done(function(res) {
- * 	TODO
- * });
+ * @private
+ * @deprecated
  */
-function loadWithXhr(url, xhr, timeOut, responseType, method) 
+SelectionManager.prototype.selectObjectByPixel = function(gl, mouseX, mouseY, bSelectObjects) 
 {
-	if (!defined(url))
+	if (bSelectObjects === undefined)
+	{ bSelectObjects = false; }
+
+	this.magoManager.selectionFbo.bind(); // framebuffer for color selection.***
+	gl.enable(gl.DEPTH_TEST);
+	gl.depthFunc(gl.LEQUAL);
+	gl.depthRange(0, 1);
+	gl.disable(gl.CULL_FACE);
+	
+	// Read the picked pixel and find the object.*********************************************************
+	var mosaicWidth = 1;
+	var mosaicHeight = 1;
+	var totalPixelsCount = mosaicWidth*mosaicHeight;
+	var pixels = new Uint8Array(4 * mosaicWidth * mosaicHeight); // 4 x 3x3 pixel, total 9 pixels select.***
+	var pixelX = mouseX - Math.floor(mosaicWidth/2);
+	var pixelY = this.magoManager.sceneState.drawingBufferHeight - mouseY - Math.floor(mosaicHeight/2); // origin is bottom.***
+	
+	if (pixelX < 0){ pixelX = 0; }
+	if (pixelY < 0){ pixelY = 0; }
+	
+	gl.readPixels(pixelX, pixelY, mosaicWidth, mosaicHeight, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null); // unbind framebuffer.***
+
+	// now, select the object.***
+	// The center pixel of the selection is 12, 13, 14.***
+	var centerPixel = Math.floor(totalPixelsCount/2);
+	var idx = this.magoManager.selectionColor.decodeColor3(pixels[centerPixel*3], pixels[centerPixel*3+1], pixels[centerPixel*3+2]);
+	
+	// Provisionally.***
+	this.currentReferenceSelected = this.referencesMap[idx];
+	this.currentOctreeSelected = this.octreesMap[idx];
+	this.currentBuildingSelected = this.buildingsMap[idx];
+	this.currentNodeSelected = this.nodesMap[idx];
+	
+	var selectedObject = this.currentReferenceSelected;
+
+	// Additionally check if selected an edge of topology.***
+	var selNetworkEdges = this.getSelectionCandidatesFamily("networkEdges");
+	if (selNetworkEdges)
 	{
-		throw new Error('url required');
-	}
-
-	return new Promise(
-		function (resolve, reject) 
+		var currEdgeSelected = selNetworkEdges.currentSelected;
+		var i = 0;
+		while (currEdgeSelected === undefined && i< totalPixelsCount)
 		{
-			if (xhr === undefined)
-			{ xhr = new XMLHttpRequest(); }
-
-			method = method ? method : 'GET';
-			xhr.open(method, url, true);
-			xhr.responseType = responseType ? responseType : 'arraybuffer';
-
-			 // time in milliseconds
-			if (timeOut !== undefined)
-			{ xhr.timeout = timeOut; }
-			
-			// 이벤트 핸들러를 등록한다.
-			xhr.onload = function() 
-			{
-				if (xhr.status < 200 || xhr.status >= 300) 
-				{
-					reject(xhr.status);
-				}
-				else 
-				{
-					// 3.1) DEFERRED를 해결한다. (모든 done()...을 동작시킬 것이다.)
-					resolve(xhr.response);
-				} 
-			};
-			
-			xhr.ontimeout = function (e) 
-			{
-				// XMLHttpRequest timed out.***
-				reject(-1);
-			};
-			
-			xhr.onerror = function(e) 
-			{
-				console.log("Invalid XMLHttpRequest response type.");
-				reject(xhr.status);
-			};
-
-			// 작업을 수행한다.
-			xhr.send(null);
-		}
-	);
-};
-'use strict';
-
-/**
- * ManagerUtils does some calculations about coordinates system of different earth coords.
- * 
- * @class ManagerUtils
- * @constructor 
- */
-var ManagerUtils = function() 
-{
-	
-	
-};
-
-/**
- * 어떤 일을 하고 있습니까?
- * @param octreesArray 변수
- * @param octree 변수
- * @returns result_idx
- */
-ManagerUtils.getIndexToInsertBySquaredDistToEye = function(objectsArray, object, startIdx, endIdx) 
-{
-	// Note: the object must have "distToCamera" variable.
-	// this do a dicotomic search of idx in a ordered table.
-	// 1rst, check the range.
-	if (startIdx === undefined)
-	{ startIdx = 0; }
-	
-	if (endIdx === undefined)
-	{ endIdx = objectsArray.length-1; }
-	
-	var range = endIdx - startIdx;
-	
-	if (range <= 0)
-	{ return 0; }
-	
-	if (range < 6)
-	{
-		// in this case do a lineal search.
-		var finished = false;
-		var i = startIdx;
-		var idx;
-		var octreesCount = objectsArray.length;
-		while (!finished && i<=endIdx)
-		{
-			if (object.distToCamera < objectsArray[i].distToCamera)
-			{
-				idx = i;
-				finished = true;
-			}
+			var idx = this.magoManager.selectionColor.decodeColor3(pixels[i*3], pixels[i*3+1], pixels[i*3+2]);
+			currEdgeSelected = selNetworkEdges.selectObject(idx);
 			i++;
 		}
-		
-		if (finished)
+	}
+	
+	// TEST: Check if selected a cuttingPlane.***
+	var selGeneralObjects = this.getSelectionCandidatesFamily("general");
+	if (selGeneralObjects)
+	{
+		var currObjectSelected = selGeneralObjects.currentSelected;
+		var i = 0;
+		while (currObjectSelected === undefined && i< totalPixelsCount)
 		{
-			return idx;
-		}
-		else 
-		{
-			return endIdx+1;
+			var idx = this.selectionColor.decodeColor3(pixels[i*3], pixels[i*3+1], pixels[i*3+2]);
+			currObjectSelected = selGeneralObjects.selectObject(idx);
+			i++;
 		}
 	}
-	else 
-	{
-		// in this case do the dicotomic search.
-		var middleIdx = startIdx + Math.floor(range/2);
-		var newStartIdx;
-		var newEndIdx;
-		if (objectsArray[middleIdx].distToCamera > object.distToCamera)
-		{
-			newStartIdx = startIdx;
-			newEndIdx = middleIdx;
-		}
-		else 
-		{
-			newStartIdx = middleIdx;
-			newEndIdx = endIdx;
-		}
-		return ManagerUtils.getIndexToInsertBySquaredDistToEye(objectsArray, object, newStartIdx, newEndIdx);
-	}
+	
+	// Check general objects.***
+	if (selectedObject === undefined)
+	{ selectedObject = this.selCandidatesMap[idx]; }
+	this.setSelectedGeneral(this.selCandidatesMap[idx]);
+
+	this.magoManager.selectionFbo.unbind();
+	gl.enable(gl.CULL_FACE);
 };
 
 /**
- * world coordinate to geographic coordinate.
- * @param {Point3D} point world coordinate.
- * @param {GeographicCoord|undefined} resultGeographicCoord Optional. result geographicCoord. if undefined, create GeographicCoord instance.
- * @param {MagoManager} magoManager worldwind mode removed, this args is not need. 
- * @returns {GeographicCoord} geographic coordinate object.
- */
-ManagerUtils.pointToGeographicCoord = function(point, resultGeographicCoord) 
-{
-	if (!point) 
-	{
-		throw new Error('point is requred');
-	}
-
-	if (resultGeographicCoord === undefined)
-	{ resultGeographicCoord = new GeographicCoord(); }
-	
-	var cartographic = Globe.CartesianToGeographicWgs84(point.x, point.y, point.z, cartographic);
-	resultGeographicCoord.setLonLatAlt(cartographic.longitude, cartographic.latitude, cartographic.altitude);
-	
-	return resultGeographicCoord;
-};
-
-/**
- * geographic coordinate to world coordinate.
- * @param {number} longitude longitude.
- * @param {number} latitude latitude.
- * @param {number} altitude altitude.
- * @param {Point3D|undefined} resultWorldPoint Optional. result worldCoord. if undefined, create Point3D instance.
- * @returns {Point3D} world coordinate object.
- */
-ManagerUtils.geographicCoordToWorldPoint = function(longitude, latitude, altitude, resultWorldPoint) 
-{
-	if (resultWorldPoint === undefined)
-	{ resultWorldPoint = new Point3D(); }
-
-	var cartesian = Globe.geographicToCartesianWgs84(longitude, latitude, altitude, undefined);
-	resultWorldPoint.set(cartesian[0], cartesian[1], cartesian[2]);
-	return resultWorldPoint;
-};
-
-/**
- * when node mapping type is boundingboxcenter, set pivotPointTraslation and create pivotPoint at geoLocationData
- * this function NO modifies the geographic coords.
- * "newPivotPoint" is in buildingCoords.
- * "newPivotPoint" is the desired position of the new origen of coords, for example:
- * in a building you can desire the center of the bbox as the origin of the coords.
- * @param {GeoLocationData} geoLocationData. Required.
- * @param {Point3D} newPivotPoint newPivotPoint.
- */
-ManagerUtils.translatePivotPointGeoLocationData = function(geoLocationData, newPivotPoint) 
-{
-	if (geoLocationData === undefined)
-	{ return; }
-
-	var rawTranslation = new Point3D();
-	rawTranslation.set(-newPivotPoint.x, -newPivotPoint.y, -newPivotPoint.z);
-
-	geoLocationData.pivotPointTraslationLC = rawTranslation;
-	geoLocationData.doEffectivePivotPointTranslation();
-};
-
-/**
- * this function calculates the transformation matrix for (x, y, z) coordinate, that has NO heading, pitch or roll rotations.
- * @param {Point3D} worldPosition worldPosition.
- * @param {Matrix4|undefined} resultGeoLocMatrix. Optional. result geolocation matrix. if undefined, create Matrix4 instance.
- * @returns {Matrix4} resultGeoLocMatrix. this matrix has NO heading, pitch or roll rotations.
- */
-ManagerUtils.calculateGeoLocationMatrixAtWorldPosition = function(worldPosition, resultGeoLocMatrix) 
-{
-	if (resultGeoLocMatrix === undefined)
-	{ resultGeoLocMatrix = new Matrix4(); }
-
-	Globe.transformMatrixAtCartesianPointWgs84(worldPosition.x, worldPosition.y, worldPosition.z, resultGeoLocMatrix._floatArrays);
-	
-	return resultGeoLocMatrix;
-};
-
-/**
- * this function calculates the transformation matrix for (longitude, latitude, altitude) coordinate, that has NO heading, pitch or roll rotations.
- * @param {number} longitude longitude.
- * @param {number} latitude latitude.
- * @param {number} altitude altitude.
- * @param {Matrix4|undefined} resultGeoLocMatrix. Optional. result geolocation matrix. if undefined, create Matrix4 instance.
- * @returns {Matrix4} resultGeoLocMatrix. this matrix has NO heading, pitch or roll rotations.
- */
-ManagerUtils.calculateGeoLocationMatrixAtLonLatAlt = function(longitude, latitude, altitude, resultGeoLocMatrix) 
-{
-	if (resultGeoLocMatrix === undefined)
-	{ resultGeoLocMatrix = new Matrix4(); }
-	
-	var worldPosition = this.geographicCoordToWorldPoint(longitude, latitude, altitude, worldPosition);
-	resultGeoLocMatrix = ManagerUtils.calculateGeoLocationMatrixAtWorldPosition(worldPosition, resultGeoLocMatrix);
-	
-	return resultGeoLocMatrix;
-};
-
-/**
- * This function calculates the "resultGeoLocMatrix" & "resultTransformMatrix".
- * @param {Point3D} worldPosition worldPosition.
- * @param {number} heading heading.
- * @param {number} pitch pitch.
- * @param {number} roll roll.
- * @param {Matrix4|undefined} resultGeoLocMatrix. Optional. result geolocation matrix. if undefined, create Matrix4 instance. this transformMatrix without the heading, pitch, roll rotations.
- * @param {Matrix4|undefined} resultTransformMatrix. Optional. result transform matrix. if undefined, create Matrix4 instance. this matrix including the heading, pitch, roll rotations.
- * @returns {Matrix4} resultTransformMatrix.
- */
-ManagerUtils.calculateTransformMatrixAtWorldPosition = function(worldPosition, heading, pitch, roll, resultGeoLocMatrix, resultTransformMatrix) 
-{
-	var xRotMatrix = new Matrix4();  // created as identity matrix.
-	var yRotMatrix = new Matrix4();  // created as identity matrix.
-	var zRotMatrix = new Matrix4();  // created as identity matrix.
-	
-	if (heading !== undefined && heading !== 0)
-	{ zRotMatrix.rotationAxisAngDeg(heading, 0.0, 0.0, 1.0); }
-
-	if (pitch !== undefined && pitch !== 0)
-	{ xRotMatrix.rotationAxisAngDeg(pitch, 1.0, 0.0, 0.0); }
-
-	if (roll !== undefined && roll !== 0)
-	{ yRotMatrix.rotationAxisAngDeg(roll, 0.0, 1.0, 0.0); }
-
-	if (resultGeoLocMatrix === undefined)
-	{ resultGeoLocMatrix = new Matrix4(); }  // created as identity matrix.
-	
-	if (resultTransformMatrix === undefined)
-	{ resultTransformMatrix = new Matrix4(); }  // created as identity matrix.
-
-	// 1rst, calculate the transformation matrix for the location.
-	resultGeoLocMatrix = ManagerUtils.calculateGeoLocationMatrixAtWorldPosition(worldPosition, resultGeoLocMatrix);
-	
-	resultTransformMatrix.copyFromMatrix4(resultGeoLocMatrix);
-	var zRotatedTMatrix;
-	var zxRotatedTMatrix;
-	var zxyRotatedTMatrix;
-
-	zRotatedTMatrix = zRotMatrix.getMultipliedByMatrix(resultTransformMatrix, zRotatedTMatrix);
-	zxRotatedTMatrix = xRotMatrix.getMultipliedByMatrix(zRotatedTMatrix, zxRotatedTMatrix);
-	zxyRotatedTMatrix = yRotMatrix.getMultipliedByMatrix(zxRotatedTMatrix, zxyRotatedTMatrix);
-	
-	resultTransformMatrix = zxyRotatedTMatrix;
-	return resultTransformMatrix;
-};
-
-/**
- * This function calculates all data and matrices for the location(longitude, latitude, altitude) and rotation(heading, pitch, roll).
- * @param {number} longitude Required. longitude.
- * @param {number} latitude Required. latitude.
- * @param {number} altitude altitude.
- * @param {number} heading heading. Unit is degree.
- * @param {number} pitch pitch. Unit is degree.
- * @param {number} roll roll. Unit is degree.
- * @param {GeoLocationData|undefined} resultGeoLocationData Optional. result geolocation matrix. if undefined, create GeoLocationData instance.
- * @param {MagoManager} magoManager for magoManager.globe
- * @returns {GeoLocationData} resultGeoLocationData.
- */
-ManagerUtils.calculateGeoLocationData = function(longitude, latitude, altitude, heading, pitch, roll, resultGeoLocationData) 
-{
-	if (resultGeoLocationData === undefined)
-	{ resultGeoLocationData = new GeoLocationData(); }
-
-	// 0) Position.**
-	if (resultGeoLocationData.geographicCoord === undefined)
-	{ resultGeoLocationData.geographicCoord = new GeographicCoord(); }
-
-	if (longitude !== undefined)
-	{ resultGeoLocationData.geographicCoord.longitude = longitude; }
-	else 
-	{ longitude = resultGeoLocationData.geographicCoord.longitude; }
-
-	if (latitude !== undefined)
-	{ resultGeoLocationData.geographicCoord.latitude = latitude; }
-	else 
-	{ latitude = resultGeoLocationData.geographicCoord.latitude; }
-
-	if (altitude !== undefined)
-	{ resultGeoLocationData.geographicCoord.altitude = altitude; }
-	else 
-	{ altitude = resultGeoLocationData.geographicCoord.altitude; }
-
-	if (heading !== undefined)
-	{ resultGeoLocationData.heading = heading; }
-
-	if (pitch !== undefined)
-	{ resultGeoLocationData.pitch = pitch; }
-
-	if (roll !== undefined)
-	{ resultGeoLocationData.roll = roll; }
-
-	if (resultGeoLocationData.geographicCoord.longitude === undefined || resultGeoLocationData.geographicCoord.latitude === undefined)
-	{ return; }
-	
-	//if (magoManager.configInformation === undefined)
-	//{ return; }
-
-	resultGeoLocationData.position = ManagerUtils.geographicCoordToWorldPoint(longitude, latitude, altitude, resultGeoLocationData.position);
-
-	// High and Low values of the position.**
-	if (resultGeoLocationData.positionHIGH === undefined)
-	{ resultGeoLocationData.positionHIGH = new Float32Array([0.0, 0.0, 0.0]); }
-	if (resultGeoLocationData.positionLOW === undefined)
-	{ resultGeoLocationData.positionLOW = new Float32Array([0.0, 0.0, 0.0]); }
-	ManagerUtils.calculateSplited3fv([resultGeoLocationData.position.x, resultGeoLocationData.position.y, resultGeoLocationData.position.z], resultGeoLocationData.positionHIGH, resultGeoLocationData.positionLOW);
-
-	// Determine the elevation of the position.**
-	//var cartographic = Cesium.Ellipsoid.WGS84.cartesianToCartographic(position);
-	//var height = cartographic.height;
-	// End Determine the elevation of the position.-------------------------------------------------------
-	if (resultGeoLocationData.tMatrix === undefined)
-	{ resultGeoLocationData.tMatrix = new Matrix4(); }
-	else
-	{ resultGeoLocationData.tMatrix.Identity(); }
-
-	if (resultGeoLocationData.geoLocMatrix === undefined)
-	{ resultGeoLocationData.geoLocMatrix = new Matrix4(); }
-	else
-	{ resultGeoLocationData.geoLocMatrix.Identity(); }
-
-	if (resultGeoLocationData.rotMatrix === undefined)
-	{ resultGeoLocationData.rotMatrix = new Matrix4(); }
-	else
-	{ resultGeoLocationData.rotMatrix.Identity(); }
-
-	// Set inverseMatrices as undefined.
-	resultGeoLocationData.tMatrixInv = undefined; // reset. is calculated when necessary.
-	resultGeoLocationData.rotMatrixInv = undefined; // reset. is calculated when necessary.
-	resultGeoLocationData.geoLocMatrixInv = undefined; // reset. is calculated when necessary.
-
-	// 1rst, calculate the transformation matrix for the location.
-	resultGeoLocationData.tMatrix = ManagerUtils.calculateTransformMatrixAtWorldPosition(resultGeoLocationData.position, resultGeoLocationData.heading, resultGeoLocationData.pitch, resultGeoLocationData.roll, 
-		resultGeoLocationData.geoLocMatrix, resultGeoLocationData.tMatrix);
-	resultGeoLocationData.rotMatrix.copyFromMatrix4(resultGeoLocationData.tMatrix);
-	resultGeoLocationData.rotMatrix._floatArrays[12] = 0;
-	resultGeoLocationData.rotMatrix._floatArrays[13] = 0;
-	resultGeoLocationData.rotMatrix._floatArrays[14] = 0;
-	
-	// finally assing the pivotPoint.
-	if (resultGeoLocationData.pivotPoint === undefined)
-	{ resultGeoLocationData.pivotPoint = new Point3D(); }
-
-	resultGeoLocationData.pivotPoint.set(resultGeoLocationData.position.x, resultGeoLocationData.position.y, resultGeoLocationData.position.z);
-	resultGeoLocationData.doEffectivePivotPointTranslation();
-	
-	return resultGeoLocationData;
-};
-
-/**
- * This function calculates geolocation data use pixel point(calculated world point). 
- * When use Object Marker, this function called.
- * @param {number} absoluteX absoluteX.
- * @param {number} absoluteY absoluteY.
- * @param {number} absoluteZ absoluteZ.
- * @param {GeoLocationData|undefined} resultGeoLocationData Optional. result geolocation matrix. if undefined, create GeoLocationData instance.
- * @param {MagoManager} magoManager
- * @returns {GeoLocationData} resultGeoLocationData.
- */
-ManagerUtils.calculateGeoLocationDataByAbsolutePoint = function(absoluteX, absoluteY, absoluteZ, resultGeoLocationData, magoManager) 
-{
-	if (resultGeoLocationData === undefined)
-	{ resultGeoLocationData = new GeoLocationData(); }
-
-	// 0) Position.**
-	if (resultGeoLocationData.geographicCoord === undefined)
-	{ resultGeoLocationData.geographicCoord = new GeographicCoord(); }
-	
-	if (magoManager.configInformation === undefined)
-	{ return; }
-	
-	if (resultGeoLocationData.position === undefined)
-	{ resultGeoLocationData.position = new Point3D(); }
-		
-	resultGeoLocationData.position.x = absoluteX;
-	resultGeoLocationData.position.y = absoluteY;
-	resultGeoLocationData.position.z = absoluteZ;
-	
-	//추후에 세슘의존성 버리는 코드로 대체 가능해 보임. 손수석님과 검토 필요.
-	/*
-	if (magoManager.isCesiumGlobe())
-	{
-		// *if this in Cesium:
-		//resultGeoLocationData.position = Cesium.Cartesian3.fromDegrees(resultGeoLocationData.geographicCoord.longitude, resultGeoLocationData.geographicCoord.latitude, resultGeoLocationData.geographicCoord.altitude);
-		// must find cartographic data.
-		var cartographic = new Cesium.Cartographic();
-		var cartesian = new Cesium.Cartesian3();
-		cartesian.x = absoluteX;
-		cartesian.y = absoluteY;
-		cartesian.z = absoluteZ;
-		cartographic = Cesium.Cartographic.fromCartesian(cartesian, magoManager.scene._globe._ellipsoid, cartographic);
-		resultGeoLocationData.geographicCoord.longitude = cartographic.longitude * 180.0/Math.PI;
-		resultGeoLocationData.geographicCoord.latitude = cartographic.latitude * 180.0/Math.PI;
-		resultGeoLocationData.geographicCoord.altitude = cartographic.height;
-	}
-	*/
-
-	resultGeoLocationData.geographicCoord = ManagerUtils.pointToGeographicCoord(new Point3D(absoluteX, absoluteY, absoluteZ));
-
-	// High and Low values of the position.**
-	if (resultGeoLocationData.positionHIGH === undefined)
-	{ resultGeoLocationData.positionHIGH = new Float32Array([0.0, 0.0, 0.0]); }
-	if (resultGeoLocationData.positionLOW === undefined)
-	{ resultGeoLocationData.positionLOW = new Float32Array([0.0, 0.0, 0.0]); }
-	this.calculateSplited3fv([resultGeoLocationData.position.x, resultGeoLocationData.position.y, resultGeoLocationData.position.z], resultGeoLocationData.positionHIGH, resultGeoLocationData.positionLOW);
-
-	// Determine the elevation of the position.**
-	//var cartographic = Cesium.Ellipsoid.WGS84.cartesianToCartographic(position);
-	//var height = cartographic.height;
-	// End Determine the elevation of the position.-------------------------------------------------------
-	if (resultGeoLocationData.tMatrix === undefined)
-	{ resultGeoLocationData.tMatrix = new Matrix4(); }
-	else
-	{ resultGeoLocationData.tMatrix.Identity(); }
-
-	if (resultGeoLocationData.geoLocMatrix === undefined)
-	{ resultGeoLocationData.geoLocMatrix = new Matrix4(); }
-	else
-	{ resultGeoLocationData.geoLocMatrix.Identity(); }
-
-	if (resultGeoLocationData.rotMatrix === undefined)
-	{ resultGeoLocationData.rotMatrix = new Matrix4(); }
-	else
-	{ resultGeoLocationData.rotMatrix.Identity(); }
-
-	// Set inverseMatrices as undefined.
-	resultGeoLocationData.tMatrixInv = undefined; // reset. is calculated when necessary.
-	resultGeoLocationData.rotMatrixInv = undefined; // reset. is calculated when necessary.
-	resultGeoLocationData.geoLocMatrixInv = undefined; // reset. is calculated when necessary.
-
-	// 1rst, calculate the transformation matrix for the location.
-	resultGeoLocationData.tMatrix = ManagerUtils.calculateTransformMatrixAtWorldPosition(resultGeoLocationData.position, resultGeoLocationData.heading, resultGeoLocationData.pitch, resultGeoLocationData.roll, 
-		resultGeoLocationData.geoLocMatrix, resultGeoLocationData.tMatrix);
-	resultGeoLocationData.rotMatrix.copyFromMatrix4(resultGeoLocationData.tMatrix);
-	resultGeoLocationData.rotMatrix._floatArrays[12] = 0;
-	resultGeoLocationData.rotMatrix._floatArrays[13] = 0;
-	resultGeoLocationData.rotMatrix._floatArrays[14] = 0;
-	
-	// finally assing the pivotPoint.
-	if (resultGeoLocationData.pivotPoint === undefined)
-	{ resultGeoLocationData.pivotPoint = new Point3D(); }
-
-	resultGeoLocationData.pivotPoint.set(resultGeoLocationData.position.x, resultGeoLocationData.position.y, resultGeoLocationData.position.z);
-	resultGeoLocationData.doEffectivePivotPointTranslation();
-	
-	return resultGeoLocationData;
-};
-
-/**
- * This function calculates geolocation data use pixel point(calculated world point). 
- * When use Object Marker, this function called.
- * @param {number} absoluteX absoluteX.
- * @param {number} absoluteY absoluteY.
- * @param {number} absoluteZ absoluteZ.
- * @param {GeoLocationData|undefined} resultGeoLocationData Optional. result geolocation matrix. if undefined, create GeoLocationData instance.
- * @param {MagoManager} magoManager
- * @returns {GeoLocationData} resultGeoLocationData.
- */
-ManagerUtils.calculateGeoLocationDataByAbsolutePoint__original = function(absoluteX, absoluteY, absoluteZ, resultGeoLocationData, magoManager) 
-{
-	if (resultGeoLocationData === undefined)
-	{ resultGeoLocationData = new GeoLocationData(); }
-
-	// 0) Position.**
-	if (resultGeoLocationData.geographicCoord === undefined)
-	{ resultGeoLocationData.geographicCoord = new GeographicCoord(); }
-	
-	if (magoManager.configInformation === undefined)
-	{ return; }
-	
-	if (resultGeoLocationData.position === undefined)
-	{ resultGeoLocationData.position = new Point3D(); }
-		
-	resultGeoLocationData.position.x = absoluteX;
-	resultGeoLocationData.position.y = absoluteY;
-	resultGeoLocationData.position.z = absoluteZ;
-	
-	//추후에 세슘의존성 버리는 코드로 대체 가능해 보임. 손수석님과 검토 필요.
-	if (magoManager.isCesiumGlobe())
-	{
-		// *if this in Cesium:
-		//resultGeoLocationData.position = Cesium.Cartesian3.fromDegrees(resultGeoLocationData.geographicCoord.longitude, resultGeoLocationData.geographicCoord.latitude, resultGeoLocationData.geographicCoord.altitude);
-		// must find cartographic data.
-		var cartographic = new Cesium.Cartographic();
-		var cartesian = new Cesium.Cartesian3();
-		cartesian.x = absoluteX;
-		cartesian.y = absoluteY;
-		cartesian.z = absoluteZ;
-		cartographic = Cesium.Cartographic.fromCartesian(cartesian, magoManager.scene._globe._ellipsoid, cartographic);
-		resultGeoLocationData.geographicCoord.longitude = cartographic.longitude * 180.0/Math.PI;
-		resultGeoLocationData.geographicCoord.latitude = cartographic.latitude * 180.0/Math.PI;
-		resultGeoLocationData.geographicCoord.altitude = cartographic.height;
-	}
-
-	// High and Low values of the position.**
-	if (resultGeoLocationData.positionHIGH === undefined)
-	{ resultGeoLocationData.positionHIGH = new Float32Array([0.0, 0.0, 0.0]); }
-	if (resultGeoLocationData.positionLOW === undefined)
-	{ resultGeoLocationData.positionLOW = new Float32Array([0.0, 0.0, 0.0]); }
-	this.calculateSplited3fv([resultGeoLocationData.position.x, resultGeoLocationData.position.y, resultGeoLocationData.position.z], resultGeoLocationData.positionHIGH, resultGeoLocationData.positionLOW);
-
-	// Determine the elevation of the position.**
-	//var cartographic = Cesium.Ellipsoid.WGS84.cartesianToCartographic(position);
-	//var height = cartographic.height;
-	// End Determine the elevation of the position.-------------------------------------------------------
-	if (resultGeoLocationData.tMatrix === undefined)
-	{ resultGeoLocationData.tMatrix = new Matrix4(); }
-	else
-	{ resultGeoLocationData.tMatrix.Identity(); }
-
-	if (resultGeoLocationData.geoLocMatrix === undefined)
-	{ resultGeoLocationData.geoLocMatrix = new Matrix4(); }
-	else
-	{ resultGeoLocationData.geoLocMatrix.Identity(); }
-
-	if (resultGeoLocationData.geoLocMatrixInv === undefined)
-	{ resultGeoLocationData.geoLocMatrixInv = new Matrix4(); }
-	else
-	{ resultGeoLocationData.geoLocMatrixInv.Identity(); }
-
-	//---------------------------------------------------------
-
-	if (resultGeoLocationData.tMatrixInv === undefined)
-	{ resultGeoLocationData.tMatrixInv = new Matrix4(); }
-	else
-	{ resultGeoLocationData.tMatrixInv.Identity(); }
-
-	if (resultGeoLocationData.rotMatrix === undefined)
-	{ resultGeoLocationData.rotMatrix = new Matrix4(); }
-	else
-	{ resultGeoLocationData.rotMatrix.Identity(); }
-
-	if (resultGeoLocationData.rotMatrixInv === undefined)
-	{ resultGeoLocationData.rotMatrixInv = new Matrix4(); }
-	else
-	{ resultGeoLocationData.rotMatrixInv.Identity(); }
-
-	var xRotMatrix = new Matrix4();  // created as identity matrix.
-	var yRotMatrix = new Matrix4();  // created as identity matrix.
-	var zRotMatrix = new Matrix4();  // created as identity matrix.
-
-	if (resultGeoLocationData.heading !== undefined && resultGeoLocationData.heading !== 0)
-	{
-		zRotMatrix.rotationAxisAngDeg(resultGeoLocationData.heading, 0.0, 0.0, -1.0);
-	}
-
-	if (resultGeoLocationData.pitch !== undefined && resultGeoLocationData.pitch !== 0)
-	{
-		xRotMatrix.rotationAxisAngDeg(resultGeoLocationData.pitch, -1.0, 0.0, 0.0);
-	}
-
-	if (resultGeoLocationData.roll !== undefined && resultGeoLocationData.roll !== 0)
-	{
-		yRotMatrix.rotationAxisAngDeg(resultGeoLocationData.roll, 0.0, -1.0, 0.0);
-	}
-	
-	if (magoManager.isCesiumGlobe())
-	{
-		// *if this in Cesium:
-		Cesium.Transforms.eastNorthUpToFixedFrame(resultGeoLocationData.position, undefined, resultGeoLocationData.tMatrix._floatArrays);
-		resultGeoLocationData.geoLocMatrix.copyFromMatrix4(resultGeoLocationData.tMatrix);// "geoLocMatrix" is the pure transformation matrix, without heading or pitch or roll.
-
-		var zRotatedTMatrix = zRotMatrix.getMultipliedByMatrix(resultGeoLocationData.tMatrix, zRotatedTMatrix);
-		var zxRotatedTMatrix = xRotMatrix.getMultipliedByMatrix(zRotatedTMatrix, zxRotatedTMatrix);
-		var zxyRotatedTMatrix = yRotMatrix.getMultipliedByMatrix(zxRotatedTMatrix, zxyRotatedTMatrix);
-		resultGeoLocationData.tMatrix = zxyRotatedTMatrix;
-		
-		// test.
-		//var yRotatedTMatrix = yRotMatrix.getMultipliedByMatrix(resultGeoLocationData.tMatrix, yRotatedTMatrix);
-		//var yxRotatedTMatrix = xRotMatrix.getMultipliedByMatrix(yRotatedTMatrix, yxRotatedTMatrix);
-		//var yxzRotatedTMatrix = zRotMatrix.getMultipliedByMatrix(yxRotatedTMatrix, yxzRotatedTMatrix);
-		//resultGeoLocationData.tMatrix = yxzRotatedTMatrix;
-		// end test.---
-
-		resultGeoLocationData.rotMatrix.copyFromMatrix4(resultGeoLocationData.tMatrix);
-		resultGeoLocationData.rotMatrix._floatArrays[12] = 0;
-		resultGeoLocationData.rotMatrix._floatArrays[13] = 0;
-		resultGeoLocationData.rotMatrix._floatArrays[14] = 0;
-
-		// now, calculates the inverses.
-		Cesium.Matrix4.inverse(resultGeoLocationData.tMatrix._floatArrays, resultGeoLocationData.tMatrixInv._floatArrays);
-		Cesium.Matrix4.inverse(resultGeoLocationData.rotMatrix._floatArrays, resultGeoLocationData.rotMatrixInv._floatArrays);
-		Cesium.Matrix4.inverse(resultGeoLocationData.geoLocMatrix._floatArrays, resultGeoLocationData.geoLocMatrixInv._floatArrays);
-	}
-
-	// finally assing the pivotPoint.
-	if (resultGeoLocationData.pivotPoint === undefined)
-	{ resultGeoLocationData.pivotPoint = new Point3D(); }
-
-	resultGeoLocationData.pivotPoint.set(resultGeoLocationData.position.x, resultGeoLocationData.position.y, resultGeoLocationData.position.z);
-
-	return resultGeoLocationData;
-};
-
-/**
- * 자릿수가 긴 숫자를 나머지와 몫으로 분리. gl에서는 float형밖에 처리 불가.
- * @example <caption>Example usage of calculateSplitedValues</caption>
- * ManagerUtils.calculateSplitedValues(4049653.5985745606, new SplitValue());
- * resultSplitValue.high = 3997696; // Math.floor(4049653.5985745606 / 65536.0) * 65536.0;
- * resultSplitValue.low = 51957.5985745606 // 4049653.5985745606 - 3997696;
- * @param {number} value Required. coordinate x or y or z.
- * @param {SplitValue} resultSplitValue Optional. result split value. if undefined, create SplitValue instance.
- * @returns {SplitValue} resultSplitValue.
- */
-ManagerUtils.calculateSplitedValues = function(value, resultSplitValue)
-{
-	if (resultSplitValue === undefined)
-	{ resultSplitValue = new SplitValue(); }
-
-	var doubleHigh;
-	if (value >= 0.0) 
-	{
-		doubleHigh = Math.floor(value / 65536.0) * 65536.0; //unsigned short max
-		resultSplitValue.high = doubleHigh;
-		resultSplitValue.low = value - doubleHigh;
-	}
-	else 
-	{
-		doubleHigh = Math.floor(-value / 65536.0) * 65536.0;
-		resultSplitValue.high = -doubleHigh;
-		resultSplitValue.low = value + doubleHigh;
-	}
-
-	return resultSplitValue;
-};
-
-/**
- * 자릿수가 긴 숫자를 나머지(low)와 몫(high)으로 분리한 결과를 각각 배열로 생성. gl에서는 float형밖에 처리 불가.
- * @param {Point3D} point3fv Required.
- * @param {Float32Array} resultSplitPoint3fvHigh Optional. result split high value array. if undefined, set new Float32Array(3).
- * @param {Float32Array} resultSplitPoint3fvLow Optional. result split low value array. if undefined, set new Float32Array(3).
+ * Selects an object of the current visible objects that's under mouse.
+ * @param {GL} gl.
+ * @param {int} mouseX Screen x position of the mouse.
+ * @param {int} mouseY Screen y position of the mouse.
  * 
- * @see ManagerUtils#calculateSplitedValues
+ * @private
  */
-ManagerUtils.calculateSplited3fv = function(point3fv, resultSplitPoint3fvHigh, resultSplitPoint3fvLow)
+SelectionManager.prototype.selectProvisionalObjectByPixel = function(gl, mouseX, mouseY) 
 {
-	if (point3fv === undefined)
-	{ return undefined; }
-
-	if (resultSplitPoint3fvHigh === undefined) // delete unnecesary. agree
-	{ resultSplitPoint3fvHigh = new Float32Array(3); }// delete unnecesary. agree
-
-	if (resultSplitPoint3fvLow === undefined)// delete unnecesary. agree
-	{ resultSplitPoint3fvLow = new Float32Array(3); }// delete unnecesary. agree
-
-	var posSplitX = new SplitValue();
-	posSplitX = this.calculateSplitedValues(point3fv[0], posSplitX);
-	var posSplitY = new SplitValue();
-	posSplitY = this.calculateSplitedValues(point3fv[1], posSplitY);
-	var posSplitZ = new SplitValue();
-	posSplitZ = this.calculateSplitedValues(point3fv[2], posSplitZ);
-
-	resultSplitPoint3fvHigh[0] = posSplitX.high;
-	resultSplitPoint3fvHigh[1] = posSplitY.high;
-	resultSplitPoint3fvHigh[2] = posSplitZ.high;
-
-	resultSplitPoint3fvLow[0] = posSplitX.low;
-	resultSplitPoint3fvLow[1] = posSplitY.low;
-	resultSplitPoint3fvLow[2] = posSplitZ.low;
-};
-
-ManagerUtils.unpackDepth = function(rgba_depth)
-{
-	//var bit_shift = [0.000000059605, 0.000015258789, 0.00390625, 1.0];
-	return rgba_depth[0] * 0.000000059605 + rgba_depth[1] * 0.000015258789 + rgba_depth[2] * 0.00390625 + rgba_depth[3];
-};
-
-ManagerUtils.mod = function(x, y)
-{
-	return x - y * Math.floor(x/y);
-};
-
-ManagerUtils.packDepth = function(depth)
-{
-	//const vec4 bit_shift = vec4(16777216.0, 65536.0, 256.0, 1.0);
-	//const vec4 bit_mask  = vec4(0.0, 0.00390625, 0.00390625, 0.00390625); 
-	////vec4 res = fract(depth * bit_shift); // Is not precise.
-	//vec4 res = mod(depth * bit_shift * vec4(255), vec4(256) ) / vec4(255); // Is better.
-	//res -= res.xxyz * bit_mask;
-	//return res; 
+	this.clearProvisionals();
+	this.magoManager.selectionFbo.bind(); // framebuffer for color selection.***
+	gl.enable(gl.DEPTH_TEST);
+	gl.depthFunc(gl.LEQUAL);
+	gl.depthRange(0, 1);
+	gl.disable(gl.CULL_FACE);
 	
-	var bit_shift = [16777216.0, 65536.0, 256.0, 1.0];
-	var bit_mask = [0.0, 0.00390625, 0.00390625, 0.00390625];
+	// Read the picked pixel and find the object.*********************************************************
+	var mosaicWidth = 1;
+	var mosaicHeight = 1;
+	var totalPixelsCount = mosaicWidth*mosaicHeight;
+	var pixels = new Uint8Array(4 * mosaicWidth * mosaicHeight); // 4 x 3x3 pixel, total 9 pixels select.***
+	var pixelX = mouseX - Math.floor(mosaicWidth/2);
+	var pixelY = this.magoManager.sceneState.drawingBufferHeight - mouseY - Math.floor(mosaicHeight/2); // origin is bottom.***
+	
+	if (pixelX < 0){ pixelX = 0; }
+	if (pixelY < 0){ pixelY = 0; }
+	
+	gl.readPixels(pixelX, pixelY, mosaicWidth, mosaicHeight, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null); // unbind framebuffer.***
 
-	// calculate value_A = depth * bit_shift * vec4(255).
-	var value_A = [depth * bit_shift[0] * 255.0, depth * bit_shift[1] * 255.0, depth * bit_shift[2] * 255.0, depth * bit_shift[3] * 255.0];
-	var value_B = [256.0, 256.0, 256.0, 256.0];
+	// now, select the object.***
+	// The center pixel of the selection is 12, 13, 14.***
+	var centerPixel = Math.floor(totalPixelsCount/2);
+	var idx = this.magoManager.selectionColor.decodeColor3(pixels[centerPixel*3], pixels[centerPixel*3+1], pixels[centerPixel*3+2]);
+	
+	// Provisionally.**
+	if(this.nodesMap[idx])
+	{
+		this.provisionalF4dArray.push(this.nodesMap[idx]);
+	}
 
-	var resAux = [( ManagerUtils.mod(value_A[0], value_B[0]) )/255.0, 
-				  ( ManagerUtils.mod(value_A[1], value_B[1]) )/255.0, 
-				  ( ManagerUtils.mod(value_A[2], value_B[2]) )/255.0, 
-				  ( ManagerUtils.mod(value_A[3], value_B[3]) )/255.0];
+	if(this.referencesMap[idx] && this.nodesMap[idx])
+	{
+		this.provisionalF4dArray.push(this.nodesMap[idx]);
+		this.provisionalF4dObjectArray.push(this.referencesMap[idx]);
+	}
 
-	var resBitMasked = [resAux[0] * bit_mask[0], 
-		resAux[0] * bit_mask[1], 
-		resAux[1] * bit_mask[2], 
-		resAux[2] * bit_mask[3]];
+	if(this.selCandidatesMap[idx])
+	{
+		this.provisionalNativeArray.push(this.selCandidatesMap[idx]);
+	}
 
-	var res = [resAux[0] - resBitMasked[0], 
-		resAux[1] - resBitMasked[1], 
-		resAux[2] - resBitMasked[2], 
-		resAux[3] - resBitMasked[3]];
+	// TEST: Check if selected a cuttingPlane.***
+	/*
+	var selGeneralObjects = this.getSelectionCandidatesFamily("general");
+	if (selGeneralObjects)
+	{
+		var currObjectSelected = selGeneralObjects.currentSelected;
+		var i = 0;
+		while (currObjectSelected === undefined && i< totalPixelsCount)
+		{
+			var idx = this.selectionColor.decodeColor3(pixels[i*3], pixels[i*3+1], pixels[i*3+2]);
+			currObjectSelected = selGeneralObjects.selectObject(idx);
+			i++;
+		}
+	}
+	*/
 
-	return res;
+	this.magoManager.selectionFbo.unbind();
+	gl.enable(gl.CULL_FACE);
 };
 
 /**
- * Calculates the pixel linear depth value.
- * @param {WebGLRenderingContext} gl WebGL Rendering Context.
- * @param {Number} pixelX Screen x position of the pixel.
- * @param {Number} pixelY Screen y position of the pixel.
- * @param {FBO} depthFbo Depth frameBuffer object.
- * @param {MagoManager} magoManager Mago3D main manager.
- * @returns {Number} linearDepth Returns the linear depth [0.0, 1.0] ranged value.
+ * 
+ * @param {string} type required.
+ * @param {function} filter option.
  */
-ManagerUtils.calculatePixelLinearDepth = function(gl, pixelX, pixelY, depthFbo, magoManager) 
+SelectionManager.prototype.filterProvisional = function(type, filter)
 {
-	if (depthFbo === undefined)
-	{ depthFbo = magoManager.depthFboNeo; }
+	var targetProvisional = {};
+	switch(type)
+	{
+		case InteractionTargetType.F4D : {
+			targetProvisional[type] = this.provisionalF4dArray;
+			break;
+		}
+		case InteractionTargetType.OBJECT : {
+			targetProvisional[InteractionTargetType.F4D] = this.provisionalF4dArray;
+			targetProvisional[type] = this.provisionalF4dObjectArray;
+			break;
+		}
+		case InteractionTargetType.NATIVE : {
+			targetProvisional[type] = this.provisionalNativeArray;
+			break;
+		}
+	}
 
-	if (!depthFbo) 
+	var provisionalLength = 0;
+	for(var i in targetProvisional)
+	{
+		if(targetProvisional.hasOwnProperty(i))
+		{
+			provisionalLength += targetProvisional[i].length;
+		}
+	}
+
+	if(provisionalLength === 0)
 	{
 		return;
 	}
 
-	if (depthFbo) 
+	filter = filter ? filter : function(){return true;};
+	var result = {};
+	for(var i in targetProvisional)
 	{
-		depthFbo.bind(); 
-	}
-
-	// Now, read the pixel and find the pixel position.
-	var depthPixels = new Uint8Array(4 * 1 * 1); // 4 x 1x1 pixel.
-	gl.readPixels(pixelX, magoManager.sceneState.drawingBufferHeight - pixelY, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, depthPixels);
-	
-	var floatDepthPixels = new Float32Array(([depthPixels[0]/256.0, depthPixels[1]/256.0, depthPixels[2]/256.0, depthPixels[3]/256.0]));
-	var zDepth = ManagerUtils.unpackDepth(floatDepthPixels); // 0 to 256 range depth.
-	var linearDepth = zDepth;// [0.0, 1.0] range depth.
-
-	// Check if we are using logarithmic depth buffer.***
-	
-	if (magoManager.postFxShadersManager.bUseLogarithmicDepth)
-	{
-		linearDepth = zDepth * 1.0037;
-		var sceneState = magoManager.sceneState;
-		var far = sceneState.camera.frustum.far[0];
-
-		var fcoef_half = sceneState.fCoef_logDepth[0]/2.0;
-		// gl_FragDepthEXT = linearDepth = log2(flogz) * Fcoef_half;
-		// flogz = 1.0 + gl_Position.z;
-		// sceneState.fCoef_logDepth[0] = 2.0 / Math.log2(frustum0.far[0] + 1.0);
-
-		var flogz = Math.pow(2.0, linearDepth/fcoef_half);
-		var z = flogz - 1.0;
-		linearDepth = z/far;
-	}
-	
-
-	return linearDepth;
-};
-
-/**
- * Calculates the pixel linear depth value.
- * @param {WebGLRenderingContext} gl WebGL Rendering Context.
- * @param {Number} pixelX Screen x position of the pixel.
- * @param {Number} pixelY Screen y position of the pixel.
- * @param {FBO} depthFbo Depth frameBuffer object.
- * @param {MagoManager} magoManager Mago3D main manager.
- * @returns {Number} linearDepth Returns the linear depth [0.0, 1.0] ranged value.
- */
-ManagerUtils.calculatePixelLinearDepthABGR = function(gl, pixelX, pixelY, depthFbo, magoManager) 
-{
-	// Test function.
-	// Test function.
-	// Test function.
-	// Test function.
-	// Called from MagoWorld.updateMouseStartClick(...).***
-	if (depthFbo === undefined)
-	{ depthFbo = magoManager.depthFboNeo; }
-
-	if (!depthFbo) 
-	{
-		return;
-	}
-	
-	if (depthFbo) 
-	{
-		depthFbo.bind(); 
-	}
-	
-	// Now, read the pixel and find the pixel position.
-	var depthPixels = new Uint8Array(4 * 1 * 1); // 4 x 1x1 pixel.
-	gl.readPixels(pixelX, magoManager.sceneState.drawingBufferHeight - pixelY, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, depthPixels);
-	
-	var zDepth = depthPixels[3]/(255.0*255.0*255.0) + depthPixels[2]/(255.0*255.0) + depthPixels[1]/255.0 + depthPixels[0]; // 0 to 256 range depth.
-	var linearDepth = zDepth / 255.0; // LinearDepth. Convert to [0.0, 1.0] range depth.
-	return linearDepth;
-};
-
-/**
- * Calculates the pixel position in camera coordinates.
- * @param {WebGLRenderingContext} gl WebGL Rendering Context.
- * @param {Number} pixelX Screen x position of the pixel.
- * @param {Number} pixelY Screen y position of the pixel.
- * @param {Point3D} resultPixelPos The result of the calculation.
- * @param {MagoManager} magoManager Mago3D main manager.
- * @param {options} options options.
- * @returns {Point3D} resultPixelPos The result of the calculation.
- */
-ManagerUtils.calculatePixelPositionCamCoord = function(gl, pixelX, pixelY, resultPixelPos, depthFbo, frustumNear, frustumFar, magoManager, options) 
-{
-	var sceneState = magoManager.sceneState;
-
-	/*
-	vec2 screenPos = vec2(gl_FragCoord.x / screenWidth, gl_FragCoord.y / screenHeight);
-		float z_window  = unpackDepth(texture2D(depthTex, screenPos.xy)); // z_window  is [0.0, 1.0] range depth.
-		if(z_window < 0.001)
-		discard;
-	
-		float depthRange_near = 0.0;
-		float depthRange_far = 1.0;
-		float x_ndc = 2.0 * screenPos.x - 1.0;
-		float y_ndc = 2.0 * screenPos.y - 1.0;
-		float z_ndc = (2.0 * z_window - depthRange_near - depthRange_far) / (depthRange_far - depthRange_near);
-		
-		vec4 viewPosH = projectionMatrixInv * vec4(x_ndc, y_ndc, z_ndc, 1.0);
-		vec3 posCC = viewPosH.xyz/viewPosH.w;
-		vec4 posWC = modelViewMatrixRelToEyeInv * vec4(posCC.xyz, 1.0) + vec4((encodedCameraPositionMCHigh + encodedCameraPositionMCLow).xyz, 1.0);
-		*/
-	// New.*** New.*** New.*** New.*** New.*** New.*** New.*** New.*** New.*** New.*** New.*** New.*** New.*** New.*** New.*** New.*** New.*** New.***
-	/*
-	if (depthFbo) 
-	{
-		depthFbo.bind(); 
-	}
-	
-	
-	var screenW = sceneState.drawingBufferWidth;
-	var screenH = sceneState.drawingBufferHeight;
-
-	// Now, read the pixel and find the pixel position.
-	var depthPixels = new Uint8Array(4 * 1 * 1); // 4 x 1x1 pixel.
-	gl.readPixels(pixelX, screenH - pixelY, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, depthPixels);
-	
-	// Unpack the depthPixels.
-	//var dot(packedDepth, vec4(1.0, 1.0 / 255.0, 1.0 / 65025.0, 1.0 / 16581375.0));
-
-	var zDepth2 = depthPixels[0]/(256.0*256.0*256.0) + depthPixels[1]/(256.0*256.0) + depthPixels[2]/256.0 + depthPixels[3]; 
-	var zDepth = depthPixels[3]/(256.0*256.0*256.0) + depthPixels[2]/(256.0*256.0) + depthPixels[1]/256.0 + depthPixels[0]; 
-	
-	//zDepth /= 256.0;
-	// Calculate NDC coord.
-	var depthRange_near = 0.0;
-	var depthRange_far = 1.0;
-	var screenPos = new Point2D(pixelX/screenW, pixelY/screenH);
-	var xNdc = 2.0 * screenPos.x - 1.0;
-	var yNdc = 2.0 * screenPos.y - 1.0;
-	var zNdc = (2.0 * zDepth - depthRange_near - depthRange_far) / (depthRange_far - depthRange_near);
-	
-	var projectMatInv = sceneState.getProjectionMatrixInv();
-	var viewPosH = projectMatInv.transformPoint4D__test([xNdc, yNdc, zNdc, 1.0], undefined);
-	var viewPosCC = new Point3D(viewPosH[0]/viewPosH[3], viewPosH[1]/viewPosH[3], viewPosH[2]/viewPosH[3]);
-	
-	//********************************************************************************************************************************************
-	// Old.*** Old.*** Old.*** Old.*** Old.*** Old.*** Old.*** Old.*** Old.*** Old.*** Old.*** Old.*** Old.*** Old.*** Old.*** Old.***
-	*/
-	if (frustumFar === undefined)
-	{ frustumFar = sceneState.camera.frustum.far[0]; }
-
-	if (frustumNear === undefined)
-	{ frustumNear = 0.0; }
-	
-	var linearDepth;
-	if (options)
-	{
-		// Check if exist pre-calculated linearDepth.
-		if (options.linearDepth)
+		if(targetProvisional.hasOwnProperty(i))
 		{
-			linearDepth = options.linearDepth;
-		}
-	}
-
-	if (!linearDepth) 
-	{
-		linearDepth = ManagerUtils.calculatePixelLinearDepth(gl, pixelX, pixelY, depthFbo, magoManager);
-		if (!linearDepth) 
-		{ return; }
-	}
-
-
-	
-	// End new method.----------------------------------------------------------------------------------------------------------------------------------
-	// End new method.----------------------------------------------------------------------------------------------------------------------------------
-
-	//var realZDepth = frustumNear + linearDepth*frustumFar; // Use this code if the zDepth encoder uses frustum near & frustum far, both.
-	// Note: In our RenderShowDepth shaders, we are encoding zDepth no considering the frustum near.
-	var realZDepth = linearDepth*frustumFar; // original.
-	//var realZDepth = linearDepth*30000.0; // new.
-
-	// now, find the 3d position of the pixel in camCoord.*
-	magoManager.resultRaySC = ManagerUtils.getRayCamSpace(pixelX, pixelY, magoManager.resultRaySC, magoManager);
-	if (resultPixelPos === undefined)
-	{ resultPixelPos = new Point3D(); }
-	
-	resultPixelPos.set(magoManager.resultRaySC[0] * realZDepth, magoManager.resultRaySC[1] * realZDepth, magoManager.resultRaySC[2] * realZDepth);
-
-	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-	return resultPixelPos;
-	
-};
-
-/**
- * Calculates the cameraCoord position in world coordinates.
- * @param {Point3D} cameraCoord Camera coordinate position.
- * @param {MagoManager} magoManager Mago3D main manager.
- * @returns {Point3D} resultPixelPos The result of the calculation.
- */
-ManagerUtils.cameraCoordPositionToWorldCoord = function(camCoordPos, resultWorldPos, magoManager) 
-{
-	// now, must transform this pixelCamCoord to world coord.
-	var mv_inv = magoManager.sceneState.getModelViewMatrixInv();
-	if (resultWorldPos === undefined)
-	{ var resultWorldPos = new Point3D(); }
-	resultWorldPos = mv_inv.transformPoint3D(camCoordPos, resultWorldPos);
-	return resultWorldPos;
-};
-
-/**
- * Calculates the pixel position in world coordinates.
- * @param {WebGLRenderingContext} gl WebGL Rendering Context.
- * @param {Number} pixelX Screen x position of the pixel.
- * @param {Number} pixelY Screen y position of the pixel.
- * @param {Point3D} resultPixelPos The result of the calculation.
- * @param {MagoManager} magoManager Mago3D main manager.
- * @returns {Point3D} resultPixelPos The result of the calculation.
- */
-ManagerUtils.screenCoordToWorldCoord = function(gl, pixelX, pixelY, resultWCPos, depthFbo, frustumNear, frustumFar, magoManager) 
-{
-	if (magoManager.isCesiumGlobe())
-	{
-		// https://cesium.com/docs/cesiumjs-ref-doc/Globe.html
-		
-		var cesiumScene = magoManager.scene; 
-		var cesiumGlobe = cesiumScene.globe;
-		var cesiumCamera = cesiumScene.camera;
-		var windowCoordinates = new Cesium.Cartesian2(pixelX, pixelY);
-		var ray = cesiumCamera.getPickRay(windowCoordinates);
-		var intersection = cesiumGlobe.pick(ray, cesiumScene);
-		return intersection;
-	}
-	else/* if (magoManager.configInformation.basicGlobe === Constant.MAGOWORLD)*/
-	{
-		// todo:
-		var camCoord = MagoWorld.screenToCamCoord(pixelX, pixelY, magoManager);
-		return ManagerUtils.cameraCoordPositionToWorldCoord(camCoord, undefined, magoManager);
-	}
-};
-
-/**
- * Calculates the pixel position in world coordinates.
- * @param {WebGLRenderingContext} gl WebGL Rendering Context.
- * @param {Number} pixelX Screen x position of the pixel.
- * @param {Number} pixelY Screen y position of the pixel.
- * @param {Point3D} resultPixelPos The result of the calculation.
- * @param {MagoManager} magoManager Mago3D main manager.
- * @returns {Point3D} resultPixelPos The result of the calculation.
- */
-ManagerUtils.calculatePixelPositionWorldCoord = function(gl, pixelX, pixelY, resultPixelPos, depthFbo, frustumNear, frustumFar, magoManager) 
-{
-	var pixelPosCamCoord = new Point3D();
-	
-	if (frustumFar === undefined)
-	{ frustumFar = magoManager.sceneState.camera.frustum.far; }
-
-	if (frustumNear === undefined)
-	{ frustumNear = 0.0; }
-	
-	if (depthFbo === undefined)
-	{ depthFbo = magoManager.depthFboNeo; }
-	
-	pixelPosCamCoord = ManagerUtils.calculatePixelPositionCamCoord(gl, pixelX, pixelY, pixelPosCamCoord, depthFbo, frustumNear, frustumFar, magoManager);
-
-	if (resultPixelPos === undefined)
-	{ var resultPixelPos = new Point3D(); }
-
-	resultPixelPos = ManagerUtils.cameraCoordPositionToWorldCoord(pixelPosCamCoord, resultPixelPos, magoManager);
-	return resultPixelPos;
-};
-
-/**
- * Calculates a world coordinate point to screen coordinate.
- * @param {WebGLRenderingContext} gl WebGL Rendering Context.
- * @param {Number} worldCoordX x value of the point in world coordinate.
- * @param {Number} worldCoordY y value of the point in world coordinate.
- * @param {Number} worldCoordZ z value of the point in world coordinate.
- * @param {Point3D} resultPixelPos The result of the calculation.
- * @param {MagoManager} magoManager Mago3D main manager.
- * @returns {Point3D} resultPixelPos The result of the calculation.
- */
-ManagerUtils.calculateWorldPositionToScreenCoord = function(gl, worldCoordX, worldCoordY, worldCoordZ, resultScreenCoord, magoManager)
-{
-	if (resultScreenCoord === undefined)
-	{ resultScreenCoord = new Point3D(); }
-	
-	if (magoManager.pointSC === undefined)
-	{ magoManager.pointSC = new Point3D(); }
-	
-	if (magoManager.pointSC2 === undefined)
-	{ magoManager.pointSC2 = new Point3D(); }
-	
-	magoManager.pointSC.set(worldCoordX, worldCoordY, worldCoordZ);
-	
-	// calculate the position in camera coords.
-	var pointSC2 = magoManager.pointSC2;
-	var sceneState = magoManager.sceneState;
-	pointSC2 = sceneState.modelViewMatrix.transformPoint3D(magoManager.pointSC, pointSC2);
-	
-	// now calculate the position in screen coords.
-	var zDist = pointSC2.z;
-	if (zDist > 0)
-	{
-		// the worldPoint is rear the camera.
-		resultScreenCoord.set(-1, -1, 0);
-		return resultScreenCoord;
-	}
-	
-	// now calculate the width and height of the plane in zDist.
-	//var fovyRad = sceneState.camera.frustum.fovyRad;
-	
-	var planeHeight = sceneState.camera.frustum.tangentOfHalfFovy*zDist*2;
-	var planeWidth = planeHeight * sceneState.camera.frustum.aspectRatio; 
-	var pixelX = -pointSC2.x * sceneState.drawingBufferWidth / planeWidth;
-	var pixelY = -(pointSC2.y) * sceneState.drawingBufferHeight / planeHeight;
-
-	pixelX += sceneState.drawingBufferWidth / 2;
-	pixelY += sceneState.drawingBufferHeight / 2;
-	pixelY = sceneState.drawingBufferHeight - pixelY;
-	resultScreenCoord.set(pixelX, pixelY, 0);
-	
-	return resultScreenCoord;
-};
-
-/**
- * Calculates the direction vector of a ray that starts in the camera position and
- * continues to the pixel position in camera space.
- * @param {Number} pixelX Screen x position of the pixel.
- * @param {Number} pixelY Screen y position of the pixel.
- * @param {Float32Array(3)} resultRay Result of the calculation.
- * @returns {Float32Array(3)} resultRay Result of the calculation.
- */
-ManagerUtils.getRayCamSpace = function(pixelX, pixelY, resultRay, magoManager) 
-{
-	// in this function "ray" is a vector.
-	var sceneState = magoManager.sceneState;
-	var frustum = sceneState.camera.frustum;
-	var frustum_far = 1.0;//frustum.far[0]; // unitary frustum far.
-
-	var aspectRatio = frustum.aspectRatio;
-	var tangentOfHalfFovy = frustum.tangentOfHalfFovy; 
-	
-	var hfar = 2.0 * tangentOfHalfFovy * frustum_far; //var hfar = 2.0 * Math.tan(fovy/2.0) * frustum_far;
-	var wfar = hfar * aspectRatio;
-	var mouseX = pixelX;
-	var mouseY = sceneState.drawingBufferHeight - pixelY;
-	if (resultRay === undefined) 
-	{ resultRay = new Float32Array(3); }
-	resultRay[0] = wfar*((mouseX/sceneState.drawingBufferWidth) - 0.5);
-	resultRay[1] = hfar*((mouseY/sceneState.drawingBufferHeight) - 0.5);
-	resultRay[2] = - frustum_far;
-
-	/*
-	//var projectMatInv = sceneState.getProjectionMatrixInv();
-	var projectMatInv = sceneState.projectionMatrix;
-	var v4Pos = [resultRay[0], resultRay[1], resultRay[2], 1.0];
-	var rayAux = new Point3D(resultRay[0], resultRay[1], resultRay[2]);
-	//rayAux.unitary();
-	var rayAuxProj = projectMatInv.transformPoint4D(v4Pos, undefined);
-
-	resultRay[0] = rayAuxProj[0]/rayAuxProj[3];
-	resultRay[1] = rayAuxProj[1]/rayAuxProj[3];
-	resultRay[2] = rayAuxProj[2]/rayAuxProj[3];
-	*/
-
-	return resultRay;
-};
-
-/**
- * Calculates the direction vector of a ray that starts in the camera position and
- * continues to the pixel position in world space.
- * @param {WebGLRenderingContext} gl WebGL Rendering Context.
- * @param {Number} pixelX Screen x position of the pixel.
- * @param {Number} pixelY Screen y position of the pixel.
- * @returns {Line} resultRay
- */
-ManagerUtils.getRayWorldSpace = function(gl, pixelX, pixelY, resultRay, magoManager) 
-{
-	// in this function the "ray" is a line.
-	if (resultRay === undefined) 
-	{ resultRay = new Line(); }
-	
-	// world ray = camPos + lambda*camDir.
-	var camPos = magoManager.sceneState.camera.position;
-	var rayCamSpace = new Float32Array(3);
-	rayCamSpace = ManagerUtils.getRayCamSpace(pixelX, pixelY, rayCamSpace, magoManager);
-	
-	if (magoManager.pointSC === undefined)
-	{ magoManager.pointSC = new Point3D(); }
-	
-	var pointSC = magoManager.pointSC;
-	var pointSC2 = magoManager.pointSC2;
-	
-	pointSC.set(rayCamSpace[0], rayCamSpace[1], rayCamSpace[2]);
-
-	// now, must transform this posCamCoord to world coord.
-
-	var mvMatInv = magoManager.sceneState.getModelViewMatrixInv();
-	pointSC2 = mvMatInv.rotatePoint3D(pointSC, pointSC2); // rayWorldSpace.
-	pointSC2.unitary(); // rayWorldSpace.
-	resultRay.setPointAndDir(camPos.x, camPos.y, camPos.z,       pointSC2.x, pointSC2.y, pointSC2.z);// original.
-
-	return resultRay;
-};
-
-/**
- * 두 점을 연결한 선과 정북선 사이의 각도 구하기. 주로 모델이나 데이터의 헤딩을 설정하는데 사용.
- * @param {GeographicCoord} startGeographic 
- * @param {GeographicCoord} endGeographic 
- * @returns {number} heading
- */
-ManagerUtils.getHeadingToNorthByTwoGeographicCoords = function(startGeographic, endGeographic, magoManager) 
-{
-	var firstGeoLocData = Mago3D.ManagerUtils.calculateGeoLocationData(startGeographic.longitude, startGeographic.latitude, 0, 0, 0, 0, firstGeoLocData, magoManager);
-
-	var lastWorldCoord = Mago3D.ManagerUtils.geographicCoordToWorldPoint(endGeographic.longitude, endGeographic.latitude, 0, lastWorldCoord, magoManager);
-	var lastLocalCoord3D = firstGeoLocData.worldCoordToLocalCoord(lastWorldCoord, lastLocalCoord3D);
-	var lastLocalCoord2D = new Point2D(lastLocalCoord3D.x, lastLocalCoord3D.y);
-	lastLocalCoord2D.unitary();
-	var yAxis = new Point2D(0, 1);
-	var heading = yAxis.angleDegToVector(lastLocalCoord2D);
-	if (lastLocalCoord2D.x > 0) 
-	{
-		heading *= -1;
-	}
-
-	return heading;
-};
-
-/**
- * Using screen coordinate, return world coord, geographic coord, screen coord.
- * @param {WebGLRenderingContext} gl WebGL Rendering Context.
- * @param {Number} pixelX Screen x position of the pixel.
- * @param {Number} pixelY Screen y position of the pixel.
- * @param {MagoManager} magoManager Mago3D main manager.
- * @returns {object} world coord, geographic coord, screen coord.
- */
-ManagerUtils.getComplexCoordinateByScreenCoord = function(gl, pixelX, pixelY, depthFbo, frustumNear, frustumFar, magoManager) 
-{
-	var worldCoord = ManagerUtils.screenCoordToWorldCoord(magoManager.getGl(), pixelX, pixelY, worldCoord, undefined, undefined, undefined, magoManager);
-	if (!worldCoord) 
-	{
-		return null;
-	}
-	var geographicCoord = ManagerUtils.pointToGeographicCoord(worldCoord, geographicCoord);
-	
-	return {
-		screenCoordinate     : new Point2D(pixelX, pixelY),
-		worldCoordinate      : worldCoord,
-		geographicCoordinate : geographicCoord
-	};
-};
-
-ManagerUtils.geographicToWkt = function(geographic, type) 
-{
-	var wkt = '';
-	
-	switch (type) 
-	{
-	case 'POINT' : {
-		wkt = 'POINT (';
-		wkt += geographic.longitude;
-		wkt += ' ';
-		wkt += geographic.latitude;
-		wkt += ')';
-		break;
-	}
-	case 'LINE' : {
-		wkt = 'LINESTRING (';
-		for (var i=0, len=geographic.length;i<len;i++) 
-		{
-			if (i>0) 
+			var provisional = targetProvisional[i];
+			
+			for(var j=0,len=provisional.length;j<len;j++)
 			{
-				wkt += ',';
-			}
-			wkt += geographic[i].longitude;
-			wkt += ' ';
-			wkt += geographic[i].latitude;
-		}
-		wkt += ')';
-		break;
-	}
-	case 'POLYGON' : {
-		wkt = 'POLYGON ((';
-		for (var i=0, len=geographic.length;i<len;i++) 
-		{
-			if (i>0) 
-			{
-				wkt += ',';
-			}
-			wkt += geographic[i].longitude;
-			wkt += ' ';
-			wkt += geographic[i].latitude;
-		}
-		wkt += ',';
-		wkt += geographic[0].longitude;
-		wkt += ' ';
-		wkt += geographic[0].latitude;
-		wkt += '))';
-		break;
-	}
-	}
-
-	function coordToString(coord, str) 
-	{
-		var text = str ? str : '';
-		if (Array.isArray(coord)) 
-		{
-			for (var j=0, coordLen=coord.length;j<coordLen;j++) 
-			{
-				coordToString(coord[j], text);
+				var realFilter = filter;
+				if(type === InteractionTargetType.OBJECT && i === InteractionTargetType.F4D)
+				{
+					realFilter = function(){return true;};
+				}
+				if(realFilter.call(this, provisional[j]))
+				{
+					if(!result[i]) result[i] = [];
+					result[i].push(provisional[j]);
+				}
 			}
 		}
-		else 
-		{
-			if (text) 
-			{
-				text += ',';
-			}
-			text += coord.longitude;
-			text += ' ';
-			text += coord.latitude;
-		}
-		
-		return text;
 	}
 	
-	return wkt;
-};
+	return result;
+}
+
+/**
+ * 
+ * @param {string} type required.
+ * @param {function} filter option.
+ */
+SelectionManager.prototype.provisionalToCurrent = function(type, filter) 
+{
+	var validProvision = this.filterProvisional(type, filter);
+
+	this.clearCurrents();
+	if(isEmpty(validProvision)){ return;}
+
+	for(var i in validProvision)
+	{
+		if(validProvision.hasOwnProperty(i))
+		{
+			var variableName = getVariableName(i);
+			this[variableName.currentMember] = validProvision[i];
+			this[variableName.auxMember] = validProvision[i][0];
+		}
+	}
+
+	this.clearProvisionals();
+
+	function getVariableName(t)
+	{
+		switch(t)
+		{
+			case InteractionTargetType.F4D : {
+				return {
+					currentMember : 'currentNodeSelectedArray',
+					auxMember : 'currentNodeSelected',
+				}
+			}
+			case InteractionTargetType.OBJECT : {
+				return {
+					currentMember : 'currentReferenceSelectedArray',
+					auxMember : 'currentReferenceSelected',
+				};
+			}
+			case InteractionTargetType.NATIVE : {
+				return {
+					currentMember : 'currentGeneralObjectSelectedArray',
+					auxMember : 'currentGeneralObjectSelected',
+				}
+			}
+		}
+	}
+}
 'use strict';
 
 /**
@@ -100275,7 +99817,12 @@ PostFxShadersManager.prototype.isCurrentShader = function(shader)
  */
 PostFxShadersManager.prototype.useProgram = function(shader) 
 {
-	if (!this.isCurrentShader(shader))
+	if (shader === undefined || shader === null)
+	{
+		this.gl.useProgram(null);
+		this.currentShaderUsing = null;
+	}
+	else if (!this.isCurrentShader(shader))
 	{
 		shader.useProgram();
 		this.currentShaderUsing = shader;
@@ -102962,10 +102509,12 @@ void main()\n\
 		textureColor = texture2D(u_texture, v_texcoord);\n\
 	}\n\
 	//if(textureColor.w < 0.005)\n\
-	if(textureColor.w == 0.0)\n\
-	{\n\
-		discard;\n\
-	}\n\
+	//if(textureColor.w < 1.0)\n\
+	//{\n\
+	//	discard;\n\
+	//}\n\
+\n\
+\n\
 	if(colorType == 2)\n\
 	{\n\
 		// do nothing.\n\
@@ -103040,15 +102589,18 @@ void main()\n\
 	//vec4 projected2 = modelViewMatrixRelToEye * pos4;\n\
 \n\
 	// Now, calculate the pixelSize in the plane of the projected point.\n\
-	float pixelWidthRatio = 2. / (screenWidth);// * projectionMatrix[0][0]);\n\
+	float pixelWidthRatio = 2. / ((screenWidth));// * projectionMatrix[0][0]);\n\
 	// alternative : float pixelWidthRatio = 2. / (screenHeight * projectionMatrix[1][1]);\n\
 	float pixelWidth = projected.w * pixelWidthRatio;\n\
 \n\
-	float pixelHeightRatio = pixelWidthRatio * (screenHeight/screenWidth);\n\
+	//float pixelHeightRatio = pixelWidthRatio * (screenHeight/screenWidth); // no works correctly.\n\
+	float pixelHeightRatio = 2. / ((screenHeight));\n\
 	float pixelHeight = projected.w * pixelHeightRatio;\n\
 	\n\
 	if(projected.w < 5.0)\n\
 		pixelWidth = 5.0 * pixelWidthRatio;\n\
+\n\
+	//pixelHeight = pixelWidth;\n\
 	\n\
 	vec4 offset;\n\
 	float offsetX;\n\
@@ -104584,7 +104136,11 @@ uniform float externalAlphasArray[8];\n\
 uniform int uActiveTextures[8];\n\
 uniform vec4 uExternalTexCoordsArray[8]; // vec4 (minS, minT, maxS, maxT).\n\
 uniform vec2 uMinMaxAltitudes; // used for altitudes textures as bathymetry.\n\
-uniform vec2 uMinMaxAltitudesBathymetryToGradient; // used for altitudes textures as bathymetry.\n\
+//uniform vec2 uMinMaxAltitudesBathymetryToGradient; // used for altitudes textures as bathymetry.\n\
+\n\
+// gradient white-blue vars.***\n\
+uniform float uGradientSteps[16];\n\
+uniform int uGradientStepsCount;\n\
 \n\
 varying vec2 v_tex_pos;\n\
 \n\
@@ -104769,12 +104325,44 @@ vec3 getRainbowColor_byHeight(float height, float minHeight, float maxHeight)\n\
     return resultColor;\n\
 } \n\
 \n\
-vec3 getWhiteToBlueColor_byHeight(float height, float minHeight, float maxHeight)\n\
+vec3 getWhiteToBlueColor_byHeight(float height)//, float minHeight, float maxHeight)\n\
 {\n\
     // White to Blue in 32 steps.\n\
-    float gray = (height - minHeight)/(maxHeight - minHeight);\n\
+    float gray = 1.0;\n\
     //gray = 1.0 - gray; // invert gray value (white to blue).\n\
     // calculate r, g, b values by gray.\n\
+\n\
+    // Test to quadratic gray scale.***\n\
+    float stepGray = 1.0;\n\
+\n\
+    for(int i=0; i<16-1; i++)\n\
+    {\n\
+        if(i >= uGradientStepsCount-1)\n\
+        break;\n\
+\n\
+        float stepValue = uGradientSteps[i];\n\
+        float stepValue2 = uGradientSteps[i+1];\n\
+\n\
+        // check if is frontier.***\n\
+        if(height >= uGradientSteps[0])\n\
+        {\n\
+            stepGray = 0.0;\n\
+            break;\n\
+        }\n\
+\n\
+        if(height <= stepValue && height > stepValue2)\n\
+        {\n\
+            // calculate decimal.***\n\
+            //float decimal = (height - stepValue)/(stepValue2-stepValue);\n\
+            float decimal = (stepValue - height)/(stepValue-stepValue2);\n\
+            float unit = float (i);\n\
+            float value = unit + decimal;\n\
+            stepGray = value/float(uGradientStepsCount-1);\n\
+            break;\n\
+        }\n\
+    }\n\
+    gray = stepGray;\n\
+    // End test.-----------------------\n\
 \n\
     float r, g, b;\n\
 \n\
@@ -104907,7 +104495,8 @@ void getTextureColor(in int activeNumber, in vec4 currColor4, in vec2 texCoord, 
 \n\
                 //uMinMaxAltitudesBathymetryToGradient\n\
                 //vec3 seaColorRGB = getWhiteToBlueColor_byHeight(altitude, 0.0, -200.0);\n\
-                vec3 seaColorRGB = getWhiteToBlueColor_byHeight(altitude, uMinMaxAltitudesBathymetryToGradient.y, uMinMaxAltitudesBathymetryToGradient.x);\n\
+                vec3 seaColorRGB = getWhiteToBlueColor_byHeight(altitude);//, uMinMaxAltitudesBathymetryToGradient.y, uMinMaxAltitudesBathymetryToGradient.x);\n\
+                //vec3 seaColorRGB = getWhiteToBlueColor_byHeight(altitude, uMinMaxAltitudes.y, uMinMaxAltitudes.x);\n\
                 vec4 seaColor = vec4(seaColorRGB, 1.0);\n\
                 \n\
                 resultTextureColor = mix(resultTextureColor, seaColor, 0.99); \n\
@@ -106271,14 +105860,6 @@ varying float Fcoef_half;\n\
 // Texture's vars.***\n\
 varying float vTileDepth;\n\
 varying float vTexTileDepth;\n\
-varying float vAConstForDepth;\n\
-varying float vAConstForTexDepth;\n\
-varying float vMinT;\n\
-varying float vMinTTex;\n\
-varying float vRecalculatedTexCoordS;\n\
-\n\
-varying float vTestCurrLatitude;\n\
-varying float vTestCurrLongitude;\n\
 \n\
 const float equatorialRadius = 6378137.0;\n\
 const float polarRadius = 6356752.3142;\n\
@@ -106363,12 +105944,13 @@ vec3 normal_from_depth(float depth, vec2 texCoord) {\n\
     vec2 offset1 = vec2(0.0,pixelSizeY);\n\
     vec2 offset2 = vec2(pixelSizeX,0.0);\n\
 \n\
+	vec2 origin = vec2(texCoord.x - pixelSizeX, texCoord.y - pixelSizeY);\n\
 	float depthA = 0.0;\n\
 	float depthB = 0.0;\n\
 	for(float i=0.0; i<3.0; i++)\n\
 	{\n\
-		depthA += getDepth(texCoord + offset1*(1.0+i));\n\
-		depthB += getDepth(texCoord + offset2*(1.0+i));\n\
+		depthA += getDepth(origin + offset1*(1.0+i));\n\
+		depthB += getDepth(origin + offset2*(1.0+i));\n\
 	}\n\
 \n\
 	vec3 posA = reconstructPosition(texCoord + offset1*2.0, depthA/3.0);\n\
@@ -106580,40 +106162,7 @@ float roundCustom(float number)\n\
 \n\
 #define M_PI 3.1415926535897932384626433832795\n\
 \n\
-//varying float vAConstForDepth;\n\
-//varying float vAConstForTexDepth;\n\
-//varying float vMinT;\n\
-//varying float vMinTTex;\n\
 \n\
-float LatitudeRad_fromTexCoordY(float t)\n\
-{\n\
-	float PI_DIV_4 = M_PI/4.0;\n\
-	//float tileDepthFloat = float(tileDepth);\n\
-	//float aConst = (1.0/(2.0*M_PI))*pow(2.0, tileDepthFloat);\n\
-\n\
-	//float minT = roundCustom( vAConstForDepth*(M_PI-log(tan(PI_DIV_4+minLatitudeRad/2.0))) );\n\
-	//minT = 1.0 - minT;\n\
-\n\
-	float tAux = t + vMinT;\n\
-	tAux = 1.0 - tAux;\n\
-	float latRad = 2.0*(atan(exp(M_PI-tAux/vAConstForDepth))-PI_DIV_4);\n\
-	\n\
-	return latRad;\n\
-}\n\
-\n\
-float TexCoordY_fromLatitudeRad(float latitudeRad)\n\
-{\n\
-	float PI_DIV_4 = M_PI/4.0;\n\
-	//float aConstTex = (1.0/(2.0*M_PI))*pow(2.0, float(tileDepth));\n\
-	//float minTTex = roundCustom(vAConstForTexDepth*(M_PI-log(tan(PI_DIV_4+minLatitudeRad/2.0))));\n\
-	//minTTex = 1.0 - minTTex;\n\
-\n\
-	float newT = vAConstForTexDepth*(M_PI-log(tan(PI_DIV_4+latitudeRad/2.0)));\n\
-	newT = 1.0 - newT;\n\
-	newT -= vMinTTex;\n\
-\n\
-	return newT;\n\
-}\n\
 \n\
 void main()\n\
 {    \n\
@@ -106774,9 +106323,6 @@ void main()\n\
 				texCoord = vec2(finalTexCoord.s, finalTexCoord.t);\n\
 			}\n\
 \n\
-			\n\
-\n\
-			\n\
 			bool firstColorSetted = false;\n\
 			float externalAlpha = 0.0;\n\
 \n\
@@ -106875,6 +106421,9 @@ void main()\n\
 		}\n\
 \n\
 		vec3 normalFromDepth = normal_from_depth(linearDepthAux, screenPos); // normal from depthTex.***\n\
+		//normalFromDepth += vNormal*0.5;\n\
+		//normalize(normalFromDepth);\n\
+\n\
 		float scalarProd = dot(normalFromDepth, normalize(-ray));\n\
 		scalarProd /= 3.0;\n\
 		scalarProd += 0.666;\n\
@@ -106939,6 +106488,7 @@ void main()\n\
 		gl_FragColor = vec4(finalColor.xyz * shadow_occlusion * lambertian * scalarProd, 1.0); // original.***\n\
 		//gl_FragColor = textureColor; // test.***\n\
 		//gl_FragColor = vec4(vNormal.xyz, 1.0); // test.***\n\
+\n\
 		/*\n\
 		int texDepthDiff = int(floor(vTileDepth+0.1) - floor(vTexTileDepth+0.1));\n\
 		if(texDepthDiff > 0)\n\
@@ -107005,6 +106555,9 @@ uniform vec4 uTileGeoExtent; // (minLon, minLat, maxLon, maxLat).\n\
 uniform int uTileDepthOfBindedTextures; // The depth of the tileTexture binded. Normally uTileDepth = uTileDepthOfBindedTextures, but if current tile has no texturesPrepared, then bind ownerTexture and change texCoords.\n\
 uniform vec4 uTileGeoExtentOfBindedTextures; // (minLon, minLat, maxLon, maxLat).\n\
 \n\
+// Debug uniforms for texCorrection.***\n\
+uniform vec3 uDebug_texCorrectionFactor;\n\
+\n\
 varying float applySpecLighting;\n\
 varying vec3 vNormal;\n\
 varying vec2 vTexCoord;   \n\
@@ -107023,16 +106576,9 @@ varying float Fcoef_half;\n\
 // Texture's vars.***\n\
 varying float vTileDepth;\n\
 varying float vTexTileDepth;\n\
-varying float vAConstForDepth;\n\
-varying float vAConstForTexDepth;\n\
-varying float vMinT;\n\
-varying float vMinTTex;\n\
-varying float vRecalculatedTexCoordS;\n\
-\n\
-varying float vTestCurrLatitude;\n\
-varying float vTestCurrLongitude;\n\
 \n\
 #define M_PI 3.1415926535897932384626433832795\n\
+#define M_E 2.7182818284590452353602875\n\
 \n\
 float roundCustom(float number)\n\
 {\n\
@@ -107042,6 +106588,7 @@ float roundCustom(float number)\n\
 \n\
 float LatitudeRad_fromTexCoordY(float t, float minLatitudeRad, int tileDepth)\n\
 {\n\
+	// No used. Is not precise.\n\
 	float PI_DIV_4 = M_PI/4.0;\n\
 	float tileDepthFloat = float(tileDepth);\n\
 	float aConst = (1.0/(2.0*M_PI))*pow(2.0, tileDepthFloat);\n\
@@ -107056,14 +106603,13 @@ float LatitudeRad_fromTexCoordY(float t, float minLatitudeRad, int tileDepth)\n\
 	return latRad;\n\
 }\n\
 \n\
-float TexCoordY_fromLatitudeRad(float latitudeRad, float minLatitudeRad, int tileDepth)\n\
+float TexCoordY_fromLatitudeRad(float latitudeRad, float minLatitudeRad, int tileDepth, float aConst)\n\
 {\n\
 	float PI_DIV_4 = M_PI/4.0;\n\
-	float aConstTex = (1.0/(2.0*M_PI))*pow(2.0, float(tileDepth));\n\
-	float minTTex = roundCustom(aConstTex*(M_PI-log(tan(PI_DIV_4+minLatitudeRad/2.0))));\n\
+	float minTTex = roundCustom(aConst*(M_PI-log(tan(PI_DIV_4+minLatitudeRad/2.0))));\n\
 	minTTex = 1.0 - minTTex;\n\
 \n\
-	float newT = aConstTex*(M_PI-log(tan(PI_DIV_4+latitudeRad/2.0)));\n\
+	float newT = aConst*(M_PI-log(tan(PI_DIV_4+latitudeRad/2.0)));\n\
 	newT = 1.0 - newT;\n\
 	newT -= minTTex;\n\
 \n\
@@ -107139,6 +106685,8 @@ void main()\n\
 	else\n\
 	{\n\
 		vTexCoord = texCoord;\n\
+\n\
+\n\
 		// ckeck if the texture is for this tile.\n\
 		if(uTileDepth != uTileDepthOfBindedTextures)\n\
 		{\n\
@@ -107147,46 +106695,31 @@ void main()\n\
 			float thisMaxLon = uTileGeoExtent.z;\n\
 			float thisMaxLat = uTileGeoExtent.w;\n\
 			float thisLonRange = (thisMaxLon - thisMinLon);\n\
-			float thisLatRange = (thisMaxLat - thisMinLat);\n\
 \n\
 			float thisMinLatRad = thisMinLat * M_PI/180.0;\n\
-			float thisMinLonRad = thisMinLon * M_PI/180.0;\n\
+			float thisMaxLatRad = thisMaxLat * M_PI/180.0;\n\
 \n\
 			float texMinLon = uTileGeoExtentOfBindedTextures.x;\n\
 			float texMinLat = uTileGeoExtentOfBindedTextures.y;\n\
 			float texMaxLon = uTileGeoExtentOfBindedTextures.z;\n\
-			float texMaxLat = uTileGeoExtentOfBindedTextures.w;\n\
+\n\
 			float texLonRange = (texMaxLon - texMinLon);\n\
-			float texLatRange = (texMaxLat - texMinLat);\n\
-\n\
 			float texMinLatRad = texMinLat * M_PI/180.0;\n\
-			float texMinLonRad = texMinLon * M_PI/180.0;\n\
-			//---------------------------------------------------------------\n\
-			float PI_DIV_4 = M_PI/4.0;\n\
-			/*\n\
-			vAConstForDepth = (1.0/(2.0*M_PI))*pow(2.0, float(uTileDepth));\n\
-			vAConstForTexDepth = (1.0/(2.0*M_PI))*pow(2.0, float(uTileDepthOfBindedTextures));\n\
-			vMinT = roundCustom( vAConstForDepth*(M_PI-log(tan(PI_DIV_4+thisMinLatRad/2.0))) );\n\
-			vMinT = 1.0 - vMinT;\n\
-			vMinTTex = roundCustom( vAConstForTexDepth*(M_PI-log(tan(PI_DIV_4+texMinLatRad/2.0))) );\n\
-			vMinTTex = 1.0- vMinTTex;\n\
-			*/\n\
-			//-------------------------------------------------------------\n\
-			\n\
-			float currLatRad = LatitudeRad_fromTexCoordY(texCoord.y, thisMinLatRad, uTileDepth);\n\
-			//vTestCurrLatitude = currLatRad * 180.0/M_PI; // *** delete ***\n\
 \n\
-			// now, calculate s,t for bindedTexture tile depth.***\n\
-			\n\
-			float newS;\n\
+\n\
 			float currLon = thisMinLon + texCoord.x * thisLonRange;\n\
-			vTestCurrLongitude = currLon; // *** delete ***\n\
-			newS = (currLon - texMinLon) / texLonRange; // [0..1] range\n\
-			float newT = TexCoordY_fromLatitudeRad(currLatRad, texMinLatRad, uTileDepthOfBindedTextures); // [0..1] range\n\
-			float texCorrection = 0.0/float(uTileDepth - uTileDepthOfBindedTextures);\n\
-			vTexCoord = vec2(newS, newT + texCorrection);\n\
+			float newS = (currLon - texMinLon) / texLonRange; // [0..1] range\n\
+\n\
+			float aConstTex = (1.0/(2.0*M_PI))*pow(2.0, float(uTileDepthOfBindedTextures));\n\
+\n\
+			float minT = TexCoordY_fromLatitudeRad(thisMinLatRad, texMinLatRad, uTileDepthOfBindedTextures, aConstTex); // [0..1] range\n\
+			float maxT = TexCoordY_fromLatitudeRad(thisMaxLatRad, texMinLatRad, uTileDepthOfBindedTextures, aConstTex); // [0..1] range\n\
+			float scaleT = maxT - minT;\n\
+			float newT = minT + texCoord.y * scaleT;\n\
+\n\
+			vTexCoord = vec2(newS, newT);\n\
 			\n\
-			vRecalculatedTexCoordS = newS;\n\
+			\n\
 \n\
 			/*\n\
 			// CRS84.**************************************************\n\
@@ -108448,6 +107981,1770 @@ UniformVec4fvDataPair.prototype.bindUniform = function()
 	this.gl.uniform4fv(this.uniformLocation, this.vec4fv);
 };
 
+'use strict';
+
+function abstract() 
+{
+	return  ((function() 
+	{
+		throw new Error('Unimplemented abstract method.');
+	})());
+}
+'use strict';
+
+/**
+ * 어떤 일을 하고 있습니까?
+ * @class ByteColor
+ */
+var ByteColor = function() 
+{
+	if (!(this instanceof ByteColor)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+
+	this.ByteR = 0;
+	this.ByteG = 0;
+	this.ByteB = 0;
+	this.ByteAlfa = 255;
+};
+
+/**
+ * 어떤 일을 하고 있습니까?
+ */
+ByteColor.prototype.destroy = function() 
+{
+	this.ByteR = null;
+	this.ByteG = null;
+	this.ByteB = null;
+	this.ByteAlfa = null;
+};
+
+/**
+ * 어떤 일을 하고 있습니까?
+ * @param byteRed 변수
+ * @param byteGreen 변수
+ * @param byteBlue 변수
+ */
+ByteColor.prototype.set = function(byteRed, byteGreen, byteBlue) 
+{
+	this.ByteR = byteRed;
+	this.ByteG = byteGreen;
+	this.ByteB = byteBlue;
+};
+
+'use strict';
+
+/**
+ * This class is used to control the movement of objects.
+ * @class CameraController
+ */
+var CameraController = function() 
+{
+	if (!(this instanceof CameraController)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	
+	this.startGeoCoord;
+	this.targetGeoCoord;
+	this.travelDurationInSeconds;
+	
+	this.acceleration; // m/s2.***
+	this.velocity; // m/s.***
+	
+	
+};
+'use strict';
+
+/**
+ * Returns guid
+ */
+function createGuid() 
+{
+	return 'xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) 
+	{
+		var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+		return v.toString(16);
+	});
+}
+'use strict';
+
+/**
+ * Returns the first parameter if not undefined, otherwise the second parameter.
+ * Useful for setting a default value for a parameter.
+ *
+ * @param {*} a
+ * @param {*} b
+ * @returns {*} Returns the first parameter if not undefined, otherwise the second parameter. 
+ */
+function defaultValue(a, b) 
+{
+	if (a !== undefined && a !== null) 
+	{
+		return a;
+	}
+	return b;
+}
+'use strict';
+
+/**
+ * Returns the first parameter if not undefined, otherwise the second parameter.
+ * Useful for setting a default value for a parameter.
+ *
+ * @param {*} a
+ * @param {*} b
+ * @returns {*} Returns the first parameter if not undefined, otherwise the second parameter. 
+ */
+function defaultValueCheckLength(a, b) 
+{
+	if (a !== undefined && a !== null && a.toString().trim().length > 0) 
+	{
+		return a;
+	}
+	return b;
+}
+'use strict';
+
+/**
+ *
+ * @param {*} value The object.
+ * @returns {Boolean} Returns true if the object is defined, returns false otherwise.
+ */
+function defined(value) 
+{
+	return value !== undefined && value !== null;
+}
+'use strict';
+/**
+* Utils for geometry.
+* @class GeometryUtils
+*/
+var GeometryUtils = function() 
+{
+	if (!(this instanceof GeometryUtils)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	
+};
+
+/**
+ * Given an idx, this function returns the next idx of an array.
+ * @param {Number} currIdx 
+ * @param {Number} pointsCount The points count of the array.
+ * @Return {Number} The next idx.
+ */
+GeometryUtils.projectPoint3DInToBestPlaneToProject = function(point3d, bestPlaneToProject, resultPoint2d)
+{
+	// This function returns projected point2d.
+	if (resultPoint2d === undefined)
+	{ resultPoint2d = new Point2D(); }
+	
+	if (bestPlaneToProject === 0)
+	{
+		//"xy";
+		resultPoint2d.set(point3d.x, point3d.y);
+	}
+	else if (bestPlaneToProject === 1)
+	{
+		//"yz";
+		resultPoint2d.set(point3d.y, point3d.z);
+	}
+	else if (bestPlaneToProject === 2)
+	{
+		//"xz";
+		resultPoint2d.set(point3d.x, point3d.z);
+	}
+	
+	return resultPoint2d;
+};
+
+/**
+ * Given an idx, this function returns the next idx of an array.
+ * @param {Number} currIdx 
+ * @param {Number} pointsCount The points count of the array.
+ * @Return {Number} The next idx.
+ */
+GeometryUtils.projectTriangle3DInToBestPlaneToProject = function(triangle3d, bestPlaneToProject, resultTriangle2d)
+{
+	// This function returns projected triangle2d.
+	if (resultTriangle2d === undefined)
+	{ resultTriangle2d = new Triangle2D(); }
+	
+	var point3d0 = triangle3d.vertex0.getPosition();
+	var point2d0 = GeometryUtils.projectPoint3DInToBestPlaneToProject(point3d0, bestPlaneToProject, undefined);
+	
+	var point3d1 = triangle3d.vertex1.getPosition();
+	var point2d1 = GeometryUtils.projectPoint3DInToBestPlaneToProject(point3d1, bestPlaneToProject, undefined);
+	
+	var point3d2 = triangle3d.vertex2.getPosition();
+	var point2d2 = GeometryUtils.projectPoint3DInToBestPlaneToProject(point3d2, bestPlaneToProject, undefined);
+	
+	resultTriangle2d.setPoints(point2d0, point2d1, point2d2);
+	
+	return resultTriangle2d;
+};
+
+/**
+ * Given an idx, this function returns the next idx of an array.
+ * @param {Number} currIdx 
+ * @param {Number} pointsCount The points count of the array.
+ * @Return {Number} The next idx.
+ */
+GeometryUtils.getNextIdx = function(currIdx, pointsCount)
+{
+	if (currIdx === pointsCount - 1)
+	{ return 0; }
+	else
+	{ return currIdx + 1; }
+};
+
+/**
+ * Given an idx, this function returns the previous idx of an array.
+ * @param {Number} currIdx 
+ * @param {Number} pointsCount The points count of the array.
+ * @Return {Number} The previous idx.
+ */
+GeometryUtils.getPrevIdx = function(currIdx, pointsCount)
+{
+	if (currIdx === 0)
+	{ return pointsCount - 1; }
+	else
+	{ return currIdx - 1; }
+};
+
+/**
+ * This function makes the triangles vertices indices for a regular grid.
+ * @param {Number} numCols Grid columns count.
+ * @param {Number} numRows Grid rows count.
+ * @param {Uint16Array/undefined} resultIndicesArray
+ * @param {Object} options 
+ * @Return {Uint16Array} resultIndicesArray
+ */
+GeometryUtils.getIndicesTrianglesRegularNet = function(numCols, numRows, resultIndicesArray, resultSouthIndices, resultEastIndices, resultNorthIndices, resultWestIndices, options)
+{
+	// given a regular net this function returns triangles vertices indices of the net.
+	var verticesCount = numCols * numRows;
+	var trianglesCount = (numCols-1) * (numRows-1) * 2;
+	if (resultIndicesArray === undefined)
+	{ resultIndicesArray = new Uint16Array(trianglesCount * 3); }
+	
+	var idx_1, idx_2, idx_3;
+	var idxCounter = 0;
+	
+	var resultObject = {};
+	
+	// bLoopColumns : if want object like a cilinder or sphere where the 1rstCol touch with the last col.
+	var bLoopColumns = false; // Default.***
+	var bTrianglesSenseCCW = true;
+	if (options !== undefined)
+	{
+		if (options.bLoopColumns !== undefined)
+		{ bLoopColumns = options.bLoopColumns; }
+	
+		if (options.bTrianglesSenseCCW !== undefined)
+		{ bTrianglesSenseCCW = options.bTrianglesSenseCCW; }
+	}
+	
+	for (var row = 0; row<numRows-1; row++)
+	{
+		for (var col=0; col<numCols-1; col++)
+		{
+			// there are 2 triangles: triA, triB.
+			idx_1 = VertexMatrix.getIndexOfArray(numCols, numRows, col, row);
+			idx_2 = VertexMatrix.getIndexOfArray(numCols, numRows, col+1, row);
+			idx_3 = VertexMatrix.getIndexOfArray(numCols, numRows, col, row+1);
+			
+			if (bTrianglesSenseCCW)
+			{
+				resultIndicesArray[idxCounter] = idx_1; idxCounter++;
+				resultIndicesArray[idxCounter] = idx_2; idxCounter++;
+				resultIndicesArray[idxCounter] = idx_3; idxCounter++;
+			}
+			else
+			{
+				resultIndicesArray[idxCounter] = idx_1; idxCounter++;
+				resultIndicesArray[idxCounter] = idx_3; idxCounter++;
+				resultIndicesArray[idxCounter] = idx_2; idxCounter++;
+			}
+			
+			idx_1 = VertexMatrix.getIndexOfArray(numCols, numRows, col+1, row);
+			idx_2 = VertexMatrix.getIndexOfArray(numCols, numRows, col+1, row+1);
+			idx_3 = VertexMatrix.getIndexOfArray(numCols, numRows, col, row+1);
+			
+			if (bTrianglesSenseCCW)
+			{
+				resultIndicesArray[idxCounter] = idx_1; idxCounter++;
+				resultIndicesArray[idxCounter] = idx_2; idxCounter++;
+				resultIndicesArray[idxCounter] = idx_3; idxCounter++;
+			}
+			else 
+			{
+				resultIndicesArray[idxCounter] = idx_1; idxCounter++;
+				resultIndicesArray[idxCounter] = idx_3; idxCounter++;
+				resultIndicesArray[idxCounter] = idx_2; idxCounter++;
+			}
+		}
+	}
+	
+	resultObject.indicesArray = resultIndicesArray;
+	
+	var bCalculateBorderIndices = false;
+	if (options)
+	{
+		if (options.bCalculateBorderIndices !== undefined && options.bCalculateBorderIndices === true)
+		{ bCalculateBorderIndices = true; }
+	}
+	
+	// Border indices.***
+	if (bCalculateBorderIndices)
+	{
+		// South.
+		if (!resultSouthIndices)
+		{ resultSouthIndices = new Uint16Array(numCols); }
+		
+		for (var col=0; col<numCols; col++)
+		{
+			var idx = VertexMatrix.getIndexOfArray(numCols, numRows, col, 0);
+			resultSouthIndices[col] = idx;
+		}
+		
+		resultObject.southIndicesArray = resultSouthIndices;
+		
+		// East.
+		if (!resultEastIndices)
+		{ resultEastIndices = new Uint16Array(numRows); }
+		
+		for (var row = 0; row<numRows; row++)
+		{
+			var idx = VertexMatrix.getIndexOfArray(numCols, numRows, numCols-1, row);
+			resultEastIndices[row] = idx;
+		}
+		
+		resultObject.eastIndicesArray = resultEastIndices;
+		
+		// North.
+		if (!resultNorthIndices)
+		{ resultNorthIndices = new Uint16Array(numCols); }
+		
+		var counter = 0;
+		for (var col=numCols-1; col>=0; col--)
+		{
+			var idx = VertexMatrix.getIndexOfArray(numCols, numRows, col, numRows-1);
+			resultNorthIndices[counter] = idx;
+			counter ++;
+		}
+		
+		resultObject.northIndicesArray = resultNorthIndices;
+		
+		// West.
+		if (!resultWestIndices)
+		{ resultWestIndices = new Uint16Array(numRows); }
+		
+		counter = 0;
+		for (var row = numRows-1; row>=0; row--)
+		{
+			var idx = VertexMatrix.getIndexOfArray(numCols, numRows, 0, row);
+			resultWestIndices[counter] = idx;
+			counter ++;
+		}
+		
+		resultObject.westIndicesArray = resultWestIndices;
+	}
+	
+	if (bLoopColumns)
+	{
+		var firstCol = 0;
+		var endCol = numCols;
+		for (var row = 0; row<numRows-1; row++)
+		{
+			// there are triangles between lastColumn & 1rstColumn.
+			// there are 2 triangles: triA, triB.
+			idx_1 = VertexMatrix.getIndexOfArray(numCols, numRows, endCol, row);
+			idx_2 = VertexMatrix.getIndexOfArray(numCols, numRows, firstCol, row);
+			idx_3 = VertexMatrix.getIndexOfArray(numCols, numRows, endCol, row+1);
+			if (bTrianglesSenseCCW)
+			{
+				resultIndicesArray[idxCounter] = idx_1; idxCounter++;
+				resultIndicesArray[idxCounter] = idx_2; idxCounter++;
+				resultIndicesArray[idxCounter] = idx_3; idxCounter++;
+			}
+			else 
+			{
+				resultIndicesArray[idxCounter] = idx_1; idxCounter++;
+				resultIndicesArray[idxCounter] = idx_3; idxCounter++;
+				resultIndicesArray[idxCounter] = idx_2; idxCounter++;
+			}
+			
+			idx_1 = VertexMatrix.getIndexOfArray(numCols, numRows, firstCol, row);
+			idx_2 = VertexMatrix.getIndexOfArray(numCols, numRows, firstCol, row+1);
+			idx_3 = VertexMatrix.getIndexOfArray(numCols, numRows, endCol, row+1);
+			if (bTrianglesSenseCCW)
+			{
+				resultIndicesArray[idxCounter] = idx_1; idxCounter++;
+				resultIndicesArray[idxCounter] = idx_2; idxCounter++;
+				resultIndicesArray[idxCounter] = idx_3; idxCounter++;
+			}
+			else 
+			{
+				resultIndicesArray[idxCounter] = idx_1; idxCounter++;
+				resultIndicesArray[idxCounter] = idx_3; idxCounter++;
+				resultIndicesArray[idxCounter] = idx_2; idxCounter++;
+			}
+		}
+	}
+	
+	return resultObject;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+'use strict';
+
+/**
+ *
+ * @param {*} value The object.
+ * @returns {Boolean} Returns true if the object is empty, returns false otherwise.
+ */
+function isEmpty(value)
+{ 
+	if ( value === "" || value === null || value === undefined || ( value !== null && typeof value === "object" && !Object.keys(value).length ) )
+	{ 
+		return true; 
+	}
+	else
+	{ 
+		return false; 
+	} 
+};
+
+
+'use strict';
+
+/**
+ *
+ * @param {String} url Required.
+ * @param {XMLHttpRequest} xhr Optional.
+ * @param {number} timeOut Optional. timeout time. milliseconds
+ * @param {String} responseType Optional. Default is 'arraybuffer'
+ * @param {String} method Optional. Default is 'GET'
+ * 
+ * @returns {Promise} Promise.js object
+ *
+ * @example
+ * loadWithXhr('url', undefined, undefined, 'json', 'GET').done(function(res) {
+ * 	TODO
+ * });
+ */
+function loadWithXhr(url, xhr, timeOut, responseType, method) 
+{
+	if (!defined(url))
+	{
+		throw new Error('url required');
+	}
+
+	return new Promise(
+		function (resolve, reject) 
+		{
+			if (xhr === undefined)
+			{ xhr = new XMLHttpRequest(); }
+
+			method = method ? method : 'GET';
+			xhr.open(method, url, true);
+			xhr.responseType = responseType ? responseType : 'arraybuffer';
+
+			 // time in milliseconds
+			if (timeOut !== undefined)
+			{ xhr.timeout = timeOut; }
+			
+			// 이벤트 핸들러를 등록한다.
+			xhr.onload = function() 
+			{
+				if (xhr.status < 200 || xhr.status >= 300) 
+				{
+					reject(xhr.status);
+				}
+				else 
+				{
+					// 3.1) DEFERRED를 해결한다. (모든 done()...을 동작시킬 것이다.)
+					resolve(xhr.response);
+				} 
+			};
+			
+			xhr.ontimeout = function (e) 
+			{
+				// XMLHttpRequest timed out.***
+				reject(-1);
+			};
+			
+			xhr.onerror = function(e) 
+			{
+				console.log("Invalid XMLHttpRequest response type.");
+				reject(xhr.status);
+			};
+
+			// 작업을 수행한다.
+			xhr.send(null);
+		}
+	);
+};
+'use strict';
+
+/**
+ * ManagerUtils does some calculations about coordinates system of different earth coords.
+ * 
+ * @class ManagerUtils
+ * @constructor 
+ */
+var ManagerUtils = function() 
+{
+	
+	
+};
+
+/**
+ * 어떤 일을 하고 있습니까?
+ * @param octreesArray 변수
+ * @param octree 변수
+ * @returns result_idx
+ */
+ManagerUtils.getIndexToInsertBySquaredDistToEye = function(objectsArray, object, startIdx, endIdx) 
+{
+	// Note: the object must have "distToCamera" variable.
+	// this do a dicotomic search of idx in a ordered table.
+	// 1rst, check the range.
+	if (startIdx === undefined)
+	{ startIdx = 0; }
+	
+	if (endIdx === undefined)
+	{ endIdx = objectsArray.length-1; }
+	
+	var range = endIdx - startIdx;
+	
+	if (range <= 0)
+	{ return 0; }
+	
+	if (range < 6)
+	{
+		// in this case do a lineal search.
+		var finished = false;
+		var i = startIdx;
+		var idx;
+		var octreesCount = objectsArray.length;
+		while (!finished && i<=endIdx)
+		{
+			if (object.distToCamera < objectsArray[i].distToCamera)
+			{
+				idx = i;
+				finished = true;
+			}
+			i++;
+		}
+		
+		if (finished)
+		{
+			return idx;
+		}
+		else 
+		{
+			return endIdx+1;
+		}
+	}
+	else 
+	{
+		// in this case do the dicotomic search.
+		var middleIdx = startIdx + Math.floor(range/2);
+		var newStartIdx;
+		var newEndIdx;
+		if (objectsArray[middleIdx].distToCamera > object.distToCamera)
+		{
+			newStartIdx = startIdx;
+			newEndIdx = middleIdx;
+		}
+		else 
+		{
+			newStartIdx = middleIdx;
+			newEndIdx = endIdx;
+		}
+		return ManagerUtils.getIndexToInsertBySquaredDistToEye(objectsArray, object, newStartIdx, newEndIdx);
+	}
+};
+
+/**
+ * world coordinate to geographic coordinate.
+ * @param {Point3D} point world coordinate.
+ * @param {GeographicCoord|undefined} resultGeographicCoord Optional. result geographicCoord. if undefined, create GeographicCoord instance.
+ * @param {MagoManager} magoManager worldwind mode removed, this args is not need. 
+ * @returns {GeographicCoord} geographic coordinate object.
+ */
+ManagerUtils.pointToGeographicCoord = function(point, resultGeographicCoord) 
+{
+	if (!point) 
+	{
+		throw new Error('point is requred');
+	}
+
+	if (resultGeographicCoord === undefined)
+	{ resultGeographicCoord = new GeographicCoord(); }
+	
+	var cartographic = Globe.CartesianToGeographicWgs84(point.x, point.y, point.z, cartographic);
+	resultGeographicCoord.setLonLatAlt(cartographic.longitude, cartographic.latitude, cartographic.altitude);
+	
+	return resultGeographicCoord;
+};
+
+/**
+ * geographic coordinate to world coordinate.
+ * @param {number} longitude longitude.
+ * @param {number} latitude latitude.
+ * @param {number} altitude altitude.
+ * @param {Point3D|undefined} resultWorldPoint Optional. result worldCoord. if undefined, create Point3D instance.
+ * @returns {Point3D} world coordinate object.
+ */
+ManagerUtils.geographicCoordToWorldPoint = function(longitude, latitude, altitude, resultWorldPoint) 
+{
+	if (resultWorldPoint === undefined)
+	{ resultWorldPoint = new Point3D(); }
+
+	var cartesian = Globe.geographicToCartesianWgs84(longitude, latitude, altitude, undefined);
+	resultWorldPoint.set(cartesian[0], cartesian[1], cartesian[2]);
+	return resultWorldPoint;
+};
+
+/**
+ * when node mapping type is boundingboxcenter, set pivotPointTraslation and create pivotPoint at geoLocationData
+ * this function NO modifies the geographic coords.
+ * "newPivotPoint" is in buildingCoords.
+ * "newPivotPoint" is the desired position of the new origen of coords, for example:
+ * in a building you can desire the center of the bbox as the origin of the coords.
+ * @param {GeoLocationData} geoLocationData. Required.
+ * @param {Point3D} newPivotPoint newPivotPoint.
+ */
+ManagerUtils.translatePivotPointGeoLocationData = function(geoLocationData, newPivotPoint) 
+{
+	if (geoLocationData === undefined)
+	{ return; }
+
+	var rawTranslation = new Point3D();
+	rawTranslation.set(-newPivotPoint.x, -newPivotPoint.y, -newPivotPoint.z);
+
+	geoLocationData.pivotPointTraslationLC = rawTranslation;
+	geoLocationData.doEffectivePivotPointTranslation();
+};
+
+/**
+ * this function calculates the transformation matrix for (x, y, z) coordinate, that has NO heading, pitch or roll rotations.
+ * @param {Point3D} worldPosition worldPosition.
+ * @param {Matrix4|undefined} resultGeoLocMatrix. Optional. result geolocation matrix. if undefined, create Matrix4 instance.
+ * @returns {Matrix4} resultGeoLocMatrix. this matrix has NO heading, pitch or roll rotations.
+ */
+ManagerUtils.calculateGeoLocationMatrixAtWorldPosition = function(worldPosition, resultGeoLocMatrix) 
+{
+	if (resultGeoLocMatrix === undefined)
+	{ resultGeoLocMatrix = new Matrix4(); }
+
+	Globe.transformMatrixAtCartesianPointWgs84(worldPosition.x, worldPosition.y, worldPosition.z, resultGeoLocMatrix._floatArrays);
+	
+	return resultGeoLocMatrix;
+};
+
+/**
+ * this function calculates the transformation matrix for (longitude, latitude, altitude) coordinate, that has NO heading, pitch or roll rotations.
+ * @param {number} longitude longitude.
+ * @param {number} latitude latitude.
+ * @param {number} altitude altitude.
+ * @param {Matrix4|undefined} resultGeoLocMatrix. Optional. result geolocation matrix. if undefined, create Matrix4 instance.
+ * @returns {Matrix4} resultGeoLocMatrix. this matrix has NO heading, pitch or roll rotations.
+ */
+ManagerUtils.calculateGeoLocationMatrixAtLonLatAlt = function(longitude, latitude, altitude, resultGeoLocMatrix) 
+{
+	if (resultGeoLocMatrix === undefined)
+	{ resultGeoLocMatrix = new Matrix4(); }
+	
+	var worldPosition = this.geographicCoordToWorldPoint(longitude, latitude, altitude, worldPosition);
+	resultGeoLocMatrix = ManagerUtils.calculateGeoLocationMatrixAtWorldPosition(worldPosition, resultGeoLocMatrix);
+	
+	return resultGeoLocMatrix;
+};
+
+/**
+ * This function calculates the "resultGeoLocMatrix" & "resultTransformMatrix".
+ * @param {Point3D} worldPosition worldPosition.
+ * @param {number} heading heading.
+ * @param {number} pitch pitch.
+ * @param {number} roll roll.
+ * @param {Matrix4|undefined} resultGeoLocMatrix. Optional. result geolocation matrix. if undefined, create Matrix4 instance. this transformMatrix without the heading, pitch, roll rotations.
+ * @param {Matrix4|undefined} resultTransformMatrix. Optional. result transform matrix. if undefined, create Matrix4 instance. this matrix including the heading, pitch, roll rotations.
+ * @returns {Matrix4} resultTransformMatrix.
+ */
+ManagerUtils.calculateTransformMatrixAtWorldPosition = function(worldPosition, heading, pitch, roll, resultGeoLocMatrix, resultTransformMatrix) 
+{
+	var xRotMatrix = new Matrix4();  // created as identity matrix.
+	var yRotMatrix = new Matrix4();  // created as identity matrix.
+	var zRotMatrix = new Matrix4();  // created as identity matrix.
+	
+	if (heading !== undefined && heading !== 0)
+	{ zRotMatrix.rotationAxisAngDeg(heading, 0.0, 0.0, 1.0); }
+
+	if (pitch !== undefined && pitch !== 0)
+	{ xRotMatrix.rotationAxisAngDeg(pitch, 1.0, 0.0, 0.0); }
+
+	if (roll !== undefined && roll !== 0)
+	{ yRotMatrix.rotationAxisAngDeg(roll, 0.0, 1.0, 0.0); }
+
+	if (resultGeoLocMatrix === undefined)
+	{ resultGeoLocMatrix = new Matrix4(); }  // created as identity matrix.
+	
+	if (resultTransformMatrix === undefined)
+	{ resultTransformMatrix = new Matrix4(); }  // created as identity matrix.
+
+	// 1rst, calculate the transformation matrix for the location.
+	resultGeoLocMatrix = ManagerUtils.calculateGeoLocationMatrixAtWorldPosition(worldPosition, resultGeoLocMatrix);
+	
+	resultTransformMatrix.copyFromMatrix4(resultGeoLocMatrix);
+	var zRotatedTMatrix;
+	var zxRotatedTMatrix;
+	var zxyRotatedTMatrix;
+
+	zRotatedTMatrix = zRotMatrix.getMultipliedByMatrix(resultTransformMatrix, zRotatedTMatrix);
+	zxRotatedTMatrix = xRotMatrix.getMultipliedByMatrix(zRotatedTMatrix, zxRotatedTMatrix);
+	zxyRotatedTMatrix = yRotMatrix.getMultipliedByMatrix(zxRotatedTMatrix, zxyRotatedTMatrix);
+	
+	resultTransformMatrix = zxyRotatedTMatrix;
+	return resultTransformMatrix;
+};
+
+/**
+ * This function calculates all data and matrices for the location(longitude, latitude, altitude) and rotation(heading, pitch, roll).
+ * @param {number} longitude Required. longitude.
+ * @param {number} latitude Required. latitude.
+ * @param {number} altitude altitude.
+ * @param {number} heading heading. Unit is degree.
+ * @param {number} pitch pitch. Unit is degree.
+ * @param {number} roll roll. Unit is degree.
+ * @param {GeoLocationData|undefined} resultGeoLocationData Optional. result geolocation matrix. if undefined, create GeoLocationData instance.
+ * @param {MagoManager} magoManager for magoManager.globe
+ * @returns {GeoLocationData} resultGeoLocationData.
+ */
+ManagerUtils.calculateGeoLocationData = function(longitude, latitude, altitude, heading, pitch, roll, resultGeoLocationData) 
+{
+	if (resultGeoLocationData === undefined)
+	{ resultGeoLocationData = new GeoLocationData(); }
+
+	// 0) Position.**
+	if (resultGeoLocationData.geographicCoord === undefined)
+	{ resultGeoLocationData.geographicCoord = new GeographicCoord(); }
+
+	if (longitude !== undefined)
+	{ resultGeoLocationData.geographicCoord.longitude = longitude; }
+	else 
+	{ longitude = resultGeoLocationData.geographicCoord.longitude; }
+
+	if (latitude !== undefined)
+	{ resultGeoLocationData.geographicCoord.latitude = latitude; }
+	else 
+	{ latitude = resultGeoLocationData.geographicCoord.latitude; }
+
+	if (altitude !== undefined)
+	{ resultGeoLocationData.geographicCoord.altitude = altitude; }
+	else 
+	{ altitude = resultGeoLocationData.geographicCoord.altitude; }
+
+	if (heading !== undefined)
+	{ resultGeoLocationData.heading = heading; }
+
+	if (pitch !== undefined)
+	{ resultGeoLocationData.pitch = pitch; }
+
+	if (roll !== undefined)
+	{ resultGeoLocationData.roll = roll; }
+
+	if (resultGeoLocationData.geographicCoord.longitude === undefined || resultGeoLocationData.geographicCoord.latitude === undefined)
+	{ return; }
+	
+	//if (magoManager.configInformation === undefined)
+	//{ return; }
+
+	resultGeoLocationData.position = ManagerUtils.geographicCoordToWorldPoint(longitude, latitude, altitude, resultGeoLocationData.position);
+
+	// High and Low values of the position.**
+	if (resultGeoLocationData.positionHIGH === undefined)
+	{ resultGeoLocationData.positionHIGH = new Float32Array([0.0, 0.0, 0.0]); }
+	if (resultGeoLocationData.positionLOW === undefined)
+	{ resultGeoLocationData.positionLOW = new Float32Array([0.0, 0.0, 0.0]); }
+	ManagerUtils.calculateSplited3fv([resultGeoLocationData.position.x, resultGeoLocationData.position.y, resultGeoLocationData.position.z], resultGeoLocationData.positionHIGH, resultGeoLocationData.positionLOW);
+
+	// Determine the elevation of the position.**
+	//var cartographic = Cesium.Ellipsoid.WGS84.cartesianToCartographic(position);
+	//var height = cartographic.height;
+	// End Determine the elevation of the position.-------------------------------------------------------
+	if (resultGeoLocationData.tMatrix === undefined)
+	{ resultGeoLocationData.tMatrix = new Matrix4(); }
+	else
+	{ resultGeoLocationData.tMatrix.Identity(); }
+
+	if (resultGeoLocationData.geoLocMatrix === undefined)
+	{ resultGeoLocationData.geoLocMatrix = new Matrix4(); }
+	else
+	{ resultGeoLocationData.geoLocMatrix.Identity(); }
+
+	if (resultGeoLocationData.rotMatrix === undefined)
+	{ resultGeoLocationData.rotMatrix = new Matrix4(); }
+	else
+	{ resultGeoLocationData.rotMatrix.Identity(); }
+
+	// Set inverseMatrices as undefined.
+	resultGeoLocationData.tMatrixInv = undefined; // reset. is calculated when necessary.
+	resultGeoLocationData.rotMatrixInv = undefined; // reset. is calculated when necessary.
+	resultGeoLocationData.geoLocMatrixInv = undefined; // reset. is calculated when necessary.
+
+	// 1rst, calculate the transformation matrix for the location.
+	resultGeoLocationData.tMatrix = ManagerUtils.calculateTransformMatrixAtWorldPosition(resultGeoLocationData.position, resultGeoLocationData.heading, resultGeoLocationData.pitch, resultGeoLocationData.roll, 
+		resultGeoLocationData.geoLocMatrix, resultGeoLocationData.tMatrix);
+	resultGeoLocationData.rotMatrix.copyFromMatrix4(resultGeoLocationData.tMatrix);
+	resultGeoLocationData.rotMatrix._floatArrays[12] = 0;
+	resultGeoLocationData.rotMatrix._floatArrays[13] = 0;
+	resultGeoLocationData.rotMatrix._floatArrays[14] = 0;
+	
+	// finally assing the pivotPoint.
+	if (resultGeoLocationData.pivotPoint === undefined)
+	{ resultGeoLocationData.pivotPoint = new Point3D(); }
+
+	resultGeoLocationData.pivotPoint.set(resultGeoLocationData.position.x, resultGeoLocationData.position.y, resultGeoLocationData.position.z);
+	resultGeoLocationData.doEffectivePivotPointTranslation();
+	
+	return resultGeoLocationData;
+};
+
+/**
+ * This function calculates geolocation data use pixel point(calculated world point). 
+ * When use Object Marker, this function called.
+ * @param {number} absoluteX absoluteX.
+ * @param {number} absoluteY absoluteY.
+ * @param {number} absoluteZ absoluteZ.
+ * @param {GeoLocationData|undefined} resultGeoLocationData Optional. result geolocation matrix. if undefined, create GeoLocationData instance.
+ * @param {MagoManager} magoManager
+ * @returns {GeoLocationData} resultGeoLocationData.
+ */
+ManagerUtils.calculateGeoLocationDataByAbsolutePoint = function(absoluteX, absoluteY, absoluteZ, resultGeoLocationData, magoManager) 
+{
+	if (resultGeoLocationData === undefined)
+	{ resultGeoLocationData = new GeoLocationData(); }
+
+	// 0) Position.**
+	if (resultGeoLocationData.geographicCoord === undefined)
+	{ resultGeoLocationData.geographicCoord = new GeographicCoord(); }
+	
+	if (magoManager.configInformation === undefined)
+	{ return; }
+	
+	if (resultGeoLocationData.position === undefined)
+	{ resultGeoLocationData.position = new Point3D(); }
+		
+	resultGeoLocationData.position.x = absoluteX;
+	resultGeoLocationData.position.y = absoluteY;
+	resultGeoLocationData.position.z = absoluteZ;
+	
+	//추후에 세슘의존성 버리는 코드로 대체 가능해 보임. 손수석님과 검토 필요.
+	/*
+	if (magoManager.isCesiumGlobe())
+	{
+		// *if this in Cesium:
+		//resultGeoLocationData.position = Cesium.Cartesian3.fromDegrees(resultGeoLocationData.geographicCoord.longitude, resultGeoLocationData.geographicCoord.latitude, resultGeoLocationData.geographicCoord.altitude);
+		// must find cartographic data.
+		var cartographic = new Cesium.Cartographic();
+		var cartesian = new Cesium.Cartesian3();
+		cartesian.x = absoluteX;
+		cartesian.y = absoluteY;
+		cartesian.z = absoluteZ;
+		cartographic = Cesium.Cartographic.fromCartesian(cartesian, magoManager.scene._globe._ellipsoid, cartographic);
+		resultGeoLocationData.geographicCoord.longitude = cartographic.longitude * 180.0/Math.PI;
+		resultGeoLocationData.geographicCoord.latitude = cartographic.latitude * 180.0/Math.PI;
+		resultGeoLocationData.geographicCoord.altitude = cartographic.height;
+	}
+	*/
+
+	resultGeoLocationData.geographicCoord = ManagerUtils.pointToGeographicCoord(new Point3D(absoluteX, absoluteY, absoluteZ));
+
+	// High and Low values of the position.**
+	if (resultGeoLocationData.positionHIGH === undefined)
+	{ resultGeoLocationData.positionHIGH = new Float32Array([0.0, 0.0, 0.0]); }
+	if (resultGeoLocationData.positionLOW === undefined)
+	{ resultGeoLocationData.positionLOW = new Float32Array([0.0, 0.0, 0.0]); }
+	this.calculateSplited3fv([resultGeoLocationData.position.x, resultGeoLocationData.position.y, resultGeoLocationData.position.z], resultGeoLocationData.positionHIGH, resultGeoLocationData.positionLOW);
+
+	// Determine the elevation of the position.**
+	//var cartographic = Cesium.Ellipsoid.WGS84.cartesianToCartographic(position);
+	//var height = cartographic.height;
+	// End Determine the elevation of the position.-------------------------------------------------------
+	if (resultGeoLocationData.tMatrix === undefined)
+	{ resultGeoLocationData.tMatrix = new Matrix4(); }
+	else
+	{ resultGeoLocationData.tMatrix.Identity(); }
+
+	if (resultGeoLocationData.geoLocMatrix === undefined)
+	{ resultGeoLocationData.geoLocMatrix = new Matrix4(); }
+	else
+	{ resultGeoLocationData.geoLocMatrix.Identity(); }
+
+	if (resultGeoLocationData.rotMatrix === undefined)
+	{ resultGeoLocationData.rotMatrix = new Matrix4(); }
+	else
+	{ resultGeoLocationData.rotMatrix.Identity(); }
+
+	// Set inverseMatrices as undefined.
+	resultGeoLocationData.tMatrixInv = undefined; // reset. is calculated when necessary.
+	resultGeoLocationData.rotMatrixInv = undefined; // reset. is calculated when necessary.
+	resultGeoLocationData.geoLocMatrixInv = undefined; // reset. is calculated when necessary.
+
+	// 1rst, calculate the transformation matrix for the location.
+	resultGeoLocationData.tMatrix = ManagerUtils.calculateTransformMatrixAtWorldPosition(resultGeoLocationData.position, resultGeoLocationData.heading, resultGeoLocationData.pitch, resultGeoLocationData.roll, 
+		resultGeoLocationData.geoLocMatrix, resultGeoLocationData.tMatrix);
+	resultGeoLocationData.rotMatrix.copyFromMatrix4(resultGeoLocationData.tMatrix);
+	resultGeoLocationData.rotMatrix._floatArrays[12] = 0;
+	resultGeoLocationData.rotMatrix._floatArrays[13] = 0;
+	resultGeoLocationData.rotMatrix._floatArrays[14] = 0;
+	
+	// finally assing the pivotPoint.
+	if (resultGeoLocationData.pivotPoint === undefined)
+	{ resultGeoLocationData.pivotPoint = new Point3D(); }
+
+	resultGeoLocationData.pivotPoint.set(resultGeoLocationData.position.x, resultGeoLocationData.position.y, resultGeoLocationData.position.z);
+	resultGeoLocationData.doEffectivePivotPointTranslation();
+	
+	return resultGeoLocationData;
+};
+
+/**
+ * This function calculates geolocation data use pixel point(calculated world point). 
+ * When use Object Marker, this function called.
+ * @param {number} absoluteX absoluteX.
+ * @param {number} absoluteY absoluteY.
+ * @param {number} absoluteZ absoluteZ.
+ * @param {GeoLocationData|undefined} resultGeoLocationData Optional. result geolocation matrix. if undefined, create GeoLocationData instance.
+ * @param {MagoManager} magoManager
+ * @returns {GeoLocationData} resultGeoLocationData.
+ */
+ManagerUtils.calculateGeoLocationDataByAbsolutePoint__original = function(absoluteX, absoluteY, absoluteZ, resultGeoLocationData, magoManager) 
+{
+	if (resultGeoLocationData === undefined)
+	{ resultGeoLocationData = new GeoLocationData(); }
+
+	// 0) Position.**
+	if (resultGeoLocationData.geographicCoord === undefined)
+	{ resultGeoLocationData.geographicCoord = new GeographicCoord(); }
+	
+	if (magoManager.configInformation === undefined)
+	{ return; }
+	
+	if (resultGeoLocationData.position === undefined)
+	{ resultGeoLocationData.position = new Point3D(); }
+		
+	resultGeoLocationData.position.x = absoluteX;
+	resultGeoLocationData.position.y = absoluteY;
+	resultGeoLocationData.position.z = absoluteZ;
+	
+	//추후에 세슘의존성 버리는 코드로 대체 가능해 보임. 손수석님과 검토 필요.
+	if (magoManager.isCesiumGlobe())
+	{
+		// *if this in Cesium:
+		//resultGeoLocationData.position = Cesium.Cartesian3.fromDegrees(resultGeoLocationData.geographicCoord.longitude, resultGeoLocationData.geographicCoord.latitude, resultGeoLocationData.geographicCoord.altitude);
+		// must find cartographic data.
+		var cartographic = new Cesium.Cartographic();
+		var cartesian = new Cesium.Cartesian3();
+		cartesian.x = absoluteX;
+		cartesian.y = absoluteY;
+		cartesian.z = absoluteZ;
+		cartographic = Cesium.Cartographic.fromCartesian(cartesian, magoManager.scene._globe._ellipsoid, cartographic);
+		resultGeoLocationData.geographicCoord.longitude = cartographic.longitude * 180.0/Math.PI;
+		resultGeoLocationData.geographicCoord.latitude = cartographic.latitude * 180.0/Math.PI;
+		resultGeoLocationData.geographicCoord.altitude = cartographic.height;
+	}
+
+	// High and Low values of the position.**
+	if (resultGeoLocationData.positionHIGH === undefined)
+	{ resultGeoLocationData.positionHIGH = new Float32Array([0.0, 0.0, 0.0]); }
+	if (resultGeoLocationData.positionLOW === undefined)
+	{ resultGeoLocationData.positionLOW = new Float32Array([0.0, 0.0, 0.0]); }
+	this.calculateSplited3fv([resultGeoLocationData.position.x, resultGeoLocationData.position.y, resultGeoLocationData.position.z], resultGeoLocationData.positionHIGH, resultGeoLocationData.positionLOW);
+
+	// Determine the elevation of the position.**
+	//var cartographic = Cesium.Ellipsoid.WGS84.cartesianToCartographic(position);
+	//var height = cartographic.height;
+	// End Determine the elevation of the position.-------------------------------------------------------
+	if (resultGeoLocationData.tMatrix === undefined)
+	{ resultGeoLocationData.tMatrix = new Matrix4(); }
+	else
+	{ resultGeoLocationData.tMatrix.Identity(); }
+
+	if (resultGeoLocationData.geoLocMatrix === undefined)
+	{ resultGeoLocationData.geoLocMatrix = new Matrix4(); }
+	else
+	{ resultGeoLocationData.geoLocMatrix.Identity(); }
+
+	if (resultGeoLocationData.geoLocMatrixInv === undefined)
+	{ resultGeoLocationData.geoLocMatrixInv = new Matrix4(); }
+	else
+	{ resultGeoLocationData.geoLocMatrixInv.Identity(); }
+
+	//---------------------------------------------------------
+
+	if (resultGeoLocationData.tMatrixInv === undefined)
+	{ resultGeoLocationData.tMatrixInv = new Matrix4(); }
+	else
+	{ resultGeoLocationData.tMatrixInv.Identity(); }
+
+	if (resultGeoLocationData.rotMatrix === undefined)
+	{ resultGeoLocationData.rotMatrix = new Matrix4(); }
+	else
+	{ resultGeoLocationData.rotMatrix.Identity(); }
+
+	if (resultGeoLocationData.rotMatrixInv === undefined)
+	{ resultGeoLocationData.rotMatrixInv = new Matrix4(); }
+	else
+	{ resultGeoLocationData.rotMatrixInv.Identity(); }
+
+	var xRotMatrix = new Matrix4();  // created as identity matrix.
+	var yRotMatrix = new Matrix4();  // created as identity matrix.
+	var zRotMatrix = new Matrix4();  // created as identity matrix.
+
+	if (resultGeoLocationData.heading !== undefined && resultGeoLocationData.heading !== 0)
+	{
+		zRotMatrix.rotationAxisAngDeg(resultGeoLocationData.heading, 0.0, 0.0, -1.0);
+	}
+
+	if (resultGeoLocationData.pitch !== undefined && resultGeoLocationData.pitch !== 0)
+	{
+		xRotMatrix.rotationAxisAngDeg(resultGeoLocationData.pitch, -1.0, 0.0, 0.0);
+	}
+
+	if (resultGeoLocationData.roll !== undefined && resultGeoLocationData.roll !== 0)
+	{
+		yRotMatrix.rotationAxisAngDeg(resultGeoLocationData.roll, 0.0, -1.0, 0.0);
+	}
+	
+	if (magoManager.isCesiumGlobe())
+	{
+		// *if this in Cesium:
+		Cesium.Transforms.eastNorthUpToFixedFrame(resultGeoLocationData.position, undefined, resultGeoLocationData.tMatrix._floatArrays);
+		resultGeoLocationData.geoLocMatrix.copyFromMatrix4(resultGeoLocationData.tMatrix);// "geoLocMatrix" is the pure transformation matrix, without heading or pitch or roll.
+
+		var zRotatedTMatrix = zRotMatrix.getMultipliedByMatrix(resultGeoLocationData.tMatrix, zRotatedTMatrix);
+		var zxRotatedTMatrix = xRotMatrix.getMultipliedByMatrix(zRotatedTMatrix, zxRotatedTMatrix);
+		var zxyRotatedTMatrix = yRotMatrix.getMultipliedByMatrix(zxRotatedTMatrix, zxyRotatedTMatrix);
+		resultGeoLocationData.tMatrix = zxyRotatedTMatrix;
+		
+		// test.
+		//var yRotatedTMatrix = yRotMatrix.getMultipliedByMatrix(resultGeoLocationData.tMatrix, yRotatedTMatrix);
+		//var yxRotatedTMatrix = xRotMatrix.getMultipliedByMatrix(yRotatedTMatrix, yxRotatedTMatrix);
+		//var yxzRotatedTMatrix = zRotMatrix.getMultipliedByMatrix(yxRotatedTMatrix, yxzRotatedTMatrix);
+		//resultGeoLocationData.tMatrix = yxzRotatedTMatrix;
+		// end test.---
+
+		resultGeoLocationData.rotMatrix.copyFromMatrix4(resultGeoLocationData.tMatrix);
+		resultGeoLocationData.rotMatrix._floatArrays[12] = 0;
+		resultGeoLocationData.rotMatrix._floatArrays[13] = 0;
+		resultGeoLocationData.rotMatrix._floatArrays[14] = 0;
+
+		// now, calculates the inverses.
+		Cesium.Matrix4.inverse(resultGeoLocationData.tMatrix._floatArrays, resultGeoLocationData.tMatrixInv._floatArrays);
+		Cesium.Matrix4.inverse(resultGeoLocationData.rotMatrix._floatArrays, resultGeoLocationData.rotMatrixInv._floatArrays);
+		Cesium.Matrix4.inverse(resultGeoLocationData.geoLocMatrix._floatArrays, resultGeoLocationData.geoLocMatrixInv._floatArrays);
+	}
+
+	// finally assing the pivotPoint.
+	if (resultGeoLocationData.pivotPoint === undefined)
+	{ resultGeoLocationData.pivotPoint = new Point3D(); }
+
+	resultGeoLocationData.pivotPoint.set(resultGeoLocationData.position.x, resultGeoLocationData.position.y, resultGeoLocationData.position.z);
+
+	return resultGeoLocationData;
+};
+
+/**
+ * 자릿수가 긴 숫자를 나머지와 몫으로 분리. gl에서는 float형밖에 처리 불가.
+ * @example <caption>Example usage of calculateSplitedValues</caption>
+ * ManagerUtils.calculateSplitedValues(4049653.5985745606, new SplitValue());
+ * resultSplitValue.high = 3997696; // Math.floor(4049653.5985745606 / 65536.0) * 65536.0;
+ * resultSplitValue.low = 51957.5985745606 // 4049653.5985745606 - 3997696;
+ * @param {number} value Required. coordinate x or y or z.
+ * @param {SplitValue} resultSplitValue Optional. result split value. if undefined, create SplitValue instance.
+ * @returns {SplitValue} resultSplitValue.
+ */
+ManagerUtils.calculateSplitedValues = function(value, resultSplitValue)
+{
+	if (resultSplitValue === undefined)
+	{ resultSplitValue = new SplitValue(); }
+
+	var doubleHigh;
+	if (value >= 0.0) 
+	{
+		doubleHigh = Math.floor(value / 65536.0) * 65536.0; //unsigned short max
+		resultSplitValue.high = doubleHigh;
+		resultSplitValue.low = value - doubleHigh;
+	}
+	else 
+	{
+		doubleHigh = Math.floor(-value / 65536.0) * 65536.0;
+		resultSplitValue.high = -doubleHigh;
+		resultSplitValue.low = value + doubleHigh;
+	}
+
+	return resultSplitValue;
+};
+
+/**
+ * 자릿수가 긴 숫자를 나머지(low)와 몫(high)으로 분리한 결과를 각각 배열로 생성. gl에서는 float형밖에 처리 불가.
+ * @param {Point3D} point3fv Required.
+ * @param {Float32Array} resultSplitPoint3fvHigh Optional. result split high value array. if undefined, set new Float32Array(3).
+ * @param {Float32Array} resultSplitPoint3fvLow Optional. result split low value array. if undefined, set new Float32Array(3).
+ * 
+ * @see ManagerUtils#calculateSplitedValues
+ */
+ManagerUtils.calculateSplited3fv = function(point3fv, resultSplitPoint3fvHigh, resultSplitPoint3fvLow)
+{
+	if (point3fv === undefined)
+	{ return undefined; }
+
+	if (resultSplitPoint3fvHigh === undefined) // delete unnecesary. agree
+	{ resultSplitPoint3fvHigh = new Float32Array(3); }// delete unnecesary. agree
+
+	if (resultSplitPoint3fvLow === undefined)// delete unnecesary. agree
+	{ resultSplitPoint3fvLow = new Float32Array(3); }// delete unnecesary. agree
+
+	var posSplitX = new SplitValue();
+	posSplitX = this.calculateSplitedValues(point3fv[0], posSplitX);
+	var posSplitY = new SplitValue();
+	posSplitY = this.calculateSplitedValues(point3fv[1], posSplitY);
+	var posSplitZ = new SplitValue();
+	posSplitZ = this.calculateSplitedValues(point3fv[2], posSplitZ);
+
+	resultSplitPoint3fvHigh[0] = posSplitX.high;
+	resultSplitPoint3fvHigh[1] = posSplitY.high;
+	resultSplitPoint3fvHigh[2] = posSplitZ.high;
+
+	resultSplitPoint3fvLow[0] = posSplitX.low;
+	resultSplitPoint3fvLow[1] = posSplitY.low;
+	resultSplitPoint3fvLow[2] = posSplitZ.low;
+};
+
+ManagerUtils.unpackDepth = function(rgba_depth)
+{
+	//var bit_shift = [0.000000059605, 0.000015258789, 0.00390625, 1.0];
+	return rgba_depth[0] * 0.000000059605 + rgba_depth[1] * 0.000015258789 + rgba_depth[2] * 0.00390625 + rgba_depth[3];
+};
+
+ManagerUtils.mod = function(x, y)
+{
+	return x - y * Math.floor(x/y);
+};
+
+ManagerUtils.packDepth = function(depth)
+{
+	//const vec4 bit_shift = vec4(16777216.0, 65536.0, 256.0, 1.0);
+	//const vec4 bit_mask  = vec4(0.0, 0.00390625, 0.00390625, 0.00390625); 
+	////vec4 res = fract(depth * bit_shift); // Is not precise.
+	//vec4 res = mod(depth * bit_shift * vec4(255), vec4(256) ) / vec4(255); // Is better.
+	//res -= res.xxyz * bit_mask;
+	//return res; 
+	
+	var bit_shift = [16777216.0, 65536.0, 256.0, 1.0];
+	var bit_mask = [0.0, 0.00390625, 0.00390625, 0.00390625];
+
+	// calculate value_A = depth * bit_shift * vec4(255).
+	var value_A = [depth * bit_shift[0] * 255.0, depth * bit_shift[1] * 255.0, depth * bit_shift[2] * 255.0, depth * bit_shift[3] * 255.0];
+	var value_B = [256.0, 256.0, 256.0, 256.0];
+
+	var resAux = [( ManagerUtils.mod(value_A[0], value_B[0]) )/255.0, 
+				  ( ManagerUtils.mod(value_A[1], value_B[1]) )/255.0, 
+				  ( ManagerUtils.mod(value_A[2], value_B[2]) )/255.0, 
+				  ( ManagerUtils.mod(value_A[3], value_B[3]) )/255.0];
+
+	var resBitMasked = [resAux[0] * bit_mask[0], 
+		resAux[0] * bit_mask[1], 
+		resAux[1] * bit_mask[2], 
+		resAux[2] * bit_mask[3]];
+
+	var res = [resAux[0] - resBitMasked[0], 
+		resAux[1] - resBitMasked[1], 
+		resAux[2] - resBitMasked[2], 
+		resAux[3] - resBitMasked[3]];
+
+	return res;
+};
+
+/**
+ * Calculates the pixel linear depth value.
+ * @param {WebGLRenderingContext} gl WebGL Rendering Context.
+ * @param {Number} pixelX Screen x position of the pixel.
+ * @param {Number} pixelY Screen y position of the pixel.
+ * @param {FBO} depthFbo Depth frameBuffer object.
+ * @param {MagoManager} magoManager Mago3D main manager.
+ * @returns {Number} linearDepth Returns the linear depth [0.0, 1.0] ranged value.
+ */
+ManagerUtils.calculatePixelLinearDepth = function(gl, pixelX, pixelY, depthFbo, magoManager) 
+{
+	if (depthFbo === undefined)
+	{ depthFbo = magoManager.depthFboNeo; }
+
+	if (!depthFbo) 
+	{
+		return;
+	}
+
+	if (depthFbo) 
+	{
+		depthFbo.bind(); 
+	}
+
+	// Now, read the pixel and find the pixel position.
+	var depthPixels = new Uint8Array(4 * 1 * 1); // 4 x 1x1 pixel.
+	gl.readPixels(pixelX, magoManager.sceneState.drawingBufferHeight - pixelY, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, depthPixels);
+	
+	var floatDepthPixels = new Float32Array(([depthPixels[0]/256.0, depthPixels[1]/256.0, depthPixels[2]/256.0, depthPixels[3]/256.0]));
+	var zDepth = ManagerUtils.unpackDepth(floatDepthPixels); // 0 to 256 range depth.
+	var linearDepth = zDepth;// [0.0, 1.0] range depth.
+
+	// Check if we are using logarithmic depth buffer.***
+	
+	if (magoManager.postFxShadersManager.bUseLogarithmicDepth)
+	{
+		linearDepth = zDepth * 1.0037;
+		var sceneState = magoManager.sceneState;
+		var far = sceneState.camera.frustum.far[0];
+
+		var fcoef_half = sceneState.fCoef_logDepth[0]/2.0;
+		// gl_FragDepthEXT = linearDepth = log2(flogz) * Fcoef_half;
+		// flogz = 1.0 + gl_Position.z;
+		// sceneState.fCoef_logDepth[0] = 2.0 / Math.log2(frustum0.far[0] + 1.0);
+
+		var flogz = Math.pow(2.0, linearDepth/fcoef_half);
+		var z = flogz - 1.0;
+		linearDepth = z/far;
+	}
+	
+
+	return linearDepth;
+};
+
+/**
+ * Calculates the pixel linear depth value.
+ * @param {WebGLRenderingContext} gl WebGL Rendering Context.
+ * @param {Number} pixelX Screen x position of the pixel.
+ * @param {Number} pixelY Screen y position of the pixel.
+ * @param {FBO} depthFbo Depth frameBuffer object.
+ * @param {MagoManager} magoManager Mago3D main manager.
+ * @returns {Number} linearDepth Returns the linear depth [0.0, 1.0] ranged value.
+ */
+ManagerUtils.calculatePixelLinearDepthABGR = function(gl, pixelX, pixelY, depthFbo, magoManager) 
+{
+	// Test function.
+	// Test function.
+	// Test function.
+	// Test function.
+	// Called from MagoWorld.updateMouseStartClick(...).***
+	if (depthFbo === undefined)
+	{ depthFbo = magoManager.depthFboNeo; }
+
+	if (!depthFbo) 
+	{
+		return;
+	}
+	
+	if (depthFbo) 
+	{
+		depthFbo.bind(); 
+	}
+	
+	// Now, read the pixel and find the pixel position.
+	var depthPixels = new Uint8Array(4 * 1 * 1); // 4 x 1x1 pixel.
+	gl.readPixels(pixelX, magoManager.sceneState.drawingBufferHeight - pixelY, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, depthPixels);
+	
+	var zDepth = depthPixels[3]/(255.0*255.0*255.0) + depthPixels[2]/(255.0*255.0) + depthPixels[1]/255.0 + depthPixels[0]; // 0 to 256 range depth.
+	var linearDepth = zDepth / 255.0; // LinearDepth. Convert to [0.0, 1.0] range depth.
+	return linearDepth;
+};
+
+/**
+ * Calculates the pixel position in camera coordinates.
+ * @param {WebGLRenderingContext} gl WebGL Rendering Context.
+ * @param {Number} pixelX Screen x position of the pixel.
+ * @param {Number} pixelY Screen y position of the pixel.
+ * @param {Point3D} resultPixelPos The result of the calculation.
+ * @param {MagoManager} magoManager Mago3D main manager.
+ * @param {options} options options.
+ * @returns {Point3D} resultPixelPos The result of the calculation.
+ */
+ManagerUtils.calculatePixelPositionCamCoord = function(gl, pixelX, pixelY, resultPixelPos, depthFbo, frustumNear, frustumFar, magoManager, options) 
+{
+	var sceneState = magoManager.sceneState;
+
+	/*
+	vec2 screenPos = vec2(gl_FragCoord.x / screenWidth, gl_FragCoord.y / screenHeight);
+		float z_window  = unpackDepth(texture2D(depthTex, screenPos.xy)); // z_window  is [0.0, 1.0] range depth.
+		if(z_window < 0.001)
+		discard;
+	
+		float depthRange_near = 0.0;
+		float depthRange_far = 1.0;
+		float x_ndc = 2.0 * screenPos.x - 1.0;
+		float y_ndc = 2.0 * screenPos.y - 1.0;
+		float z_ndc = (2.0 * z_window - depthRange_near - depthRange_far) / (depthRange_far - depthRange_near);
+		
+		vec4 viewPosH = projectionMatrixInv * vec4(x_ndc, y_ndc, z_ndc, 1.0);
+		vec3 posCC = viewPosH.xyz/viewPosH.w;
+		vec4 posWC = modelViewMatrixRelToEyeInv * vec4(posCC.xyz, 1.0) + vec4((encodedCameraPositionMCHigh + encodedCameraPositionMCLow).xyz, 1.0);
+		*/
+	// New.*** New.*** New.*** New.*** New.*** New.*** New.*** New.*** New.*** New.*** New.*** New.*** New.*** New.*** New.*** New.*** New.*** New.***
+	/*
+	if (depthFbo) 
+	{
+		depthFbo.bind(); 
+	}
+	
+	
+	var screenW = sceneState.drawingBufferWidth;
+	var screenH = sceneState.drawingBufferHeight;
+
+	// Now, read the pixel and find the pixel position.
+	var depthPixels = new Uint8Array(4 * 1 * 1); // 4 x 1x1 pixel.
+	gl.readPixels(pixelX, screenH - pixelY, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, depthPixels);
+	
+	// Unpack the depthPixels.
+	//var dot(packedDepth, vec4(1.0, 1.0 / 255.0, 1.0 / 65025.0, 1.0 / 16581375.0));
+
+	var zDepth2 = depthPixels[0]/(256.0*256.0*256.0) + depthPixels[1]/(256.0*256.0) + depthPixels[2]/256.0 + depthPixels[3]; 
+	var zDepth = depthPixels[3]/(256.0*256.0*256.0) + depthPixels[2]/(256.0*256.0) + depthPixels[1]/256.0 + depthPixels[0]; 
+	
+	//zDepth /= 256.0;
+	// Calculate NDC coord.
+	var depthRange_near = 0.0;
+	var depthRange_far = 1.0;
+	var screenPos = new Point2D(pixelX/screenW, pixelY/screenH);
+	var xNdc = 2.0 * screenPos.x - 1.0;
+	var yNdc = 2.0 * screenPos.y - 1.0;
+	var zNdc = (2.0 * zDepth - depthRange_near - depthRange_far) / (depthRange_far - depthRange_near);
+	
+	var projectMatInv = sceneState.getProjectionMatrixInv();
+	var viewPosH = projectMatInv.transformPoint4D__test([xNdc, yNdc, zNdc, 1.0], undefined);
+	var viewPosCC = new Point3D(viewPosH[0]/viewPosH[3], viewPosH[1]/viewPosH[3], viewPosH[2]/viewPosH[3]);
+	
+	//********************************************************************************************************************************************
+	// Old.*** Old.*** Old.*** Old.*** Old.*** Old.*** Old.*** Old.*** Old.*** Old.*** Old.*** Old.*** Old.*** Old.*** Old.*** Old.***
+	*/
+	if (frustumFar === undefined)
+	{ frustumFar = sceneState.camera.frustum.far[0]; }
+
+	if (frustumNear === undefined)
+	{ frustumNear = 0.0; }
+	
+	var linearDepth;
+	if (options)
+	{
+		// Check if exist pre-calculated linearDepth.
+		if (options.linearDepth)
+		{
+			linearDepth = options.linearDepth;
+		}
+	}
+
+	if (!linearDepth) 
+	{
+		linearDepth = ManagerUtils.calculatePixelLinearDepth(gl, pixelX, pixelY, depthFbo, magoManager);
+		if (!linearDepth) 
+		{ return; }
+	}
+
+
+	
+	// End new method.----------------------------------------------------------------------------------------------------------------------------------
+	// End new method.----------------------------------------------------------------------------------------------------------------------------------
+
+	//var realZDepth = frustumNear + linearDepth*frustumFar; // Use this code if the zDepth encoder uses frustum near & frustum far, both.
+	// Note: In our RenderShowDepth shaders, we are encoding zDepth no considering the frustum near.
+	var realZDepth = linearDepth*frustumFar; // original.
+	//var realZDepth = linearDepth*30000.0; // new.
+
+	// now, find the 3d position of the pixel in camCoord.*
+	magoManager.resultRaySC = ManagerUtils.getRayCamSpace(pixelX, pixelY, magoManager.resultRaySC, magoManager);
+	if (resultPixelPos === undefined)
+	{ resultPixelPos = new Point3D(); }
+	
+	resultPixelPos.set(magoManager.resultRaySC[0] * realZDepth, magoManager.resultRaySC[1] * realZDepth, magoManager.resultRaySC[2] * realZDepth);
+
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	return resultPixelPos;
+	
+};
+
+/**
+ * Calculates the cameraCoord position in world coordinates.
+ * @param {Point3D} cameraCoord Camera coordinate position.
+ * @param {MagoManager} magoManager Mago3D main manager.
+ * @returns {Point3D} resultPixelPos The result of the calculation.
+ */
+ManagerUtils.cameraCoordPositionToWorldCoord = function(camCoordPos, resultWorldPos, magoManager) 
+{
+	// now, must transform this pixelCamCoord to world coord.
+	var mv_inv = magoManager.sceneState.getModelViewMatrixInv();
+	if (resultWorldPos === undefined)
+	{ var resultWorldPos = new Point3D(); }
+	resultWorldPos = mv_inv.transformPoint3D(camCoordPos, resultWorldPos);
+	return resultWorldPos;
+};
+
+/**
+ * Calculates the pixel position in world coordinates.
+ * @param {WebGLRenderingContext} gl WebGL Rendering Context.
+ * @param {Number} pixelX Screen x position of the pixel.
+ * @param {Number} pixelY Screen y position of the pixel.
+ * @param {Point3D} resultPixelPos The result of the calculation.
+ * @param {MagoManager} magoManager Mago3D main manager.
+ * @returns {Point3D} resultPixelPos The result of the calculation.
+ */
+ManagerUtils.screenCoordToWorldCoord = function(gl, pixelX, pixelY, resultWCPos, depthFbo, frustumNear, frustumFar, magoManager) 
+{
+	if (magoManager.isCesiumGlobe())
+	{
+		// https://cesium.com/docs/cesiumjs-ref-doc/Globe.html
+		
+		var cesiumScene = magoManager.scene; 
+		var cesiumGlobe = cesiumScene.globe;
+		var cesiumCamera = cesiumScene.camera;
+		var windowCoordinates = new Cesium.Cartesian2(pixelX, pixelY);
+		var ray = cesiumCamera.getPickRay(windowCoordinates);
+		var intersection = cesiumGlobe.pick(ray, cesiumScene);
+		return intersection;
+	}
+	else/* if (magoManager.configInformation.basicGlobe === Constant.MAGOWORLD)*/
+	{
+		// todo:
+		var camCoord = MagoWorld.screenToCamCoord(pixelX, pixelY, magoManager);
+		return ManagerUtils.cameraCoordPositionToWorldCoord(camCoord, undefined, magoManager);
+	}
+};
+
+/**
+ * Calculates the pixel position in world coordinates.
+ * @param {WebGLRenderingContext} gl WebGL Rendering Context.
+ * @param {Number} pixelX Screen x position of the pixel.
+ * @param {Number} pixelY Screen y position of the pixel.
+ * @param {Point3D} resultPixelPos The result of the calculation.
+ * @param {MagoManager} magoManager Mago3D main manager.
+ * @returns {Point3D} resultPixelPos The result of the calculation.
+ */
+ManagerUtils.calculatePixelPositionWorldCoord = function(gl, pixelX, pixelY, resultPixelPos, depthFbo, frustumNear, frustumFar, magoManager) 
+{
+	var pixelPosCamCoord = new Point3D();
+	
+	if (frustumFar === undefined)
+	{ frustumFar = magoManager.sceneState.camera.frustum.far; }
+
+	if (frustumNear === undefined)
+	{ frustumNear = 0.0; }
+	
+	if (depthFbo === undefined)
+	{ depthFbo = magoManager.depthFboNeo; }
+	
+	pixelPosCamCoord = ManagerUtils.calculatePixelPositionCamCoord(gl, pixelX, pixelY, pixelPosCamCoord, depthFbo, frustumNear, frustumFar, magoManager);
+
+	if (resultPixelPos === undefined)
+	{ var resultPixelPos = new Point3D(); }
+
+	resultPixelPos = ManagerUtils.cameraCoordPositionToWorldCoord(pixelPosCamCoord, resultPixelPos, magoManager);
+	return resultPixelPos;
+};
+
+/**
+ * Calculates a world coordinate point to screen coordinate.
+ * @param {WebGLRenderingContext} gl WebGL Rendering Context.
+ * @param {Number} worldCoordX x value of the point in world coordinate.
+ * @param {Number} worldCoordY y value of the point in world coordinate.
+ * @param {Number} worldCoordZ z value of the point in world coordinate.
+ * @param {Point3D} resultPixelPos The result of the calculation.
+ * @param {MagoManager} magoManager Mago3D main manager.
+ * @returns {Point3D} resultPixelPos The result of the calculation.
+ */
+ManagerUtils.calculateWorldPositionToScreenCoord = function(gl, worldCoordX, worldCoordY, worldCoordZ, resultScreenCoord, magoManager)
+{
+	if (resultScreenCoord === undefined)
+	{ resultScreenCoord = new Point3D(); }
+	
+	if (magoManager.pointSC === undefined)
+	{ magoManager.pointSC = new Point3D(); }
+	
+	if (magoManager.pointSC2 === undefined)
+	{ magoManager.pointSC2 = new Point3D(); }
+	
+	magoManager.pointSC.set(worldCoordX, worldCoordY, worldCoordZ);
+	
+	// calculate the position in camera coords.
+	var pointSC2 = magoManager.pointSC2;
+	var sceneState = magoManager.sceneState;
+	pointSC2 = sceneState.modelViewMatrix.transformPoint3D(magoManager.pointSC, pointSC2);
+	
+	// now calculate the position in screen coords.
+	var zDist = pointSC2.z;
+	if (zDist > 0)
+	{
+		// the worldPoint is rear the camera.
+		resultScreenCoord.set(-1, -1, 0);
+		return resultScreenCoord;
+	}
+	
+	// now calculate the width and height of the plane in zDist.
+	//var fovyRad = sceneState.camera.frustum.fovyRad;
+	
+	var planeHeight = sceneState.camera.frustum.tangentOfHalfFovy*zDist*2;
+	var planeWidth = planeHeight * sceneState.camera.frustum.aspectRatio; 
+	var pixelX = -pointSC2.x * sceneState.drawingBufferWidth / planeWidth;
+	var pixelY = -(pointSC2.y) * sceneState.drawingBufferHeight / planeHeight;
+
+	pixelX += sceneState.drawingBufferWidth / 2;
+	pixelY += sceneState.drawingBufferHeight / 2;
+	pixelY = sceneState.drawingBufferHeight - pixelY;
+	resultScreenCoord.set(pixelX, pixelY, 0);
+	
+	return resultScreenCoord;
+};
+
+/**
+ * Calculates the direction vector of a ray that starts in the camera position and
+ * continues to the pixel position in camera space.
+ * @param {Number} pixelX Screen x position of the pixel.
+ * @param {Number} pixelY Screen y position of the pixel.
+ * @param {Float32Array(3)} resultRay Result of the calculation.
+ * @returns {Float32Array(3)} resultRay Result of the calculation.
+ */
+ManagerUtils.getRayCamSpace = function(pixelX, pixelY, resultRay, magoManager) 
+{
+	// in this function "ray" is a vector.
+	var sceneState = magoManager.sceneState;
+	var frustum = sceneState.camera.frustum;
+	var frustum_far = 1.0;//frustum.far[0]; // unitary frustum far.
+
+	var aspectRatio = frustum.aspectRatio;
+	var tangentOfHalfFovy = frustum.tangentOfHalfFovy; 
+	
+	var hfar = 2.0 * tangentOfHalfFovy * frustum_far; //var hfar = 2.0 * Math.tan(fovy/2.0) * frustum_far;
+	var wfar = hfar * aspectRatio;
+	var mouseX = pixelX;
+	var mouseY = sceneState.drawingBufferHeight - pixelY;
+	if (resultRay === undefined) 
+	{ resultRay = new Float32Array(3); }
+	resultRay[0] = wfar*((mouseX/sceneState.drawingBufferWidth) - 0.5);
+	resultRay[1] = hfar*((mouseY/sceneState.drawingBufferHeight) - 0.5);
+	resultRay[2] = - frustum_far;
+
+	/*
+	//var projectMatInv = sceneState.getProjectionMatrixInv();
+	var projectMatInv = sceneState.projectionMatrix;
+	var v4Pos = [resultRay[0], resultRay[1], resultRay[2], 1.0];
+	var rayAux = new Point3D(resultRay[0], resultRay[1], resultRay[2]);
+	//rayAux.unitary();
+	var rayAuxProj = projectMatInv.transformPoint4D(v4Pos, undefined);
+
+	resultRay[0] = rayAuxProj[0]/rayAuxProj[3];
+	resultRay[1] = rayAuxProj[1]/rayAuxProj[3];
+	resultRay[2] = rayAuxProj[2]/rayAuxProj[3];
+	*/
+
+	return resultRay;
+};
+
+/**
+ * Calculates the direction vector of a ray that starts in the camera position and
+ * continues to the pixel position in world space.
+ * @param {WebGLRenderingContext} gl WebGL Rendering Context.
+ * @param {Number} pixelX Screen x position of the pixel.
+ * @param {Number} pixelY Screen y position of the pixel.
+ * @returns {Line} resultRay
+ */
+ManagerUtils.getRayWorldSpace = function(gl, pixelX, pixelY, resultRay, magoManager) 
+{
+	// in this function the "ray" is a line.
+	if (resultRay === undefined) 
+	{ resultRay = new Line(); }
+	
+	// world ray = camPos + lambda*camDir.
+	var camPos = magoManager.sceneState.camera.position;
+	var rayCamSpace = new Float32Array(3);
+	rayCamSpace = ManagerUtils.getRayCamSpace(pixelX, pixelY, rayCamSpace, magoManager);
+	
+	if (magoManager.pointSC === undefined)
+	{ magoManager.pointSC = new Point3D(); }
+	
+	var pointSC = magoManager.pointSC;
+	var pointSC2 = magoManager.pointSC2;
+	
+	pointSC.set(rayCamSpace[0], rayCamSpace[1], rayCamSpace[2]);
+
+	// now, must transform this posCamCoord to world coord.
+
+	var mvMatInv = magoManager.sceneState.getModelViewMatrixInv();
+	pointSC2 = mvMatInv.rotatePoint3D(pointSC, pointSC2); // rayWorldSpace.
+	pointSC2.unitary(); // rayWorldSpace.
+	resultRay.setPointAndDir(camPos.x, camPos.y, camPos.z,       pointSC2.x, pointSC2.y, pointSC2.z);// original.
+
+	return resultRay;
+};
+
+/**
+ * 두 점을 연결한 선과 정북선 사이의 각도 구하기. 주로 모델이나 데이터의 헤딩을 설정하는데 사용.
+ * @param {GeographicCoord} startGeographic 
+ * @param {GeographicCoord} endGeographic 
+ * @returns {number} heading
+ */
+ManagerUtils.getHeadingToNorthByTwoGeographicCoords = function(startGeographic, endGeographic, magoManager) 
+{
+	var firstGeoLocData = ManagerUtils.calculateGeoLocationData(startGeographic.longitude, startGeographic.latitude, 0, 0, 0, 0, firstGeoLocData, magoManager);
+
+	var lastWorldCoord = ManagerUtils.geographicCoordToWorldPoint(endGeographic.longitude, endGeographic.latitude, 0, lastWorldCoord, magoManager);
+	var lastLocalCoord3D = firstGeoLocData.worldCoordToLocalCoord(lastWorldCoord, lastLocalCoord3D);
+	var lastLocalCoord2D = new Point2D(lastLocalCoord3D.x, lastLocalCoord3D.y);
+	lastLocalCoord2D.unitary();
+	var yAxis = new Point2D(0, 1);
+	var heading = yAxis.angleDegToVector(lastLocalCoord2D);
+	if (lastLocalCoord2D.x > 0) 
+	{
+		heading *= -1;
+	}
+
+	return heading;
+};
+
+/**
+ * Using screen coordinate, return world coord, geographic coord, screen coord.
+ * @param {WebGLRenderingContext} gl WebGL Rendering Context.
+ * @param {Number} pixelX Screen x position of the pixel.
+ * @param {Number} pixelY Screen y position of the pixel.
+ * @param {MagoManager} magoManager Mago3D main manager.
+ * @returns {object} world coord, geographic coord, screen coord.
+ */
+ManagerUtils.getComplexCoordinateByScreenCoord = function(gl, pixelX, pixelY, depthFbo, frustumNear, frustumFar, magoManager) 
+{
+	var worldCoord = ManagerUtils.screenCoordToWorldCoord(magoManager.getGl(), pixelX, pixelY, worldCoord, undefined, undefined, undefined, magoManager);
+	if (!worldCoord) 
+	{
+		return null;
+	}
+	var geographicCoord = ManagerUtils.pointToGeographicCoord(worldCoord, geographicCoord);
+	
+	return {
+		screenCoordinate     : new Point2D(pixelX, pixelY),
+		worldCoordinate      : worldCoord,
+		geographicCoordinate : geographicCoord
+	};
+};
+
+ManagerUtils.geographicToWkt = function(geographic, type) 
+{
+	var wkt = '';
+	
+	switch (type) 
+	{
+	case 'POINT' : {
+		wkt = 'POINT (';
+		wkt += geographic.longitude;
+		wkt += ' ';
+		wkt += geographic.latitude;
+		wkt += ')';
+		break;
+	}
+	case 'LINE' : {
+		wkt = 'LINESTRING (';
+		for (var i=0, len=geographic.length;i<len;i++) 
+		{
+			if (i>0) 
+			{
+				wkt += ',';
+			}
+			wkt += geographic[i].longitude;
+			wkt += ' ';
+			wkt += geographic[i].latitude;
+		}
+		wkt += ')';
+		break;
+	}
+	case 'POLYGON' : {
+		wkt = 'POLYGON ((';
+		for (var i=0, len=geographic.length;i<len;i++) 
+		{
+			if (i>0) 
+			{
+				wkt += ',';
+			}
+			wkt += geographic[i].longitude;
+			wkt += ' ';
+			wkt += geographic[i].latitude;
+		}
+		wkt += ',';
+		wkt += geographic[0].longitude;
+		wkt += ' ';
+		wkt += geographic[0].latitude;
+		wkt += '))';
+		break;
+	}
+	}
+
+	function coordToString(coord, str) 
+	{
+		var text = str ? str : '';
+		if (Array.isArray(coord)) 
+		{
+			for (var j=0, coordLen=coord.length;j<coordLen;j++) 
+			{
+				coordToString(coord[j], text);
+			}
+		}
+		else 
+		{
+			if (text) 
+			{
+				text += ',';
+			}
+			text += coord.longitude;
+			text += ' ';
+			text += coord.latitude;
+		}
+		
+		return text;
+	}
+	
+	return wkt;
+};
 !function(t,e){if("object"==typeof exports&&"object"==typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var i=e();for(var n in i)("object"==typeof exports?exports:t)[n]=i[n]}}(window,(function(){return function(t){var e={};function i(n){if(e[n])return e[n].exports;var r=e[n]={i:n,l:!1,exports:{}};return t[n].call(r.exports,r,r.exports,i),r.l=!0,r.exports}return i.m=t,i.c=e,i.d=function(t,e,n){i.o(t,e)||Object.defineProperty(t,e,{enumerable:!0,get:n})},i.r=function(t){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(t,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(t,"__esModule",{value:!0})},i.t=function(t,e){if(1&e&&(t=i(t)),8&e)return t;if(4&e&&"object"==typeof t&&t&&t.__esModule)return t;var n=Object.create(null);if(i.r(n),Object.defineProperty(n,"default",{enumerable:!0,value:t}),2&e&&"string"!=typeof t)for(var r in t)i.d(n,r,function(e){return t[e]}.bind(null,r));return n},i.n=function(t){var e=t&&t.__esModule?function(){return t.default}:function(){return t};return i.d(e,"a",e),e},i.o=function(t,e){return Object.prototype.hasOwnProperty.call(t,e)},i.p="",i(i.s=16)}({0:function(t,e,i){t.exports=function(){"use strict";function t(t,n,r,o,s){!function t(i,n,r,o,s){for(;o>r;){if(o-r>600){var a=o-r+1,h=n-r+1,l=Math.log(a),u=.5*Math.exp(2*l/3),c=.5*Math.sqrt(l*u*(a-u)/a)*(h-a/2<0?-1:1),p=Math.max(r,Math.floor(n-h*u/a+c)),f=Math.min(o,Math.floor(n+(a-h)*u/a+c));t(i,n,p,f,s)}var d=i[n],_=r,g=o;for(e(i,r,n),s(i[o],d)>0&&e(i,r,o);_<g;){for(e(i,_,g),_++,g--;s(i[_],d)<0;)_++;for(;s(i[g],d)>0;)g--}0===s(i[r],d)?e(i,r,g):(g++,e(i,g,o)),g<=n&&(r=g+1),n<=g&&(o=g-1)}}(t,n,r||0,o||t.length-1,s||i)}function e(t,e,i){var n=t[e];t[e]=t[i],t[i]=n}function i(t,e){return t<e?-1:t>e?1:0}var n=function(t){void 0===t&&(t=9),this._maxEntries=Math.max(4,t),this._minEntries=Math.max(2,Math.ceil(.4*this._maxEntries)),this.clear()};function r(t,e,i){if(!i)return e.indexOf(t);for(var n=0;n<e.length;n++)if(i(t,e[n]))return n;return-1}function o(t,e){s(t,0,t.children.length,e,t)}function s(t,e,i,n,r){r||(r=d(null)),r.minX=1/0,r.minY=1/0,r.maxX=-1/0,r.maxY=-1/0;for(var o=e;o<i;o++){var s=t.children[o];a(r,t.leaf?n(s):s)}return r}function a(t,e){return t.minX=Math.min(t.minX,e.minX),t.minY=Math.min(t.minY,e.minY),t.maxX=Math.max(t.maxX,e.maxX),t.maxY=Math.max(t.maxY,e.maxY),t}function h(t,e){return t.minX-e.minX}function l(t,e){return t.minY-e.minY}function u(t){return(t.maxX-t.minX)*(t.maxY-t.minY)}function c(t){return t.maxX-t.minX+(t.maxY-t.minY)}function p(t,e){return t.minX<=e.minX&&t.minY<=e.minY&&e.maxX<=t.maxX&&e.maxY<=t.maxY}function f(t,e){return e.minX<=t.maxX&&e.minY<=t.maxY&&e.maxX>=t.minX&&e.maxY>=t.minY}function d(t){return{children:t,height:1,leaf:!0,minX:1/0,minY:1/0,maxX:-1/0,maxY:-1/0}}function _(e,i,n,r,o){for(var s=[i,n];s.length;)if(!((n=s.pop())-(i=s.pop())<=r)){var a=i+Math.ceil((n-i)/r/2)*r;t(e,a,i,n,o),s.push(i,a,a,n)}}return n.prototype.all=function(){return this._all(this.data,[])},n.prototype.search=function(t){var e=this.data,i=[];if(!f(t,e))return i;for(var n=this.toBBox,r=[];e;){for(var o=0;o<e.children.length;o++){var s=e.children[o],a=e.leaf?n(s):s;f(t,a)&&(e.leaf?i.push(s):p(t,a)?this._all(s,i):r.push(s))}e=r.pop()}return i},n.prototype.collides=function(t){var e=this.data;if(!f(t,e))return!1;for(var i=[];e;){for(var n=0;n<e.children.length;n++){var r=e.children[n],o=e.leaf?this.toBBox(r):r;if(f(t,o)){if(e.leaf||p(t,o))return!0;i.push(r)}}e=i.pop()}return!1},n.prototype.load=function(t){if(!t||!t.length)return this;if(t.length<this._minEntries){for(var e=0;e<t.length;e++)this.insert(t[e]);return this}var i=this._build(t.slice(),0,t.length-1,0);if(this.data.children.length)if(this.data.height===i.height)this._splitRoot(this.data,i);else{if(this.data.height<i.height){var n=this.data;this.data=i,i=n}this._insert(i,this.data.height-i.height-1,!0)}else this.data=i;return this},n.prototype.insert=function(t){return t&&this._insert(t,this.data.height-1),this},n.prototype.clear=function(){return this.data=d([]),this},n.prototype.remove=function(t,e){if(!t)return this;for(var i,n,o,s=this.data,a=this.toBBox(t),h=[],l=[];s||h.length;){if(s||(s=h.pop(),n=h[h.length-1],i=l.pop(),o=!0),s.leaf){var u=r(t,s.children,e);if(-1!==u)return s.children.splice(u,1),h.push(s),this._condense(h),this}o||s.leaf||!p(s,a)?n?(i++,s=n.children[i],o=!1):s=null:(h.push(s),l.push(i),i=0,n=s,s=s.children[0])}return this},n.prototype.toBBox=function(t){return t},n.prototype.compareMinX=function(t,e){return t.minX-e.minX},n.prototype.compareMinY=function(t,e){return t.minY-e.minY},n.prototype.toJSON=function(){return this.data},n.prototype.fromJSON=function(t){return this.data=t,this},n.prototype._all=function(t,e){for(var i=[];t;)t.leaf?e.push.apply(e,t.children):i.push.apply(i,t.children),t=i.pop();return e},n.prototype._build=function(t,e,i,n){var r,s=i-e+1,a=this._maxEntries;if(s<=a)return o(r=d(t.slice(e,i+1)),this.toBBox),r;n||(n=Math.ceil(Math.log(s)/Math.log(a)),a=Math.ceil(s/Math.pow(a,n-1))),(r=d([])).leaf=!1,r.height=n;var h=Math.ceil(s/a),l=h*Math.ceil(Math.sqrt(a));_(t,e,i,l,this.compareMinX);for(var u=e;u<=i;u+=l){var c=Math.min(u+l-1,i);_(t,u,c,h,this.compareMinY);for(var p=u;p<=c;p+=h){var f=Math.min(p+h-1,c);r.children.push(this._build(t,p,f,n-1))}}return o(r,this.toBBox),r},n.prototype._chooseSubtree=function(t,e,i,n){for(;n.push(e),!e.leaf&&n.length-1!==i;){for(var r=1/0,o=1/0,s=void 0,a=0;a<e.children.length;a++){var h=e.children[a],l=u(h),c=(p=t,f=h,(Math.max(f.maxX,p.maxX)-Math.min(f.minX,p.minX))*(Math.max(f.maxY,p.maxY)-Math.min(f.minY,p.minY))-l);c<o?(o=c,r=l<r?l:r,s=h):c===o&&l<r&&(r=l,s=h)}e=s||e.children[0]}var p,f;return e},n.prototype._insert=function(t,e,i){var n=i?t:this.toBBox(t),r=[],o=this._chooseSubtree(n,this.data,e,r);for(o.children.push(t),a(o,n);e>=0&&r[e].children.length>this._maxEntries;)this._split(r,e),e--;this._adjustParentBBoxes(n,r,e)},n.prototype._split=function(t,e){var i=t[e],n=i.children.length,r=this._minEntries;this._chooseSplitAxis(i,r,n);var s=this._chooseSplitIndex(i,r,n),a=d(i.children.splice(s,i.children.length-s));a.height=i.height,a.leaf=i.leaf,o(i,this.toBBox),o(a,this.toBBox),e?t[e-1].children.push(a):this._splitRoot(i,a)},n.prototype._splitRoot=function(t,e){this.data=d([t,e]),this.data.height=t.height+1,this.data.leaf=!1,o(this.data,this.toBBox)},n.prototype._chooseSplitIndex=function(t,e,i){for(var n,r,o,a,h,l,c,p=1/0,f=1/0,d=e;d<=i-e;d++){var _=s(t,0,d,this.toBBox),g=s(t,d,i,this.toBBox),y=(r=_,o=g,a=void 0,h=void 0,l=void 0,c=void 0,a=Math.max(r.minX,o.minX),h=Math.max(r.minY,o.minY),l=Math.min(r.maxX,o.maxX),c=Math.min(r.maxY,o.maxY),Math.max(0,l-a)*Math.max(0,c-h)),v=u(_)+u(g);y<p?(p=y,n=d,f=v<f?v:f):y===p&&v<f&&(f=v,n=d)}return n||i-e},n.prototype._chooseSplitAxis=function(t,e,i){var n=t.leaf?this.compareMinX:h,r=t.leaf?this.compareMinY:l;this._allDistMargin(t,e,i,n)<this._allDistMargin(t,e,i,r)&&t.children.sort(n)},n.prototype._allDistMargin=function(t,e,i,n){t.children.sort(n);for(var r=this.toBBox,o=s(t,0,e,r),h=s(t,i-e,i,r),l=c(o)+c(h),u=e;u<i-e;u++){var p=t.children[u];a(o,t.leaf?r(p):p),l+=c(o)}for(var f=i-e-1;f>=e;f--){var d=t.children[f];a(h,t.leaf?r(d):d),l+=c(h)}return l},n.prototype._adjustParentBBoxes=function(t,e,i){for(var n=i;n>=0;n--)a(e[n],t)},n.prototype._condense=function(t){for(var e=t.length-1,i=void 0;e>=0;e--)0===t[e].children.length?e>0?(i=t[e-1].children).splice(i.indexOf(t[e]),1):this.clear():o(t[e],this.toBBox)},n}()},15:function(t,e){var i=null,n=null;function r(t,e,i){t.addEventListener(e,(function(t){var r=new MouseEvent(i,t);r.pointerId=1,r.isPrimary=!0,r.pointerType="mouse",r.width=1,r.height=1,r.tiltX=0,r.tiltY=0,"buttons"in t&&0!==t.buttons?r.pressure=.5:r.pressure=0;var o=t.target;null!==n&&(o=n,"mouseup"===e&&(n=null)),o.dispatchEvent(r),r.defaultPrevented&&t.preventDefault()}))}function o(t,e,n){t.addEventListener(e,(function(t){for(var r=t.changedTouches,o=r.length,s=0;s<o;s++){var a=new CustomEvent(n,{bubbles:!0,cancelable:!0});a.ctrlKey=t.ctrlKey,a.shiftKey=t.shiftKey,a.altKey=t.altKey,a.metaKey=t.metaKey;var h=r.item(s);a.clientX=h.clientX,a.clientY=h.clientY,a.screenX=h.screenX,a.screenY=h.screenY,a.pageX=h.pageX,a.pageY=h.pageY;var l=h.target.getBoundingClientRect();a.offsetX=h.clientX-l.left,a.offsetY=h.clientY-l.top,a.pointerId=1+h.identifier,a.button=0,a.buttons=1,a.movementX=0,a.movementY=0,a.region=null,a.relatedTarget=null,a.x=a.clientX,a.y=a.clientY,a.pointerType="touch",a.width=1,a.height=1,a.tiltX=0,a.tiltY=0,a.pressure=1,"touchstart"===e&&null===i&&(i=h.identifier),a.isPrimary=h.identifier===i,"touchend"===e&&a.isPrimary&&(i=null),t.target.dispatchEvent(a),a.defaultPrevented&&t.preventDefault()}}))}"PointerEvent"in window||(Element.prototype.setPointerCapture=Element.prototype.setCapture,Element.prototype.releasePointerCapture=Element.prototype.releaseCapture,"TouchEvent"in window||(r(document,"mousedown","pointerdown"),r(document,"mousemove","pointermove"),r(document,"mouseup","pointerup")),o(document,"touchstart","pointerdown"),o(document,"touchmove","pointermove"),o(document,"touchend","pointerup"))},16:function(t,e,i){"use strict";function n(){return function(){throw new Error("Unimplemented abstract method.")}()}i.r(e),i.d(e,"OlMago3d",(function(){return Pl}));var r=0;function o(t){return t.ol_uid||(t.ol_uid=String(++r))}var s,a=(s=function(t,e){return(s=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(t,e)},function(t,e){function i(){this.constructor=t}s(t,e),t.prototype=null===e?Object.create(e):(i.prototype=e.prototype,new i)}),h=function(t){function e(e){var i=this,n="Assertion failed. See https://openlayers.org/en/"+("v"+"6.3.1".split("-")[0])+"/doc/errors/#"+e+" for details.";return(i=t.call(this,n)||this).code=e,i.name="AssertionError",i.message=n,i}return a(e,t),e}(Error),l="add",u="remove",c="propertychange",p="function"==typeof Object.assign?Object.assign:function(t,e){if(null==t)throw new TypeError("Cannot convert undefined or null to object");for(var i=Object(t),n=1,r=arguments.length;n<r;++n){var o=arguments[n];if(null!=o)for(var s in o)o.hasOwnProperty(s)&&(i[s]=o[s])}return i};function f(t){for(var e in t)delete t[e]}var d="function"==typeof Object.values?Object.values:function(t){var e=[];for(var i in t)e.push(t[i]);return e};function _(t){var e;for(e in t)return!1;return!e}function g(t,e,i,n,r){if(n&&n!==t&&(i=i.bind(n)),r){var o=i;i=function(){t.removeEventListener(e,i),o.apply(this,arguments)}}var s={target:t,type:e,listener:i};return t.addEventListener(e,i),s}function y(t,e,i,n){return g(t,e,i,n,!0)}function v(t){t&&t.target&&(t.target.removeEventListener(t.type,t.listener),f(t))}var m=function(){function t(){this.disposed_=!1}return t.prototype.dispose=function(){this.disposed_||(this.disposed_=!0,this.disposeInternal())},t.prototype.disposeInternal=function(){},t}();function x(t,e){return t>e?1:t<e?-1:0}function S(t,e,i){var n=t.length;if(t[0]<=e)return 0;if(e<=t[n-1])return n-1;var r=void 0;if(i>0){for(r=1;r<n;++r)if(t[r]<e)return r-1}else if(i<0){for(r=1;r<n;++r)if(t[r]<=e)return r}else for(r=1;r<n;++r){if(t[r]==e)return r;if(t[r]<e)return t[r-1]-e<e-t[r]?r-1:r}return n-1}function C(t,e,i){for(;e<i;){var n=t[e];t[e]=t[i],t[i]=n,++e,--i}}function w(t,e){for(var i=Array.isArray(e)?e:[e],n=i.length,r=0;r<n;r++)t[t.length]=i[r]}function E(t,e){var i=t.length;if(i!==e.length)return!1;for(var n=0;n<i;n++)if(t[n]!==e[n])return!1;return!0}function T(){return!0}function b(){return!1}function R(){}var I=function(){function t(t){this.propagationStopped,this.type=t,this.target=null}return t.prototype.preventDefault=function(){this.propagationStopped=!0},t.prototype.stopPropagation=function(){this.propagationStopped=!0},t}(),O=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),P=function(t){function e(e){var i=t.call(this)||this;return i.eventTarget_=e,i.pendingRemovals_={},i.dispatching_={},i.listeners_={},i}return O(e,t),e.prototype.addEventListener=function(t,e){if(t&&e){var i=this.listeners_[t];i||(i=[],this.listeners_[t]=i),-1===i.indexOf(e)&&i.push(e)}},e.prototype.dispatchEvent=function(t){var e="string"==typeof t?new I(t):t,i=e.type;e.target||(e.target=this.eventTarget_||this);var n,r=this.listeners_[i];if(r){i in this.dispatching_||(this.dispatching_[i]=0,this.pendingRemovals_[i]=0),++this.dispatching_[i];for(var o=0,s=r.length;o<s;++o)if(!1===(n="handleEvent"in r[o]?r[o].handleEvent(e):r[o].call(this,e))||e.propagationStopped){n=!1;break}if(--this.dispatching_[i],0===this.dispatching_[i]){var a=this.pendingRemovals_[i];for(delete this.pendingRemovals_[i];a--;)this.removeEventListener(i,R);delete this.dispatching_[i]}return n}},e.prototype.disposeInternal=function(){f(this.listeners_)},e.prototype.getListeners=function(t){return this.listeners_[t]},e.prototype.hasListener=function(t){return t?t in this.listeners_:Object.keys(this.listeners_).length>0},e.prototype.removeEventListener=function(t,e){var i=this.listeners_[t];if(i){var n=i.indexOf(e);-1!==n&&(t in this.pendingRemovals_?(i[n]=R,++this.pendingRemovals_[t]):(i.splice(n,1),0===i.length&&delete this.listeners_[t]))}},e}(m),M="change",F="error",L="contextmenu",A="click",D="dblclick",k="keydown",j="keypress",G="load",z="resize",X="touchmove",W="wheel",K=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}();var Y=function(t){function e(){var e=t.call(this)||this;return e.revision_=0,e}return K(e,t),e.prototype.changed=function(){++this.revision_,this.dispatchEvent(M)},e.prototype.getRevision=function(){return this.revision_},e.prototype.on=function(t,e){if(Array.isArray(t)){for(var i=t.length,n=new Array(i),r=0;r<i;++r)n[r]=g(this,t[r],e);return n}return g(this,t,e)},e.prototype.once=function(t,e){if(Array.isArray(t)){for(var i=t.length,n=new Array(i),r=0;r<i;++r)n[r]=y(this,t[r],e);return n}return y(this,t,e)},e.prototype.un=function(t,e){if(Array.isArray(t))for(var i=0,n=t.length;i<n;++i)this.removeEventListener(t[i],e);else this.removeEventListener(t,e)},e}(P),N=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),Z=function(t){function e(e,i,n){var r=t.call(this,e)||this;return r.key=i,r.oldValue=n,r}return N(e,t),e}(I),B=function(t){function e(e){var i=t.call(this)||this;return o(i),i.values_={},void 0!==e&&i.setProperties(e),i}return N(e,t),e.prototype.get=function(t){var e;return this.values_.hasOwnProperty(t)&&(e=this.values_[t]),e},e.prototype.getKeys=function(){return Object.keys(this.values_)},e.prototype.getProperties=function(){return p({},this.values_)},e.prototype.notify=function(t,e){var i;i=U(t),this.dispatchEvent(new Z(i,t,e)),i=c,this.dispatchEvent(new Z(i,t,e))},e.prototype.set=function(t,e,i){if(i)this.values_[t]=e;else{var n=this.values_[t];this.values_[t]=e,n!==e&&this.notify(t,n)}},e.prototype.setProperties=function(t,e){for(var i in t)this.set(i,t[i],e)},e.prototype.unset=function(t,e){if(t in this.values_){var i=this.values_[t];delete this.values_[t],e||this.notify(t,i)}},e}(Y),V={};function U(t){return V.hasOwnProperty(t)?V[t]:V[t]="change:"+t}var H=B,q=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),J="length",Q=function(t){function e(e,i,n){var r=t.call(this,e)||this;return r.element=i,r.index=n,r}return q(e,t),e}(I),$=function(t){function e(e,i){var n=t.call(this)||this,r=i||{};if(n.unique_=!!r.unique,n.array_=e||[],n.unique_)for(var o=0,s=n.array_.length;o<s;++o)n.assertUnique_(n.array_[o],o);return n.updateLength_(),n}return q(e,t),e.prototype.clear=function(){for(;this.getLength()>0;)this.pop()},e.prototype.extend=function(t){for(var e=0,i=t.length;e<i;++e)this.push(t[e]);return this},e.prototype.forEach=function(t){for(var e=this.array_,i=0,n=e.length;i<n;++i)t(e[i],i,e)},e.prototype.getArray=function(){return this.array_},e.prototype.item=function(t){return this.array_[t]},e.prototype.getLength=function(){return this.get(J)},e.prototype.insertAt=function(t,e){this.unique_&&this.assertUnique_(e),this.array_.splice(t,0,e),this.updateLength_(),this.dispatchEvent(new Q(l,e,t))},e.prototype.pop=function(){return this.removeAt(this.getLength()-1)},e.prototype.push=function(t){this.unique_&&this.assertUnique_(t);var e=this.getLength();return this.insertAt(e,t),this.getLength()},e.prototype.remove=function(t){for(var e=this.array_,i=0,n=e.length;i<n;++i)if(e[i]===t)return this.removeAt(i)},e.prototype.removeAt=function(t){var e=this.array_[t];return this.array_.splice(t,1),this.updateLength_(),this.dispatchEvent(new Q(u,e,t)),e},e.prototype.setAt=function(t,e){var i=this.getLength();if(t<i){this.unique_&&this.assertUnique_(e,t);var n=this.array_[t];this.array_[t]=e,this.dispatchEvent(new Q(u,n,t)),this.dispatchEvent(new Q(l,e,t))}else{for(var r=i;r<t;++r)this.insertAt(r,void 0);this.insertAt(t,e)}},e.prototype.updateLength_=function(){this.set(J,this.array_.length)},e.prototype.assertUnique_=function(t,e){for(var i=0,n=this.array_.length;i<n;++i)if(this.array_[i]===t&&i!==e)throw new h(58)},e}(H),tt=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),et=function(t){function e(e,i,n){var r=t.call(this,e)||this;return r.map=i,r.frameState=void 0!==n?n:null,r}return tt(e,t),e}(I),it=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),nt=function(t){function e(e,i,n,r,o){var s=t.call(this,e,i,o)||this;return s.originalEvent=n,s.pixel_=null,s.coordinate_=null,s.dragging=void 0!==r&&r,s}return it(e,t),Object.defineProperty(e.prototype,"pixel",{get:function(){return this.pixel_||(this.pixel_=this.map.getEventPixel(this.originalEvent)),this.pixel_},set:function(t){this.pixel_=t},enumerable:!0,configurable:!0}),Object.defineProperty(e.prototype,"coordinate",{get:function(){return this.coordinate_||(this.coordinate_=this.map.getCoordinateFromPixel(this.pixel)),this.coordinate_},set:function(t){this.coordinate_=t},enumerable:!0,configurable:!0}),e.prototype.preventDefault=function(){t.prototype.preventDefault.call(this),this.originalEvent.preventDefault()},e.prototype.stopPropagation=function(){t.prototype.stopPropagation.call(this),this.originalEvent.stopPropagation()},e}(et),rt=(i(15),"undefined"!=typeof navigator?navigator.userAgent.toLowerCase():""),ot=-1!==rt.indexOf("firefox"),st=(-1!==rt.indexOf("safari")&&rt.indexOf("chrom"),-1!==rt.indexOf("webkit")&&-1==rt.indexOf("edge")),at=-1!==rt.indexOf("macintosh"),ht="undefined"!=typeof devicePixelRatio?devicePixelRatio:1,lt="undefined"!=typeof WorkerGlobalScope&&"undefined"!=typeof OffscreenCanvas&&self instanceof WorkerGlobalScope,ut="undefined"!=typeof Image&&Image.prototype.decode,ct=function(){var t=!1;try{var e=Object.defineProperty({},"passive",{get:function(){t=!0}});window.addEventListener("_",null,e),window.removeEventListener("_",null,e)}catch(t){}return t}(),pt={SINGLECLICK:"singleclick",CLICK:A,DBLCLICK:D,POINTERDRAG:"pointerdrag",POINTERMOVE:"pointermove",POINTERDOWN:"pointerdown",POINTERUP:"pointerup",POINTEROVER:"pointerover",POINTEROUT:"pointerout",POINTERENTER:"pointerenter",POINTERLEAVE:"pointerleave",POINTERCANCEL:"pointercancel"},ft=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),dt=function(t){function e(e,i,n,r,o){var s=t.call(this,e,i,n,r,o)||this;return s.pointerEvent=n,s}return ft(e,t),e}(nt),_t="pointermove",gt="pointerdown",yt=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),vt=function(t){function e(e,i){var n=t.call(this,e)||this;n.map_=e,n.clickTimeoutId_,n.dragging_=!1,n.dragListenerKeys_=[],n.moveTolerance_=i?i*ht:ht,n.down_=null;var r=n.map_.getViewport();return n.activePointers_=0,n.trackedTouches_={},n.element_=r,n.pointerdownListenerKey_=g(r,gt,n.handlePointerDown_,n),n.originalPointerMoveEvent_,n.relayedListenerKey_=g(r,_t,n.relayEvent_,n),n.boundHandleTouchMove_=n.handleTouchMove_.bind(n),n.element_.addEventListener(X,n.boundHandleTouchMove_,!!ct&&{passive:!1}),n}return yt(e,t),e.prototype.emulateClick_=function(t){var e=new dt(pt.CLICK,this.map_,t);this.dispatchEvent(e),void 0!==this.clickTimeoutId_?(clearTimeout(this.clickTimeoutId_),this.clickTimeoutId_=void 0,e=new dt(pt.DBLCLICK,this.map_,t),this.dispatchEvent(e)):this.clickTimeoutId_=setTimeout(function(){this.clickTimeoutId_=void 0;var e=new dt(pt.SINGLECLICK,this.map_,t);this.dispatchEvent(e)}.bind(this),250)},e.prototype.updateActivePointers_=function(t){var e=t;e.type==pt.POINTERUP||e.type==pt.POINTERCANCEL?delete this.trackedTouches_[e.pointerId]:e.type==pt.POINTERDOWN&&(this.trackedTouches_[e.pointerId]=!0),this.activePointers_=Object.keys(this.trackedTouches_).length},e.prototype.handlePointerUp_=function(t){this.updateActivePointers_(t);var e=new dt(pt.POINTERUP,this.map_,t);this.dispatchEvent(e),e.propagationStopped||this.dragging_||!this.isMouseActionButton_(t)||this.emulateClick_(this.down_),0===this.activePointers_&&(this.dragListenerKeys_.forEach(v),this.dragListenerKeys_.length=0,this.dragging_=!1,this.down_=null)},e.prototype.isMouseActionButton_=function(t){return 0===t.button},e.prototype.handlePointerDown_=function(t){this.updateActivePointers_(t);var e=new dt(pt.POINTERDOWN,this.map_,t);this.dispatchEvent(e),this.down_=t,0===this.dragListenerKeys_.length&&this.dragListenerKeys_.push(g(document,pt.POINTERMOVE,this.handlePointerMove_,this),g(document,pt.POINTERUP,this.handlePointerUp_,this),g(this.element_,pt.POINTERCANCEL,this.handlePointerUp_,this))},e.prototype.handlePointerMove_=function(t){if(this.isMoving_(t)){this.dragging_=!0;var e=new dt(pt.POINTERDRAG,this.map_,t,this.dragging_);this.dispatchEvent(e)}},e.prototype.relayEvent_=function(t){this.originalPointerMoveEvent_=t;var e=!(!this.down_||!this.isMoving_(t));this.dispatchEvent(new dt(t.type,this.map_,t,e))},e.prototype.handleTouchMove_=function(t){this.originalPointerMoveEvent_&&!this.originalPointerMoveEvent_.defaultPrevented||t.preventDefault()},e.prototype.isMoving_=function(t){return this.dragging_||Math.abs(t.clientX-this.down_.clientX)>this.moveTolerance_||Math.abs(t.clientY-this.down_.clientY)>this.moveTolerance_},e.prototype.disposeInternal=function(){this.relayedListenerKey_&&(v(this.relayedListenerKey_),this.relayedListenerKey_=null),this.element_.removeEventListener(X,this.boundHandleTouchMove_),this.pointerdownListenerKey_&&(v(this.pointerdownListenerKey_),this.pointerdownListenerKey_=null),this.dragListenerKeys_.forEach(v),this.dragListenerKeys_.length=0,this.element_=null,t.prototype.disposeInternal.call(this)},e}(P),mt="postrender",xt="movestart",St="moveend",Ct="layergroup",wt="size",Et="target",Tt="view",bt="prerender",Rt="postrender",It="precompose",Ot="postcompose",Pt="rendercomplete",Mt=0,Ft=1,Lt=2,At=3,Dt=4;function kt(t,e){if(!t)throw new h(e)}var jt=function(){function t(t,e){this.priorityFunction_=t,this.keyFunction_=e,this.elements_=[],this.priorities_=[],this.queuedElements_={}}return t.prototype.clear=function(){this.elements_.length=0,this.priorities_.length=0,f(this.queuedElements_)},t.prototype.dequeue=function(){var t=this.elements_,e=this.priorities_,i=t[0];1==t.length?(t.length=0,e.length=0):(t[0]=t.pop(),e[0]=e.pop(),this.siftUp_(0));var n=this.keyFunction_(i);return delete this.queuedElements_[n],i},t.prototype.enqueue=function(t){kt(!(this.keyFunction_(t)in this.queuedElements_),31);var e=this.priorityFunction_(t);return e!=1/0&&(this.elements_.push(t),this.priorities_.push(e),this.queuedElements_[this.keyFunction_(t)]=!0,this.siftDown_(0,this.elements_.length-1),!0)},t.prototype.getCount=function(){return this.elements_.length},t.prototype.getLeftChildIndex_=function(t){return 2*t+1},t.prototype.getRightChildIndex_=function(t){return 2*t+2},t.prototype.getParentIndex_=function(t){return t-1>>1},t.prototype.heapify_=function(){var t;for(t=(this.elements_.length>>1)-1;t>=0;t--)this.siftUp_(t)},t.prototype.isEmpty=function(){return 0===this.elements_.length},t.prototype.isKeyQueued=function(t){return t in this.queuedElements_},t.prototype.isQueued=function(t){return this.isKeyQueued(this.keyFunction_(t))},t.prototype.siftUp_=function(t){for(var e=this.elements_,i=this.priorities_,n=e.length,r=e[t],o=i[t],s=t;t<n>>1;){var a=this.getLeftChildIndex_(t),h=this.getRightChildIndex_(t),l=h<n&&i[h]<i[a]?h:a;e[t]=e[l],i[t]=i[l],t=l}e[t]=r,i[t]=o,this.siftDown_(s,t)},t.prototype.siftDown_=function(t,e){for(var i=this.elements_,n=this.priorities_,r=i[e],o=n[e];e>t;){var s=this.getParentIndex_(e);if(!(n[s]>o))break;i[e]=i[s],n[e]=n[s],e=s}i[e]=r,n[e]=o},t.prototype.reprioritize=function(){var t,e,i,n=this.priorityFunction_,r=this.elements_,o=this.priorities_,s=0,a=r.length;for(e=0;e<a;++e)(i=n(t=r[e]))==1/0?delete this.queuedElements_[this.keyFunction_(t)]:(o[s]=i,r[s++]=t);r.length=s,o.length=s,this.heapify_()},t}(),Gt=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),zt=function(t){function e(e,i){var n=t.call(this,(function(t){return e.apply(null,t)}),(function(t){return t[0].getKey()}))||this;return n.boundHandleTileChange_=n.handleTileChange.bind(n),n.tileChangeCallback_=i,n.tilesLoading_=0,n.tilesLoadingKeys_={},n}return Gt(e,t),e.prototype.enqueue=function(e){var i=t.prototype.enqueue.call(this,e);i&&e[0].addEventListener(M,this.boundHandleTileChange_);return i},e.prototype.getTilesLoading=function(){return this.tilesLoading_},e.prototype.handleTileChange=function(t){var e=t.target,i=e.getState();if(e.hifi&&i===Lt||i===At||i===Dt){e.removeEventListener(M,this.boundHandleTileChange_);var n=e.getKey();n in this.tilesLoadingKeys_&&(delete this.tilesLoadingKeys_[n],--this.tilesLoading_),this.tileChangeCallback_()}},e.prototype.loadMoreTiles=function(t,e){for(var i,n,r=0;this.tilesLoading_<t&&r<e&&this.getCount()>0;)n=(i=this.dequeue()[0]).getKey(),i.getState()!==Mt||n in this.tilesLoadingKeys_||(this.tilesLoadingKeys_[n]=!0,++this.tilesLoading_,++r,i.load())},e}(jt);function Xt(t,e,i){return Math.min(Math.max(t,e),i)}var Wt="cosh"in Math?Math.cosh:function(t){var e=Math.exp(t);return(e+1/e)/2};function Kt(t,e,i,n,r,o){var s=r-i,a=o-n;if(0!==s||0!==a){var h=((t-i)*s+(e-n)*a)/(s*s+a*a);h>1?(i=r,n=o):h>0&&(i+=s*h,n+=a*h)}return Yt(t,e,i,n)}function Yt(t,e,i,n){var r=i-t,o=n-e;return r*r+o*o}function Nt(t){return t*Math.PI/180}function Zt(t,e){var i=t%e;return i*e<0?i+e:i}function Bt(t,e,i){return t+i*(e-t)}function Vt(t,e,i){return function(n,r,o,s){if(n){var a=e?0:o[0]*r,h=e?0:o[1]*r,l=t[0]+a/2,u=t[2]-a/2,c=t[1]+h/2,p=t[3]-h/2;l>u&&(u=l=(u+l)/2),c>p&&(p=c=(p+c)/2);var f=Xt(n[0],l,u),d=Xt(n[1],c,p),_=30*r;return s&&i&&(f+=-_*Math.log(1+Math.max(0,l-n[0])/_)+_*Math.log(1+Math.max(0,n[0]-u)/_),d+=-_*Math.log(1+Math.max(0,c-n[1])/_)+_*Math.log(1+Math.max(0,n[1]-p)/_)),[f,d]}}}function Ut(t){return t}var Ht="bottom-left",qt="bottom-right",Jt="top-left",Qt="top-right",$t=0,te=1,ee=2,ie=4,ne=8,re=16;function oe(t){for(var e=fe(),i=0,n=t.length;i<n;++i)ve(e,t[i]);return e}function se(t,e,i){return i?(i[0]=t[0]-e,i[1]=t[1]-e,i[2]=t[2]+e,i[3]=t[3]+e,i):[t[0]-e,t[1]-e,t[2]+e,t[3]+e]}function ae(t,e){return e?(e[0]=t[0],e[1]=t[1],e[2]=t[2],e[3]=t[3],e):t.slice()}function he(t,e,i){var n,r;return(n=e<t[0]?t[0]-e:t[2]<e?e-t[2]:0)*n+(r=i<t[1]?t[1]-i:t[3]<i?i-t[3]:0)*r}function le(t,e){return ce(t,e[0],e[1])}function ue(t,e){return t[0]<=e[0]&&e[2]<=t[2]&&t[1]<=e[1]&&e[3]<=t[3]}function ce(t,e,i){return t[0]<=e&&e<=t[2]&&t[1]<=i&&i<=t[3]}function pe(t,e){var i=t[0],n=t[1],r=t[2],o=t[3],s=e[0],a=e[1],h=$t;return s<i?h|=re:s>r&&(h|=ie),a<n?h|=ne:a>o&&(h|=ee),h===$t&&(h=te),h}function fe(){return[1/0,1/0,-1/0,-1/0]}function de(t,e,i,n,r){return r?(r[0]=t,r[1]=e,r[2]=i,r[3]=n,r):[t,e,i,n]}function _e(t){return de(1/0,1/0,-1/0,-1/0,t)}function ge(t,e){return t[0]==e[0]&&t[2]==e[2]&&t[1]==e[1]&&t[3]==e[3]}function ye(t,e){return e[0]<t[0]&&(t[0]=e[0]),e[2]>t[2]&&(t[2]=e[2]),e[1]<t[1]&&(t[1]=e[1]),e[3]>t[3]&&(t[3]=e[3]),t}function ve(t,e){e[0]<t[0]&&(t[0]=e[0]),e[0]>t[2]&&(t[2]=e[0]),e[1]<t[1]&&(t[1]=e[1]),e[1]>t[3]&&(t[3]=e[1])}function me(t,e){for(var i=0,n=e.length;i<n;++i)ve(t,e[i]);return t}function xe(t,e,i,n,r){for(;i<n;i+=r)Se(t,e[i],e[i+1]);return t}function Se(t,e,i){t[0]=Math.min(t[0],e),t[1]=Math.min(t[1],i),t[2]=Math.max(t[2],e),t[3]=Math.max(t[3],i)}function Ce(t){var e=0;return Ae(t)||(e=Fe(t)*Ie(t)),e}function we(t){return[t[0],t[1]]}function Ee(t){return[t[2],t[1]]}function Te(t){return[(t[0]+t[2])/2,(t[1]+t[3])/2]}function be(t,e){var i;return e===Ht?i=we(t):e===qt?i=Ee(t):e===Jt?i=Pe(t):e===Qt?i=Me(t):kt(!1,13),i}function Re(t,e,i,n,r){var o=e*n[0]/2,s=e*n[1]/2,a=Math.cos(i),h=Math.sin(i),l=o*a,u=o*h,c=s*a,p=s*h,f=t[0],d=t[1],_=f-l+p,g=f-l-p,y=f+l-p,v=f+l+p,m=d-u-c,x=d-u+c,S=d+u+c,C=d+u-c;return de(Math.min(_,g,y,v),Math.min(m,x,S,C),Math.max(_,g,y,v),Math.max(m,x,S,C),r)}function Ie(t){return t[3]-t[1]}function Oe(t,e,i){var n=i||[1/0,1/0,-1/0,-1/0];return Le(t,e)?(t[0]>e[0]?n[0]=t[0]:n[0]=e[0],t[1]>e[1]?n[1]=t[1]:n[1]=e[1],t[2]<e[2]?n[2]=t[2]:n[2]=e[2],t[3]<e[3]?n[3]=t[3]:n[3]=e[3]):_e(n),n}function Pe(t){return[t[0],t[3]]}function Me(t){return[t[2],t[3]]}function Fe(t){return t[2]-t[0]}function Le(t,e){return t[0]<=e[2]&&t[2]>=e[0]&&t[1]<=e[3]&&t[3]>=e[1]}function Ae(t){return t[2]<t[0]||t[3]<t[1]}function De(t,e,i,n){var r=[];if(n>1)for(var o=t[2]-t[0],s=t[3]-t[1],a=0;a<n;++a)r.push(t[0]+o*a/n,t[1],t[2],t[1]+s*a/n,t[2]-o*a/n,t[3],t[0],t[3]-s*a/n);else r=[t[0],t[1],t[2],t[1],t[2],t[3],t[0],t[3]];e(r,r,2);for(var h=[],l=[],u=(a=0,r.length);a<u;a+=2)h.push(r[a]),l.push(r[a+1]);return function(t,e,i){return de(Math.min.apply(null,t),Math.min.apply(null,e),Math.max.apply(null,t),Math.max.apply(null,e),i)}(h,l,i)}function ke(t,e,i,n){var r=Fe(e)/i[0],o=Ie(e)/i[1];return n?Math.min(t,Math.max(r,o)):Math.min(t,Math.min(r,o))}function je(t,e,i){var n=Math.min(t,e);return n*=Math.log(1+50*Math.max(0,t/e-1))/50+1,i&&(n=Math.max(n,i),n/=Math.log(1+50*Math.max(0,i/t-1))/50+1),Xt(n,i/2,2*e)}function Ge(t,e,i,n,r){return function(o,s,a,h){if(void 0!==o){var l=n?ke(t,n,a,r):t;return(void 0===i||i)&&h?je(o,l,e):Xt(o,e,l)}}}function ze(t){return void 0!==t?0:void 0}function Xe(t){return void 0!==t?t:void 0}var We=0,Ke=1,Ye="center",Ne="resolution",Ze="rotation";function Be(t,e){for(var i=!0,n=t.length-1;n>=0;--n)if(t[n]!=e[n]){i=!1;break}return i}function Ve(t,e){var i=Math.cos(e),n=Math.sin(e),r=t[0]*i-t[1]*n,o=t[1]*i+t[0]*n;return t[0]=r,t[1]=o,t}function Ue(t,e){var i=e.getExtent();if(e.canWrapX()&&(t[0]<i[0]||t[0]>=i[2])){var n=Fe(i),r=Math.floor((t[0]-i[0])/n);t[0]-=r*n}return t}function He(t){return Math.pow(t,3)}function qe(t){return 1-He(1-t)}function Je(t){return 3*t*t-2*t*t*t}function Qe(t){return t}var $e="Point",ti="LineString",ei="LinearRing",ii="Polygon",ni="MultiPoint",ri="MultiLineString",oi="MultiPolygon",si="GeometryCollection",ai="Circle",hi="XY",li="XYZ",ui="XYM",ci="XYZM";function pi(t,e,i,n,r,o){for(var s=o||[],a=0,h=e;h<i;h+=n){var l=t[h],u=t[h+1];s[a++]=r[0]*l+r[2]*u+r[4],s[a++]=r[1]*l+r[3]*u+r[5]}return o&&s.length!=a&&(s.length=a),s}function fi(t,e,i){var n=i||6371008.8,r=Nt(t[1]),o=Nt(e[1]),s=(o-r)/2,a=Nt(e[0]-t[0])/2,h=Math.sin(s)*Math.sin(s)+Math.sin(a)*Math.sin(a)*Math.cos(r)*Math.cos(o);return 2*n*Math.atan2(Math.sqrt(h),Math.sqrt(1-h))}var di={DEGREES:"degrees",FEET:"ft",METERS:"m",PIXELS:"pixels",TILE_PIXELS:"tile-pixels",USFEET:"us-ft"},_i={};_i[di.DEGREES]=2*Math.PI*6370997/360,_i[di.FEET]=.3048,_i[di.METERS]=1,_i[di.USFEET]=1200/3937;var gi=di,yi=function(){function t(t){this.code_=t.code,this.units_=t.units,this.extent_=void 0!==t.extent?t.extent:null,this.worldExtent_=void 0!==t.worldExtent?t.worldExtent:null,this.axisOrientation_=void 0!==t.axisOrientation?t.axisOrientation:"enu",this.global_=void 0!==t.global&&t.global,this.canWrapX_=!(!this.global_||!this.extent_),this.getPointResolutionFunc_=t.getPointResolution,this.defaultTileGrid_=null,this.metersPerUnit_=t.metersPerUnit}return t.prototype.canWrapX=function(){return this.canWrapX_},t.prototype.getCode=function(){return this.code_},t.prototype.getExtent=function(){return this.extent_},t.prototype.getUnits=function(){return this.units_},t.prototype.getMetersPerUnit=function(){return this.metersPerUnit_||_i[this.units_]},t.prototype.getWorldExtent=function(){return this.worldExtent_},t.prototype.getAxisOrientation=function(){return this.axisOrientation_},t.prototype.isGlobal=function(){return this.global_},t.prototype.setGlobal=function(t){this.global_=t,this.canWrapX_=!(!t||!this.extent_)},t.prototype.getDefaultTileGrid=function(){return this.defaultTileGrid_},t.prototype.setDefaultTileGrid=function(t){this.defaultTileGrid_=t},t.prototype.setExtent=function(t){this.extent_=t,this.canWrapX_=!(!this.global_||!t)},t.prototype.setWorldExtent=function(t){this.worldExtent_=t},t.prototype.setGetPointResolution=function(t){this.getPointResolutionFunc_=t},t.prototype.getPointResolutionFunc=function(){return this.getPointResolutionFunc_},t}(),vi=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),mi=6378137*Math.PI,xi=[-mi,-mi,mi,mi],Si=[-180,-85,180,85],Ci=function(t){function e(e){return t.call(this,{code:e,units:gi.METERS,extent:xi,global:!0,worldExtent:Si,getPointResolution:function(t,e){return t/Wt(e[1]/6378137)}})||this}return vi(e,t),e}(yi),wi=[new Ci("EPSG:3857"),new Ci("EPSG:102100"),new Ci("EPSG:102113"),new Ci("EPSG:900913"),new Ci("urn:ogc:def:crs:EPSG:6.18:3:3857"),new Ci("urn:ogc:def:crs:EPSG::3857"),new Ci("http://www.opengis.net/gml/srs/epsg.xml#3857")];function Ei(t,e,i){var n=t.length,r=i>1?i:2,o=e;void 0===o&&(o=r>2?t.slice():new Array(n));for(var s=mi,a=0;a<n;a+=r){o[a]=s*t[a]/180;var h=6378137*Math.log(Math.tan(Math.PI*(+t[a+1]+90)/360));h>s?h=s:h<-s&&(h=-s),o[a+1]=h}return o}function Ti(t,e,i){var n=t.length,r=i>1?i:2,o=e;void 0===o&&(o=r>2?t.slice():new Array(n));for(var s=0;s<n;s+=r)o[s]=180*t[s]/mi,o[s+1]=360*Math.atan(Math.exp(t[s+1]/6378137))/Math.PI-90;return o}var bi=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),Ri=[-180,-90,180,90],Ii=6378137*Math.PI/180,Oi=function(t){function e(e,i){return t.call(this,{code:e,units:gi.DEGREES,extent:Ri,axisOrientation:i,global:!0,metersPerUnit:Ii,worldExtent:Ri})||this}return bi(e,t),e}(yi),Pi=[new Oi("CRS:84"),new Oi("EPSG:4326","neu"),new Oi("urn:ogc:def:crs:EPSG::4326","neu"),new Oi("urn:ogc:def:crs:EPSG:6.6:4326","neu"),new Oi("urn:ogc:def:crs:OGC:1.3:CRS84"),new Oi("urn:ogc:def:crs:OGC:2:84"),new Oi("http://www.opengis.net/gml/srs/epsg.xml#4326","neu"),new Oi("urn:x-ogc:def:crs:EPSG:4326","neu")],Mi={};function Fi(t,e,i){var n=t.getCode(),r=e.getCode();n in Mi||(Mi[n]={}),Mi[n][r]=i}var Li={};function Ai(t,e,i){var n;if(void 0!==e){for(var r=0,o=t.length;r<o;++r)e[r]=t[r];n=e}else n=t.slice();return n}function Di(t,e,i){if(void 0!==e&&t!==e){for(var n=0,r=t.length;n<r;++n)e[n]=t[n];t=e}return t}function ki(t){!function(t,e){Li[t]=e}(t.getCode(),t),Fi(t,t,Ai)}function ji(t){return"string"==typeof t?Li[t]||null:t||null}function Gi(t,e,i,n){var r,o=(t=ji(t)).getPointResolutionFunc();if(o)r=o(e,i),n&&n!==t.getUnits()&&(s=t.getMetersPerUnit())&&(r=r*s/_i[n]);else if(t.getUnits()==gi.DEGREES&&!n||n==gi.DEGREES)r=e;else{var s,a=Ki(t,ji("EPSG:4326")),h=[i[0]-e/2,i[1],i[0]+e/2,i[1],i[0],i[1]-e/2,i[0],i[1]+e/2];r=(fi((h=a(h,h,2)).slice(0,2),h.slice(2,4))+fi(h.slice(4,6),h.slice(6,8)))/2,void 0!==(s=n?_i[n]:t.getMetersPerUnit())&&(r/=s)}return r}function zi(t){!function(t){t.forEach(ki)}(t),t.forEach((function(e){t.forEach((function(t){e!==t&&Fi(e,t,Ai)}))}))}function Xi(t,e){return t?"string"==typeof t?ji(t):t:ji(e)}function Wi(t,e){if(t===e)return!0;var i=t.getUnits()===e.getUnits();return(t.getCode()===e.getCode()||Ki(t,e)===Ai)&&i}function Ki(t,e){var i=function(t,e){var i;return t in Mi&&e in Mi[t]&&(i=Mi[t][e]),i}(t.getCode(),e.getCode());return i||(i=Di),i}function Yi(t,e){return Ki(ji(t),ji(e))}function Ni(t,e,i){return Yi(e,i)(t,void 0,t.length)}function Zi(t,e,i,n){return De(t,Yi(e,i),void 0,n)}var Bi,Vi,Ui,Hi=null;function qi(){return Hi}function Ji(t,e){return Hi?Ni(t,e,Hi):t}function Qi(t,e){return Hi?Ni(t,Hi,e):t}function $i(t,e){return Hi?Zi(t,e,Hi):t}function tn(t,e){return Hi?Zi(t,Hi,e):t}zi(wi),zi(Pi),Bi=wi,Vi=Ei,Ui=Ti,Pi.forEach((function(t){Bi.forEach((function(e){Fi(t,e,Vi),Fi(e,t,Ui)}))}));new Array(6);function en(t,e,i,n,r,o,s){return t[0]=e,t[1]=i,t[2]=n,t[3]=r,t[4]=o,t[5]=s,t}function nn(t,e){var i=e[0],n=e[1];return e[0]=t[0]*i+t[2]*n+t[4],e[1]=t[1]*i+t[3]*n+t[5],e}function rn(t,e,i,n,r,o,s,a){var h=Math.sin(o),l=Math.cos(o);return t[0]=n*l,t[1]=r*h,t[2]=-n*h,t[3]=r*l,t[4]=s*n*l-a*n*h+e,t[5]=s*r*h+a*r*l+i,t}function on(t,e){var i,n=(i=e)[0]*i[3]-i[1]*i[2];kt(0!==n,32);var r=e[0],o=e[1],s=e[2],a=e[3],h=e[4],l=e[5];return t[0]=a/n,t[1]=-o/n,t[2]=-s/n,t[3]=r/n,t[4]=(s*l-a*h)/n,t[5]=-(r*l-o*h)/n,t}function sn(t){return"matrix("+t.join(", ")+")"}var an=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),hn=[1,0,0,1,0,0],ln=function(t){function e(){var e,i,n,r,o,s=t.call(this)||this;return s.extent_=[1/0,1/0,-1/0,-1/0],s.extentRevision_=-1,s.simplifiedGeometryMaxMinSquaredTolerance=0,s.simplifiedGeometryRevision=0,s.simplifyTransformedInternal=(e=function(t,e,i){if(!i)return this.getSimplifiedGeometry(e);var n=this.clone();return n.applyTransform(i),n.getSimplifiedGeometry(e)},o=!1,function(){var t=Array.prototype.slice.call(arguments);return o&&this===r&&E(t,n)||(o=!0,r=this,n=t,i=e.apply(this,arguments)),i}),s}return an(e,t),e.prototype.simplifyTransformed=function(t,e){return this.simplifyTransformedInternal(this.getRevision(),t,e)},e.prototype.clone=function(){return n()},e.prototype.closestPointXY=function(t,e,i,r){return n()},e.prototype.containsXY=function(t,e){var i=this.getClosestPoint([t,e]);return i[0]===t&&i[1]===e},e.prototype.getClosestPoint=function(t,e){var i=e||[NaN,NaN];return this.closestPointXY(t[0],t[1],i,1/0),i},e.prototype.intersectsCoordinate=function(t){return this.containsXY(t[0],t[1])},e.prototype.computeExtent=function(t){return n()},e.prototype.getExtent=function(t){return this.extentRevision_!=this.getRevision()&&(this.extent_=this.computeExtent(this.extent_),this.extentRevision_=this.getRevision()),function(t,e){return e?(e[0]=t[0],e[1]=t[1],e[2]=t[2],e[3]=t[3],e):t}(this.extent_,t)},e.prototype.rotate=function(t,e){n()},e.prototype.scale=function(t,e,i){n()},e.prototype.simplify=function(t){return this.getSimplifiedGeometry(t*t)},e.prototype.getSimplifiedGeometry=function(t){return n()},e.prototype.getType=function(){return n()},e.prototype.applyTransform=function(t){n()},e.prototype.intersectsExtent=function(t){return n()},e.prototype.translate=function(t,e){n()},e.prototype.transform=function(t,e){var i=ji(t),n=i.getUnits()==gi.TILE_PIXELS?function(t,n,r){var o=i.getExtent(),s=i.getWorldExtent(),a=Ie(s)/Ie(o);return rn(hn,s[0],s[3],a,-a,0,0,0),pi(t,0,t.length,r,hn,n),Yi(i,e)(t,n,r)}:Yi(i,e);return this.applyTransform(n),this},e}(H),un=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}();function cn(t){var e;return t==hi?e=2:t==li||t==ui?e=3:t==ci&&(e=4),e}var pn=function(t){function e(){var e=t.call(this)||this;return e.layout=hi,e.stride=2,e.flatCoordinates=null,e}return un(e,t),e.prototype.computeExtent=function(t){return e=this.flatCoordinates,i=0,n=this.flatCoordinates.length,r=this.stride,xe(_e(t),e,i,n,r);var e,i,n,r},e.prototype.getCoordinates=function(){return n()},e.prototype.getFirstCoordinate=function(){return this.flatCoordinates.slice(0,this.stride)},e.prototype.getFlatCoordinates=function(){return this.flatCoordinates},e.prototype.getLastCoordinate=function(){return this.flatCoordinates.slice(this.flatCoordinates.length-this.stride)},e.prototype.getLayout=function(){return this.layout},e.prototype.getSimplifiedGeometry=function(t){if(this.simplifiedGeometryRevision!==this.getRevision()&&(this.simplifiedGeometryMaxMinSquaredTolerance=0,this.simplifiedGeometryRevision=this.getRevision()),t<0||0!==this.simplifiedGeometryMaxMinSquaredTolerance&&t<=this.simplifiedGeometryMaxMinSquaredTolerance)return this;var e=this.getSimplifiedGeometryInternal(t);return e.getFlatCoordinates().length<this.flatCoordinates.length?e:(this.simplifiedGeometryMaxMinSquaredTolerance=t,this)},e.prototype.getSimplifiedGeometryInternal=function(t){return this},e.prototype.getStride=function(){return this.stride},e.prototype.setFlatCoordinates=function(t,e){this.stride=cn(t),this.layout=t,this.flatCoordinates=e},e.prototype.setCoordinates=function(t,e){n()},e.prototype.setLayout=function(t,e,i){var n;if(t)n=cn(t);else{for(var r=0;r<i;++r){if(0===e.length)return this.layout=hi,void(this.stride=2);e=e[0]}t=function(t){var e;2==t?e=hi:3==t?e=li:4==t&&(e=ci);return e}(n=e.length)}this.layout=t,this.stride=n},e.prototype.applyTransform=function(t){this.flatCoordinates&&(t(this.flatCoordinates,this.flatCoordinates,this.stride),this.changed())},e.prototype.rotate=function(t,e){var i=this.getFlatCoordinates();if(i){var n=this.getStride();!function(t,e,i,n,r,o,s){for(var a=s||[],h=Math.cos(r),l=Math.sin(r),u=o[0],c=o[1],p=0,f=e;f<i;f+=n){var d=t[f]-u,_=t[f+1]-c;a[p++]=u+d*h-_*l,a[p++]=c+d*l+_*h;for(var g=f+2;g<f+n;++g)a[p++]=t[g]}s&&a.length!=p&&(a.length=p)}(i,0,i.length,n,t,e,i),this.changed()}},e.prototype.scale=function(t,e,i){var n=e;void 0===n&&(n=t);var r=i;r||(r=Te(this.getExtent()));var o=this.getFlatCoordinates();if(o){var s=this.getStride();!function(t,e,i,n,r,o,s,a){for(var h=a||[],l=s[0],u=s[1],c=0,p=e;p<i;p+=n){var f=t[p]-l,d=t[p+1]-u;h[c++]=l+r*f,h[c++]=u+o*d;for(var _=p+2;_<p+n;++_)h[c++]=t[_]}a&&h.length!=c&&(h.length=c)}(o,0,o.length,s,t,n,r,o),this.changed()}},e.prototype.translate=function(t,e){var i=this.getFlatCoordinates();if(i){var n=this.getStride();!function(t,e,i,n,r,o,s){for(var a=s||[],h=0,l=e;l<i;l+=n){a[h++]=t[l]+r,a[h++]=t[l+1]+o;for(var u=l+2;u<l+n;++u)a[h++]=t[u]}s&&a.length!=h&&(a.length=h)}(i,0,i.length,n,t,e,i),this.changed()}},e}(ln);function fn(t,e,i,n){for(var r=0,o=t[i-n],s=t[i-n+1];e<i;e+=n){var a=t[e],h=t[e+1];r+=s*a-o*h,o=a,s=h}return r/2}function dn(t,e,i,n){for(var r=0,o=0,s=i.length;o<s;++o){var a=i[o];r+=fn(t,e,a,n),e=a}return r}function _n(t,e,i,n,r,o,s){var a,h=t[e],l=t[e+1],u=t[i]-h,c=t[i+1]-l;if(0===u&&0===c)a=e;else{var p=((r-h)*u+(o-l)*c)/(u*u+c*c);if(p>1)a=i;else{if(p>0){for(var f=0;f<n;++f)s[f]=Bt(t[e+f],t[i+f],p);return void(s.length=n)}a=e}}for(f=0;f<n;++f)s[f]=t[a+f];s.length=n}function gn(t,e,i,n,r){var o=t[e],s=t[e+1];for(e+=n;e<i;e+=n){var a=t[e],h=t[e+1],l=Yt(o,s,a,h);l>r&&(r=l),o=a,s=h}return r}function yn(t,e,i,n,r){for(var o=0,s=i.length;o<s;++o){var a=i[o];r=gn(t,e,a,n,r),e=a}return r}function vn(t,e,i,n,r,o,s,a,h,l,u){if(e==i)return l;var c,p;if(0===r){if((p=Yt(s,a,t[e],t[e+1]))<l){for(c=0;c<n;++c)h[c]=t[e+c];return h.length=n,p}return l}for(var f=u||[NaN,NaN],d=e+n;d<i;)if(_n(t,d-n,d,n,s,a,f),(p=Yt(s,a,f[0],f[1]))<l){for(l=p,c=0;c<n;++c)h[c]=f[c];h.length=n,d+=n}else d+=n*Math.max((Math.sqrt(p)-Math.sqrt(l))/r|0,1);if(o&&(_n(t,i-n,e,n,s,a,f),(p=Yt(s,a,f[0],f[1]))<l)){for(l=p,c=0;c<n;++c)h[c]=f[c];h.length=n}return l}function mn(t,e,i,n,r,o,s,a,h,l,u){for(var c=u||[NaN,NaN],p=0,f=i.length;p<f;++p){var d=i[p];l=vn(t,e,d,n,r,o,s,a,h,l,c),e=d}return l}function xn(t,e,i,n){for(var r=0,o=i.length;r<o;++r)for(var s=i[r],a=0;a<n;++a)t[e++]=s[a];return e}function Sn(t,e,i,n,r){for(var o=r||[],s=0,a=0,h=i.length;a<h;++a){var l=xn(t,e,i[a],n);o[s++]=l,e=l}return o.length=s,o}function Cn(t,e,i,n,r){for(var o=void 0!==r?r:[],s=0,a=e;a<i;a+=n)o[s++]=t.slice(a,a+n);return o.length=s,o}function wn(t,e,i,n,r){for(var o=void 0!==r?r:[],s=0,a=0,h=i.length;a<h;++a){var l=i[a];o[s++]=Cn(t,e,l,n,o[s]),e=l}return o.length=s,o}function En(t,e,i,n,r){for(var o=void 0!==r?r:[],s=0,a=0,h=i.length;a<h;++a){var l=i[a];o[s++]=wn(t,e,l,n,o[s]),e=l[l.length-1]}return o.length=s,o}function Tn(t,e,i,n,r,o,s){var a=(i-e)/n;if(a<3){for(;e<i;e+=n)o[s++]=t[e],o[s++]=t[e+1];return s}var h=new Array(a);h[0]=1,h[a-1]=1;for(var l=[e,i-n],u=0;l.length>0;){for(var c=l.pop(),p=l.pop(),f=0,d=t[p],_=t[p+1],g=t[c],y=t[c+1],v=p+n;v<c;v+=n){var m=Kt(t[v],t[v+1],d,_,g,y);m>f&&(u=v,f=m)}f>r&&(h[(u-e)/n]=1,p+n<u&&l.push(p,u),u+n<c&&l.push(u,c))}for(v=0;v<a;++v)h[v]&&(o[s++]=t[e+v*n],o[s++]=t[e+v*n+1]);return s}function bn(t,e){return e*Math.round(t/e)}function Rn(t,e,i,n,r,o,s){if(e==i)return s;var a,h,l=bn(t[e],r),u=bn(t[e+1],r);e+=n,o[s++]=l,o[s++]=u;do{if(a=bn(t[e],r),h=bn(t[e+1],r),(e+=n)==i)return o[s++]=a,o[s++]=h,s}while(a==l&&h==u);for(;e<i;){var c=bn(t[e],r),p=bn(t[e+1],r);if(e+=n,c!=a||p!=h){var f=a-l,d=h-u,_=c-l,g=p-u;f*g==d*_&&(f<0&&_<f||f==_||f>0&&_>f)&&(d<0&&g<d||d==g||d>0&&g>d)?(a=c,h=p):(o[s++]=a,o[s++]=h,l=a,u=h,a=c,h=p)}}return o[s++]=a,o[s++]=h,s}function In(t,e,i,n,r,o,s,a){for(var h=0,l=i.length;h<l;++h){var u=i[h];s=Rn(t,e,u,n,r,o,s),a.push(s),e=u}return s}var On=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),Pn=function(t){function e(e,i){var n=t.call(this)||this;return n.maxDelta_=-1,n.maxDeltaRevision_=-1,void 0===i||Array.isArray(e[0])?n.setCoordinates(e,i):n.setFlatCoordinates(i,e),n}return On(e,t),e.prototype.clone=function(){return new e(this.flatCoordinates.slice(),this.layout)},e.prototype.closestPointXY=function(t,e,i,n){return n<he(this.getExtent(),t,e)?n:(this.maxDeltaRevision_!=this.getRevision()&&(this.maxDelta_=Math.sqrt(gn(this.flatCoordinates,0,this.flatCoordinates.length,this.stride,0)),this.maxDeltaRevision_=this.getRevision()),vn(this.flatCoordinates,0,this.flatCoordinates.length,this.stride,this.maxDelta_,!0,t,e,i,n))},e.prototype.getArea=function(){return fn(this.flatCoordinates,0,this.flatCoordinates.length,this.stride)},e.prototype.getCoordinates=function(){return Cn(this.flatCoordinates,0,this.flatCoordinates.length,this.stride)},e.prototype.getSimplifiedGeometryInternal=function(t){var i=[];return i.length=Tn(this.flatCoordinates,0,this.flatCoordinates.length,this.stride,t,i,0),new e(i,hi)},e.prototype.getType=function(){return ei},e.prototype.intersectsExtent=function(t){return!1},e.prototype.setCoordinates=function(t,e){this.setLayout(e,t,1),this.flatCoordinates||(this.flatCoordinates=[]),this.flatCoordinates.length=xn(this.flatCoordinates,0,t,this.stride),this.changed()},e}(pn),Mn=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),Fn=function(t){function e(e,i){var n=t.call(this)||this;return n.setCoordinates(e,i),n}return Mn(e,t),e.prototype.clone=function(){return new e(this.flatCoordinates.slice(),this.layout)},e.prototype.closestPointXY=function(t,e,i,n){var r=this.flatCoordinates,o=Yt(t,e,r[0],r[1]);if(o<n){for(var s=this.stride,a=0;a<s;++a)i[a]=r[a];return i.length=s,o}return n},e.prototype.getCoordinates=function(){return this.flatCoordinates?this.flatCoordinates.slice():[]},e.prototype.computeExtent=function(t){return e=this.flatCoordinates,i=t,n=e[0],r=e[1],de(n,r,n,r,i);var e,i,n,r},e.prototype.getType=function(){return $e},e.prototype.intersectsExtent=function(t){return ce(t,this.flatCoordinates[0],this.flatCoordinates[1])},e.prototype.setCoordinates=function(t,e){this.setLayout(e,t,0),this.flatCoordinates||(this.flatCoordinates=[]),this.flatCoordinates.length=function(t,e,i,n){for(var r=0,o=i.length;r<o;++r)t[e++]=i[r];return e}(this.flatCoordinates,0,t,this.stride),this.changed()},e}(pn);function Ln(t,e,i,n,r){return!function(t,e){var i;return(i=e(we(t)))||(i=e(Ee(t)))||(i=e(Me(t)))?i:(i=e(Pe(t)))||!1}(r,(function(r){return!An(t,e,i,n,r[0],r[1])}))}function An(t,e,i,n,r,o){for(var s=0,a=t[i-n],h=t[i-n+1];e<i;e+=n){var l=t[e],u=t[e+1];h<=o?u>o&&(l-a)*(o-h)-(r-a)*(u-h)>0&&s++:u<=o&&(l-a)*(o-h)-(r-a)*(u-h)<0&&s--,a=l,h=u}return 0!==s}function Dn(t,e,i,n,r,o){if(0===i.length)return!1;if(!An(t,e,i[0],n,r,o))return!1;for(var s=1,a=i.length;s<a;++s)if(An(t,i[s-1],i[s],n,r,o))return!1;return!0}function kn(t,e,i,n,r,o,s){for(var a,h,l,u,c,p,f,d=r[o+1],_=[],g=0,y=i.length;g<y;++g){var v=i[g];for(u=t[v-n],p=t[v-n+1],a=e;a<v;a+=n)c=t[a],f=t[a+1],(d<=p&&f<=d||p<=d&&d<=f)&&(l=(d-p)/(f-p)*(c-u)+u,_.push(l)),u=c,p=f}var m=NaN,S=-1/0;for(_.sort(x),u=_[0],a=1,h=_.length;a<h;++a){c=_[a];var C=Math.abs(c-u);C>S&&Dn(t,e,i,n,l=(u+c)/2,d)&&(m=l,S=C),u=c}return isNaN(m)&&(m=r[o]),s?(s.push(m,d,S),s):[m,d,S]}function jn(t,e,i,n,r){var o=xe([1/0,1/0,-1/0,-1/0],t,e,i,n);return!!Le(r,o)&&(!!ue(r,o)||(o[0]>=r[0]&&o[2]<=r[2]||(o[1]>=r[1]&&o[3]<=r[3]||function(t,e,i,n,r){for(var o,s=[t[e],t[e+1]],a=[];e+n<i;e+=n){if(a[0]=t[e+n],a[1]=t[e+n+1],o=r(s,a))return o;s[0]=a[0],s[1]=a[1]}return!1}(t,e,i,n,(function(t,e){return function(t,e,i){var n=!1,r=pe(t,e),o=pe(t,i);if(r===te||o===te)n=!0;else{var s=t[0],a=t[1],h=t[2],l=t[3],u=e[0],c=e[1],p=i[0],f=i[1],d=(f-c)/(p-u),_=void 0,g=void 0;o&ee&&!(r&ee)&&(n=(_=p-(f-l)/d)>=s&&_<=h),n||!(o&ie)||r&ie||(n=(g=f-(p-h)*d)>=a&&g<=l),n||!(o&ne)||r&ne||(n=(_=p-(f-a)/d)>=s&&_<=h),n||!(o&re)||r&re||(n=(g=f-(p-s)*d)>=a&&g<=l)}return n}(r,t,e)})))))}function Gn(t,e,i,n,r){if(!function(t,e,i,n,r){return!!jn(t,e,i,n,r)||(!!An(t,e,i,n,r[0],r[1])||(!!An(t,e,i,n,r[0],r[3])||(!!An(t,e,i,n,r[2],r[1])||!!An(t,e,i,n,r[2],r[3]))))}(t,e,i[0],n,r))return!1;if(1===i.length)return!0;for(var o=1,s=i.length;o<s;++o)if(Ln(t,i[o-1],i[o],n,r)&&!jn(t,i[o-1],i[o],n,r))return!1;return!0}function zn(t,e,i,n){for(;e<i-n;){for(var r=0;r<n;++r){var o=t[e+r];t[e+r]=t[i-n+r],t[i-n+r]=o}e+=n,i-=n}}function Xn(t,e,i,n){for(var r=0,o=t[i-n],s=t[i-n+1];e<i;e+=n){var a=t[e],h=t[e+1];r+=(a-o)*(h+s),o=a,s=h}return r>0}function Wn(t,e,i,n,r){for(var o=void 0!==r&&r,s=0,a=i.length;s<a;++s){var h=i[s],l=Xn(t,e,h,n);if(0===s){if(o&&l||!o&&!l)return!1}else if(o&&!l||!o&&l)return!1;e=h}return!0}function Kn(t,e,i,n,r){for(var o=void 0!==r&&r,s=0,a=i.length;s<a;++s){var h=i[s],l=Xn(t,e,h,n);(0===s?o&&l||!o&&!l:o&&!l||!o&&l)&&zn(t,e,h,n),e=h}return e}var Yn=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),Nn=function(t){function e(e,i,n){var r=t.call(this)||this;return r.ends_=[],r.flatInteriorPointRevision_=-1,r.flatInteriorPoint_=null,r.maxDelta_=-1,r.maxDeltaRevision_=-1,r.orientedRevision_=-1,r.orientedFlatCoordinates_=null,void 0!==i&&n?(r.setFlatCoordinates(i,e),r.ends_=n):r.setCoordinates(e,i),r}return Yn(e,t),e.prototype.appendLinearRing=function(t){this.flatCoordinates?w(this.flatCoordinates,t.getFlatCoordinates()):this.flatCoordinates=t.getFlatCoordinates().slice(),this.ends_.push(this.flatCoordinates.length),this.changed()},e.prototype.clone=function(){return new e(this.flatCoordinates.slice(),this.layout,this.ends_.slice())},e.prototype.closestPointXY=function(t,e,i,n){return n<he(this.getExtent(),t,e)?n:(this.maxDeltaRevision_!=this.getRevision()&&(this.maxDelta_=Math.sqrt(yn(this.flatCoordinates,0,this.ends_,this.stride,0)),this.maxDeltaRevision_=this.getRevision()),mn(this.flatCoordinates,0,this.ends_,this.stride,this.maxDelta_,!0,t,e,i,n))},e.prototype.containsXY=function(t,e){return Dn(this.getOrientedFlatCoordinates(),0,this.ends_,this.stride,t,e)},e.prototype.getArea=function(){return dn(this.getOrientedFlatCoordinates(),0,this.ends_,this.stride)},e.prototype.getCoordinates=function(t){var e;return void 0!==t?Kn(e=this.getOrientedFlatCoordinates().slice(),0,this.ends_,this.stride,t):e=this.flatCoordinates,wn(e,0,this.ends_,this.stride)},e.prototype.getEnds=function(){return this.ends_},e.prototype.getFlatInteriorPoint=function(){if(this.flatInteriorPointRevision_!=this.getRevision()){var t=Te(this.getExtent());this.flatInteriorPoint_=kn(this.getOrientedFlatCoordinates(),0,this.ends_,this.stride,t,0),this.flatInteriorPointRevision_=this.getRevision()}return this.flatInteriorPoint_},e.prototype.getInteriorPoint=function(){return new Fn(this.getFlatInteriorPoint(),ui)},e.prototype.getLinearRingCount=function(){return this.ends_.length},e.prototype.getLinearRing=function(t){return t<0||this.ends_.length<=t?null:new Pn(this.flatCoordinates.slice(0===t?0:this.ends_[t-1],this.ends_[t]),this.layout)},e.prototype.getLinearRings=function(){for(var t=this.layout,e=this.flatCoordinates,i=this.ends_,n=[],r=0,o=0,s=i.length;o<s;++o){var a=i[o],h=new Pn(e.slice(r,a),t);n.push(h),r=a}return n},e.prototype.getOrientedFlatCoordinates=function(){if(this.orientedRevision_!=this.getRevision()){var t=this.flatCoordinates;Wn(t,0,this.ends_,this.stride)?this.orientedFlatCoordinates_=t:(this.orientedFlatCoordinates_=t.slice(),this.orientedFlatCoordinates_.length=Kn(this.orientedFlatCoordinates_,0,this.ends_,this.stride)),this.orientedRevision_=this.getRevision()}return this.orientedFlatCoordinates_},e.prototype.getSimplifiedGeometryInternal=function(t){var i=[],n=[];return i.length=In(this.flatCoordinates,0,this.ends_,this.stride,Math.sqrt(t),i,0,n),new e(i,hi,n)},e.prototype.getType=function(){return ii},e.prototype.intersectsExtent=function(t){return Gn(this.getOrientedFlatCoordinates(),0,this.ends_,this.stride,t)},e.prototype.setCoordinates=function(t,e){this.setLayout(e,t,2),this.flatCoordinates||(this.flatCoordinates=[]);var i=Sn(this.flatCoordinates,0,t,this.stride,this.ends_);this.flatCoordinates.length=0===i.length?0:i[i.length-1],this.changed()},e}(pn),Zn=Nn;function Bn(t){var e=t[0],i=t[1],n=t[2],r=t[3],o=[e,i,e,r,n,r,n,i,e,i];return new Nn(o,hi,[o.length])}var Vn=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}();function Un(t,e){setTimeout((function(){t(e)}),0)}function Hn(t){return!(t.sourceCenter&&t.targetCenter&&!Be(t.sourceCenter,t.targetCenter))&&(t.sourceResolution===t.targetResolution&&t.sourceRotation===t.targetRotation)}var qn=function(t){function e(e){var i=t.call(this)||this,n=p({},e);return i.hints_=[0,0],i.animations_=[],i.updateAnimationKey_,i.projection_=Xi(n.projection,"EPSG:3857"),i.viewportSize_=[100,100],i.targetCenter_=null,i.targetResolution_,i.targetRotation_,i.cancelAnchor_=void 0,n.center&&(n.center=Qi(n.center,i.projection_)),n.extent&&(n.extent=tn(n.extent,i.projection_)),i.applyOptions_(n),i}return Vn(e,t),e.prototype.applyOptions_=function(t){var e=function(t){var e,i,n,r=void 0!==t.minZoom?t.minZoom:0,o=void 0!==t.maxZoom?t.maxZoom:28,s=void 0!==t.zoomFactor?t.zoomFactor:2,a=void 0!==t.multiWorld&&t.multiWorld,h=void 0===t.smoothResolutionConstraint||t.smoothResolutionConstraint,l=void 0!==t.showFullExtent&&t.showFullExtent,u=Xi(t.projection,"EPSG:3857"),c=u.getExtent(),p=t.constrainOnlyCenter,f=t.extent;a||f||!u.isGlobal()||(p=!1,f=c);if(void 0!==t.resolutions){var d=t.resolutions;i=d[r],n=void 0!==d[o]?d[o]:d[d.length-1],e=t.constrainResolution?function(t,e,i,n){return function(r,o,s,a){if(void 0!==r){var h=t[0],l=t[t.length-1],u=i?ke(h,i,s,n):h;if(a)return void 0===e||e?je(r,u,l):Xt(r,l,u);var c=Math.min(u,r),p=Math.floor(S(t,c,o));return t[p]>u&&p<t.length-1?t[p+1]:t[p]}}}(d,h,!p&&f,l):Ge(i,n,h,!p&&f,l)}else{var _=(c?Math.max(Fe(c),Ie(c)):360*_i[gi.DEGREES]/u.getMetersPerUnit())/256/Math.pow(2,0),g=_/Math.pow(2,28);void 0!==(i=t.maxResolution)?r=0:i=_/Math.pow(s,r),void 0===(n=t.minResolution)&&(n=void 0!==t.maxZoom?void 0!==t.maxResolution?i/Math.pow(s,o):_/Math.pow(s,o):g),o=r+Math.floor(Math.log(i/n)/Math.log(s)),n=i/Math.pow(s,o-r),e=t.constrainResolution?function(t,e,i,n,r,o){return function(s,a,h,l){if(void 0!==s){var u=r?ke(e,r,h,o):e,c=void 0!==i?i:0;if(l)return void 0===n||n?je(s,u,c):Xt(s,c,u);var p=Math.ceil(Math.log(e/u)/Math.log(t)-1e-9),f=-a*(.5-1e-9)+.5,d=Math.min(u,s),_=Math.floor(Math.log(e/d)/Math.log(t)+f),g=Math.max(p,_);return Xt(e/Math.pow(t,g),c,u)}}}(s,i,n,h,!p&&f,l):Ge(i,n,h,!p&&f,l)}return{constraint:e,maxResolution:i,minResolution:n,minZoom:r,zoomFactor:s}}(t);this.maxResolution_=e.maxResolution,this.minResolution_=e.minResolution,this.zoomFactor_=e.zoomFactor,this.resolutions_=t.resolutions,this.minZoom_=e.minZoom;var i=function(t){if(void 0!==t.extent){var e=void 0===t.smoothExtentConstraint||t.smoothExtentConstraint;return Vt(t.extent,t.constrainOnlyCenter,e)}var i=Xi(t.projection,"EPSG:3857");if(!0!==t.multiWorld&&i.isGlobal()){var n=i.getExtent().slice();return n[0]=-1/0,n[2]=1/0,Vt(n,!1,!1)}return Ut}(t),n=e.constraint,r=function(t){if(void 0===t.enableRotation||t.enableRotation){var e=t.constrainRotation;return void 0===e||!0===e?(o=r||Nt(5),function(t,e){return e?t:void 0!==t?Math.abs(t)<=o?0:t:void 0}):!1===e?Xe:"number"==typeof e?(i=e,n=2*Math.PI/i,function(t,e){return e?t:void 0!==t?t=Math.floor(t/n+.5)*n:void 0}):Xe}return ze;var i,n;var r,o}(t);this.constraints_={center:i,resolution:n,rotation:r},this.setRotation(void 0!==t.rotation?t.rotation:0),this.setCenterInternal(void 0!==t.center?t.center:null),void 0!==t.resolution?this.setResolution(t.resolution):void 0!==t.zoom&&this.setZoom(t.zoom),this.setProperties({}),this.options_=t},e.prototype.getUpdatedOptions_=function(t){var e=p({},this.options_);return void 0!==e.resolution?e.resolution=this.getResolution():e.zoom=this.getZoom(),e.center=this.getCenterInternal(),e.rotation=this.getRotation(),p({},e,t)},e.prototype.animate=function(t){this.isDef()&&!this.getAnimating()&&this.resolveConstraints(0);for(var e=new Array(arguments.length),i=0;i<e.length;++i){var n=arguments[i];n.center&&((n=p({},n)).center=Qi(n.center,this.getProjection())),n.anchor&&((n=p({},n)).anchor=Qi(n.anchor,this.getProjection())),e[i]=n}this.animateInternal.apply(this,e)},e.prototype.animateInternal=function(t){var e,i=arguments.length;if(i>1&&"function"==typeof arguments[i-1]&&(e=arguments[i-1],--i),!this.isDef()){var n=arguments[i-1];return n.center&&this.setCenterInternal(n.center),void 0!==n.zoom&&this.setZoom(n.zoom),void 0!==n.rotation&&this.setRotation(n.rotation),void(e&&Un(e,!0))}for(var r=Date.now(),o=this.targetCenter_.slice(),s=this.targetResolution_,a=this.targetRotation_,h=[],l=0;l<i;++l){var u=arguments[l],c={start:r,complete:!1,anchor:u.anchor,duration:void 0!==u.duration?u.duration:1e3,easing:u.easing||Je,callback:e};if(u.center&&(c.sourceCenter=o,c.targetCenter=u.center.slice(),o=c.targetCenter),void 0!==u.zoom?(c.sourceResolution=s,c.targetResolution=this.getResolutionForZoom(u.zoom),s=c.targetResolution):u.resolution&&(c.sourceResolution=s,c.targetResolution=u.resolution,s=c.targetResolution),void 0!==u.rotation){c.sourceRotation=a;var p=Zt(u.rotation-a+Math.PI,2*Math.PI)-Math.PI;c.targetRotation=a+p,a=c.targetRotation}Hn(c)?c.complete=!0:r+=c.duration,h.push(c)}this.animations_.push(h),this.setHint(We,1),this.updateAnimations_()},e.prototype.getAnimating=function(){return this.hints_[We]>0},e.prototype.getInteracting=function(){return this.hints_[Ke]>0},e.prototype.cancelAnimations=function(){var t;this.setHint(We,-this.hints_[We]);for(var e=0,i=this.animations_.length;e<i;++e){var n=this.animations_[e];if(n[0].callback&&Un(n[0].callback,!1),!t)for(var r=0,o=n.length;r<o;++r){var s=n[r];if(!s.complete){t=s.anchor;break}}}this.animations_.length=0,this.cancelAnchor_=t},e.prototype.updateAnimations_=function(){if(void 0!==this.updateAnimationKey_&&(cancelAnimationFrame(this.updateAnimationKey_),this.updateAnimationKey_=void 0),this.getAnimating()){for(var t=Date.now(),e=!1,i=this.animations_.length-1;i>=0;--i){for(var n=this.animations_[i],r=!0,o=0,s=n.length;o<s;++o){var a=n[o];if(!a.complete){var h=t-a.start,l=a.duration>0?h/a.duration:1;l>=1?(a.complete=!0,l=1):r=!1;var u=a.easing(l);if(a.sourceCenter){var c=a.sourceCenter[0],p=a.sourceCenter[1],f=c+u*(a.targetCenter[0]-c),d=p+u*(a.targetCenter[1]-p);this.targetCenter_=[f,d]}if(a.sourceResolution&&a.targetResolution){var _=1===u?a.targetResolution:a.sourceResolution+u*(a.targetResolution-a.sourceResolution);if(a.anchor){var g=this.getViewportSize_(this.getRotation()),y=this.constraints_.resolution(_,0,g,!0);this.targetCenter_=this.calculateCenterZoom(y,a.anchor)}this.targetResolution_=_,this.applyTargetState_(!0)}if(void 0!==a.sourceRotation&&void 0!==a.targetRotation){var v=1===u?Zt(a.targetRotation+Math.PI,2*Math.PI)-Math.PI:a.sourceRotation+u*(a.targetRotation-a.sourceRotation);if(a.anchor){var m=this.constraints_.rotation(v,!0);this.targetCenter_=this.calculateCenterRotate(m,a.anchor)}this.targetRotation_=v}if(this.applyTargetState_(!0),e=!0,!a.complete)break}}if(r){this.animations_[i]=null,this.setHint(We,-1);var x=n[0].callback;x&&Un(x,!0)}}this.animations_=this.animations_.filter(Boolean),e&&void 0===this.updateAnimationKey_&&(this.updateAnimationKey_=requestAnimationFrame(this.updateAnimations_.bind(this)))}},e.prototype.calculateCenterRotate=function(t,e){var i,n,r,o=this.getCenterInternal();return void 0!==o&&(Ve(i=[o[0]-e[0],o[1]-e[1]],t-this.getRotation()),r=e,(n=i)[0]+=+r[0],n[1]+=+r[1]),i},e.prototype.calculateCenterZoom=function(t,e){var i,n=this.getCenterInternal(),r=this.getResolution();void 0!==n&&void 0!==r&&(i=[e[0]-t*(e[0]-n[0])/r,e[1]-t*(e[1]-n[1])/r]);return i},e.prototype.getViewportSize_=function(t){var e=this.viewportSize_;if(t){var i=e[0],n=e[1];return[Math.abs(i*Math.cos(t))+Math.abs(n*Math.sin(t)),Math.abs(i*Math.sin(t))+Math.abs(n*Math.cos(t))]}return e},e.prototype.setViewportSize=function(t){this.viewportSize_=Array.isArray(t)?t.slice():[100,100],this.resolveConstraints(0)},e.prototype.getCenter=function(){var t=this.getCenterInternal();return t?Ji(t,this.getProjection()):t},e.prototype.getCenterInternal=function(){return this.get(Ye)},e.prototype.getConstraints=function(){return this.constraints_},e.prototype.getConstrainResolution=function(){return this.options_.constrainResolution},e.prototype.getHints=function(t){return void 0!==t?(t[0]=this.hints_[0],t[1]=this.hints_[1],t):this.hints_.slice()},e.prototype.calculateExtent=function(t){return $i(this.calculateExtentInternal(t),this.getProjection())},e.prototype.calculateExtentInternal=function(t){var e=t||this.getViewportSize_(),i=this.getCenterInternal();kt(i,1);var n=this.getResolution();kt(void 0!==n,2);var r=this.getRotation();return kt(void 0!==r,3),Re(i,n,r,e)},e.prototype.getMaxResolution=function(){return this.maxResolution_},e.prototype.getMinResolution=function(){return this.minResolution_},e.prototype.getMaxZoom=function(){return this.getZoomForResolution(this.minResolution_)},e.prototype.setMaxZoom=function(t){this.applyOptions_(this.getUpdatedOptions_({maxZoom:t}))},e.prototype.getMinZoom=function(){return this.getZoomForResolution(this.maxResolution_)},e.prototype.setMinZoom=function(t){this.applyOptions_(this.getUpdatedOptions_({minZoom:t}))},e.prototype.setConstrainResolution=function(t){this.applyOptions_(this.getUpdatedOptions_({constrainResolution:t}))},e.prototype.getProjection=function(){return this.projection_},e.prototype.getResolution=function(){return this.get(Ne)},e.prototype.getResolutions=function(){return this.resolutions_},e.prototype.getResolutionForExtent=function(t,e){return this.getResolutionForExtentInternal(tn(t,this.getProjection()),e)},e.prototype.getResolutionForExtentInternal=function(t,e){var i=e||this.getViewportSize_(),n=Fe(t)/i[0],r=Ie(t)/i[1];return Math.max(n,r)},e.prototype.getResolutionForValueFunction=function(t){var e=t||2,i=this.getConstrainedResolution(this.maxResolution_),n=this.minResolution_,r=Math.log(i/n)/Math.log(e);return function(t){return i/Math.pow(e,t*r)}},e.prototype.getRotation=function(){return this.get(Ze)},e.prototype.getValueForResolutionFunction=function(t){var e=Math.log(t||2),i=this.getConstrainedResolution(this.maxResolution_),n=this.minResolution_,r=Math.log(i/n)/e;return function(t){return Math.log(i/t)/e/r}},e.prototype.getState=function(){var t=this.getCenterInternal(),e=this.getProjection(),i=this.getResolution(),n=this.getRotation();return{center:t.slice(0),projection:void 0!==e?e:null,resolution:i,rotation:n,zoom:this.getZoom()}},e.prototype.getZoom=function(){var t,e=this.getResolution();return void 0!==e&&(t=this.getZoomForResolution(e)),t},e.prototype.getZoomForResolution=function(t){var e,i,n=this.minZoom_||0;if(this.resolutions_){var r=S(this.resolutions_,t,1);n=r,e=this.resolutions_[r],i=r==this.resolutions_.length-1?2:e/this.resolutions_[r+1]}else e=this.maxResolution_,i=this.zoomFactor_;return n+Math.log(e/t)/Math.log(i)},e.prototype.getResolutionForZoom=function(t){if(this.resolutions_){if(this.resolutions_.length<=1)return 0;var e=Xt(Math.floor(t),0,this.resolutions_.length-2),i=this.resolutions_[e]/this.resolutions_[e+1];return this.resolutions_[e]/Math.pow(i,Xt(t-e,0,1))}return this.maxResolution_/Math.pow(this.zoomFactor_,t-this.minZoom_)},e.prototype.fit=function(t,e){var i,n=p({size:this.getViewportSize_()},e||{});if(kt(Array.isArray(t)||"function"==typeof t.getSimplifiedGeometry,24),Array.isArray(t))kt(!Ae(t),25),i=Bn(r=tn(t,this.getProjection()));else if(t.getType()===ai){var r;(i=Bn(r=tn(t.getExtent(),this.getProjection()))).rotate(this.getRotation(),Te(r))}else{var o=qi();i=o?t.clone().transform(o,this.getProjection()):t}this.fitInternal(i,n)},e.prototype.fitInternal=function(t,e){var i=e||{},n=i.size;n||(n=this.getViewportSize_());var r,o=void 0!==i.padding?i.padding:[0,0,0,0],s=void 0!==i.nearest&&i.nearest;r=void 0!==i.minResolution?i.minResolution:void 0!==i.maxZoom?this.getResolutionForZoom(i.maxZoom):0;for(var a=t.getFlatCoordinates(),h=this.getRotation(),l=Math.cos(-h),u=Math.sin(-h),c=1/0,p=1/0,f=-1/0,d=-1/0,_=t.getStride(),g=0,y=a.length;g<y;g+=_){var v=a[g]*l-a[g+1]*u,m=a[g]*u+a[g+1]*l;c=Math.min(c,v),p=Math.min(p,m),f=Math.max(f,v),d=Math.max(d,m)}var x=this.getResolutionForExtentInternal([c,p,f,d],[n[0]-o[1]-o[3],n[1]-o[0]-o[2]]);x=isNaN(x)?r:Math.max(x,r),x=this.getConstrainedResolution(x,s?0:1),u=-u;var S=(c+f)/2,C=(p+d)/2,w=[(S+=(o[1]-o[3])/2*x)*l-(C+=(o[0]-o[2])/2*x)*u,C*l+S*u],E=i.callback?i.callback:R;void 0!==i.duration?this.animateInternal({resolution:x,center:this.getConstrainedCenter(w,x),duration:i.duration,easing:i.easing},E):(this.targetResolution_=x,this.targetCenter_=w,this.applyTargetState_(!1,!0),Un(E,!0))},e.prototype.centerOn=function(t,e,i){this.centerOnInternal(Qi(t,this.getProjection()),e,i)},e.prototype.centerOnInternal=function(t,e,i){var n=this.getRotation(),r=Math.cos(-n),o=Math.sin(-n),s=t[0]*r-t[1]*o,a=t[1]*r+t[0]*o,h=this.getResolution(),l=(s+=(e[0]/2-i[0])*h)*r-(a+=(i[1]-e[1]/2)*h)*(o=-o),u=a*r+s*o;this.setCenterInternal([l,u])},e.prototype.isDef=function(){return!!this.getCenterInternal()&&void 0!==this.getResolution()},e.prototype.adjustCenter=function(t){var e=Ji(this.targetCenter_,this.getProjection());this.setCenter([e[0]+t[0],e[1]+t[1]])},e.prototype.adjustCenterInternal=function(t){var e=this.targetCenter_;this.setCenterInternal([e[0]+t[0],e[1]+t[1]])},e.prototype.adjustResolution=function(t,e){var i=e&&Qi(e,this.getProjection());this.adjustResolutionInternal(t,i)},e.prototype.adjustResolutionInternal=function(t,e){var i=this.getAnimating()||this.getInteracting(),n=this.getViewportSize_(this.getRotation()),r=this.constraints_.resolution(this.targetResolution_*t,0,n,i);e&&(this.targetCenter_=this.calculateCenterZoom(r,e)),this.targetResolution_*=t,this.applyTargetState_()},e.prototype.adjustZoom=function(t,e){this.adjustResolution(Math.pow(this.zoomFactor_,-t),e)},e.prototype.adjustRotation=function(t,e){e&&(e=Qi(e,this.getProjection())),this.adjustRotationInternal(t,e)},e.prototype.adjustRotationInternal=function(t,e){var i=this.getAnimating()||this.getInteracting(),n=this.constraints_.rotation(this.targetRotation_+t,i);e&&(this.targetCenter_=this.calculateCenterRotate(n,e)),this.targetRotation_+=t,this.applyTargetState_()},e.prototype.setCenter=function(t){this.setCenterInternal(Qi(t,this.getProjection()))},e.prototype.setCenterInternal=function(t){this.targetCenter_=t,this.applyTargetState_()},e.prototype.setHint=function(t,e){return this.hints_[t]+=e,this.changed(),this.hints_[t]},e.prototype.setResolution=function(t){this.targetResolution_=t,this.applyTargetState_()},e.prototype.setRotation=function(t){this.targetRotation_=t,this.applyTargetState_()},e.prototype.setZoom=function(t){this.setResolution(this.getResolutionForZoom(t))},e.prototype.applyTargetState_=function(t,e){var i=this.getAnimating()||this.getInteracting()||e,n=this.constraints_.rotation(this.targetRotation_,i),r=this.getViewportSize_(n),o=this.constraints_.resolution(this.targetResolution_,0,r,i),s=this.constraints_.center(this.targetCenter_,o,r,i);this.get(Ze)!==n&&this.set(Ze,n),this.get(Ne)!==o&&this.set(Ne,o),this.get(Ye)&&Be(this.get(Ye),s)||this.set(Ye,s),this.getAnimating()&&!t&&this.cancelAnimations(),this.cancelAnchor_=void 0},e.prototype.resolveConstraints=function(t,e,i){var n=void 0!==t?t:200,r=e||0,o=this.constraints_.rotation(this.targetRotation_),s=this.getViewportSize_(o),a=this.constraints_.resolution(this.targetResolution_,r,s),h=this.constraints_.center(this.targetCenter_,a,s);if(0===n&&!this.cancelAnchor_)return this.targetResolution_=a,this.targetRotation_=o,this.targetCenter_=h,void this.applyTargetState_();var l=i||(0===n?this.cancelAnchor_:void 0);this.cancelAnchor_=void 0,this.getResolution()===a&&this.getRotation()===o&&this.getCenterInternal()&&Be(this.getCenterInternal(),h)||(this.getAnimating()&&this.cancelAnimations(),this.animateInternal({rotation:o,center:h,resolution:a,duration:n,easing:qe,anchor:l}))},e.prototype.beginInteraction=function(){this.resolveConstraints(0),this.setHint(Ke,1)},e.prototype.endInteraction=function(t,e,i){var n=i&&Qi(i,this.getProjection());this.endInteractionInternal(t,e,n)},e.prototype.endInteractionInternal=function(t,e,i){this.setHint(Ke,-1),this.resolveConstraints(t,e,i)},e.prototype.getConstrainedCenter=function(t,e){var i=this.getViewportSize_(this.getRotation());return this.constraints_.center(t,e||this.getResolution(),i)},e.prototype.getConstrainedZoom=function(t,e){var i=this.getResolutionForZoom(t);return this.getZoomForResolution(this.getConstrainedResolution(i,e))},e.prototype.getConstrainedResolution=function(t,e){var i=e||0,n=this.getViewportSize_(this.getRotation());return this.constraints_.resolution(t,i,n)},e}(H);function Jn(t,e,i){var n=i&&i.length?i.shift():lt?new OffscreenCanvas(t||300,e||300):document.createElement("canvas");return t&&(n.width=t),e&&(n.height=e),n.getContext("2d")}function Qn(t,e){var i=e.parentNode;i&&i.replaceChild(t,e)}function $n(t){return t&&t.parentNode?t.parentNode.removeChild(t):null}var tr="opacity",er="visible",ir="extent",nr="zIndex",rr="maxResolution",or="minResolution",sr="maxZoom",ar="minZoom",hr="source",lr=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),ur=function(t){function e(e){var i=t.call(this)||this,n=p({},e);return n[tr]=void 0!==e.opacity?e.opacity:1,kt("number"==typeof n[tr],64),n[er]=void 0===e.visible||e.visible,n[nr]=e.zIndex,n[rr]=void 0!==e.maxResolution?e.maxResolution:1/0,n[or]=void 0!==e.minResolution?e.minResolution:0,n[ar]=void 0!==e.minZoom?e.minZoom:-1/0,n[sr]=void 0!==e.maxZoom?e.maxZoom:1/0,i.className_=void 0!==n.className?e.className:"ol-layer",delete n.className,i.setProperties(n),i.state_=null,i}return lr(e,t),e.prototype.getClassName=function(){return this.className_},e.prototype.getLayerState=function(t){var e=this.state_||{layer:this,managed:void 0===t||t},i=this.getZIndex();return e.opacity=Xt(Math.round(100*this.getOpacity())/100,0,1),e.sourceState=this.getSourceState(),e.visible=this.getVisible(),e.extent=this.getExtent(),e.zIndex=void 0!==i?i:!1===e.managed?1/0:0,e.maxResolution=this.getMaxResolution(),e.minResolution=Math.max(this.getMinResolution(),0),e.minZoom=this.getMinZoom(),e.maxZoom=this.getMaxZoom(),this.state_=e,e},e.prototype.getLayersArray=function(t){return n()},e.prototype.getLayerStatesArray=function(t){return n()},e.prototype.getExtent=function(){return this.get(ir)},e.prototype.getMaxResolution=function(){return this.get(rr)},e.prototype.getMinResolution=function(){return this.get(or)},e.prototype.getMinZoom=function(){return this.get(ar)},e.prototype.getMaxZoom=function(){return this.get(sr)},e.prototype.getOpacity=function(){return this.get(tr)},e.prototype.getSourceState=function(){return n()},e.prototype.getVisible=function(){return this.get(er)},e.prototype.getZIndex=function(){return this.get(nr)},e.prototype.setExtent=function(t){this.set(ir,t)},e.prototype.setMaxResolution=function(t){this.set(rr,t)},e.prototype.setMinResolution=function(t){this.set(or,t)},e.prototype.setMaxZoom=function(t){this.set(sr,t)},e.prototype.setMinZoom=function(t){this.set(ar,t)},e.prototype.setOpacity=function(t){kt("number"==typeof t,64),this.set(tr,t)},e.prototype.setVisible=function(t){this.set(er,t)},e.prototype.setZIndex=function(t){this.set(nr,t)},e.prototype.disposeInternal=function(){this.state_&&(this.state_.layer=null,this.state_=null),t.prototype.disposeInternal.call(this)},e}(H),cr="undefined",pr="ready",fr=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),dr="layers",_r=function(t){function e(e){var i=this,n=e||{},r=p({},n);delete r.layers;var o=n.layers;return(i=t.call(this,r)||this).layersListenerKeys_=[],i.listenerKeys_={},i.addEventListener(U(dr),i.handleLayersChanged_),o?Array.isArray(o)?o=new $(o.slice(),{unique:!0}):kt("function"==typeof o.getArray,43):o=new $(void 0,{unique:!0}),i.setLayers(o),i}return fr(e,t),e.prototype.handleLayerChange_=function(){this.changed()},e.prototype.handleLayersChanged_=function(){this.layersListenerKeys_.forEach(v),this.layersListenerKeys_.length=0;var t=this.getLayers();for(var e in this.layersListenerKeys_.push(g(t,l,this.handleLayersAdd_,this),g(t,u,this.handleLayersRemove_,this)),this.listenerKeys_)this.listenerKeys_[e].forEach(v);f(this.listenerKeys_);for(var i=t.getArray(),n=0,r=i.length;n<r;n++){var s=i[n];this.listenerKeys_[o(s)]=[g(s,c,this.handleLayerChange_,this),g(s,M,this.handleLayerChange_,this)]}this.changed()},e.prototype.handleLayersAdd_=function(t){var e=t.element;this.listenerKeys_[o(e)]=[g(e,c,this.handleLayerChange_,this),g(e,M,this.handleLayerChange_,this)],this.changed()},e.prototype.handleLayersRemove_=function(t){var e=o(t.element);this.listenerKeys_[e].forEach(v),delete this.listenerKeys_[e],this.changed()},e.prototype.getLayers=function(){return this.get(dr)},e.prototype.setLayers=function(t){this.set(dr,t)},e.prototype.getLayersArray=function(t){var e=void 0!==t?t:[];return this.getLayers().forEach((function(t){t.getLayersArray(e)})),e},e.prototype.getLayerStatesArray=function(t){var e=void 0!==t?t:[],i=e.length;this.getLayers().forEach((function(t){t.getLayerStatesArray(e)}));for(var n=this.getLayerState(),r=i,o=e.length;r<o;r++){var s=e[r];s.opacity*=n.opacity,s.visible=s.visible&&n.visible,s.maxResolution=Math.min(s.maxResolution,n.maxResolution),s.minResolution=Math.max(s.minResolution,n.minResolution),s.minZoom=Math.max(s.minZoom,n.minZoom),s.maxZoom=Math.min(s.maxZoom,n.maxZoom),void 0!==n.extent&&(void 0!==s.extent?s.extent=Oe(s.extent,n.extent):s.extent=n.extent)}return e},e.prototype.getSourceState=function(){return pr},e}(ur);function gr(t,e,i){return void 0===i&&(i=[0,0]),i[0]=t[0]+2*e,i[1]=t[1]+2*e,i}function yr(t,e,i){return void 0===i&&(i=[0,0]),i[0]=t[0]*e+.5|0,i[1]=t[1]*e+.5|0,i}function vr(t,e){return Array.isArray(t)?t:(void 0===e?e=[t,t]:(e[0]=t,e[1]=t),e)}var mr=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}();var xr=function(t){function e(e){var i=t.call(this)||this,n=function(t){var e=null;void 0!==t.keyboardEventTarget&&(e="string"==typeof t.keyboardEventTarget?document.getElementById(t.keyboardEventTarget):t.keyboardEventTarget);var i,n,r,o={},s=t.layers&&"function"==typeof t.layers.getLayers?t.layers:new _r({layers:t.layers});o[Ct]=s,o[Et]=t.target,o[Tt]=void 0!==t.view?t.view:new qn,void 0!==t.controls&&(Array.isArray(t.controls)?i=new $(t.controls.slice()):(kt("function"==typeof t.controls.getArray,47),i=t.controls));void 0!==t.interactions&&(Array.isArray(t.interactions)?n=new $(t.interactions.slice()):(kt("function"==typeof t.interactions.getArray,48),n=t.interactions));void 0!==t.overlays?Array.isArray(t.overlays)?r=new $(t.overlays.slice()):(kt("function"==typeof t.overlays.getArray,49),r=t.overlays):r=new $;return{controls:i,interactions:n,keyboardEventTarget:e,overlays:r,values:o}}(e);i.boundHandleBrowserEvent_=i.handleBrowserEvent.bind(i),i.maxTilesLoading_=void 0!==e.maxTilesLoading?e.maxTilesLoading:16,i.pixelRatio_=void 0!==e.pixelRatio?e.pixelRatio:ht,i.postRenderTimeoutHandle_,i.animationDelayKey_,i.animationDelay_=function(){this.animationDelayKey_=void 0,this.renderFrame_(Date.now())}.bind(i),i.coordinateToPixelTransform_=[1,0,0,1,0,0],i.pixelToCoordinateTransform_=[1,0,0,1,0,0],i.frameIndex_=0,i.frameState_=null,i.previousExtent_=null,i.viewPropertyListenerKey_=null,i.viewChangeListenerKey_=null,i.layerGroupPropertyListenerKeys_=null,i.viewport_=document.createElement("div"),i.viewport_.className="ol-viewport"+("ontouchstart"in window?" ol-touch":""),i.viewport_.style.position="relative",i.viewport_.style.overflow="hidden",i.viewport_.style.width="100%",i.viewport_.style.height="100%",i.overlayContainer_=document.createElement("div"),i.overlayContainer_.style.position="absolute",i.overlayContainer_.style.zIndex="0",i.overlayContainer_.style.width="100%",i.overlayContainer_.style.height="100%",i.overlayContainer_.className="ol-overlaycontainer",i.viewport_.appendChild(i.overlayContainer_),i.overlayContainerStopEvent_=document.createElement("div"),i.overlayContainerStopEvent_.style.position="absolute",i.overlayContainerStopEvent_.style.zIndex="0",i.overlayContainerStopEvent_.style.width="100%",i.overlayContainerStopEvent_.style.height="100%",i.overlayContainerStopEvent_.className="ol-overlaycontainer-stopevent",i.viewport_.appendChild(i.overlayContainerStopEvent_),i.mapBrowserEventHandler_=new vt(i,e.moveTolerance);var r=i.handleMapBrowserEvent.bind(i);for(var o in pt)i.mapBrowserEventHandler_.addEventListener(pt[o],r);i.keyboardEventTarget_=n.keyboardEventTarget,i.keyHandlerKeys_=null;var s=i.handleBrowserEvent.bind(i);return i.viewport_.addEventListener(L,s,!1),i.viewport_.addEventListener(W,s,!!ct&&{passive:!1}),i.controls=n.controls||new $,i.interactions=n.interactions||new $,i.overlays_=n.overlays,i.overlayIdIndex_={},i.renderer_=null,i.handleResize_,i.postRenderFunctions_=[],i.tileQueue_=new zt(i.getTilePriority.bind(i),i.handleTileChange_.bind(i)),i.addEventListener(U(Ct),i.handleLayerGroupChanged_),i.addEventListener(U(Tt),i.handleViewChanged_),i.addEventListener(U(wt),i.handleSizeChanged_),i.addEventListener(U(Et),i.handleTargetChanged_),i.setProperties(n.values),i.controls.forEach(function(t){t.setMap(this)}.bind(i)),i.controls.addEventListener(l,function(t){t.element.setMap(this)}.bind(i)),i.controls.addEventListener(u,function(t){t.element.setMap(null)}.bind(i)),i.interactions.forEach(function(t){t.setMap(this)}.bind(i)),i.interactions.addEventListener(l,function(t){t.element.setMap(this)}.bind(i)),i.interactions.addEventListener(u,function(t){t.element.setMap(null)}.bind(i)),i.overlays_.forEach(i.addOverlayInternal_.bind(i)),i.overlays_.addEventListener(l,function(t){this.addOverlayInternal_(t.element)}.bind(i)),i.overlays_.addEventListener(u,function(t){var e=t.element.getId();void 0!==e&&delete this.overlayIdIndex_[e.toString()],t.element.setMap(null)}.bind(i)),i}return mr(e,t),e.prototype.createRenderer=function(){throw new Error("Use a map type that has a createRenderer method")},e.prototype.addControl=function(t){this.getControls().push(t)},e.prototype.addInteraction=function(t){this.getInteractions().push(t)},e.prototype.addLayer=function(t){this.getLayerGroup().getLayers().push(t)},e.prototype.addOverlay=function(t){this.getOverlays().push(t)},e.prototype.addOverlayInternal_=function(t){var e=t.getId();void 0!==e&&(this.overlayIdIndex_[e.toString()]=t),t.setMap(this)},e.prototype.disposeInternal=function(){this.mapBrowserEventHandler_.dispose(),this.viewport_.removeEventListener(L,this.boundHandleBrowserEvent_),this.viewport_.removeEventListener(W,this.boundHandleBrowserEvent_),void 0!==this.handleResize_&&(removeEventListener(z,this.handleResize_,!1),this.handleResize_=void 0),this.setTarget(null),t.prototype.disposeInternal.call(this)},e.prototype.forEachFeatureAtPixel=function(t,e,i){if(this.frameState_){var n=this.getCoordinateFromPixelInternal(t),r=void 0!==(i=void 0!==i?i:{}).hitTolerance?i.hitTolerance*this.frameState_.pixelRatio:0,o=void 0!==i.layerFilter?i.layerFilter:T,s=!1!==i.checkWrapped;return this.renderer_.forEachFeatureAtCoordinate(n,this.frameState_,r,s,e,null,o,null)}},e.prototype.getFeaturesAtPixel=function(t,e){var i=[];return this.forEachFeatureAtPixel(t,(function(t){i.push(t)}),e),i},e.prototype.forEachLayerAtPixel=function(t,e,i){if(this.frameState_){var n=i||{},r=void 0!==n.hitTolerance?n.hitTolerance*this.frameState_.pixelRatio:0,o=n.layerFilter||T;return this.renderer_.forEachLayerAtPixel(t,this.frameState_,r,e,o)}},e.prototype.hasFeatureAtPixel=function(t,e){if(!this.frameState_)return!1;var i=this.getCoordinateFromPixelInternal(t),n=void 0!==(e=void 0!==e?e:{}).layerFilter?e.layerFilter:T,r=void 0!==e.hitTolerance?e.hitTolerance*this.frameState_.pixelRatio:0,o=!1!==e.checkWrapped;return this.renderer_.hasFeatureAtCoordinate(i,this.frameState_,r,o,n,null)},e.prototype.getEventCoordinate=function(t){return this.getCoordinateFromPixel(this.getEventPixel(t))},e.prototype.getEventCoordinateInternal=function(t){return this.getCoordinateFromPixelInternal(this.getEventPixel(t))},e.prototype.getEventPixel=function(t){var e=this.viewport_.getBoundingClientRect(),i="changedTouches"in t?t.changedTouches[0]:t;return[i.clientX-e.left,i.clientY-e.top]},e.prototype.getTarget=function(){return this.get(Et)},e.prototype.getTargetElement=function(){var t=this.getTarget();return void 0!==t?"string"==typeof t?document.getElementById(t):t:null},e.prototype.getCoordinateFromPixel=function(t){return Ji(this.getCoordinateFromPixelInternal(t),this.getView().getProjection())},e.prototype.getCoordinateFromPixelInternal=function(t){var e=this.frameState_;return e?nn(e.pixelToCoordinateTransform,t.slice()):null},e.prototype.getControls=function(){return this.controls},e.prototype.getOverlays=function(){return this.overlays_},e.prototype.getOverlayById=function(t){var e=this.overlayIdIndex_[t.toString()];return void 0!==e?e:null},e.prototype.getInteractions=function(){return this.interactions},e.prototype.getLayerGroup=function(){return this.get(Ct)},e.prototype.getLayers=function(){return this.getLayerGroup().getLayers()},e.prototype.getLoading=function(){for(var t=this.getLayerGroup().getLayerStatesArray(),e=0,i=t.length;e<i;++e){var n=t[e].layer.getSource();if(n&&n.loading)return!0}return!1},e.prototype.getPixelFromCoordinate=function(t){var e=Qi(t,this.getView().getProjection());return this.getPixelFromCoordinateInternal(e)},e.prototype.getPixelFromCoordinateInternal=function(t){var e=this.frameState_;return e?nn(e.coordinateToPixelTransform,t.slice(0,2)):null},e.prototype.getRenderer=function(){return this.renderer_},e.prototype.getSize=function(){return this.get(wt)},e.prototype.getView=function(){return this.get(Tt)},e.prototype.getViewport=function(){return this.viewport_},e.prototype.getOverlayContainer=function(){return this.overlayContainer_},e.prototype.getOverlayContainerStopEvent=function(){return this.overlayContainerStopEvent_},e.prototype.getTilePriority=function(t,e,i,n){return function(t,e,i,n,r){if(!t||!(i in t.wantedTiles))return 1/0;if(!t.wantedTiles[i][e.getKey()])return 1/0;var o=t.viewState.center,s=n[0]-o[0],a=n[1]-o[1];return 65536*Math.log(r)+Math.sqrt(s*s+a*a)/r}(this.frameState_,t,e,i,n)},e.prototype.handleBrowserEvent=function(t,e){var i=e||t.type,n=new nt(i,this,t);this.handleMapBrowserEvent(n)},e.prototype.handleMapBrowserEvent=function(t){if(this.frameState_){var e=t.originalEvent.target;if(t.dragging||!this.overlayContainerStopEvent_.contains(e)&&(document.body.contains(e)||this.viewport_.getRootNode&&this.viewport_.getRootNode().contains(e))){t.frameState=this.frameState_;var i=this.getInteractions().getArray();if(!1!==this.dispatchEvent(t))for(var n=i.length-1;n>=0;n--){var r=i[n];if(r.getActive())if(!r.handleEvent(t))break}}}},e.prototype.handlePostRender=function(){var t=this.frameState_,e=this.tileQueue_;if(!e.isEmpty()){var i=this.maxTilesLoading_,n=i;if(t){var r=t.viewHints;if(r[We]||r[Ke]){var o=!ut&&Date.now()-t.time>8;i=o?0:8,n=o?0:2}}e.getTilesLoading()<i&&(e.reprioritize(),e.loadMoreTiles(i,n))}!t||!this.hasListener(Pt)||t.animate||this.tileQueue_.getTilesLoading()||this.getLoading()||this.renderer_.dispatchRenderEvent(Pt,t);for(var s=this.postRenderFunctions_,a=0,h=s.length;a<h;++a)s[a](this,t);s.length=0},e.prototype.handleSizeChanged_=function(){this.getView()&&this.getView().resolveConstraints(0),this.render()},e.prototype.handleTargetChanged_=function(){var t;if(this.getTarget()&&(t=this.getTargetElement()),this.keyHandlerKeys_){for(var e=0,i=this.keyHandlerKeys_.length;e<i;++e)v(this.keyHandlerKeys_[e]);this.keyHandlerKeys_=null}if(t){t.appendChild(this.viewport_),this.renderer_||(this.renderer_=this.createRenderer());var n=this.keyboardEventTarget_?this.keyboardEventTarget_:t;this.keyHandlerKeys_=[g(n,k,this.handleBrowserEvent,this),g(n,j,this.handleBrowserEvent,this)],this.handleResize_||(this.handleResize_=this.updateSize.bind(this),window.addEventListener(z,this.handleResize_,!1))}else this.renderer_&&(clearTimeout(this.postRenderTimeoutHandle_),this.postRenderFunctions_.length=0,this.renderer_.dispose(),this.renderer_=null),this.animationDelayKey_&&(cancelAnimationFrame(this.animationDelayKey_),this.animationDelayKey_=void 0),$n(this.viewport_),void 0!==this.handleResize_&&(removeEventListener(z,this.handleResize_,!1),this.handleResize_=void 0);this.updateSize()},e.prototype.handleTileChange_=function(){this.render()},e.prototype.handleViewPropertyChanged_=function(){this.render()},e.prototype.handleViewChanged_=function(){this.viewPropertyListenerKey_&&(v(this.viewPropertyListenerKey_),this.viewPropertyListenerKey_=null),this.viewChangeListenerKey_&&(v(this.viewChangeListenerKey_),this.viewChangeListenerKey_=null);var t=this.getView();t&&(this.updateViewportSize_(),this.viewPropertyListenerKey_=g(t,c,this.handleViewPropertyChanged_,this),this.viewChangeListenerKey_=g(t,M,this.handleViewPropertyChanged_,this),t.resolveConstraints(0)),this.render()},e.prototype.handleLayerGroupChanged_=function(){this.layerGroupPropertyListenerKeys_&&(this.layerGroupPropertyListenerKeys_.forEach(v),this.layerGroupPropertyListenerKeys_=null);var t=this.getLayerGroup();t&&(this.layerGroupPropertyListenerKeys_=[g(t,c,this.render,this),g(t,M,this.render,this)]),this.render()},e.prototype.isRendered=function(){return!!this.frameState_},e.prototype.renderSync=function(){this.animationDelayKey_&&cancelAnimationFrame(this.animationDelayKey_),this.animationDelay_()},e.prototype.redrawText=function(){for(var t=this.getLayerGroup().getLayerStatesArray(),e=0,i=t.length;e<i;++e){var n=t[e].layer;n.hasRenderer()&&n.getRenderer().handleFontsChanged()}},e.prototype.render=function(){this.renderer_&&void 0===this.animationDelayKey_&&(this.animationDelayKey_=requestAnimationFrame(this.animationDelay_))},e.prototype.removeControl=function(t){return this.getControls().remove(t)},e.prototype.removeInteraction=function(t){return this.getInteractions().remove(t)},e.prototype.removeLayer=function(t){return this.getLayerGroup().getLayers().remove(t)},e.prototype.removeOverlay=function(t){return this.getOverlays().remove(t)},e.prototype.renderFrame_=function(t){var e=this.getSize(),i=this.getView(),n=this.frameState_,r=null;if(void 0!==e&&function(t){return t[0]>0&&t[1]>0}(e)&&i&&i.isDef()){var o=i.getHints(this.frameState_?this.frameState_.viewHints:void 0),s=i.getState();r={animate:!1,coordinateToPixelTransform:this.coordinateToPixelTransform_,declutterItems:n?n.declutterItems:[],extent:Re(s.center,s.resolution,s.rotation,e),index:this.frameIndex_++,layerIndex:0,layerStatesArray:this.getLayerGroup().getLayerStatesArray(),pixelRatio:this.pixelRatio_,pixelToCoordinateTransform:this.pixelToCoordinateTransform_,postRenderFunctions:[],size:e,tileQueue:this.tileQueue_,time:t,usedTiles:{},viewState:s,viewHints:o,wantedTiles:{}}}if(this.frameState_=r,this.renderer_.renderFrame(r),r){if(r.animate&&this.render(),Array.prototype.push.apply(this.postRenderFunctions_,r.postRenderFunctions),n)(!this.previousExtent_||!Ae(this.previousExtent_)&&!ge(r.extent,this.previousExtent_))&&(this.dispatchEvent(new et(xt,this,n)),this.previousExtent_=_e(this.previousExtent_));this.previousExtent_&&!r.viewHints[We]&&!r.viewHints[Ke]&&!ge(r.extent,this.previousExtent_)&&(this.dispatchEvent(new et(St,this,r)),ae(r.extent,this.previousExtent_))}this.dispatchEvent(new et(mt,this,r)),this.postRenderTimeoutHandle_=setTimeout(this.handlePostRender.bind(this),0)},e.prototype.setLayerGroup=function(t){this.set(Ct,t)},e.prototype.setSize=function(t){this.set(wt,t)},e.prototype.setTarget=function(t){this.set(Et,t)},e.prototype.setView=function(t){this.set(Tt,t)},e.prototype.updateSize=function(){var t=this.getTargetElement();if(t){var e=getComputedStyle(t);this.setSize([t.offsetWidth-parseFloat(e.borderLeftWidth)-parseFloat(e.paddingLeft)-parseFloat(e.paddingRight)-parseFloat(e.borderRightWidth),t.offsetHeight-parseFloat(e.borderTopWidth)-parseFloat(e.paddingTop)-parseFloat(e.paddingBottom)-parseFloat(e.borderBottomWidth)])}else this.setSize(void 0);this.updateViewportSize_()},e.prototype.updateViewportSize_=function(){var t=this.getView();if(t){var e=void 0,i=getComputedStyle(this.viewport_);i.width&&i.height&&(e=[parseInt(i.width,10),parseInt(i.height,10)]),t.setViewportSize(e)}},e}(H),Sr=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),Cr=function(t){function e(e){var i=t.call(this)||this;return i.element=e.element?e.element:null,i.target_=null,i.map_=null,i.listenerKeys=[],i.render_=e.render?e.render:R,e.target&&i.setTarget(e.target),i}return Sr(e,t),e.prototype.disposeInternal=function(){$n(this.element),t.prototype.disposeInternal.call(this)},e.prototype.getMap=function(){return this.map_},e.prototype.setMap=function(t){this.map_&&$n(this.element);for(var e=0,i=this.listenerKeys.length;e<i;++e)v(this.listenerKeys[e]);(this.listenerKeys.length=0,this.map_=t,this.map_)&&((this.target_?this.target_:t.getOverlayContainerStopEvent()).appendChild(this.element),this.render!==R&&this.listenerKeys.push(g(t,mt,this.render,this)),t.render())},e.prototype.render=function(t){this.render_.call(this,t)},e.prototype.setTarget=function(t){this.target_="string"==typeof t?document.getElementById(t):t},e}(H),wr=new RegExp(["^\\s*(?=(?:(?:[-a-z]+\\s*){0,2}(italic|oblique))?)","(?=(?:(?:[-a-z]+\\s*){0,2}(small-caps))?)","(?=(?:(?:[-a-z]+\\s*){0,2}(bold(?:er)?|lighter|[1-9]00 ))?)","(?:(?:normal|\\1|\\2|\\3)\\s*){0,3}((?:xx?-)?","(?:small|large)|medium|smaller|larger|[\\.\\d]+(?:\\%|in|[cem]m|ex|p[ctx]))","(?:\\s*\\/\\s*(normal|[\\.\\d]+(?:\\%|in|[cem]m|ex|p[ctx])?))","?\\s*([-,\\\"\\'\\sa-z]+?)\\s*$"].join(""),"i"),Er=["style","variant","weight","size","lineHeight","family"],Tr=function(t){var e=t.match(wr);if(!e)return null;for(var i={lineHeight:"normal",size:"1.2em",style:"normal",weight:"normal",variant:"normal"},n=0,r=Er.length;n<r;++n){var o=e[n+1];void 0!==o&&(i[Er[n]]=o)}return i.families=i.family.split(/,\s?/),i},br=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}();function Rr(t,e){if(!t.visible)return!1;var i=e.resolution;if(i<t.minResolution||i>=t.maxResolution)return!1;var n=e.zoom;return n>t.minZoom&&n<=t.maxZoom}var Ir=function(t){function e(e){var i=this,n=p({},e);delete n.source,(i=t.call(this,n)||this).mapPrecomposeKey_=null,i.mapRenderKey_=null,i.sourceChangeKey_=null,i.renderer_=null,e.render&&(i.render=e.render),e.map&&i.setMap(e.map),i.addEventListener(U(hr),i.handleSourcePropertyChange_);var r=e.source?e.source:null;return i.setSource(r),i}return br(e,t),e.prototype.getLayersArray=function(t){var e=t||[];return e.push(this),e},e.prototype.getLayerStatesArray=function(t){var e=t||[];return e.push(this.getLayerState()),e},e.prototype.getSource=function(){return this.get(hr)||null},e.prototype.getSourceState=function(){var t=this.getSource();return t?t.getState():cr},e.prototype.handleSourceChange_=function(){this.changed()},e.prototype.handleSourcePropertyChange_=function(){this.sourceChangeKey_&&(v(this.sourceChangeKey_),this.sourceChangeKey_=null);var t=this.getSource();t&&(this.sourceChangeKey_=g(t,M,this.handleSourceChange_,this)),this.changed()},e.prototype.getFeatures=function(t){return this.renderer_.getFeatures(t)},e.prototype.render=function(t,e){var i=this.getRenderer();if(i.prepareFrame(t))return i.renderFrame(t,e)},e.prototype.setMap=function(t){this.mapPrecomposeKey_&&(v(this.mapPrecomposeKey_),this.mapPrecomposeKey_=null),t||this.changed(),this.mapRenderKey_&&(v(this.mapRenderKey_),this.mapRenderKey_=null),t&&(this.mapPrecomposeKey_=g(t,It,(function(t){var e=t.frameState.layerStatesArray,i=this.getLayerState(!1);kt(!e.some((function(t){return t.layer===i.layer})),67),e.push(i)}),this),this.mapRenderKey_=g(this,M,t.render,t),this.changed())},e.prototype.setSource=function(t){this.set(hr,t)},e.prototype.getRenderer=function(){return this.renderer_||(this.renderer_=this.createRenderer()),this.renderer_},e.prototype.hasRenderer=function(){return!!this.renderer_},e.prototype.createRenderer=function(){return null},e.prototype.disposeInternal=function(){this.setSource(null),t.prototype.disposeInternal.call(this)},e}(ur),Or=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}();function Pr(t){this.updateElement_(t.frameState)}var Mr=function(t){function e(e){var i=this,n=e||{};(i=t.call(this,{element:document.createElement("div"),render:n.render||Pr,target:n.target})||this).ulElement_=document.createElement("ul"),i.collapsed_=void 0===n.collapsed||n.collapsed,i.overrideCollapsible_=void 0!==n.collapsible,i.collapsible_=void 0===n.collapsible||n.collapsible,i.collapsible_||(i.collapsed_=!1);var r=void 0!==n.className?n.className:"ol-attribution",o=void 0!==n.tipLabel?n.tipLabel:"Attributions",s=void 0!==n.collapseLabel?n.collapseLabel:"»";"string"==typeof s?(i.collapseLabel_=document.createElement("span"),i.collapseLabel_.textContent=s):i.collapseLabel_=s;var a=void 0!==n.label?n.label:"i";"string"==typeof a?(i.label_=document.createElement("span"),i.label_.textContent=a):i.label_=a;var h=i.collapsible_&&!i.collapsed_?i.collapseLabel_:i.label_,l=document.createElement("button");l.setAttribute("type","button"),l.title=o,l.appendChild(h),l.addEventListener(A,i.handleClick_.bind(i),!1);var u=r+" ol-unselectable ol-control"+(i.collapsed_&&i.collapsible_?" ol-collapsed":"")+(i.collapsible_?"":" ol-uncollapsible"),c=i.element;return c.className=u,c.appendChild(i.ulElement_),c.appendChild(l),i.renderedAttributions_=[],i.renderedVisible_=!0,i}return Or(e,t),e.prototype.collectSourceAttributions_=function(t){for(var e={},i=[],n=t.layerStatesArray,r=0,o=n.length;r<o;++r){var s=n[r];if(Rr(s,t.viewState)){var a=s.layer.getSource();if(a){var h=a.getAttributions();if(h){var l=h(t);if(l)if(this.overrideCollapsible_||!1!==a.getAttributionsCollapsible()||this.setCollapsible(!1),Array.isArray(l))for(var u=0,c=l.length;u<c;++u)l[u]in e||(i.push(l[u]),e[l[u]]=!0);else l in e||(i.push(l),e[l]=!0)}}}}return i},e.prototype.updateElement_=function(t){if(t){var e=this.collectSourceAttributions_(t),i=e.length>0;if(this.renderedVisible_!=i&&(this.element.style.display=i?"":"none",this.renderedVisible_=i),!E(e,this.renderedAttributions_)){!function(t){for(;t.lastChild;)t.removeChild(t.lastChild)}(this.ulElement_);for(var n=0,r=e.length;n<r;++n){var o=document.createElement("li");o.innerHTML=e[n],this.ulElement_.appendChild(o)}this.renderedAttributions_=e}}else this.renderedVisible_&&(this.element.style.display="none",this.renderedVisible_=!1)},e.prototype.handleClick_=function(t){t.preventDefault(),this.handleToggle_()},e.prototype.handleToggle_=function(){this.element.classList.toggle("ol-collapsed"),this.collapsed_?Qn(this.collapseLabel_,this.label_):Qn(this.label_,this.collapseLabel_),this.collapsed_=!this.collapsed_},e.prototype.getCollapsible=function(){return this.collapsible_},e.prototype.setCollapsible=function(t){this.collapsible_!==t&&(this.collapsible_=t,this.element.classList.toggle("ol-uncollapsible"),!t&&this.collapsed_&&this.handleToggle_())},e.prototype.setCollapsed=function(t){this.collapsible_&&this.collapsed_!==t&&this.handleToggle_()},e.prototype.getCollapsed=function(){return this.collapsed_},e}(Cr),Fr=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}();function Lr(t){var e=t.frameState;if(e){var i=e.viewState.rotation;if(i!=this.rotation_){var n="rotate("+i+"rad)";if(this.autoHide_){var r=this.element.classList.contains("ol-hidden");r||0!==i?r&&0!==i&&this.element.classList.remove("ol-hidden"):this.element.classList.add("ol-hidden")}this.label_.style.transform=n}this.rotation_=i}}var Ar=function(t){function e(e){var i=this,n=e||{};i=t.call(this,{element:document.createElement("div"),render:n.render||Lr,target:n.target})||this;var r=void 0!==n.className?n.className:"ol-rotate",o=void 0!==n.label?n.label:"⇧";i.label_=null,"string"==typeof o?(i.label_=document.createElement("span"),i.label_.className="ol-compass",i.label_.textContent=o):(i.label_=o,i.label_.classList.add("ol-compass"));var s=n.tipLabel?n.tipLabel:"Reset rotation",a=document.createElement("button");a.className=r+"-reset",a.setAttribute("type","button"),a.title=s,a.appendChild(i.label_),a.addEventListener(A,i.handleClick_.bind(i),!1);var h=r+" ol-unselectable ol-control",l=i.element;return l.className=h,l.appendChild(a),i.callResetNorth_=n.resetNorth?n.resetNorth:void 0,i.duration_=void 0!==n.duration?n.duration:250,i.autoHide_=void 0===n.autoHide||n.autoHide,i.rotation_=void 0,i.autoHide_&&i.element.classList.add("ol-hidden"),i}return Fr(e,t),e.prototype.handleClick_=function(t){t.preventDefault(),void 0!==this.callResetNorth_?this.callResetNorth_():this.resetNorth_()},e.prototype.resetNorth_=function(){var t=this.getMap().getView();if(t){var e=t.getRotation();void 0!==e&&(this.duration_>0&&e%(2*Math.PI)!=0?t.animate({rotation:0,duration:this.duration_,easing:qe}):t.setRotation(0))}},e}(Cr),Dr=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),kr=function(t){function e(e){var i=this,n=e||{};i=t.call(this,{element:document.createElement("div"),target:n.target})||this;var r=void 0!==n.className?n.className:"ol-zoom",o=void 0!==n.delta?n.delta:1,s=void 0!==n.zoomInLabel?n.zoomInLabel:"+",a=void 0!==n.zoomOutLabel?n.zoomOutLabel:"−",h=void 0!==n.zoomInTipLabel?n.zoomInTipLabel:"Zoom in",l=void 0!==n.zoomOutTipLabel?n.zoomOutTipLabel:"Zoom out",u=document.createElement("button");u.className=r+"-in",u.setAttribute("type","button"),u.title=h,u.appendChild("string"==typeof s?document.createTextNode(s):s),u.addEventListener(A,i.handleClick_.bind(i,o),!1);var c=document.createElement("button");c.className=r+"-out",c.setAttribute("type","button"),c.title=l,c.appendChild("string"==typeof a?document.createTextNode(a):a),c.addEventListener(A,i.handleClick_.bind(i,-o),!1);var p=r+" ol-unselectable ol-control",f=i.element;return f.className=p,f.appendChild(u),f.appendChild(c),i.duration_=void 0!==n.duration?n.duration:250,i}return Dr(e,t),e.prototype.handleClick_=function(t,e){e.preventDefault(),this.zoomByDelta_(t)},e.prototype.zoomByDelta_=function(t){var e=this.getMap().getView();if(e){var i=e.getZoom();if(void 0!==i){var n=e.getConstrainedZoom(i+t);this.duration_>0?(e.getAnimating()&&e.cancelAnimations(),e.animate({zoom:n,duration:this.duration_,easing:qe})):e.setZoom(n)}}},e}(Cr);function jr(t){var e=t||{},i=new $;return(void 0===e.zoom||e.zoom)&&i.push(new kr(e.zoomOptions)),(void 0===e.rotate||e.rotate)&&i.push(new Ar(e.rotateOptions)),(void 0===e.attribution||e.attribution)&&i.push(new Mr(e.attributionOptions)),i}var Gr=function(){function t(t,e,i){this.decay_=t,this.minVelocity_=e,this.delay_=i,this.points_=[],this.angle_=0,this.initialVelocity_=0}return t.prototype.begin=function(){this.points_.length=0,this.angle_=0,this.initialVelocity_=0},t.prototype.update=function(t,e){this.points_.push(t,e,Date.now())},t.prototype.end=function(){if(this.points_.length<6)return!1;var t=Date.now()-this.delay_,e=this.points_.length-3;if(this.points_[e+2]<t)return!1;for(var i=e-3;i>0&&this.points_[i+2]>t;)i-=3;var n=this.points_[e+2]-this.points_[i+2];if(n<1e3/60)return!1;var r=this.points_[e]-this.points_[i],o=this.points_[e+1]-this.points_[i+1];return this.angle_=Math.atan2(o,r),this.initialVelocity_=Math.sqrt(r*r+o*o)/n,this.initialVelocity_>this.minVelocity_},t.prototype.getDistance=function(){return(this.minVelocity_-this.initialVelocity_)/this.decay_},t.prototype.getAngle=function(){return this.angle_},t}(),zr="active",Xr=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}();function Wr(t,e,i,n){var r=t.getZoom();if(void 0!==r){var o=t.getConstrainedZoom(r+e),s=t.getResolutionForZoom(o);t.getAnimating()&&t.cancelAnimations(),t.animate({resolution:s,anchor:i,duration:void 0!==n?n:250,easing:qe})}}var Kr=function(t){function e(e){var i=t.call(this)||this;return e.handleEvent&&(i.handleEvent=e.handleEvent),i.map_=null,i.setActive(!0),i}return Xr(e,t),e.prototype.getActive=function(){return this.get(zr)},e.prototype.getMap=function(){return this.map_},e.prototype.handleEvent=function(t){return!0},e.prototype.setActive=function(t){this.set(zr,t)},e.prototype.setMap=function(t){this.map_=t},e}(H),Yr=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}();function Nr(t){var e=!1;if(t.type==pt.DBLCLICK){var i=t.originalEvent,n=t.map,r=t.coordinate,o=i.shiftKey?-this.delta_:this.delta_;Wr(n.getView(),o,r,this.duration_),t.preventDefault(),e=!0}return!e}var Zr=function(t){function e(e){var i=t.call(this,{handleEvent:Nr})||this,n=e||{};return i.delta_=n.delta?n.delta:1,i.duration_=void 0!==n.duration?n.duration:250,i}return Yr(e,t),e}(Kr),Br=function(t){var e=t.originalEvent;return e.altKey&&!(e.metaKey||e.ctrlKey)&&e.shiftKey},Vr=function(t){return t.target.getTargetElement()===document.activeElement},Ur=T,Hr=function(t){var e=t.originalEvent;return 0==e.button&&!(st&&at&&e.ctrlKey)},qr=function(t){var e=t.originalEvent;return!e.altKey&&!(e.metaKey||e.ctrlKey)&&!e.shiftKey},Jr=function(t){var e=t.originalEvent;return!e.altKey&&!(e.metaKey||e.ctrlKey)&&e.shiftKey},Qr=function(t){var e=t.originalEvent.target.tagName;return"INPUT"!==e&&"SELECT"!==e&&"TEXTAREA"!==e},$r=function(t){var e=t.pointerEvent;return kt(void 0!==e,56),"mouse"==e.pointerType},to=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}();function eo(t){for(var e=t.length,i=0,n=0,r=0;r<e;r++)i+=t[r].clientX,n+=t[r].clientY;return[i/e,n/e]}var io=function(t){function e(e){var i=this,n=e||{};return i=t.call(this,n)||this,n.handleDownEvent&&(i.handleDownEvent=n.handleDownEvent),n.handleDragEvent&&(i.handleDragEvent=n.handleDragEvent),n.handleMoveEvent&&(i.handleMoveEvent=n.handleMoveEvent),n.handleUpEvent&&(i.handleUpEvent=n.handleUpEvent),n.stopDown&&(i.stopDown=n.stopDown),i.handlingDownUpSequence=!1,i.trackedPointers_={},i.targetPointers=[],i}return to(e,t),e.prototype.getPointerCount=function(){return this.targetPointers.length},e.prototype.handleDownEvent=function(t){return!1},e.prototype.handleDragEvent=function(t){},e.prototype.handleEvent=function(t){if(!t.pointerEvent)return!0;var e=!1;if(this.updateTrackedPointers_(t),this.handlingDownUpSequence){if(t.type==pt.POINTERDRAG)this.handleDragEvent(t);else if(t.type==pt.POINTERUP){var i=this.handleUpEvent(t);this.handlingDownUpSequence=i&&this.targetPointers.length>0}}else if(t.type==pt.POINTERDOWN){var n=this.handleDownEvent(t);this.handlingDownUpSequence=n,e=this.stopDown(n)}else t.type==pt.POINTERMOVE&&this.handleMoveEvent(t);return!e},e.prototype.handleMoveEvent=function(t){},e.prototype.handleUpEvent=function(t){return!1},e.prototype.stopDown=function(t){return t},e.prototype.updateTrackedPointers_=function(t){if(function(t){var e=t.type;return e===pt.POINTERDOWN||e===pt.POINTERDRAG||e===pt.POINTERUP}(t)){var e=t.pointerEvent,i=e.pointerId.toString();t.type==pt.POINTERUP?delete this.trackedPointers_[i]:(t.type==pt.POINTERDOWN||i in this.trackedPointers_)&&(this.trackedPointers_[i]=e),this.targetPointers=d(this.trackedPointers_)}},e}(Kr),no=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}();function ro(t){return qr(t)&&function(t){var e=t.pointerEvent;return kt(void 0!==e,56),e.isPrimary&&0===e.button}(t)}var oo=function(t){function e(e){var i=t.call(this,{stopDown:b})||this,n=e||{};return i.kinetic_=n.kinetic,i.lastCentroid=null,i.lastPointersCount_,i.panning_=!1,i.condition_=n.condition?n.condition:ro,i.noKinetic_=!1,i}return no(e,t),e.prototype.conditionInternal_=function(t){var e=!0;return t.map.getTargetElement().hasAttribute("tabindex")&&(e=Vr(t)),e&&this.condition_(t)},e.prototype.handleDragEvent=function(t){this.panning_||(this.panning_=!0,this.getMap().getView().beginInteraction());var e,i,n=this.targetPointers,r=eo(n);if(n.length==this.lastPointersCount_){if(this.kinetic_&&this.kinetic_.update(r[0],r[1]),this.lastCentroid){var o=[this.lastCentroid[0]-r[0],r[1]-this.lastCentroid[1]],s=t.map.getView();e=o,i=s.getResolution(),e[0]*=i,e[1]*=i,Ve(o,s.getRotation()),s.adjustCenterInternal(o)}}else this.kinetic_&&this.kinetic_.begin();this.lastCentroid=r,this.lastPointersCount_=n.length,t.originalEvent.preventDefault()},e.prototype.handleUpEvent=function(t){var e=t.map,i=e.getView();if(0===this.targetPointers.length){if(!this.noKinetic_&&this.kinetic_&&this.kinetic_.end()){var n=this.kinetic_.getDistance(),r=this.kinetic_.getAngle(),o=i.getCenterInternal(),s=e.getPixelFromCoordinateInternal(o),a=e.getCoordinateFromPixelInternal([s[0]-n*Math.cos(r),s[1]-n*Math.sin(r)]);i.animateInternal({center:i.getConstrainedCenter(a),duration:500,easing:qe})}return this.panning_&&(this.panning_=!1,i.endInteraction()),!1}return this.kinetic_&&this.kinetic_.begin(),this.lastCentroid=null,!0},e.prototype.handleDownEvent=function(t){if(this.targetPointers.length>0&&this.conditionInternal_(t)){var e=t.map.getView();return this.lastCentroid=null,e.getAnimating()&&e.cancelAnimations(),this.kinetic_&&this.kinetic_.begin(),this.noKinetic_=this.targetPointers.length>1,!0}return!1},e}(io),so=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),ao=function(t){function e(e){var i=this,n=e||{};return(i=t.call(this,{stopDown:b})||this).condition_=n.condition?n.condition:Br,i.lastAngle_=void 0,i.duration_=void 0!==n.duration?n.duration:250,i}return so(e,t),e.prototype.handleDragEvent=function(t){if($r(t)){var e=t.map,i=e.getView();if(i.getConstraints().rotation!==ze){var n=e.getSize(),r=t.pixel,o=Math.atan2(n[1]/2-r[1],r[0]-n[0]/2);if(void 0!==this.lastAngle_){var s=o-this.lastAngle_;i.adjustRotationInternal(-s)}this.lastAngle_=o}}},e.prototype.handleUpEvent=function(t){return!$r(t)||(t.map.getView().endInteraction(this.duration_),!1)},e.prototype.handleDownEvent=function(t){return!!$r(t)&&(!(!Hr(t)||!this.condition_(t))&&(t.map.getView().beginInteraction(),this.lastAngle_=void 0,!0))},e}(io),ho=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),lo=function(t){function e(e){var i=t.call(this)||this;return i.geometry_=null,i.element_=document.createElement("div"),i.element_.style.position="absolute",i.element_.className="ol-box "+e,i.map_=null,i.startPixel_=null,i.endPixel_=null,i}return ho(e,t),e.prototype.disposeInternal=function(){this.setMap(null)},e.prototype.render_=function(){var t=this.startPixel_,e=this.endPixel_,i=this.element_.style;i.left=Math.min(t[0],e[0])+"px",i.top=Math.min(t[1],e[1])+"px",i.width=Math.abs(e[0]-t[0])+"px",i.height=Math.abs(e[1]-t[1])+"px"},e.prototype.setMap=function(t){if(this.map_){this.map_.getOverlayContainer().removeChild(this.element_);var e=this.element_.style;e.left="inherit",e.top="inherit",e.width="inherit",e.height="inherit"}this.map_=t,this.map_&&this.map_.getOverlayContainer().appendChild(this.element_)},e.prototype.setPixels=function(t,e){this.startPixel_=t,this.endPixel_=e,this.createOrUpdateGeometry(),this.render_()},e.prototype.createOrUpdateGeometry=function(){var t=this.startPixel_,e=this.endPixel_,i=[t,[t[0],e[1]],e,[e[0],t[1]]].map(this.map_.getCoordinateFromPixelInternal,this.map_);i[4]=i[0].slice(),this.geometry_?this.geometry_.setCoordinates([i]):this.geometry_=new Zn([i])},e.prototype.getGeometry=function(){return this.geometry_},e}(m),uo=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),co="boxstart",po="boxdrag",fo="boxend",_o=function(t){function e(e,i,n){var r=t.call(this,e)||this;return r.coordinate=i,r.mapBrowserEvent=n,r}return uo(e,t),e}(I),go=function(t){function e(e){var i=t.call(this)||this,n=e||{};return i.box_=new lo(n.className||"ol-dragbox"),i.minArea_=void 0!==n.minArea?n.minArea:64,i.onBoxEnd_=n.onBoxEnd?n.onBoxEnd:R,i.startPixel_=null,i.condition_=n.condition?n.condition:Hr,i.boxEndCondition_=n.boxEndCondition?n.boxEndCondition:i.defaultBoxEndCondition,i}return uo(e,t),e.prototype.defaultBoxEndCondition=function(t,e,i){var n=i[0]-e[0],r=i[1]-e[1];return n*n+r*r>=this.minArea_},e.prototype.getGeometry=function(){return this.box_.getGeometry()},e.prototype.handleDragEvent=function(t){this.box_.setPixels(this.startPixel_,t.pixel),this.dispatchEvent(new _o(po,t.coordinate,t))},e.prototype.handleUpEvent=function(t){return this.box_.setMap(null),this.boxEndCondition_(t,this.startPixel_,t.pixel)&&(this.onBoxEnd_(t),this.dispatchEvent(new _o(fo,t.coordinate,t))),!1},e.prototype.handleDownEvent=function(t){return!!this.condition_(t)&&(this.startPixel_=t.pixel,this.box_.setMap(t.map),this.box_.setPixels(this.startPixel_,this.startPixel_),this.dispatchEvent(new _o(co,t.coordinate,t)),!0)},e}(io),yo=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}();function vo(){var t,e,i=this.getMap(),n=i.getView(),r=i.getSize(),o=this.getGeometry().getExtent();if(this.out_){var s=n.calculateExtentInternal(r),a=(t=[i.getPixelFromCoordinateInternal(we(o)),i.getPixelFromCoordinateInternal(Me(o))],me(_e(e),t));!function(t,e){var i=(t[2]-t[0])/2*(e-1),n=(t[3]-t[1])/2*(e-1);t[0]-=i,t[2]+=i,t[1]-=n,t[3]+=n}(s,1/n.getResolutionForExtentInternal(a,r)),o=s}var h=n.getConstrainedResolution(n.getResolutionForExtentInternal(o,r)),l=n.getConstrainedCenter(Te(o),h);n.animateInternal({resolution:h,center:l,duration:this.duration_,easing:qe})}var mo=function(t){function e(e){var i=this,n=e||{},r=n.condition?n.condition:Jr;return(i=t.call(this,{condition:r,className:n.className||"ol-dragzoom",minArea:n.minArea,onBoxEnd:vo})||this).duration_=void 0!==n.duration?n.duration:200,i.out_=void 0!==n.out&&n.out,i}return yo(e,t),e}(go),xo=37,So=38,Co=39,wo=40,Eo=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}();function To(t){var e=!1;if(t.type==k){var i=t.originalEvent.keyCode;if(this.condition_(t)&&(i==wo||i==xo||i==Co||i==So)){var n=t.map.getView(),r=n.getResolution()*this.pixelDelta_,o=0,s=0;i==wo?s=-r:i==xo?o=-r:i==Co?o=r:s=r;var a=[o,s];Ve(a,n.getRotation()),function(t,e,i){var n=t.getCenterInternal();if(n){var r=[n[0]+e[0],n[1]+e[1]];t.animateInternal({duration:void 0!==i?i:250,easing:Qe,center:t.getConstrainedCenter(r)})}}(n,a,this.duration_),t.preventDefault(),e=!0}}return!e}var bo=function(t){function e(e){var i=t.call(this,{handleEvent:To})||this,n=e||{};return i.defaultCondition_=function(t){return qr(t)&&Qr(t)},i.condition_=void 0!==n.condition?n.condition:i.defaultCondition_,i.duration_=void 0!==n.duration?n.duration:100,i.pixelDelta_=void 0!==n.pixelDelta?n.pixelDelta:128,i}return Eo(e,t),e}(Kr),Ro=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}();function Io(t){var e=!1;if(t.type==k||t.type==j){var i=t.originalEvent.charCode;if(this.condition_(t)&&(i=="+".charCodeAt(0)||i=="-".charCodeAt(0))){var n=t.map,r=i=="+".charCodeAt(0)?this.delta_:-this.delta_;Wr(n.getView(),r,void 0,this.duration_),t.preventDefault(),e=!0}}return!e}var Oo=function(t){function e(e){var i=t.call(this,{handleEvent:Io})||this,n=e||{};return i.condition_=n.condition?n.condition:Qr,i.delta_=n.delta?n.delta:1,i.duration_=void 0!==n.duration?n.duration:100,i}return Ro(e,t),e}(Kr),Po=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),Mo="trackpad",Fo="wheel",Lo=function(t){function e(e){var i=this,n=e||{};return(i=t.call(this,n)||this).totalDelta_=0,i.lastDelta_=0,i.maxDelta_=void 0!==n.maxDelta?n.maxDelta:1,i.duration_=void 0!==n.duration?n.duration:250,i.timeout_=void 0!==n.timeout?n.timeout:80,i.useAnchor_=void 0===n.useAnchor||n.useAnchor,i.condition_=n.condition?n.condition:Ur,i.lastAnchor_=null,i.startTime_=void 0,i.timeoutId_,i.mode_=void 0,i.trackpadEventGap_=400,i.trackpadTimeoutId_,i.deltaPerZoom_=300,i}return Po(e,t),e.prototype.conditionInternal_=function(t){var e=!0;return t.map.getTargetElement().hasAttribute("tabindex")&&(e=Vr(t)),e&&this.condition_(t)},e.prototype.endInteraction_=function(){this.trackpadTimeoutId_=void 0,this.getMap().getView().endInteraction(void 0,this.lastDelta_?this.lastDelta_>0?1:-1:0,this.lastAnchor_)},e.prototype.handleEvent=function(t){if(!this.conditionInternal_(t))return!0;if(t.type!==W)return!0;t.preventDefault();var e,i=t.map,n=t.originalEvent;if(this.useAnchor_&&(this.lastAnchor_=t.coordinate),t.type==W&&(e=n.deltaY,ot&&n.deltaMode===WheelEvent.DOM_DELTA_PIXEL&&(e/=ht),n.deltaMode===WheelEvent.DOM_DELTA_LINE&&(e*=40)),0===e)return!1;this.lastDelta_=e;var r=Date.now();void 0===this.startTime_&&(this.startTime_=r),(!this.mode_||r-this.startTime_>this.trackpadEventGap_)&&(this.mode_=Math.abs(e)<4?Mo:Fo);var o=i.getView();if(this.mode_===Mo&&!o.getConstrainResolution())return this.trackpadTimeoutId_?clearTimeout(this.trackpadTimeoutId_):(o.getAnimating()&&o.cancelAnimations(),o.beginInteraction()),this.trackpadTimeoutId_=setTimeout(this.endInteraction_.bind(this),this.timeout_),o.adjustZoom(-e/this.deltaPerZoom_,this.lastAnchor_),this.startTime_=r,!1;this.totalDelta_+=e;var s=Math.max(this.timeout_-(r-this.startTime_),0);return clearTimeout(this.timeoutId_),this.timeoutId_=setTimeout(this.handleWheelZoom_.bind(this,i),s),!1},e.prototype.handleWheelZoom_=function(t){var e=t.getView();e.getAnimating()&&e.cancelAnimations();var i=-Xt(this.totalDelta_,-this.maxDelta_*this.deltaPerZoom_,this.maxDelta_*this.deltaPerZoom_)/this.deltaPerZoom_;e.getConstrainResolution()&&(i=i?i>0?1:-1:0),Wr(e,i,this.lastAnchor_,this.duration_),this.mode_=void 0,this.totalDelta_=0,this.lastAnchor_=null,this.startTime_=void 0,this.timeoutId_=void 0},e.prototype.setMouseAnchor=function(t){this.useAnchor_=t,t||(this.lastAnchor_=null)},e}(Kr),Ao=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),Do=function(t){function e(e){var i=this,n=e||{},r=n;return r.stopDown||(r.stopDown=b),(i=t.call(this,r)||this).anchor_=null,i.lastAngle_=void 0,i.rotating_=!1,i.rotationDelta_=0,i.threshold_=void 0!==n.threshold?n.threshold:.3,i.duration_=void 0!==n.duration?n.duration:250,i}return Ao(e,t),e.prototype.handleDragEvent=function(t){var e=0,i=this.targetPointers[0],n=this.targetPointers[1],r=Math.atan2(n.clientY-i.clientY,n.clientX-i.clientX);if(void 0!==this.lastAngle_){var o=r-this.lastAngle_;this.rotationDelta_+=o,!this.rotating_&&Math.abs(this.rotationDelta_)>this.threshold_&&(this.rotating_=!0),e=o}this.lastAngle_=r;var s=t.map,a=s.getView();if(a.getConstraints().rotation!==ze){var h=s.getViewport().getBoundingClientRect(),l=eo(this.targetPointers);l[0]-=h.left,l[1]-=h.top,this.anchor_=s.getCoordinateFromPixelInternal(l),this.rotating_&&(s.render(),a.adjustRotationInternal(e,this.anchor_))}},e.prototype.handleUpEvent=function(t){return!(this.targetPointers.length<2)||(t.map.getView().endInteraction(this.duration_),!1)},e.prototype.handleDownEvent=function(t){if(this.targetPointers.length>=2){var e=t.map;return this.anchor_=null,this.lastAngle_=void 0,this.rotating_=!1,this.rotationDelta_=0,this.handlingDownUpSequence||e.getView().beginInteraction(),!0}return!1},e}(io),ko=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),jo=function(t){function e(e){var i=this,n=e||{},r=n;return r.stopDown||(r.stopDown=b),(i=t.call(this,r)||this).anchor_=null,i.duration_=void 0!==n.duration?n.duration:400,i.lastDistance_=void 0,i.lastScaleDelta_=1,i}return ko(e,t),e.prototype.handleDragEvent=function(t){var e=1,i=this.targetPointers[0],n=this.targetPointers[1],r=i.clientX-n.clientX,o=i.clientY-n.clientY,s=Math.sqrt(r*r+o*o);void 0!==this.lastDistance_&&(e=this.lastDistance_/s),this.lastDistance_=s;var a=t.map,h=a.getView();1!=e&&(this.lastScaleDelta_=e);var l=a.getViewport().getBoundingClientRect(),u=eo(this.targetPointers);u[0]-=l.left,u[1]-=l.top,this.anchor_=a.getCoordinateFromPixelInternal(u),a.render(),h.adjustResolutionInternal(e,this.anchor_)},e.prototype.handleUpEvent=function(t){if(this.targetPointers.length<2){var e=t.map.getView(),i=this.lastScaleDelta_>1?1:-1;return e.endInteraction(this.duration_,i),!1}return!0},e.prototype.handleDownEvent=function(t){if(this.targetPointers.length>=2){var e=t.map;return this.anchor_=null,this.lastDistance_=void 0,this.lastScaleDelta_=1,this.handlingDownUpSequence||e.getView().beginInteraction(),!0}return!1},e}(io);function Go(t){var e=t||{},i=new $,n=new Gr(-.005,.05,100);return(void 0===e.altShiftDragRotate||e.altShiftDragRotate)&&i.push(new ao),(void 0===e.doubleClickZoom||e.doubleClickZoom)&&i.push(new Zr({delta:e.zoomDelta,duration:e.zoomDuration})),(void 0===e.dragPan||e.dragPan)&&i.push(new oo({condition:e.onFocusOnly?Vr:void 0,kinetic:n})),(void 0===e.pinchRotate||e.pinchRotate)&&i.push(new Do),(void 0===e.pinchZoom||e.pinchZoom)&&i.push(new jo({duration:e.zoomDuration})),(void 0===e.keyboard||e.keyboard)&&(i.push(new bo),i.push(new Oo({delta:e.zoomDelta,duration:e.zoomDuration}))),(void 0===e.mouseWheelZoom||e.mouseWheelZoom)&&i.push(new Lo({condition:e.onFocusOnly?Vr:void 0,duration:e.zoomDuration})),(void 0===e.shiftDragZoom||e.shiftDragZoom)&&i.push(new mo({duration:e.zoomDuration})),i}var zo=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),Xo=function(t){function e(e,i,n,r){var o=t.call(this,e)||this;return o.inversePixelTransform=i,o.frameState=n,o.context=r,o}return zo(e,t),e}(I),Wo=/^#([a-f0-9]{3}|[a-f0-9]{4}(?:[a-f0-9]{2}){0,2})$/i,Ko=/^([a-z]*)$|^hsla?\(.*\)$/i;function Yo(t){var e=document.createElement("div");if(e.style.color=t,""!==e.style.color){document.body.appendChild(e);var i=getComputedStyle(e).color;return document.body.removeChild(e),i}return""}var No,Zo,Bo=(No={},Zo=0,function(t){var e;if(No.hasOwnProperty(t))e=No[t];else{if(Zo>=1024){var i=0;for(var n in No)0==(3&i++)&&(delete No[n],--Zo)}e=function(t){var e,i,n,r,o;if(Ko.exec(t)&&(t=Yo(t)),Wo.exec(t)){var s=t.length-1,a=void 0;a=s<=4?1:2;var h=4===s||8===s;e=parseInt(t.substr(1+0*a,a),16),i=parseInt(t.substr(1+1*a,a),16),n=parseInt(t.substr(1+2*a,a),16),r=h?parseInt(t.substr(1+3*a,a),16):255,1==a&&(e=(e<<4)+e,i=(i<<4)+i,n=(n<<4)+n,h&&(r=(r<<4)+r)),o=[e,i,n,r/255]}else 0==t.indexOf("rgba(")?Uo(o=t.slice(5,-1).split(",").map(Number)):0==t.indexOf("rgb(")?((o=t.slice(4,-1).split(",").map(Number)).push(1),Uo(o)):kt(!1,14);return o}(t),No[t]=e,++Zo}return e});function Vo(t){return Array.isArray(t)?t:Bo(t)}function Uo(t){return t[0]=Xt(t[0]+.5|0,0,255),t[1]=Xt(t[1]+.5|0,0,255),t[2]=Xt(t[2]+.5|0,0,255),t[3]=Xt(t[3],0,1),t}function Ho(t){var e=t[0];e!=(0|e)&&(e=e+.5|0);var i=t[1];i!=(0|i)&&(i=i+.5|0);var n=t[2];return n!=(0|n)&&(n=n+.5|0),"rgba("+e+","+i+","+n+","+(void 0===t[3]?1:t[3])+")"}var qo=function(){function t(){this.cache_={},this.cacheSize_=0,this.maxCacheSize_=32}return t.prototype.clear=function(){this.cache_={},this.cacheSize_=0},t.prototype.canExpireCache=function(){return this.cacheSize_>this.maxCacheSize_},t.prototype.expire=function(){if(this.canExpireCache()){var t=0;for(var e in this.cache_){var i=this.cache_[e];0!=(3&t++)||i.hasListener()||(delete this.cache_[e],--this.cacheSize_)}}},t.prototype.get=function(t,e,i){var n=Jo(t,e,i);return n in this.cache_?this.cache_[n]:null},t.prototype.set=function(t,e,i,n){var r=Jo(t,e,i);this.cache_[r]=n,++this.cacheSize_},t.prototype.setSize=function(t){this.maxCacheSize_=t,this.expire()},t}();function Jo(t,e,i){return e+":"+t+":"+(i?function(t){return"string"==typeof t?t:Ho(t)}(i):"null")}var Qo=new qo;function $o(t){return Array.isArray(t)?Ho(t):t}var ts=function(){function t(){}return t.prototype.drawCustom=function(t,e,i){},t.prototype.drawGeometry=function(t){},t.prototype.setStyle=function(t){},t.prototype.drawCircle=function(t,e){},t.prototype.drawFeature=function(t,e){},t.prototype.drawGeometryCollection=function(t,e){},t.prototype.drawLineString=function(t,e){},t.prototype.drawMultiLineString=function(t,e){},t.prototype.drawMultiPoint=function(t,e){},t.prototype.drawMultiPolygon=function(t,e){},t.prototype.drawPoint=function(t,e){},t.prototype.drawPolygon=function(t,e){},t.prototype.drawText=function(t,e){},t.prototype.setFillStrokeStyle=function(t,e){},t.prototype.setImageStyle=function(t,e){},t.prototype.setTextStyle=function(t,e){},t}(),es=[],is=[0,0,0,0],ns=new H;(new P).setSize=function(){console.warn("labelCache is deprecated.")};var rs,os,ss,as=null,hs={},ls=function(){var t,e,i=["monospace","serif"],n=i.length,r="wmytzilWMYTZIL@#/&?$%10";function o(t,o,s){for(var a=!0,h=0;h<n;++h){var l=i[h];if(e=ps(t+" "+o+" 32px "+l,r),s!=l){var u=ps(t+" "+o+" 32px "+s+","+l,r);a=a&&u!=e}}return!!a}function s(){for(var e=!0,i=ns.getKeys(),n=0,r=i.length;n<r;++n){var s=i[n];ns.get(s)<100&&(o.apply(this,s.split("\n"))?(f(hs),as=null,rs=void 0,ns.set(s,100)):(ns.set(s,ns.get(s)+1,!0),e=!1))}e&&(clearInterval(t),t=void 0)}return function(e){var i=Tr(e);if(i)for(var n=i.families,r=0,a=n.length;r<a;++r){var h=n[r],l=i.style+"\n"+i.weight+"\n"+h;void 0===ns.get(l)&&(ns.set(l,100,!0),o(i.style,i.weight,h)||(ns.set(l,0,!0),void 0===t&&(t=setInterval(s,32))))}}}(),us=(ss=hs,function(t){var e=ss[t];if(null==e)if(lt){var i=Tr(t),n=cs(t,"Žg"),r=isNaN(Number(i.lineHeight))?1.2:Number(i.lineHeight);hs[t]=r*(n.actualBoundingBoxAscent+n.actualBoundingBoxDescent)}else os||((os=document.createElement("div")).innerHTML="M",os.style.margin="0 !important",os.style.padding="0 !important",os.style.position="absolute !important",os.style.left="-99999px !important"),os.style.font=t,document.body.appendChild(os),e=os.offsetHeight,ss[t]=e,document.body.removeChild(os);return e});function cs(t,e){return as||(as=Jn(1,1)),t!=rs&&(as.font=t,rs=as.font),as.measureText(e)}function ps(t,e){return cs(t,e).width}function fs(t,e,i){if(e in i)return i[e];var n=ps(t,e);return i[e]=n,n}function ds(t,e,i,n){0!==e&&(t.translate(i,n),t.rotate(e),t.translate(-i,-n))}function _s(t,e,i,n,r,o,s,a,h,l,u){t.save(),1!==i&&(t.globalAlpha*=i),e&&t.setTransform.apply(t,e),n.contextInstructions?(t.translate(h,l),t.scale(u,u),function(t,e){for(var i=t.contextInstructions,n=0,r=i.length;n<r;n+=2)Array.isArray(i[n+1])?e[i[n]].apply(e,i[n+1]):e[i[n]]=i[n+1]}(n,t)):t.drawImage(n,r,o,s,a,h,l,s*u,a*u),t.restore()}var gs=null;var ys=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),vs=function(t){function e(e,i,n,r,o,s,a){var h=t.call(this)||this;return h.context_=e,h.pixelRatio_=i,h.extent_=n,h.transform_=r,h.viewRotation_=o,h.squaredTolerance_=s,h.userTransform_=a,h.contextFillState_=null,h.contextStrokeState_=null,h.contextTextState_=null,h.fillState_=null,h.strokeState_=null,h.image_=null,h.imageAnchorX_=0,h.imageAnchorY_=0,h.imageHeight_=0,h.imageOpacity_=0,h.imageOriginX_=0,h.imageOriginY_=0,h.imageRotateWithView_=!1,h.imageRotation_=0,h.imageScale_=0,h.imageWidth_=0,h.text_="",h.textOffsetX_=0,h.textOffsetY_=0,h.textRotateWithView_=!1,h.textRotation_=0,h.textScale_=0,h.textFillState_=null,h.textStrokeState_=null,h.textState_=null,h.pixelCoordinates_=[],h.tmpLocalTransform_=[1,0,0,1,0,0],h}return ys(e,t),e.prototype.drawImages_=function(t,e,i,n){if(this.image_){var r=pi(t,e,i,2,this.transform_,this.pixelCoordinates_),o=this.context_,s=this.tmpLocalTransform_,a=o.globalAlpha;1!=this.imageOpacity_&&(o.globalAlpha=a*this.imageOpacity_);var h=this.imageRotation_;this.imageRotateWithView_&&(h+=this.viewRotation_);for(var l=0,u=r.length;l<u;l+=2){var c=r[l]-this.imageAnchorX_,p=r[l+1]-this.imageAnchorY_;if(0!==h||1!=this.imageScale_){var f=c+this.imageAnchorX_,d=p+this.imageAnchorY_;rn(s,f,d,this.imageScale_,this.imageScale_,h,-f,-d),o.setTransform.apply(o,s)}o.drawImage(this.image_,this.imageOriginX_,this.imageOriginY_,this.imageWidth_,this.imageHeight_,c,p,this.imageWidth_,this.imageHeight_)}0===h&&1==this.imageScale_||o.setTransform(1,0,0,1,0,0),1!=this.imageOpacity_&&(o.globalAlpha=a)}},e.prototype.drawText_=function(t,e,i,n){if(this.textState_&&""!==this.text_){this.textFillState_&&this.setContextFillState_(this.textFillState_),this.textStrokeState_&&this.setContextStrokeState_(this.textStrokeState_),this.setContextTextState_(this.textState_);var r=pi(t,e,i,n,this.transform_,this.pixelCoordinates_),o=this.context_,s=this.textRotation_;for(this.textRotateWithView_&&(s+=this.viewRotation_);e<i;e+=n){var a=r[e]+this.textOffsetX_,h=r[e+1]+this.textOffsetY_;if(0!==s||1!=this.textScale_){var l=rn(this.tmpLocalTransform_,a,h,this.textScale_,this.textScale_,s,-a,-h);o.setTransform.apply(o,l)}this.textStrokeState_&&o.strokeText(this.text_,a,h),this.textFillState_&&o.fillText(this.text_,a,h)}0===s&&1==this.textScale_||o.setTransform(1,0,0,1,0,0)}},e.prototype.moveToLineTo_=function(t,e,i,n,r){var o=this.context_,s=pi(t,e,i,n,this.transform_,this.pixelCoordinates_);o.moveTo(s[0],s[1]);var a=s.length;r&&(a-=2);for(var h=2;h<a;h+=2)o.lineTo(s[h],s[h+1]);return r&&o.closePath(),i},e.prototype.drawRings_=function(t,e,i,n){for(var r=0,o=i.length;r<o;++r)e=this.moveToLineTo_(t,e,i[r],n,!0);return e},e.prototype.drawCircle=function(t){if(Le(this.extent_,t.getExtent())){if(this.fillState_||this.strokeState_){this.fillState_&&this.setContextFillState_(this.fillState_),this.strokeState_&&this.setContextStrokeState_(this.strokeState_);var e=function(t,e,i){var n=t.getFlatCoordinates();if(n){var r=t.getStride();return pi(n,0,n.length,r,e,i)}return null}(t,this.transform_,this.pixelCoordinates_),i=e[2]-e[0],n=e[3]-e[1],r=Math.sqrt(i*i+n*n),o=this.context_;o.beginPath(),o.arc(e[0],e[1],r,0,2*Math.PI),this.fillState_&&o.fill(),this.strokeState_&&o.stroke()}""!==this.text_&&this.drawText_(t.getCenter(),0,2,2)}},e.prototype.setStyle=function(t){this.setFillStrokeStyle(t.getFill(),t.getStroke()),this.setImageStyle(t.getImage()),this.setTextStyle(t.getText())},e.prototype.setTransform=function(t){this.transform_=t},e.prototype.drawGeometry=function(t){switch(t.getType()){case $e:this.drawPoint(t);break;case ti:this.drawLineString(t);break;case ii:this.drawPolygon(t);break;case ni:this.drawMultiPoint(t);break;case ri:this.drawMultiLineString(t);break;case oi:this.drawMultiPolygon(t);break;case si:this.drawGeometryCollection(t);break;case ai:this.drawCircle(t)}},e.prototype.drawFeature=function(t,e){var i=e.getGeometryFunction()(t);i&&Le(this.extent_,i.getExtent())&&(this.setStyle(e),this.drawGeometry(i))},e.prototype.drawGeometryCollection=function(t){for(var e=t.getGeometriesArray(),i=0,n=e.length;i<n;++i)this.drawGeometry(e[i])},e.prototype.drawPoint=function(t){this.squaredTolerance_&&(t=t.simplifyTransformed(this.squaredTolerance_,this.userTransform_));var e=t.getFlatCoordinates(),i=t.getStride();this.image_&&this.drawImages_(e,0,e.length,i),""!==this.text_&&this.drawText_(e,0,e.length,i)},e.prototype.drawMultiPoint=function(t){this.squaredTolerance_&&(t=t.simplifyTransformed(this.squaredTolerance_,this.userTransform_));var e=t.getFlatCoordinates(),i=t.getStride();this.image_&&this.drawImages_(e,0,e.length,i),""!==this.text_&&this.drawText_(e,0,e.length,i)},e.prototype.drawLineString=function(t){if(this.squaredTolerance_&&(t=t.simplifyTransformed(this.squaredTolerance_,this.userTransform_)),Le(this.extent_,t.getExtent())){if(this.strokeState_){this.setContextStrokeState_(this.strokeState_);var e=this.context_,i=t.getFlatCoordinates();e.beginPath(),this.moveToLineTo_(i,0,i.length,t.getStride(),!1),e.stroke()}if(""!==this.text_){var n=t.getFlatMidpoint();this.drawText_(n,0,2,2)}}},e.prototype.drawMultiLineString=function(t){this.squaredTolerance_&&(t=t.simplifyTransformed(this.squaredTolerance_,this.userTransform_));var e=t.getExtent();if(Le(this.extent_,e)){if(this.strokeState_){this.setContextStrokeState_(this.strokeState_);var i=this.context_,n=t.getFlatCoordinates(),r=0,o=t.getEnds(),s=t.getStride();i.beginPath();for(var a=0,h=o.length;a<h;++a)r=this.moveToLineTo_(n,r,o[a],s,!1);i.stroke()}if(""!==this.text_){var l=t.getFlatMidpoints();this.drawText_(l,0,l.length,2)}}},e.prototype.drawPolygon=function(t){if(this.squaredTolerance_&&(t=t.simplifyTransformed(this.squaredTolerance_,this.userTransform_)),Le(this.extent_,t.getExtent())){if(this.strokeState_||this.fillState_){this.fillState_&&this.setContextFillState_(this.fillState_),this.strokeState_&&this.setContextStrokeState_(this.strokeState_);var e=this.context_;e.beginPath(),this.drawRings_(t.getOrientedFlatCoordinates(),0,t.getEnds(),t.getStride()),this.fillState_&&e.fill(),this.strokeState_&&e.stroke()}if(""!==this.text_){var i=t.getFlatInteriorPoint();this.drawText_(i,0,2,2)}}},e.prototype.drawMultiPolygon=function(t){if(this.squaredTolerance_&&(t=t.simplifyTransformed(this.squaredTolerance_,this.userTransform_)),Le(this.extent_,t.getExtent())){if(this.strokeState_||this.fillState_){this.fillState_&&this.setContextFillState_(this.fillState_),this.strokeState_&&this.setContextStrokeState_(this.strokeState_);var e=this.context_,i=t.getOrientedFlatCoordinates(),n=0,r=t.getEndss(),o=t.getStride();e.beginPath();for(var s=0,a=r.length;s<a;++s){var h=r[s];n=this.drawRings_(i,n,h,o)}this.fillState_&&e.fill(),this.strokeState_&&e.stroke()}if(""!==this.text_){var l=t.getFlatInteriorPoints();this.drawText_(l,0,l.length,2)}}},e.prototype.setContextFillState_=function(t){var e=this.context_,i=this.contextFillState_;i?i.fillStyle!=t.fillStyle&&(i.fillStyle=t.fillStyle,e.fillStyle=t.fillStyle):(e.fillStyle=t.fillStyle,this.contextFillState_={fillStyle:t.fillStyle})},e.prototype.setContextStrokeState_=function(t){var e=this.context_,i=this.contextStrokeState_;i?(i.lineCap!=t.lineCap&&(i.lineCap=t.lineCap,e.lineCap=t.lineCap),e.setLineDash&&(E(i.lineDash,t.lineDash)||e.setLineDash(i.lineDash=t.lineDash),i.lineDashOffset!=t.lineDashOffset&&(i.lineDashOffset=t.lineDashOffset,e.lineDashOffset=t.lineDashOffset)),i.lineJoin!=t.lineJoin&&(i.lineJoin=t.lineJoin,e.lineJoin=t.lineJoin),i.lineWidth!=t.lineWidth&&(i.lineWidth=t.lineWidth,e.lineWidth=t.lineWidth),i.miterLimit!=t.miterLimit&&(i.miterLimit=t.miterLimit,e.miterLimit=t.miterLimit),i.strokeStyle!=t.strokeStyle&&(i.strokeStyle=t.strokeStyle,e.strokeStyle=t.strokeStyle)):(e.lineCap=t.lineCap,e.setLineDash&&(e.setLineDash(t.lineDash),e.lineDashOffset=t.lineDashOffset),e.lineJoin=t.lineJoin,e.lineWidth=t.lineWidth,e.miterLimit=t.miterLimit,e.strokeStyle=t.strokeStyle,this.contextStrokeState_={lineCap:t.lineCap,lineDash:t.lineDash,lineDashOffset:t.lineDashOffset,lineJoin:t.lineJoin,lineWidth:t.lineWidth,miterLimit:t.miterLimit,strokeStyle:t.strokeStyle})},e.prototype.setContextTextState_=function(t){var e=this.context_,i=this.contextTextState_,n=t.textAlign?t.textAlign:"center";i?(i.font!=t.font&&(i.font=t.font,e.font=t.font),i.textAlign!=n&&(i.textAlign=n,e.textAlign=n),i.textBaseline!=t.textBaseline&&(i.textBaseline=t.textBaseline,e.textBaseline=t.textBaseline)):(e.font=t.font,e.textAlign=n,e.textBaseline=t.textBaseline,this.contextTextState_={font:t.font,textAlign:n,textBaseline:t.textBaseline})},e.prototype.setFillStrokeStyle=function(t,e){if(t){var i=t.getColor();this.fillState_={fillStyle:$o(i||"#000")}}else this.fillState_=null;if(e){var n=e.getColor(),r=e.getLineCap(),o=e.getLineDash(),s=e.getLineDashOffset(),a=e.getLineJoin(),h=e.getWidth(),l=e.getMiterLimit();this.strokeState_={lineCap:void 0!==r?r:"round",lineDash:o||es,lineDashOffset:s||0,lineJoin:void 0!==a?a:"round",lineWidth:this.pixelRatio_*(void 0!==h?h:1),miterLimit:void 0!==l?l:10,strokeStyle:$o(n||"#000")}}else this.strokeState_=null},e.prototype.setImageStyle=function(t){if(t){var e=t.getAnchor(),i=t.getImage(1),n=t.getOrigin(),r=t.getSize();this.imageAnchorX_=e[0],this.imageAnchorY_=e[1],this.imageHeight_=r[1],this.image_=i,this.imageOpacity_=t.getOpacity(),this.imageOriginX_=n[0],this.imageOriginY_=n[1],this.imageRotateWithView_=t.getRotateWithView(),this.imageRotation_=t.getRotation(),this.imageScale_=t.getScale()*this.pixelRatio_,this.imageWidth_=r[0]}else this.image_=null},e.prototype.setTextStyle=function(t){if(t){var e=t.getFill();if(e){var i=e.getColor();this.textFillState_={fillStyle:$o(i||"#000")}}else this.textFillState_=null;var n=t.getStroke();if(n){var r=n.getColor(),o=n.getLineCap(),s=n.getLineDash(),a=n.getLineDashOffset(),h=n.getLineJoin(),l=n.getWidth(),u=n.getMiterLimit();this.textStrokeState_={lineCap:void 0!==o?o:"round",lineDash:s||es,lineDashOffset:a||0,lineJoin:void 0!==h?h:"round",lineWidth:void 0!==l?l:1,miterLimit:void 0!==u?u:10,strokeStyle:$o(r||"#000")}}else this.textStrokeState_=null;var c=t.getFont(),p=t.getOffsetX(),f=t.getOffsetY(),d=t.getRotateWithView(),_=t.getRotation(),g=t.getScale(),y=t.getText(),v=t.getTextAlign(),m=t.getTextBaseline();this.textState_={font:void 0!==c?c:"10px sans-serif",textAlign:void 0!==v?v:"center",textBaseline:void 0!==m?m:"middle"},this.text_=void 0!==y?y:"",this.textOffsetX_=void 0!==p?this.pixelRatio_*p:0,this.textOffsetY_=void 0!==f?this.pixelRatio_*f:0,this.textRotateWithView_=void 0!==d&&d,this.textRotation_=void 0!==_?_:0,this.textScale_=this.pixelRatio_*(void 0!==g?g:1)}else this.text_=""},e}(ts),ms=0,xs=1,Ss=2,Cs=3,ws="Circle",Es="Default",Ts="Image",bs="LineString",Rs="Polygon",Is="Text",Os={Point:function(t,e,i,n){var r=i.getImage();if(r){if(r.getImageState()!=Ss)return;var o=t.getBuilder(i.getZIndex(),Ts);o.setImageStyle(r,t.addDeclutter(!1)),o.drawPoint(e,n)}var s=i.getText();if(s){var a=t.getBuilder(i.getZIndex(),Is);a.setTextStyle(s,t.addDeclutter(!!r)),a.drawText(e,n)}},LineString:function(t,e,i,n){var r=i.getStroke();if(r){var o=t.getBuilder(i.getZIndex(),bs);o.setFillStrokeStyle(null,r),o.drawLineString(e,n)}var s=i.getText();if(s){var a=t.getBuilder(i.getZIndex(),Is);a.setTextStyle(s,t.addDeclutter(!1)),a.drawText(e,n)}},Polygon:function(t,e,i,n){var r=i.getFill(),o=i.getStroke();if(r||o){var s=t.getBuilder(i.getZIndex(),Rs);s.setFillStrokeStyle(r,o),s.drawPolygon(e,n)}var a=i.getText();if(a){var h=t.getBuilder(i.getZIndex(),Is);h.setTextStyle(a,t.addDeclutter(!1)),h.drawText(e,n)}},MultiPoint:function(t,e,i,n){var r=i.getImage();if(r){if(r.getImageState()!=Ss)return;var o=t.getBuilder(i.getZIndex(),Ts);o.setImageStyle(r,t.addDeclutter(!1)),o.drawMultiPoint(e,n)}var s=i.getText();if(s){var a=t.getBuilder(i.getZIndex(),Is);a.setTextStyle(s,t.addDeclutter(!!r)),a.drawText(e,n)}},MultiLineString:function(t,e,i,n){var r=i.getStroke();if(r){var o=t.getBuilder(i.getZIndex(),bs);o.setFillStrokeStyle(null,r),o.drawMultiLineString(e,n)}var s=i.getText();if(s){var a=t.getBuilder(i.getZIndex(),Is);a.setTextStyle(s,t.addDeclutter(!1)),a.drawText(e,n)}},MultiPolygon:function(t,e,i,n){var r=i.getFill(),o=i.getStroke();if(o||r){var s=t.getBuilder(i.getZIndex(),Rs);s.setFillStrokeStyle(r,o),s.drawMultiPolygon(e,n)}var a=i.getText();if(a){var h=t.getBuilder(i.getZIndex(),Is);h.setTextStyle(a,t.addDeclutter(!1)),h.drawText(e,n)}},GeometryCollection:function(t,e,i,n){var r,o,s=e.getGeometriesArray();for(r=0,o=s.length;r<o;++r){(0,Os[s[r].getType()])(t,s[r],i,n)}},Circle:function(t,e,i,n){var r=i.getFill(),o=i.getStroke();if(r||o){var s=t.getBuilder(i.getZIndex(),ws);s.setFillStrokeStyle(r,o),s.drawCircle(e,n)}var a=i.getText();if(a){var h=t.getBuilder(i.getZIndex(),Is);h.setTextStyle(a,t.addDeclutter(!1)),h.drawText(e,n)}}};function Ps(t,e){return parseInt(o(t),10)-parseInt(o(e),10)}function Ms(t,e){var i=Fs(t,e);return i*i}function Fs(t,e){return.5*t/e}function Ls(t,e,i,n,r,o){var s=!1,a=i.getImage();if(a){var h=a.getImageState();h==Ss||h==Cs?a.unlistenImageChange(r):(h==ms&&a.load(),h=a.getImageState(),a.listenImageChange(r),s=!0)}return function(t,e,i,n,r){var o=i.getGeometryFunction()(e);if(!o)return;var s=o.simplifyTransformed(n,r);if(i.getRenderer())!function t(e,i,n,r){if(i.getType()==si){for(var o=i.getGeometries(),s=0,a=o.length;s<a;++s)t(e,o[s],n,r);return}e.getBuilder(n.getZIndex(),Es).drawCustom(i,r,n.getRenderer())}(t,s,i,e);else{(0,Os[s.getType()])(t,s,i,e)}}(t,e,i,n,o),s}var As=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}();function Ds(t,e){Qo.expire()}var ks=function(t){function e(e){var i=t.call(this)||this;return i.map_=e,i.declutterTree_=null,i}return As(e,t),e.prototype.dispatchRenderEvent=function(t,e){n()},e.prototype.calculateMatrices2D=function(t){var e=t.viewState,i=t.coordinateToPixelTransform,n=t.pixelToCoordinateTransform;rn(i,t.size[0]/2,t.size[1]/2,1/e.resolution,-1/e.resolution,-e.rotation,-e.center[0],-e.center[1]),on(n,i)},e.prototype.forEachFeatureAtCoordinate=function(t,e,i,n,r,o,s,a){var h,l=e.viewState;function u(t,e,i){return r.call(o,e,t?i:null)}var c=l.projection,p=Ue(t.slice(),c),f=[[0,0]];if(c.canWrapX()&&n){var d=Fe(c.getExtent());f.push([-d,0],[d,0])}var _,g=e.layerStatesArray,y=g.length;this.declutterTree_&&(_=this.declutterTree_.all().map((function(t){return t.value})));for(var v=[],m=0;m<f.length;m++)for(var x=y-1;x>=0;--x){var S=g[x],C=S.layer;if(C.hasRenderer()&&Rr(S,l)&&s.call(a,C)){var w=C.getRenderer(),E=C.getSource();if(w&&E){var T=E.getWrapX()?p:t,b=u.bind(null,S.managed);v[0]=T[0]+f[m][0],v[1]=T[1]+f[m][1],h=w.forEachFeatureAtCoordinate(v,e,i,b,_)}if(h)return h}}},e.prototype.forEachLayerAtPixel=function(t,e,i,r,o){return n()},e.prototype.hasFeatureAtCoordinate=function(t,e,i,n,r,o){return void 0!==this.forEachFeatureAtCoordinate(t,e,i,n,T,this,r,o)},e.prototype.getMap=function(){return this.map_},e.prototype.renderFrame=function(t){this.declutterTree_=function(t,e){e&&e.clear();for(var i=t.declutterItems,n=i.length-1;n>=0;--n)for(var r=i[n],o=r.items,s=0,a=o.length;s<a;s+=3)e=o[s].renderDeclutter(o[s+1],o[s+2],r.opacity,e);return i.length=0,e}(t,this.declutterTree_)},e.prototype.scheduleExpireIconCache=function(t){Qo.canExpireCache()&&t.postRenderFunctions.push(Ds)},e}(m),js=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),Gs=function(t){function e(e){var i=t.call(this,e)||this;i.fontChangeListenerKey_=g(ns,c,e.redrawText.bind(e)),i.element_=document.createElement("div");var n=i.element_.style;n.position="absolute",n.width="100%",n.height="100%",n.zIndex="0",i.element_.className="ol-unselectable ol-layers";var r=e.getViewport();return r.insertBefore(i.element_,r.firstChild||null),i.children_=[],i.renderedVisible_=!0,i}return js(e,t),e.prototype.dispatchRenderEvent=function(t,e){var i=this.getMap();if(i.hasListener(t)){var n=new Xo(t,void 0,e);i.dispatchEvent(n)}},e.prototype.disposeInternal=function(){v(this.fontChangeListenerKey_),this.element_.parentNode.removeChild(this.element_),t.prototype.disposeInternal.call(this)},e.prototype.renderFrame=function(e){if(e){this.calculateMatrices2D(e),this.dispatchRenderEvent(It,e);var i=e.layerStatesArray.sort((function(t,e){return t.zIndex-e.zIndex})),n=e.viewState;this.children_.length=0;for(var r=null,o=0,s=i.length;o<s;++o){var a=i[o];if(e.layerIndex=o,Rr(a,n)&&(a.sourceState==pr||a.sourceState==cr)){var h=a.layer.render(e,r);h&&h!==r&&(this.children_.push(h),r=h)}}t.prototype.renderFrame.call(this,e),function(t,e){for(var i=t.childNodes,n=0;;++n){var r=i[n],o=e[n];if(!r&&!o)break;r!==o&&(r?o?t.insertBefore(o,r):(t.removeChild(r),--n):t.appendChild(o))}}(this.element_,this.children_),this.dispatchRenderEvent(Ot,e),this.renderedVisible_||(this.element_.style.display="",this.renderedVisible_=!0),this.scheduleExpireIconCache(e)}else this.renderedVisible_&&(this.element_.style.display="none",this.renderedVisible_=!1)},e.prototype.forEachLayerAtPixel=function(t,e,i,n,r){for(var o=e.viewState,s=e.layerStatesArray,a=s.length-1;a>=0;--a){var h=s[a],l=h.layer;if(l.hasRenderer()&&Rr(h,o)&&r(l)){var u=l.getRenderer().getDataAtPixel(t,e,i);if(u){var c=n(l,u);if(c)return c}}}},e}(ks),zs=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),Xs=function(t){function e(e){return(e=p({},e)).controls||(e.controls=jr()),e.interactions||(e.interactions=Go()),t.call(this,e)||this}return zs(e,t),e.prototype.createRenderer=function(){return new Gs(this)},e}(xr),Ws="preload",Ks="useInterimTilesOnError",Ys=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),Ns=function(t){function e(e){var i=this,n=e||{},r=p({},n);return delete r.preload,delete r.useInterimTilesOnError,(i=t.call(this,r)||this).setPreload(void 0!==n.preload?n.preload:0),i.setUseInterimTilesOnError(void 0===n.useInterimTilesOnError||n.useInterimTilesOnError),i}return Ys(e,t),e.prototype.getPreload=function(){return this.get(Ws)},e.prototype.setPreload=function(t){this.set(Ws,t)},e.prototype.getUseInterimTilesOnError=function(){return this.get(Ks)},e.prototype.setUseInterimTilesOnError=function(t){this.set(Ks,t)},e}(Ir),Zs=function(){function t(t,e,i,n){this.minX=t,this.maxX=e,this.minY=i,this.maxY=n}return t.prototype.contains=function(t){return this.containsXY(t[1],t[2])},t.prototype.containsTileRange=function(t){return this.minX<=t.minX&&t.maxX<=this.maxX&&this.minY<=t.minY&&t.maxY<=this.maxY},t.prototype.containsXY=function(t,e){return this.minX<=t&&t<=this.maxX&&this.minY<=e&&e<=this.maxY},t.prototype.equals=function(t){return this.minX==t.minX&&this.minY==t.minY&&this.maxX==t.maxX&&this.maxY==t.maxY},t.prototype.extend=function(t){t.minX<this.minX&&(this.minX=t.minX),t.maxX>this.maxX&&(this.maxX=t.maxX),t.minY<this.minY&&(this.minY=t.minY),t.maxY>this.maxY&&(this.maxY=t.maxY)},t.prototype.getHeight=function(){return this.maxY-this.minY+1},t.prototype.getSize=function(){return[this.getWidth(),this.getHeight()]},t.prototype.getWidth=function(){return this.maxX-this.minX+1},t.prototype.intersects=function(t){return this.minX<=t.maxX&&this.maxX>=t.minX&&this.minY<=t.maxY&&this.maxY>=t.minY},t}();function Bs(t,e,i,n,r){return void 0!==r?(r.minX=t,r.maxX=e,r.minY=i,r.maxY=n,r):new Zs(t,e,i,n)}var Vs=Zs,Us=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),Hs=function(t){function e(e){var i=t.call(this)||this;return i.boundHandleImageChange_=i.handleImageChange_.bind(i),i.layer_=e,i}return Us(e,t),e.prototype.getFeatures=function(t){return n()},e.prototype.prepareFrame=function(t){return n()},e.prototype.renderFrame=function(t,e){return n()},e.prototype.loadedTileCallback=function(t,e,i){t[e]||(t[e]={}),t[e][i.tileCoord.toString()]=i},e.prototype.createLoadedTileFinder=function(t,e,i){return function(n,r){var o=this.loadedTileCallback.bind(this,i,n);return t.forEachLoadedTile(e,n,r,o)}.bind(this)},e.prototype.forEachFeatureAtCoordinate=function(t,e,i,n,r){},e.prototype.getDataAtPixel=function(t,e,i){return n()},e.prototype.getLayer=function(){return this.layer_},e.prototype.handleFontsChanged=function(){},e.prototype.handleImageChange_=function(t){t.target.getState()===Ss&&this.renderIfReadyAndVisible()},e.prototype.loadImage=function(t){var e=t.getState();return e!=Ss&&e!=Cs&&t.addEventListener(M,this.boundHandleImageChange_),e==ms&&(t.load(),e=t.getState()),e==Ss},e.prototype.renderIfReadyAndVisible=function(){var t=this.getLayer();t.getVisible()&&t.getSourceState()==pr&&t.changed()},e}(Y),qs=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),Js=function(t){function e(e){var i=t.call(this,e)||this;return i.container=null,i.renderedResolution,i.tempTransform_=[1,0,0,1,0,0],i.pixelTransform=[1,0,0,1,0,0],i.inversePixelTransform=[1,0,0,1,0,0],i.context=null,i.containerReused=!1,i}return qs(e,t),e.prototype.useContainer=function(t,e,i){var n,r,o=this.getLayer().getClassName();t&&""===t.style.opacity&&t.className===o&&((a=t.firstElementChild)instanceof HTMLCanvasElement&&(r=a.getContext("2d")));if(r&&r.canvas.style.transform===e?(this.container=t,this.context=r,this.containerReused=!0):this.containerReused&&(this.container=null,this.context=null,this.containerReused=!1),!this.container){(n=document.createElement("div")).className=o;var s=n.style;s.position="absolute",s.width="100%",s.height="100%";var a=(r=Jn()).canvas;n.appendChild(a),(s=a.style).position="absolute",s.left="0",s.transformOrigin="top left",this.container=n,this.context=r}},e.prototype.clip=function(t,e,i){var n=e.pixelRatio,r=e.size[0]*n/2,o=e.size[1]*n/2,s=e.viewState.rotation,a=Pe(i),h=Me(i),l=Ee(i),u=we(i);nn(e.coordinateToPixelTransform,a),nn(e.coordinateToPixelTransform,h),nn(e.coordinateToPixelTransform,l),nn(e.coordinateToPixelTransform,u),t.save(),ds(t,-s,r,o),t.beginPath(),t.moveTo(a[0]*n,a[1]*n),t.lineTo(h[0]*n,h[1]*n),t.lineTo(l[0]*n,l[1]*n),t.lineTo(u[0]*n,u[1]*n),t.clip(),ds(t,s,r,o)},e.prototype.clipUnrotated=function(t,e,i){var n=Pe(i),r=Me(i),o=Ee(i),s=we(i);nn(e.coordinateToPixelTransform,n),nn(e.coordinateToPixelTransform,r),nn(e.coordinateToPixelTransform,o),nn(e.coordinateToPixelTransform,s);var a=this.inversePixelTransform;nn(a,n),nn(a,r),nn(a,o),nn(a,s),t.save(),t.beginPath(),t.moveTo(Math.round(n[0]),Math.round(n[1])),t.lineTo(Math.round(r[0]),Math.round(r[1])),t.lineTo(Math.round(o[0]),Math.round(o[1])),t.lineTo(Math.round(s[0]),Math.round(s[1])),t.clip()},e.prototype.dispatchRenderEvent_=function(t,e,i){var n=this.getLayer();if(n.hasListener(t)){var r=new Xo(t,this.inversePixelTransform,i,e);n.dispatchEvent(r)}},e.prototype.preRender=function(t,e){this.dispatchRenderEvent_(bt,t,e)},e.prototype.postRender=function(t,e){this.dispatchRenderEvent_(Rt,t,e)},e.prototype.getRenderTransform=function(t,e,i,n,r,o,s){var a=r/2,h=o/2,l=n/e,u=-l,c=-t[0]+s,p=-t[1];return rn(this.tempTransform_,a,h,l,u,-i,c,p)},e.prototype.getDataAtPixel=function(t,e,i){var n,r=nn(this.inversePixelTransform,t.slice()),o=this.context;try{n=o.getImageData(Math.round(r[0]),Math.round(r[1]),1,1).data}catch(t){return"SecurityError"===t.name?new Uint8Array:n}return 0===n[3]?null:n},e}(Hs),Qs=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),$s=function(t){function e(e){var i=t.call(this,e)||this;return i.extentChanged=!0,i.renderedExtent_=null,i.renderedPixelRatio,i.renderedProjection=null,i.renderedRevision,i.renderedTiles=[],i.newTiles_=!1,i.tmpExtent=[1/0,1/0,-1/0,-1/0],i.tmpTileRange_=new Vs(0,0,0,0),i}return Qs(e,t),e.prototype.isDrawableTile=function(t){var e=this.getLayer(),i=t.getState(),n=e.getUseInterimTilesOnError();return i==Lt||i==Dt||i==At&&!n},e.prototype.getTile=function(t,e,i,n){var r=n.pixelRatio,o=n.viewState.projection,s=this.getLayer(),a=s.getSource().getTile(t,e,i,r,o);return a.getState()==At&&(s.getUseInterimTilesOnError()?s.getPreload()>0&&(this.newTiles_=!0):a.setState(Lt)),this.isDrawableTile(a)||(a=a.getInterimTile()),a},e.prototype.loadedTileCallback=function(e,i,n){return!!this.isDrawableTile(n)&&t.prototype.loadedTileCallback.call(this,e,i,n)},e.prototype.prepareFrame=function(t){return!!this.getLayer().getSource()},e.prototype.renderFrame=function(t,e){var i=t.layerStatesArray[t.layerIndex],n=t.viewState,r=n.projection,s=n.resolution,a=n.center,h=n.rotation,l=t.pixelRatio,u=this.getLayer(),c=u.getSource(),p=c.getRevision(),f=c.getTileGridForProjection(r),d=f.getZForResolution(s,c.zDirection),_=f.getResolution(d),g=t.extent,y=i.extent&&tn(i.extent,r);y&&(g=Oe(g,tn(i.extent,r)));var v=c.getTilePixelRatio(l),m=Math.round(t.size[0]*v),S=Math.round(t.size[1]*v);if(h){var C=Math.round(Math.sqrt(m*m+S*S));m=C,S=C}var w=_*m/2/v,E=_*S/2/v,T=[a[0]-w,a[1]-E,a[0]+w,a[1]+E],b=f.getTileRangeForExtentAndZ(g,d),R={};R[d]={};var I=this.createLoadedTileFinder(c,r,R),O=this.tmpExtent,P=this.tmpTileRange_;this.newTiles_=!1;for(var M=b.minX;M<=b.maxX;++M)for(var F=b.minY;F<=b.maxY;++F){var L=this.getTile(d,M,F,t);if(this.isDrawableTile(L)){var A=o(this);if(L.getState()==Lt){R[d][L.tileCoord.toString()]=L;var D=L.inTransition(A);this.newTiles_||!D&&-1!==this.renderedTiles.indexOf(L)||(this.newTiles_=!0)}if(1===L.getAlpha(A,t.time))continue}var k=f.getTileCoordChildTileRange(L.tileCoord,P,O),j=!1;k&&(j=I(d+1,k)),j||f.forEachTileCoordParentTileRange(L.tileCoord,I,P,O)}var G=_/s;rn(this.pixelTransform,t.size[0]/2,t.size[1]/2,1/v,1/v,h,-m/2,-S/2);var z,X=(z=this.pixelTransform,lt?sn(z):(gs||(gs=Jn(1,1).canvas),gs.style.transform=sn(z),gs.style.transform));this.useContainer(e,X,i.opacity);var W=this.context,K=W.canvas;on(this.inversePixelTransform,this.pixelTransform),rn(this.tempTransform_,m/2,S/2,G,G,0,-m/2,-S/2),K.width!=m||K.height!=S?(K.width=m,K.height=S):this.containerReused||W.clearRect(0,0,m,S),y&&this.clipUnrotated(W,t,y),this.preRender(W,t),this.renderedTiles.length=0;var Y,N,Z,B=Object.keys(R).map(Number);B.sort(x),1!==i.opacity||this.containerReused&&!c.getOpaque(t.viewState.projection)?(Y=[],N=[]):B=B.reverse();for(var V=B.length-1;V>=0;--V){var U=B[V],H=c.getTilePixelSize(U,l,r),q=f.getResolution(U)/_,J=H[0]*q*G,Q=H[1]*q*G,$=f.getTileCoordForCoordAndZ(Pe(T),U),tt=f.getTileCoordExtent($),et=nn(this.tempTransform_,[v*(tt[0]-T[0])/_,v*(T[3]-tt[3])/_]),it=v*c.getGutterForProjection(r),nt=R[U];for(var rt in nt){var ot=(L=nt[rt]).tileCoord,st=et[0]-($[1]-ot[1])*J,at=Math.round(st+J),ht=et[1]-($[2]-ot[2])*Q,ut=Math.round(ht+Q),ct=at-(M=Math.round(st)),pt=ut-(F=Math.round(ht)),ft=d===U;if(!(D=ft&&1!==L.getAlpha(o(this),t.time)))if(Y){W.save(),Z=[M,F,M+ct,F,M+ct,F+pt,M,F+pt];for(var dt=0,_t=Y.length;dt<_t;++dt)if(d!==U&&U<N[dt]){var gt=Y[dt];W.beginPath(),W.moveTo(Z[0],Z[1]),W.lineTo(Z[2],Z[3]),W.lineTo(Z[4],Z[5]),W.lineTo(Z[6],Z[7]),W.moveTo(gt[6],gt[7]),W.lineTo(gt[4],gt[5]),W.lineTo(gt[2],gt[3]),W.lineTo(gt[0],gt[1]),W.clip()}Y.push(Z),N.push(U)}else W.clearRect(M,F,ct,pt);this.drawTileImage(L,t,M,F,ct,pt,it,ft,i.opacity),Y&&!D&&W.restore(),this.renderedTiles.push(L),this.updateUsedTiles(t.usedTiles,c,L)}}return this.renderedRevision=p,this.renderedResolution=_,this.extentChanged=!this.renderedExtent_||!ge(this.renderedExtent_,T),this.renderedExtent_=T,this.renderedPixelRatio=l,this.renderedProjection=r,this.manageTilePyramid(t,c,f,l,r,g,d,u.getPreload()),this.scheduleExpireCache(t,c),this.postRender(W,t),i.extent&&W.restore(),X!==K.style.transform&&(K.style.transform=X),this.container},e.prototype.drawTileImage=function(t,e,i,n,r,s,a,h,l){var u=this.getTileImage(t);if(u){var c=o(this),p=h?t.getAlpha(c,e.time):1,f=l*p,d=f!==this.context.globalAlpha;d&&(this.context.save(),this.context.globalAlpha=f),this.context.drawImage(u,a,a,u.width-2*a,u.height-2*a,i,n,r,s),d&&this.context.restore(),1!==p?e.animate=!0:h&&t.endTransition(c)}},e.prototype.getImage=function(){var t=this.context;return t?t.canvas:null},e.prototype.getTileImage=function(t){return t.getImage()},e.prototype.scheduleExpireCache=function(t,e){if(e.canExpireCache()){var i=function(t,e,i){var n=o(t);n in i.usedTiles&&t.expireCache(i.viewState.projection,i.usedTiles[n])}.bind(null,e);t.postRenderFunctions.push(i)}},e.prototype.updateUsedTiles=function(t,e,i){var n=o(e);n in t||(t[n]={}),t[n][i.getKey()]=!0},e.prototype.manageTilePyramid=function(t,e,i,n,r,s,a,h,l){var u=o(e);u in t.wantedTiles||(t.wantedTiles[u]={});var c,p,f,d,_,g,y=t.wantedTiles[u],v=t.tileQueue;for(g=i.getMinZoom();g<=a;++g)for(p=i.getTileRangeForExtentAndZ(s,g,p),f=i.getResolution(g),d=p.minX;d<=p.maxX;++d)for(_=p.minY;_<=p.maxY;++_)a-g<=h?((c=e.getTile(g,d,_,n,r)).getState()==Mt&&(y[c.getKey()]=!0,v.isKeyQueued(c.getKey())||v.enqueue([c,u,i.getTileCoordCenter(c.tileCoord),f])),void 0!==l&&l(c)):e.useTile(g,d,_,r)},e}(Js);$s.prototype.getLayer;var ta=$s,ea=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),ia=function(t){function e(e){return t.call(this,e)||this}return ea(e,t),e.prototype.createRenderer=function(){return new ta(this)},e}(Ns),na=function(){function t(t){this.opacity_=t.opacity,this.rotateWithView_=t.rotateWithView,this.rotation_=t.rotation,this.scale_=t.scale,this.displacement_=t.displacement}return t.prototype.clone=function(){return new t({opacity:this.getOpacity(),scale:this.getScale(),rotation:this.getRotation(),rotateWithView:this.getRotateWithView(),displacement:this.getDisplacement().slice()})},t.prototype.getOpacity=function(){return this.opacity_},t.prototype.getRotateWithView=function(){return this.rotateWithView_},t.prototype.getRotation=function(){return this.rotation_},t.prototype.getScale=function(){return this.scale_},t.prototype.getDisplacement=function(){return this.displacement_},t.prototype.getAnchor=function(){return n()},t.prototype.getImage=function(t){return n()},t.prototype.getHitDetectionImage=function(t){return n()},t.prototype.getImageState=function(){return n()},t.prototype.getImageSize=function(){return n()},t.prototype.getHitDetectionImageSize=function(){return n()},t.prototype.getOrigin=function(){return n()},t.prototype.getSize=function(){return n()},t.prototype.setOpacity=function(t){this.opacity_=t},t.prototype.setRotateWithView=function(t){this.rotateWithView_=t},t.prototype.setRotation=function(t){this.rotation_=t},t.prototype.setScale=function(t){this.scale_=t},t.prototype.listenImageChange=function(t){n()},t.prototype.load=function(){n()},t.prototype.unlistenImageChange=function(t){n()},t}(),ra=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),oa=function(t){function e(e){var i=this,n=void 0!==e.rotateWithView&&e.rotateWithView;return(i=t.call(this,{opacity:1,rotateWithView:n,rotation:void 0!==e.rotation?e.rotation:0,scale:1,displacement:void 0!==e.displacement?e.displacement:[0,0]})||this).canvas_=null,i.hitDetectionCanvas_=null,i.fill_=void 0!==e.fill?e.fill:null,i.origin_=[0,0],i.points_=e.points,i.radius_=void 0!==e.radius?e.radius:e.radius1,i.radius2_=e.radius2,i.angle_=void 0!==e.angle?e.angle:0,i.stroke_=void 0!==e.stroke?e.stroke:null,i.anchor_=null,i.size_=null,i.imageSize_=null,i.hitDetectionImageSize_=null,i.render(),i}return ra(e,t),e.prototype.clone=function(){var t=new e({fill:this.getFill()?this.getFill().clone():void 0,points:this.getPoints(),radius:this.getRadius(),radius2:this.getRadius2(),angle:this.getAngle(),stroke:this.getStroke()?this.getStroke().clone():void 0,rotation:this.getRotation(),rotateWithView:this.getRotateWithView(),displacement:this.getDisplacement().slice()});return t.setOpacity(this.getOpacity()),t.setScale(this.getScale()),t},e.prototype.getAnchor=function(){return this.anchor_},e.prototype.getAngle=function(){return this.angle_},e.prototype.getFill=function(){return this.fill_},e.prototype.getHitDetectionImage=function(t){return this.hitDetectionCanvas_},e.prototype.getImage=function(t){return this.canvas_},e.prototype.getImageSize=function(){return this.imageSize_},e.prototype.getHitDetectionImageSize=function(){return this.hitDetectionImageSize_},e.prototype.getImageState=function(){return Ss},e.prototype.getOrigin=function(){return this.origin_},e.prototype.getPoints=function(){return this.points_},e.prototype.getRadius=function(){return this.radius_},e.prototype.getRadius2=function(){return this.radius2_},e.prototype.getSize=function(){return this.size_},e.prototype.getStroke=function(){return this.stroke_},e.prototype.listenImageChange=function(t){},e.prototype.load=function(){},e.prototype.unlistenImageChange=function(t){},e.prototype.render=function(){var t,e="round",i="round",n=0,r=null,o=0,s=0;this.stroke_&&(null===(t=this.stroke_.getColor())&&(t="#000"),t=$o(t),void 0===(s=this.stroke_.getWidth())&&(s=1),r=this.stroke_.getLineDash(),o=this.stroke_.getLineDashOffset(),void 0===(i=this.stroke_.getLineJoin())&&(i="round"),void 0===(e=this.stroke_.getLineCap())&&(e="round"),void 0===(n=this.stroke_.getMiterLimit())&&(n=10));var a=2*(this.radius_+s)+1,h={strokeStyle:t,strokeWidth:s,size:a,lineCap:e,lineDash:r,lineDashOffset:o,lineJoin:i,miterLimit:n},l=Jn(a,a);this.canvas_=l.canvas;var u=a=this.canvas_.width,c=this.getDisplacement();this.draw_(h,l,0,0),this.createHitDetectionCanvas_(h),this.anchor_=[a/2-c[0],a/2+c[1]],this.size_=[a,a],this.imageSize_=[u,u]},e.prototype.draw_=function(t,e,i,n){var r,o,s;e.setTransform(1,0,0,1,0,0),e.translate(i,n),e.beginPath();var a=this.points_;if(a===1/0)e.arc(t.size/2,t.size/2,this.radius_,0,2*Math.PI,!0);else{var h=void 0!==this.radius2_?this.radius2_:this.radius_;for(h!==this.radius_&&(a*=2),r=0;r<=a;r++)o=2*r*Math.PI/a-Math.PI/2+this.angle_,s=r%2==0?this.radius_:h,e.lineTo(t.size/2+s*Math.cos(o),t.size/2+s*Math.sin(o))}if(this.fill_){var l=this.fill_.getColor();null===l&&(l="#000"),e.fillStyle=$o(l),e.fill()}this.stroke_&&(e.strokeStyle=t.strokeStyle,e.lineWidth=t.strokeWidth,e.setLineDash&&t.lineDash&&(e.setLineDash(t.lineDash),e.lineDashOffset=t.lineDashOffset),e.lineCap=t.lineCap,e.lineJoin=t.lineJoin,e.miterLimit=t.miterLimit,e.stroke()),e.closePath()},e.prototype.createHitDetectionCanvas_=function(t){if(this.hitDetectionImageSize_=[t.size,t.size],this.hitDetectionCanvas_=this.canvas_,this.fill_){var e=this.fill_.getColor(),i=0;if("string"==typeof e&&(e=Vo(e)),null===e?i=1:Array.isArray(e)&&(i=4===e.length?e[3]:1),0===i){var n=Jn(t.size,t.size);this.hitDetectionCanvas_=n.canvas,this.drawHitDetectionCanvas_(t,n,0,0)}}},e.prototype.drawHitDetectionCanvas_=function(t,e,i,n){e.setTransform(1,0,0,1,0,0),e.translate(i,n),e.beginPath();var r=this.points_;if(r===1/0)e.arc(t.size/2,t.size/2,this.radius_,0,2*Math.PI,!0);else{var o=void 0!==this.radius2_?this.radius2_:this.radius_;o!==this.radius_&&(r*=2);var s=void 0,a=void 0,h=void 0;for(s=0;s<=r;s++)h=2*s*Math.PI/r-Math.PI/2+this.angle_,a=s%2==0?this.radius_:o,e.lineTo(t.size/2+a*Math.cos(h),t.size/2+a*Math.sin(h))}e.fillStyle="#000",e.fill(),this.stroke_&&(e.strokeStyle=t.strokeStyle,e.lineWidth=t.strokeWidth,t.lineDash&&(e.setLineDash(t.lineDash),e.lineDashOffset=t.lineDashOffset),e.stroke()),e.closePath()},e}(na),sa=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),aa=function(t){function e(e){var i=e||{};return t.call(this,{points:1/0,fill:i.fill,radius:i.radius,stroke:i.stroke,displacement:void 0!==i.displacement?i.displacement:[0,0]})||this}return sa(e,t),e.prototype.clone=function(){var t=new e({fill:this.getFill()?this.getFill().clone():void 0,stroke:this.getStroke()?this.getStroke().clone():void 0,radius:this.getRadius(),displacement:this.getDisplacement().slice()});return t.setOpacity(this.getOpacity()),t.setScale(this.getScale()),t},e.prototype.setRadius=function(t){this.radius_=t,this.render()},e}(oa),ha=function(){function t(t){var e=t||{};this.color_=void 0!==e.color?e.color:null}return t.prototype.clone=function(){var e=this.getColor();return new t({color:Array.isArray(e)?e.slice():e||void 0})},t.prototype.getColor=function(){return this.color_},t.prototype.setColor=function(t){this.color_=t},t}(),la=function(){function t(t){var e=t||{};this.color_=void 0!==e.color?e.color:null,this.lineCap_=e.lineCap,this.lineDash_=void 0!==e.lineDash?e.lineDash:null,this.lineDashOffset_=e.lineDashOffset,this.lineJoin_=e.lineJoin,this.miterLimit_=e.miterLimit,this.width_=e.width}return t.prototype.clone=function(){var e=this.getColor();return new t({color:Array.isArray(e)?e.slice():e||void 0,lineCap:this.getLineCap(),lineDash:this.getLineDash()?this.getLineDash().slice():void 0,lineDashOffset:this.getLineDashOffset(),lineJoin:this.getLineJoin(),miterLimit:this.getMiterLimit(),width:this.getWidth()})},t.prototype.getColor=function(){return this.color_},t.prototype.getLineCap=function(){return this.lineCap_},t.prototype.getLineDash=function(){return this.lineDash_},t.prototype.getLineDashOffset=function(){return this.lineDashOffset_},t.prototype.getLineJoin=function(){return this.lineJoin_},t.prototype.getMiterLimit=function(){return this.miterLimit_},t.prototype.getWidth=function(){return this.width_},t.prototype.setColor=function(t){this.color_=t},t.prototype.setLineCap=function(t){this.lineCap_=t},t.prototype.setLineDash=function(t){this.lineDash_=t},t.prototype.setLineDashOffset=function(t){this.lineDashOffset_=t},t.prototype.setLineJoin=function(t){this.lineJoin_=t},t.prototype.setMiterLimit=function(t){this.miterLimit_=t},t.prototype.setWidth=function(t){this.width_=t},t}(),ua=function(){function t(t){var e=t||{};this.geometry_=null,this.geometryFunction_=fa,void 0!==e.geometry&&this.setGeometry(e.geometry),this.fill_=void 0!==e.fill?e.fill:null,this.image_=void 0!==e.image?e.image:null,this.renderer_=void 0!==e.renderer?e.renderer:null,this.stroke_=void 0!==e.stroke?e.stroke:null,this.text_=void 0!==e.text?e.text:null,this.zIndex_=e.zIndex}return t.prototype.clone=function(){var e=this.getGeometry();return e&&"object"==typeof e&&(e=e.clone()),new t({geometry:e,fill:this.getFill()?this.getFill().clone():void 0,image:this.getImage()?this.getImage().clone():void 0,stroke:this.getStroke()?this.getStroke().clone():void 0,text:this.getText()?this.getText().clone():void 0,zIndex:this.getZIndex()})},t.prototype.getRenderer=function(){return this.renderer_},t.prototype.setRenderer=function(t){this.renderer_=t},t.prototype.getGeometry=function(){return this.geometry_},t.prototype.getGeometryFunction=function(){return this.geometryFunction_},t.prototype.getFill=function(){return this.fill_},t.prototype.setFill=function(t){this.fill_=t},t.prototype.getImage=function(){return this.image_},t.prototype.setImage=function(t){this.image_=t},t.prototype.getStroke=function(){return this.stroke_},t.prototype.setStroke=function(t){this.stroke_=t},t.prototype.getText=function(){return this.text_},t.prototype.setText=function(t){this.text_=t},t.prototype.getZIndex=function(){return this.zIndex_},t.prototype.setGeometry=function(t){"function"==typeof t?this.geometryFunction_=t:"string"==typeof t?this.geometryFunction_=function(e){return e.get(t)}:t?void 0!==t&&(this.geometryFunction_=function(){return t}):this.geometryFunction_=fa,this.geometry_=t},t.prototype.setZIndex=function(t){this.zIndex_=t},t}();var ca=null;function pa(t,e){if(!ca){var i=new ha({color:"rgba(255,255,255,0.4)"}),n=new la({color:"#3399CC",width:1.25});ca=[new ua({image:new aa({fill:i,stroke:n,radius:5}),fill:i,stroke:n})]}return ca}function fa(t){return t.getGeometry()}var da=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),_a="renderOrder",ga=function(t){function e(e){var i=this,n=e||{},r=p({},n);return delete r.style,delete r.renderBuffer,delete r.updateWhileAnimating,delete r.updateWhileInteracting,(i=t.call(this,r)||this).declutter_=void 0!==n.declutter&&n.declutter,i.renderBuffer_=void 0!==n.renderBuffer?n.renderBuffer:100,i.style_=null,i.styleFunction_=void 0,i.setStyle(n.style),i.updateWhileAnimating_=void 0!==n.updateWhileAnimating&&n.updateWhileAnimating,i.updateWhileInteracting_=void 0!==n.updateWhileInteracting&&n.updateWhileInteracting,i}return da(e,t),e.prototype.getDeclutter=function(){return this.declutter_},e.prototype.getFeatures=function(e){return t.prototype.getFeatures.call(this,e)},e.prototype.getRenderBuffer=function(){return this.renderBuffer_},e.prototype.getRenderOrder=function(){return this.get(_a)},e.prototype.getStyle=function(){return this.style_},e.prototype.getStyleFunction=function(){return this.styleFunction_},e.prototype.getUpdateWhileAnimating=function(){return this.updateWhileAnimating_},e.prototype.getUpdateWhileInteracting=function(){return this.updateWhileInteracting_},e.prototype.setRenderOrder=function(t){this.set(_a,t)},e.prototype.setStyle=function(t){this.style_=void 0!==t?t:pa,this.styleFunction_=null===t?void 0:function(t){var e;if("function"==typeof t)e=t;else{var i;if(Array.isArray(t))i=t;else kt("function"==typeof t.getZIndex,41),i=[t];e=function(){return i}}return e}(this.style_),this.changed()},e}(Ir),ya={BEGIN_GEOMETRY:0,BEGIN_PATH:1,CIRCLE:2,CLOSE_PATH:3,CUSTOM:4,DRAW_CHARS:5,DRAW_IMAGE:6,END_GEOMETRY:7,FILL:8,MOVE_TO_LINE_TO:9,SET_FILL_STYLE:10,SET_STROKE_STYLE:11,STROKE:12},va=[ya.FILL],ma=[ya.STROKE],xa=[ya.BEGIN_PATH],Sa=[ya.CLOSE_PATH],Ca=ya,wa=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),Ea=function(t){function e(e,i,n,r){var o=t.call(this)||this;return o.tolerance=e,o.maxExtent=i,o.pixelRatio=r,o.maxLineWidth=0,o.resolution=n,o.beginGeometryInstruction1_=null,o.beginGeometryInstruction2_=null,o.bufferedMaxExtent_=null,o.instructions=[],o.coordinates=[],o.tmpCoordinate_=[],o.hitDetectionInstructions=[],o.state={},o}return wa(e,t),e.prototype.applyPixelRatio=function(t){var e=this.pixelRatio;return 1==e?t:t.map((function(t){return t*e}))},e.prototype.appendFlatCoordinates=function(t,e,i,n,r,o){var s=this.coordinates.length,a=this.getBufferedMaxExtent();o&&(e+=n);var h,l,u,c=t[e],p=t[e+1],f=this.tmpCoordinate_,d=!0;for(h=e+n;h<i;h+=n)f[0]=t[h],f[1]=t[h+1],(u=pe(a,f))!==l?(d&&(this.coordinates[s++]=c,this.coordinates[s++]=p),this.coordinates[s++]=f[0],this.coordinates[s++]=f[1],d=!1):u===te?(this.coordinates[s++]=f[0],this.coordinates[s++]=f[1],d=!1):d=!0,c=f[0],p=f[1],l=u;return(r&&d||h===e+n)&&(this.coordinates[s++]=c,this.coordinates[s++]=p),s},e.prototype.drawCustomCoordinates_=function(t,e,i,n,r){for(var o=0,s=i.length;o<s;++o){var a=i[o],h=this.appendFlatCoordinates(t,e,a,n,!1,!1);r.push(h),e=a}return e},e.prototype.drawCustom=function(t,e,i){this.beginGeometry(t,e);var n,r,o,s,a,h=t.getType(),l=t.getStride(),u=this.coordinates.length;if(h==oi){n=(t=t).getOrientedFlatCoordinates(),s=[];var c=t.getEndss();a=0;for(var p=0,f=c.length;p<f;++p){var d=[];a=this.drawCustomCoordinates_(n,a,c[p],l,d),s.push(d)}this.instructions.push([Ca.CUSTOM,u,s,t,i,En])}else h==ii||h==ri?(o=[],n=h==ii?t.getOrientedFlatCoordinates():t.getFlatCoordinates(),a=this.drawCustomCoordinates_(n,0,t.getEnds(),l,o),this.instructions.push([Ca.CUSTOM,u,o,t,i,wn])):h==ti||h==ni?(n=t.getFlatCoordinates(),r=this.appendFlatCoordinates(n,0,n.length,l,!1,!1),this.instructions.push([Ca.CUSTOM,u,r,t,i,Cn])):h==$e&&(n=t.getFlatCoordinates(),this.coordinates.push(n[0],n[1]),r=this.coordinates.length,this.instructions.push([Ca.CUSTOM,u,r,t,i]));this.endGeometry(e)},e.prototype.beginGeometry=function(t,e){var i=t.getExtent();this.beginGeometryInstruction1_=[Ca.BEGIN_GEOMETRY,e,0,i],this.instructions.push(this.beginGeometryInstruction1_),this.beginGeometryInstruction2_=[Ca.BEGIN_GEOMETRY,e,0,i],this.hitDetectionInstructions.push(this.beginGeometryInstruction2_)},e.prototype.finish=function(){return{instructions:this.instructions,hitDetectionInstructions:this.hitDetectionInstructions,coordinates:this.coordinates}},e.prototype.reverseHitDetectionInstructions=function(){var t,e=this.hitDetectionInstructions;e.reverse();var i,n,r=e.length,o=-1;for(t=0;t<r;++t)(n=(i=e[t])[0])==Ca.END_GEOMETRY?o=t:n==Ca.BEGIN_GEOMETRY&&(i[2]=t,C(this.hitDetectionInstructions,o,t),o=-1)},e.prototype.setFillStrokeStyle=function(t,e){var i=this.state;if(t){var n=t.getColor();i.fillStyle=$o(n||"#000")}else i.fillStyle=void 0;if(e){var r=e.getColor();i.strokeStyle=$o(r||"#000");var o=e.getLineCap();i.lineCap=void 0!==o?o:"round";var s=e.getLineDash();i.lineDash=s?s.slice():es;var a=e.getLineDashOffset();i.lineDashOffset=a||0;var h=e.getLineJoin();i.lineJoin=void 0!==h?h:"round";var l=e.getWidth();i.lineWidth=void 0!==l?l:1;var u=e.getMiterLimit();i.miterLimit=void 0!==u?u:10,i.lineWidth>this.maxLineWidth&&(this.maxLineWidth=i.lineWidth,this.bufferedMaxExtent_=null)}else i.strokeStyle=void 0,i.lineCap=void 0,i.lineDash=null,i.lineDashOffset=void 0,i.lineJoin=void 0,i.lineWidth=void 0,i.miterLimit=void 0},e.prototype.createFill=function(t){var e=t.fillStyle,i=[Ca.SET_FILL_STYLE,e];return"string"!=typeof e&&i.push(!0),i},e.prototype.applyStroke=function(t){this.instructions.push(this.createStroke(t))},e.prototype.createStroke=function(t){return[Ca.SET_STROKE_STYLE,t.strokeStyle,t.lineWidth*this.pixelRatio,t.lineCap,t.lineJoin,t.miterLimit,this.applyPixelRatio(t.lineDash),t.lineDashOffset*this.pixelRatio]},e.prototype.updateFillStyle=function(t,e){var i=t.fillStyle;"string"==typeof i&&t.currentFillStyle==i||(void 0!==i&&this.instructions.push(e.call(this,t)),t.currentFillStyle=i)},e.prototype.updateStrokeStyle=function(t,e){var i=t.strokeStyle,n=t.lineCap,r=t.lineDash,o=t.lineDashOffset,s=t.lineJoin,a=t.lineWidth,h=t.miterLimit;(t.currentStrokeStyle!=i||t.currentLineCap!=n||r!=t.currentLineDash&&!E(t.currentLineDash,r)||t.currentLineDashOffset!=o||t.currentLineJoin!=s||t.currentLineWidth!=a||t.currentMiterLimit!=h)&&(void 0!==i&&e.call(this,t),t.currentStrokeStyle=i,t.currentLineCap=n,t.currentLineDash=r,t.currentLineDashOffset=o,t.currentLineJoin=s,t.currentLineWidth=a,t.currentMiterLimit=h)},e.prototype.endGeometry=function(t){this.beginGeometryInstruction1_[2]=this.instructions.length,this.beginGeometryInstruction1_=null,this.beginGeometryInstruction2_[2]=this.hitDetectionInstructions.length,this.beginGeometryInstruction2_=null;var e=[Ca.END_GEOMETRY,t];this.instructions.push(e),this.hitDetectionInstructions.push(e)},e.prototype.getBufferedMaxExtent=function(){if(!this.bufferedMaxExtent_&&(this.bufferedMaxExtent_=ae(this.maxExtent),this.maxLineWidth>0)){var t=this.resolution*(this.maxLineWidth+1)/2;se(this.bufferedMaxExtent_,t,this.bufferedMaxExtent_)}return this.bufferedMaxExtent_},e}(ts),Ta=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),ba=function(t){function e(e,i,n,r){var o=t.call(this,e,i,n,r)||this;return o.declutterGroups_=null,o.hitDetectionImage_=null,o.image_=null,o.anchorX_=void 0,o.anchorY_=void 0,o.height_=void 0,o.opacity_=void 0,o.originX_=void 0,o.originY_=void 0,o.rotateWithView_=void 0,o.rotation_=void 0,o.scale_=void 0,o.width_=void 0,o}return Ta(e,t),e.prototype.drawCoordinates_=function(t,e,i,n){return this.appendFlatCoordinates(t,e,i,n,!1,!1)},e.prototype.drawPoint=function(t,e){if(this.image_){this.beginGeometry(t,e);var i=t.getFlatCoordinates(),n=t.getStride(),r=this.coordinates.length,o=this.drawCoordinates_(i,0,i.length,n);this.instructions.push([Ca.DRAW_IMAGE,r,o,this.image_,this.anchorX_,this.anchorY_,this.declutterGroups_,this.height_,this.opacity_,this.originX_,this.originY_,this.rotateWithView_,this.rotation_,this.scale_*this.pixelRatio,this.width_]),this.hitDetectionInstructions.push([Ca.DRAW_IMAGE,r,o,this.hitDetectionImage_,this.anchorX_,this.anchorY_,this.declutterGroups_,this.height_,this.opacity_,this.originX_,this.originY_,this.rotateWithView_,this.rotation_,this.scale_,this.width_]),this.endGeometry(e)}},e.prototype.drawMultiPoint=function(t,e){if(this.image_){this.beginGeometry(t,e);var i=t.getFlatCoordinates(),n=t.getStride(),r=this.coordinates.length,o=this.drawCoordinates_(i,0,i.length,n);this.instructions.push([Ca.DRAW_IMAGE,r,o,this.image_,this.anchorX_,this.anchorY_,this.declutterGroups_,this.height_,this.opacity_,this.originX_,this.originY_,this.rotateWithView_,this.rotation_,this.scale_*this.pixelRatio,this.width_]),this.hitDetectionInstructions.push([Ca.DRAW_IMAGE,r,o,this.hitDetectionImage_,this.anchorX_,this.anchorY_,this.declutterGroups_,this.height_,this.opacity_,this.originX_,this.originY_,this.rotateWithView_,this.rotation_,this.scale_,this.width_]),this.endGeometry(e)}},e.prototype.finish=function(){return this.reverseHitDetectionInstructions(),this.anchorX_=void 0,this.anchorY_=void 0,this.hitDetectionImage_=null,this.image_=null,this.height_=void 0,this.scale_=void 0,this.opacity_=void 0,this.originX_=void 0,this.originY_=void 0,this.rotateWithView_=void 0,this.rotation_=void 0,this.width_=void 0,t.prototype.finish.call(this)},e.prototype.setImageStyle=function(t,e){var i=t.getAnchor(),n=t.getSize(),r=t.getHitDetectionImage(1),o=t.getImage(1),s=t.getOrigin();this.anchorX_=i[0],this.anchorY_=i[1],this.declutterGroups_=e,this.hitDetectionImage_=r,this.image_=o,this.height_=n[1],this.opacity_=t.getOpacity(),this.originX_=s[0],this.originY_=s[1],this.rotateWithView_=t.getRotateWithView(),this.rotation_=t.getRotation(),this.scale_=t.getScale(),this.width_=n[0]},e}(Ea),Ra=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),Ia=function(t){function e(e,i,n,r){return t.call(this,e,i,n,r)||this}return Ra(e,t),e.prototype.drawFlatCoordinates_=function(t,e,i,n){var r=this.coordinates.length,o=this.appendFlatCoordinates(t,e,i,n,!1,!1),s=[Ca.MOVE_TO_LINE_TO,r,o];return this.instructions.push(s),this.hitDetectionInstructions.push(s),i},e.prototype.drawLineString=function(t,e){var i=this.state,n=i.strokeStyle,r=i.lineWidth;if(void 0!==n&&void 0!==r){this.updateStrokeStyle(i,this.applyStroke),this.beginGeometry(t,e),this.hitDetectionInstructions.push([Ca.SET_STROKE_STYLE,i.strokeStyle,i.lineWidth,i.lineCap,i.lineJoin,i.miterLimit,i.lineDash,i.lineDashOffset],xa);var o=t.getFlatCoordinates(),s=t.getStride();this.drawFlatCoordinates_(o,0,o.length,s),this.hitDetectionInstructions.push(ma),this.endGeometry(e)}},e.prototype.drawMultiLineString=function(t,e){var i=this.state,n=i.strokeStyle,r=i.lineWidth;if(void 0!==n&&void 0!==r){this.updateStrokeStyle(i,this.applyStroke),this.beginGeometry(t,e),this.hitDetectionInstructions.push([Ca.SET_STROKE_STYLE,i.strokeStyle,i.lineWidth,i.lineCap,i.lineJoin,i.miterLimit,i.lineDash,i.lineDashOffset],xa);for(var o=t.getEnds(),s=t.getFlatCoordinates(),a=t.getStride(),h=0,l=0,u=o.length;l<u;++l)h=this.drawFlatCoordinates_(s,h,o[l],a);this.hitDetectionInstructions.push(ma),this.endGeometry(e)}},e.prototype.finish=function(){var e=this.state;return null!=e.lastStroke&&e.lastStroke!=this.coordinates.length&&this.instructions.push(ma),this.reverseHitDetectionInstructions(),this.state=null,t.prototype.finish.call(this)},e.prototype.applyStroke=function(e){null!=e.lastStroke&&e.lastStroke!=this.coordinates.length&&(this.instructions.push(ma),e.lastStroke=this.coordinates.length),e.lastStroke=0,t.prototype.applyStroke.call(this,e),this.instructions.push(xa)},e}(Ea),Oa=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),Pa=function(t){function e(e,i,n,r){return t.call(this,e,i,n,r)||this}return Oa(e,t),e.prototype.drawFlatCoordinatess_=function(t,e,i,n){var r=this.state,o=void 0!==r.fillStyle,s=void 0!==r.strokeStyle,a=i.length;this.instructions.push(xa),this.hitDetectionInstructions.push(xa);for(var h=0;h<a;++h){var l=i[h],u=this.coordinates.length,c=this.appendFlatCoordinates(t,e,l,n,!0,!s),p=[Ca.MOVE_TO_LINE_TO,u,c];this.instructions.push(p),this.hitDetectionInstructions.push(p),s&&(this.instructions.push(Sa),this.hitDetectionInstructions.push(Sa)),e=l}return o&&(this.instructions.push(va),this.hitDetectionInstructions.push(va)),s&&(this.instructions.push(ma),this.hitDetectionInstructions.push(ma)),e},e.prototype.drawCircle=function(t,e){var i=this.state,n=i.fillStyle,r=i.strokeStyle;if(void 0!==n||void 0!==r){this.setFillStrokeStyles_(),this.beginGeometry(t,e),void 0!==i.fillStyle&&this.hitDetectionInstructions.push([Ca.SET_FILL_STYLE,"#000"]),void 0!==i.strokeStyle&&this.hitDetectionInstructions.push([Ca.SET_STROKE_STYLE,i.strokeStyle,i.lineWidth,i.lineCap,i.lineJoin,i.miterLimit,i.lineDash,i.lineDashOffset]);var o=t.getFlatCoordinates(),s=t.getStride(),a=this.coordinates.length;this.appendFlatCoordinates(o,0,o.length,s,!1,!1);var h=[Ca.CIRCLE,a];this.instructions.push(xa,h),this.hitDetectionInstructions.push(xa,h),void 0!==i.fillStyle&&(this.instructions.push(va),this.hitDetectionInstructions.push(va)),void 0!==i.strokeStyle&&(this.instructions.push(ma),this.hitDetectionInstructions.push(ma)),this.endGeometry(e)}},e.prototype.drawPolygon=function(t,e){var i=this.state,n=i.fillStyle,r=i.strokeStyle;if(void 0!==n||void 0!==r){this.setFillStrokeStyles_(),this.beginGeometry(t,e),void 0!==i.fillStyle&&this.hitDetectionInstructions.push([Ca.SET_FILL_STYLE,"#000"]),void 0!==i.strokeStyle&&this.hitDetectionInstructions.push([Ca.SET_STROKE_STYLE,i.strokeStyle,i.lineWidth,i.lineCap,i.lineJoin,i.miterLimit,i.lineDash,i.lineDashOffset]);var o=t.getEnds(),s=t.getOrientedFlatCoordinates(),a=t.getStride();this.drawFlatCoordinatess_(s,0,o,a),this.endGeometry(e)}},e.prototype.drawMultiPolygon=function(t,e){var i=this.state,n=i.fillStyle,r=i.strokeStyle;if(void 0!==n||void 0!==r){this.setFillStrokeStyles_(),this.beginGeometry(t,e),void 0!==i.fillStyle&&this.hitDetectionInstructions.push([Ca.SET_FILL_STYLE,"#000"]),void 0!==i.strokeStyle&&this.hitDetectionInstructions.push([Ca.SET_STROKE_STYLE,i.strokeStyle,i.lineWidth,i.lineCap,i.lineJoin,i.miterLimit,i.lineDash,i.lineDashOffset]);for(var o=t.getEndss(),s=t.getOrientedFlatCoordinates(),a=t.getStride(),h=0,l=0,u=o.length;l<u;++l)h=this.drawFlatCoordinatess_(s,h,o[l],a);this.endGeometry(e)}},e.prototype.finish=function(){this.reverseHitDetectionInstructions(),this.state=null;var e=this.tolerance;if(0!==e)for(var i=this.coordinates,n=0,r=i.length;n<r;++n)i[n]=bn(i[n],e);return t.prototype.finish.call(this)},e.prototype.setFillStrokeStyles_=function(){var t=this.state;void 0!==t.fillStyle&&this.updateFillStyle(t,this.createFill),void 0!==t.strokeStyle&&this.updateStrokeStyle(t,this.applyStroke)},e}(Ea);function Ma(t,e,i,n,r){var o,s,a,h,l,u,c,p,f,d=i,_=i,g=0,y=0,v=i;for(o=i;o<n;o+=r){var m=e[o],x=e[o+1];void 0!==h&&(p=m-h,f=x-l,a=Math.sqrt(p*p+f*f),void 0!==u&&(y+=s,Math.acos((u*p+c*f)/(s*a))>t&&(y>g&&(g=y,d=v,_=o),y=0,v=o-r)),s=a,u=p,c=f),h=m,l=x}return(y+=a)>g?[v,o]:[d,_]}var Fa="line",La=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),Aa={left:0,end:0,center:.5,right:1,start:1,top:0,middle:.5,hanging:.2,alphabetic:.8,ideographic:.8,bottom:1},Da={Circle:Pa,Default:Ea,Image:ba,LineString:Ia,Polygon:Pa,Text:function(t){function e(e,i,n,r){var o=t.call(this,e,i,n,r)||this;return o.declutterGroups_,o.labels_=null,o.text_="",o.textOffsetX_=0,o.textOffsetY_=0,o.textRotateWithView_=void 0,o.textRotation_=0,o.textFillState_=null,o.fillStates={},o.textStrokeState_=null,o.strokeStates={},o.textState_={},o.textStates={},o.textKey_="",o.fillKey_="",o.strokeKey_="",o}return La(e,t),e.prototype.finish=function(){var e=t.prototype.finish.call(this);return e.textStates=this.textStates,e.fillStates=this.fillStates,e.strokeStates=this.strokeStates,e},e.prototype.drawText=function(t,e){var i=this.textFillState_,n=this.textStrokeState_,r=this.textState_;if(""!==this.text_&&r&&(i||n)){var o,s,a=this.coordinates.length,h=t.getType(),l=null,u=2,c=2;if(r.placement===Fa){if(!Le(this.getBufferedMaxExtent(),t.getExtent()))return;var p=void 0;if(l=t.getFlatCoordinates(),c=t.getStride(),h==ti)p=[l.length];else if(h==ri)p=t.getEnds();else if(h==ii)p=t.getEnds().slice(0,1);else if(h==oi){var f=t.getEndss();for(p=[],o=0,s=f.length;o<s;++o)p.push(f[o][0])}this.beginGeometry(t,e);for(var d=r.textAlign,_=0,g=void 0,y=0,v=p.length;y<v;++y){if(null==d){var m=Ma(r.maxAngle,l,_,p[y],c);_=m[0],g=m[1]}else g=p[y];for(o=_;o<g;o+=c)this.coordinates.push(l[o],l[o+1]);u=this.coordinates.length,_=p[y];var x=this.declutterGroups_?0===y?this.declutterGroups_[0]:[].concat(this.declutterGroups_[0]):null;this.drawChars_(a,u,x),a=u}this.endGeometry(e)}else{var S=null;switch(r.overflow||(S=[]),h){case $e:case ni:u=(l=t.getFlatCoordinates()).length;break;case ti:l=t.getFlatMidpoint();break;case ai:l=t.getCenter();break;case ri:u=(l=t.getFlatMidpoints()).length;break;case ii:l=t.getFlatInteriorPoint(),r.overflow||S.push(l[2]/this.resolution),c=3;break;case oi:var C=t.getFlatInteriorPoints();for(l=[],o=0,s=C.length;o<s;o+=3)r.overflow||S.push(C[o+2]/this.resolution),l.push(C[o],C[o+1]);if(0==(u=l.length))return}u=this.appendFlatCoordinates(l,0,u,c,!1,!1),this.saveTextStates_(),(r.backgroundFill||r.backgroundStroke)&&(this.setFillStrokeStyle(r.backgroundFill,r.backgroundStroke),r.backgroundFill&&(this.updateFillStyle(this.state,this.createFill),this.hitDetectionInstructions.push(this.createFill(this.state))),r.backgroundStroke&&(this.updateStrokeStyle(this.state,this.applyStroke),this.hitDetectionInstructions.push(this.createStroke(this.state)))),this.beginGeometry(t,e);var w=this.pixelRatio;this.instructions.push([Ca.DRAW_IMAGE,a,u,null,NaN,NaN,this.declutterGroups_,NaN,1,0,0,this.textRotateWithView_,this.textRotation_,1,NaN,r.padding==is?is:r.padding.map((function(t){return t*w})),!!r.backgroundFill,!!r.backgroundStroke,this.text_,this.textKey_,this.strokeKey_,this.fillKey_,this.textOffsetX_,this.textOffsetY_,S]),this.hitDetectionInstructions.push([Ca.DRAW_IMAGE,a,u,null,NaN,NaN,this.declutterGroups_,NaN,1,0,0,this.textRotateWithView_,this.textRotation_,1/this.pixelRatio,NaN,r.padding,!!r.backgroundFill,!!r.backgroundStroke,this.text_,this.textKey_,this.strokeKey_,this.fillKey_,this.textOffsetX_,this.textOffsetY_,S]),this.endGeometry(e)}}},e.prototype.saveTextStates_=function(){var t=this.textStrokeState_,e=this.textState_,i=this.textFillState_,n=this.strokeKey_;t&&(n in this.strokeStates||(this.strokeStates[n]={strokeStyle:t.strokeStyle,lineCap:t.lineCap,lineDashOffset:t.lineDashOffset,lineWidth:t.lineWidth,lineJoin:t.lineJoin,miterLimit:t.miterLimit,lineDash:t.lineDash}));var r=this.textKey_;r in this.textStates||(this.textStates[r]={font:e.font,textAlign:e.textAlign||"center",textBaseline:e.textBaseline||"middle",scale:e.scale});var o=this.fillKey_;i&&(o in this.fillStates||(this.fillStates[o]={fillStyle:i.fillStyle}))},e.prototype.drawChars_=function(t,e,i){var n=this.textStrokeState_,r=this.textState_,o=this.strokeKey_,s=this.textKey_,a=this.fillKey_;this.saveTextStates_();var h=this.pixelRatio,l=Aa[r.textBaseline],u=this.textOffsetY_*h,c=this.text_,p=r.scale,f=n?n.lineWidth*p/2:0;this.instructions.push([Ca.DRAW_CHARS,t,e,l,i,r.overflow,a,r.maxAngle,h,u,o,f*h,c,s,1]),this.hitDetectionInstructions.push([Ca.DRAW_CHARS,t,e,l,i,r.overflow,a,r.maxAngle,1,u,o,f,c,s,1/h])},e.prototype.setTextStyle=function(t,e){var i,n,r;if(t){this.declutterGroups_=e;var s=t.getFill();s?((n=this.textFillState_)||(n={},this.textFillState_=n),n.fillStyle=$o(s.getColor()||"#000")):(n=null,this.textFillState_=n);var a=t.getStroke();if(a){(r=this.textStrokeState_)||(r={},this.textStrokeState_=r);var h=a.getLineDash(),l=a.getLineDashOffset(),u=a.getWidth(),c=a.getMiterLimit();r.lineCap=a.getLineCap()||"round",r.lineDash=h?h.slice():es,r.lineDashOffset=void 0===l?0:l,r.lineJoin=a.getLineJoin()||"round",r.lineWidth=void 0===u?1:u,r.miterLimit=void 0===c?10:c,r.strokeStyle=$o(a.getColor()||"#000")}else r=null,this.textStrokeState_=r;i=this.textState_;var p=t.getFont()||"10px sans-serif";ls(p);var f=t.getScale();i.overflow=t.getOverflow(),i.font=p,i.maxAngle=t.getMaxAngle(),i.placement=t.getPlacement(),i.textAlign=t.getTextAlign(),i.textBaseline=t.getTextBaseline()||"middle",i.backgroundFill=t.getBackgroundFill(),i.backgroundStroke=t.getBackgroundStroke(),i.padding=t.getPadding()||is,i.scale=void 0===f?1:f;var d=t.getOffsetX(),_=t.getOffsetY(),g=t.getRotateWithView(),y=t.getRotation();this.text_=t.getText()||"",this.textOffsetX_=void 0===d?0:d,this.textOffsetY_=void 0===_?0:_,this.textRotateWithView_=void 0!==g&&g,this.textRotation_=void 0===y?0:y,this.strokeKey_=r?("string"==typeof r.strokeStyle?r.strokeStyle:o(r.strokeStyle))+r.lineCap+r.lineDashOffset+"|"+r.lineWidth+r.lineJoin+r.miterLimit+"["+r.lineDash.join()+"]":"",this.textKey_=i.font+i.scale+(i.textAlign||"?")+(i.textBaseline||"?"),this.fillKey_=n?"string"==typeof n.fillStyle?n.fillStyle:"|"+o(n.fillStyle):""}else this.text_=""},e}(Ea)},ka=function(){function t(t,e,i,n,r){this.declutter_=r,this.declutterGroups_=null,this.tolerance_=t,this.maxExtent_=e,this.pixelRatio_=n,this.resolution_=i,this.buildersByZIndex_={}}return t.prototype.addDeclutter=function(t){var e=null;return this.declutter_&&(t?(e=this.declutterGroups_)[0][4]++:(e=[[1/0,1/0,-1/0,-1/0]],this.declutterGroups_=e,e[0].push(1))),e},t.prototype.finish=function(){var t={};for(var e in this.buildersByZIndex_){t[e]=t[e]||{};var i=this.buildersByZIndex_[e];for(var n in i){var r=i[n].finish();t[e][n]=r}}return t},t.prototype.getBuilder=function(t,e){var i=void 0!==t?t.toString():"0",n=this.buildersByZIndex_[i];void 0===n&&(n={},this.buildersByZIndex_[i]=n);var r=n[e];void 0===r&&(r=new(0,Da[e])(this.tolerance_,this.maxExtent_,this.resolution_,this.pixelRatio_),n[e]=r);return r},t}();function ja(t,e,i,n){for(var r=t[e],o=t[e+1],s=0,a=e+n;a<i;a+=n){var h=t[a],l=t[a+1];s+=Math.sqrt((h-r)*(h-r)+(l-o)*(l-o)),r=h,o=l}return s}function Ga(t,e,i,n,r,o,s,a,h,l,u){for(var c,p,f=[],d=t[e]>t[i-n],_=r.length,g=t[e],y=t[e+1],v=t[e+=n],m=t[e+1],x=0,S=Math.sqrt(Math.pow(v-g,2)+Math.pow(m-y,2)),C=!1,w=0;w<_;++w){for(var E=r[c=d?_-w-1:w],T=a*h(l,E,u),b=o+T/2;e<i-n&&x+S<b;)g=v,y=m,v=t[e+=n],m=t[e+1],x+=S,S=Math.sqrt(Math.pow(v-g,2)+Math.pow(m-y,2));var R=b-x,I=Math.atan2(m-y,v-g);if(d&&(I+=I>0?-Math.PI:Math.PI),void 0!==p){var O=I-p;if(C=C||0!==O,O+=O>Math.PI?-2*Math.PI:O<-Math.PI?2*Math.PI:0,Math.abs(O)>s)return null}p=I;var P=R/S,M=Bt(g,v,P),F=Bt(y,m,P);f[c]=[M,F,T/2,I,E],o+=T}return C?f:[[f[0][0],f[0][1],f[0][2],f[0][3],r]]}var za=i(0),Xa=i.n(za),Wa=[1/0,1/0,-1/0,-1/0],Ka=[1,0,0,1,0,0],Ya=[],Na=[],Za=[],Ba=[],Va=function(){function t(t,e,i,n){this.overlaps=i,this.pixelRatio=e,this.resolution=t,this.alignFill_,this.declutterItems=[],this.instructions=n.instructions,this.coordinates=n.coordinates,this.coordinateCache_={},this.renderedTransform_=[1,0,0,1,0,0],this.hitDetectionInstructions=n.hitDetectionInstructions,this.pixelCoordinates_=null,this.viewRotation_=0,this.fillStates=n.fillStates||{},this.strokeStates=n.strokeStates||{},this.textStates=n.textStates||{},this.widths_={},this.labels_={}}return t.prototype.createLabel=function(t,e,i,n){var r=t+e+i+n;if(this.labels_[r])return this.labels_[r];var o=n?this.strokeStates[n]:null,s=i?this.fillStates[i]:null,a=this.textStates[e],h=this.pixelRatio,l=a.scale*h,u=Aa[a.textAlign||"center"],c=n&&o.lineWidth?o.lineWidth:0,p=t.split("\n"),f=p.length,d=[],_=function(t,e,i){for(var n=e.length,r=0,o=0;o<n;++o){var s=ps(t,e[o]);r=Math.max(r,s),i.push(s)}return r}(a.font,p,d),g=us(a.font),y=g*f,v=_+c,m=[],x={width:Math.ceil((v+2)*l),height:Math.ceil((y+c)*l),contextInstructions:m};(1!=l&&m.push("scale",[l,l]),m.push("font",a.font),n)&&(m.push("strokeStyle",o.strokeStyle),m.push("lineWidth",c),m.push("lineCap",o.lineCap),m.push("lineJoin",o.lineJoin),m.push("miterLimit",o.miterLimit),(lt?OffscreenCanvasRenderingContext2D:CanvasRenderingContext2D).prototype.setLineDash&&(m.push("setLineDash",[o.lineDash]),m.push("lineDashOffset",o.lineDashOffset)));i&&m.push("fillStyle",s.fillStyle),m.push("textBaseline","middle"),m.push("textAlign","center");var S,C=.5-u,w=u*v+C*c;if(n)for(S=0;S<f;++S)m.push("strokeText",[p[S],w+C*d[S],.5*(c+g)+S*g]);if(i)for(S=0;S<f;++S)m.push("fillText",[p[S],w+C*d[S],.5*(c+g)+S*g]);return this.labels_[r]=x,x},t.prototype.replayTextBackground_=function(t,e,i,n,r,o,s){t.beginPath(),t.moveTo.apply(t,e),t.lineTo.apply(t,i),t.lineTo.apply(t,n),t.lineTo.apply(t,r),t.lineTo.apply(t,e),o&&(this.alignFill_=o[2],this.fill_(t)),s&&(this.setStrokeStyle_(t,s),t.stroke())},t.prototype.replayImageOrLabel_=function(t,e,i,n,r,o,s,a,h,l,u,c,p,f,d,_,g,y){var v=g||y;e-=r*=p,i-=o*=p;var m=d+l>n.width?n.width-l:d,x=a+u>n.height?n.height-u:a,S=_[3]+m*p+_[1],C=_[0]+x*p+_[2],w=e-_[3],E=i-_[0];(v||0!==c)&&(Ya[0]=w,Ba[0]=w,Ya[1]=E,Na[1]=E,Na[0]=w+S,Za[0]=Na[0],Za[1]=E+C,Ba[1]=Za[1]);var T=null;if(0!==c){var b=e+r,R=i+o;T=rn(Ka,b,R,1,1,c,-b,-R),nn(Ka,Ya),nn(Ka,Na),nn(Ka,Za),nn(Ka,Ba),de(Math.min(Ya[0],Na[0],Za[0],Ba[0]),Math.min(Ya[1],Na[1],Za[1],Ba[1]),Math.max(Ya[0],Na[0],Za[0],Ba[0]),Math.max(Ya[1],Na[1],Za[1],Ba[1]),Wa)}else de(w,E,w+S,E+C,Wa);var I=t.canvas,O=y?y[2]*p/2:0,P=Wa[0]-O<=I.width&&Wa[2]+O>=0&&Wa[1]-O<=I.height&&Wa[3]+O>=0;if(f&&(e=Math.round(e),i=Math.round(i)),s){if(!P&&1==s[4])return;ye(s,Wa);var M=P?[t,T?T.slice(0):null,h,n,l,u,m,x,e,i,p]:null;M&&(v&&M.push(g,y,Ya.slice(0),Na.slice(0),Za.slice(0),Ba.slice(0)),s.push(M))}else P&&(v&&this.replayTextBackground_(t,Ya,Na,Za,Ba,g,y),_s(t,T,h,n,l,u,m,x,e,i,p))},t.prototype.fill_=function(t){if(this.alignFill_){var e=nn(this.renderedTransform_,[0,0]),i=512*this.pixelRatio;t.save(),t.translate(e[0]%i,e[1]%i),t.rotate(this.viewRotation_)}t.fill(),this.alignFill_&&t.restore()},t.prototype.setStrokeStyle_=function(t,e){t.strokeStyle=e[1],t.lineWidth=e[2],t.lineCap=e[3],t.lineJoin=e[4],t.miterLimit=e[5],t.setLineDash&&(t.lineDashOffset=e[7],t.setLineDash(e[6]))},t.prototype.renderDeclutter=function(t,e,i,n){if(t&&t.length>5){var r=t[4];if(1==r||r==t.length-5){var o={minX:t[0],minY:t[1],maxX:t[2],maxY:t[3],value:e};if(n||(n=new Xa.a(9)),!n.collides(o)){n.insert(o);for(var s=5,a=t.length;s<a;++s){var h=t[s],l=h[0],u=l.globalAlpha;u!==i&&(l.globalAlpha=i),h.length>11&&this.replayTextBackground_(h[0],h[13],h[14],h[15],h[16],h[11],h[12]),_s.apply(void 0,h),u!==i&&(l.globalAlpha=u)}}t.length=5,_e(t)}}return n},t.prototype.drawLabelWithPointPlacement_=function(t,e,i,n){var r=this.textStates[e],o=this.createLabel(t,e,n,i),s=this.strokeStates[i],a=this.pixelRatio,h=Aa[r.textAlign||"center"],l=Aa[r.textBaseline||"middle"],u=s&&s.lineWidth?s.lineWidth:0;return{label:o,anchorX:h*(o.width/a-2*r.scale)+2*(.5-h)*u,anchorY:l*o.height/a+2*(.5-l)*u}},t.prototype.execute_=function(t,e,i,n,r,o){var s,a,h;this.declutterItems.length=0,this.pixelCoordinates_&&E(e,this.renderedTransform_)?s=this.pixelCoordinates_:(this.pixelCoordinates_||(this.pixelCoordinates_=[]),s=pi(this.coordinates,0,this.coordinates.length,2,e,this.pixelCoordinates_),a=this.renderedTransform_,h=e,a[0]=h[0],a[1]=h[1],a[2]=h[2],a[3]=h[3],a[4]=h[4],a[5]=h[5]);for(var l,u,c,p,f,d,_,g,y,v,m,x,S,C,w,T,b,R=0,I=i.length,O=0,P=0,M=0,F=null,L=null,A=this.coordinateCache_,D=this.viewRotation_,k=Math.round(1e12*Math.atan2(-e[1],e[0]))/1e12,j={context:t,pixelRatio:this.pixelRatio,resolution:this.resolution,rotation:D},G=this.instructions!=i||this.overlaps?0:200;R<I;){var z=i[R];switch(z[0]){case Ca.BEGIN_GEOMETRY:(w=z[1]).getGeometry()?void 0===o||Le(o,z[3])?++R:R=z[2]+1:R=z[2];break;case Ca.BEGIN_PATH:P>G&&(this.fill_(t),P=0),M>G&&(t.stroke(),M=0),P||M||(t.beginPath(),p=NaN,f=NaN),++R;break;case Ca.CIRCLE:var X=s[O=z[1]],W=s[O+1],K=s[O+2]-X,Y=s[O+3]-W,N=Math.sqrt(K*K+Y*Y);t.moveTo(X+N,W),t.arc(X,W,N,0,2*Math.PI,!0),++R;break;case Ca.CLOSE_PATH:t.closePath(),++R;break;case Ca.CUSTOM:O=z[1],l=z[2];var Z=z[3],B=z[4],V=6==z.length?z[5]:void 0;j.geometry=Z,j.feature=w,R in A||(A[R]=[]);var U=A[R];V?V(s,O,l,2,U):(U[0]=s[O],U[1]=s[O+1],U.length=2),B(U,j),++R;break;case Ca.DRAW_IMAGE:O=z[1],l=z[2],v=z[3],u=z[4],c=z[5],y=r?null:z[6];var H=z[7],q=z[8],J=z[9],Q=z[10],$=z[11],tt=z[12],et=z[13],it=z[14];if(!v&&z.length>=19){m=z[18],x=z[19],S=z[20],C=z[21];var nt=this.drawLabelWithPointPlacement_(m,x,S,C);v=nt.label,z[3]=v;var rt=z[22];u=(nt.anchorX-rt)*this.pixelRatio,z[4]=u;var ot=z[23];c=(nt.anchorY-ot)*this.pixelRatio,z[5]=c,H=v.height,z[7]=H,it=v.width,z[14]=it}var st=void 0;z.length>24&&(st=z[24]);var at=void 0,ht=void 0,lt=void 0;z.length>16?(at=z[15],ht=z[16],lt=z[17]):(at=is,ht=!1,lt=!1),$&&k?tt+=D:$||k||(tt-=D);for(var ut=0,ct=0;O<l;O+=2)if(!(st&&st[ut++]<it/this.pixelRatio)){if(y){var pt=Math.floor(ct);y.length<pt+1&&((g=[1/0,1/0,-1/0,-1/0]).push(y[0][4]),y.push(g)),g=y[pt]}this.replayImageOrLabel_(t,s[O],s[O+1],v,u,c,g,H,q,J,Q,tt,et,n,it,at,ht?F:null,lt?L:null),g&&(ct===Math.floor(ct)&&this.declutterItems.push(this,g,w),ct+=1/g[4])}++R;break;case Ca.DRAW_CHARS:var ft=z[1],dt=z[2],_t=z[3];g=r?null:z[4];var gt=z[5];C=z[6];var yt=z[7],vt=z[8],mt=z[9];S=z[10];var xt=z[11];m=z[12],x=z[13];var St=z[14],Ct=this.textStates[x],wt=Ct.font,Et=Ct.scale*vt,Tt=void 0;wt in this.widths_?Tt=this.widths_[wt]:(Tt={},this.widths_[wt]=Tt);var bt=ja(s,ft,dt,2),Rt=Et*fs(wt,m,Tt);if(gt||Rt<=bt){var It=this.textStates[x].textAlign,Ot=Ga(s,ft,dt,2,m,(bt-Rt)*Aa[It],yt,Et,fs,wt,Tt);if(Ot){var Pt=void 0,Mt=void 0,Ft=void 0,Lt=void 0,At=void 0;if(S)for(Pt=0,Mt=Ot.length;Pt<Mt;++Pt)Ft=(At=Ot[Pt])[4],Lt=this.createLabel(Ft,x,"",S),u=At[2]+xt,c=_t*Lt.height+2*(.5-_t)*xt-mt,this.replayImageOrLabel_(t,At[0],At[1],Lt,u,c,g,Lt.height,1,0,0,At[3],St,!1,Lt.width,is,null,null);if(C)for(Pt=0,Mt=Ot.length;Pt<Mt;++Pt)Ft=(At=Ot[Pt])[4],Lt=this.createLabel(Ft,x,C,""),u=At[2],c=_t*Lt.height-mt,this.replayImageOrLabel_(t,At[0],At[1],Lt,u,c,g,Lt.height,1,0,0,At[3],St,!1,Lt.width,is,null,null)}}this.declutterItems.push(this,g,w),++R;break;case Ca.END_GEOMETRY:if(void 0!==r){var Dt=r(w=z[1]);if(Dt)return Dt}++R;break;case Ca.FILL:G?P++:this.fill_(t),++R;break;case Ca.MOVE_TO_LINE_TO:for(O=z[1],l=z[2],T=s[O],_=(b=s[O+1])+.5|0,(d=T+.5|0)===p&&_===f||(t.moveTo(T,b),p=d,f=_),O+=2;O<l;O+=2)d=(T=s[O])+.5|0,_=(b=s[O+1])+.5|0,O!=l-2&&d===p&&_===f||(t.lineTo(T,b),p=d,f=_);++R;break;case Ca.SET_FILL_STYLE:F=z,this.alignFill_=z[2],P&&(this.fill_(t),P=0,M&&(t.stroke(),M=0)),t.fillStyle=z[1],++R;break;case Ca.SET_STROKE_STYLE:L=z,M&&(t.stroke(),M=0),this.setStrokeStyle_(t,z),++R;break;case Ca.STROKE:G?M++:t.stroke(),++R;break;default:++R}}P&&this.fill_(t),M&&t.stroke()},t.prototype.execute=function(t,e,i,n){this.viewRotation_=i,this.execute_(t,e,this.instructions,n,void 0,void 0)},t.prototype.executeHitDetection=function(t,e,i,n,r){return this.viewRotation_=i,this.execute_(t,e,this.hitDetectionInstructions,!0,n,r)},t}(),Ua=[Rs,ws,bs,Ts,Is,Es],Ha=function(){function t(t,e,i,n,r,o){this.maxExtent_=t,this.overlaps_=n,this.pixelRatio_=i,this.resolution_=e,this.renderBuffer_=o,this.executorsByZIndex_={},this.hitDetectionContext_=null,this.hitDetectionTransform_=[1,0,0,1,0,0],this.createExecutors_(r)}return t.prototype.clip=function(t,e){var i=this.getClipCoords(e);t.beginPath(),t.moveTo(i[0],i[1]),t.lineTo(i[2],i[3]),t.lineTo(i[4],i[5]),t.lineTo(i[6],i[7]),t.clip()},t.prototype.createExecutors_=function(t){for(var e in t){var i=this.executorsByZIndex_[e];void 0===i&&(i={},this.executorsByZIndex_[e]=i);var n=t[e];for(var r in n){var o=n[r];i[r]=new Va(this.resolution_,this.pixelRatio_,this.overlaps_,o)}}},t.prototype.hasExecutors=function(t){for(var e in this.executorsByZIndex_)for(var i=this.executorsByZIndex_[e],n=0,r=t.length;n<r;++n)if(t[n]in i)return!0;return!1},t.prototype.forEachFeatureAtCoordinate=function(t,e,i,n,r,o){var s=2*(n=Math.round(n))+1,a=rn(this.hitDetectionTransform_,n+.5,n+.5,1/e,-1/e,-i,-t[0],-t[1]);this.hitDetectionContext_||(this.hitDetectionContext_=Jn(s,s));var h,l=this.hitDetectionContext_;l.canvas.width!==s||l.canvas.height!==s?(l.canvas.width=s,l.canvas.height=s):l.clearRect(0,0,s,s),void 0!==this.renderBuffer_&&(ve(h=[1/0,1/0,-1/0,-1/0],t),se(h,e*(this.renderBuffer_+n),h));var u,c=function(t){if(void 0!==qa[t])return qa[t];for(var e=2*t+1,i=new Array(e),n=0;n<e;n++)i[n]=new Array(e);var r=t,o=0,s=0;for(;r>=o;)Ja(i,t+r,t+o),Ja(i,t+o,t+r),Ja(i,t-o,t+r),Ja(i,t-r,t+o),Ja(i,t-r,t-o),Ja(i,t-o,t-r),Ja(i,t+o,t-r),Ja(i,t+r,t-o),o++,2*((s+=1+2*o)-r)+1>0&&(s+=1-2*(r-=1));return qa[t]=i,i}(n);function p(t){for(var e=l.getImageData(0,0,s,s).data,i=0;i<s;i++)for(var n=0;n<s;n++)if(c[i][n]&&e[4*(n*s+i)+3]>0){var a=void 0;return(!o||u!=Ts&&u!=Is||-1!==o.indexOf(t))&&(a=r(t)),a||void l.clearRect(0,0,s,s)}}var f,d,_,g,y,v=Object.keys(this.executorsByZIndex_).map(Number);for(v.sort(x),f=v.length-1;f>=0;--f){var m=v[f].toString();for(_=this.executorsByZIndex_[m],d=Ua.length-1;d>=0;--d)if(void 0!==(g=_[u=Ua[d]])&&(y=g.executeHitDetection(l,a,i,p,h)))return y}},t.prototype.getClipCoords=function(t){var e=this.maxExtent_;if(!e)return null;var i=e[0],n=e[1],r=e[2],o=e[3],s=[i,n,i,o,r,o,r,n];return pi(s,0,8,2,t,s),s},t.prototype.isEmpty=function(){return _(this.executorsByZIndex_)},t.prototype.execute=function(t,e,i,n,r,o){var s=Object.keys(this.executorsByZIndex_).map(Number);s.sort(x),this.maxExtent_&&(t.save(),this.clip(t,e));var a,h,l,u,c,p,f=r||Ua;for(a=0,h=s.length;a<h;++a){var d=s[a].toString();for(c=this.executorsByZIndex_[d],l=0,u=f.length;l<u;++l){var _=f[l];if(void 0!==(p=c[_]))if(!o||_!=Ts&&_!=Is)p.execute(t,e,i,n);else{var g=o[d];g?g.push(p,e.slice(0)):o[d]=[p,e.slice(0)]}}}this.maxExtent_&&t.restore()},t}(),qa={0:[[!0]]};function Ja(t,e,i){var n,r=Math.floor(t.length/2);if(e>=r)for(n=r;n<e;n++)t[n][i]=!0;else if(e<r)for(n=e+1;n<r;n++)t[n][i]=!0}var Qa=Ha,$a="fraction",th="pixels",eh=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),ih=function(t){function e(e,i,n,r){var o=t.call(this)||this;return o.extent=e,o.pixelRatio_=n,o.resolution=i,o.state=r,o}return eh(e,t),e.prototype.changed=function(){this.dispatchEvent(M)},e.prototype.getExtent=function(){return this.extent},e.prototype.getImage=function(){return n()},e.prototype.getPixelRatio=function(){return this.pixelRatio_},e.prototype.getResolution=function(){return this.resolution},e.prototype.getState=function(){return this.state},e.prototype.load=function(){n()},e}(P),nh=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}();function rh(t,e,i){var n=t;if(n.src&&ut){var r=n.decode(),o=!0;return r.then((function(){o&&e()})).catch((function(t){o&&("EncodingError"===t.name&&"Invalid image type."===t.message?e():i())})),function(){o=!1}}var s=[y(n,G,e),y(n,F,i)];return function(){s.forEach(v)}}!function(t){function e(e,i,n,r,o,s){var a=t.call(this,e,i,n,ms)||this;return a.src_=r,a.image_=new Image,null!==o&&(a.image_.crossOrigin=o),a.unlisten_=null,a.state=ms,a.imageLoadFunction_=s,a}nh(e,t),e.prototype.getImage=function(){return this.image_},e.prototype.handleImageError_=function(){this.state=Cs,this.unlistenImage_(),this.changed()},e.prototype.handleImageLoad_=function(){void 0===this.resolution&&(this.resolution=Ie(this.extent)/this.image_.height),this.state=Ss,this.unlistenImage_(),this.changed()},e.prototype.load=function(){this.state!=ms&&this.state!=Cs||(this.state=xs,this.changed(),this.imageLoadFunction_(this,this.src_),this.unlisten_=rh(this.image_,this.handleImageLoad_.bind(this),this.handleImageError_.bind(this)))},e.prototype.setImage=function(t){this.image_=t},e.prototype.unlistenImage_=function(){this.unlisten_&&(this.unlisten_(),this.unlisten_=null)}}(ih);var oh=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),sh=function(t){function e(e,i,n,r,o,s){var a=t.call(this)||this;return a.hitDetectionImage_=null,a.image_=e||new Image,null!==r&&(a.image_.crossOrigin=r),a.canvas_=s?document.createElement("canvas"):null,a.color_=s,a.unlisten_=null,a.imageState_=o,a.size_=n,a.src_=i,a.tainted_,a}return oh(e,t),e.prototype.isTainted_=function(t){if(void 0===this.tainted_&&this.imageState_===Ss){t||(t=Jn(1,1)).drawImage(this.image_,0,0);try{t.getImageData(0,0,1,1),this.tainted_=!1}catch(t){this.tainted_=!0}}return!0===this.tainted_},e.prototype.dispatchChangeEvent_=function(){this.dispatchEvent(M)},e.prototype.handleImageError_=function(){this.imageState_=Cs,this.unlistenImage_(),this.dispatchChangeEvent_()},e.prototype.handleImageLoad_=function(){this.imageState_=Ss,this.size_&&(this.image_.width=this.size_[0],this.image_.height=this.size_[1]),this.size_=[this.image_.width,this.image_.height],this.unlistenImage_(),this.replaceColor_(),this.dispatchChangeEvent_()},e.prototype.getImage=function(t){return this.canvas_?this.canvas_:this.image_},e.prototype.getImageState=function(){return this.imageState_},e.prototype.getHitDetectionImage=function(t){if(!this.hitDetectionImage_)if(this.isTainted_()){var e=this.size_[0],i=this.size_[1],n=Jn(e,i);n.fillRect(0,0,e,i),this.hitDetectionImage_=n.canvas}else this.hitDetectionImage_=this.image_;return this.hitDetectionImage_},e.prototype.getSize=function(){return this.size_},e.prototype.getSrc=function(){return this.src_},e.prototype.load=function(){if(this.imageState_==ms){this.imageState_=xs;try{this.image_.src=this.src_}catch(t){this.handleImageError_()}this.unlisten_=rh(this.image_,this.handleImageLoad_.bind(this),this.handleImageError_.bind(this))}},e.prototype.replaceColor_=function(){if(this.color_){this.canvas_.width=this.image_.width,this.canvas_.height=this.image_.height;var t=this.canvas_.getContext("2d");if(t.drawImage(this.image_,0,0),this.isTainted_(t)){var e=this.color_;return t.globalCompositeOperation="multiply",t.fillStyle="rgb("+e[0]+","+e[1]+","+e[2]+")",t.fillRect(0,0,this.image_.width,this.image_.height),t.globalCompositeOperation="destination-in",void t.drawImage(this.image_,0,0)}for(var i=t.getImageData(0,0,this.image_.width,this.image_.height),n=i.data,r=this.color_[0]/255,o=this.color_[1]/255,s=this.color_[2]/255,a=0,h=n.length;a<h;a+=4)n[a]*=r,n[a+1]*=o,n[a+2]*=s;t.putImageData(i,0,0)}},e.prototype.unlistenImage_=function(){this.unlisten_&&(this.unlisten_(),this.unlisten_=null)},e}(P);var ah="bottom-left",hh="bottom-right",lh="top-left",uh="top-right",ch=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),ph=function(t){function e(e){var i=this,n=e||{},r=void 0!==n.opacity?n.opacity:1,s=void 0!==n.rotation?n.rotation:0,a=void 0!==n.scale?n.scale:1,h=void 0!==n.rotateWithView&&n.rotateWithView;(i=t.call(this,{opacity:r,rotation:s,scale:a,displacement:void 0!==n.displacement?n.displacement:[0,0],rotateWithView:h})||this).anchor_=void 0!==n.anchor?n.anchor:[.5,.5],i.normalizedAnchor_=null,i.anchorOrigin_=void 0!==n.anchorOrigin?n.anchorOrigin:lh,i.anchorXUnits_=void 0!==n.anchorXUnits?n.anchorXUnits:$a,i.anchorYUnits_=void 0!==n.anchorYUnits?n.anchorYUnits:$a,i.crossOrigin_=void 0!==n.crossOrigin?n.crossOrigin:null;var l=void 0!==n.img?n.img:null,u=void 0!==n.imgSize?n.imgSize:null,c=n.src;kt(!(void 0!==c&&l),4),kt(!l||l&&u,5),void 0!==c&&0!==c.length||!l||(c=l.src||o(l)),kt(void 0!==c&&c.length>0,6);var p=void 0!==n.src?ms:Ss;return i.color_=void 0!==n.color?Vo(n.color):null,i.iconImage_=function(t,e,i,n,r,o){var s=Qo.get(e,n,o);return s||(s=new sh(t,e,i,n,r,o),Qo.set(e,n,o,s)),s}(l,c,u,i.crossOrigin_,p,i.color_),i.offset_=void 0!==n.offset?n.offset:[0,0],i.offsetOrigin_=void 0!==n.offsetOrigin?n.offsetOrigin:lh,i.origin_=null,i.size_=void 0!==n.size?n.size:null,i}return ch(e,t),e.prototype.clone=function(){return new e({anchor:this.anchor_.slice(),anchorOrigin:this.anchorOrigin_,anchorXUnits:this.anchorXUnits_,anchorYUnits:this.anchorYUnits_,crossOrigin:this.crossOrigin_,color:this.color_&&this.color_.slice?this.color_.slice():this.color_||void 0,src:this.getSrc(),offset:this.offset_.slice(),offsetOrigin:this.offsetOrigin_,size:null!==this.size_?this.size_.slice():void 0,opacity:this.getOpacity(),scale:this.getScale(),rotation:this.getRotation(),rotateWithView:this.getRotateWithView()})},e.prototype.getAnchor=function(){if(this.normalizedAnchor_)return this.normalizedAnchor_;var t=this.anchor_,e=this.getSize();if(this.anchorXUnits_==$a||this.anchorYUnits_==$a){if(!e)return null;t=this.anchor_.slice(),this.anchorXUnits_==$a&&(t[0]*=e[0]),this.anchorYUnits_==$a&&(t[1]*=e[1])}if(this.anchorOrigin_!=lh){if(!e)return null;t===this.anchor_&&(t=this.anchor_.slice()),this.anchorOrigin_!=uh&&this.anchorOrigin_!=hh||(t[0]=-t[0]+e[0]),this.anchorOrigin_!=ah&&this.anchorOrigin_!=hh||(t[1]=-t[1]+e[1])}return this.normalizedAnchor_=t,this.normalizedAnchor_},e.prototype.setAnchor=function(t){this.anchor_=t,this.normalizedAnchor_=null},e.prototype.getColor=function(){return this.color_},e.prototype.getImage=function(t){return this.iconImage_.getImage(t)},e.prototype.getImageSize=function(){return this.iconImage_.getSize()},e.prototype.getHitDetectionImageSize=function(){return this.getImageSize()},e.prototype.getImageState=function(){return this.iconImage_.getImageState()},e.prototype.getHitDetectionImage=function(t){return this.iconImage_.getHitDetectionImage(t)},e.prototype.getOrigin=function(){if(this.origin_)return this.origin_;var t=this.offset_,e=this.getDisplacement();if(this.offsetOrigin_!=lh){var i=this.getSize(),n=this.iconImage_.getSize();if(!i||!n)return null;t=t.slice(),this.offsetOrigin_!=uh&&this.offsetOrigin_!=hh||(t[0]=n[0]-i[0]-t[0]),this.offsetOrigin_!=ah&&this.offsetOrigin_!=hh||(t[1]=n[1]-i[1]-t[1])}return t[0]+=e[0],t[1]+=e[1],this.origin_=t,this.origin_},e.prototype.getSrc=function(){return this.iconImage_.getSrc()},e.prototype.getSize=function(){return this.size_?this.size_:this.iconImage_.getSize()},e.prototype.listenImageChange=function(t){this.iconImage_.addEventListener(M,t)},e.prototype.load=function(){this.iconImage_.load()},e.prototype.unlistenImageChange=function(t){this.iconImage_.removeEventListener(M,t)},e}(na);var fh=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),dh=function(t){function e(e){var i=t.call(this,e)||this;return i.boundHandleStyleImageChange_=i.handleStyleImageChange_.bind(i),i.animatingOrInteracting_,i.dirty_=!1,i.hitDetectionImageData_=null,i.renderedFeatures_=null,i.renderedRevision_=-1,i.renderedResolution_=NaN,i.renderedExtent_=[1/0,1/0,-1/0,-1/0],i.renderedRotation_,i.renderedCenter_=null,i.renderedProjection_=null,i.renderedRenderOrder_=null,i.replayGroup_=null,i.replayGroupChanged=!0,i}return fh(e,t),e.prototype.useContainer=function(e,i,n){n<1&&(e=null),t.prototype.useContainer.call(this,e,i,n)},e.prototype.renderFrame=function(t,e){var i=t.pixelRatio,n=t.layerStatesArray[t.layerIndex];!function(t,e,i){en(t,e,0,0,i,0,0)}(this.pixelTransform,1/i,1/i),on(this.inversePixelTransform,this.pixelTransform);var r=sn(this.pixelTransform);this.useContainer(e,r,n.opacity);var o=this.context,s=o.canvas,a=this.replayGroup_;if(!a||a.isEmpty())return!this.containerReused&&s.width>0&&(s.width=0),this.container;var h=Math.round(t.size[0]*i),l=Math.round(t.size[1]*i);s.width!=h||s.height!=l?(s.width=h,s.height=l,s.style.transform!==r&&(s.style.transform=r)):this.containerReused||o.clearRect(0,0,h,l),this.preRender(o,t);var u=t.extent,c=t.viewState,p=c.center,f=c.resolution,d=c.projection,_=c.rotation,g=d.getExtent(),y=this.getLayer().getSource(),v=!1;if(n.extent){var m=tn(n.extent,d);(v=!ue(m,t.extent)&&Le(m,t.extent))&&this.clip(o,t,m)}var S=t.viewHints,C=!(S[We]||S[Ke]),w=this.getRenderTransform(p,f,_,i,h,l,0),E=this.getLayer().getDeclutter()?{}:null;if(a.execute(o,w,_,C,void 0,E),y.getWrapX()&&d.canWrapX()&&!ue(g,u)){for(var T=u[0],b=Fe(g),R=0,I=void 0;T<g[0];){I=b*--R;var O=this.getRenderTransform(p,f,_,i,h,l,I);a.execute(o,O,_,C,void 0,E),T+=b}for(R=0,T=u[2];T>g[2];){I=b*++R;var P=this.getRenderTransform(p,f,_,i,h,l,I);a.execute(o,P,_,C,void 0,E),T-=b}}if(E){var M=t.viewHints;!function(t,e,i,n,r,o){for(var s=Object.keys(t).map(Number).sort(x),a=0,h=s.length;a<h;++a)for(var l=t[s[a].toString()],u=void 0,c=0,p=l.length;c<p;){var f=l[c++];f!==u&&(u=f,o.push({items:f.declutterItems,opacity:n}));var d=l[c++];f.execute(e,d,i,r)}}(E,o,_,1,!(M[We]||M[Ke]),t.declutterItems)}v&&o.restore(),this.postRender(o,t);var F=n.opacity,L=this.container;return F!==parseFloat(L.style.opacity)&&(L.style.opacity=1===F?"":F),this.container},e.prototype.getFeatures=function(t){return new Promise(function(e,i){if(!this.hitDetectionImageData_&&!this.animatingOrInteracting_){var n=[this.context.canvas.width,this.context.canvas.height];nn(this.pixelTransform,n);var r=this.renderedCenter_,o=this.renderedResolution_,s=this.renderedRotation_,a=this.renderedProjection_,h=this.renderedExtent_,l=this.getLayer(),u=[],c=n[0]/2,p=n[1]/2;u.push(this.getRenderTransform(r,o,s,.5,c,p,0).slice());var f=l.getSource(),d=a.getExtent();if(f.getWrapX()&&a.canWrapX()&&!ue(d,h)){for(var _=h[0],g=Fe(d),y=0,v=void 0;_<d[0];)v=g*--y,u.push(this.getRenderTransform(r,o,s,.5,c,p,v).slice()),_+=g;for(y=0,_=h[2];_>d[2];)v=g*++y,u.push(this.getRenderTransform(r,o,s,.5,c,p,v).slice()),_-=g}this.hitDetectionImageData_=function(t,e,i,n,r,o,s){var a=Jn(t[0]/2,t[1]/2);a.imageSmoothingEnabled=!1;for(var h=a.canvas,l=new vs(a,.5,r,null,s),u=i.length,c=Math.floor(16777215/u),p={},f=1;f<=u;++f){var d=i[f-1],_=d.getStyleFunction()||n;if(n){var g=_(d,o);if(g){Array.isArray(g)||(g=[g]);for(var y="#"+("000000"+(f*c).toString(16)).slice(-6),v=0,m=g.length;v<m;++v){var S=g[v],C=S.clone(),w=C.getFill();w&&w.setColor(y);var E=C.getStroke();E&&E.setColor(y),C.setText(void 0);var T=S.getImage();if(T){var b=T.getImageSize();if(!b)continue;var R=document.createElement("canvas");R.width=b[0],R.height=b[1];var I=R.getContext("2d",{alpha:!1});I.fillStyle=y;var O=I.canvas;I.fillRect(0,0,O.width,O.height),Jn(b?b[0]:O.width,b?b[1]:O.height).drawImage(O,0,0),C.setImage(new ph({img:O,imgSize:b,anchor:T.getAnchor(),anchorXUnits:th,anchorYUnits:th,offset:T.getOrigin(),size:T.getSize(),opacity:T.getOpacity(),scale:T.getScale(),rotation:T.getRotation(),rotateWithView:T.getRotateWithView()}))}var P=Number(C.getZIndex());(A=p[P])||(A={},p[P]=A,A[ii]=[],A[ai]=[],A[ti]=[],A[$e]=[]);var M=C.getGeometryFunction()(d);M&&Le(r,M.getExtent())&&A[M.getType().replace("Multi","")].push(M,C)}}}}for(var F=Object.keys(p).map(Number).sort(x),L=(f=0,F.length);f<L;++f){var A=p[F[f]];for(var D in A){var k=A[D];for(v=0,m=k.length;v<m;v+=2){l.setStyle(k[v+1]);for(var j=0,G=e.length;j<G;++j)l.setTransform(e[j]),l.drawGeometry(k[v])}}}return document.body.appendChild(a.canvas),a.getImageData(0,0,h.width,h.height)}(n,u,this.renderedFeatures_,l.getStyleFunction(),h,o,s)}e(function(t,e,i){var n=[];if(i){var r=4*(Math.round(t[0]/2)+Math.round(t[1]/2)*i.width),o=i.data[r],s=i.data[r+1],a=i.data[r+2]+256*(s+256*o),h=Math.floor(16777215/e.length);a&&a%h==0&&n.push(e[a/h-1])}return n}(t,this.renderedFeatures_,this.hitDetectionImageData_))}.bind(this))},e.prototype.forEachFeatureAtCoordinate=function(t,e,i,n,r){if(this.replayGroup_){var s=e.viewState.resolution,a=e.viewState.rotation,h=this.getLayer(),l={};return this.replayGroup_.forEachFeatureAtCoordinate(t,s,a,i,(function(t){var e=o(t);if(!(e in l))return l[e]=!0,n(t,h)}),h.getDeclutter()?r:null)}},e.prototype.handleFontsChanged=function(){var t=this.getLayer();t.getVisible()&&this.replayGroup_&&t.changed()},e.prototype.handleStyleImageChange_=function(t){this.renderIfReadyAndVisible()},e.prototype.prepareFrame=function(t){var e=this.getLayer(),i=e.getSource();if(!i)return!1;var n=t.viewHints[We],r=t.viewHints[Ke],o=e.getUpdateWhileAnimating(),s=e.getUpdateWhileInteracting();if(!this.dirty_&&!o&&n||!s&&r)return this.animatingOrInteracting_=!0,!0;this.animatingOrInteracting_=!1;var a=t.extent,h=t.viewState,l=h.projection,u=h.resolution,c=t.pixelRatio,p=e.getRevision(),f=e.getRenderBuffer(),d=e.getRenderOrder();void 0===d&&(d=Ps);var _=h.center.slice(),g=se(a,f*u),y=[g.slice()],v=l.getExtent();if(i.getWrapX()&&l.canWrapX()&&!ue(v,t.extent)){var m=Fe(v),x=Math.max(Fe(g)/2,m);g[0]=v[0]-x,g[2]=v[2]+x,Ue(_,l);var S=function(t,e){var i=e.getExtent(),n=Te(t);if(e.canWrapX()&&(n[0]<i[0]||n[0]>=i[2])){var r=Fe(i),o=Math.floor((n[0]-i[0])/r)*r;t[0]-=o,t[2]-=o}return t}(y[0],l);S[0]<v[0]&&S[2]<v[2]?y.push([S[0]+m,S[1],S[2]+m,S[3]]):S[0]>v[0]&&S[2]>v[2]&&y.push([S[0]-m,S[1],S[2]-m,S[3]])}if(!this.dirty_&&this.renderedResolution_==u&&this.renderedRevision_==p&&this.renderedRenderOrder_==d&&ue(this.renderedExtent_,g))return this.replayGroupChanged=!1,!0;this.replayGroup_=null,this.dirty_=!1;var C,w=new ka(Fs(u,c),g,u,c,e.getDeclutter()),E=qi();if(E){for(var T=0,b=y.length;T<b;++T)i.loadFeatures($i(y[T],l),u,E);C=Ki(E,l)}else for(T=0,b=y.length;T<b;++T)i.loadFeatures(y[T],u,l);var R=Ms(u,c),I=function(t){var i,n=t.getStyleFunction()||e.getStyleFunction();if(n&&(i=n(t,u)),i){var r=this.renderFeature(t,R,i,w,C);this.dirty_=this.dirty_||r}}.bind(this),O=$i(g,l),P=i.getFeaturesInExtent(O);d&&P.sort(d);for(T=0,b=P.length;T<b;++T)I(P[T]);this.renderedFeatures_=P;var M=w.finish(),F=new Qa(g,u,c,i.getOverlaps(),M,e.getRenderBuffer());return this.renderedResolution_=u,this.renderedRevision_=p,this.renderedRenderOrder_=d,this.renderedExtent_=g,this.renderedRotation_=h.rotation,this.renderedCenter_=_,this.renderedProjection_=l,this.replayGroup_=F,this.hitDetectionImageData_=null,this.replayGroupChanged=!0,!0},e.prototype.renderFeature=function(t,e,i,n,r){if(!i)return!1;var o=!1;if(Array.isArray(i))for(var s=0,a=i.length;s<a;++s)o=Ls(n,t,i[s],e,this.boundHandleStyleImageChange_,r)||o;else o=Ls(n,t,i,e,this.boundHandleStyleImageChange_,r);return o},e}(Js),_h=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),gh=function(t){function e(e){return t.call(this,e)||this}return _h(e,t),e.prototype.createRenderer=function(){return new dh(this)},e}(ga),yh="arraybuffer",vh="json",mh="text",xh="xml",Sh=!1;function Ch(t,e){return function(t,e,i,n){return function(r,o,s){var a=new XMLHttpRequest;a.open("GET","function"==typeof t?t(r,o,s):t,!0),e.getType()==yh&&(a.responseType="arraybuffer"),a.withCredentials=Sh,a.onload=function(t){if(!a.status||a.status>=200&&a.status<300){var o=e.getType(),h=void 0;o==vh||o==mh?h=a.responseText:o==xh?(h=a.responseXML)||(h=(new DOMParser).parseFromString(a.responseText,"application/xml")):o==yh&&(h=a.response),h?i.call(this,e.readFeatures(h,{extent:r,featureProjection:s}),e.readProjection(h)):n.call(this)}else n.call(this)}.bind(this),a.onerror=function(){n.call(this)}.bind(this),a.send()}}(t,e,(function(t,e){"function"==typeof this.addFeatures&&this.addFeatures(t)}),R)}function wh(t,e){return[[-1/0,-1/0,1/0,1/0]]}var Eh=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}();function Th(t){return t?Array.isArray(t)?function(e){return t}:"function"==typeof t?t:function(e){return[t]}:null}var bh=function(t){function e(e){var i=t.call(this)||this;return i.projection_=ji(e.projection),i.attributions_=Th(e.attributions),i.attributionsCollapsible_=void 0===e.attributionsCollapsible||e.attributionsCollapsible,i.loading=!1,i.state_=void 0!==e.state?e.state:pr,i.wrapX_=void 0!==e.wrapX&&e.wrapX,i}return Eh(e,t),e.prototype.getAttributions=function(){return this.attributions_},e.prototype.getAttributionsCollapsible=function(){return this.attributionsCollapsible_},e.prototype.getProjection=function(){return this.projection_},e.prototype.getResolutions=function(){return n()},e.prototype.getState=function(){return this.state_},e.prototype.getWrapX=function(){return this.wrapX_},e.prototype.refresh=function(){this.changed()},e.prototype.setAttributions=function(t){this.attributions_=Th(t),this.changed()},e.prototype.setState=function(t){this.state_=t,this.changed()},e}(H),Rh="addfeature",Ih="changefeature",Oh="clear",Ph="removefeature",Mh=function(){function t(t){this.rbush_=new Xa.a(t),this.items_={}}return t.prototype.insert=function(t,e){var i={minX:t[0],minY:t[1],maxX:t[2],maxY:t[3],value:e};this.rbush_.insert(i),this.items_[o(e)]=i},t.prototype.load=function(t,e){for(var i=new Array(e.length),n=0,r=e.length;n<r;n++){var s=t[n],a=e[n],h={minX:s[0],minY:s[1],maxX:s[2],maxY:s[3],value:a};i[n]=h,this.items_[o(a)]=h}this.rbush_.load(i)},t.prototype.remove=function(t){var e=o(t),i=this.items_[e];return delete this.items_[e],null!==this.rbush_.remove(i)},t.prototype.update=function(t,e){var i=this.items_[o(e)];ge([i.minX,i.minY,i.maxX,i.maxY],t)||(this.remove(e),this.insert(t,e))},t.prototype.getAll=function(){return this.rbush_.all().map((function(t){return t.value}))},t.prototype.getInExtent=function(t){var e={minX:t[0],minY:t[1],maxX:t[2],maxY:t[3]};return this.rbush_.search(e).map((function(t){return t.value}))},t.prototype.forEach=function(t){return this.forEach_(this.getAll(),t)},t.prototype.forEachInExtent=function(t,e){return this.forEach_(this.getInExtent(t),e)},t.prototype.forEach_=function(t,e){for(var i,n=0,r=t.length;n<r;n++)if(i=e(t[n]))return i;return i},t.prototype.isEmpty=function(){return _(this.items_)},t.prototype.clear=function(){this.rbush_.clear(),this.items_={}},t.prototype.getExtent=function(t){var e=this.rbush_.toJSON();return de(e.minX,e.minY,e.maxX,e.maxY,t)},t.prototype.concat=function(t){for(var e in this.rbush_.load(t.rbush_.all()),t.items_)this.items_[e]=t.items_[e]},t}(),Fh=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),Lh=function(t){function e(e,i){var n=t.call(this,e)||this;return n.feature=i,n}return Fh(e,t),e}(I),Ah=function(t){function e(e){var i=this,n=e||{};(i=t.call(this,{attributions:n.attributions,projection:void 0,state:pr,wrapX:void 0===n.wrapX||n.wrapX})||this).loader_=R,i.format_=n.format,i.overlaps_=void 0===n.overlaps||n.overlaps,i.url_=n.url,void 0!==n.loader?i.loader_=n.loader:void 0!==i.url_&&(kt(i.format_,7),i.loader_=Ch(i.url_,i.format_)),i.strategy_=void 0!==n.strategy?n.strategy:wh;var r,o,s=void 0===n.useSpatialIndex||n.useSpatialIndex;return i.featuresRtree_=s?new Mh:null,i.loadedExtentsRtree_=new Mh,i.nullGeometryFeatures_={},i.idIndex_={},i.uidIndex_={},i.featureChangeKeys_={},i.featuresCollection_=null,Array.isArray(n.features)?o=n.features:n.features&&(o=(r=n.features).getArray()),s||void 0!==r||(r=new $(o)),void 0!==o&&i.addFeaturesInternal(o),void 0!==r&&i.bindFeaturesCollection_(r),i}return Fh(e,t),e.prototype.addFeature=function(t){this.addFeatureInternal(t),this.changed()},e.prototype.addFeatureInternal=function(t){var e=o(t);if(this.addToIndex_(e,t)){this.setupChangeEvents_(e,t);var i=t.getGeometry();if(i){var n=i.getExtent();this.featuresRtree_&&this.featuresRtree_.insert(n,t)}else this.nullGeometryFeatures_[e]=t;this.dispatchEvent(new Lh(Rh,t))}else this.featuresCollection_&&this.featuresCollection_.remove(t)},e.prototype.setupChangeEvents_=function(t,e){this.featureChangeKeys_[t]=[g(e,M,this.handleFeatureChange_,this),g(e,c,this.handleFeatureChange_,this)]},e.prototype.addToIndex_=function(t,e){var i=!0,n=e.getId();return void 0!==n&&(n.toString()in this.idIndex_?i=!1:this.idIndex_[n.toString()]=e),i&&(kt(!(t in this.uidIndex_),30),this.uidIndex_[t]=e),i},e.prototype.addFeatures=function(t){this.addFeaturesInternal(t),this.changed()},e.prototype.addFeaturesInternal=function(t){for(var e=[],i=[],n=[],r=0,s=t.length;r<s;r++){var a=o(l=t[r]);this.addToIndex_(a,l)&&i.push(l)}r=0;for(var h=i.length;r<h;r++){var l;a=o(l=i[r]);this.setupChangeEvents_(a,l);var u=l.getGeometry();if(u){var c=u.getExtent();e.push(c),n.push(l)}else this.nullGeometryFeatures_[a]=l}this.featuresRtree_&&this.featuresRtree_.load(e,n);r=0;for(var p=i.length;r<p;r++)this.dispatchEvent(new Lh(Rh,i[r]))},e.prototype.bindFeaturesCollection_=function(t){var e=!1;this.addEventListener(Rh,(function(i){e||(e=!0,t.push(i.feature),e=!1)})),this.addEventListener(Ph,(function(i){e||(e=!0,t.remove(i.feature),e=!1)})),t.addEventListener(l,function(t){e||(e=!0,this.addFeature(t.element),e=!1)}.bind(this)),t.addEventListener(u,function(t){e||(e=!0,this.removeFeature(t.element),e=!1)}.bind(this)),this.featuresCollection_=t},e.prototype.clear=function(t){if(t){for(var e in this.featureChangeKeys_){this.featureChangeKeys_[e].forEach(v)}this.featuresCollection_||(this.featureChangeKeys_={},this.idIndex_={},this.uidIndex_={})}else if(this.featuresRtree_)for(var i in this.featuresRtree_.forEach(this.removeFeatureInternal.bind(this)),this.nullGeometryFeatures_)this.removeFeatureInternal(this.nullGeometryFeatures_[i]);this.featuresCollection_&&this.featuresCollection_.clear(),this.featuresRtree_&&this.featuresRtree_.clear(),this.nullGeometryFeatures_={};var n=new Lh(Oh);this.dispatchEvent(n),this.changed()},e.prototype.forEachFeature=function(t){if(this.featuresRtree_)return this.featuresRtree_.forEach(t);this.featuresCollection_&&this.featuresCollection_.forEach(t)},e.prototype.forEachFeatureAtCoordinateDirect=function(t,e){var i=[t[0],t[1],t[0],t[1]];return this.forEachFeatureInExtent(i,(function(i){return i.getGeometry().intersectsCoordinate(t)?e(i):void 0}))},e.prototype.forEachFeatureInExtent=function(t,e){if(this.featuresRtree_)return this.featuresRtree_.forEachInExtent(t,e);this.featuresCollection_&&this.featuresCollection_.forEach(e)},e.prototype.forEachFeatureIntersectingExtent=function(t,e){return this.forEachFeatureInExtent(t,(function(i){if(i.getGeometry().intersectsExtent(t)){var n=e(i);if(n)return n}}))},e.prototype.getFeaturesCollection=function(){return this.featuresCollection_},e.prototype.getFeatures=function(){var t;return this.featuresCollection_?t=this.featuresCollection_.getArray():this.featuresRtree_&&(t=this.featuresRtree_.getAll(),_(this.nullGeometryFeatures_)||w(t,d(this.nullGeometryFeatures_))),t},e.prototype.getFeaturesAtCoordinate=function(t){var e=[];return this.forEachFeatureAtCoordinateDirect(t,(function(t){e.push(t)})),e},e.prototype.getFeaturesInExtent=function(t){return this.featuresRtree_?this.featuresRtree_.getInExtent(t):this.featuresCollection_?this.featuresCollection_.getArray():[]},e.prototype.getClosestFeatureToCoordinate=function(t,e){var i=t[0],n=t[1],r=null,o=[NaN,NaN],s=1/0,a=[-1/0,-1/0,1/0,1/0],h=e||T;return this.featuresRtree_.forEachInExtent(a,(function(t){if(h(t)){var e=t.getGeometry(),l=s;if((s=e.closestPointXY(i,n,o,s))<l){r=t;var u=Math.sqrt(s);a[0]=i-u,a[1]=n-u,a[2]=i+u,a[3]=n+u}}})),r},e.prototype.getExtent=function(t){return this.featuresRtree_.getExtent(t)},e.prototype.getFeatureById=function(t){var e=this.idIndex_[t.toString()];return void 0!==e?e:null},e.prototype.getFeatureByUid=function(t){var e=this.uidIndex_[t];return void 0!==e?e:null},e.prototype.getFormat=function(){return this.format_},e.prototype.getOverlaps=function(){return this.overlaps_},e.prototype.getUrl=function(){return this.url_},e.prototype.handleFeatureChange_=function(t){var e=t.target,i=o(e),n=e.getGeometry();if(n){var r=n.getExtent();i in this.nullGeometryFeatures_?(delete this.nullGeometryFeatures_[i],this.featuresRtree_&&this.featuresRtree_.insert(r,e)):this.featuresRtree_&&this.featuresRtree_.update(r,e)}else i in this.nullGeometryFeatures_||(this.featuresRtree_&&this.featuresRtree_.remove(e),this.nullGeometryFeatures_[i]=e);var s=e.getId();if(void 0!==s){var a=s.toString();this.idIndex_[a]!==e&&(this.removeFromIdIndex_(e),this.idIndex_[a]=e)}else this.removeFromIdIndex_(e),this.uidIndex_[i]=e;this.changed(),this.dispatchEvent(new Lh(Ih,e))},e.prototype.hasFeature=function(t){var e=t.getId();return void 0!==e?e in this.idIndex_:o(t)in this.uidIndex_},e.prototype.isEmpty=function(){return this.featuresRtree_.isEmpty()&&_(this.nullGeometryFeatures_)},e.prototype.loadFeatures=function(t,e,i){var n=this.loadedExtentsRtree_,r=this.strategy_(t,e);this.loading=!1;for(var o=function(t,o){var a=r[t];n.forEachInExtent(a,(function(t){return ue(t.extent,a)}))||(s.loader_.call(s,a,e,i),n.insert(a,{extent:a.slice()}),s.loading=s.loader_!==R)},s=this,a=0,h=r.length;a<h;++a)o(a)},e.prototype.refresh=function(){this.clear(!0),this.loadedExtentsRtree_.clear(),t.prototype.refresh.call(this)},e.prototype.removeLoadedExtent=function(t){var e,i=this.loadedExtentsRtree_;i.forEachInExtent(t,(function(i){if(ge(i.extent,t))return e=i,!0})),e&&i.remove(e)},e.prototype.removeFeature=function(t){var e=o(t);e in this.nullGeometryFeatures_?delete this.nullGeometryFeatures_[e]:this.featuresRtree_&&this.featuresRtree_.remove(t),this.removeFeatureInternal(t),this.changed()},e.prototype.removeFeatureInternal=function(t){var e=o(t);this.featureChangeKeys_[e].forEach(v),delete this.featureChangeKeys_[e];var i=t.getId();void 0!==i&&delete this.idIndex_[i.toString()],delete this.uidIndex_[e],this.dispatchEvent(new Lh(Ph,t))},e.prototype.removeFromIdIndex_=function(t){var e=!1;for(var i in this.idIndex_)if(this.idIndex_[i]===t){delete this.idIndex_[i],e=!0;break}return e},e.prototype.setLoader=function(t){this.loader_=t},e.prototype.setUrl=function(t){kt(this.format_,7),this.setLoader(Ch(t,this.format_))},e}(bh),Dh=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}();var kh=function(t){function e(e){var i=t.call(this)||this;if(i.id_=void 0,i.geometryName_="geometry",i.style_=null,i.styleFunction_=void 0,i.geometryChangeKey_=null,i.addEventListener(U(i.geometryName_),i.handleGeometryChanged_),e)if("function"==typeof e.getSimplifiedGeometry){var n=e;i.setGeometry(n)}else{var r=e;i.setProperties(r)}return i}return Dh(e,t),e.prototype.clone=function(){var t=new e(this.getProperties());t.setGeometryName(this.getGeometryName());var i=this.getGeometry();i&&t.setGeometry(i.clone());var n=this.getStyle();return n&&t.setStyle(n),t},e.prototype.getGeometry=function(){return this.get(this.geometryName_)},e.prototype.getId=function(){return this.id_},e.prototype.getGeometryName=function(){return this.geometryName_},e.prototype.getStyle=function(){return this.style_},e.prototype.getStyleFunction=function(){return this.styleFunction_},e.prototype.handleGeometryChange_=function(){this.changed()},e.prototype.handleGeometryChanged_=function(){this.geometryChangeKey_&&(v(this.geometryChangeKey_),this.geometryChangeKey_=null);var t=this.getGeometry();t&&(this.geometryChangeKey_=g(t,M,this.handleGeometryChange_,this)),this.changed()},e.prototype.setGeometry=function(t){this.set(this.geometryName_,t)},e.prototype.setStyle=function(t){this.style_=t,this.styleFunction_=t?function(t){if("function"==typeof t)return t;var e;Array.isArray(t)?e=t:(kt("function"==typeof t.getZIndex,41),e=[t]);return function(){return e}}(t):void 0,this.changed()},e.prototype.setId=function(t){this.id_=t,this.changed()},e.prototype.setGeometryName=function(t){this.removeEventListener(U(this.geometryName_),this.handleGeometryChanged_),this.geometryName_=t,this.addEventListener(U(this.geometryName_),this.handleGeometryChanged_),this.handleGeometryChanged_()},e}(H),jh=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),Gh=function(t){function e(e,i,n){var r=t.call(this)||this,o=n||{};return r.tileCoord=e,r.state=i,r.interimTile=null,r.hifi=!0,r.key="",r.transition_=void 0===o.transition?250:o.transition,r.transitionStarts_={},r}return jh(e,t),e.prototype.changed=function(){this.dispatchEvent(M)},e.prototype.release=function(){},e.prototype.getKey=function(){return this.key+"/"+this.tileCoord},e.prototype.getInterimTile=function(){if(!this.interimTile)return this;var t=this.interimTile;do{if(t.getState()==Lt)return this.transition_=0,t;t=t.interimTile}while(t);return this},e.prototype.refreshInterimChain=function(){if(this.interimTile){var t=this.interimTile,e=this;do{if(t.getState()==Lt){t.interimTile=null;break}t.getState()==Ft?e=t:t.getState()==Mt?e.interimTile=t.interimTile:e=t,t=e.interimTile}while(t)}},e.prototype.getTileCoord=function(){return this.tileCoord},e.prototype.getState=function(){return this.state},e.prototype.setState=function(t){if(this.state!==At&&this.state>t)throw new Error("Tile load sequence violation");this.state=t,this.changed()},e.prototype.load=function(){n()},e.prototype.getAlpha=function(t,e){if(!this.transition_)return 1;var i=this.transitionStarts_[t];if(i){if(-1===i)return 1}else i=e,this.transitionStarts_[t]=i;var n=e-i+1e3/60;return n>=this.transition_?1:He(n/this.transition_)},e.prototype.inTransition=function(t){return!!this.transition_&&-1!==this.transitionStarts_[t]},e.prototype.endTransition=function(t){this.transition_&&(this.transitionStarts_[t]=-1)},e}(P),zh=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}();var Xh=function(t){function e(e,i,n,r,o,s){var a=t.call(this,e,i,s)||this;return a.crossOrigin_=r,a.src_=n,a.image_=new Image,null!==r&&(a.image_.crossOrigin=r),a.unlisten_=null,a.tileLoadFunction_=o,a}return zh(e,t),e.prototype.getImage=function(){return this.image_},e.prototype.getKey=function(){return this.src_},e.prototype.handleImageError_=function(){var t;this.state=At,this.unlistenImage_(),this.image_=((t=Jn(1,1)).fillStyle="rgba(0,0,0,0)",t.fillRect(0,0,1,1),t.canvas),this.changed()},e.prototype.handleImageLoad_=function(){var t=this.image_;t.naturalWidth&&t.naturalHeight?this.state=Lt:this.state=Dt,this.unlistenImage_(),this.changed()},e.prototype.load=function(){this.state==At&&(this.state=Mt,this.image_=new Image,null!==this.crossOrigin_&&(this.image_.crossOrigin=this.crossOrigin_)),this.state==Mt&&(this.state=Ft,this.changed(),this.tileLoadFunction_(this,this.src_),this.unlisten_=rh(this.image_,this.handleImageLoad_.bind(this),this.handleImageError_.bind(this)))},e.prototype.unlistenImage_=function(){this.unlisten_&&(this.unlisten_(),this.unlisten_=null)},e}(Gh),Wh=function(){function t(t){this.highWaterMark=void 0!==t?t:2048,this.count_=0,this.entries_={},this.oldest_=null,this.newest_=null}return t.prototype.canExpireCache=function(){return this.getCount()>this.highWaterMark},t.prototype.clear=function(){this.count_=0,this.entries_={},this.oldest_=null,this.newest_=null},t.prototype.containsKey=function(t){return this.entries_.hasOwnProperty(t)},t.prototype.forEach=function(t){for(var e=this.oldest_;e;)t(e.value_,e.key_,this),e=e.newer},t.prototype.get=function(t,e){var i=this.entries_[t];return kt(void 0!==i,15),i===this.newest_||(i===this.oldest_?(this.oldest_=this.oldest_.newer,this.oldest_.older=null):(i.newer.older=i.older,i.older.newer=i.newer),i.newer=null,i.older=this.newest_,this.newest_.newer=i,this.newest_=i),i.value_},t.prototype.remove=function(t){var e=this.entries_[t];return kt(void 0!==e,15),e===this.newest_?(this.newest_=e.older,this.newest_&&(this.newest_.newer=null)):e===this.oldest_?(this.oldest_=e.newer,this.oldest_&&(this.oldest_.older=null)):(e.newer.older=e.older,e.older.newer=e.newer),delete this.entries_[t],--this.count_,e.value_},t.prototype.getCount=function(){return this.count_},t.prototype.getKeys=function(){var t,e=new Array(this.count_),i=0;for(t=this.newest_;t;t=t.older)e[i++]=t.key_;return e},t.prototype.getValues=function(){var t,e=new Array(this.count_),i=0;for(t=this.newest_;t;t=t.older)e[i++]=t.value_;return e},t.prototype.peekLast=function(){return this.oldest_.value_},t.prototype.peekLastKey=function(){return this.oldest_.key_},t.prototype.peekFirstKey=function(){return this.newest_.key_},t.prototype.pop=function(){var t=this.oldest_;return delete this.entries_[t.key_],t.newer&&(t.newer.older=null),this.oldest_=t.newer,this.oldest_||(this.newest_=null),--this.count_,t.value_},t.prototype.replace=function(t,e){this.get(t),this.entries_[t].value_=e},t.prototype.set=function(t,e){kt(!(t in this.entries_),16);var i={key_:t,newer:null,older:this.newest_,value_:e};this.newest_?this.newest_.newer=i:this.oldest_=i,this.newest_=i,this.entries_[t]=i,++this.count_},t.prototype.setSize=function(t){this.highWaterMark=t},t}();function Kh(t,e,i,n){return void 0!==n?(n[0]=t,n[1]=e,n[2]=i,n):[t,e,i]}function Yh(t,e,i){return t+"/"+e+"/"+i}function Nh(t){return Yh(t[0],t[1],t[2])}function Zh(t){return(t[1]<<t[0])+t[2]}var Bh=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),Vh=function(t){function e(){return null!==t&&t.apply(this,arguments)||this}return Bh(e,t),e.prototype.expireCache=function(t){for(;this.canExpireCache();){if(this.peekLast().getKey()in t)break;this.pop().release()}},e.prototype.pruneExceptNewestZ=function(){if(0!==this.getCount()){var t=function(t){return t.split("/").map(Number)}(this.peekFirstKey())[0];this.forEach(function(e){e.tileCoord[0]!==t&&(this.remove(Nh(e.tileCoord)),e.release())}.bind(this))}},e}(Wh);function Uh(t,e,i,n){var r=Ni(i,e,t),o=Gi(e,n,i),s=e.getMetersPerUnit();void 0!==s&&(o*=s);var a=t.getMetersPerUnit();void 0!==a&&(o/=a);var h=t.getExtent();if(!h||le(h,r)){var l=Gi(t,o,r)/o;isFinite(l)&&l>0&&(o/=l)}return o}function Hh(t,e,i,n){var r=i-t,o=n-e,s=Math.sqrt(r*r+o*o);return[Math.round(i+r/s),Math.round(n+o/s)]}function qh(t,e,i,n,r,o,s,a,h,l,u){var c=Jn(Math.round(i*t),Math.round(i*e));if(0===h.length)return c.canvas;c.scale(i,i);var p=[1/0,1/0,-1/0,-1/0];h.forEach((function(t,e,i){ye(p,t.extent)}));var f=Fe(p),d=Ie(p),_=Jn(Math.round(i*f/n),Math.round(i*d/n)),g=i/n;h.forEach((function(t,e,i){var n=t.extent[0]-p[0],r=-(t.extent[3]-p[3]),o=Fe(t.extent),s=Ie(t.extent);_.drawImage(t.image,l,l,t.image.width-2*l,t.image.height-2*l,n*g,r*g,o*g,s*g)}));var y=Pe(s);return a.getTriangles().forEach((function(t,e,r){var s=t.source,a=t.target,h=s[0][0],l=s[0][1],u=s[1][0],f=s[1][1],d=s[2][0],g=s[2][1],v=(a[0][0]-y[0])/o,m=-(a[0][1]-y[1])/o,x=(a[1][0]-y[0])/o,S=-(a[1][1]-y[1])/o,C=(a[2][0]-y[0])/o,w=-(a[2][1]-y[1])/o,E=h,T=l;h=0,l=0;var b=function(t){for(var e=t.length,i=0;i<e;i++){for(var n=i,r=Math.abs(t[i][i]),o=i+1;o<e;o++){var s=Math.abs(t[o][i]);s>r&&(r=s,n=o)}if(0===r)return null;var a=t[n];t[n]=t[i],t[i]=a;for(var h=i+1;h<e;h++)for(var l=-t[h][i]/t[i][i],u=i;u<e+1;u++)i==u?t[h][u]=0:t[h][u]+=l*t[i][u]}for(var c=new Array(e),p=e-1;p>=0;p--){c[p]=t[p][e]/t[p][p];for(var f=p-1;f>=0;f--)t[f][e]-=t[f][p]*c[p]}return c}([[u-=E,f-=T,0,0,x-v],[d-=E,g-=T,0,0,C-v],[0,0,u,f,S-m],[0,0,d,g,w-m]]);if(b){c.save(),c.beginPath();var R=(v+x+C)/3,I=(m+S+w)/3,O=Hh(R,I,v,m),P=Hh(R,I,x,S),M=Hh(R,I,C,w);c.moveTo(P[0],P[1]),c.lineTo(O[0],O[1]),c.lineTo(M[0],M[1]),c.clip(),c.transform(b[0],b[2],b[1],b[3],v,m),c.translate(p[0]-E,p[3]-T),c.scale(n/i,-n/i),c.drawImage(_.canvas,0,0),c.restore()}})),u&&(c.save(),c.strokeStyle="black",c.lineWidth=1,a.getTriangles().forEach((function(t,e,i){var n=t.target,r=(n[0][0]-y[0])/o,s=-(n[0][1]-y[1])/o,a=(n[1][0]-y[0])/o,h=-(n[1][1]-y[1])/o,l=(n[2][0]-y[0])/o,u=-(n[2][1]-y[1])/o;c.beginPath(),c.moveTo(a,h),c.lineTo(r,s),c.lineTo(l,u),c.closePath(),c.stroke()})),c.restore()),c.canvas}var Jh=function(){function t(t,e,i,n,r,o){this.sourceProj_=t,this.targetProj_=e;var s={},a=Yi(this.targetProj_,this.sourceProj_);this.transformInv_=function(t){var e=t[0]+"/"+t[1];return s[e]||(s[e]=a(t)),s[e]},this.maxSourceExtent_=n,this.errorThresholdSquared_=r*r,this.triangles_=[],this.wrapsXInSource_=!1,this.canWrapXInSource_=this.sourceProj_.canWrapX()&&!!n&&!!this.sourceProj_.getExtent()&&Fe(n)==Fe(this.sourceProj_.getExtent()),this.sourceWorldWidth_=this.sourceProj_.getExtent()?Fe(this.sourceProj_.getExtent()):null,this.targetWorldWidth_=this.targetProj_.getExtent()?Fe(this.targetProj_.getExtent()):null;var h=Pe(i),l=Me(i),u=Ee(i),c=we(i),p=this.transformInv_(h),f=this.transformInv_(l),d=this.transformInv_(u),_=this.transformInv_(c),g=10+(o?Math.max(0,Math.ceil(Math.log2(Ce(i)/(o*o*256*256)))):0);if(this.addQuad_(h,l,u,c,p,f,d,_,g),this.wrapsXInSource_){var y=1/0;this.triangles_.forEach((function(t,e,i){y=Math.min(y,t.source[0][0],t.source[1][0],t.source[2][0])})),this.triangles_.forEach(function(t){if(Math.max(t.source[0][0],t.source[1][0],t.source[2][0])-y>this.sourceWorldWidth_/2){var e=[[t.source[0][0],t.source[0][1]],[t.source[1][0],t.source[1][1]],[t.source[2][0],t.source[2][1]]];e[0][0]-y>this.sourceWorldWidth_/2&&(e[0][0]-=this.sourceWorldWidth_),e[1][0]-y>this.sourceWorldWidth_/2&&(e[1][0]-=this.sourceWorldWidth_),e[2][0]-y>this.sourceWorldWidth_/2&&(e[2][0]-=this.sourceWorldWidth_);var i=Math.min(e[0][0],e[1][0],e[2][0]);Math.max(e[0][0],e[1][0],e[2][0])-i<this.sourceWorldWidth_/2&&(t.source=e)}}.bind(this))}s={}}return t.prototype.addTriangle_=function(t,e,i,n,r,o){this.triangles_.push({source:[n,r,o],target:[t,e,i]})},t.prototype.addQuad_=function(t,e,i,n,r,o,s,a,h){var l=oe([r,o,s,a]),u=this.sourceWorldWidth_?Fe(l)/this.sourceWorldWidth_:null,c=this.sourceWorldWidth_,p=this.sourceProj_.canWrapX()&&u>.5&&u<1,f=!1;if(h>0){if(this.targetProj_.isGlobal()&&this.targetWorldWidth_)f=Fe(oe([t,e,i,n]))/this.targetWorldWidth_>.25||f;!p&&this.sourceProj_.isGlobal()&&u&&(f=u>.25||f)}if(f||!this.maxSourceExtent_||Le(l,this.maxSourceExtent_)){if(!(f||isFinite(r[0])&&isFinite(r[1])&&isFinite(o[0])&&isFinite(o[1])&&isFinite(s[0])&&isFinite(s[1])&&isFinite(a[0])&&isFinite(a[1]))){if(!(h>0))return;f=!0}if(h>0){if(!f){var d=[(t[0]+i[0])/2,(t[1]+i[1])/2],_=this.transformInv_(d),g=void 0;if(p)g=(Zt(r[0],c)+Zt(s[0],c))/2-Zt(_[0],c);else g=(r[0]+s[0])/2-_[0];var y=(r[1]+s[1])/2-_[1];f=g*g+y*y>this.errorThresholdSquared_}if(f){if(Math.abs(t[0]-i[0])<=Math.abs(t[1]-i[1])){var v=[(e[0]+i[0])/2,(e[1]+i[1])/2],m=this.transformInv_(v),x=[(n[0]+t[0])/2,(n[1]+t[1])/2],S=this.transformInv_(x);this.addQuad_(t,e,v,x,r,o,m,S,h-1),this.addQuad_(x,v,i,n,S,m,s,a,h-1)}else{var C=[(t[0]+e[0])/2,(t[1]+e[1])/2],w=this.transformInv_(C),E=[(i[0]+n[0])/2,(i[1]+n[1])/2],T=this.transformInv_(E);this.addQuad_(t,C,E,n,r,w,T,a,h-1),this.addQuad_(C,e,i,E,w,o,s,T,h-1)}return}}if(p){if(!this.canWrapXInSource_)return;this.wrapsXInSource_=!0}this.addTriangle_(t,i,n,r,s,a),this.addTriangle_(t,e,i,r,o,s)}},t.prototype.calculateSourceExtent=function(){var t=[1/0,1/0,-1/0,-1/0];return this.triangles_.forEach((function(e,i,n){var r=e.source;ve(t,r[0]),ve(t,r[1]),ve(t,r[2])})),t},t.prototype.getTriangles=function(){return this.triangles_},t}(),Qh=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),$h=function(t){function e(e,i,n,r,o,s,a,h,l,u,c){var p=t.call(this,o,Mt)||this;p.renderEdges_=void 0!==c&&c,p.pixelRatio_=a,p.gutter_=h,p.canvas_=null,p.sourceTileGrid_=i,p.targetTileGrid_=r,p.wrappedTileCoord_=s||o,p.sourceTiles_=[],p.sourcesListenerKeys_=null,p.sourceZ_=0;var f=r.getTileCoordExtent(p.wrappedTileCoord_),d=p.targetTileGrid_.getExtent(),_=p.sourceTileGrid_.getExtent(),g=d?Oe(f,d):f;if(0===Ce(g))return p.state=Dt,p;var y=e.getExtent();y&&(_=_?Oe(_,y):y);var v=r.getResolution(p.wrappedTileCoord_[0]),m=Uh(e,n,Te(g),v);if(!isFinite(m)||m<=0)return p.state=Dt,p;var x=void 0!==u?u:.5;if(p.triangulation_=new Jh(e,n,g,_,m*x,v),0===p.triangulation_.getTriangles().length)return p.state=Dt,p;p.sourceZ_=i.getZForResolution(m);var S=p.triangulation_.calculateSourceExtent();if(_&&(e.canWrapX()?(S[1]=Xt(S[1],_[1],_[3]),S[3]=Xt(S[3],_[1],_[3])):S=Oe(S,_)),Ce(S)){for(var C=i.getTileRangeForExtentAndZ(S,p.sourceZ_),w=C.minX;w<=C.maxX;w++)for(var E=C.minY;E<=C.maxY;E++){var T=l(p.sourceZ_,w,E,a);T&&p.sourceTiles_.push(T)}0===p.sourceTiles_.length&&(p.state=Dt)}else p.state=Dt;return p}return Qh(e,t),e.prototype.getImage=function(){return this.canvas_},e.prototype.reproject_=function(){var t=[];if(this.sourceTiles_.forEach(function(e,i,n){e&&e.getState()==Lt&&t.push({extent:this.sourceTileGrid_.getTileCoordExtent(e.tileCoord),image:e.getImage()})}.bind(this)),this.sourceTiles_.length=0,0===t.length)this.state=At;else{var e=this.wrappedTileCoord_[0],i=this.targetTileGrid_.getTileSize(e),n="number"==typeof i?i:i[0],r="number"==typeof i?i:i[1],o=this.targetTileGrid_.getResolution(e),s=this.sourceTileGrid_.getResolution(this.sourceZ_),a=this.targetTileGrid_.getTileCoordExtent(this.wrappedTileCoord_);this.canvas_=qh(n,r,this.pixelRatio_,s,this.sourceTileGrid_.getExtent(),o,a,this.triangulation_,t,this.gutter_,this.renderEdges_),this.state=Lt}this.changed()},e.prototype.load=function(){if(this.state==Mt){this.state=Ft,this.changed();var t=0;this.sourcesListenerKeys_=[],this.sourceTiles_.forEach(function(e,i,n){var r=e.getState();if(r==Mt||r==Ft){t++;var o=g(e,M,(function(i){var n=e.getState();n!=Lt&&n!=At&&n!=Dt||(v(o),0===--t&&(this.unlistenSources_(),this.reproject_()))}),this);this.sourcesListenerKeys_.push(o)}}.bind(this)),this.sourceTiles_.forEach((function(t,e,i){t.getState()==Mt&&t.load()})),0===t&&setTimeout(this.reproject_.bind(this),0)}},e.prototype.unlistenSources_=function(){this.sourcesListenerKeys_.forEach(v),this.sourcesListenerKeys_=null},e}(Gh);function tl(t,e){var i=/\{z\}/g,n=/\{x\}/g,r=/\{y\}/g,o=/\{-y\}/g;return function(s,a,h){return s?t.replace(i,s[0].toString()).replace(n,s[1].toString()).replace(r,s[2].toString()).replace(o,(function(){var t=s[0],i=e.getFullTileRange(t);return kt(i,55),(i.getHeight()-s[2]-1).toString()})):void 0}}function el(t,e){for(var i=t.length,n=new Array(i),r=0;r<i;++r)n[r]=tl(t[r],e);return function(t){if(1===t.length)return t[0];return function(e,i,n){if(e){var r=Zt(Zh(e),t.length);return t[r](e,i,n)}}}(n)}function il(t,e,i){}var nl=[0,0,0],rl=function(){function t(t){var e,i,n,r;if(this.minZoom=void 0!==t.minZoom?t.minZoom:0,this.resolutions_=t.resolutions,kt((e=this.resolutions_,i=!0,n=function(t,e){return e-t}||x,e.every((function(t,r){if(0===r)return!0;var o=n(e[r-1],t);return!(o>0||i&&0===o)}))),17),!t.origins)for(var o=0,s=this.resolutions_.length-1;o<s;++o)if(r){if(this.resolutions_[o]/this.resolutions_[o+1]!==r){r=void 0;break}}else r=this.resolutions_[o]/this.resolutions_[o+1];this.zoomFactor_=r,this.maxZoom=this.resolutions_.length-1,this.origin_=void 0!==t.origin?t.origin:null,this.origins_=null,void 0!==t.origins&&(this.origins_=t.origins,kt(this.origins_.length==this.resolutions_.length,20));var a=t.extent;void 0===a||this.origin_||this.origins_||(this.origin_=Pe(a)),kt(!this.origin_&&this.origins_||this.origin_&&!this.origins_,18),this.tileSizes_=null,void 0!==t.tileSizes&&(this.tileSizes_=t.tileSizes,kt(this.tileSizes_.length==this.resolutions_.length,19)),this.tileSize_=void 0!==t.tileSize?t.tileSize:this.tileSizes_?null:256,kt(!this.tileSize_&&this.tileSizes_||this.tileSize_&&!this.tileSizes_,22),this.extent_=void 0!==a?a:null,this.fullTileRanges_=null,this.tmpSize_=[0,0],void 0!==t.sizes?this.fullTileRanges_=t.sizes.map((function(t,e){return new Vs(Math.min(0,t[0]),Math.max(t[0]-1,-1),Math.min(0,t[1]),Math.max(t[1]-1,-1))}),this):a&&this.calculateTileRanges_(a)}return t.prototype.forEachTileCoord=function(t,e,i){for(var n=this.getTileRangeForExtentAndZ(t,e),r=n.minX,o=n.maxX;r<=o;++r)for(var s=n.minY,a=n.maxY;s<=a;++s)i([e,r,s])},t.prototype.forEachTileCoordParentTileRange=function(t,e,i,n){var r,o,s=null,a=t[0]-1;for(2===this.zoomFactor_?(r=t[1],o=t[2]):s=this.getTileCoordExtent(t,n);a>=this.minZoom;){if(e(a,2===this.zoomFactor_?Bs(r=Math.floor(r/2),r,o=Math.floor(o/2),o,i):this.getTileRangeForExtentAndZ(s,a,i)))return!0;--a}return!1},t.prototype.getExtent=function(){return this.extent_},t.prototype.getMaxZoom=function(){return this.maxZoom},t.prototype.getMinZoom=function(){return this.minZoom},t.prototype.getOrigin=function(t){return this.origin_?this.origin_:this.origins_[t]},t.prototype.getResolution=function(t){return this.resolutions_[t]},t.prototype.getResolutions=function(){return this.resolutions_},t.prototype.getTileCoordChildTileRange=function(t,e,i){if(t[0]<this.maxZoom){if(2===this.zoomFactor_){var n=2*t[1],r=2*t[2];return Bs(n,n+1,r,r+1,e)}var o=this.getTileCoordExtent(t,i);return this.getTileRangeForExtentAndZ(o,t[0]+1,e)}return null},t.prototype.getTileRangeExtent=function(t,e,i){var n=this.getOrigin(t),r=this.getResolution(t),o=vr(this.getTileSize(t),this.tmpSize_),s=n[0]+e.minX*o[0]*r,a=n[0]+(e.maxX+1)*o[0]*r;return de(s,n[1]+e.minY*o[1]*r,a,n[1]+(e.maxY+1)*o[1]*r,i)},t.prototype.getTileRangeForExtentAndZ=function(t,e,i){var n=nl;this.getTileCoordForXYAndZ_(t[0],t[3],e,!1,n);var r=n[1],o=n[2];return this.getTileCoordForXYAndZ_(t[2],t[1],e,!0,n),Bs(r,n[1],o,n[2],i)},t.prototype.getTileCoordCenter=function(t){var e=this.getOrigin(t[0]),i=this.getResolution(t[0]),n=vr(this.getTileSize(t[0]),this.tmpSize_);return[e[0]+(t[1]+.5)*n[0]*i,e[1]-(t[2]+.5)*n[1]*i]},t.prototype.getTileCoordExtent=function(t,e){var i=this.getOrigin(t[0]),n=this.getResolution(t[0]),r=vr(this.getTileSize(t[0]),this.tmpSize_),o=i[0]+t[1]*r[0]*n,s=i[1]-(t[2]+1)*r[1]*n;return de(o,s,o+r[0]*n,s+r[1]*n,e)},t.prototype.getTileCoordForCoordAndResolution=function(t,e,i){return this.getTileCoordForXYAndResolution_(t[0],t[1],e,!1,i)},t.prototype.getTileCoordForXYAndResolution_=function(t,e,i,n,r){var o=this.getZForResolution(i),s=i/this.getResolution(o),a=this.getOrigin(o),h=vr(this.getTileSize(o),this.tmpSize_),l=n?.5:0,u=n?.5:0,c=Math.floor((t-a[0])/i+l),p=Math.floor((a[1]-e)/i+u),f=s*c/h[0],d=s*p/h[1];return n?(f=Math.ceil(f)-1,d=Math.ceil(d)-1):(f=Math.floor(f),d=Math.floor(d)),Kh(o,f,d,r)},t.prototype.getTileCoordForXYAndZ_=function(t,e,i,n,r){var o=this.getOrigin(i),s=this.getResolution(i),a=vr(this.getTileSize(i),this.tmpSize_),h=n?.5:0,l=n?.5:0,u=Math.floor((t-o[0])/s+h),c=Math.floor((o[1]-e)/s+l),p=u/a[0],f=c/a[1];return n?(p=Math.ceil(p)-1,f=Math.ceil(f)-1):(p=Math.floor(p),f=Math.floor(f)),Kh(i,p,f,r)},t.prototype.getTileCoordForCoordAndZ=function(t,e,i){return this.getTileCoordForXYAndZ_(t[0],t[1],e,!1,i)},t.prototype.getTileCoordResolution=function(t){return this.resolutions_[t[0]]},t.prototype.getTileSize=function(t){return this.tileSize_?this.tileSize_:this.tileSizes_[t]},t.prototype.getFullTileRange=function(t){return this.fullTileRanges_?this.fullTileRanges_[t]:null},t.prototype.getZForResolution=function(t,e){return Xt(S(this.resolutions_,t,e||0),this.minZoom,this.maxZoom)},t.prototype.calculateTileRanges_=function(t){for(var e=this.resolutions_.length,i=new Array(e),n=this.minZoom;n<e;++n)i[n]=this.getTileRangeForExtentAndZ(t,n);this.fullTileRanges_=i},t}();function ol(t){var e=t.getDefaultTileGrid();return e||(e=function(t,e,i,n){return function(t,e,i,n){var r=void 0!==n?n:Jt,o=sl(t,e,i);return new rl({extent:t,origin:be(t,r),resolutions:o,tileSize:i})}(al(t),e,i,n)}(t),t.setDefaultTileGrid(e)),e}function sl(t,e,i,n){for(var r=void 0!==e?e:42,o=Ie(t),s=Fe(t),a=vr(void 0!==i?i:256),h=n>0?n:Math.max(s/a[0],o/a[1]),l=r+1,u=new Array(l),c=0;c<l;++c)u[c]=h/Math.pow(2,c);return u}function al(t){var e=(t=ji(t)).getExtent();if(!e){var i=180*_i[gi.DEGREES]/t.getMetersPerUnit();e=de(-i,-i,i,i)}return e}var hl=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),ll=function(t){function e(e){var i=t.call(this,{attributions:e.attributions,attributionsCollapsible:e.attributionsCollapsible,projection:e.projection,state:e.state,wrapX:e.wrapX})||this;i.opaque_=void 0!==e.opaque&&e.opaque,i.tilePixelRatio_=void 0!==e.tilePixelRatio?e.tilePixelRatio:1,i.tileGrid=void 0!==e.tileGrid?e.tileGrid:null;var n=[256,256],r=e.tileGrid;r&&vr(r.getTileSize(r.getMinZoom()),n);var o="undefined"!=typeof screen,s=o?screen.availWidth||screen.width:1920,a=o?screen.availHeight||screen.height:1080,h=4*Math.ceil(s/n[0])*Math.ceil(a/n[1]);return i.tileCache=new Vh(Math.max(h,e.cacheSize||0)),i.tmpSize=[0,0],i.key_=e.key||"",i.tileOptions={transition:e.transition},i.zDirection=e.zDirection?e.zDirection:0,i}return hl(e,t),e.prototype.canExpireCache=function(){return this.tileCache.canExpireCache()},e.prototype.expireCache=function(t,e){var i=this.getTileCacheForProjection(t);i&&i.expireCache(e)},e.prototype.forEachLoadedTile=function(t,e,i,n){var r=this.getTileCacheForProjection(t);if(!r)return!1;for(var o,s,a,h=!0,l=i.minX;l<=i.maxX;++l)for(var u=i.minY;u<=i.maxY;++u)s=Yh(e,l,u),a=!1,r.containsKey(s)&&(a=(o=r.get(s)).getState()===Lt)&&(a=!1!==n(o)),a||(h=!1);return h},e.prototype.getGutterForProjection=function(t){return 0},e.prototype.getKey=function(){return this.key_},e.prototype.setKey=function(t){this.key_!==t&&(this.key_=t,this.changed())},e.prototype.getOpaque=function(t){return this.opaque_},e.prototype.getResolutions=function(){return this.tileGrid.getResolutions()},e.prototype.getTile=function(t,e,i,r,o){return n()},e.prototype.getTileGrid=function(){return this.tileGrid},e.prototype.getTileGridForProjection=function(t){return this.tileGrid?this.tileGrid:ol(t)},e.prototype.getTileCacheForProjection=function(t){var e=this.getProjection();return e&&!Wi(e,t)?null:this.tileCache},e.prototype.getTilePixelRatio=function(t){return this.tilePixelRatio_},e.prototype.getTilePixelSize=function(t,e,i){var n=this.getTileGridForProjection(i),r=this.getTilePixelRatio(e),o=vr(n.getTileSize(t),this.tmpSize);return 1==r?o:yr(o,r,this.tmpSize)},e.prototype.getTileCoordForTileUrlFunction=function(t,e){var i=void 0!==e?e:this.getProjection(),n=this.getTileGridForProjection(i);return this.getWrapX()&&i.isGlobal()&&(t=function(t,e,i){var n=e[0],r=t.getTileCoordCenter(e),o=al(i);if(le(o,r))return e;var s=Fe(o),a=Math.ceil((o[0]-r[0])/s);return r[0]+=s*a,t.getTileCoordForCoordAndZ(r,n)}(n,t,i)),function(t,e){var i=t[0],n=t[1],r=t[2];if(e.getMinZoom()>i||i>e.getMaxZoom())return!1;var o,s=e.getExtent();return!(o=s?e.getTileRangeForExtentAndZ(s,i):e.getFullTileRange(i))||o.containsXY(n,r)}(t,n)?t:null},e.prototype.clear=function(){this.tileCache.clear()},e.prototype.refresh=function(){this.clear(),t.prototype.refresh.call(this)},e.prototype.useTile=function(t,e,i,n){},e}(bh),ul=function(t){function e(e,i){var n=t.call(this,e)||this;return n.tile=i,n}return hl(e,t),e}(I),cl=ll,pl="tileloadstart",fl="tileloadend",dl="tileloaderror",_l=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),gl=function(t){function e(e){var i=t.call(this,{attributions:e.attributions,cacheSize:e.cacheSize,opaque:e.opaque,projection:e.projection,state:e.state,tileGrid:e.tileGrid,tilePixelRatio:e.tilePixelRatio,wrapX:e.wrapX,transition:e.transition,key:e.key,attributionsCollapsible:e.attributionsCollapsible,zDirection:e.zDirection})||this;return i.generateTileUrlFunction_=!e.tileUrlFunction,i.tileLoadFunction=e.tileLoadFunction,i.tileUrlFunction=e.tileUrlFunction?e.tileUrlFunction.bind(i):il,i.urls=null,e.urls?i.setUrls(e.urls):e.url&&i.setUrl(e.url),i.tileLoadingKeys_={},i}return _l(e,t),e.prototype.getTileLoadFunction=function(){return this.tileLoadFunction},e.prototype.getTileUrlFunction=function(){return this.tileUrlFunction},e.prototype.getUrls=function(){return this.urls},e.prototype.handleTileChange=function(t){var e,i=t.target,n=o(i),r=i.getState();r==Ft?(this.tileLoadingKeys_[n]=!0,e=pl):n in this.tileLoadingKeys_&&(delete this.tileLoadingKeys_[n],e=r==At?dl:r==Lt?fl:void 0),null!=e&&this.dispatchEvent(new ul(e,i))},e.prototype.setTileLoadFunction=function(t){this.tileCache.clear(),this.tileLoadFunction=t,this.changed()},e.prototype.setTileUrlFunction=function(t,e){this.tileUrlFunction=t,this.tileCache.pruneExceptNewestZ(),void 0!==e?this.setKey(e):this.changed()},e.prototype.setUrl=function(t){var e=function(t){var e=[],i=/\{([a-z])-([a-z])\}/.exec(t);if(i){var n=i[1].charCodeAt(0),r=i[2].charCodeAt(0),o=void 0;for(o=n;o<=r;++o)e.push(t.replace(i[0],String.fromCharCode(o)));return e}if(i=/\{(\d+)-(\d+)\}/.exec(t)){for(var s=parseInt(i[2],10),a=parseInt(i[1],10);a<=s;a++)e.push(t.replace(i[0],a.toString()));return e}return e.push(t),e}(t);this.urls=e,this.setUrls(e)},e.prototype.setUrls=function(t){this.urls=t;var e=t.join("\n");this.generateTileUrlFunction_?this.setTileUrlFunction(el(t,this.tileGrid),e):this.setKey(e)},e.prototype.useTile=function(t,e,i){var n=Yh(t,e,i);this.tileCache.containsKey(n)&&this.tileCache.get(n)},e}(cl),yl=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}();function vl(t,e){t.getImage().src=e}var ml=function(t){function e(e){var i=t.call(this,{attributions:e.attributions,cacheSize:e.cacheSize,opaque:e.opaque,projection:e.projection,state:e.state,tileGrid:e.tileGrid,tileLoadFunction:e.tileLoadFunction?e.tileLoadFunction:vl,tilePixelRatio:e.tilePixelRatio,tileUrlFunction:e.tileUrlFunction,url:e.url,urls:e.urls,wrapX:e.wrapX,transition:e.transition,key:e.key,attributionsCollapsible:e.attributionsCollapsible,zDirection:e.zDirection})||this;return i.crossOrigin=void 0!==e.crossOrigin?e.crossOrigin:null,i.tileClass=void 0!==e.tileClass?e.tileClass:Xh,i.tileCacheForProjection={},i.tileGridForProjection={},i.reprojectionErrorThreshold_=e.reprojectionErrorThreshold,i.renderReprojectionEdges_=!1,i}return yl(e,t),e.prototype.canExpireCache=function(){if(this.tileCache.canExpireCache())return!0;for(var t in this.tileCacheForProjection)if(this.tileCacheForProjection[t].canExpireCache())return!0;return!1},e.prototype.expireCache=function(t,e){var i=this.getTileCacheForProjection(t);for(var n in this.tileCache.expireCache(this.tileCache==i?e:{}),this.tileCacheForProjection){var r=this.tileCacheForProjection[n];r.expireCache(r==i?e:{})}},e.prototype.getGutterForProjection=function(t){return this.getProjection()&&t&&!Wi(this.getProjection(),t)?0:this.getGutter()},e.prototype.getGutter=function(){return 0},e.prototype.getOpaque=function(e){return!(this.getProjection()&&e&&!Wi(this.getProjection(),e))&&t.prototype.getOpaque.call(this,e)},e.prototype.getTileGridForProjection=function(t){var e=this.getProjection();if(!this.tileGrid||e&&!Wi(e,t)){var i=o(t);return i in this.tileGridForProjection||(this.tileGridForProjection[i]=ol(t)),this.tileGridForProjection[i]}return this.tileGrid},e.prototype.getTileCacheForProjection=function(t){var e=this.getProjection();if(!e||Wi(e,t))return this.tileCache;var i=o(t);return i in this.tileCacheForProjection||(this.tileCacheForProjection[i]=new Vh(this.tileCache.highWaterMark)),this.tileCacheForProjection[i]},e.prototype.createTile_=function(t,e,i,n,r,o){var s=[t,e,i],a=this.getTileCoordForTileUrlFunction(s,r),h=a?this.tileUrlFunction(a,n,r):void 0,l=new this.tileClass(s,void 0!==h?Mt:Dt,void 0!==h?h:"",this.crossOrigin,this.tileLoadFunction,this.tileOptions);return l.key=o,l.addEventListener(M,this.handleTileChange.bind(this)),l},e.prototype.getTile=function(t,e,i,n,r){var o=this.getProjection();if(o&&r&&!Wi(o,r)){var s=this.getTileCacheForProjection(r),a=[t,e,i],h=void 0,l=Nh(a);s.containsKey(l)&&(h=s.get(l));var u=this.getKey();if(h&&h.key==u)return h;var c=this.getTileGridForProjection(o),p=this.getTileGridForProjection(r),f=this.getTileCoordForTileUrlFunction(a,r),d=new $h(o,c,r,p,a,f,this.getTilePixelRatio(n),this.getGutter(),function(t,e,i,n){return this.getTileInternal(t,e,i,n,o)}.bind(this),this.reprojectionErrorThreshold_,this.renderReprojectionEdges_);return d.key=u,h?(d.interimTile=h,d.refreshInterimChain(),s.replace(l,d)):s.set(l,d),d}return this.getTileInternal(t,e,i,n,o||r)},e.prototype.getTileInternal=function(t,e,i,n,r){var o=null,s=Yh(t,e,i),a=this.getKey();if(this.tileCache.containsKey(s)){if((o=this.tileCache.get(s)).key!=a){var h=o;o=this.createTile_(t,e,i,n,r,a),h.getState()==Mt?o.interimTile=h.interimTile:o.interimTile=h,o.refreshInterimChain(),this.tileCache.replace(s,o)}}else o=this.createTile_(t,e,i,n,r,a),this.tileCache.set(s,o);return o},e.prototype.setRenderReprojectionEdges=function(t){if(this.renderReprojectionEdges_!=t){for(var e in this.renderReprojectionEdges_=t,this.tileCacheForProjection)this.tileCacheForProjection[e].clear();this.changed()}},e.prototype.setTileGridForProjection=function(t,e){var i=ji(t);if(i){var n=o(i);n in this.tileGridForProjection||(this.tileGridForProjection[n]=e)}},e}(gl),xl=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}(),Sl=function(t){function e(e){var i=e||{},n=void 0!==i.projection?i.projection:"EPSG:3857",r=void 0!==i.tileGrid?i.tileGrid:function(t){var e=t||{},i=e.extent||ji("EPSG:3857").getExtent(),n={extent:i,minZoom:e.minZoom,tileSize:e.tileSize,resolutions:sl(i,e.maxZoom,e.tileSize,e.maxResolution)};return new rl(n)}({extent:al(n),maxResolution:i.maxResolution,maxZoom:i.maxZoom,minZoom:i.minZoom,tileSize:i.tileSize});return t.call(this,{attributions:i.attributions,cacheSize:i.cacheSize,crossOrigin:i.crossOrigin,opaque:i.opaque,projection:n,reprojectionErrorThreshold:i.reprojectionErrorThreshold,tileGrid:r,tileLoadFunction:i.tileLoadFunction,tilePixelRatio:i.tilePixelRatio,tileUrlFunction:i.tileUrlFunction,url:i.url,urls:i.urls,wrapX:void 0===i.wrapX||i.wrapX,transition:i.transition,attributionsCollapsible:i.attributionsCollapsible,zDirection:i.zDirection})||this}return xl(e,t),e}(ml),Cl="carmentaserver",wl="geoserver",El="mapserver",Tl="qgis";function bl(t,e){var i=[];Object.keys(e).forEach((function(t){null!==e[t]&&void 0!==e[t]&&i.push(t+"="+encodeURIComponent(e[t]))}));var n=i.join("&");return(t=-1===(t=t.replace(/[?&]$/,"")).indexOf("?")?t+"?":t+"&")+n}var Rl=function(){var t=function(e,i){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])})(e,i)};return function(e,i){function n(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(n.prototype=i.prototype,new n)}}();function Il(t,e,i){var n=this.getTileGrid();if(n||(n=this.getTileGridForProjection(i)),!(n.getResolutions().length<=t[0])){1==e||this.hidpi_&&void 0!==this.serverType_||(e=1);var r=n.getResolution(t[0]),o=n.getTileCoordExtent(t,this.tmpExtent_),s=vr(n.getTileSize(t[0]),this.tmpSize),a=this.gutter_;0!==a&&(s=gr(s,a,this.tmpSize),o=se(o,r*a,o)),1!=e&&(s=yr(s,e,this.tmpSize));var h={SERVICE:"WMS",VERSION:"1.3.0",REQUEST:"GetMap",FORMAT:"image/png",TRANSPARENT:!0};return p(h,this.params_),this.getRequestUrl_(t,s,o,e,i,h)}}var Ol=function(t){function e(e){var i=this,n=e||{},r=n.params||{},o=!("TRANSPARENT"in r)||r.TRANSPARENT;return(i=t.call(this,{attributions:n.attributions,cacheSize:n.cacheSize,crossOrigin:n.crossOrigin,opaque:!o,projection:n.projection,reprojectionErrorThreshold:n.reprojectionErrorThreshold,tileClass:n.tileClass,tileGrid:n.tileGrid,tileLoadFunction:n.tileLoadFunction,tileUrlFunction:Il,url:n.url,urls:n.urls,wrapX:void 0===n.wrapX||n.wrapX,transition:n.transition})||this).gutter_=void 0!==n.gutter?n.gutter:0,i.params_=r,i.v13_=!0,i.serverType_=n.serverType,i.hidpi_=void 0===n.hidpi||n.hidpi,i.tmpExtent_=[1/0,1/0,-1/0,-1/0],i.updateV13_(),i.setKey(i.getKeyForParams_()),i}return Rl(e,t),e.prototype.getFeatureInfoUrl=function(t,e,i,n){var r=ji(i),o=this.getProjection(),s=this.getTileGrid();s||(s=this.getTileGridForProjection(r));var a=s.getZForResolution(e,this.zDirection),h=s.getTileCoordForCoordAndZ(t,a);if(!(s.getResolutions().length<=h[0])){var l=s.getResolution(h[0]),u=s.getTileCoordExtent(h,this.tmpExtent_),c=vr(s.getTileSize(h[0]),this.tmpSize),f=this.gutter_;0!==f&&(c=gr(c,f,this.tmpSize),u=se(u,l*f,u)),o&&o!==r&&(l=Uh(o,r,t,l),u=Zi(u,r,o),t=Ni(t,r,o));var d={SERVICE:"WMS",VERSION:"1.3.0",REQUEST:"GetFeatureInfo",FORMAT:"image/png",TRANSPARENT:!0,QUERY_LAYERS:this.params_.LAYERS};p(d,this.params_,n);var _=Math.floor((t[0]-u[0])/l),g=Math.floor((u[3]-t[1])/l);return d[this.v13_?"I":"X"]=_,d[this.v13_?"J":"Y"]=g,this.getRequestUrl_(h,c,u,1,o||r,d)}},e.prototype.getLegendUrl=function(t,e){if(void 0!==this.urls[0]){var i={SERVICE:"WMS",VERSION:"1.3.0",REQUEST:"GetLegendGraphic",FORMAT:"image/png"};if(void 0===e||void 0===e.LAYER){var n=this.params_.LAYERS;if(!(!Array.isArray(n)||1===n.length))return;i.LAYER=n}if(void 0!==t){var r=this.getProjection()?this.getProjection().getMetersPerUnit():1;i.SCALE=t*r*39.37*(25.4/.28)}return p(i,e),bl(this.urls[0],i)}},e.prototype.getGutter=function(){return this.gutter_},e.prototype.getParams=function(){return this.params_},e.prototype.getRequestUrl_=function(t,e,i,n,r,o){var s=this.urls;if(s){if(o.WIDTH=e[0],o.HEIGHT=e[1],o[this.v13_?"CRS":"SRS"]=r.getCode(),"STYLES"in this.params_||(o.STYLES=""),1!=n)switch(this.serverType_){case wl:var a=90*n+.5|0;"FORMAT_OPTIONS"in o?o.FORMAT_OPTIONS+=";dpi:"+a:o.FORMAT_OPTIONS="dpi:"+a;break;case El:o.MAP_RESOLUTION=90*n;break;case Cl:case Tl:o.DPI=90*n;break;default:kt(!1,52)}var h,l=r.getAxisOrientation(),u=i;if(this.v13_&&"ne"==l.substr(0,2)){var c=void 0;c=i[0],u[0]=i[1],u[1]=c,c=i[2],u[2]=i[3],u[3]=c}if(o.BBOX=u.join(","),1==s.length)h=s[0];else h=s[Zt(Zh(t),s.length)];return bl(h,o)}},e.prototype.getTilePixelRatio=function(t){return this.hidpi_&&void 0!==this.serverType_?t:1},e.prototype.getKeyForParams_=function(){var t=0,e=[];for(var i in this.params_)e[t++]=i+"-"+this.params_[i];return e.join("/")},e.prototype.updateParams=function(t){p(this.params_,t),this.updateV13_(),this.setKey(this.getKeyForParams_())},e.prototype.updateV13_=function(){var t=this.params_.VERSION||"1.3.0";this.v13_=function(t,e){for(var i=(""+t).split("."),n=(""+e).split("."),r=0;r<Math.max(i.length,n.length);r++){var o=parseInt(i[r]||"0",10),s=parseInt(n[r]||"0",10);if(o>s)return 1;if(s>o)return-1}return 0}(t,"1.3")>=0},e}(ml);const Pl={};Pl.Map=Xs,Pl.View=qn,Pl.Feature=kh,Pl.geom={},Pl.geom.Polygon={},Pl.geom.Polygon.fromExtent=Bn,Pl.layer={},Pl.layer.TileLayer=ia,Pl.layer.VectorLayer=gh,Pl.source={},Pl.source.XYZ=Sl,Pl.source.TileWMS=Ol,Pl.source.VectorSource=Ah,Pl.proj={},Pl.proj.getTransform=Yi,Pl.interaction={},Pl.interaction.DragRotate=ao,Pl.interaction.DragPan=oo,Pl.interaction.MouseWheelZoom=Lo,Pl.interaction.defaults=Go,Pl.control={},Pl.control.defaults=jr}})}));
 "function"!=typeof Promise.prototype.done&&(Promise.prototype.done=function(t,n){var o=arguments.length?this.then.apply(this,arguments):this;o.then(null,function(t){setTimeout(function(){throw t},0)})});
 (function e(t, n, r) {
@@ -110244,6 +111541,7 @@ Promise.prototype.finally = Promise.prototype.finally || {
 	_mago3d['VBOVertexIdxCacheKeysContainer'] = VBOVertexIdxCacheKeysContainer;
 	_mago3d['VisibleObjectsController'] = VisibleObjectsController;
 	_mago3d['WMSLayer'] = WMSLayer;
+	_mago3d['WMTSLayer'] = WMTSLayer;
 	_mago3d['XYZLayer'] = XYZLayer;
 	_mago3d['API'] = API;
 	_mago3d['ChangeHistory'] = ChangeHistory;
@@ -110355,13 +111653,15 @@ Promise.prototype.finally = Promise.prototype.finally || {
 	_mago3d['VtxRing'] = VtxRing;
 	_mago3d['VtxRingsList'] = VtxRingsList;
 	_mago3d['VtxSegment'] = VtxSegment;
-	_mago3d['AbsPointInteraction'] = AbsPointInteraction;
-	_mago3d['AbsSelectInteraction'] = AbsSelectInteraction;
+	_mago3d['AbsClickInteraction'] = AbsClickInteraction;
+	_mago3d['AbsPointerInteraction'] = AbsPointerInteraction;
 	_mago3d['DrawGeometryInteraction'] = DrawGeometryInteraction;
-	_mago3d['F4dSelectInteraction'] = F4dSelectInteraction;
+	_mago3d['InteractionTargetType'] = InteractionTargetType;
 	_mago3d['LineDrawer'] = LineDrawer;
 	_mago3d['PointDrawer'] = PointDrawer;
+	_mago3d['PointSelectInteraction'] = PointSelectInteraction;
 	_mago3d['RectangleDrawer'] = RectangleDrawer;
+	_mago3d['TranslateInteraction'] = TranslateInteraction;
 	_mago3d['Message'] = Message;
 	_mago3d['MessageSource'] = MessageSource;
 	_mago3d['GeoServer'] = GeoServer;

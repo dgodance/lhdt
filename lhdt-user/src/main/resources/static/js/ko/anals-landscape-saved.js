@@ -7,15 +7,13 @@ const analsSavedEntitiy = {
     }
 }
 
-const LS_POINT_REST_URL = 'http://localhost:9091/adminsvc/ls-point-rest';
-
 
 /**
  * 표시
  * @param {string} id 경관 아이디
  */
 function showData(id) {
-    $.get(LS_POINT_REST_URL + '/'+id).done(function(diffObj) {
+	let _callback = function(diffObj){
 		if(Pp.isEmpty(diffObj)){
 			console.log(diffObj);
 			alert('관련 정보가 존재하지 않습니다.');
@@ -23,6 +21,42 @@ function showData(id) {
 		}
 		
 		//
+		console.log(diffObj);
+		
+		//
+		Ppmap.removeAll();
+		//
+		let entity = null;
+		
+		//
+		if('점' === diffObj.landScapePointType){
+			//점 생성
+			entity = Ppmap.createPoint('', diffObj.startLandScapePos.x, diffObj.startLandScapePos.y);
+		}else{
+			//
+			let xyz1 = {
+				'lon': diffObj.startLandScapePos.x, 
+				'lat': diffObj.startLandScapePos.y
+			};
+			//
+			let xyz2 = {
+				'lon': diffObj.endLandScapePos.x, 
+				'lat': diffObj.endLandScapePos.y
+			};
+			
+			//선 생성
+			entity = Ppmap.createPolyline('ls-diff', [xyz1, xyz2]);			
+		}
+		
+		//이동
+		MAGO4D_INSTANCE.getViewer().zoomTo(entity);
+		
+		
+		//
+		//new SkylineObj().init().process(xyz1, xyz2);
+		
+		//
+		/*
         analsSavedEntitiy.removeThis();
         if(diffObj.landScapePointType === '점') {
             const startAlt = diffObj.startAltitude;
@@ -55,5 +89,11 @@ function showData(id) {
             analsSavedEntitiy.line.push(resultEntitiy.line);
             MAGO3D_INSTANCE.getViewer().zoomTo(resultEntitiy.line);
         }
+		*/
+	};
+	
+	
+    $.get(LS_POINT_REST_URL + '/'+id).done(function(diffObj) {
+		_callback(diffObj);
     });
 }

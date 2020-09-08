@@ -1,3 +1,4 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
 <script id="districtPaginationSource" type="text/x-handlebars-template">
 {{#if pagination.totalCount}}
     <ul class="pagination">
@@ -8,9 +9,9 @@
 
     {{#each pagination.pageList}}
         {{#if (indexCompare this ../pagination.pageNo)}}
-            <li class="on"><a href='#'>{{this}}</a></li>
+            <li class="on" onclick="return false;"><a href='#'>{{this}}</a></li>
         {{else}}
-            <li onClick="districtSearch('{{this}}');"><a href='#'>{{this}}</a></li>
+            <li onClick="districtSearch('{{this}}');return false;"><a href='#'>{{this}}</a></li>
         {{/if}}
     {{/each}}
 
@@ -21,3 +22,4 @@
     </ul>
 {{/if}}
 </script>
+</html>

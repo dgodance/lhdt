@@ -3,6 +3,9 @@ package lhdt.domain.common;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+import lhdt.domain.ConverterType;
+import lhdt.domain.ServerTarget;
+import lhdt.domain.UploadDataType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,13 +25,15 @@ public class QueueMessage implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
-	// 사용자에서 호출인지, 관리자에서 호출인지 구분하기 위함, enum 귀찮아서.....
-	private String serverTarget;
+
+	private ConverterType converterType;
+	private ServerTarget serverTarget;
 	private String userId;
 	
 	private Long converterJobId;
 	private Long converterJobFileId;
+	private Long dataLibraryConverterJobId;
+	private Long dataLibraryConverterJobFileId;
 	private String inputFolder;
 	private String outputFolder;
 	private String meshType;
@@ -39,4 +44,7 @@ public class QueueMessage implements Serializable {
 	// unit scale factor. 설계 파일의 1이 의미하는 단위. 기본 1 = 0.01m
 	private BigDecimal usf;
 	private String isYAxisUp;
+
+	// cityGML, indoorGML 구분을 위해..
+	private UploadDataType uploadDataType;
 }

@@ -114,9 +114,6 @@ public class IssueRestController {
 		String errorCode = null;
 		String message = null;
 		
-	//	civilVoice.setUserId(userSession.getUserId());
-	//	civilVoice.setClientIp(WebUtils.getClientIp(request));
-		
 		long rows = issue.getLimit() != null ? issue.getLimit() : PAGE_ROWS; 
 		long totalCount = issueService.getIssueTotalCount(issue);
 		Pagination pagination = new Pagination(	request.getRequestURI(),

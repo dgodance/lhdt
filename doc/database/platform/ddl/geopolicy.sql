@@ -72,8 +72,8 @@ create table geopolicy(
 	layer_source_coordinate								varchar(50)			default 'EPSG:4326',
 	layer_target_coordinate								varchar(50)			default 'EPSG:4326',
 
-    shape_land_required_columns                         varchar(1000)       default 'location',
-    shape_building_required_columns                     varchar(1000)       default 'location',
+    shape_land_required_columns                         varchar(1000)       default 'id,the_geom',
+    shape_building_required_columns                     varchar(1000)       default 'id,the_geom',
 	
 	insert_date											timestamp with time zone	default now(),
 

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html th:lang="${accessibility}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="/layouts/default">
 <head>
+	<meta charset="utf-8">
 	<title>Layer 그룹 수정</title>
 	<th:block layout:fragment="pageCustomStyle">
 		<link rel="stylesheet" th:href="@{/css/{lang}/font/font.css(lang=${lang},cacheVersion=${contentCacheVersion})}" />
@@ -21,7 +22,7 @@
 					<div th:replace="~{/fragments/page-header :: #pageHeaderWrap}"></div>
 					<div class="page-content">
 						<div class="input-header row">
-							<div class="content-desc u-pull-right"><span class="icon-glyph glyph-emark-dot color-warning"></span><spring:message code='check'/></div>
+							<div class="content-desc u-pull-right"><span class="icon-glyph glyph-emark-dot color-warning"></span><th:block th:text="#{check}"></th:block></div>
 						</div>
 						<form id="layerGroup" th:object="${layerGroup}" method="post" th:action="@{#}" onsubmit="return false;">
 						<input type="hidden" id="layerGroupId" name="layerGroupId" th:field="*{layerGroupId}" />

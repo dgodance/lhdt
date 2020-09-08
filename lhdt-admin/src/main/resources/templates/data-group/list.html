@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html th:lang="${accessibility}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="/layouts/default">
 <head>
+	<meta charset="utf-8">
 	<title>데이터 그룹</title>
 	<th:block layout:fragment="pageCustomStyle">
 		<link rel="shortcut icon" th:href="@{/images/favicon.ico(cacheVersion=${contentCacheVersion})}">
@@ -29,6 +30,11 @@
 										<a href="#" class="button" onclick="openAll(); return false;">펼치기</a>
 										<a href="#" class="button" onclick="closeAll(); return false;">접기</a>
 										<!-- <a href="/layer/tree" class="button">그룹 수정/등록</a> -->
+									</div>
+								</div>
+								<div class="list-functions u-pull-right">
+									<div class="button-group">
+										<a href="/data-group/input" class="button">데이터 그룹 등록</a>
 									</div>
 								</div>
 							</div>
@@ -66,7 +72,7 @@
 								</thead>
 								<tbody>
 									<tr th:if="${dataGroupList.empty}">
-										<td colspan="11" class="col-none">데이터 그룹이 존재하지 않습니다.</td>
+										<td colspan="10" class="col-none">데이터 그룹이 존재하지 않습니다.</td>
                                     </tr>
 
                                     <th:block th:if="${!dataGroupList.empty}" th:each="dataGroup : ${dataGroupList}">

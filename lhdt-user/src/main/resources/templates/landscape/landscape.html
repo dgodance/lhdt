@@ -12,8 +12,8 @@
     .text-center {text-align: center !important;}
 </style>
 
-<link rel="stylesheet" th:href="@{/externlib/toastr/toastr.css(cacheVersion=${contentCacheVersion})}" />
-<script th:src="@{/externlib/toastr/toastr.min.js(cacheVersion=${contentCacheVersion})}" defer></script>
+
+<div th:replace="~{/landscape-widget/landscape-widget :: #landscapeDiffWarp}"/>
 
     <ul class="listDrop">
         <li class="on">
@@ -78,6 +78,8 @@
 </style>
 
 <script type="text/javascript" th:src="@{/js/ko/time-series.js}" defer></script>
+
+
 
 
 

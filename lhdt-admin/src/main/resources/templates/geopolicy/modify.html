@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html th:lang="${accessibility}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="/layouts/default">
 <head>
+	<meta charset="utf-8">
 	<title>공간정보 운영정책</title>
 	<th:block layout:fragment="pageCustomStyle">
 		<link rel="stylesheet" th:href="@{/css/{lang}/font/font.css(lang=${lang},cacheVersion=${contentCacheVersion})}" />
@@ -29,8 +30,6 @@
 								<li><a href="#geopolicyTab">공간정보</a></li>
 								<li><a href="#geoserverTab">GeoServer</a></li>
 							</ul>
-							<spring:message var="notuse" code='not.use'/>
-							<spring:message var="use" code='use'/>
 							<div th:replace="~{/geopolicy/modify-geopolicy :: #geopolicyTab}"></div>
 							<div th:replace="~{/geopolicy/modify-geoserver :: #geoserverTab}"></div>
 						</div>

@@ -15,6 +15,7 @@
 	<link rel="stylesheet" th:href="@{/css/{lang}/user-style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}" />
 	<link rel="stylesheet" th:href="@{/externlib/json-viewer/json-viewer.css(cacheVersion=${contentCacheVersion})}" />
 	<link rel="stylesheet" th:href="@{/externlib/css-toggle-switch/toggle-switch.css(cacheVersion=${contentCacheVersion})}" />
+	<link rel="stylesheet" th:href="@{/css/fontawesome-free-5.2.0-web/css/all.css(cacheVersion=${contentCacheVersion})}" />
 	<style type="text/css">
 		.mapWrap {
 			float:right;
@@ -26,6 +27,7 @@
 </head>
 <body>
 
+<!-- S: HEADER WRAP -->
 <div th:replace="~{/fragments/header :: #headerWrap}"></div>
 <!--	탬플릿 Warp		-->
 <div id="template-warp">
@@ -38,79 +40,86 @@
 		<span class="spinner"></span>
 	</div>
 </div>
+<!-- E: LOADING WRAP -->
 
+<!-- S: WRAP -->
 <div id="wrap" style="min-height: 560px;"> <!-- 왼쪽 메뉴 높이에 맞춰서 설정해 줘야함 -->
-	<!-- S: NAVWRAP -->
-	<div class="navWrap">
-		<div th:replace="~{/fragments/menu :: #navWrap}"></div>		
-		<!-- E: NAVWRAP -->
-		<div id="contentsWrap" class="contentsWrap" style="display: none;">
-			<div id="searchContent" class="contents fullHeight" style="display:none;">
-				<div th:replace="~{/search/district :: #districtWrap}"></div>
-			</div>
-			<div id="dataContent" class="contents-margin-default fullHeight">
-				<div class="tabs">
-					<ul id="dataInfoTab" class="tab tab-divide">
-						<li id="dataGroupTab" th:text="#{data.group.list.tab.menu}" data-nav="dataGroupInfoContent"></li>
-						<li id="dataListTab" class="on" th:text="#{data.list.tab.menu}" data-nav="dataInfoContent"><button type="button" id="findStartPoint">x</button></li>
-					</ul>
-				</div>
-				<div th:replace="~{/data/map-data :: #dataInfoContent}"></div>
-				<div th:replace="~{/data/map-data-group :: #dataGroupInfoContent}"></div>
-			</div>
 
-			<div th:replace="~{/simulation/simulation :: #simulationContent}"></div>
+	<!-- S: NAV WRAP -->
+	<div class="navWrap">
+
+		<!-- S: NAV -->
+		<div th:replace="~{/fragments/menu :: #navWrap}"></div>
+		<!-- E: NAV -->
+
+		<!-- S: CONTENTS WRAP -->
+		<div id="contentsWrap" class="contentsWrap" style="display: none;">
+<div th:replace="~{/simulation/simulation :: #simulationContent}"></div>
 <!--			<div th:replace="~{/simulation/modeler :: #modelerContent}"></div>-->
 
 			<div th:replace="~{/cityplan/cityplan :: #cityPlanContent}"></div>
 			<div th:replace="~{/landscape/landscape :: #landscapeContent}"></div>
 			<div th:replace="~{/sunshine/sunshine :: #sunshineContent}"></div>
 
-			<!-- E: 데이터 -->
+			<!-- S: DATA -->
+			<div th:replace="~{/data/data :: #dataContent}"></div>
+			<!-- E: DATA -->
 
+			<!-- S: LAYER -->
+			<div th:replace="~{/extrusion/list :: #extrusionContent}"></div>
+			<!-- E: LAYER -->
+
+			<!-- S: LAYER -->
 			<div th:replace="~{/layer/list :: #layerContent}"></div>
+			<!-- E: LAYER -->
 
+			<!-- S: SETTING -->
 			<div th:replace="~{/user-policy/modify :: #userPolicyContent}"></div>
+			<!-- E: SETTING -->
 			
+						
 
-			<!-- E: CONTENTSBTN -->
 		</div>
+		<!-- E: CONTENTS WRAP -->
+
+		<!-- S: CONTENTS BTN -->
 		<div class="contentsBtn">
 			<button type="button" id="closeLeftBtn" th:title="#{common.close}" style="display:none;">Close</button>
 		</div>
-		<!-- E: CONTENTSWRAP -->
+		<!-- E: CONTENTS BTN -->
 
 	</div>
-	<!-- E: NAVWRAP -->
+	<!-- E: NAV WRAP -->
 
-	<!-- S: GNB WRAP -->
-	<div th:replace="~{/fragments/global-search :: #gnbWrap}"></div>
-	<!-- E: GNB WRAP -->
+	<!-- S: DATA FILTER -->
+	<div th:replace="~{/data/data-filter :: #searchFilterContent}"></div>
+	<!-- E: DATA FILTER -->
 
-	<!-- CTRLWRAP -->
+	<!-- S: CTRL WRAP -->
 	<!-- <div th:replace="~{/fragments/toolbar :: #toolbarWrap}"></div> -->
-	<!-- E: CTRLWRAP -->
 
-	<!-- MAP -->
-	<div id="magoContainer" class="mapWrap"></div>
-	<canvas id="objectLabel"></canvas>
-	<div class="sliderWrap" id="saRange">
-		<label for="timeInput" class="hiddenTag">saRange</label>
-		<input id="timeInput"/>
-	</div>
+	<!-- E: CTRL WRAP -->
+
+	<!-- S: MAP -->
+	<div id="magoContainer" class="mapWrap">
+		<!-- S: GNB WRAP -->
+		<div th:replace="~{/fragments/global-search :: #gnbWrap}"></div>
+		<!-- E: GNB WRAP -->
+		<div class="sliderWrap" id="saRange">
+			<label for="timeInput" class="hiddenTag">saRange</label>
+			<input id="timeInput"/>
+		</div>
 	<!-- E: MAP -->
-
+	</div>
 </div>
 <!-- E: WRAP -->
+
 <div th:replace="~{/data/data-dialog-template :: #dataDialogWrap}"></div>
 <div th:replace="~{/data/data-group-dialog-template :: #dataGroupDialogWrap}"></div>
-<div th:replace="~{/data/map-data-template :: #dataListSource}"></div>
-<div th:replace="~{/data/map-data-group-template :: #dataGroupListSource}"></div>
 <div th:replace="~{/data/data-attribute-dialog :: #dataAttributeDialog}"></div>
 <div th:replace="~{/data/data-object-attribute-dialog :: #dataObjectAttributeDialog}"></div>
 <div th:replace="~{/data/sample-data-attribute-template :: #sampleDataAttributeDialogWrap}"></div>
 <div th:replace="~{/issue/issue-dialog :: #issueForm}"></div>
-
 
 <script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
@@ -127,13 +136,6 @@
 <script type="text/javascript" th:src="@{/externlib/moment-2.22.2/moment-with-locales.min.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/externlib/tuidatepicker-4.0.3/tui-date-picker.min.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/mago3d.js(cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/mago3d_lx.js(cacheVersion=${contentCacheVersion})}"></script>
-
-<script type="text/javascript" th:src="@{/externlib/ds/pp-0.9-legacy.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>
-<script type="text/javascript" th:src="@{/externlib/ds/ppui-0.9-legacy.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>
-<script type="text/javascript" th:src="@{/externlib/ds/ppmap-0.9-legacy.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>
-<script type="text/javascript" th:src="@{/externlib/ds/dsobj-0.1-snapshot.js(lang=${lang},cacheVersion=${contentCacheVersion})}"  defer></script>
-
 <script type="text/javascript" th:src="@{/js/{lang}/common.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/message.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/map-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
@@ -142,7 +144,15 @@
 <script type="text/javascript" th:src="@{/js/{lang}/search.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/data-info.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/user-policy.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+
 <!--DS lib-->
+<link rel="stylesheet" th:href="@{/externlib/toastr/toastr.css(cacheVersion=${contentCacheVersion})}" />
+<script type="text/javascript" th:src="@{/externlib/toastr/toastr.min.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>
+<script type="text/javascript" th:src="@{/externlib/ds/pp-0.9-legacy.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>
+<script type="text/javascript" th:src="@{/externlib/ds/ppui-0.9-legacy.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>
+<script type="text/javascript" th:src="@{/externlib/ds/ppmap-0.9-legacy.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>
+<script type="text/javascript" th:src="@{/externlib/ds/dsobj-0.1-snapshot.js(lang=${lang},cacheVersion=${contentCacheVersion})}"  defer></script>
+
 <script type="text/javascript" th:src="@{/js/{lang}/anals-buildheight.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/anals-landscapedirect.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/anals-landscape.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
@@ -153,12 +163,16 @@
 
 <script type="text/javascript" th:src="@{/js/{lang}/anals-buildheight.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <!--<script type="text/javascript" th:src="@{/js/{lang}/anals-landscape.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>-->
+<!--//DS lib-->
+
+
 <script type="text/javascript" th:src="@{/js/{lang}/layer.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/map-data-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/map-init.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/issue-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/map-data.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/map-data-group.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<!--<script type="text/javascript" th:src="@{/js/{lang}/map-data.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>-->
+<!--<script type="text/javascript" th:src="@{/js/{lang}/map-data-group.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>-->
+<script type="text/javascript" th:src="@{/js/{lang}/map-data-search.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 
 
 
@@ -189,7 +203,7 @@
 		 * @param {Cesium.Viewer} legacyViewer 타 시스템과의 연동의 경우 view 객체가 생성되어서 넘어 오는 경우가 있음. option.
 		*/
 		MAGO3D_INSTANCE = new Mago3D.Mago3d('magoContainer', geoPolicyJson, {loadend : magoLoadEnd}, {});
-		console.log(new Date(), '<<.magoInit()', MAGO3D_INSTANCE);
+
 	}
 
 	function magoLoadEnd(e) {
@@ -198,7 +212,6 @@
 		var viewer = magoInstance.getViewer();
 		var magoManager = magoInstance.getMagoManager();
 		var f4dController = magoInstance.getF4dController();
-		
 
 		// TODO : 세슘 MAP 선택 UI 제거,엔진에서 처리로 변경 예정.
 		if(viewer.baseLayerPicker) viewer.baseLayerPicker.destroy();
@@ -210,21 +223,23 @@
 		});
 
 		//우측 상단 지도 컨트롤러, 당분간 map-controll.js 파일 삭제하지 말아주세요 ㅠㅠ
-		MapControll(viewer);
+		//MapControll(viewer);
 		
 		// 행정 구역 이동
         DistrictControll(magoInstance);
 
         dataGroupList();
-        mapDataGroupList(1, null);
-        mapDataInfoList(1, null, null, null);
+		//var dataGroupParams = { searchWord : "data_group_name", searchValue : null, searchOption : "1"};
+		//mapDataGroupList(1, dataGroupParams);
+		var dataInfoParams = { searchWord : "data_name", searchValue : null, searchOption : "1", dataGroupId : null, dataType : null};
+		mapDataInfoList(1, dataInfoParams);
+		//mapDataGroupList(1, null);
+        //mapDataInfoList(1, null, null, null);
 
-        //Simulation(magoInstance);
-		//AnalsBuildHeight(viewer, magoInstance);
+		//extrusion();
+
         // 환경 설정.
         UserPolicy(magoInstance);
-        // 시민참여
-        // CivilVoice(magoInstance);
 		AnalsBuildHeight(viewer, magoInstance);
 		AnalsLandScapeDirection(viewer, magoInstance);
 		AnalsSunshine(viewer, magoInstance);
@@ -244,6 +259,7 @@
 
 	// smart tiling data flyTo
 	function gotoFly(longitude, latitude, altitude) {
+		event.stopPropagation();
 		if(longitude === null || longitude === '' || latitude === null || latitude === '' || altitude === null || altitude === '') {
 			alert(JS_MESSAGE["location.invalid"]);
 			return;
@@ -254,6 +270,7 @@
 	}
 
 	function flyTo(dataGroupId, dataKey) {
+		event.stopPropagation();
 		if(dataGroupId === null || dataGroupId === '' || dataKey === null || dataKey === '') {
 			alert(JS_MESSAGE["location.invalid"]);
 			return;
@@ -319,6 +336,7 @@
 	}
 
 	function flyToGroup(longitude, latitude, altitude, duration) {
+		event.stopPropagation();
 		if(longitude === null || longitude === '' || latitude === null || latitude === '' || altitude === null || altitude === '') {
 			alert(JS_MESSAGE["location.invalid"]);
 			return;
@@ -628,6 +646,142 @@
 			return false;
 		}
 	}
+
+	function visibleGroup(_this, dataGroupId) {
+		event.stopPropagation();
+		if(dataGroupId === null || dataGroupId === '') {
+			alert(JS_MESSAGE["data.info.incorrect"]);
+			return;
+		}
+
+		var option = true;
+		if ($(_this).hasClass("fa-eye")) {
+			option = false;
+		}
+
+		dataGroupId = parseInt(dataGroupId);
+		var nodeMap = MAGO3D_INSTANCE.getMagoManager().hierarchyManager.getNodesMap(dataGroupId);
+		var flag = false;
+		if (!$.isEmptyObject(nodeMap)) {
+			for (var key in nodeMap) {
+				var node = nodeMap[key];
+				if (!$.isEmptyObject(nodeMap)) {
+					var nodeData = node.data;
+					if (nodeData && nodeData.attributes && nodeData.attributes.isPhysical === true) {
+						var optionObject = { isVisible : option };
+						setNodeAttributeAPI(MAGO3D_INSTANCE, dataGroupId, key, optionObject);
+					}
+				} else {
+					flag = true;
+					break;
+				}
+			}
+		} else {
+			flag = true;
+		}
+
+		if (flag) {
+			alert(JS_MESSAGE["data.not.loaded"]);
+			return;
+		}
+
+		var projectsMap = MAGO3D_INSTANCE.getMagoManager().hierarchyManager.projectsMap;
+		if (!$.isEmptyObject(projectsMap) && projectsMap[dataGroupId] && projectsMap[dataGroupId].attributes) {
+			projectsMap[dataGroupId].attributes.isVisible = option;
+		}
+
+		if ($(_this).hasClass("fa-eye")) {
+			$(_this).removeClass("fa-eye");
+			$(_this).addClass("fa-eye-slash");
+		} else {
+			$(_this).removeClass("fa-eye-slash");
+			$(_this).addClass("fa-eye");
+		}
+
+	}
+
+	function visibleData(_this, dataGroupId, dataKey, dataTiling) {
+		event.stopPropagation();
+		if (dataGroupId === null || dataGroupId === '' ||
+				dataKey === null || dataKey === '' ||
+				dataTiling === null || dataTiling === '') {
+			alert(JS_MESSAGE["data.info.incorrect"]);
+			return;
+		}
+
+		var option = true;
+		if ($(_this).hasClass("fa-eye")) {
+			option = false;
+		}
+
+		if (dataTiling) {
+			dataKey = "F4D_" + dataKey;
+		}
+
+		dataGroupId = parseInt(dataGroupId);
+		if (!isExistDataAPI(MAGO3D_INSTANCE, dataGroupId, dataKey)) {
+			alert(JS_MESSAGE["data.not.loaded"]);
+			return;
+		}
+		var optionObject = { isVisible : option };
+		setNodeAttributeAPI(MAGO3D_INSTANCE, dataGroupId, dataKey, optionObject);
+
+		if ($(_this).hasClass("fa-eye")) {
+			$(_this).removeClass("fa-eye");
+			$(_this).addClass("fa-eye-slash");
+		} else {
+			$(_this).removeClass("fa-eye-slash");
+			$(_this).addClass("fa-eye");
+		}
+
+	}
+
+	// extrusion model 예제, 예제라서 하드 코딩하지만, 서비스 구현시는 이렇게 하면 안됨, hanldebars.js 로 구현해야 함
+	function extrusion() {
+		$.ajax({
+			url: "/extrusions",
+			type: "GET",
+			headers: {"X-Requested-With": "XMLHttpRequest"},
+			dataType: "json",
+			success: function(msg){
+				if(msg.statusCode <= 200) {
+					showUrbanGroup(msg);
+				} else {
+					alert(JS_MESSAGE[msg.errorCode]);
+				}
+			},
+			error:function(request,status,error){
+				alert(JS_MESSAGE["ajax.error.message"]);
+			}
+		});
+	}
+
+	function showUrbanGroup(msg) {
+		var oneDepthUrbanGroupList = msg.oneDepthUrbanGroupList;
+		var twoDepthUrbanGroupList = msg.twoDepthUrbanGroupList;
+		var oneDepthContent = "";
+		if(oneDepthUrbanGroupList != null && oneDepthUrbanGroupList.length > 0) {
+			for (i = 0; i < oneDepthUrbanGroupList.length; i++) {
+				var urbanGroup = oneDepthUrbanGroupList[i];
+				oneDepthContent = oneDepthContent
+						+ "<option value=\"" + urbanGroup.urbanGroupId + "\">" + urbanGroup.urbanGroupName + "</option>";
+			}
+		}
+		$("#oneDepthUrbanGroup").html("");
+		$("#oneDepthUrbanGroup").html(oneDepthContent);
+
+		var twoDepthContent = "";
+		if(twoDepthUrbanGroupList != null && twoDepthUrbanGroupList.length > 0) {
+			for (i = 0; i < twoDepthUrbanGroupList.length; i++) {
+				var twoUrbanGroup = twoDepthUrbanGroupList[i];
+				twoDepthContent = twoDepthContent
+						+ "<option value=\"" + twoUrbanGroup.urbanGroupId + "\">" + twoUrbanGroup.urbanGroupName + "</option>";
+			}
+		}
+		$("#twoDepthUrbanGroup").html("");
+		$("#twoDepthUrbanGroup").html(twoDepthContent);
+	}
+
 </script>
 </body>
 </html>

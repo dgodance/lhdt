@@ -63,9 +63,6 @@ public class LhdtUserApplication extends SpringBootServletInitializer {
 		urls.add("/issues/*");
 		urls.add("/map/*");
 		urls.add("/searchmap/*");
-		urls.add("/civil-voice/*");
-		urls.add("/civil-voices/*");
-		urls.add("/civil-voice-comments/*");
 		urls.add("/layer/*");
 		urls.add("/user-policy/*");
 		

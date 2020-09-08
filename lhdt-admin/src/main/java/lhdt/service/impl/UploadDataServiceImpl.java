@@ -3,7 +3,7 @@ package lhdt.service.impl;
 import lhdt.domain.FileType;
 import lhdt.domain.uploaddata.UploadData;
 import lhdt.domain.uploaddata.UploadDataFile;
-import lhdt.domain.uploaddata.UploadDataType;
+import lhdt.domain.UploadDataType;
 import lhdt.persistence.UploadDataMapper;
 import lhdt.service.UploadDataService;
 import lhdt.support.LogMessageSupport;
@@ -87,6 +87,17 @@ public class UploadDataServiceImpl implements UploadDataService {
 	public List<UploadDataFile> getListUploadDataFile(UploadData uploadData) {
 		return uploadDataMapper.getListUploadDataFile(uploadData);
 	}
+
+	/**
+	 * 업로딩 데이터 파일
+	 * @param uploadDataFile
+	 * @return	업로딩 데이터 파일
+	 */
+	@Transactional(readOnly=true)
+	public UploadDataFile getUploadDataFile(UploadDataFile uploadDataFile) {
+		return uploadDataMapper.getUploadDataFile(uploadDataFile);
+	}
+
 
 	/**
 	 * 업로드 데이터 타입 집계

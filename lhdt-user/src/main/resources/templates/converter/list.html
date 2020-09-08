@@ -154,6 +154,7 @@
                                 <th:block  th:if="${#strings.equals(converterJob.status, 'success')}" th:text="#{converter.status.success}"></th:block>
                                 <th:block  th:if="${#strings.equals(converterJob.status, 'waiting')}" th:text="#{converter.status.waiting}"></th:block>
                                 <th:block  th:if="${#strings.equals(converterJob.status, 'fail')}" th:text="#{converter.status.fail}"></th:block>
+                                <th:block  th:if="${#strings.equals(converterJob.status, 'partial_success')}" th:text="#{converter.status.partial_success}"></th:block>
                             </td>
                             <td class="col-count">
                                 <th:block th:text="${converterJob.fileCount}"></th:block>

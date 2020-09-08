@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html th:lang="${accessibility}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="/layouts/default">
 <head>
+	<meta charset="utf-8">
 	<title>Layer 그룹</title>
 	<th:block layout:fragment="pageCustomStyle">
 		<link rel="stylesheet" th:href="@{/css/{lang}/font/font.css(lang=${lang},cacheVersion=${contentCacheVersion})}" />
@@ -27,6 +28,11 @@
 									<div class="button-group">
 										<a href="#" onclick="openAll(); return false;" class="button">펼치기</a>
 										<a href="#" onclick="closeAll(); return false;" class="button">접기</a>
+									</div>
+								</div>
+								<div class="list-functions u-pull-right">
+									<div class="button-group">
+										<a href="/layer-group/input" class="button">레이어 그룹 등록</a>
 									</div>
 								</div>
 							</div>
@@ -280,7 +286,7 @@
 						upFlag = true;
 						openAll();
 					} else {
-						if (msg.errorCode === "data.group.view-order.invalid") {
+						if (msg.errorCode === "layer.group.view-order.invalid") {
 							alert("순서를 변경할 수 없습니다.");
 						} else {
 							alert(JS_MESSAGE[msg.errorCode]);

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -13,9 +14,11 @@ public class ConverterLocation implements Serializable {
 
     private static final long serialVersionUID = -3475237723073093024L;
 
-    private ConverterJob converterJob;
+    // 데이터 키
     private String data_key;
-    private double latitude;
-    private double longitude;
+    // 위도
+    private BigDecimal latitude;
+    // 경도
+    private BigDecimal longitude;
 
 }

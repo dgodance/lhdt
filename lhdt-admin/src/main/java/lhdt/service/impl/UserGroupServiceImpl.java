@@ -83,6 +83,16 @@ public class UserGroupServiceImpl implements UserGroupService {
 		return userGroupMapper.getListUserGroupRoleKey(userGroupRole);
 	}
 
+	/**
+	 * 사용자 그룹 Key 중복 확인
+	 * @param userGroup
+	 * @return
+	 */
+	@Transactional(readOnly = true)
+	public Boolean isUserGroupKeyDuplication(UserGroup userGroup) {
+		return userGroupMapper.isUserGroupKeyDuplication(userGroup);
+	}
+
     /**
      * 사용자 그룹 등록
      * @param userGroup
@@ -113,16 +123,6 @@ public class UserGroupServiceImpl implements UserGroupService {
 
     	return result;
     }
-
-    /**
-     * 사용자 그룹 Key 중복 확인
-     * @param userGroup
-     * @return
-     */
-	@Transactional(readOnly = true)
-	public Boolean isUserGroupKeyDuplication(UserGroup userGroup) {
-		return userGroupMapper.isUserGroupKeyDuplication(userGroup);
-	}
 
 	/**
 	 * 사용자 그룹 수정

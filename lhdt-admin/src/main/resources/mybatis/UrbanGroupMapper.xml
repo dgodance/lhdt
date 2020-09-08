@@ -7,12 +7,14 @@
 	<select id="getListUrbanGroup" resultType="urbanGroup">
 		/* getListUrbanGroup */
 		WITH RECURSIVE urban_group_tree (
-			urban_group_id, urban_group_name, user_id, ancestor, parent, depth, view_order, children, available,
-			start_date, end_date, location, area, receiving_population, receiving_household, project_operator, transfer_local_government,
+			urban_group_id, urban_group_name, user_id, ancestor, parent, depth, view_order, children, basic, available,
+			start_date, end_date, viewStartDate, viewEndDate,
+			location, area, receiving_population, receiving_household, project_operator, transfer_local_government,
 			description, insert_date, path, cycle
 		) AS (
-		SELECT A.urban_group_id, A.urban_group_name, A.user_id, A.ancestor, A.parent, A.depth, A.view_order, A.children, A.available,
-			A.start_date, A.end_date, A.location, A.area, A.receiving_population, A.receiving_household, A.project_operator, A.transfer_local_government,
+		SELECT A.urban_group_id, A.urban_group_name, A.user_id, A.ancestor, A.parent, A.depth, A.view_order, A.children, A.basic, A.available,
+			A.start_date, A.end_date, TO_CHAR(A.start_date, 'YYYY-MM-DD') AS viewStartDate, TO_CHAR(A.end_date, 'YYYY-MM-DD') AS viewEndDate,
+			A.location, A.area, A.receiving_population, A.receiving_household, A.project_operator, A.transfer_local_government,
 			A.description, A.insert_date, ARRAY[A.view_order], false
 		FROM urban_group A
 		WHERE A.parent = 0
@@ -20,14 +22,16 @@
 			AND A.available = #{available}
 		</if>
 		UNION ALL
-		SELECT A.urban_group_id, A.urban_group_name, A.user_id, A.ancestor, A.parent, A.depth, A.view_order, A.children, A.available,
-			A.start_date, A.end_date, A.location, A.area, A.receiving_population, A.receiving_household, A.project_operator, A.transfer_local_government,
+		SELECT A.urban_group_id, A.urban_group_name, A.user_id, A.ancestor, A.parent, A.depth, A.view_order, A.children, A.basic, A.available,
+			A.start_date, A.end_date, TO_CHAR(A.start_date, 'YYYY-MM-DD') AS viewStartDate, TO_CHAR(A.end_date, 'YYYY-MM-DD') AS viewEndDate,
+		 	A.location, A.area, A.receiving_population, A.receiving_household, A.project_operator, A.transfer_local_government,
 			A.description, A.insert_date, path || A.view_order, A.urban_group_id = ANY(path)
 		FROM urban_group A, urban_group_tree B
 		WHERE A.parent = B.urban_group_id AND not cycle
 		)
-		SELECT urban_group_id, urban_group_name, user_id, ancestor, parent, depth, view_order, children, available,
-			start_date, end_date, location, area, receiving_population, receiving_household, project_operator, transfer_local_government,
+		SELECT urban_group_id, urban_group_name, user_id, ancestor, parent, depth, view_order, children, basic, available,
+			start_date, end_date, viewStartDate, viewEndDate,
+			location, area, receiving_population, receiving_household, project_operator, transfer_local_government,
 			description, insert_date, path
 		FROM urban_group_tree
 		ORDER BY path
@@ -66,6 +70,18 @@
 		LIMIT 1
 	</select>
 
+	<!-- 도시 그룹 Key 중복 확인 -->
+	<select id="isUrbanGroupKeyDuplication" parameterType="urbanGroup" resultType="boolean">
+		/* isUrbanGroupKeyDuplication */
+		SELECT
+			CASE
+				WHEN COUNT(*) > 0 THEN true
+				ELSE false
+			END AS duplication
+		FROM urban_group
+		WHERE urban_group_key = #{urbanGroupKey}
+	</select>
+
 	<!-- 도시 그룹 등록 -->
 	<insert id="insertUrbanGroup" parameterType="urbanGroup">
 		/* insertUrbanGroup */
@@ -73,15 +89,15 @@
 			SELECT NEXTVAL('urban_group_seq')
 		</selectKey>
 		INSERT INTO urban_group (
-			urban_group_id, urban_group_name, user_id, ancestor, parent, depth, view_order, children, available,
+			urban_group_id, urban_group_key, urban_group_name, user_id, ancestor, parent, depth, view_order, children, basic, available,
 			start_date, end_date,
-			<if test="location != null">
+			<if test="location != null and location != ''">
 				location,
 			</if>
 			area, receiving_population, receiving_household, project_operator, transfer_local_government,
 			description
 		) VALUES (
-			#{urbanGroupId}, #{urbanGroupName}, #{userId},
+			#{urbanGroupId}, #{urbanGroupKey}, #{urbanGroupName}, #{userId},
 			(
 				SELECT COALESCE(MAX(ancestor), #{urbanGroupId})
 				FROM urban_group
@@ -104,9 +120,10 @@
 				FROM urban_group
 				WHERE parent = #{urbanGroupId}
 			),
+			#{basic},
 			#{available},
-			#{startDate}, #{endDate},
-			<if test="location != null">
+			TO_TIMESTAMP(#{viewStartDate}, 'YYYYMMDD'), TO_TIMESTAMP(#{viewEndDate}, 'YYYYMMDD'),
+			<if test="location != null and location != ''">
 			ST_GeomFromText(#{location}, 4326),
 			</if>
 			#{area}, #{receivingPopulation}, #{receivingHousehold}, #{projectOperator}, #{transferLocalGovernment},
@@ -151,14 +168,17 @@
 		<if test="description != null and description != ''">
 			description = #{description},
 		</if>
+		<if test="basic != null">
+			basic = #{basic},
+		</if>
 		<if test="available != null">
 			available = #{available},
 		</if>
-		<if test="startDate != null">
-			start_date = #{startDate},
+		<if test="viewStartDate != null">
+			start_date = TO_TIMESTAMP(#{viewStartDate}, 'YYYYMMDDHH24MISSUS'),
 		</if>
-		<if test="endDate != null">
-			end_date = #{endDate},
+		<if test="viewEndDate != null">
+			end_date = TO_TIMESTAMP(#{viewEndDate}, 'YYYYMMDDHH24MISSUS'),
 		</if>
 		<if test="location != null">
 			location = ST_GeomFromText(#{location}, 4326),

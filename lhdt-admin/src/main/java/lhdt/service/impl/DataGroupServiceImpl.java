@@ -196,6 +196,14 @@ public class DataGroupServiceImpl implements DataGroupService {
 		return dataGroupMapper.updateDataGroupViewOrder(dbDataGroup);
     }
 
+	/**
+	 * 자식의 수를 + 또는 - 연산
+	 */
+	@Transactional
+	public int updateDataGroupChildren(DataGroup dataGroup) {
+		return updateDataGroupChildren(dataGroup);
+	}
+
     /**
 	 * 데이터 그룹 삭제
 	 * @param dataGroup

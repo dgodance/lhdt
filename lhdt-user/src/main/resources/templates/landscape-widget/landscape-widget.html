@@ -29,13 +29,17 @@
 
     <!-- LandScpaeDiff Page -->
     <script id="landscapeDiffContentSource" type="text/x-handlebars-template">
+		<style>
+			.col-width-10 {width:10%}
+			.col-width-45 {width:45%}
+		</style>
         <div id="dataListDHTML" style="height:calc(100% - 255px)">
             <div class="dataBtns"></div>
             <div class="dataGroupSummary table-data-group-summary " style="height: calc(100% - 43px)">
-                <table class="table-word-break" summary="데이터 공유 유형별 현황">
-                    <caption class="hiddenTag">데이터 공유 유형별 현황</caption>
+                <table class="table-word-break" summary="경관 비교 데이터 목록">
+                    <caption class="hiddenTag">경관 비교 데이터 목록</caption>
                     <colgroup>
-                        <col class="col-number">
+                        <col class="col-number col-width-10">
                         <col class="col-number">
                         <col class="col-width-45">
                     </colgroup>
@@ -53,7 +57,7 @@
                                 <td class="col-number">{{id}}</td>
                                 <td class="col-number text-left">{{lsDiffName}}</td>
                                 <td class="col-number">
-                                    <button type="button" class="goto" th:text="이동"  th:title="이동" style="margin: 0px; padding: 0px;"  onclick="gotoScene('{{id}}')"></button>
+                                    <button type="button" class="goto" th:text="이동"  th:title="이동" style="margin: 0px; padding: 0px;"  onclick="analsLandScapeDiff.flyToByCameraStatus('{{id}}')"></button>
                                     <button type="button" class="showHideButton show" th:title="조회" th:text="조회" onclick="showLsDiffImage('{{id}}')"></button>
                                     <button type="button" class="showHideButton delete" th:title="삭제"  th:text="삭제" onclick="deleteData('{{id}}')"></button>
                                 </td>

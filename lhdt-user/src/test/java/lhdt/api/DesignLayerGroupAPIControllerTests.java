@@ -2,15 +2,18 @@ package lhdt.api;
 
 import lhdt.common.BaseControllerTest;
 import lhdt.domain.extrusionmodel.DesignLayerGroup;
-import lhdt.persistence.DesignLayerGroupMapper;
-import org.junit.jupiter.api.BeforeAll;
+import lhdt.service.DesignLayerGroupService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.IntStream;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.relaxedResponseFields;
@@ -19,35 +22,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@WebMvcTest(DesignLayerGroupAPIController.class)
 class DesignLayerGroupAPIControllerTests extends BaseControllerTest {
 
-    @Autowired
-    private DesignLayerGroupMapper designLayerGroupMapper;
-
-    @BeforeAll
-    public void insert() {
-        designLayerGroupMapper.deleteAllDesignLayerGroup();
-        IntStream.range(0,5).forEach(i -> {
-            var group = DesignLayerGroup.builder()
-                    .designLayerGroupName("groupName"+i)
-                    .userId("admin")
-                    .ancestor(1)
-                    .parent(0)
-                    .parentName("parentName")
-                    .depth(1)
-                    .viewOrder(1)
-                    .children(1)
-                    .available(true)
-                    .description("test")
-                    .build();
-            designLayerGroupMapper.insertDesignLayerGroup(group);
-        });
-    }
+    @MockBean
+    private DesignLayerGroupService designLayerGroupService;
 
     @Test
     @DisplayName("DesignLayerGroup 목록 조회 하기")
-    public void getDesignLayerGroup() throws Exception {
+    public void getDesignLayerGroups() throws Exception {
+        given(designLayerGroupService.getListDesignLayerGroup()).willReturn(getDesignGroupList());
+
         this.mockMvc.perform(get("/api/design-layer-groups"))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -59,9 +44,11 @@ class DesignLayerGroupAPIControllerTests extends BaseControllerTest {
 
     @Test
     @DisplayName("DesignLayerGroup 단일 조회 하기")
-    public void getDesignLayerGroupById() throws Exception {
-        var group = designLayerGroupMapper.getListDesignLayerGroup();
-        this.mockMvc.perform(get("/api/design-layer-groups/{id}", group.get(0).getDesignLayerGroupId()))
+    public void getDesignLayerGroup() throws Exception {
+        DesignLayerGroup mock = getDesignLayerGroupById();
+        given(designLayerGroupService.getDesignLayerGroup(any())).willReturn(mock);
+
+        this.mockMvc.perform(get("/api/design-layer-groups/{id}", mock.getDesignLayerGroupId()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("designLayerGroupId").exists())
@@ -85,5 +72,41 @@ class DesignLayerGroupAPIControllerTests extends BaseControllerTest {
                                 fieldWithPath("designLayerList").description("자식 desing 레이어 목록")
                         )
                 ));
+    }
+
+    private List<DesignLayerGroup> getDesignGroupList() {
+        List<DesignLayerGroup> mockList = new ArrayList<>();
+        IntStream.range(1, 4).forEach(i -> {
+            mockList.add(DesignLayerGroup.builder()
+                    .designLayerGroupId(i)
+                    .designLayerGroupName("groupName" + i)
+                    .userId("admin")
+                    .ancestor(1)
+                    .parent(0)
+                    .parentName("parentName")
+                    .depth(1)
+                    .viewOrder(1)
+                    .children(1)
+                    .available(true)
+                    .description("test")
+                    .build());
+        });
+        return mockList;
+    }
+
+    private DesignLayerGroup getDesignLayerGroupById() {
+        return DesignLayerGroup.builder()
+                .designLayerGroupId(1)
+                .designLayerGroupName("groupName")
+                .userId("admin")
+                .ancestor(1)
+                .parent(0)
+                .parentName("parentName")
+                .depth(1)
+                .viewOrder(1)
+                .children(1)
+                .available(true)
+                .description("test")
+                .build();
     }
 }

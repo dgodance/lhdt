@@ -67,3 +67,10 @@ DS.init = function(){
 window.addEventListener('load', function(){
 	DS.init();
 });
+
+
+
+//경관 비교
+const	LS_DIFF_REST_URL = 'http://localhost:9091/adminsvc/ls-diff-rest';
+//경관 점
+const	LS_POINT_REST_URL = 'http://localhost:9091/adminsvc/ls-point-rest';

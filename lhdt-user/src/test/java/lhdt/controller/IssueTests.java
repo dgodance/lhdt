@@ -1,20 +1,21 @@
 package lhdt.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lhdt.common.BaseControllerTest;
-import lhdt.domain.issue.Issue;
 import lhdt.domain.Key;
+import lhdt.domain.issue.Issue;
 import lhdt.domain.user.UserSession;
 import lhdt.persistence.IssueMapper;
 import lhdt.service.IssueService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.List;
@@ -27,11 +28,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @Slf4j
 @TestMethodOrder(OrderAnnotation.class)
 public class IssueTests extends BaseControllerTest {
-	
+
+	@Autowired
+	MockHttpSession session;
 	@Autowired
 	IssueService issueService;
 	@Autowired
 	IssueMapper issueMapper;
+	@Autowired
+	ModelMapper modelMapper;
+	@Autowired
+	ObjectMapper objectMapper;
 	
 	@BeforeEach
 	public void initSession() throws Exception {
@@ -42,8 +49,6 @@ public class IssueTests extends BaseControllerTest {
 		this.session.setAttribute(Key.USER_SESSION.name(), userSession);
 	}
 	
-	@Test
-	@Order(1)
 	public void 목록_조회() throws Exception {
 		// 이슈 목록 조회
 		MvcResult result = mockMvc.perform(get("/issues")
@@ -59,8 +64,6 @@ public class IssueTests extends BaseControllerTest {
 		assertTrue(Integer.parseInt(map.get("totalCount").toString())  == issueList.size());
 	}
 	
-	@Test
-	@Order(2)
 	public void 반경_목록_조회() throws Exception {
 		// 특정 위치를 반경으로 하여 목록 조회 가능한지 테스트
 		MvcResult result = mockMvc.perform(get("/issues")

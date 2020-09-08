@@ -57,6 +57,11 @@ public class ConverterJob extends Search {
 	private Integer fileCount;
 	// 상태. ready : 준비, success : 성공, waiting : 승인대기, fail : 실패
 	private String status;
+	// 상태(ENUM)
+	private ConverterJobStatus ConverterJobStatus;
+	// 데이터 변환 상태 집계
+	private Long statusCount;
+
 	// 에러 코드
 	private String errorCode;
 	
@@ -77,7 +82,7 @@ public class ConverterJob extends Search {
 	
 	// 수정일 
 	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
-	private String updateDate;
+	private LocalDateTime updateDate;
 	// 등록일
 	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime insertDate;

@@ -4,8 +4,6 @@ drop table if exists design_layer_land cascade;
 drop table if exists design_layer_building cascade;
 drop table if exists design_layer_file_info cascade;
 drop table if exists design_layer_attribute cascade;
-drop table if exists data_library_group cascade;
-drop table if exists data_library cascade;
 
 drop table if exists design_layer_log cascade;
 drop table if exists design_layer_log_2020 cascade;
@@ -35,12 +33,14 @@ commit;
 create table design_layer_group (
 	design_layer_group_id		            integer,
 	design_layer_group_name      		    varchar(256)					not null,
+	design_layer_group_type                 varchar(30)                     default 'land',
 	user_id						            varchar(32),
 	ancestor					            integer							default 0,
 	parent                		            integer							default 0,
 	depth                	  	            integer							default 1,
 	view_order					            integer							default 1,
 	children					            integer							default 0,
+	basic						            boolean							default false,
 	available					            boolean							default true,
 	description					            varchar(256),
 	update_date             	            timestamp with time zone,
@@ -51,12 +51,14 @@ create table design_layer_group (
 comment on table design_layer_group is 'design layer 그룹';
 comment on column design_layer_group.design_layer_group_id is 'design layer 그룹 고유번호';
 comment on column design_layer_group.design_layer_group_name is 'design layer 그룹 그룹명';
+comment on column design_layer_group.design_layer_group_type is 'design layer 그룹 분류. land : 땅, building : 빌딩';
 comment on column design_layer_group.user_id is '사용자 아이디';
 comment on column design_layer_group.ancestor is '조상';
 comment on column design_layer_group.parent is '부모';
 comment on column design_layer_group.depth is '깊이';
 comment on column design_layer_group.view_order is '나열 순서';
 comment on column design_layer_group.children is '자식 존재 개수';
+comment on column design_layer_group.basic is 'true : 기본(초기 등록), false : 선택';
 comment on column design_layer_group.available is '사용 여부';
 comment on column design_layer_group.description is '설명';
 comment on column design_layer_group.update_date is '수정일';
@@ -65,9 +67,11 @@ comment on column design_layer_group.insert_date is '등록일';
 -- design layer
 create table design_layer (
 	design_layer_id					    bigint,
+	urban_group_id                      integer,
 	design_layer_group_id			    integer,
 	design_layer_key					varchar(100)					not null,
 	design_layer_name				    varchar(256)					not null,
+	design_layer_group_type             varchar(30)                     default 'land',
 	design_layer_type                   varchar(30)                     default 'land',
 	user_id						        varchar(32),
 	sharing						        varchar(30)						default 'public',
@@ -92,6 +96,7 @@ create table design_layer (
 
 comment on table design_layer is 'design layer';
 comment on column design_layer.design_layer_id is 'design layer 고유번호';
+comment on column design_layer.urban_group_id is '도시 그룹 고유번호';
 comment on column design_layer.design_layer_group_id is 'design layer 그룹 고유번호';
 comment on column design_layer.design_layer_key is 'design layer 고유키(API용)';
 comment on column design_layer.design_layer_name is 'design layer 명';
@@ -119,9 +124,37 @@ create table design_layer_land (
 	design_layer_land_id                        bigint,
 	design_layer_id					            bigint,
 	design_layer_group_id			            integer,
+	shape_id                                    bigint,
+    business_type                               varchar(100),
+    business_district                           varchar(100),
+    block_number                                varchar(100),
+    land_number                                 varchar(100),
+    land_area                                   varchar(100),
+    useage_area                                 varchar(100),
+    land_useage                                 varchar(100),
+    land_division                               varchar(100),
+    useage                                      varchar(100),
+    useage_specification                        varchar(100),
+    useage_recommended                          varchar(100),
+    useage_allowed                              varchar(100),
+    useage_limited                              varchar(100),
+    useage_disapproval                          varchar(100),
+    building_land_ratio                         varchar(100),
+    floor_area_ratio                            varchar(100),
+    floor_area_ratio_standard                   varchar(100),
+    floor_area_ratio_allowed                    varchar(100),
+    floor_area_ratio_upper_limit                varchar(100),
+    highest_height                              varchar(100),
+    highest_floor                               varchar(100),
+    housing_type                                varchar(100),
+    households_number                           varchar(100),
+    standard_point                              varchar(200),
     properties					                jsonb,
 	update_date					                timestamp with time zone,
 	insert_date					                timestamp with time zone 		default now(),
+    the_geom                                    geometry(MultiPolygon,4326),
+    enable_yn                                   char(1),
+    version_id                                  integer,
 	constraint design_layer_land_pk 		    primary key (design_layer_land_id)
 );
 
@@ -129,6 +162,31 @@ comment on table design_layer_land is 'design layer land';
 comment on column design_layer_land.design_layer_land_id is 'design layer land 고유번호';
 comment on column design_layer_land.design_layer_id is 'design layer 고유번호';
 comment on column design_layer_land.design_layer_group_id is 'design layer 그룹 고유번호';
+comment on column design_layer_land.shape_id is 'shape 파일 고유번호';
+comment on column design_layer_land.business_type is '사업유형';
+comment on column design_layer_land.business_district is '사업지구';
+comment on column design_layer_land.block_number is '가구번호';
+comment on column design_layer_land.land_number is '획지번호';
+comment on column design_layer_land.land_area is '획지면적';
+comment on column design_layer_land.useage_area is '용도지역';
+comment on column design_layer_land.land_useage is '토지이용';
+comment on column design_layer_land.land_division is '대지분할합필';
+comment on column design_layer_land.useage is '용도';
+comment on column design_layer_land.useage_specification is '용도-지정';
+comment on column design_layer_land.useage_recommended is '용도-권장';
+comment on column design_layer_land.useage_allowed is '용도-허용';
+comment on column design_layer_land.useage_limited is '용도-제한';
+comment on column design_layer_land.useage_disapproval is '용도-불허';
+comment on column design_layer_land.building_land_ratio is '건폐율';
+comment on column design_layer_land.floor_area_ratio is '용적률';
+comment on column design_layer_land.floor_area_ratio_standard is '용적률-기준';
+comment on column design_layer_land.floor_area_ratio_allowed is '용적률-허용';
+comment on column design_layer_land.floor_area_ratio_upper_limit is '용적률-상한';
+comment on column design_layer_land.highest_height is '최고높이';
+comment on column design_layer_land.highest_floor is '최고층수';
+comment on column design_layer_land.housing_type is '주택유형';
+comment on column design_layer_land.households_number is '세대수';
+comment on column design_layer_land.standard_point is '기준시점';
 comment on column design_layer_land.update_date is '수정일';
 comment on column design_layer_land.insert_date is '등록일';
 
@@ -137,9 +195,18 @@ create table design_layer_building (
 	design_layer_building_id                    bigint,
 	design_layer_id					            bigint,
 	design_layer_group_id			            integer,
+	shape_id                                    bigint,
+    building_height                             varchar(100),
+    building_floors                             varchar(100),
+    building_area                               varchar(100),
+    complex_building                            boolean,
+    parent_id                                   bigint,
     properties					                jsonb,
 	update_date					                timestamp with time zone,
 	insert_date					                timestamp with time zone 		default now(),
+    the_geom                                    geometry(MultiPolygon,4326),
+    enable_yn                                   char(1),
+    version_id                                  integer,
 	constraint design_layer_building_pk 		primary key (design_layer_building_id)
 );
 
@@ -147,6 +214,12 @@ comment on table design_layer_building is 'design layer building';
 comment on column design_layer_building.design_layer_building_id is 'design layer building 고유번호';
 comment on column design_layer_building.design_layer_id is 'design layer 고유번호';
 comment on column design_layer_building.design_layer_group_id is 'design layer 그룹 고유번호';
+comment on column design_layer_building.shape_id is 'shape 파일 고유번호';
+comment on column design_layer_building.building_height is '빌딩높이';
+comment on column design_layer_building.building_floors is '빌딩층수';
+comment on column design_layer_building.building_area is '빌딩면적';
+comment on column design_layer_building.complex_building is '복합건물';
+comment on column design_layer_building.parent_id is '부모식별키';
 comment on column design_layer_building.update_date is '수정일';
 comment on column design_layer_building.insert_date is '등록일';
 
@@ -203,87 +276,6 @@ comment on column design_layer_file_info.shape_encoding is 'shape 파일 인코�
 comment on column design_layer_file_info.version_id is 'shape 파일 버전 정보';
 comment on column design_layer_file_info.update_date is '갱신일';
 comment on column design_layer_file_info.insert_date is '등록일';
-
-
--- data library 그룹
-create table data_library_group (
-	data_library_group_id		            integer,
-	data_library_group_key				    varchar(60)				        		not null,
-	data_library_group_name      		    varchar(256)			        		not null,
-	data_library_group_path				    varchar(256),
-	data_library_group_target			    varchar(5)		        				default 'user',
-	sharing						            varchar(30)					        	default 'public',
-	user_id						            varchar(32),
-	ancestor					            integer					        		default 0,
-	parent                		            integer					        		default 0,
-	depth                	  	            integer					        		default 1,
-	view_order					            integer					        		default 1,
-	children					            integer						        	default 0,
-	basic						            boolean							        default false,
-	available					            boolean							        default true,
-	tiling						            boolean							        default false,
-	data_count					            integer							        default 0,
-	description					            varchar(256),
-	update_date             	            timestamp with time zone,
-	insert_date					            timestamp with time zone		        default now(),
-	constraint data_library_group_pk        primary key (data_library_group_id)
-);
-
-comment on table data_library_group is 'data library 그룹';
-comment on column data_library_group.data_library_group_id is 'data library 그룹 고유번호';
-comment on column data_library_group.data_library_group_key is '링크 활용 등을 위한 확장 컬럼';
-comment on column data_library_group.data_library_group_name is 'data library 그룹 그룹명';
-comment on column data_library_group.data_library_group_path is '서비스 경로';
-comment on column data_library_group.data_library_group_target is 'admin : 관리자용 data library 그룹, user : 일반 사용자용 data library 그룹';
-comment on column data_library_group.sharing is 'common : 공통, public : 공개, private : 비공개, group : 그룹';
-comment on column data_library_group.user_id is '사용자 아이디';
-comment on column data_library_group.data_count is '데이터 총 건수';
-comment on column data_library_group.ancestor is '조상';
-comment on column data_library_group.parent is '부모';
-comment on column data_library_group.depth is '깊이';
-comment on column data_library_group.view_order is '나열 순서';
-comment on column data_library_group.children is '자식 존재 개수';
-comment on column data_library_group.basic is 'true : 기본, false : 선택';
-comment on column data_library_group.available is 'true : 사용, false : 사용안함';
-comment on column data_library_group.tiling is 'true : 사용, false : 사용안함(기본)';
-comment on column data_library_group.description is '설명';
-comment on column data_library_group.update_date is '수정일';
-comment on column data_library_group.insert_date is '등록일';
-
--- data library
-create table data_library (
-	data_library_id					    bigint,
-	data_library_group_id			    integer,
-	data_library_key					varchar(100)					not null,
-	data_library_name				    varchar(256)					not null,
-	data_id						        bigint,
-	user_id						        varchar(32),
-
-	service_type				        varchar(30),
-    view_order					        integer							default 1,
-	available					        boolean							default true,
-
-	description					        varchar(256),
-	update_date					        timestamp with time zone,
-	insert_date					        timestamp with time zone 		default now(),
-	constraint data_library_pk 		    primary key (data_library_id)
-);
-
-
-comment on table data_library is 'data library';
-comment on column data_library.data_library_id is 'data library 고유번호';
-comment on column data_library.data_library_group_id is 'data library 그룹 고유번호';
-comment on column data_library.data_library_key is 'data library 고유키(API용)';
-comment on column data_library.data_library_name is 'data library명';
-comment on column data_library.data_id is '데이터 고유키';
-comment on column data_library.user_id is '사용자명';
-comment on column data_library.service_type is '서비스 타입 (정적, 동적)';
-comment on column data_library.view_order is '나열 순서';
-comment on column data_library.available is '사용유무.';
-comment on column data_library.description is '설명';
-comment on column data_library.update_date is '수정일';
-comment on column data_library.insert_date is '등록일';
-
 
 
 -- design layer 사용 이력

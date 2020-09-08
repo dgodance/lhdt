@@ -83,7 +83,7 @@ lsAnalsBtn.prototype.init = function() {
 
 lsAnalsBtn.prototype.eventHandler = function() {
 	
-	//
+	//분석 버튼 클릭
     $(this._ele).click(function() {
         debugger;
         const startPos = cesiumMouseEvt.pos.start;
@@ -94,7 +94,20 @@ lsAnalsBtn.prototype.eventHandler = function() {
 			toastr.warning('지도위에 경관축이 생성되지 않았습니다. 분석을 취소합니다.');
 			return;
 		}
+		
+		//
+		let xyz1 = {'lon': startPos.long, 'lat': startPos.lat};
+		let xyz2 = {'lon': endPos.long, 'lat': endPos.lat};
+		
+		//
+		Ppmap.removeAll();
+		//
+		Ppmap.createPolyline('ls-diff', [xyz1, xyz2]);
+		//
+		new SkylineObj().init().process(xyz1, xyz2);
 
+
+		/*
         const pos1 = {
             lon: startPos.long,
             lat: startPos.lat,
@@ -130,6 +143,7 @@ lsAnalsBtn.prototype.eventHandler = function() {
 			// 백업된 카메라 상태 복원
 			Ppmap.flyToByCameraStatus(cameraStatusBackup);
 		});
+		*/
     })
 }
 

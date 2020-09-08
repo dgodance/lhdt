@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html th:lang="${accessibility}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="/layouts/default">
 <head>
+    <meta charset="utf-8">
 	<title>사용자 목록</title>
     <th:block layout:fragment="pageCustomStyle">
         <link rel="stylesheet" th:href="@{/css/{lang}/font/font.css(lang=${lang}, cacheVersion=${contentCacheVersion})}" />
@@ -22,7 +23,7 @@
 
                         <!-- S: 검색 -->
 						<div class="filters">
-							<form id="searchForm" th:object="${userInfo}" method="get" th:action="@{/data/list}" onsubmit="return searchCheck();">
+							<form id="searchForm" th:object="${userInfo}" method="get" th:action="@{/user/list}" onsubmit="return searchCheck();">
 								<div class="input-group row">
 									<div class="input-set">
 										<label for="searchWord" th:text="#{search.word}"></label>
@@ -91,6 +92,7 @@
                                         <div style="padding-bottom: 3px;" class="button-group">
                                             <a href="#" onclick="updateUserStatus('LOCK'); return false;" class="button" th:text="#{user.group.user.lock}"></a>
                                             <a href="#" onclick="updateUserStatus('UNLOCK'); return false;" class="button" th:text="#{user.group.user.lock.init}"></a>
+                                            <a href="/user/input" class="button">사용자 등록</a>
                                         </div>
                                         <!-- <div style="padding-bottom: 3px;" class="button-group">
                                             <a href="#" onclick="return false;" class="button">비밀번호 초기화</a>
@@ -136,7 +138,7 @@
                                         
                                         <tr th:if="${!userList.empty}" th:each="user : ${userList}">
                                             <td class="col-checkbox">
-                                                <label for="userId_${user.userId}" class="hiddenTag"></label>
+                                                <label th:for="|userId_${user.userId}|" class="hiddenTag"></label>
                                                 <input type="checkbox" th:id="|userId_${user.userId}|" name="userId" th:value="${user.userId}" />
                                             </td>
                                             <td class="col-number" th:text="${userStat.count + ((pagination.pageNo-1)*10)}"></td>
@@ -150,31 +152,31 @@
                                             <td class="col-type" th:switch="${user.status}">
                                                 <th:block th:case="0">
                                                     <span class="icon-glyph glyph-on on" style="margin-right:3px;"></span>
-                                                    <span class="icon-text" th:text="user.group.in.use"></span>
+                                                    <span class="icon-text" th:text="#{user.group.in.use}"></span>
                                                 </th:block>
                                                 <th:block th:case="1">
                                                     <span class="icon-glyph glyph-off off" style="margin-right:3px;"></span>
-                                                    <span class="icon-text" th:text="user.group.stop.use"></span>
+                                                    <span class="icon-text" th:text="#{user.group.stop.use}"></span>
                                                 </th:block>
                                                 <th:block th:case="2">
                                                     <span class="icon-glyph glyph-off off" style="margin-right:3px;"></span>
-                                                    <span class="icon-text" th:text="user.group.lock.password"></span>
+                                                    <span class="icon-text" th:text="#{user.group.lock.password}"></span>
                                                 </th:block>
                                                 <th:block th:case="3">
                                                     <span class="icon-glyph glyph-off off" style="margin-right:3px;"></span>
-                                                    <span class="icon-text" th:text="user.group.dormancy"></span>
+                                                    <span class="icon-text" th:text="#{user.group.dormancy}"></span>
                                                 </th:block>
                                                 <th:block th:case="4">
                                                     <span class="icon-glyph glyph-off off" style="margin-right:3px;"></span>
-                                                    <span class="icon-text" th:text="user.group.expires"></span>
+                                                    <span class="icon-text" th:text="#{user.group.expires}"></span>
                                                 </th:block>
                                                 <th:block th:case="5">
                                                     <span class="icon-glyph glyph-off off" style="margin-right:3px;"></span>
-                                                    <span class="icon-text" th:text="user.group.delete"></span>
+                                                    <span class="icon-text" th:text="#{user.group.delete}"></span>
                                                 </th:block>
                                                 <th:block th:case="6">
                                                     <span class="icon-glyph glyph-off off" style="margin-right:3px;"></span>
-                                                    <span class="icon-text" th:text="user.group.temporary.password"></span>
+                                                    <span class="icon-text" th:text="#{user.group.temporary.password}"></span>
                                                 </th:block>
                                             </td>
                                             <td class="col-type">

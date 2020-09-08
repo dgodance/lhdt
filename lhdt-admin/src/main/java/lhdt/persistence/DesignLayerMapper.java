@@ -1,9 +1,13 @@
 package lhdt.persistence;
 
 import lhdt.domain.extrusionmodel.DesignLayer;
+import lhdt.domain.extrusionmodel.DesignLayerBuilding;
+import lhdt.domain.extrusionmodel.DesignLayerGroup;
+import lhdt.domain.extrusionmodel.DesignLayerLand;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public interface DesignLayerMapper {
@@ -28,6 +32,20 @@ public interface DesignLayerMapper {
     * @return
     */
     DesignLayer getDesignLayer(Long designLayerId);
+
+    /**
+     * design Layer land extent 취득
+     * @param designLayerId
+     * @return
+     */
+    String getDesignLayerLandExtent(Long designLayerId);
+
+    /**
+     * design Layer building extent 취득
+     * @param designLayerId
+     * @return
+     */
+    String getDesignLayerBuildingExtent(Long designLayerId);
     
     /**
      * designLayerKey 중복 체크
@@ -65,11 +83,32 @@ public interface DesignLayerMapper {
     String getGeometryType(String designLayerKey);
 
     /**
+     * Design Layer 존재 하는지 확인
+     * @param designLayerKey
+     * @return
+     */
+    String isDesignLayerExists(String designLayerKey);
+
+    /**
     * Design Layer 등록
     * @param designLayer
     * @return
     */
     int insertDesignLayer(DesignLayer designLayer);
+
+    /**
+     * land info insert
+     * @param designLayer
+     * @return
+     */
+    int insertGeometryLand(DesignLayerLand designLayer);
+
+    /**
+     * building info insert
+     * @param designLayer
+     * @return
+     */
+    int insertGeometryBuilding(DesignLayerBuilding designLayer);
 
     /**
     * Design Layer 트리 정보 수정
@@ -93,30 +132,44 @@ public interface DesignLayerMapper {
     int updateDesignLayer(DesignLayer designLayer);
 
     /**
+     * design layer land 속성 정보 업데이트
+     * @param designLayerLand
+     * @return
+     */
+    int updateDesignLayerLandAttributes(DesignLayerLand designLayerLand);
+
+    /**
+     * design layer building 속성 정보 업데이트
+     * @param designLayerBuilding
+     * @return
+     */
+    int updateDesignLayerBuildingAttributes(DesignLayerBuilding designLayerBuilding);
+
+    /**
     * Design Layer 삭제
     * @param designLayerId
     * @return
     */
     int deleteDesignLayer(Long designLayerId);
-    
+
     /**
-     * Design Layer 테이블 삭제
-     * @param designLayerKey
+     * land geometry delete
+     * @param map
      * @return
      */
-    int deleteDesignLayerTable(String designLayerKey);
-    
+    int deleteGeometryLand(Map<String,Object> map);
+
     /**
-     * Design Layer 칼럼 목록을 조회
-     * @param designLayerKey
+     * building geometry delete
+     * @param map
      * @return
      */
-    String getDesignLayerColumn(String designLayerKey);
+    int deleteGeometryBuilding(Map<String,Object> map);
     
     /**
-     * Design Layer 존재 하는지 확인
-     * @param designLayerKey
+     * 디자인 레이어 그룹 고유번호를 이용한 삭제
+     * @param designLayerGroup
      * @return
      */
-    String isDesignLayerExists(String designLayerKey);
+    int deleteDesignLayerByDesignLayerGroupId(DesignLayerGroup designLayerGroup);
 }

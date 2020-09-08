@@ -1,6 +1,5 @@
 package lhdt.domain.extrusionmodel;
 
-import lhdt.domain.ShapeFileField;
 import lhdt.domain.common.Search;
 import lombok.*;
 import org.hibernate.validator.constraints.Range;
@@ -40,9 +39,14 @@ public class DesignLayer extends Search implements Serializable {
     private Integer parent;
     private String parentName;
     private Integer depth;
+    private String designLayerGroupType;
 
     // 고유키
     private Long designLayerId;
+    // 도시 그룹 고유 번호
+    private Integer urbanGroupId;
+    // 도시 그룹명
+    private String urbanGroupName;
     // 디자인 레이어 그룹 아이디
     private Integer designLayerGroupId;
     // 디자인 레이어 그룹명
@@ -97,6 +101,8 @@ public class DesignLayer extends Search implements Serializable {
     // 설명
     private String description;
 
+    // shape info
+    private Long shapeId;
     private String theGeom;
     private String attributes;
     
@@ -125,8 +131,32 @@ public class DesignLayer extends Search implements Serializable {
         BUILDING
     }
 
+    public enum AttributeType {
+	    CSV("csv"),
+        XLSX("xlsx"),
+        XLS("xls");
+
+	    private String value;
+
+	    AttributeType(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+	        return this.value;
+        }
+
+        public static AttributeType findBy(String value) {
+            for(AttributeType attributeType : values()) {
+                if(attributeType.getValue().equals(value)) return attributeType;
+            }
+            return null;
+        }
+    }
+
 	public enum RequiredColumn {
-        THE_GEOM("the_geom");
+        SHAPE_ID("id"),
+	    THE_GEOM("the_geom");
 
         private String value;
 

@@ -59,47 +59,4 @@
 		</if>
 		LIMIT 1
 	</select>
-
-	<!-- design layer 그룹 등록 -->
-	<insert id="insertDesignLayerGroup" parameterType="designLayerGroup">
-		/* insertDesignLayerGroup */
-		<selectKey keyProperty="designLayerGroupId" resultType="int" order="BEFORE">
-			SELECT NEXTVAL('design_layer_group_seq')
-		</selectKey>
-		INSERT INTO design_layer_group (
-		design_layer_group_id, design_layer_group_name, user_id, ancestor, parent, depth, view_order, children, available, description
-		) VALUES (
-		#{designLayerGroupId}, #{designLayerGroupName}, #{userId},
-		(
-		SELECT COALESCE(MAX(ancestor), #{designLayerGroupId})
-		FROM design_layer_group
-		WHERE design_layer_group_id = #{parent}
-		AND design_layer_group_id != 0
-		),
-		#{parent},
-		(
-		SELECT COALESCE(MAX(depth),  0 ) + 1
-		FROM design_layer_group
-		WHERE design_layer_group_id = #{parent}
-		),
-		(
-		SELECT COALESCE(MAX(view_order), 0) + 1
-		FROM design_layer_group
-		WHERE parent = #{parent}
-		),
-		(
-		SELECT COUNT(*)
-		FROM design_layer_group
-		WHERE parent = #{designLayerGroupId}
-		),
-		#{available},
-		trim(#{description})
-		)
-	</insert>
-
-	<!-- design layer 그룹 삭제 -->
-	<delete id="deleteAllDesignLayerGroup">
-		/* deleteAllDesignLayerGroup */
-		DELETE FROM design_layer_group
-	</delete>
 </mapper>

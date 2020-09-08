@@ -1,5 +1,6 @@
 package lhdt.service;
 
+import lhdt.domain.extrusionmodel.DesignLayerGroup;
 import lhdt.domain.policy.GeoPolicy;
 import lhdt.domain.extrusionmodel.DesignLayer;
 import lhdt.domain.extrusionmodel.DesignLayerFileInfo;
@@ -23,17 +24,18 @@ public interface DesignLayerService {
     List<DesignLayer> getListDesignLayer(DesignLayer designLayer);
     
     /**
-     * geoserver에 등록된 design 레이어 목록 조회
-     * @return
-     */
-    String getListGeoserverDesignLayer(GeoPolicy geoPolicy);
-
-    /**
     * design layer 정보 취득
     * @param designLayerId
     * @return
     */
     DesignLayer getDesignLayer(Long designLayerId);
+
+    /**
+     * design Layer extent 취득
+     * @param designLayer
+     * @return
+     */
+    String getDesignLayerExtent(DesignLayer designLayer);
     
     /**
      * designLayerKey 중복 체크
@@ -48,13 +50,6 @@ public interface DesignLayerService {
     * @return
     */
     String getGeometryType(String designLayerKey);
-
-    /**
-     * design 레이어의 칼럼 목록을 조회
-     * @param designLayerKey
-     * @return
-     */
-    String getDesignLayerColumn(String designLayerKey);
 
     /**
     * design 레이어 등록
@@ -74,15 +69,12 @@ public interface DesignLayerService {
     Map<String, Object> updateDesignLayer(DesignLayer designLayer, boolean isDesignLayerFileInfoExist, List<DesignLayerFileInfo> designLayerFileInfoList);
 
     /**
-    * Ogr2Ogr 실행
-    * @param designLayer
-    * @param isDesignLayerFileInfoExist
-    * @param shapeFileName
-    * @param shapeEncoding
-    * @throws Exception
-    */
-    void insertOgr2Ogr(DesignLayer designLayer, boolean isDesignLayerFileInfoExist, String shapeFileName, String shapeEncoding, List<DesignLayer> shapePropertiesList) throws Exception;
-
+     * shapeInfo insert
+     * @param designLayer
+     * @param shapePropertiesList
+     * @throws Exception
+     */
+    void insertShapeInfo(DesignLayer designLayer, List<DesignLayer> shapePropertiesList) throws Exception;
     /**
      * shp파일 정보를 db정보를 기준으로 갱신
      * @param designLayerFileInfo
@@ -94,10 +86,10 @@ public interface DesignLayerService {
     /**
     * design layer 가 등록 되어 있지 않은 경우 rest api 를 이용해서 design layer를 등록
      * @param geoPolicy
-     * @param designLayerKey
+     * @param designLayer
      * @throws Exception
      */
-    void registerDesignLayer(GeoPolicy geoPolicy, String designLayerKey) throws Exception;
+    void registerDesignLayer(GeoPolicy geoPolicy, DesignLayer designLayer) throws Exception;
     
     /**
 	 * design 레이어의 스타일 정보를 수정
@@ -124,10 +116,25 @@ public interface DesignLayerService {
     */
     int updateDesignLayerByDesignLayerFileInfoId(Long designLayerId, Long deleteDesignLayerFileInfoTeamId, Long designLayerFileInfoId);
 
+    /**
+     * 속성 정보 업데이트
+     * @param fileName
+     * @param type
+     * @return
+     */
+    int updateDesignLayerAttributes(String fileName, String type);
+
      /**
     * design 레이어 삭제
     * @param designLayerId
     * @return
     */
     int deleteDesignLayer(Long designLayerId);
+
+    /**
+     * 디자인 레이어 그룹 고유번호를 이용한 삭제
+     * @param designLayerGroup
+     * @return
+     */
+    int deleteDesignLayerByDesignLayerGroupId(DesignLayerGroup designLayerGroup);
 }

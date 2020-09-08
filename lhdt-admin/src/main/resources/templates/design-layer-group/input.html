@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html th:lang="${accessibility}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="/layouts/default">
 <head>
+	<meta charset="utf-8">
 	<title>디자인 레이어 그룹 등록</title>
 	<th:block layout:fragment="pageCustomStyle">
 		<link rel="stylesheet" th:href="@{/css/{lang}/font/font.css(lang=${lang},cacheVersion=${contentCacheVersion})}" />
@@ -49,6 +50,18 @@
 										<input type="hidden" id="parent" name="parent" th:value="*{parent}" />
 			 							<input type="text" id="parentName" name="parentName" th:field="*{parentName}" class="l" th:readonly="true" />
 										<input type="button" id="designLayerGroupButton" value="상위 레이어 그룹 선택" />
+									</td>
+								</tr>
+								<tr>
+									<th class="col-label l" scope="row">
+										<span>디자인 레이어 그룹 타입</span>
+										<span class="icon-glyph glyph-emark-dot color-warning"></span>
+									</th>
+									<td class="col-input radio-set">
+										<input type="radio" id="designLayerGroupTypeLand" name="designLayerGroupType" value="land" checked />
+										<label for="designLayerGroupTypeLand">필지</label>
+										<input type="radio" id="designLayerGroupTypeBuilding" name="designLayerGroupType" value="building" />
+										<label for="designLayerGroupTypeBuilding">빌딩</label>
 									</td>
 								</tr>
 								<tr>
