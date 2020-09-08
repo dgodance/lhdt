@@ -323,36 +323,35 @@ const RenderType = {
 };
 
 
-$(document).ready(function(){
-	let _init = function(){
-	    const viewer = MAGO3D_INSTANCE.getViewer();
-	    const scene = MAGO3D_INSTANCE.getViewer().scene;
-	    const canvas = MAGO3D_INSTANCE.getViewer().scene.canvas;
-	    cesiumMouseEvt.init({
-	        viewer: viewer,
-	        scene: scene,
-	        canvas: canvas,
-	    });
-	    render.init();
-	
-	    const p = new lsAnalsBtn();
-        p.init();		
-        
-        //
-        console.log(new Date(), 'anals-landscape-free', '<<._init()');
-	};
-
-	//	
-	//가끔 MAGO3D_INSTANCE생성되기전에 아래 로직 호출되는 경우 존재. 해서, 인터벌 사용
-	let interval = setInterval(function(){
-		if(Pp.isNotNull(MAGO3D_INSTANCE)){
-			clearInterval(interval);
-			_init();
-		}
-		
-	}, 500);
-	
-});
+// $(document).ready(function(){
+// 	let _init = function(){
+// 	    const viewer = MAGO3D_INSTANCE.getViewer();
+// 	    const scene = MAGO3D_INSTANCE.getViewer().scene;
+// 	    const canvas = MAGO3D_INSTANCE.getViewer().scene.canvas;
+// 	    cesiumMouseEvt.init({
+// 	        viewer: viewer,
+// 	        scene: scene,
+// 	        canvas: canvas,
+// 	    });
+// 	    render.init();
+//
+// 	    const p = new lsAnalsBtn();
+//         p.init();
+//
+//         console.log(new Date(), 'anals-landscape-free', '<<._init()');
+// 	};
+//
+// 	//
+// 	//가끔 MAGO3D_INSTANCE생성되기전에 아래 로직 호출되는 경우 존재. 해서, 인터벌 사용
+// 	let interval = setInterval(function(){
+// 		if(Pp.isNotNull(MAGO3D_INSTANCE)){
+// 			clearInterval(interval);
+// 			_init();
+// 		}
+//
+// 	}, 500);
+//
+// });
 
 
 

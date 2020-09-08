@@ -215,6 +215,8 @@
 	}, '[[${dataInfo.dataId}]]');
 
 	function magoInit() {
+		Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxODQ0NTUxYi1mODg3LTQxZTEtYmU2Zi00NzQ0ODI3YjI1ZDIiLCJpZCI6MTUxODYsInNjb3BlcyI6WyJhc2wiLCJhc3IiLCJhc3ciLCJnYyJdLCJpYXQiOjE1Njc0MDU5MDJ9.gqA_lEtPeiKI_Tn6WbBKfcaSaiHmj0f1GmcD0VBtmPc";
+
 		var geoPolicyJson = NDTP.policy;
 		var cesiumViewerOption = {};
 		cesiumViewerOption.infoBox = false;
@@ -225,6 +227,9 @@
 		cesiumViewerOption.geocoder = false;
 		cesiumViewerOption.baseLayerPicker = false;
 		cesiumViewerOption.sceneModePicker = false;
+		cesiumViewerOption.terrainProvider = new Cesium.CesiumTerrainProvider({
+			url: Cesium.IonResource.fromAssetId(85669),
+		});
 
 		/**
 		 * @param {Stirng} containerId container div id. required.
