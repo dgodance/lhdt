@@ -94,11 +94,6 @@
 	<!-- MAP -->
 	<div id="magoContainer" class="mapWrap"></div>
 	<canvas id="objectLabel"></canvas>
-	<!-- range Input!!! -->
-	<div class="sliderWrap" id="csRange">
-		<label for="rangeInput" class="hiddenTag">caRange</label>
-		<input id="rangeInput"/>
-	</div>
 	<div class="sliderWrap" id="saRange">
 		<label for="timeInput" class="hiddenTag">saRange</label>
 		<input id="timeInput"/>
@@ -154,7 +149,7 @@
 <script type="text/javascript" th:src="@{/js/{lang}/anals-landscape-free.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/anals-landscape-saved.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/anals-landscapediff.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/sunshine.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/anals-sunshine.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 
 <script type="text/javascript" th:src="@{/js/{lang}/anals-buildheight.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <!--<script type="text/javascript" th:src="@{/js/{lang}/anals-landscape.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>-->
@@ -232,6 +227,7 @@
         // CivilVoice(magoInstance);
 		AnalsBuildHeight(viewer, magoInstance);
 		AnalsLandScapeDirection(viewer, magoInstance);
+		AnalsSunshine(viewer, magoInstance);
 
         // 기본 레이어 랜더링
         setTimeout(function(){

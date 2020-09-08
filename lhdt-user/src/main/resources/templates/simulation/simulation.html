@@ -3,29 +3,6 @@
 <ul class="listDrop">
 	<li class="off">
 		<p th:text="|#{simulation.landscape.analysis}(#{simulation.solar.analysis})|"><span class="collapse-icon">icon</span></p>
-		<div id="solarAnalysis" class="listContents">
-			<ul class="analysisGroup">
-				<li>
-					<label for="solarAnalysisObserverPoint" th:text="#{common.observer.position}"></label>
-					<input type="text" id="solarAnalysisObserverPoint" value="" placeholder=""  readonly/>
-					<button type="button" class="btnText drawObserverPoint" th:text="#{common.pick.location}"></button>
-				</li>
-				<li>
-					<label for="datepicker-input" th:text="#{common.date}"></label>
-					<!-- <input class="" type="text" id="solayDatePicker" placeholder="" value=""/> -->
-					<div class="tui-datepicker-input tui-datetime-input tui-has-focus">
-			            <input type="text" id="datepicker-input" aria-label="Date-Time">
-			            <span class="tui-ico-date"></span>
-			        </div>
-			        <div id="solayDatePicker" style="margin-top: -1px;"></div>
-				</li>
-				<li class="btns">
-					<!-- <button type="button" class="btnTextF report" title="일조분석 리포트" style="display:none;">리포트</button> -->
-					<button type="button" class="btnTextF execute" th:text="#{common.analysis}" th:title="#{common.analysis}"></button>
-					<button type="button" class="btnText reset" th:text="#{common.cancel}" th:title="#{common.cancel}"></button>
-				</li>
-			</ul>
-		</div>
 	</li>
 	<li class="off">
 		<p th:text="#{simulation.construction.process}"><span class="collapse-icon">icon</span></p>

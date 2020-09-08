@@ -130,8 +130,6 @@ lsAnalsBtn.prototype.eventHandler = function() {
 			// 백업된 카메라 상태 복원
 			Ppmap.flyToByCameraStatus(cameraStatusBackup);
 		});
-
-
     })
 }
 
