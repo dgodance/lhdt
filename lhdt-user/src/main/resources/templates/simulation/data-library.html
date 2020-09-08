@@ -112,6 +112,20 @@ ModelerObj.prototype.setEventHandler = function(){
 		_renderDatas();
 		
 		//
+		let model={};
+		model.projectId = 1;
+		model.projectFolderName = 'infra/data-library/tree-summer';
+		model.buildingFolderName = 'F4D_' + 'tree-summer';
+		MAGO3D_INSTANCE.getMagoManager().addStaticModel(model);
+		
+		//
+		MAGO3D_INSTANCE.getMagoManager().instantiateStaticModel({
+			'projectId' : 1,
+			'instanceId': 'instanceId',
+			'longitude':127.29228071894451,
+			'latitude':36.48277008700822,
+			'height':10
+		});
 		
 	});
 	

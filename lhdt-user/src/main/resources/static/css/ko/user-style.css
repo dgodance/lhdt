@@ -16,7 +16,7 @@ header {
 display: flex;
 /* min-width: 1420px; */
 height: 50px;
-background-color: #258fff;
+background-color: #797979;
 }
 #wrap {
 position: relative;
@@ -31,16 +31,33 @@ height: 100%;
 /* ////////// HEADER ////////// */
 h1 {
 width: 500px;
-height: 50px;
+margin: 5px 15px;
+/*height: 50px;
 margin: 13px;
+*/
 /* padding: 0 0 0 80px; */
 font-size: 22px;
 letter-spacing: -1px;
 color: #fff;
 cursor: pointer;
 font-weight: normal;
+background: url(/images/ko/logo.png) no-repeat 0 0;
+text-indent: -9999px;
+background-size: 110px;
 /* background: url(/images/ko/logo.png) no-repeat 0 0; */
 }
+
+.HamMenu > a{display:inline-block; height: 100%; width: 60px;background: url(/images/ko/icon.png)no-repeat;background-position: 13px -60px;text-indent: -9999px;}
+#headerWrap .on {background-color: #0066a2;}
+
+
+
+
+
+
+
+
+
 
 .gnb {
 position: absolute;
@@ -85,7 +102,7 @@ background-color: #262b3f;
 float: left;
 position: relative;
 height: 100%;
-background-color: #262b3f;
+background-color: #0066a2;
 }
 ul.nav {
 float: left;
@@ -103,7 +120,7 @@ background-image: url(/images/ko/ico.png);
 background-repeat: no-repeat;
 }
 ul.nav li.on {
-background-color: #258fff;
+background-color: #19334a;
 }
 ul.nav li.search {
 background-position: -445px 10px;
@@ -305,7 +322,6 @@ background-color: transparent;
 }
 
 /* ///// 데이터 ///// */
-
 .dataGroupSum {
 display: flex;
 margin: 10px 0;
@@ -348,9 +364,14 @@ color: #258fff;
 	width: calc(100% - 1px);
 }
 .dataGroupSummary > table th {
-	border: 1px solid #ccc;
+	border-right: 1px solid #ccc;
 	padding: 3px 0;
 	cursor: default;
+	text-align: center;
+	border-top: 2px solid #19334a;
+}
+.dataGroupSummary > table th:last-child{
+	border-right:none;
 }
 /*
 .dataGroupSummary > table tbody tr:hover {
@@ -363,10 +384,14 @@ color: #258fff;
 }
 .dataGroupSummary > table tr td {
 	padding: 7px 5px;
-	border: 1px solid #ccc;
+	border-right: 1px solid #ccc;
 	font-size: 14px;
+	border-bottom: 1px solid #ccc;
 	text-align: center;
 	cursor: default;
+}
+.dataGroupSummary > table tr td:last-child{
+    border-right: none;
 }
 .dataGroupSummary > table tr:nth-child(4n+0) td {
 	padding: 0;
@@ -382,11 +407,11 @@ color: #258fff;
 }
 .dataGroupSummary > table tr.space-top,
 .dataGroupSummary > table tr td.space-top {
-  border-top: 3px solid #ccc;
+  /*border-top: 3px solid #ccc;*/
 }
 .dataGroupSummary > table tr.space-bottom,
 .dataGroupSummary > table tr td.space-bottom {
-  border-bottom: 3px solid #ccc;
+  /*border-bottom: 3px solid #ccc;*/
 }
 
 /* /// 데이터 게시판 목록 - 정연화 수정 /// */
