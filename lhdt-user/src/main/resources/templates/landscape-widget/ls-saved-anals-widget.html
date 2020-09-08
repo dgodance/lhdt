@@ -8,18 +8,15 @@
                     <table summary="경관분석 데이터 목록">
                         <caption class="hiddenTag">경관분석 데이터 목록</caption>
                         <colgroup>
-                            <col class="col-width-12">
-                            <col class="col-width-12">
-                            <col class="col-width-12">
-                            <col class="col-width-12">
-                            <col class="col-width-12">
+                            <col class="col-width-10">
+                            <col class="*">
+                            <col class="col-width-30">
                         </colgroup>
                         <thead>
                         <tr>
                             <th>번호</th>
                             <th>경관명</th>
-                            <th>이동</th>
-                            <th>분석</th>
+                            <th>기능</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -27,29 +24,24 @@
                             {{#each page}}
                                 <tr>
                                     <td><span class="no">{{id}}</span></td>
-                                    <td>
+                                    <td class="text-left">
                                         <span>{{landScapePointName}}</span>
                                     </td>
                                     <td>
-                                        {{#if viewAction}}
                                         <button type="button" class="goto" th:text="이동"
                                                 th:title="이동" style="margin: 0px; padding: 0px;"
                                                 onclick="gotoScene('{{id}}')">
                                         </button>
-                                        {{/if}}
+                                     	<button type="button" class="showHideButton show" th:title="분석"
+                                        	th:text="분석" onclick="showData('{{id}}')">
+                                       	</button>
                                     </td>
-                                    <td>
-                                            <button type="button" class="showHideButton show"
-                                                    th:text="분석" onclick="showData('{{id}}')">
-                                            </button>
-                                        {{#if analsAction}}
-                                        {{/if}}
-                                    </td>
+                                    
                                 </tr>
                             {{/each}}
                         {{else}}
                             <tr>
-                                <td colspan="5" style="height: 30px;">데이터가 존재하지 않습니다.</td>
+                                <td colspan="3" style="height: 30px;">데이터가 존재하지 않습니다.</td>
                             </tr>
                         {{/greaterThan}}
                         </tbody>

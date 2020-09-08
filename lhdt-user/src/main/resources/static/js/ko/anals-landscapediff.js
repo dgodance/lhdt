@@ -205,9 +205,6 @@ function gotoScene(id) {
 			return;
 		}
 		
-		// 
-		let entityName = 'ls-point';
-		
 		//
 		Ppmap.removeAll();
 
@@ -216,7 +213,7 @@ function gotoScene(id) {
 		
 		//
 		if('점' === res.landScapePointType){
-			entity = Ppmap.createPoint(entityName, res.startLandScapePos.x, res.startLandScapePos.y);
+			entity = Ppmap.createPoint('ls-anals-saved-point', res.startLandScapePos.x, res.startLandScapePos.y);
 		}
 		if('선' === res.landScapePointType){
 			let xyz1 = {
@@ -227,12 +224,12 @@ function gotoScene(id) {
 				'lon': res.endLandScapePos.x,
 				'lat': res.endLandScapePos.y
 			}
-			entity = Ppmap.createPolyline(entityName, [xyz1, xyz2]);
+			entity = Ppmap.createPolyline('ls-anals-saved-line', [xyz1, xyz2]);
 		}
 
 
 		//
-		MAGO3D_INSTANCE.getViewer().zoomTo(entity);			
+		Ppmap.zoomTo(entity)			
     });
 }
 

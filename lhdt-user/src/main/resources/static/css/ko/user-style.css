@@ -2694,3 +2694,7 @@ ul.listDefault li.on > ul li > button {
 	padding: 15px 0;
 	background-color: #eee;
 }
+
+
+
+.text-right {text-align:right  !important;}
