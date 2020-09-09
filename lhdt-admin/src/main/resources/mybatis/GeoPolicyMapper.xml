@@ -89,4 +89,13 @@
 		WHERE geopolicy_id = #{geoPolicyId}
 	</update>
 
+	<!-- 디자인 레이어 정책 수정 -->
+	<update id="updateGeoPolicyDesignLayer" parameterType="geoPolicy">
+		/* updateGeoPolicyDesignLayer */
+		UPDATE geopolicy
+		SET shape_land_required_columns = #{shapeLandRequiredColumns},
+			shape_building_required_columns = #{shapeBuildingRequiredColumns}
+		WHERE geopolicy_id = #{geoPolicyId}
+	</update>
+
 </mapper>

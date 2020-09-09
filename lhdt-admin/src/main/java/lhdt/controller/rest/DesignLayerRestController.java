@@ -222,6 +222,13 @@ public class DesignLayerRestController implements AuthorizationController {
 			} else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
 				extrusionColumns = geoPolicy.getShapeBuildingRequiredColumns();
 			}
+
+			if(StringUtils.isEmpty(extrusionColumns)) {
+				result.put("statusCode", HttpStatus.BAD_REQUEST.value());
+				result.put("errorCode", "upload.designlayer.policy");
+				return result;
+			}
+
 			// 2. 레이어 기본 정보 및 레이어 이력 정보 등록
 			updateDesignLayerMap = designLayerService.insertDesignLayer(designLayer, designLayerFileInfoList);
 			log.info("++++++++++++++++++++++++++++++++-------------------------- designLayerFileInfoList = {}", designLayerFileInfoList);
@@ -429,6 +436,13 @@ public class DesignLayerRestController implements AuthorizationController {
 			} else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
 				extrusionColumns = geoPolicy.getShapeBuildingRequiredColumns();
 			}
+
+			if(StringUtils.isEmpty(extrusionColumns)) {
+				result.put("statusCode", HttpStatus.BAD_REQUEST.value());
+				result.put("errorCode", "upload.designlayer.policy");
+				return result;
+			}
+
             // 4. 레이어 기본 정보 및 레이어 이력 정보 등록
             Map<String, Object> updateDesignLayerMap = designLayerService.updateDesignLayer(designLayer, isDesignDesignLayerFileInfoExist, designLayerFileInfoList);
             if(!designLayerFileInfoList.isEmpty()) {

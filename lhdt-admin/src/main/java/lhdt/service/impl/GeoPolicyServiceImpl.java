@@ -47,4 +47,14 @@ public class GeoPolicyServiceImpl implements GeoPolicyService {
 	public int updateGeoPolicyGeoServer(GeoPolicy geoPolicy) {
 		return geoPolicyMapper.updateGeoPolicyGeoServer(geoPolicy);
 	}
+
+	/**
+	 * 디자인 레이어 정책 수정
+	 * @param geoPolicy
+	 * @return
+	 */
+	@Transactional
+	public int updateGeoPolicyDesignLayer(GeoPolicy geoPolicy) {
+		return geoPolicyMapper.updateGeoPolicyDesignLayer(geoPolicy);
+	}
 }

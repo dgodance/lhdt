@@ -28,4 +28,11 @@ public interface GeoPolicyService {
 	 * @return
 	 */
 	int updateGeoPolicyGeoServer(GeoPolicy geoPolicy);
+
+	/**
+	 * 디자인 레이어 관련 정책 수정
+	 * @param geoPolicy
+	 * @return
+	 */
+	int updateGeoPolicyDesignLayer(GeoPolicy geoPolicy);
 }
