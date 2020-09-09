@@ -345,6 +345,11 @@ public class DataLibraryConverterServiceImpl implements DataLibraryConverterServ
             dataLibraryName = fileName.substring(0, fileName.lastIndexOf("."));
         }
 
+        // 데이터 라이브러리 경로
+        String adminDataLibraryServicePath = propertiesConfig.getAdminDataLibraryServicePath();
+        DataLibraryGroup dataLibraryGroup = dataLibraryGroupService.getDataLibraryGroup(DataLibraryGroup.builder().dataLibraryGroupId(dataLibraryGroupId).build());
+        String dataLibraryPath = adminDataLibraryServicePath + dataLibraryGroup.getDataLibraryGroupKey() + "/" + dataLibraryKey;
+
         String dataType = dataLibraryUploadFile.getDataType();
         String sharing = dataLibraryUploadFile.getSharing();
         String mappingType = dataLibraryUploadFile.getMappingType();
@@ -364,6 +369,7 @@ public class DataLibraryConverterServiceImpl implements DataLibraryConverterServ
             dataLibrary.setDataType(dataType);
             dataLibrary.setDataLibraryKey(dataLibraryKey);
             dataLibrary.setDataLibraryName(dataLibraryName);
+            dataLibrary.setDataLibraryPath(dataLibraryPath);
             dataLibrary.setUserId(userId);
             //dataLibrary.setStatus(DataStatus.PROCESSING.name().toLowerCase());
             dataLibrary.setStatus(DataLibraryStatus.USE.name().toLowerCase());
@@ -375,6 +381,7 @@ public class DataLibraryConverterServiceImpl implements DataLibraryConverterServ
 //            dataLibrary.setMappingType(mappingType);
             dataLibrary.setDataType(dataType);
             dataLibrary.setDataLibraryName(dataLibraryName);
+            dataLibrary.setDataLibraryPath(dataLibraryPath);
             dataLibrary.setUserId(userId);
             //dataLibrary.setStatus(DataStatus.PROCESSING.name().toLowerCase());
             dataLibrary.setStatus(DataLibraryStatus.USE.name().toLowerCase());
