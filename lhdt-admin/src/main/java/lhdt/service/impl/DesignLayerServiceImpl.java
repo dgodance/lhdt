@@ -260,20 +260,26 @@ public class DesignLayerServiceImpl implements DesignLayerService {
      * @throws Exception
      */
     @Transactional
-    public void insertShapeInfo(DesignLayer designLayer, List<DesignLayer> shapeInfoList) throws Exception {
+    public void insertShapeInfo(DesignLayer designLayer, List<DesignLayer> shapeInfoList) {
         if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
             shapeInfoList.forEach(f -> {
-                f.setDesignLayerId(designLayer.getDesignLayerId());
-                f.setDesignLayerGroupId(designLayer.getDesignLayerGroupId());
-                f.setCoordinate(designLayer.getCoordinate().split(":")[1]);
-                designLayerMapper.insertGeometryLand(modelMapper.map(f, DesignLayerLand.class));
+                var designLayerLand = modelMapper.map(f, DesignLayerLand.class);
+                designLayerLand.setDesignLayerId(designLayer.getDesignLayerId());
+                designLayerLand.setDesignLayerGroupId(designLayer.getDesignLayerGroupId());
+                designLayerLand.setCoordinate(Integer.valueOf(designLayer.getCoordinate().split(":")[1]));
+                designLayerLand.setTheGeom(f.getTheGeom());
+                designLayerLand.setIdentificationCode(f.getShapeId());
+                designLayerMapper.insertGeometryLand(designLayerLand);
             });
         } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
             shapeInfoList.forEach(f -> {
-                f.setDesignLayerId(designLayer.getDesignLayerId());
-                f.setDesignLayerGroupId(designLayer.getDesignLayerGroupId());
-                f.setCoordinate(designLayer.getCoordinate().split(":")[1]);
-                designLayerMapper.insertGeometryBuilding(modelMapper.map(f, DesignLayerBuilding.class));
+                var designLayerBuilding = modelMapper.map(f, DesignLayerBuilding.class);
+                designLayerBuilding.setDesignLayerId(designLayer.getDesignLayerId());
+                designLayerBuilding.setDesignLayerGroupId(designLayer.getDesignLayerGroupId());
+                designLayerBuilding.setCoordinate(Integer.valueOf(designLayer.getCoordinate().split(":")[1]));
+                designLayerBuilding.setTheGeom(f.getTheGeom());
+                designLayerBuilding.setBuildId(f.getShapeId());
+                designLayerMapper.insertGeometryBuilding(designLayerBuilding);
             });
         }
     }
@@ -352,41 +358,41 @@ public class DesignLayerServiceImpl implements DesignLayerService {
                 for (CSVRecord record : records) {
                     if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(type.toUpperCase())) {
                         DesignLayerLand designLayerLand = DesignLayerLand.builder()
-                                .shapeId(Long.valueOf(record.get(0)))
-                                .businessType(record.get(1))
-                                .businessDistrict(record.get(2))
-                                .blockNumber(record.get(3))
-                                .landNumber(record.get(4))
-                                .landArea(record.get(5))
-                                .useageArea(record.get(6))
-                                .landUseage(record.get(7))
-                                .landDivision(record.get(8))
-                                .useage(record.get(9))
-                                .useageSpecification(record.get(10))
-                                .useageRecommended(record.get(11))
-                                .useageAllowed(record.get(12))
-                                .useageLimited(record.get(13))
-                                .useageDisapproval(record.get(14))
-                                .buildingLandRatio(record.get(15))
+                                .identificationCode(Long.valueOf(record.get(0)))
+                                .projectType(record.get(1))
+                                .projectTitle(record.get(2))
+                                .blockCode(record.get(3))
+                                .lotCode(record.get(4))
+                                .lotArea(record.get(5))
+                                .landuseZoning(record.get(6))
+                                .landusePlan(record.get(7))
+                                .lotDivideMarge(record.get(8))
+                                .buildingUse(record.get(9))
+                                .buildingUseDefined(record.get(10))
+                                .buildingUseRecommended(record.get(11))
+                                .buildingUseAllowed(record.get(12))
+                                .buildingUseConditional(record.get(13))
+                                .buildingUseForbidden(record.get(14))
+                                .buildingCoverageRatio(record.get(15))
                                 .floorAreaRatio(record.get(16))
                                 .floorAreaRatioStandard(record.get(17))
                                 .floorAreaRatioAllowed(record.get(18))
-                                .floorAreaRatioUpperLimit(record.get(19))
-                                .highestHeight(record.get(20))
-                                .highestFloor(record.get(21))
+                                .floorAreaRatioMaximum(record.get(19))
+                                .maximumBuildingHeight(record.get(20))
+                                .maximumBuildingFloors(record.get(21))
                                 .housingType(record.get(22))
-                                .householdsNumber(record.get(23))
-                                .standardPoint(record.get(24))
+                                .numberOfHouseholds(record.get(23))
+                                .reference(record.get(24))
                                 .build();
                         designLayerMapper.updateDesignLayerLandAttributes(designLayerLand);
                     } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(type.toUpperCase())) {
                         DesignLayerBuilding building = DesignLayerBuilding.builder()
-                                .shapeId(Long.valueOf(record.get(0)))
-                                .buildingHeight(record.get(1))
-                                .buildingFloors(record.get(2))
-                                .buildingArea(record.get(3))
-                                .complexBuilding(record.get(4))
-                                .parentId(Long.valueOf(record.get(5)))
+                                .buildId(Long.valueOf(record.get(0)))
+                                .buildHeight(record.get(1))
+                                .buildFloor(record.get(2))
+                                .buildArea(record.get(3))
+                                .buildComplex(record.get(4))
+                                .parentId(record.get(5))
                                 .build();
                         designLayerMapper.updateDesignLayerBuildingAttributes(building);
                     }

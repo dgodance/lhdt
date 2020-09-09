@@ -64,7 +64,7 @@ public class LayerController implements AuthorizationController {
         log.info("@@ layer = {}", layer);
 
         String roleCheckResult = roleValidate(request);
-        if (roleValidate(request) != null) return roleCheckResult;
+        if(roleCheckResult != null) return roleCheckResult;
 
         String today = DateUtils.getToday(FormatUtils.YEAR_MONTH_DAY);
         if (StringUtils.isEmpty(layer.getStartDate())) {
@@ -106,7 +106,7 @@ public class LayerController implements AuthorizationController {
     @GetMapping(value = "/input")
     public String input(HttpServletRequest request, Model model) {
         String roleCheckResult = roleValidate(request);
-        if (roleValidate(request) != null) return roleCheckResult;
+        if(roleCheckResult != null) return roleCheckResult;
 
         Policy policy = policyService.getPolicy();
         List<LayerGroup> layerGroupList = layerGroupService.getListLayerGroup();
@@ -127,7 +127,7 @@ public class LayerController implements AuthorizationController {
     @GetMapping(value = "/modify")
     public String modify(HttpServletRequest request, @RequestParam Integer layerId, Model model) {
         String roleCheckResult = roleValidate(request);
-        if (roleValidate(request) != null) return roleCheckResult;
+        if(roleCheckResult != null) return roleCheckResult;
 
         Policy policy = policyService.getPolicy();
         Layer layer = layerService.getLayer(layerId);

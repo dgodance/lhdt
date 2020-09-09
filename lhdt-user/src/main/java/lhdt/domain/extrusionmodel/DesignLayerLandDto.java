@@ -22,37 +22,37 @@ public class DesignLayerLandDto {
     //  design layer 그룹 고유 번호
     private Integer designLayerGroupId;
     // shape 파일 고유 번호
-    private Long shapeId;
+    private Long identificationCode;
     // 사업유형
-    private String businessType;
+    private String projectType;
     // 사업지구
-    private String businessDistrict;
+    private String projectTitle;
     // 가구번호
-    private String blockNumber;
+    private String blockCode;
     // 획지번호
-    private String landNumber;
+    private String lotCode;
     // 획지면적
-    private String landArea;
+    private String lotArea;
     // 용도지역
-    private String useageArea;
+    private String landuseZoning;
     // 토지이용
-    private String landUseage;
+    private String landusePlan;
     // 대지분할합필
-    private String landDivision;
+    private String lotDivideMarge;
     // 용도
-    private String useage;
+    private String buildingUse;
     // 용도-지정
-    private String useageSpecification;
+    private String buildingUseDefined;
     // 용도-권장
-    private String useageRecommended;
+    private String buildingUseRecommended;
     // 용도-허용
-    private String useageAllowed;
+    private String buildingUseAllowed;
     // 용도-제한
-    private String useageLimited;
+    private String buildingUseConditional;
     // 용도-불허
-    private String useageDisapproval;
+    private String buildingUseForbidden;
     // 건폐율
-    private String buildingLandRatio;
+    private String buildingCoverageRatio;
     // 용적률
     private String floorAreaRatio;
     // 용적률-기준
@@ -60,17 +60,17 @@ public class DesignLayerLandDto {
     // 용적률-허용
     private String floorAreaRatioAllowed;
     // 용적률-상한
-    private String floorAreaRatioUpperLimit;
+    private String floorAreaRatioMaximum;
     // 최고높이
-    private String highestHeight;
+    private String maximumBuildingHeight;
     // 최고층수
-    private String highestFloor;
+    private String maximumBuildingFloors;
     // 주택유형
     private String housingType;
     // 세대수
-    private String householdsNumber;
+    private String numberOfHouseholds;
     // 기준시점
-    private String standardPoint;
+    private String reference;
     // 속성
     private String properties;
     // 수정일

@@ -12,17 +12,17 @@
 	</th:block>
 </head>
 <body>
-
-<div id="errorPage" style="width: 100%; text-align: center; padding-top: 200px;">
-	<img th:src="@{/images/{lang}/no_page.png(lang=${lang},cacheVersion=${contentCacheVersion})}">
-	<div style="margin-top: 10px; font-size: 16px;">
-		<p th:text="|#{error.code} ${httpStatusCode}|" style="height: 30px;"></p>
-		<p th:text="#{error.message}" style="height: 30px;"></p>
-		<p th:text="#{error.contact.administrator}" style="height: 30px;">/p>
-		<p style="height: 30px;">&nbsp;</p>
-		<a href="/sign/signin" style="margin-top: 40px; font-size: 18px;"><b th:text="#{error.exit}"></b></a>
+<th:block layout:fragment="pageCustomContent">
+	<div id="errorPage" style="width: 100%; text-align: center; padding-top: 200px;">
+		<img th:src="@{/images/{lang}/no_page.png(lang=${lang},cacheVersion=${contentCacheVersion})}">
+		<div style="margin-top: 10px; font-size: 16px;">
+			<p th:text="|#{error.code} ${httpStatusCode}|" style="height: 30px;"></p>
+			<p th:text="#{error.message}" style="height: 30px;"></p>
+			<p th:text="#{error.contact.administrator}" style="height: 30px;">/p>
+			<p style="height: 30px;">&nbsp;</p>
+			<a href="/sign/signin" style="margin-top: 40px; font-size: 18px;"><b th:text="#{error.exit}"></b></a>
+		</div>
 	</div>
-</div>
-
+</th:block>
 </body>
 </html>

@@ -3,6 +3,7 @@ package lhdt.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lhdt.config.PropertiesConfig;
+import lhdt.domain.ConverterType;
 import lhdt.domain.LocationUdateType;
 import lhdt.domain.MethodType;
 import lhdt.domain.ServerTarget;
@@ -371,6 +372,7 @@ public class ConverterServiceImpl implements ConverterService {
 		log.info("-------------------------------------------------------");
 
 		QueueMessage queueMessage = new QueueMessage();
+		queueMessage.setConverterType(ConverterType.DATA);
 		queueMessage.setServerTarget(ServerTarget.USER);
 		queueMessage.setConverterJobId(converterJobId);
 		//queueMessage.setConverterJobFileId(inConverterJob.getConverterJobFileId());

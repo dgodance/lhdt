@@ -44,6 +44,7 @@ public class ShapeFileParser {
      * @return
      */
     public List<DesignLayer> getExtrusionModelList(ObjectMapper objectMapper, String extrusionColumns) {
+        log.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ extrusionColumns = {}", extrusionColumns);
         List<DesignLayer> extrusionModelList = new ArrayList<>();
         if(StringUtils.isEmpty(extrusionColumns)) return extrusionModelList;
 
@@ -56,15 +57,18 @@ public class ShapeFileParser {
             FeatureCollection<SimpleFeatureType, SimpleFeature> collection = shapeFeatureSource.getFeatures();
             FeatureIterator<SimpleFeature> features = collection.features();
 
+            log.info("@@@@@@@@@@@@@@@@@@@@@@@ features = {}", features);
             // 이게 한 row 같음
             while (features.hasNext()) {
                 Map<String, String> attributesMap = new HashMap<>();
 
                 SimpleFeature feature = features.next();
                 DesignLayer designLayer = new DesignLayer();
+                log.info("@@@@@@@@@@@@@@@@@@@@@@@ feature = {}", feature);
                 // 한 row의 속성들
                 for (Property attribute : feature.getProperties()) {
                     String attributeName = String.valueOf(attribute.getName()).toLowerCase();
+                    log.info("@@@@@@@@@@@@@@@@@@@@@@@ attributeName = {}", attributeName);
                     if(columnList.contains(attributeName)) {
                         // 필수 속성값일 경우
                         if(attributeName.equalsIgnoreCase(DesignLayer.RequiredColumn.THE_GEOM.getValue())) {

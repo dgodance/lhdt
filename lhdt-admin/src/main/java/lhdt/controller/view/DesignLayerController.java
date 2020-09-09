@@ -66,7 +66,7 @@ public class DesignLayerController implements AuthorizationController {
         log.info("@@ designLayer = {}", designLayer);
 
         String roleCheckResult = roleValidate(request);
-        if (roleValidate(request) != null) return roleCheckResult;
+        if(roleCheckResult != null) return roleCheckResult;
 
         String today = DateUtils.getToday(FormatUtils.YEAR_MONTH_DAY);
         if (StringUtils.isEmpty(designLayer.getStartDate())) {
@@ -107,8 +107,9 @@ public class DesignLayerController implements AuthorizationController {
      */
     @GetMapping(value = "/input")
     public String input(HttpServletRequest request, Model model) {
+
         String roleCheckResult = roleValidate(request);
-        if (roleValidate(request) != null) return roleCheckResult;
+        if(roleCheckResult != null) return roleCheckResult;
 
         Policy policy = policyService.getPolicy();
         List<UrbanGroup> urbanGroupList = urbanGroupService.getListUrbanGroup();
@@ -131,7 +132,7 @@ public class DesignLayerController implements AuthorizationController {
     @GetMapping(value = "/modify")
     public String modify(HttpServletRequest request, @RequestParam Long designLayerId, Model model) {
         String roleCheckResult = roleValidate(request);
-        if (roleValidate(request) != null) return roleCheckResult;
+        if(roleCheckResult != null) return roleCheckResult;
 
         Policy policy = policyService.getPolicy();
         DesignLayer designLayer = designLayerService.getDesignLayer(designLayerId);

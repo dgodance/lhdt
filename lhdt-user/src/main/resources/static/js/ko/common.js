@@ -367,3 +367,5 @@ function locationValidation(longitude, latitude, altitude) {
 		return false;
 	}
 }
+
+

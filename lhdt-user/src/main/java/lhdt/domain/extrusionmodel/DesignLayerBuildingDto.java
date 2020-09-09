@@ -22,17 +22,17 @@ public class DesignLayerBuildingDto {
     // design layer 그룹 고유 번호
     private Integer designLayerGroupId;
     // shape 파일 고유 번호
-    private Long shapeId;
+    private Long buildId;
     // 빌딩높이
-    private String buildingHeight;
+    private String buildHeight;
     // 빌딩층수
-    private String buildingFloors;
+    private String buildFloor;
     // 빌딩면적
-    private String buildingArea;
+    private String buildArea;
     // 복합건물 여부
-    private String complexBuilding;
+    private String buildComplex;
     // 부모식별키
-    private Long parentId;
+    private String parentId;
     // 필수 칼럼 제외한 데이터
     private String properties;
     // 수정일
