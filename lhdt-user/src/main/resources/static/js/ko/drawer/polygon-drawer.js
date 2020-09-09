@@ -38,7 +38,7 @@ var PolygonDrawer = function(viewer, handleEventEnd ,options) {
 	this.lineStyle = options.lineStyle ? options.lineStyle : {width : 3, clampToGround : true};
 	this.lineStyle.positions = this.positionCallback;
 	
-	this.polygonStyle = options.lineStyle ? options.lineStyle : {material : Cesium.Color.WHITE.withAlpha(0.7), heightReference : Cesium.HeightReference.CLAMP_TO_GROUND};
+	this.polygonStyle = options.polygonStyle ? options.polygonStyle : {material : Cesium.Color.WHITE.withAlpha(0.7), heightReference : Cesium.HeightReference.CLAMP_TO_GROUND};
 	this.polygonStyle.hierarchy = this.positionCallback;
 }
 
