@@ -44,17 +44,36 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
     }
 
     $('#heightAvgBtn').click(function() {
-        // 현부장님 마무리
-        const param = {
-            wkt: wktManager.geoByPOLYGON(_polyPoint)
-        };
+        //
+        const param = {};
+		//
+		param.geometryInfo=[];
+		for(let i=0; i<_polyPoint.length; i++){
+			let d = _polyPoint[i];
+			
+			param.geometryInfo.push({'longitude': d.lon, 'latitude': d.lat});
+		}
+		
+		
+		//
         $.ajax({
             url: "/api/geometry/intersection/datas",
             type: "POST",
-            data: param
+            data: JSON.stringify(param),
+			dataType: 'json',
+			contentType: 'application/json;charset=utf-8'
         }).done(function(data) {
-            const jsonData = JSON.parse(data);
+			if(Pp.isEmpty(data) || Pp.isEmpty(data._embedded)){
+				console.log('empty data', data);
+				return;	
+			}
+			
+			//
+			
+			
+            //const jsonData = JSON.parse(data);
 
+/*
             min = 0;
             max = jsonData.length;
             for(var p in jsonData) {
@@ -64,7 +83,9 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
                 changeColorAPI(magoInstance, obj.data_group_id, obj.data_key, null,
                     'isPhysical=true', color.r + ',' + color.g + ',' + color.b)
             }
+*/
         })
+		
     })
 
     function startDrawPolyLine() {
