@@ -4,7 +4,7 @@
 {{#if designLayerList}}
 	{{#each designLayerList}}
 		<li class="listElement">
-			<div>
+			<div data-ogctype="{{ogcWebServices}}" data-id="{{designLayerId}}" data-layername="{{designLayerKey}}">
 				{{designLayerName}}
 			</div>
 		</li>

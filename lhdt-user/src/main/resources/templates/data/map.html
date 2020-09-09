@@ -139,6 +139,9 @@
 <!--<script type="text/javascript" th:src="@{/js/{lang}/map-data.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>-->
 <!--<script type="text/javascript" th:src="@{/js/{lang}/map-data-group.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>-->
 <script type="text/javascript" th:src="@{/js/{lang}/map-data-search.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/drawer/line-drawer.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/drawer/polygon-drawer.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/extrusion.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript">
 
 	function webMercatorToCartesian3(coordinates){
@@ -228,6 +231,8 @@
 		MapDataControll(magoInstance);
 
 		NDTP.issueController = new IssueController(magoInstance);
+		
+		extrusionTools(magoInstance);
 	}
 
 	// smart tiling data flyTo
