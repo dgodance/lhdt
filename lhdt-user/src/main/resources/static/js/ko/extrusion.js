@@ -1,6 +1,4 @@
-var extrusion = function (magoInstance){
-	
-	
+var extrusionTools = function (magoInstance){
 	var magoManager = magoInstance.getMagoManager();
 	
 	var rotate = new Mago3D.RotateInteraction();
@@ -12,13 +10,24 @@ var extrusion = function (magoInstance){
 	
 	var addStaticModelByPointInteraction = new Mago3D.ClickInteraction({
 		handleUpEvent : function(e) {
-			var dataLibrary = mockDataLibrary[1];
+			var selectedElem = $('#dataLibraryDHTML li.listElement div.data-library.on');
+			var dataLibrary = selectedElem.data();
 			var cartographic = e.point.geographicCoordinate;
 			
-			if(!this.manager.isExistStaticModel(dataLibrary.projectId)) this.manager.addStaticModel(dataLibrary);
+			var model = {};
+			model.projectId = dataLibrary.id;
+			model.projectFolderName = dataLibrary.path;
+			
+			
+			//to fix
+			model.projectFolderName = model.projectFolderName.split(dataLibrary.key)[0];
+			model.projectFolderName = model.projectFolderName.replace(/\/+$/, '');
+			model.buildingFolderName = 'F4D_'+dataLibrary.key;
+			
+			if(!this.manager.isExistStaticModel(model.projectId)) this.manager.addStaticModel(model);
 			
 			this.manager.instantiateStaticModel({
-				projectId : dataLibrary.projectId,
+				projectId : model.projectId,
 				instanceId : parseInt(Math.random() * 1000),
 				longitude : cartographic.longitude,
 				latitude : cartographic.latitude,
@@ -30,7 +39,19 @@ var extrusion = function (magoInstance){
 	
 	var viewer = magoInstance.getViewer();
 	var drawDataLibararyByLine = new LineDrawer(viewer, function(linePosition) {
-		var dataLibrary = mockDataLibrary[1];
+		var selectedElem = $('#dataLibraryDHTML li.listElement div.data-library.on');
+		var dataLibrary = selectedElem.data();
+		
+		var model = {};
+		model.projectId = dataLibrary.id;
+		model.projectFolderName = dataLibrary.path;
+		
+		//to fix
+		model.projectFolderName = model.projectFolderName.split(dataLibrary.key)[0];
+		model.projectFolderName = model.projectFolderName.replace(/\/+$/, '');
+		model.buildingFolderName = 'F4D_'+dataLibrary.key;
+		
+		if(!magoManager.isExistStaticModel(model.projectId)) magoManager.addStaticModel(model);
 		
 		for(var i=0,len=linePosition.length-1;i<len;i++) {
 			var line1 = worldCoordToGeographic(linePosition[i]); 
@@ -40,7 +61,7 @@ var extrusion = function (magoInstance){
 			for(var j in dataPositions) {
 				var dataPosition = dataPositions[j];
 				magoManager.instantiateStaticModel({
-					projectId : dataLibrary.projectId,
+					projectId : model.projectId,
 					instanceId : parseInt(Math.random() * 1000),
 					longitude : dataPosition.longitude,
 					latitude : dataPosition.latitude,
@@ -81,11 +102,12 @@ var extrusion = function (magoInstance){
 	}
 
 	function extrusionModelToggle(model, on) {
-		var requestType = model.requestType;
+		var requestType = model.ogctype;
 		var toggleFunc;
 		switch(requestType) {
 			case 'wms' : toggleFunc = extrusionModelWMSToggle;break;
-			case 'wfs' : toggleFunc = (model.division === 'building') ? extrusionModelBuildingToggle : extrusionModelEntityToggle;break;
+			//case 'wfs' : toggleFunc = (model.division === 'building') ? extrusionModelBuildingToggle : extrusionModelEntityToggle;break;
+			case 'wfs' : toggleFunc = extrusionModelBuildingToggle;break;
 		}
 		
 		toggleFunc.call(this, model, on);
@@ -99,9 +121,10 @@ var extrusion = function (magoInstance){
 			    parameters : {
 			    	transparent : true,
 			    	srs:'EPSG:4326',
-			    	format: "image/png"
+			    	format: "image/png",
+			    	cql_filter : `design_layer_id=${model.id}`
 			    },
-			    layers : model.layerName
+			    layers : model.layername
 			});
 
 			var imageryLayer = new Cesium.ImageryLayer(prov/*, {alpha : 0.7}*/);
@@ -131,7 +154,8 @@ var extrusion = function (magoInstance){
 	function extrusionModelBuildingToggle(model, on) {
 		if(on) {
 			var res = wfsResource.clone();
-			res.queryParameters.typeNames = model.layerName;
+			res.queryParameters.typeNames = model.layername;
+			res.queryParameters.cql_filter = `design_layer_id=${model.id}`;
 			 
 			var loader = new Cesium.GeoJsonDataSource().load(res).then(function(e){
 				var entities = e.entities.values;
@@ -413,16 +437,51 @@ var extrusion = function (magoInstance){
 	var extrusionModelController = new ExtrusionModelController();
 	
 	function setEventHandler() {
-		$('#extrusionModel input[type="checkbox"]').change(function(){
-			var urbanId = $('#urbanName').val();
-			var modelId = $(this).val();
-			var extrusionModel = getExtrusionModelByUrbanId(urbanId, modelId);
-			
-			extrusionModelToggle(extrusionModel, $(this).prop('checked'));
+		$('#extrusionModel').on('click','#designLayerDHTML li.listElement div', function() {
+			if($(this).hasClass('on')) {
+				$(this).removeClass('on').css({
+					backgroundColor: '#ffffff'
+				});
+				extrusionModelToggle($(this).data(), false);
+			} else {
+				$(this).addClass('on').css({
+					backgroundColor: '#ff4422'
+				});
+			    
+				extrusionModelToggle($(this).data(), true);
+			}
 		});
 		
-		var dialogEMOn = false;
+		$('#dataLibrary').on('click','#dataLibraryDHTML li.listElement div.data-library', function() {
+			if($(this).hasClass('on')) {
+				$(this).removeClass('on').css({
+					backgroundColor: '#ffffff'
+				});
+			} else {
+				$('#dataLibraryDHTML li.listElement div.data-library').each(function(){
+					$(this).removeClass('on').css({
+						backgroundColor: '#ffffff'
+					});
+				});
+				$(this).addClass('on').css({
+					backgroundColor: '#ff4422'
+				});
+			}
+		});
+
+
+		/*var dialogEMOn = false;
 		var dialogDLOn = false;
+		
+		$("#designLayerToolToggle").click(function() {
+			designLayerDialog.dialog( "open" );
+			dataLibraryDialog.dialog( "close" );
+		});
+		
+		$("#dataLibraryToolToggle").click(function() {
+			dataLibraryDialog.dialog( "open" );
+			designLayerDialog.dialog( "close" );
+		});
 		$('#dataLibrary li').click(function() {
 			if(!dialogDLOn) {
 				dialogDLOn = true;
@@ -468,9 +527,18 @@ var extrusion = function (magoInstance){
 				});
 				$('#dialogExtrusion').hide();
 			}
-		});
+		});*/
 		
-		$('#dialogDataLibrary .btnGroup button[data-runtype="toggle"]').click(function(){
+		
+		
+		$('#dataLibraryDialog .btnGroup button[data-runtype="toggle"]').click(function(){
+			
+			var selected = $('#dataLibraryDHTML li.listElement div.data-library.on');
+			if(selected.length === 0) {
+				alert('선택된 라이브러리가 없습니다').
+				return;
+			}
+			
 			$(this).siblings().each(function(){
 				if($(this).hasClass('on')) {
 					offBtn($(this), dataLibraryController);
@@ -489,11 +557,11 @@ var extrusion = function (magoInstance){
 			}
 		});
 		
-		$('#dialogDataLibrary .btnGroup button[data-runtype="run"]').click(function(){
+		$('#dataLibraryDialog .btnGroup button[data-runtype="run"]').click(function(){
 			dataLibraryController[$(this).attr('id')]();
 		});
 		
-		$('#dialogExtrusion .btnGroup button[data-runtype="toggle"]').click(function(){
+		$('#designLayerDialog .btnGroup button[data-runtype="toggle"]').click(function(){
 			$(this).siblings().each(function(){
 				if($(this).hasClass('on')) {
 					offBtn($(this), extrusionModelController);
@@ -512,7 +580,7 @@ var extrusion = function (magoInstance){
 			}
 		});
 		
-		$('#dialogExtrusion .btnGroup button[data-runtype="run"]').click(function(){
+		$('#designLayerDialog .btnGroup button[data-runtype="run"]').click(function(){
 			extrusionModelController[$(this).attr('id')]();
 		});
 		
@@ -524,5 +592,32 @@ var extrusion = function (magoInstance){
 			});
 			instance[$obj.attr('id')](false);
 		}
+	}
+	
+	/**
+	 * 스크린픽셀을 월드좌표로 변경
+	 * @param screen
+	 * @returns {Mago3D.Point3D}
+	 */
+	function screenToWorldCoord(screen){
+		return Mago3D.ManagerUtils.screenCoordToWorldCoord(undefined, screen.x, screen.y, undefined, undefined, undefined, undefined, magoManager);
+	}
+
+	/**
+	 * 월드좌표를 경위도좌표로 변경
+	 * @param wc
+	 * @returns {Mago3D.GeographicCoord}
+	 */
+	function worldCoordToGeographic(wc){
+		return Mago3D.ManagerUtils.pointToGeographicCoord(wc, undefined, magoManager);
+	}
+
+	/**
+	 * 스크린픽셀을 경위도좌표로 변경
+	 * @param screen
+	 * @returns {Mago3D.Point3D}
+	 */
+	function screenToGeographicCoord(screen){
+		return worldCoordToGeographic(screenToWorldCoord(screen));
 	}
 };
