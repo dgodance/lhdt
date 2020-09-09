@@ -18,7 +18,6 @@ var extrusionTools = function (magoInstance){
 			model.projectId = dataLibrary.id;
 			model.projectFolderName = dataLibrary.path;
 			
-			
 			//to fix
 			model.projectFolderName = model.projectFolderName.split(dataLibrary.key)[0];
 			model.projectFolderName = model.projectFolderName.replace(/\/+$/, '');
@@ -235,12 +234,15 @@ var extrusionTools = function (magoInstance){
 		
 		this.deleteDataLibarary = function(on){
 			var selectionManager = magoManager.selectionManager;
-			var selectedData = magoManager.selectionManager.getSelectedF4dNode();
-			if(!selectedData) {
+			var selectedDatas = magoManager.selectionManager.getSelectedF4dNodeArray();
+			if(selectedDatas.length === 0) {
 				alert('선택된 데이터가 없습니다');
 				return;
 			}
-			magoInstance.getF4dController().deleteF4dMember(selectedData.data.projectId, selectedData.data.nodeId);
+			for(var i in selectedDatas) {
+				var selectedData = selectedDatas[i];
+				magoInstance.getF4dController().deleteF4dMember(selectedData.data.projectId, selectedData.data.nodeId);
+			}
 			magoManager.defaultSelectInteraction.clear();
 			selectionManager.clearCurrents();
 		}
@@ -421,12 +423,15 @@ var extrusionTools = function (magoInstance){
 		
 		this.deleteExtrusion = function(){
 			var selectionManager = magoManager.selectionManager;
-			var selectedData = selectionManager.getSelectedGeneral();
-			if(!selectedData) {
+			var selectedDatas = selectionManager.getSelectedGeneralArray();
+			if(selectedDatas.length === 0) {
 				alert('선택된 데이터가 없습니다');
 				return;
 			}
-			magoManager.modeler.removeObject(selectedData);
+			for(var i in selectedDatas) {
+				var selectedData = selectedDatas[i];
+				magoManager.modeler.removeObject(selectedData);
+			}
 			selectionManager.clearCurrents();
 			magoManager.defaultSelectInteraction.clear();
 		}
@@ -469,19 +474,21 @@ var extrusionTools = function (magoInstance){
 			}
 		});
 
-
-		/*var dialogEMOn = false;
-		var dialogDLOn = false;
-		
-		$("#designLayerToolToggle").click(function() {
-			designLayerDialog.dialog( "open" );
-			dataLibraryDialog.dialog( "close" );
+		$( "#designLayerDialog" ).on( "dialogclose", function( event, ui ) {
+			$('#designLayerDialog .btnGroup button[data-runtype="toggle"]').each(function(){
+				if($(this).hasClass('on')) {
+					offBtn($(this), extrusionModelController);
+				}
+			});
 		});
-		
-		$("#dataLibraryToolToggle").click(function() {
-			dataLibraryDialog.dialog( "open" );
-			designLayerDialog.dialog( "close" );
+		$( "#dataLibraryDialog" ).on( "dialogclose", function( event, ui ) {
+			$('#dataLibraryDialog .btnGroup button[data-runtype="toggle"]').each(function(){
+				if($(this).hasClass('on')) {
+					offBtn($(this), dataLibraryController);
+				}
+			});
 		});
+		/*
 		$('#dataLibrary li').click(function() {
 			if(!dialogDLOn) {
 				dialogDLOn = true;
@@ -532,7 +539,6 @@ var extrusionTools = function (magoInstance){
 		
 		
 		$('#dataLibraryDialog .btnGroup button[data-runtype="toggle"]').click(function(){
-			
 			var selected = $('#dataLibraryDHTML li.listElement div.data-library.on');
 			if(selected.length === 0) {
 				alert('선택된 라이브러리가 없습니다').
