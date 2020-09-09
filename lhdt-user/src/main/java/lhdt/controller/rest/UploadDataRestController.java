@@ -57,6 +57,7 @@ public class UploadDataRestController {
 	 * @return
 	 * @throws Exception
 	 */
+	@SuppressWarnings("unchecked")
 	@PostMapping
 	public Map<String, Object> insert(MultipartHttpServletRequest request) throws Exception {
 		Map<String, Object> result = new HashMap<>();
@@ -90,6 +91,7 @@ public class UploadDataRestController {
 		List<UploadDataFile> uploadDataFileList = new ArrayList<>();
 		Map<String, MultipartFile> fileMap = request.getFileMap();
 		
+		Map<String, Object> uploadMap = null;
 		String today = DateUtils.getToday(FormatUtils.YEAR_MONTH_DAY_TIME14);
 		
 		// 1 directory 생성
@@ -100,7 +102,6 @@ public class UploadDataRestController {
 		boolean isZipFile = false;
 		int fileCount = fileMap.values().size();
 		if(fileCount == 1) {
-			Map<String, Object> uploadMap;
 			// processAsync(policy, userId, fileMap, makedDirectory);
 			for (MultipartFile multipartFile : fileMap.values()) {
 				String[] divideNames = multipartFile.getOriginalFilename().split("\\.");
@@ -330,7 +331,8 @@ public class UploadDataRestController {
 		
 		File uploadedFile = new File(targetDirectory + multipartFile.getOriginalFilename());
 		multipartFile.transferTo(uploadedFile);
-		
+
+		Map<String, String> fileNameCoupleMap = new HashMap<>();
 		List<UploadDataFile> uploadDataFileList = new ArrayList<>();
 		// zip 파일을 압축할때 한글이나 다국어가 포함된 경우 java.lang.IllegalArgumentException: malformed input off 같은 오류가 발생. 윈도우가 CP949 인코딩으로 파일명을 저장하기 때문.
 		// Charset CP949 = Charset.forName("UTF-8");
@@ -389,13 +391,14 @@ public class UploadDataRestController {
             		String extension = null;
             		String[] divideFileName;
             		String saveFileName;
-            		
+					String coupleKey = null;
+
             		// TODO zip 파일도 확장자 validation 체크를 해야 함
             		if(directoryName == null) {
             			fileName = entry.getName();
             			divideFileName = fileName.split("\\.");
             			saveFileName = fileName;
-            			if(divideFileName != null && divideFileName.length != 0) {
+            			if(divideFileName.length != 0) {
             				extension = divideFileName[divideFileName.length - 1];
             				if(uploadTypeList.contains(extension.toLowerCase())) {
             					if(converterTypeList.contains(extension.toLowerCase())) {
@@ -427,11 +430,31 @@ public class UploadDataRestController {
                 					} else if (UploadDataType.INDOORGML.getValue().equalsIgnoreCase(dataType) && UploadDataType.GML.getValue().equalsIgnoreCase(extension)) {
                 						extension = UploadDataType.INDOORGML.getValue();
                 					}
-            						
-            						// 변환 대상 파일만 이름을 변경하고 나머지 파일은 그대로 이름 유지
-            						saveFileName = userId + "_" + today + "_" + System.nanoTime() + "." + extension;
-            						converterTarget = true;
-            						converterTargetCount++;
+
+									// Obj 파일이거나 확장자가 mtl 인 경우
+									String coupleFileName = null;
+									if(UploadDataType.OBJ.getValue().equalsIgnoreCase(dataType) || UploadDataType.MTL.getValue().equalsIgnoreCase(extension)) {
+										coupleFileName = fileNameCoupleMap.get(fileName);
+										if(StringUtils.isEmpty(coupleFileName)) {
+											// 변환 대상 파일만 이름을 변경하고 나머지 파일은 그대로 이름 유지
+											saveFileName = userId + "_" + today + "_" + System.nanoTime() + "." + extension;
+											converterTarget = true;
+											converterTargetCount++;
+
+											coupleKey = fileName.substring(0, fileName.length() - extension.length() -1);
+											fileNameCoupleMap.put(coupleKey, saveFileName);
+										} else {
+											// 변환 대상 파일만 이름을 변경하고 나머지 파일은 그대로 이름 유지
+											saveFileName = coupleFileName;
+											converterTarget = true;
+											converterTargetCount++;
+										}
+									} else {
+										// 변환 대상 파일만 이름을 변경하고 나머지 파일은 그대로 이름 유지
+										saveFileName = userId + "_" + today + "_" + System.nanoTime() + "." + extension;
+										converterTarget = true;
+										converterTargetCount++;
+									}
             					}
 	        				}
             			}
@@ -480,10 +503,31 @@ public class UploadDataRestController {
                 					} else if (UploadDataType.INDOORGML.getValue().equalsIgnoreCase(dataType) && UploadDataType.GML.getValue().equalsIgnoreCase(extension)) {
                 						extension = UploadDataType.INDOORGML.getValue();
                 					}
-            						// 변환 대상 파일만 이름을 변경하고 나머지 파일은 그대로 이름 유지
-            						saveFileName = userId + "_" + today + "_" + System.nanoTime() + "." + extension;
-                					converterTarget = true;
-                					converterTargetCount++;
+
+									// Obj 파일이거나 확장자가 mtl 인 경우
+									String coupleFileName = null;
+									if(UploadDataType.OBJ.getValue().equalsIgnoreCase(dataType) || UploadDataType.MTL.getValue().equalsIgnoreCase(extension)) {
+										coupleFileName = fileNameCoupleMap.get(fileName);
+										if(StringUtils.isEmpty(coupleFileName)) {
+											// 변환 대상 파일만 이름을 변경하고 나머지 파일은 그대로 이름 유지
+											saveFileName = userId + "_" + today + "_" + System.nanoTime() + "." + extension;
+											converterTarget = true;
+											converterTargetCount++;
+
+											coupleKey = fileName.substring(0, fileName.length() - extension.length() -1);
+											fileNameCoupleMap.put(coupleKey, saveFileName);
+										} else {
+											// 변환 대상 파일만 이름을 변경하고 나머지 파일은 그대로 이름 유지
+											saveFileName = coupleFileName;
+											converterTarget = true;
+											converterTargetCount++;
+										}
+									} else {
+										// 변환 대상 파일만 이름을 변경하고 나머지 파일은 그대로 이름 유지
+										saveFileName = userId + "_" + today + "_" + System.nanoTime() + "." + extension;
+										converterTarget = true;
+										converterTargetCount++;
+									}
             					}
 	        				} else {
 	        					// 예외 처리
@@ -498,7 +542,7 @@ public class UploadDataRestController {
                 	try ( 	InputStream inputStream = zipFile.getInputStream(entry);
                 			FileOutputStream outputStream = new FileOutputStream(directoryPath + saveFileName) ) {
                 		
-                		int bytesRead = 0;
+                		int bytesRead;
                         byte[] buffer = new byte[BUFFER_SIZE];
                         while ((bytesRead = inputStream.read(buffer, 0, BUFFER_SIZE)) != -1) {
                             size += bytesRead;
@@ -550,7 +594,7 @@ public class UploadDataRestController {
 		if(fileName == null) {
 			log.info("@@ fileName is null");
 			return "file.name.invalid";
-		} else if(fileName.indexOf("..") >= 0 || fileName.indexOf("/") >= 0) {
+		} else if(fileName.contains("..") || fileName.indexOf("/") >= 0) {
 			// TODO File.seperator 정규 표현식이 안 먹혀서 이렇게 처리함
 			log.info("@@ fileName = {}", fileName);
 			return "file.name.invalid";
