@@ -263,6 +263,7 @@ public class DesignLayerServiceImpl implements DesignLayerService {
     public void insertShapeInfo(DesignLayer designLayer, List<DesignLayer> shapeInfoList) throws Exception {
         if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
             shapeInfoList.forEach(f -> {
+                log.info("-============================================= land  {}", f);
                 f.setDesignLayerId(designLayer.getDesignLayerId());
                 f.setDesignLayerGroupId(designLayer.getDesignLayerGroupId());
                 f.setCoordinate(designLayer.getCoordinate().split(":")[1]);

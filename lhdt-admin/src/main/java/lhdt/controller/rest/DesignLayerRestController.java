@@ -224,9 +224,11 @@ public class DesignLayerRestController implements AuthorizationController {
 			}
 			// 2. 레이어 기본 정보 및 레이어 이력 정보 등록
 			updateDesignLayerMap = designLayerService.insertDesignLayer(designLayer, designLayerFileInfoList);
+			log.info("++++++++++++++++++++++++++++++++-------------------------- designLayerFileInfoList = {}", designLayerFileInfoList);
 			if (!designLayerFileInfoList.isEmpty()) {
 				// 3. geometry 정보 insert
 				List<DesignLayer> shapePropertiesList = shapeFileParser.getExtrusionModelList(objectMapper, extrusionColumns);
+				log.info("++++++++++++++++++++++++++++++++-------------------------- shapePropertiesList = {}", shapePropertiesList);
 				designLayerService.insertShapeInfo(designLayer, shapePropertiesList);
 				// 4. 속성 파일이 있다면 업데이트(geometry insert 후에 versionId 가 없는 것들 중에서 업데이트)
 				String attributeFileName = getAttributeFile(designLayerFileInfoList);
