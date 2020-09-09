@@ -1,5 +1,6 @@
 package lhdt.controller.view;
 
+import java.io.File;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -48,6 +49,12 @@ public class DataGroupController {
 		dataGroup.setOrderWord(SQLInjectSupport.replaceSqlInection(dataGroup.getOrderWord()));
 		
 		log.info("@@ dataGroup = {}", dataGroup);
+
+		// basic 디렉토리를 실수로 지웠거나 만들지 않았는지 확인
+		File basicDirectory = new File(propertiesConfig.getAdminDataServiceDir() + "basic");
+		if(!basicDirectory.exists()) {
+			basicDirectory.mkdir();
+		}
 		
 		UserSession userSession = (UserSession)request.getSession().getAttribute(Key.USER_SESSION.name());
 		dataGroup.setUserId(userSession.getUserId());
@@ -66,7 +73,13 @@ public class DataGroupController {
 	@GetMapping(value = "/input")
 	public String input(HttpServletRequest request, Model model) {
 		UserSession userSession = (UserSession)request.getSession().getAttribute(Key.USER_SESSION.name());
-		
+
+		// basic 디렉토리를 실수로 지웠거나 만들지 않았는지 확인
+		File basicDirectory = new File(propertiesConfig.getAdminDataServiceDir() + "basic");
+		if(!basicDirectory.exists()) {
+			basicDirectory.mkdir();
+		}
+
 		DataGroup dataGroup = new DataGroup();
 		dataGroup.setUserId(userSession.getUserId());
 		List<DataGroup> dataGroupList = dataGroupService.getListDataGroup(dataGroup);

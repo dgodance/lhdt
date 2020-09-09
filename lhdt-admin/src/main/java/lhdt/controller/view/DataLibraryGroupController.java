@@ -1,5 +1,6 @@
 package lhdt.controller.view;
 
+import java.io.File;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -50,6 +51,12 @@ public class DataLibraryGroupController {
 		dataLibraryGroup.setSearchWord(SQLInjectSupport.replaceSqlInection(dataLibraryGroup.getSearchWord()));
 		dataLibraryGroup.setOrderWord(SQLInjectSupport.replaceSqlInection(dataLibraryGroup.getOrderWord()));
 
+		// basic 디렉토리를 실수로 지웠거나 만들지 않았는지 확인
+		File basicDirectory = new File(propertiesConfig.getAdminDataLibraryServiceDir() + "basic");
+		if(!basicDirectory.exists()) {
+			basicDirectory.mkdir();
+		}
+
 		log.info("@@ dataLibraryGroup = {}", dataLibraryGroup);
 
 		UserSession userSession = (UserSession)request.getSession().getAttribute(Key.USER_SESSION.name());
@@ -69,6 +76,12 @@ public class DataLibraryGroupController {
 	@GetMapping(value = "/input")
 	public String input(HttpServletRequest request, Model model) {
 		UserSession userSession = (UserSession)request.getSession().getAttribute(Key.USER_SESSION.name());
+
+		// basic 디렉토리를 실수로 지웠거나 만들지 않았는지 확인
+		File basicDirectory = new File(propertiesConfig.getAdminDataLibraryServiceDir() + "basic");
+		if(!basicDirectory.exists()) {
+			basicDirectory.mkdir();
+		}
 
 		DataLibraryGroup dataLibraryGroup = new DataLibraryGroup();
 		dataLibraryGroup.setUserId(userSession.getUserId());
