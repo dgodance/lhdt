@@ -13,10 +13,10 @@ Ppmap.init = function () {
 };
 
 /**
- * @deprecated 20200902
+ * 
  */
 Ppmap.getViewer = function () {
-    return this._viewer;
+    return MAGO3D_INSTANCE.getViewer();
 }
 
 /**
@@ -48,6 +48,14 @@ Ppmap.setCursor = function(cursor){
     Ppmap.backupCursor();
     //
 	MAGO3D_INSTANCE.getViewer()._container.style.cursor = cursor;
+};
+
+
+
+/**
+ */
+Ppmap.getManager = function(){
+	return MAGO3D_INSTANCE.getMagoManager();
 };
 
 
@@ -479,7 +487,7 @@ Ppmap.zoomTo = function(entity){
 /**
  * 변환 전문
  */
-Ppmap.convert = {
+Ppmap.Convert = {
     /**
      * cartesian2 => cartesian3
      * @param {Cartesian2} ctsn2 카티시안2
@@ -541,6 +549,14 @@ Ppmap.convert = {
             'lon':Cesium.Math.toDegrees(cartographic.longitude),
             'lat': Cesium.Math.toDegrees(cartographic.latitude)
         };
-    }   
+    },
+
+	toLonLat: function(lon, lat, alt)   {
+		return {
+			'lon': lon,
+			'lat': lat,
+			'alt': (alt?alt:0),
+		}
+	}
 
 };
