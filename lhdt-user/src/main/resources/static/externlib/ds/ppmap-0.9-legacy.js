@@ -167,8 +167,8 @@ Ppmap.createPolyline = function(entityName, lonLats, option) {
  * cartesian2를 LonLat을 변환
  */
 Ppmap.cartesian2ToLonLat = function(ctsn2){
-	const cartesian = MAGO3D_INSTANCE.getViewer().scene.pickPosition(ctsn2);
-	const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+	const ctsn3 = MAGO3D_INSTANCE.getViewer().scene.pickPosition(ctsn2);
+	const cartographic = Cesium.Cartographic.fromCartesian(ctsn3);
 	
 	//
 	return Ppmap.cartoToLonLat(cartographic);
@@ -420,6 +420,49 @@ Ppmap.resetRotate = function (callbackFn) {
 
 
 /**
+ * 이벤트 삭제
+ * @param {array|string} arr 이벤트타입의 배열 또는 'all' 문자열
+ * @since 20200909 init
+ */
+Ppmap.removeInputAction = function(arrOrString){
+    if(Pp.isEmpty(arrOrString)){
+        return;
+    }
+
+    //
+    let handler = new Cesium.ScreenSpaceEventHandler(MAGO3D_INSTANCE.getViewer().scene.canvas);
+
+    //
+    if('string' === arrOrString && 'ALL' === arrOrString.toUpperCase()){
+        let arr = [];
+        arr.push(Cesium.ScreenSpaceEventType.LEFT_DOWN);
+        arr.push(Cesium.ScreenSpaceEventType.LEFT_UP);
+        arr.push(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+        arr.push(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
+        arr.push(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+        arr.push(Cesium.ScreenSpaceEventType.RIGHT_CDOWN);
+        arr.push(Cesium.ScreenSpaceEventType.RIGHT_UP);
+        arr.push(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+
+        //
+        Ppmap.removeInputAction(arr);
+        return;
+    }
+
+    //
+    for(let i=0; i<arrOrString.length; i++){
+        let eventType = arrOrString[i];
+
+        //
+        if('number' === eventType){
+            handler.removeInputAction(eventType);
+            return;
+        }        
+    }
+};
+
+
+/**
  * zoomTo with headingPitchRoll
  */
 Ppmap.zoomTo = function(entity){
@@ -431,3 +474,73 @@ Ppmap.zoomTo = function(entity){
 	//	
 	MAGO3D_INSTANCE.getViewer().zoomTo(entity, new Cesium.HeadingPitchRoll(heading, pitch, roll) );
 }
+
+
+/**
+ * 변환 전문
+ */
+Ppmap.convert = {
+    /**
+     * cartesian2 => cartesian3
+     * @param {Cartesian2} ctsn2 카티시안2
+     */
+    ctsn2ToCtsn3:function(ctsn2){
+        return MAGO3D_INSTANCE.getViewer().scene.pickPosition(ctsn2);
+    },
+
+    
+    /**
+     * cartesian2 => cartographic
+     * @param {Cartesian2} ctsn2 
+     */
+    ctsn2ToCartographic: function(ctsn2){
+        return Cesium.Cartographic.fromCartesian(this.ctsn2ToCtsn3(ctsn2));
+    },
+
+
+    /**
+     * cartesian2 => LonLat
+     * @param {Cartesian2} ctsn2 
+     */
+    ctsn2ToLonLat: function(ctsn2){
+        //
+        let ctsn3 = this.ctsn2ToCtsn3(ctsn2);
+        //
+        let cartographic = this.ctsn3ToCartographic(ctsn3);
+        //
+        return this.cartographicToLonLat(cartographic);
+    },
+
+
+    /**
+     * cartesian3 => cartographic
+     * @param {Cartesian3} ctsn3 
+     */
+    ctsn3ToCartographic: function(ctsn3){
+        return Cesium.Cartographic.fromCartesian(ctsn3);
+    },
+
+    /**
+     * cartesian3 => LonLat
+     * @param {Cartesian3} ctsn3 
+     */
+    ctsn3ToLonLat: function(ctsn3){
+        //
+        let cartographic = this.ctsn3ToCartographic(ctsn3);
+        //
+        return this.cartographicToLonLat(cartographic);
+    },
+    
+    /**
+     * cartographic => LonLat
+     * @param {Cartographic} cartographic 
+     */
+    cartographicToLonLat: function(cartographic){
+        //
+        return {
+            'lon':Cesium.Math.toDegrees(cartographic.longitude),
+            'lat': Cesium.Math.toDegrees(cartographic.latitude)
+        };
+    }   
+
+};

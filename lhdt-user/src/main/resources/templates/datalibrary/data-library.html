@@ -72,9 +72,19 @@ let ModelerObj = function(){
 	this.dataLibraryGroups = [];
 	//데이터 라이브러리 목록
 	this.dataLibraries = [];
+	//
+	this.tool = null;
 	
 	console.log(new Date(), this);
 }
+
+ModelerObj.Tool = {
+		'NONE':0,
+		'SELECT':1,
+		'POINT':2,
+		'LINE':3,
+		'DELETE':4,
+};
 
 
 /**
@@ -106,20 +116,54 @@ ModelerObj.prototype.init = function(){
  * 이벤트 핸들러
  */
 ModelerObj.prototype.setEventHandler = function(){
-	let the = this;
+	let _this = this;
 	
 	//그룹 선택박스 change
 	Ppui.change('#data-library-group', function(){
-		the.renderDatas();
+		_this.renderDatas();
 	});
 	
 	
-	//TODO 도구 - 선택 클릭
+	// 도구 - 선택 클릭
 	Ppui.click('.ds-tool-select', function(){
-		changeObjectMoveAPI(MAGO3D_INSTANCE, '0');
+		
+		//
+		let handler = new Cesium.ScreenSpaceEventHandler(MAGO3D_INSTANCE.getViewer().scene.canvas);
+		
+		//이벤트 제거
+		Ppmap.removeInputAction('all');
+		
+		//
+		_this.tool = Ppui.hasClass(this, 'active') ? ModelerObj.Tool.NONE : ModelerObj.Tool.SELECT; 		
+		//
+		Ppui.removeClass('[class*=ds-tool]', 'active');
+		//
+		if(ModelerObj.Tool.SELECT === _this.tool){
+			Ppui.addClass(this, 'active');			
+		}
+		
+		
+		//클릭 이벤트 등록
+		handler.setInputAction(function(event){
+			//이벤트 제거
+			//
+			if(ModelerObj.Tool.SELECT !== _this.tool){
+				handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+				return;	
+			}
+
+			//
+			console.log(Ppmap.convert.ctsn2ToLonLat(event.position));
+			//TODO 
+
+		}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+
+		//changeObjectMoveAPI(MAGO3D_INSTANCE, '0');
 		
 
     	//지도에서 데이터 클릭
+		/*
     	MAGO3D_INSTANCE.getMagoManager().on(Mago3D.MagoManager.EVENT_TYPE.SELECTEDF4D, function(result) {
     		var f4d = result.f4d;
     		//console.log(f4d);
@@ -154,28 +198,107 @@ ModelerObj.prototype.setEventHandler = function(){
 			//TODO 기타 추가정보
 
     	});
+		*/
 	});
 	
 	
 	//TODO 도구 - 점 클릭
 	Ppui.click('.ds-tool-create-by-point', function(){
-		Ppui.replaceClass('[class*=ds-tool]', 'textBtn', 'textBtnSub')
-		Ppui.replaceClass(this, 'textBtnSub', 'textBtn');
+		//
+		_this.tool = Ppui.hasClass(this, 'active') ? ModelerObj.Tool.NONE : ModelerObj.Tool.POINT; 		
+		//
+		Ppui.removeClass('[class*=ds-tool]', 'active');
+		//
+		if(ModelerObj.Tool.POINT === _this.tool){
+			Ppui.addClass(this, 'active');			
+		}
+		
+		//
+		Ppmap.removeInputAction('all');
+		
+		//
+		let points = [];
+		
+		//
+		let handler = new Cesium.ScreenSpaceEventHandler(MAGO3D_INSTANCE.getViewer().scene.canvas);
+		//클릭
+		handler.setInputAction(function(event){
+			if(ModelerObj.Tool.POINT !== _this.tool){
+				handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+				handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
+				return;
+			}
+			//
+			let lonLat = Ppmap.convert.ctsn2ToLonLat(event.position);
+			points.push(lonLat);
+			
+			//
+			Ppmap.createPoint('data-library-point', lonLat.lon, lonLat.lat);
+		}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+		
+		//더블클릭
+		handler.setInputAction(function(event){
+			_this.tool = ModelerObj.Tool.NONE;
+			
+			//
+			handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+			handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
+			
+			//
+			Ppui.removeClass('.ds-tool-create-by-point', 'active');
+			
+			//
+			console.log(points);
+			
+			//TODO 데이터 라이브러리 지도위에 표시
+		}, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
+		
 		
 	});
 	
 	
 	//TODO 도구 - 선 클릭
 	Ppui.click('.ds-tool-create-by-line', function(){
-		Ppui.replaceClass('[class*=ds-tool]', 'textBtn', 'textBtnSub')
-		Ppui.replaceClass(this, 'textBtnSub', 'textBtn');
-		
+		//
+		_this.tool = Ppui.hasClass(this, 'active') ? ModelerObj.Tool.NONE : ModelerObj.Tool.LINE; 		
+		//
+		Ppui.removeClass('[class*=ds-tool]', 'active');
+		//
+		if(ModelerObj.Tool.LINE === _this.tool){
+			Ppui.addClass(this, 'active');			
+		}
+			
 	});
 	
 	//TODO 도구 - 지우기 클릭
 	Ppui.click('.ds-tool-delete', function(){
-		Ppui.replaceClass('[class*=ds-tool]', 'textBtn', 'textBtnSub')
-		Ppui.replaceClass(this, 'textBtnSub', 'textBtn');
+		//
+		_this.tool = Ppui.hasClass(this, 'active') ? ModelerObj.Tool.NONE : ModelerObj.Tool.DELETE; 		
+		//
+		Ppui.removeClass('[class*=ds-tool]', 'active');
+		//
+		if(ModelerObj.Tool.DELETE === _this.tool){
+			Ppui.addClass(this, 'active');			
+		}
+		
+		//
+		//
+		let handler = new Cesium.ScreenSpaceEventHandler(MAGO3D_INSTANCE.getViewer().scene.canvas);
+		
+		//이벤트 제거
+		Ppmap.removeInputAction('all');
+		
+		//
+		handler.setInputAction(function(event){
+			if(ModelerObj.Tool.DELETE !== _this.tool){
+				handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+				return;
+			}
+			
+			//TODO 클릭된 위치의 데이터 라이브러리 조회
+			//TODO 삭제
+			
+		}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 	});
 	
 	
@@ -388,6 +511,7 @@ ModelerObj.prototype.renderDatas = function(pageNo){
 	let pagedDatas = _paging(datas, pageJson);
 	//데이터 표시
 	_renderDatas(pagedDatas);
+	
 	
 	//페이징 html 표시
 	DS.pagination(datas.length, (pageNo?pageNo:1), $('.pagination'), function(_pageNo){

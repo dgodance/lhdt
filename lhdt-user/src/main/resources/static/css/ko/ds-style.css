@@ -12,3 +12,5 @@
 
 .text-left {text-align:left  !important;}
 .text-center {text-align:center  !important;}
+
+button.textBtnSub.active {background-color:#636363; color:white; font-weight:bold;}
