@@ -456,9 +456,10 @@ var extrusionTools = function (magoInstance){
 							var fbs2CenterWC = tmat2.transformPoint3D(fbs2.centerPoint);
 							
 							var faceDistance = fbs1CenterWC.distToPoint(fbs2CenterWC) - fbs1.r - fbs2.r;
-							if(minFaceDistance > surfaceDistance) {
+							if(minFaceDistance > faceDistance) {
 								face1 = f1;
 								face2 = f2;
+								minFaceDistance = faceDistance;
 							}
 						}
 					}
@@ -608,7 +609,7 @@ var extrusionTools = function (magoInstance){
 		$('#dataLibraryDialog .btnGroup button[data-runtype="toggle"]').click(function(){
 			var selected = $('#dataLibraryDHTML li.listElement div.data-library.on');
 			if(selected.length === 0) {
-				alert('선택된 라이브러리가 없습니다').
+				alert('선택된 라이브러리가 없습니다');
 				return;
 			}
 			
