@@ -532,7 +532,7 @@ DesignLayerObj.prototype.processToolIntersection = function() {
                    lotArr.push(obj[0])
                    lotArr.push(obj[1])
                }
-               console.log(lotArr)
+               //console.log(lotArr)
                const lotCart = Cesium.Cartesian3.fromDegreesArray(lotArr)
 
                const builds = res._embedded.designLayerBuildings;
@@ -551,7 +551,7 @@ DesignLayerObj.prototype.processToolIntersection = function() {
                        height: obj.buildFloor
                    };
                    sumArea += buildsMap[obj.designLayerBuildingId].area;
-                   console.log(buildsMap)
+                   //console.log(buildsMap)
                }
 
                const buildFloorAreaParam = [];
@@ -830,7 +830,7 @@ DesignLayerObj.prototype.processToolSelect = function(){
     _this.handler.setInputAction(function(event){
          // 선택된 데이터 라이브러리 정보 추출
          let nodes = Ppmap.getManager().selectionManager.getSelectedGeneralArray();
-         console.log(nodes);
+         //console.log(nodes);
 
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 

@@ -17,7 +17,6 @@ let ModelerObj = function(){
 	//
 	this.handler = null;
 	
-	console.log(new Date(), this);
 }
 
 /**
