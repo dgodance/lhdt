@@ -868,7 +868,7 @@ ModelerObj.prototype.renderDatas = function(pageNo){
 	
 	
 	//페이징 html 표시
-	DS.pagination(datas.length, (pageNo?pageNo:1), $('.pagination'), function(_pageNo){
+	DS.pagination(datas.length, (pageNo?pageNo:1), $('div.ds-modeler .pagination'), function(_pageNo){
 		//console.log(_pageNo);
 		_this.renderDatas(_pageNo);
 	});
