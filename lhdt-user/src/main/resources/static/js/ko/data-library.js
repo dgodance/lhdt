@@ -633,13 +633,10 @@ ModelerObj.prototype.processToolDelete = function(){
 			console.log('선택된 데이터가 없습니다');
 			return;
 		}
-		try{
-			MAGO3D_INSTANCE.getF4dController().deleteF4dMember(selectedData.data.projectId, selectedData.data.nodeId);
-			Ppmap.getManager().defaultSelectInteraction.clear();
-			selectionManager.clearCurrents();
-		}catch(e){
-			console.log(e);
-		}
+
+		MAGO3D_INSTANCE.getF4dController().deleteF4dMember(selectedData.data.projectId, selectedData.data.nodeId);
+		Ppmap.getManager().defaultSelectInteraction.clear();
+		selectionManager.clearCurrents();
 		
 	}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
@@ -648,7 +645,7 @@ ModelerObj.prototype.processToolDelete = function(){
 	_this.handler.setInputAction(function(){
 		_this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
 		_this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-		Ppmap.getManager().defaultSelectInteraction.setActive(true);
+		Ppmap.getManager().defaultSelectInteraction.setActive(false);
 		//
 		_this.setTool(ModelerObj.Tool.NONE);
 	}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
