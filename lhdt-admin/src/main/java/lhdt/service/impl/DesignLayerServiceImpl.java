@@ -24,6 +24,7 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -608,26 +609,35 @@ public class DesignLayerServiceImpl implements DesignLayerService {
 	private HttpStatus getDesignLayerStatus(GeoPolicy geopolicy, String designLayerKey) {
 		HttpStatus httpStatus = null;
 		try {
-			HttpHeaders headers = new HttpHeaders();
-			headers.setContentType(MediaType.TEXT_XML);
-			// geoserver basic 암호화 아이디:비밀번호 를 base64로 encoding
-			headers.add("Authorization", "Basic " + Base64.getEncoder()
-					.encodeToString((geopolicy.getGeoserverUser() + ":" + geopolicy.getGeoserverPassword()).getBytes()));
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.TEXT_XML);
+            // geoserver basic 암호화 아이디:비밀번호 를 base64로 encoding
+            headers.add("Authorization", "Basic " + Base64.getEncoder()
+                    .encodeToString((geopolicy.getGeoserverUser() + ":" + geopolicy.getGeoserverPassword()).getBytes()));
 
-			List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
-			// Add the String Message converter
-			messageConverters.add(new StringHttpMessageConverter());
-			// Add the message converters to the restTemplate
-			RestTemplate restTemplate = new RestTemplate();
-			restTemplate.setMessageConverters(messageConverters);
+            List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
+            // Add the String Message converter
+            messageConverters.add(new StringHttpMessageConverter());
+            // Add the message converters to the restTemplate
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.setMessageConverters(messageConverters);
 
-			HttpEntity<String> entity = new HttpEntity<>(headers);
-			String url = geopolicy.getGeoserverDataUrl() + "/rest/workspaces/" + geopolicy.getGeoserverDataWorkspace()
-					+ "/datastores/" + geopolicy.getGeoserverDataStore() + "/featuretypes/" + designLayerKey;
-			log.info("-------- url = {}", url);
-			ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
-			httpStatus = response.getStatusCode();
-			log.info("-------- designLayerKey = {}, statusCode = {}, body = {}", designLayerKey, response.getStatusCodeValue(), response.getBody());
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+            String url = geopolicy.getGeoserverDataUrl() + "/rest/workspaces/" + geopolicy.getGeoserverDataWorkspace()
+                    + "/datastores/" + geopolicy.getGeoserverDataStore() + "/featuretypes/" + designLayerKey;
+            log.info("-------- url = {}", url);
+            ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+            httpStatus = response.getStatusCode();
+            log.info("-------- designLayerKey = {}, statusCode = {}, body = {}", designLayerKey, response.getStatusCodeValue(), response.getBody());
+        }
+         catch(HttpClientErrorException e) {
+             String message = e.getMessage();
+             if (message.indexOf("404") >= 0) {
+                 httpStatus = HttpStatus.NOT_FOUND;
+             } else {
+                 LogMessageSupport.printMessage(e, "-------- HttpClientErrorException message = {}", message);
+                 httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+             }
 		} catch (RestClientException e) {
 		    LogMessageSupport.printMessage(e, "-------- RestClientException message = {}", e.getMessage());
 			String message = e.getMessage();
@@ -703,7 +713,7 @@ public class DesignLayerServiceImpl implements DesignLayerService {
             // 클라이언트가 request에 실어 보내는 데이타(body)의 형식(MediaType)를 표현
             headers.setContentType(MediaType.TEXT_XML);
             // geoserver basic 암호화 아이디:비밀번호 를 base64로 encoding
-            headers.add("Authorization", "Basic " + Base64.getEncoder().encodeToString( (geopolicy.getGeoserverUser() + ":" + geopolicy.getGeoserverPassword()).getBytes()));
+            headers.add("Authorization", "Basic " + Base64.getEncoder().encodeToString((geopolicy.getGeoserverUser() + ":" + geopolicy.getGeoserverPassword()).getBytes()));
 
             List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
             //Add the String Message converter
@@ -717,6 +727,15 @@ public class DesignLayerServiceImpl implements DesignLayerService {
             ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
             httpStatus = response.getStatusCode();
             log.info("-------- getDesignLayerStyle styleName = {}, statusCode = {}, body = {}", designLayerKey, response.getStatusCodeValue(), response.getBody());
+        }
+         catch(HttpClientErrorException e) {
+             String message = e.getMessage();
+             if (message.indexOf("404") >= 0) {
+                 httpStatus = HttpStatus.NOT_FOUND;
+             } else {
+                 LogMessageSupport.printMessage(e, "-------- HttpClientErrorException message = {}", message);
+                 httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+             }
         } catch (RestClientException e) {
             LogMessageSupport.printMessage(e, "-------- RestClientException message = {}", e.getMessage());
 			String message = e.getMessage();
@@ -749,35 +768,44 @@ public class DesignLayerServiceImpl implements DesignLayerService {
 		String layerStyleFileData = null;
 		HttpStatus httpStatus = null;
 		try {
-			GeoPolicy geopolicy = geoPolicyService.getGeoPolicy();
+            GeoPolicy geopolicy = geoPolicyService.getGeoPolicy();
 
-			RestTemplate restTemplate = new RestTemplate();
+            RestTemplate restTemplate = new RestTemplate();
 
-			HttpHeaders headers = new HttpHeaders();
-			// 클라이언트가 서버에 어떤 형식(MediaType)으로 달라는 요청을 할 수 있는데 이게 Accpet 헤더를 뜻함.
-			List<MediaType> acceptList = new ArrayList<>();
-			acceptList.add(MediaType.TEXT_XML);
-			headers.setAccept(acceptList);
+            HttpHeaders headers = new HttpHeaders();
+            // 클라이언트가 서버에 어떤 형식(MediaType)으로 달라는 요청을 할 수 있는데 이게 Accpet 헤더를 뜻함.
+            List<MediaType> acceptList = new ArrayList<>();
+            acceptList.add(MediaType.TEXT_XML);
+            headers.setAccept(acceptList);
 
-			// 클라이언트가 request에 실어 보내는 데이타(body)의 형식(MediaType)를 표현
-			headers.setContentType(MediaType.TEXT_XML);
-			// geoserver basic 암호화 아이디:비밀번호 를 base64로 encoding
-			headers.add("Authorization", "Basic " + Base64.getEncoder()
-					.encodeToString((geopolicy.getGeoserverUser() + ":" + geopolicy.getGeoserverPassword()).getBytes()));
+            // 클라이언트가 request에 실어 보내는 데이타(body)의 형식(MediaType)를 표현
+            headers.setContentType(MediaType.TEXT_XML);
+            // geoserver basic 암호화 아이디:비밀번호 를 base64로 encoding
+            headers.add("Authorization", "Basic " + Base64.getEncoder()
+                    .encodeToString((geopolicy.getGeoserverUser() + ":" + geopolicy.getGeoserverPassword()).getBytes()));
 
-			List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
-			// Add the String Message converter
-			messageConverters.add(new StringHttpMessageConverter());
-			// Add the message converters to the restTemplate
-			restTemplate.setMessageConverters(messageConverters);
+            List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
+            // Add the String Message converter
+            messageConverters.add(new StringHttpMessageConverter());
+            // Add the message converters to the restTemplate
+            restTemplate.setMessageConverters(messageConverters);
 
-			HttpEntity<String> entity = new HttpEntity<>(headers);
+            HttpEntity<String> entity = new HttpEntity<>(headers);
 
-			String url = geopolicy.getGeoserverDataUrl() + "/rest/styles/" + geometryType.toLowerCase() + ".sld";
-			ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
-			httpStatus = response.getStatusCode();
-			layerStyleFileData = response.getBody().toString();
-			log.info("-------- getLayerDefaultStyleFileData geometry type = {}, statusCode = {}, body = {}", geometryType, response.getStatusCodeValue(), response.getBody());
+            String url = geopolicy.getGeoserverDataUrl() + "/rest/styles/" + geometryType.toLowerCase() + ".sld";
+            ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+            httpStatus = response.getStatusCode();
+            layerStyleFileData = response.getBody().toString();
+            log.info("-------- getLayerDefaultStyleFileData geometry type = {}, statusCode = {}, body = {}", geometryType, response.getStatusCodeValue(), response.getBody());
+        }
+         catch(HttpClientErrorException e) {
+             String message = e.getMessage();
+             if (message.indexOf("404") >= 0) {
+                 httpStatus = HttpStatus.NOT_FOUND;
+             } else {
+                 LogMessageSupport.printMessage(e, "-------- HttpClientErrorException message = {}", message);
+                 httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+             }
 		} catch (RestClientException e) {
 		    LogMessageSupport.printMessage(e, "-------- RestClientException message = {}", e.getMessage());
 			String message = e.getMessage();
@@ -809,47 +837,56 @@ public class DesignLayerServiceImpl implements DesignLayerService {
 		String layerStyleFileData = null;
 		HttpStatus httpStatus = null;
 		try {
-			GeoPolicy geopolicy = geoPolicyService.getGeoPolicy();
-			DesignLayer designLayer = designLayerMapper.getDesignLayer(designLayerId);
+            GeoPolicy geopolicy = geoPolicyService.getGeoPolicy();
+            DesignLayer designLayer = designLayerMapper.getDesignLayer(designLayerId);
 
-			RestTemplate restTemplate = new RestTemplate();
+            RestTemplate restTemplate = new RestTemplate();
 
-			HttpHeaders headers = new HttpHeaders();
-			// 클라이언트가 서버에 어떤 형식(MediaType)으로 달라는 요청을 할 수 있는데 이게 Accpet 헤더를 뜻함.
-			List<MediaType> acceptList = new ArrayList<>();
-			acceptList.add(MediaType.TEXT_XML);
-			headers.setAccept(acceptList);
+            HttpHeaders headers = new HttpHeaders();
+            // 클라이언트가 서버에 어떤 형식(MediaType)으로 달라는 요청을 할 수 있는데 이게 Accpet 헤더를 뜻함.
+            List<MediaType> acceptList = new ArrayList<>();
+            acceptList.add(MediaType.TEXT_XML);
+            headers.setAccept(acceptList);
 
-			// 클라이언트가 request에 실어 보내는 데이타(body)의 형식(MediaType)를 표현
-			headers.setContentType(MediaType.TEXT_XML);
-			// geoserver basic 암호화 아이디:비밀번호 를 base64로 encoding
-			headers.add("Authorization", "Basic " + Base64.getEncoder()
-					.encodeToString((geopolicy.getGeoserverUser() + ":" + geopolicy.getGeoserverPassword()).getBytes()));
+            // 클라이언트가 request에 실어 보내는 데이타(body)의 형식(MediaType)를 표현
+            headers.setContentType(MediaType.TEXT_XML);
+            // geoserver basic 암호화 아이디:비밀번호 를 base64로 encoding
+            headers.add("Authorization", "Basic " + Base64.getEncoder()
+                    .encodeToString((geopolicy.getGeoserverUser() + ":" + geopolicy.getGeoserverPassword()).getBytes()));
 
-			List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
-			// Add the String Message converter
-			messageConverters.add(new StringHttpMessageConverter());
-			// Add the message converters to the restTemplate
-			restTemplate.setMessageConverters(messageConverters);
+            List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
+            // Add the String Message converter
+            messageConverters.add(new StringHttpMessageConverter());
+            // Add the message converters to the restTemplate
+            restTemplate.setMessageConverters(messageConverters);
 
-			HttpEntity<String> entity = new HttpEntity<>(headers);
+            HttpEntity<String> entity = new HttpEntity<>(headers);
 
-			String url = geopolicy.getGeoserverDataUrl() + "/rest/workspaces/" + geopolicy.getGeoserverDataWorkspace() + "/styles/" + designLayer.getDesignLayerKey() + ".sld";
-			ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
-			httpStatus = response.getStatusCode();
-			layerStyleFileData = response.getBody().toString();
-			log.info("-------- designLayerKey = {}, statusCode = {}, body = {}", designLayer.getDesignLayerKey(), response.getStatusCodeValue(), response.getBody());
+            String url = geopolicy.getGeoserverDataUrl() + "/rest/workspaces/" + geopolicy.getGeoserverDataWorkspace() + "/styles/" + designLayer.getDesignLayerKey() + ".sld";
+            ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+            httpStatus = response.getStatusCode();
+            layerStyleFileData = response.getBody().toString();
+            log.info("-------- designLayerKey = {}, statusCode = {}, body = {}", designLayer.getDesignLayerKey(), response.getStatusCodeValue(), response.getBody());
+
+        } catch(HttpClientErrorException e) {
+            String message = e.getMessage();
+            if (message.indexOf("404") >= 0) {
+                httpStatus = HttpStatus.NOT_FOUND;
+            } else {
+                LogMessageSupport.printMessage(e, "-------- HttpClientErrorException message = {}", message);
+                httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+            }
 		} catch (RestClientException e) {
-		    LogMessageSupport.printMessage(e, "-------- RestClientException message = {}", e.getMessage());
-			String message = e.getMessage();
+            String message = e.getMessage();
+            LogMessageSupport.printMessage(e, "-------- RestClientException message = {}", message);
 			if (message.indexOf("404") >= 0) {
 				httpStatus = HttpStatus.NOT_FOUND;
 			} else {
 				httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
 			}
 		} catch (Exception e) {
-		    LogMessageSupport.printMessage(e, "-------- exception message = {}", e.getMessage());
-			String message = e.getMessage();
+            String message = e.getMessage();
+            LogMessageSupport.printMessage(e, "-------- exception message = {}", message);
 			if (message.indexOf("404") >= 0) {
 				httpStatus = HttpStatus.NOT_FOUND;
 			} else {

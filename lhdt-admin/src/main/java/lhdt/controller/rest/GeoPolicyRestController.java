@@ -1,32 +1,13 @@
 package lhdt.controller.rest;
 
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import lombok.extern.slf4j.Slf4j;
 import lhdt.config.CacheConfig;
+import lhdt.domain.Key;
 import lhdt.domain.cache.CacheName;
 import lhdt.domain.cache.CacheParams;
 import lhdt.domain.cache.CacheType;
 import lhdt.domain.data.DataInfo;
-import lhdt.domain.policy.GeoPolicy;
-import lhdt.domain.Key;
 import lhdt.domain.layer.LayerGroup;
+import lhdt.domain.policy.GeoPolicy;
 import lhdt.domain.user.UserPolicy;
 import lhdt.domain.user.UserSession;
 import lhdt.service.DataService;
@@ -34,6 +15,18 @@ import lhdt.service.GeoPolicyService;
 import lhdt.service.LayerGroupService;
 import lhdt.service.UserPolicyService;
 import lhdt.support.LayerDisplaySupport;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -166,6 +159,32 @@ public class GeoPolicyRestController {
 		result.put("message", message);
 		return result;
     }
+
+	@PostMapping(value = "/design-layer/{geoPolicyId:[0-9]+}")
+	public Map<String, Object> updateDesignLayer(@Valid GeoPolicy geoPolicy, @PathVariable Long geoPolicyId, BindingResult bindingResult) {
+		Map<String, Object> result = new HashMap<>();
+		String errorCode = null;
+		String message = null;
+
+		if(bindingResult.hasErrors()) {
+			message = bindingResult.getAllErrors().get(0).getDefaultMessage();
+			log.info("@@@@@ message = {}", message);
+			result.put("statusCode", HttpStatus.BAD_REQUEST.value());
+			result.put("errorCode", errorCode);
+			result.put("message", message);
+			return result;
+		}
+		geoPolicy.setGeoPolicyId(geoPolicyId);
+		geoPolicyService.updateGeoPolicyDesignLayer(geoPolicy);
+		int statusCode = HttpStatus.OK.value();
+
+		reloadCache();
+
+		result.put("statusCode", statusCode);
+		result.put("errorCode", errorCode);
+		result.put("message", message);
+		return result;
+	}
 
 	private void reloadCache() {
 		CacheParams cacheParams = new CacheParams();

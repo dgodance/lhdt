@@ -36,8 +36,8 @@ create table geopolicy(
 	geoserver_terrainprovider_parameters_format			varchar(30),
 
 	init_camera_enable									boolean				default true,
-	init_latitude										varchar(30)			default '37.521168',
-	init_longitude										varchar(30)			default '126.924185',
+	init_latitude										varchar(30)			default '37.44959387479118',
+	init_longitude										varchar(30)			default '127.01288139968887',
 	init_altitude										varchar(30)			default '3000.0',
 	init_duration										integer				default 3,
 	init_default_terrain								varchar(64),
