@@ -347,15 +347,9 @@ ModelerObj.prototype.processToolMove = function(){
 	
 	//클릭 이벤트 등록
 	_this.handler.setInputAction(function(event){
-		//이벤트 제거
-		//
-		// if(ModelerObj.Tool.MOVE !== _this.getTool()){
-		// 	//
-		// 	_this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-		// 	//
-		// 	Ppmap.getManager().defaultSelectInteraction.setActive(false);
-		// 	return;	
-		// }
+		if(!_this.isTool(ModelerObj.Tool.MOVE)){
+			return;
+		}
 		
 		//TODO 선택된 데이터 라이브러리 정보 추출
 
@@ -392,14 +386,9 @@ ModelerObj.prototype.processToolSelect = function(){
 	
 	//클릭 이벤트 등록
 	_this.handler.setInputAction(function(event){
-		//이벤트 제거
-		//
-		// if(ModelerObj.Tool.SELECT !== _this.getTool()){
-		// 	//
-		// 	_this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-		// 	//
-		// 	Ppmap.getManager().defaultSelectInteraction.setActive(false);
-		// }
+		if(!_this.isTool(ModelerObj.Tool.SELECT)){
+			return;
+		}
 		
         // 선택된 데이터 라이브러리 정보 추출
         let nodes = Ppmap.getManager().selectionManager.getSelectedF4dNodeArray();
@@ -433,11 +422,9 @@ ModelerObj.prototype.processToolPoint = function(){
 	_this.handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
 	//클릭
 	_this.handler.setInputAction(function(event){
-		// if(ModelerObj.Tool.POINT !== _this.getTool()){
-		// 	_this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-		// 	_this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-		// 	return;
-		// }
+		if(!_this.isTool(ModelerObj.Tool.POINT)){
+			return;
+		}
 		//
 		let lonLat = Ppmap.Convert.ctsn2ToLonLat(event.position);
 		
@@ -507,12 +494,9 @@ ModelerObj.prototype.processToolLine = function(){
 
 	//클릭
 	_this.handler.setInputAction(function(event){
-		// if(ModelerObj.Tool.LINE !== _this.getTool()){
-		// 	_this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-		// 	_this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-		// 	_this.handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-		// 	return;
-		// }
+		if(!_this.isTool(ModelerObj.Tool.LINE)){
+			return;
+		}
 
 		//
 		let lonLat = Ppmap.Convert.ctsn2ToLonLat(event.position);
@@ -619,12 +603,9 @@ ModelerObj.prototype.processToolDelete = function(){
 	
 	//왼쪽
 	_this.handler.setInputAction(function(event){
-		// if(ModelerObj.Tool.DELETE !== _this.getTool()){
-		// 	_this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-		// 	//
-		// 	Ppmap.getManager().defaultSelectInteraction.setActive(false);
-		// 	return;
-		// }
+		if(!_this.isTool(ModelerObj.Tool.DELETE)){
+			return;
+		}
 		
 		
 		var selectionManager = Ppmap.getManager().selectionManager;
