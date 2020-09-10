@@ -626,6 +626,7 @@ SkylineObj.prototype.drawLine = function(xyz1, xyz2){
 
 
 /**
+ * 갓도 수정..
  * flyTo & 캡처후 콜백함수 호출
  * @param {LonLatAlt} xyz
  * @param {ViewPoint} gbn
@@ -642,7 +643,7 @@ SkylineObj.prototype.flyToAndCapture = function(gbn, callbackFn){
 	const hpr = new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(heading), Cesium.Math.toRadians(0), Cesium.Math.toRadians(0));
 	
 	//
-	Ppmap.flyTo(xyz, hpr, {'duration':0.5}, function(){
+	Ppmap.flyTo(xyz, hpr, {'duration':3}, function(){
 		//
 		the.captureMap(function(blob){
 			//

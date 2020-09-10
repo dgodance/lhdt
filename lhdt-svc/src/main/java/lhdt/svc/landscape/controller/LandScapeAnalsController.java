@@ -217,12 +217,16 @@ public class LandScapeAnalsController extends SvcController {
 					if(this.lsAnalsPredictType == LSAnalsPredictType.스카이라인) {
 						reqEntity = MultipartEntityBuilder.create()
 								.addPart("image", new FileBody(path.resolve(filename).toFile()))
+								.addPart("color", new StringBody("ff8da7", org.apache.http.entity.ContentType.TEXT_PLAIN))
+								.addPart("thickness", new StringBody("7", org.apache.http.entity.ContentType.TEXT_PLAIN))
 								.addPart("format", new StringBody("base64", org.apache.http.entity.ContentType.TEXT_PLAIN))
 								.addPart("command", new StringBody("skyline_detection", org.apache.http.entity.ContentType.TEXT_PLAIN))
 								.build();
 					} else {
 						reqEntity = MultipartEntityBuilder.create()
 								.addPart("image", new FileBody(path.resolve(filename).toFile()))
+								.addPart("color", new StringBody("ff8da7", org.apache.http.entity.ContentType.TEXT_PLAIN))
+								.addPart("thickness", new StringBody("7", org.apache.http.entity.ContentType.TEXT_PLAIN))
 								.addPart("format", new StringBody("base64", org.apache.http.entity.ContentType.TEXT_PLAIN))
 								.addPart("command", new StringBody("view_shielding_rate", org.apache.http.entity.ContentType.TEXT_PLAIN))
 								.build();

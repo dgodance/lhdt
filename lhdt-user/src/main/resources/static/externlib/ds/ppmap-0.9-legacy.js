@@ -416,6 +416,7 @@ Ppmap.toCartesian3 = function () {
 * 지도 방향? 초기화
 */
 Ppmap.resetRotate = function (callbackFn) {
+    debugger;
 	let json={};
 	json.destination = MAGO3D_INSTANCE.getViewer().scene.camera.positionWC;
 	json.duration = 1;

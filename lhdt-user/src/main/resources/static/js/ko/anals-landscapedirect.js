@@ -147,12 +147,13 @@ var AnalsLandScapeDirection = function(viewer, magoInstance) {
 
 
     function drawLandScapePoint(pos) {
+        debugger;
         return viewer.entities.add({
             position: new Cesium.Cartesian3.fromDegrees(pos.long, pos.lat, pos.alt),
             ellipsoid: {
                 radii: new Cesium.Cartesian3(10, 10, 10),
-                material: Cesium.Color.RED,
-            },
+                color : new Cesium.Color(255/255, 145/255, 143/255, 0.7),
+            }
         });
     }
 
@@ -161,10 +162,10 @@ var AnalsLandScapeDirection = function(viewer, magoInstance) {
         polygonEntitiy = viewer.entities.add({
             polygon : {
                 hierarchy : polyPosi,
-                material : Cesium.Color.RED.withAlpha(0.5),
+                material : new Cesium.Color(179/255, 216/255, 254/255, 0.7),
                 perPositionHeight: true,
                 outline : true,
-                outlineColor : Cesium.Color.BLACK
+                outlineColor : new Cesium.Color(179/255, 216/255, 254/255, 1),
             }
         });
     }
@@ -191,7 +192,7 @@ var AnalsLandScapeDirection = function(viewer, magoInstance) {
                 width: 10,
                 // clampToGround: true,
                 material: new Cesium.PolylineOutlineMaterialProperty({
-                    color: Cesium.Color.YELLOW,
+                    color: new Cesium.Color(179/255, 216/255, 254/255, 0.7)
                 })
             },
         });

@@ -17,10 +17,13 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
 
     $('#heightAvgToggle').change(function() {
         if($('#heightAvgToggle').is(':checked')) {
+            toastr.info('지도상에서 여러 점을 클릭하시기 바랍니다.');
             drawingMode = 'heightAvgAnals';
             startDrawPolyLine();
         } else {
             drawingMode = "";
+            deleteAllChangeColorAPI(magoInstance);
+            changeLightingAPI(MAGO3D_INSTANCE, 0.7);
         }
     })
 
@@ -33,9 +36,9 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
             };
         }
 
-        var left = { r: 255, g: 0, b: 0 },
-            middle = { r: 0, g: 255, b: 0 },
-            right = { r: 0, g: 0, b: 255 },
+        var left = { r: 127, g: 191, b: 253 },
+            middle = { r: 246, g: 128, b: 251 },
+            right = { r: 250, g: 134, b: 127 },
             mid = (max - min) / 2;
 
         return v < min + mid ?
@@ -43,13 +46,12 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
             getC((v - min - mid) / mid, middle, right);
     }
 
-    $('#heightAvgBtn').click(function() {
-        //
-		const geometryInfo = [];
-		for(let i=0; i<_polyPoint.length; i++){
-			let d = _polyPoint[i];
+    function analsHeight() {
+        const geometryInfo = [];
+        for(let i=0; i<_polyPoint.length; i++){
+            let d = _polyPoint[i];
             geometryInfo.push({'longitude': d.lon, 'latitude': d.lat});
-		}
+        }
         let d = _polyPoint[0];
         geometryInfo.push({'longitude': d.lon, 'latitude': d.lat});
 
@@ -57,18 +59,18 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
             geometryInfo: geometryInfo
         };
 
-		//
+        //
         $.ajax({
             url: "/api/geometry/intersection/datas",
             type: "POST",
             data: JSON.stringify(param),
-			dataType: 'json',
-			contentType: 'application/json;charset=utf-8'
+            dataType: 'json',
+            contentType: 'application/json;charset=utf-8'
         }).done(function(data) {
-			if(Pp.isEmpty(data) || Pp.isEmpty(data._embedded)){
-				console.log('empty data', data);
-				return;	
-			}
+            if(Pp.isEmpty(data) || Pp.isEmpty(data._embedded)){
+                console.log('empty data', data);
+                return;
+            }
 
             const dataInfos = data._embedded.dataInfos;
             min = 0;
@@ -78,11 +80,11 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
                 const color = getColor(p, min, max);
                 console.log(color);
                 // data_group_id = 2, master datakey = MasterPlan
-                changeColorAPI(magoInstance, obj.dataGroupId, obj.dataKey, null,
+                changeColorAPI(magoInstance, obj.dataGroupId,  'F4D_'+ obj.dataKey, null,
                     'isPhysical=true', color.r + ',' + color.g + ',' + color.b)
             }
         })
-    })
+    }
 
     function startDrawPolyLine() {
         handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
@@ -135,7 +137,10 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
         handler.setInputAction(function (event) {
             if(drawingMode === 'heightAvgAnals') {
                 terminateShape();
+                analsHeight();
+                changeLightingAPI(MAGO3D_INSTANCE, 0.4);
                 $('#heightAvgToggle').click();
+                toastr.info('평균 높이 분석을 시작합니다');
             }
         }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
     }
