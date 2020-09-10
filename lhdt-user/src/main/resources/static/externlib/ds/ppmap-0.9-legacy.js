@@ -548,7 +548,9 @@ Ppmap.Convert = {
         //
         return {
             'lon':Cesium.Math.toDegrees(cartographic.longitude),
-            'lat': Cesium.Math.toDegrees(cartographic.latitude)
+            'lat': Cesium.Math.toDegrees(cartographic.latitude),
+            'longitude':Cesium.Math.toDegrees(cartographic.longitude),
+            'latitude': Cesium.Math.toDegrees(cartographic.latitude),
         };
     },
 
