@@ -16,16 +16,31 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
 
 
     $('#heightAvgToggle').change(function() {
+        clearObj();
+        clearMagoInit();
         if($('#heightAvgToggle').is(':checked')) {
+            changeLightingAPI(MAGO3D_INSTANCE, 0.3);
             toastr.info('지도상에서 여러 점을 클릭하시기 바랍니다.');
             drawingMode = 'heightAvgAnals';
             startDrawPolyLine();
         } else {
             drawingMode = "";
-            deleteAllChangeColorAPI(magoInstance);
-            changeLightingAPI(MAGO3D_INSTANCE, 0.7);
         }
-    })
+    });
+
+    function clearObj() {
+        _polylines.forEach(obj => viewer.entities.remove(obj));
+        _labels.forEach(obj => viewer.entities.remove(obj));
+        _polyPoint.forEach(obj => viewer.entities.remove(obj));
+        _polylines = [];
+        _labels = [];
+        _polyPoint = [];
+    }
+
+    function clearMagoInit() {
+        deleteAllChangeColorAPI(magoInstance);
+        changeLightingAPI(MAGO3D_INSTANCE, 0.7);
+    }
 
     function getColor(v, min, max) {
         function getC(f, l, r) {
@@ -45,6 +60,10 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
             getC((v - min) / mid, left, middle) :
             getC((v - min - mid) / mid, middle, right);
     }
+    $('#heightAvgBtn').click(function() {
+        clearObj();
+        clearMagoInit()
+    });
 
     function analsHeight() {
         const geometryInfo = [];
@@ -80,10 +99,12 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
                 const color = getColor(p, min, max);
                 console.log(color);
                 // data_group_id = 2, master datakey = MasterPlan
-                changeColorAPI(magoInstance, obj.dataGroupId,  'F4D_'+ obj.dataKey, null,
+                // changeColorAPI(magoInstance, obj.dataGroupId,  'F4D_'+ obj.dataKey, null,
+                //     'isPhysical=true', color.r + ',' + color.g + ',' + color.b)
+                changeColorAPI(magoInstance, obj.dataGroupId,  obj.dataKey, null,
                     'isPhysical=true', color.r + ',' + color.g + ',' + color.b)
             }
-        })
+        });
     }
 
     function startDrawPolyLine() {
@@ -138,7 +159,6 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
             if(drawingMode === 'heightAvgAnals') {
                 terminateShape();
                 analsHeight();
-                changeLightingAPI(MAGO3D_INSTANCE, 0.4);
                 $('#heightAvgToggle').click();
                 toastr.info('평균 높이 분석을 시작합니다');
             }
