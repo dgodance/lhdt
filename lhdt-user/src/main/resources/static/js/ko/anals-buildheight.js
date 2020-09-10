@@ -45,16 +45,16 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
 
     $('#heightAvgBtn').click(function() {
         //
-        const param = {};
-		//
-		param.geometryInfo=[];
+		const geometryInfo = [];
 		for(let i=0; i<_polyPoint.length; i++){
 			let d = _polyPoint[i];
-			
-			param.geometryInfo.push({'longitude': d.lon, 'latitude': d.lat});
+            geometryInfo.push({'longitude': d.lon, 'latitude': d.lat});
 		}
-		
-		
+        const param = {
+		    wkt: '',
+            geometryInfo: geometryInfo
+        };
+
 		//
         $.ajax({
             url: "/api/geometry/intersection/datas",
