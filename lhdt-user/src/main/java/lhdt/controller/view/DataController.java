@@ -122,7 +122,9 @@ public class DataController {
 		Long groupDataCount = 0L;
 		dataInfo.setUserId(userSession.getUserId());
 		dataInfo.setUserGroupId(userSession.getUserGroupId());
+
 		// 그룹별 통계
+		/*
 		List<DataInfo> groupDataCountList = dataService.getDataTotalCountBySharing(dataInfo);
 		for(DataInfo statisticDataInfo : groupDataCountList) {
 			if(SharingType.COMMON == SharingType.valueOf(statisticDataInfo.getSharing().toUpperCase())) {
@@ -135,9 +137,10 @@ public class DataController {
 				groupDataCount = statisticDataInfo.getDataCount();
 			}
 		}
-
 		dataInfo.setUserGroupId(userSession.getUserGroupId());
 		dataInfo.setUserId(userSession.getUserId());
+		*/
+
 		if(!StringUtils.isEmpty(dataInfo.getStartDate())) {
 			dataInfo.setStartDate(dataInfo.getStartDate().substring(0, 8) + DateUtils.START_TIME);
 		}
@@ -172,11 +175,11 @@ public class DataController {
 
 		model.addAttribute("totalCount", totalCount);
 
-		model.addAttribute("dataGroupTotalCount", groupDataCountList.size());
-		model.addAttribute("commonDataCount", commonDataCount);
-		model.addAttribute("publicDataCount", publicDataCount);
-		model.addAttribute("privateDataCount", privateDataCount);
-		model.addAttribute("groupDataCount", groupDataCount);
+		//model.addAttribute("dataGroupTotalCount", groupDataCountList.size());
+		//model.addAttribute("commonDataCount", commonDataCount);
+		//model.addAttribute("publicDataCount", publicDataCount);
+		//model.addAttribute("privateDataCount", privateDataCount);
+		//model.addAttribute("groupDataCount", groupDataCount);
 
 		model.addAttribute("dataList", dataList);
 		model.addAttribute("dataGroupList", dataGroupList);

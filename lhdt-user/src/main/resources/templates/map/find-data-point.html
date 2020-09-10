@@ -215,24 +215,7 @@
 	}, '[[${dataInfo.dataId}]]');
 
 	function magoInit() {
-		Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxODQ0NTUxYi1mODg3LTQxZTEtYmU2Zi00NzQ0ODI3YjI1ZDIiLCJpZCI6MTUxODYsInNjb3BlcyI6WyJhc2wiLCJhc3IiLCJhc3ciLCJnYyJdLCJpYXQiOjE1Njc0MDU5MDJ9.gqA_lEtPeiKI_Tn6WbBKfcaSaiHmj0f1GmcD0VBtmPc";
-
 		var geoPolicyJson = NDTP.policy;
-//<<<<<<< HEAD
-		var cesiumViewerOption = {};
-		cesiumViewerOption.infoBox = false;
-		cesiumViewerOption.navigationHelpButton = false;
-		cesiumViewerOption.selectionIndicator = false;
-		cesiumViewerOption.homeButton = false;
-		cesiumViewerOption.fullscreenButton = false;
-		cesiumViewerOption.geocoder = false;
-		cesiumViewerOption.baseLayerPicker = false;
-		cesiumViewerOption.sceneModePicker = false;
-		cesiumViewerOption.terrainProvider = new Cesium.CesiumTerrainProvider({
-			url: Cesium.IonResource.fromAssetId(85669),
-		});
-/*		
-=======
 		var option = {};
 		option.infoBox = false;
 		option.navigationHelpButton = false;
@@ -241,7 +224,7 @@
 		option.fullscreenButton = false;
 		option.geocoder = false;
 		option.baseLayerPicker = false;
-			
+
 		option.defaultControl = {};
 		option.defaultControl.zoom = false;
 		option.defaultControl.initCamera = false;
@@ -250,8 +233,6 @@
 		option.defaultControl.tools = false;
 		option.defaultControl.attribution = false;
 		option.defaultControl.overviewMap = false;
->>>>>>> develop
-*/
 
 		/**
 		 * @param {Stirng} containerId container div id. required.

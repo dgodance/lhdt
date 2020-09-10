@@ -36,6 +36,7 @@ DesignLayerObj.Tool = {
     ROTATE: 6,
     UPDOWN: 7,
     INTERSECTION : 8,
+    LANDUPDOWN : 9,
 };
 
 /**
@@ -89,17 +90,18 @@ DesignLayerObj.prototype.setEventHandler = function(){
      * 도구 - 선택
      */
     Ppui.click('[class*=design-layer-tool]', function(){
-        //
+        //선택된 엘리먼트로 도구 정보 조회하기
         let _getTool = function(el){
             for(let i=0; i<el.classList.length; i++){
                 let className = el.classList[i];
+                let toolName = className.replace(/design-layer-tool-/gi, '');
     
                 let keys = Object.keys(DesignLayerObj.Tool);
                 for(let j=0; j<keys.length; j++){
                     let k = keys[j];
     
                     //
-                    if(-1 != className.indexOf(k.toLowerCase())){
+                    if(toolName === k.toLowerCase()){
                         return DesignLayerObj.Tool[k];
                     }
                 }
@@ -118,7 +120,6 @@ DesignLayerObj.prototype.setEventHandler = function(){
     
         //
         _this.setTool(DesignLayerObj.Tool.NONE);
-        //let tool = DesignLayerObj.Tool.NONE;
         //
         if(!b){
             Ppui.addClass(this, 'active');
@@ -170,7 +171,26 @@ DesignLayerObj.prototype.isTool = function(tool){
 DesignLayerObj.prototype.toolChanged = function(beforeTool, afterTool){
     //toastr.info(this.getToolName(this.getTool()));
 
-    //모든 이벤트 클리어
+    //건물 높이 extrusion 삭제
+    let _clearExtrusionLands = function(){
+        let selectionManager = Ppmap.getManager().selectionManager;
+        let modeler = Ppmap.getManager().modeler;
+        let lands = modeler.getObjectByKV('type', 'land');
+
+        if(Pp.isEmpty(lands)){
+            return;
+        }
+
+        for(let i=0; i<lands.length; i++){
+            modeler.removeObject(lands[i]);
+        }
+
+        //
+        selectionManager.clearCurrents();
+        Ppmap.getManager().defaultSelectInteraction.clear();
+    };
+
+    //모든 이벤트/정보 클리어
     if(this.isTool(DesignLayerObj.Tool.NONE)){
         //
         this.setSelectionInteraction(false);
@@ -190,6 +210,9 @@ DesignLayerObj.prototype.toolChanged = function(beforeTool, afterTool){
             this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
             this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
         }
+
+        //
+        _clearExtrusionLands();
     }
 
     //선택
@@ -221,6 +244,11 @@ DesignLayerObj.prototype.toolChanged = function(beforeTool, afterTool){
     if(this.isTool(DesignLayerObj.Tool.INTERSECTION)){
         this.processToolIntersection();
     }
+    
+    //필지높이조절
+    if(this.isTool(DesignLayerObj.Tool.LANDUPDOWN)){
+        this.processToolLandUpdown();
+    }
 
     //
     Ppui.hide('div.design-layer-land-wrapper');
@@ -242,6 +270,139 @@ DesignLayerObj.prototype.setSelectionInteraction = function(onOff){
     }
 };
 
+
+/**
+ * selecteImageryLayer로 필지 높이조절하기
+ * @param {ImageryLayer} selectedImageryLayer 
+ * @param {LonLat} geoCoord 
+ */
+DesignLayerObj.prototype.extrudeLandByImageryLayer = function(selectedImageryLayer, geoCoord){
+    //
+    var imagerProvider = selectedImageryLayer.imageryProvider;
+    var layerName = imagerProvider.layers;
+    var currentCqlFilter = imagerProvider._resource.queryParameters.cql_filter;    
+
+    //
+    var req = new Cesium.Resource({
+        url : [NDTP.policy.geoserverDataUrl, NDTP.policy.geoserverDataStore, 'wfs'].join('/'),  
+        queryParameters : {
+            service : 'wfs',
+            version : '1.0.0',
+            request : 'GetFeature',
+            typeNames : layerName,
+            srsName : 'EPSG:3857',
+            outputFormat : 'application/json',
+            cql_filter : currentCqlFilter + ' AND ' + 'CONTAINS(the_geom, POINT(' + geoCoord.longitude + ' ' + geoCoord.latitude + '))'
+        }
+    });
+
+    //
+    new Cesium.GeoJsonDataSource().load(req).then(function(e) {
+        var entities = e.entities.values;
+        //
+        if(Pp.isEmpty(entities)){
+            console.log('empty entities');
+            return;
+        }
+
+        //
+        for(var i in entities) {
+            var entity = entities[i];
+
+            //
+            let h = Pp.nvl(entity.properties._maximum_building_floors, null);
+            if(Pp.isNull(h)){
+                //높이값 없음
+                console.log('empty height', entity);
+                continue;
+            }
+
+            var polygonHierarchy  = entity.polygon.hierarchy.getValue().positions;
+            
+            /**
+             * @class Mago3D.ExtrusionBuilding
+             * Polygon geometry과 높이를 이용하여 건물을 생성
+             * 
+             * Mago3D.ExtrusionBuilding의 static method인 makeExtrusionBuildingByCartesian3Array 함수를 통해 빌딩을 생성,
+             * Cesium의 Cartesian3 배열과 높이, 스타일관련 옵션으로 건물 객체 반환
+             */
+            var building = Mago3D.ExtrusionBuilding.makeExtrusionBuildingByCartesian3Array(polygonHierarchy.reverse(), h*3.3, {
+                color : new Mago3D.Color(0.2, 0.7, 0.8, 0.4)
+            });
+            building.type = 'land';
+            /**
+             * magoManager에 속한 modeler 인스턴스의 addObject 메소드를 통해 모델 등록, 뒤의 숫자는 데이터가 표출되는 최소 레벨을 의미. 숫자가 낮을수록 멀리서 보임
+             */
+            Ppmap.getManager().modeler.addObject(building, 12);            
+        }
+    });
+};
+
+/**
+ * 필지 높이조절
+ * @param {Cartesian2} ctsn2 
+ */
+DesignLayerObj.prototype.extrudeLandByCtsn2 = function(ctsn2){
+    let viewer = MAGO3D_INSTANCE.getViewer();
+    let scene = viewer.scene;
+    let pickRay = viewer.camera.getPickRay(ctsn2.position);
+
+    //
+    let selectedImageryLayers = viewer.imageryLayers.pickImageryLayerInRay(pickRay, scene, function (layer) {
+        return !layer.isBaseLayer();
+    });
+    
+
+    //
+    if(Pp.isEmpty(selectedImageryLayers)){
+        toastr.warning('선택된 필지정보가 없습니다.');
+        return;
+    }
+
+    //
+    var geoCoord = Ppmap.Convert.ctsn2ToLonLat(ctsn2.position);
+
+    //
+    for(let i=0; i<selectedImageryLayers.length; i++){
+        let d = selectedImageryLayers[i];
+
+        //
+        this.extrudeLandByImageryLayer(d, geoCoord);
+    }
+};
+
+/**
+ * 도구 - 필지 높이조절
+ */
+DesignLayerObj.prototype.processToolLandUpdown = function(){
+    //
+    if(!this.isTool(DesignLayerObj.Tool.LANDUPDOWN)){
+        return;
+    }
+
+    //
+    let _this = this;
+
+    
+    //
+    _this.handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
+
+    //왼쪽 클릭
+    _this.handler.setInputAction(function(event){
+        //
+        _this.extrudeLandByCtsn2(event);
+
+    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+    //오른쪽 클릭
+    _this.handler.setInputAction(function(event){
+        _this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+        _this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+    
+        //
+        Ppui.trigger('.design-layer-tool-none', 'click');
+    }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+};
 
 /**
  * 도구 - 필지정보조회 처리

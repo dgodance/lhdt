@@ -84,7 +84,7 @@
   
 ### 2. DB 생성 및 초기 데이터 등록
 - Database & Extensions
-   - ndtp 데이터베이스를 생성합니다.
+   - lhdt 데이터베이스를 생성합니다.
        한글 정렬을 위해 데이터베이스를 다음과 같이 설정합니다.
      <pre><code>Name:lhdt, Encoding:UTF-8, Template:template0, Collation:C, Character type:C, Connection Limit:-1</code></pre>
    - psql(SQL Shell) 혹은 pgAdmin에서 Extensions를 실행합니다.
@@ -96,7 +96,7 @@
 ### 3. Execution
 - lhdt-admin project spring boot 실행 <br>
   url : http://localhost(:port)/
-<pre><code>/lhdt-admin/src/main/java/ndtp/LhdtAdminApplication.java</code></pre>
+<pre><code>/lhdt-admin/src/main/java/lhdt/LhdtAdminApplication.java</code></pre>
 
 ## License
 
