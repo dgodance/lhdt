@@ -12,6 +12,8 @@ const DesignLayerObj = function(){
     this.datas = [];
     //선택된 도구
     this.tool = DesignLayerObj.Tool.NONE;
+    //intersection한 필지 정보 목록
+    this.lands=[];
 };
 
 /**
@@ -25,6 +27,8 @@ DesignLayerObj.Tool = {
     DELETE: 4,
     MOVE: 5,
     ROTATE: 6,
+    UPDOWN: 7,
+    INTERSECTION : 8,
 };
 
 /**
@@ -132,7 +136,7 @@ DesignLayerObj.prototype.setTool = function(tool){
     this.toolChanged(beforeTool, this.tool);
 
     //
-    toastr.info('선택된 도구 : ' + this.getToolName(this.tool));
+    //toastr.info('선택된 도구 : ' + this.getToolName(this.tool));
 };
 
 
@@ -175,11 +179,26 @@ DesignLayerObj.prototype.toolChanged = function(beforeTool, afterTool){
     if(this.isTool(DesignLayerObj.Tool.ROTATE)){
         this.processToolRotate();
     }
-
     
+    //높이조절
+    if(this.isTool(DesignLayerObj.Tool.UPDOWN)){
+        this.processToolUpdown();
+    }
+    
+    //필지정보조회
+    if(this.isTool(DesignLayerObj.Tool.INTERSECTION)){
+        this.processToolIntersection();
+    }
+
+    //
+    Ppui.hide('div.design-layer-land-wrapper');
 };
 
 
+/**
+ * 지도에서 객체 선택 상태로 할지 말지 
+ * @param {boolean} onOff 
+ */
 DesignLayerObj.prototype.setSelectionInteraction = function(onOff){
     if(onOff){
         //
@@ -191,6 +210,175 @@ DesignLayerObj.prototype.setSelectionInteraction = function(onOff){
     }
 };
 
+
+/**
+ * 도구 - 필지정보조회 처리
+ */
+DesignLayerObj.prototype.processToolIntersection = function(){    
+    let _getData = function(datas){
+        if(Pp.isEmpty(datas)){
+            return null;
+        }
+
+        //강제로 1st정보만 get
+        let designLayerId = datas[0].designLayerId;
+
+        return _this.getDataById(designLayerId);
+    };
+
+
+    let _showData = function(data){
+        Ppui.remove('table.design-layer-land');
+
+        //handlerbars
+        let source = $('#design-layer-land-template').html();
+        let template = Handlebars.compile(source);
+
+        //
+        let html = template({'data': data});
+        $('div.design-layer-land').append(html);
+
+    };
+
+
+    //
+    if(!this.isTool(DesignLayerObj.Tool.INTERSECTION)){
+        return;
+    }
+    
+    //
+    let _this = this;
+   
+    //
+    _this.setSelectionInteraction(true);
+   
+    //
+    let handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
+
+     //왼쪽 클릭
+     handler.setInputAction(function(event){
+        let lonLat = Ppmap.Convert.ctsn2ToLonLat(event.position);
+
+        //
+        if(Pp.isEmpty(lonLat) || Pp.isEmpty(lonLat.lon)){
+            console.log('empty lonLat');
+            return;
+        }
+
+        //
+        let param = {
+            'wkt': null,
+            'type': 'land',
+            'buffer': 0.0001,
+            'maxFeatures': 10,
+            'geometryInfo': [{
+                'longitude': lonLat.lon,
+                'latitude': lonLat.lat,
+                'altitude': null
+            }]
+        };
+        //
+          $.ajax({
+            url: "/api/geometry/intersection/design-layers",
+            type: "POST",
+            data: JSON.stringify(param),
+			dataType: 'json',
+			contentType: 'application/json;charset=utf-8'
+        }).done(function(res) {
+            _this.lands=[];
+            //
+            if(Pp.isNotEmpty(res._embedded) && Pp.isNotEmpty(res._embedded.designLayerLands)){
+                _this.lands = res._embedded.designLayerLands;
+            }
+            
+            //
+            Ppui.show('div.design-layer-land-wrapper');
+
+            //
+            let pageNo=1;
+            //데이터 표시
+            _this.showLandData(pageNo);
+            //페이징 표시
+            DS.pagination(_this.lands.length, pageNo, $('div.design-layer-land-wrapper .pagination'), function(_pageNo){
+                _this.showLandData(_pageNo);
+            }, {'pageSize':1, 'maxPages':10});
+		});
+			
+    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+    //오른쪽 클릭
+    handler.setInputAction(function(event){
+       handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+       handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+       //       
+       _this.setSelectionInteraction(false);
+
+       //
+       Ppui.trigger('.design-layer-tool-none', 'click');
+   }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+};
+
+
+DesignLayerObj.prototype.showLandData = function(pageNo){
+    console.log('showLandData', pageNo);
+    //
+    Ppui.remove('table.design-layer-land');
+
+    //handlerbars
+    let source = $('#design-layer-land-template').html();
+    let template = Handlebars.compile(source);
+
+    //
+    let html = template({'data': this.lands[pageNo-1]});
+    $('div.design-layer-land').append(html);
+};
+
+/**
+ * 도구 - 높이조절 처리
+ */
+DesignLayerObj.prototype.processToolUpdown = function(){    
+    //
+    if(!this.isTool(DesignLayerObj.Tool.UPDOWN)){
+        return;
+    }
+    
+    //
+    let _this = this;
+    /**
+	 * 선택된 객체를 마우스로 회전시키는 기능
+	 */
+	var rotate = new Mago3D.RotateInteraction();
+	Ppmap.getManager().interactionCollection.add(rotate);
+
+    //
+    _this.setSelectionInteraction(true);
+    /**
+	 * 선택된 객체(디자인 레이어)를 마우스로 높낮이 조절하는 기능
+	 */
+	var upanddown = new Mago3D.NativeUpDownInteraction();
+	Ppmap.getManager().interactionCollection.add(upanddown);
+
+    //
+    let handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
+
+     //왼쪽 클릭
+     handler.setInputAction(function(event){
+        upanddown.setActive(true);
+
+    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+    //오른쪽 클릭
+    handler.setInputAction(function(event){
+       handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+       handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+       //
+       upanddown.setActive(false);
+       _this.setSelectionInteraction(false);
+
+       //
+       Ppui.trigger('.design-layer-tool-none', 'click');
+   }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+};
 
 /**
  * 도구 - 회전 처리

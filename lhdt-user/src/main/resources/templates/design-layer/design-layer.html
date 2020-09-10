@@ -41,7 +41,15 @@
 			<button class="textBtnSub  design-layer-tool-delete">삭제</button>
 			<button class="textBtnSub  design-layer-tool-move">이동</button>
 			<button class="textBtnSub  design-layer-tool-rotate">회전</button>
+			<button class="textBtnSub  design-layer-tool-updown">높이조절</button>
+			<button class="textBtnSub  design-layer-tool-intersection">필지정보조회</button>
 		</div>
+	</div>
+	
+	<div class="design-layer-land-wrapper">
+		<div class="design-layer-land  dataGroupSummary table-data-group-summary"><!--by js--></div>
+		
+		<div class="pagination"></div>
 	</div>
 
 	<!--
@@ -94,4 +102,67 @@
 	</tbody>
 </table>
 </script>
+
+<!--  -->
+<script id="design-layer-land-template" type="text/x-handlebars-template">
+		<table class="table-word-break design-layer-land" summary="디자인 레이어 필지정보">
+			<caption class="hiddenTag">디자인 레이어 필지정보</caption>
+			<colgroup>
+				<col class="col-width-40">
+				<col class="col-number" width="*">
+			</colgroup>
+			<thead>
+				<tr>
+					<th>항목</th>
+					<th>값</th>
+				</tr>
+			</thead>
+			<tbody>
+				
+				<tr>
+					<td></td>
+					<td>{{data.designLayerGroupId}} {{data.designLayerId}} {{data.designLayerLandId}}</td>
+				</tr>				
+				<tr>
+					<td>디자인 레이어 그룹</td>
+					<td>{{data.designLayerGroupName}}</td>
+				</tr>
+				<tr>
+					<td>디자인 레이어</td>
+					<td>{{data.designLayerName}}</td>
+				</tr>
+
+				<tr>
+					<td>건폐율</td>
+					<td>{{data.buildingCoverageRatio}}</td>
+				</tr>
+
+
+				<tr>
+					<td>건폐율</td>
+					<td>{{data.buildingCoverageRatio}}</td>
+				</tr>
+				<tr>
+					<td>용적률</td>
+					<td>{{data.floorAreaRatio}}</td>
+				</tr>
+				<tr>
+					<td>용적률-기준</td>
+					<td>{{data.floorAreaRatioStandard}}</td>
+				</tr>
+				<tr>
+					<td>용적률-허용</td>
+					<td>{{data.floorAreaRatioAllowed}}</td>
+				</tr>
+				<tr>
+					<td>용적률-상한</td>
+					<td>{{data.floorAreaRatioMaximum}}</td>
+				</tr>
+			</tbody>
+		</table>
+
+</script>
+
+
+
 </div>

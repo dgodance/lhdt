@@ -534,7 +534,7 @@ var Pp = function () {
          * @param {string} url url
          * @param {object} param case1~4
          * @param {function} callbackFn 콜백함수
-         * @param {object} option {'async':boolean, 'callbackError':function}
+         * @param {object} option @see submitAjax's option
          * @since 20200902 init
          */
 
@@ -555,7 +555,7 @@ var Pp = function () {
          * @param {string} url url
          * @param {object} param case1~4
          * @param {function} callbackFn 콜백함수
-         * @param {object} option {'async':boolean, 'callbackError':function}
+         * @param {object} option @see submitAjax's option
          * @since 20200902 init
          */
 
@@ -576,7 +576,7 @@ var Pp = function () {
          * @param {string} url url
          * @param {any} param case1~4
          * @param {Function} callbackSuccess 콜백함수
-         * @param {any|undefined} option {'method':string, 'async':boolean, 'callbackError':function}
+         * @param {any|undefined} option {'method':string, 'async':boolean, 'callbackError':function, 'header':{}}
          */
 
     }, {
@@ -600,6 +600,14 @@ var Pp = function () {
             //
             xhr.open(opt.method, url, opt.async);
             xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            if (Pp.isNotEmpty(opt.header)) {
+                var keys = Object.keys(opt.header);
+                for (var i = 0; i < keys.length; i++) {
+                    var k = keys[i];
+                    //
+                    xhr.setRequestHeader(k, opt.header[k]);
+                }
+            }
 
             //
             xhr.upload.onprogress = function (e) {
@@ -968,6 +976,7 @@ var Pp = function () {
             var currentPage = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
             var pageSize = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 10;
             var maxPages = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 10;
+			
 
 
             // calculate total pages
