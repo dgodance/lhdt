@@ -43,8 +43,8 @@
 			<div class="list-header row">
 				<div class="list-desc u-pull-left">
 					<div class="button-group">
-						<a href="#" class="button" onclick="openAll(); return false;"><th:block th:text="#{common.unfold}"></th:block></a>
-						<a href="#" class="button" onclick="closeAll(); return false;"><th:block th:text="#{common.folding}"></th:block></a>
+						<a href="#" class="button" onclick="openAll(); return false;" ><th:block th:text="#{common.unfold}"></th:block></a>
+						<a href="#" class="button" onclick="closeAll(); return false;" ><th:block th:text="#{common.folding}"></th:block></a>
 					</div>
 				</div>
 			</div>
@@ -127,9 +127,9 @@
 									</td>
 									<td class="col-type">
 										<div class="button-group">
-											<a href="#" class="button" th:onclick="moveUp([[${dataGroup.dataGroupId}]], [[${dataGroup.viewOrder}]]); return false;"  style="text-decoration:none;">
+											<a href="#" class="button top" th:onclick="moveUp([[${dataGroup.dataGroupId}]], [[${dataGroup.viewOrder}]]); return false;"  style="text-decoration:none;">
 												<th:block th:text="#{common.up}"></th:block></a>
-											<a href="#" class="button" th:onclick="moveDown([[${dataGroup.dataGroupId}]], [[${dataGroup.viewOrder}]]); return false;" style="text-decoration:none;">
+											<a href="#" class="button bottom" th:onclick="moveDown([[${dataGroup.dataGroupId}]], [[${dataGroup.viewOrder}]]); return false;" style="text-decoration:none;">
 												<th:block th:text="#{common.down}"></th:block></a>
 										</div>
 									</td>

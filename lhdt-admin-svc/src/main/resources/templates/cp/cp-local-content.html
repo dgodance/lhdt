@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>공지사항</title>
+</head>
+<body>
+<div style="padding: 50px 0">
+    <div>
+        <div>
+            <div>
+                <div th:text="'작성일시 : '+${cpLocalInfo.registDt}"></div>
+                <div th:text="'최종 수정일시 : '+${cpLocalInfo.updtDt}"></div>
+            </div>
+        </div>
+
+        <div>
+            <p th:text="${cpLocalInfo.localName}"></p>
+        </div>
+    </div>
+    <div>
+        <button id="back">이전으로</button>
+        <form style="display: inline" th:method="DELETE" th:action="@{'/cp/local-info/' + ${cpLocalInfo.id}}"
+              onsubmit="return confirm('정말 삭제하시겠습니까?');">
+            <button type="submit" class="right floated ui red button">삭제</button>
+        </form>
+        <a th:href="@{'/cp/distric-info-edit/' + ${cpLocalInfo.id}}" class="right floated ui button">수정</a>
+    </div>
+</div>
+</body>
+</html>

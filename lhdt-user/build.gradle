@@ -6,6 +6,9 @@ plugins {
     id 'war'
 }
 
+apply plugin: 'application'
+mainClassName = 'lhdt.LhdtUserApplication'
+
 apply plugin: 'project-report'
 
 group = 'com.lhdt'
@@ -111,6 +114,13 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok:1.18.12'
 
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    
+    // https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient
+	compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.12'
+	compile group: 'org.apache.httpcomponents', name: 'httpcore', version: '4.4.13'
+	compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.12'
+	
+    
 }
 
 ext {

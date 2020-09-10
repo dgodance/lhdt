@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>생성 하기</title>
+</head>
+<body>
+
+<div class="ui container twelve wide column" style="padding:50px 0px">
+    <form th:method="'PUT'" th:action="@{/cp/local-info-edit}" class="ui form">
+        <div>
+            <label>제목</label>
+            <input type="text" name="localName" placeholder="지역명을 입력해주세요." required>
+        </div>
+        <div>
+            <button type="submit">
+                <i class="icon edit"></i>
+                등록
+            </button>
+            <button id="back">취소</button>
+        </div>
+    </form>
+</div>
+</body>
+<script>
+    $("#back").click(function () {
+        window.history.back();
+    });
+</script>
+</html>

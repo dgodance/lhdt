@@ -22,6 +22,7 @@ drop sequence if exists data_library_converter_job_seq;
 drop sequence if exists data_library_converter_job_file_seq;
 drop sequence if exists design_layer_group_seq;
 drop sequence if exists design_layer_seq;
+drop sequence if exists design_layer_log_seq;
 drop sequence if exists design_layer_land_seq;
 drop sequence if exists design_layer_building_seq;
 drop sequence if exists design_layer_attribute_seq;
@@ -47,6 +48,7 @@ drop sequence if exists user_group_role_seq;
 drop sequence if exists user_group_menu_seq;
 drop sequence if exists user_device_seq;
 drop sequence if exists user_policy_seq;
+drop sequence if exists urban_group_seq;
 drop sequence if exists widget_seq;
 
 create sequence access_log_seq increment 1 minvalue 1 maxvalue 9999999999999999 start 1 cache 1;

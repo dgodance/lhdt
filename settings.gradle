@@ -16,6 +16,9 @@ include ':lhdt-converter'
 include ':lhdt-sensorthings'
 include ':html'
 include ':doc'
+include ':lhdt-svc'
+include ':lhdt-ds-common'
+include ':lhdt-admin-svc'
 
 //project(':common').projectDir = "$rootDir/common" as File
 //project(':mago3d-admin').projectDir = "$rootDir/mago3d-admin" as File

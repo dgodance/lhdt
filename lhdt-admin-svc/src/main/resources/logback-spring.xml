@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<configuration scan="true" scanPeriod="60 seconds">
+
+	<springProfile name="local">
+		<property resource="application-local.properties" />
+	</springProfile>
+
+	<springProperty scope="context" name="LOG_LEVEL" source="logging.level.root" />
+
+	<!-- pattern -->
+	<property name="LOG_PATTERN" value="%-5level %d{yy-MM-dd HH:mm:ss}[%thread] [%logger{0}:%line] - %msg%n" />
+
+
+
+	<!-- Console Appender -->
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>${LOG_PATTERN}</pattern>
+		</encoder>
+	</appender>
+
+	<!-- root레벨 설정 -->
+	<root level="${LOG_LEVEL}">
+		<appender-ref ref="CONSOLE" />
+	</root>
+
+
+</configuration>

@@ -1,0 +1,53 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<div id="sunshineContent" class="contents yScroll fullHeight" style="display:none;">
+    <ul class="listDrop">
+
+        <li class="on">
+            <p>경관 분석(일조분석)<span class="collapse-icon">icon</span></p>
+            <div class="listContents">
+                <ul class="analysisGroup">
+                    <li>
+                        <label for="">날짜</label>
+                        <!-- <input class="" type="text" id="solayDatePicker" placeholder="" value=""/> -->
+                        <div class="tui-datepicker-input tui-datetime-input tui-has-focus">
+                            <input type="text" id="sunshine-datepicker-input" aria-label="Date-Time">
+                            <span class="tui-ico-date"></span>
+                        </div>
+                        <div id="sunshineDatePicker" style="margin-top: -1px;"></div>
+                    </li>
+                    <li class="btns">
+                        <button id="solarAnalysis" type="button" class="btnTextF execute" title="분석">분석</button>
+                        <button id="solarAnalysisReset" type="button" class="btnText reset" title="취소">취소</button>
+                    </li>
+                </ul>
+            </div>
+        </li>
+        <li class="on">
+            <p th:text="점분석"><span class="collapse-icon">icon</span></p>
+            <div id="sunshineDotProcess" class="listContents">
+                <ul>
+                    <li>
+                        <label for="sunshoneDotToggle" th:text="활성화"></label>
+                        <input type="checkbox" id="sunshoneDotToggle" value="" placeholder=""/>
+                        <div id="timeControlsContainer" style="background-color: gray; width: 300px;height: 20px;">
+                        </div>
+                        <button type="button" id="sunshoneDotBtn" th:text="작동"></button>
+                    </li>
+                </ul>
+            </div>
+        </li>
+        <li class="on">
+            <p th:text="면분석"><span class="collapse-icon">icon</span></p>
+            <div id="sunshineAreaProcess" class="listContents">
+                <ul>
+                    <li>
+                        <label for="sunshineAreaToggle"  th:text="활성화"></label>
+                        <input type="checkbox" id="sunshineAreaToggle" value="" placeholder=""/>
+                        <button type="button" id="sunshineAreaBtn" th:text="작동"></button>
+                    </li>
+                </ul>
+            </div>
+        </li>
+    </ul>
+</div>
+</html>

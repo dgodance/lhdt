@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>경관 정보 수정</title>
+    <meta charset="utf-8">
+    <meta name="referrer" content="origin">
+    <meta name="viewport" content="width=device-width">
+    <meta name="robots" content="index,nofollow">
+
+    <link rel="stylesheet" th:href="@{/externlib/cesium/Widgets/widgets.css(cacheVersion=${contentCacheVersion})}">
+    <link rel="stylesheet" th:href="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.css(cacheVersion=${contentCacheVersion})}">
+    <!-- range.css 보다 user-style.css 가 뒤에 있어야함	-->
+    <link rel="stylesheet" th:href="@{/externlib/kotSlider/range.css(cacheVersion=${contentCacheVersion})}">
+    <link rel="stylesheet" th:href="@{/externlib/css-toggle-switch/toggle-switch.css(cacheVersion=${contentCacheVersion})}">
+</head>
+<body class="ui gird" th:with="isPost=${landScapeInfo} == null ? true : false">
+<!-- Local Div start -->
+<div style="padding: 50px 0">
+    <form th:method="${isPost} ? 'POST' : 'PUT'" th:action="@{/landscape-anals/edit}" class="ui form">
+        <div>
+            <label>경관명</label>
+            <input type="text" name="landScapeTypeSelect"
+                   th:value="${isPost} ? '' : ${landScapeInfo.landScapeAnalsName}"
+                   placeholder="경관명을 입력해주세요." required>
+            <label>경관 타입</label>
+            <select name="landScapeAnalsType" id="landScapeTypeSelect">
+                <option th:each="key : ${landScapeAnalsType.keySet()}"
+                        th:value="${landScapeAnalsType.get(key)}"
+                        th:text="${landScapeAnalsType.get(key)}"></option>
+            </select>
+            <input type="text" name="id"
+                   th:value="${isPost} ? '' : ${landScapeInfo.id}"
+                   hidden>
+        </div>
+        <div>
+            <div id="cesiumContainer" style="width: 700px; height:400px"></div>
+        </div>
+        <div>
+            <button type="submit">
+                <i class="icon edit"></i>
+                등록
+            </button>
+            <button id="back">취소</button>
+        </div>
+    </form>
+</div>
+<script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
+
+<script type="text/javascript" th:src="@{/externlib/handlebars-4.1.2/handlebars.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/handlebars-helper.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/externlib/cesium/Cesium.js}"></script>
+<script type="text/javascript" th:src="@{/externlib/cesium-geoserver-terrain-provider/GeoserverTerrainProvider.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/externlib/decodeTextAlternative/encoding-indexes.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/externlib/decodeTextAlternative/encoding.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/externlib/moment-2.22.2/moment-with-locales.min.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/mago3d.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/common.js(lang=${lang}, cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/message.js(lang=${lang}, cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/map-controll.js(lang=${lang}, cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/ui-controll.js(lang=${lang}, cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/wps-request.js(lang=${lang}, cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/data-info.js(lang=${lang}, cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/user-policy.js(lang=${lang}, cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/map-data-controll.js(lang=${lang}, cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/map-init.js(lang=${lang}, cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/ko/landscape-regist.js(cacheVersion=${contentCacheVersion})}"></script>
+
+</body>
+</html>

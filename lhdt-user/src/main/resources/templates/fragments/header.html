@@ -26,6 +26,23 @@
                 </ul>
             </th:block>
         </div>
+
+		<script>
+		window.addEventListener('load', function(){
+			Ppui.click('.HamMenu', function(){
+				if(Ppui.hasClass(this, 'on')){
+					Ppui.hide(['.navWrap', '#gnbWrap']);		
+					document.querySelector('#magoContainer').style.width = '100%';
+				}else{
+					Ppui.show(['.navWrap', '#gnbWrap']);					
+					document.querySelector('#magoContainer').style.width = 'calc(100% - 445px)';
+				}
+				
+				//
+				Ppui.toggleClass(this, 'on');
+			});
+		});
+		</script>
     </header>
 </body>
 </html>

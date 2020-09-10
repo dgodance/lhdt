@@ -77,7 +77,6 @@ values
 	(87, '0', '1', '권한 등록', 'ROLE', 8, 8, 2, 7, '/role/input', '/role/list', null, 'glyph-settings', 'N', 'Y', 'N'),
 	(88, '0', '1', '권한 수정', 'ROLE', 8, 8, 2, 8, '/role/modify', '/role/list', null, 'glyph-settings', 'N', 'Y', 'N');
 
-
 -- 사용자 메뉴
 insert into menu(menu_id, menu_type, menu_target, name, name_en, ancestor, parent, depth, view_order, url, url_alias, html_id, html_content_id,
     css_class, default_yn, use_yn, display_yn)
@@ -88,6 +87,7 @@ values
     (1005, '1', '0', 'Extrusion', 'EXTRUSION', 1005, 0, 1, 5, '/extrusion', null, 'extrusionMenu', 'extrusionContent', 'extrusion', 'Y', 'Y', 'Y'),
     (1007, '1', '0', '레이어', 'LAYER', 1007, 0, 1, 7, '/layer/list', null, 'layerMenu', 'layerContent', 'layer', 'Y', 'Y', 'Y'),
     (1008, '1', '0', '환경설정', 'USER POLICY', 1008, 0, 1, 8, '/user-policy/modify', null, 'userPolicyMenu', 'userPolicyContent', 'userPolicy', 'Y', 'Y', 'Y');
+
 
 
 -- 사용자 그룹별 메뉴

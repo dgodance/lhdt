@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>지구계획 자료 등록 하기</title>
+</head>
+<body class="ui gird">
+<div class="ui container twelve wide column" style="padding:50px 0px">
+    <form th:method="POST" th:action="@{/cp-file/regist}" class="ui form">
+        <input type="file" name="files" style="width:80%" multiple>
+        <div>
+            <button type="submit">
+                <i class="icon edit"></i>
+                등록
+            </button>
+            <button id="back">취소</button>
+        </div>
+    </form>
+</div>
+</body>
+<script>
+    $("#back").click(function () {
+        window.history.back();
+    });
+</script>
+</html>
