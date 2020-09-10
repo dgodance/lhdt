@@ -57,6 +57,11 @@ DS.init = function(){
 	}
 	
 	//
+	if(0 === paging.pages.length){
+		s += '	<li class=""	data-page-no="1">1</li>';
+	}
+	
+	//
 	s += '	<li class="ico end" data-page-no="'+paging.totalPages+'">마지막</li>';
 	
 	s += '</ul>';
