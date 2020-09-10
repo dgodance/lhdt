@@ -24,6 +24,7 @@ DesignLayerObj.Tool = {
     LINE: 3,
     DELETE: 4,
     MOVE: 5,
+    ROTATE: 6,
 };
 
 /**
@@ -170,6 +171,12 @@ DesignLayerObj.prototype.toolChanged = function(beforeTool, afterTool){
         this.processToolMove();
     }
     
+    //회전
+    if(this.isTool(DesignLayerObj.Tool.ROTATE)){
+        this.processToolRotate();
+    }
+
+    
 };
 
 
@@ -186,6 +193,49 @@ DesignLayerObj.prototype.setSelectionInteraction = function(onOff){
 
 
 /**
+ * 도구 - 회전 처리
+ */
+DesignLayerObj.prototype.processToolRotate = function(){    
+    //
+    if(!this.isTool(DesignLayerObj.Tool.ROTATE)){
+        return;
+    }
+    
+    //
+    let _this = this;
+    /**
+	 * 선택된 객체를 마우스로 회전시키는 기능
+	 */
+	var rotate = new Mago3D.RotateInteraction();
+	Ppmap.getManager().interactionCollection.add(rotate);
+
+    //
+	_this.setSelectionInteraction(true);
+
+    //
+    let handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
+
+     //왼쪽 클릭
+     handler.setInputAction(function(event){
+        rotate.setTargetType('native');
+		rotate.setActive(true);
+
+    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+    //오른쪽 클릭
+    handler.setInputAction(function(event){
+       handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+       handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+       //
+       rotate.setActive(false);
+       _this.setSelectionInteraction(false);
+
+       //
+       Ppui.trigger('.design-layer-tool-none', 'click');
+   }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+};
+
+/**
  * 도구 - 이동 처리
  */
 DesignLayerObj.prototype.processToolMove = function(){    
@@ -198,9 +248,7 @@ DesignLayerObj.prototype.processToolMove = function(){
     let _this = this;
 
     //
-	Ppmap.getManager().defaultSelectInteraction.setTargetType('native');
-	Ppmap.getManager().defaultSelectInteraction.setActive(true);
-	Ppmap.getManager().isCameraMoved = true;
+	_this.setSelectionInteraction(true);
 
     //
     let handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
@@ -218,7 +266,7 @@ DesignLayerObj.prototype.processToolMove = function(){
        handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
        //
        Ppmap.getManager().defaultTranslateInteraction.setActive(false);
-       Ppmap.getManager().defaultSelectInteraction.setActive(false);
+       _this.setSelectionInteraction(false);
 
        //
        Ppui.trigger('.design-layer-tool-none', 'click');
@@ -262,9 +310,7 @@ DesignLayerObj.prototype.processToolDelete = function(){
     let _this = this;
 
     //
-	Ppmap.getManager().defaultSelectInteraction.setTargetType('native');
-	Ppmap.getManager().defaultSelectInteraction.setActive(true);
-	Ppmap.getManager().isCameraMoved = true;
+	_this.setSelectionInteraction(true);
 
     //
     let handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
@@ -283,7 +329,7 @@ DesignLayerObj.prototype.processToolDelete = function(){
        handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
        handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
        //
-       Ppmap.getManager().defaultSelectInteraction.setActive(false);
+       _this.setSelectionInteraction(false);
 
        //
        Ppui.trigger('.design-layer-tool-none', 'click');
@@ -305,9 +351,7 @@ DesignLayerObj.prototype.processToolSelect = function(){
     let _this = this;
 
     //
-	Ppmap.getManager().defaultSelectInteraction.setTargetType('native');
-	Ppmap.getManager().defaultSelectInteraction.setActive(true);
-	Ppmap.getManager().isCameraMoved = true;
+	_this.setSelectionInteraction(true);
 
     //
     let handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
@@ -325,7 +369,7 @@ DesignLayerObj.prototype.processToolSelect = function(){
         handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
         handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
         //
-		Ppmap.getManager().defaultSelectInteraction.setActive(false);
+		_this.setSelectionInteraction(false);
 
         //
         Ppui.trigger('.design-layer-tool-none', 'click');
