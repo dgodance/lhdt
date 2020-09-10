@@ -14,6 +14,13 @@ const DesignLayerObj = function(){
     this.tool = DesignLayerObj.Tool.NONE;
     //intersection한 필지 정보 목록
     this.lands=[];
+
+    //
+    this.handler = null;
+    //
+    this.rotate = null;
+    //
+    this.upanddown = null;
 };
 
 /**
@@ -110,7 +117,8 @@ DesignLayerObj.prototype.setEventHandler = function(){
         Ppui.removeClass('[class*=design-layer-tool]', className);
     
         //
-        let tool = DesignLayerObj.Tool.NONE;
+        _this.setTool(DesignLayerObj.Tool.NONE);
+        //let tool = DesignLayerObj.Tool.NONE;
         //
         if(!b){
             Ppui.addClass(this, 'active');
@@ -160,6 +168,30 @@ DesignLayerObj.prototype.isTool = function(tool){
  * @param {number} afterTool 변경 후 도구
  */
 DesignLayerObj.prototype.toolChanged = function(beforeTool, afterTool){
+    //toastr.info(this.getToolName(this.getTool()));
+
+    //모든 이벤트 클리어
+    if(this.isTool(DesignLayerObj.Tool.NONE)){
+        //
+        this.setSelectionInteraction(false);
+        //
+        Ppmap.getManager().defaultTranslateInteraction.setActive(false);
+        //
+        if(Pp.isNotNull(this.upanddown)){
+            this.upanddown.setActive(false);
+        }
+        //
+        if(Pp.isNotNull(this.rotate)){
+            this.rotate.setActive(false);
+        }
+
+        //
+        if(Pp.isNotNull(this.handler)){
+            this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+            this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+        }
+    }
+
     //선택
     if(this.isTool(DesignLayerObj.Tool.SELECT)){
         this.processToolSelect();
@@ -253,10 +285,10 @@ DesignLayerObj.prototype.processToolIntersection = function(){
     _this.setSelectionInteraction(true);
    
     //
-    let handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
+    _this.handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
 
      //왼쪽 클릭
-     handler.setInputAction(function(event){
+     _this.handler.setInputAction(function(event){
         let lonLat = Ppmap.Convert.ctsn2ToLonLat(event.position);
 
         //
@@ -308,9 +340,9 @@ DesignLayerObj.prototype.processToolIntersection = function(){
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
     //오른쪽 클릭
-    handler.setInputAction(function(event){
-       handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-       handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+    _this.handler.setInputAction(function(event){
+        _this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+       _this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
        //       
        _this.setSelectionInteraction(false);
 
@@ -361,35 +393,30 @@ DesignLayerObj.prototype.processToolUpdown = function(){
     
     //
     let _this = this;
-    /**
-	 * 선택된 객체를 마우스로 회전시키는 기능
-	 */
-	var rotate = new Mago3D.RotateInteraction();
-	Ppmap.getManager().interactionCollection.add(rotate);
-
+    
     //
     _this.setSelectionInteraction(true);
     /**
 	 * 선택된 객체(디자인 레이어)를 마우스로 높낮이 조절하는 기능
 	 */
-	var upanddown = new Mago3D.NativeUpDownInteraction();
-	Ppmap.getManager().interactionCollection.add(upanddown);
+	_this.upanddown = new Mago3D.NativeUpDownInteraction();
+	Ppmap.getManager().interactionCollection.add(_this.upanddown);
 
     //
-    let handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
+    _this.handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
 
      //왼쪽 클릭
-     handler.setInputAction(function(event){
-        upanddown.setActive(true);
+     _this.handler.setInputAction(function(event){
+        _this.upanddown.setActive(true);
 
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
     //오른쪽 클릭
-    handler.setInputAction(function(event){
-       handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-       handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+    _this.handler.setInputAction(function(event){
+        _this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+       _this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
        //
-       upanddown.setActive(false);
+       _this.upanddown.setActive(false);
        _this.setSelectionInteraction(false);
 
        //
@@ -411,28 +438,28 @@ DesignLayerObj.prototype.processToolRotate = function(){
     /**
 	 * 선택된 객체를 마우스로 회전시키는 기능
 	 */
-	var rotate = new Mago3D.RotateInteraction();
-	Ppmap.getManager().interactionCollection.add(rotate);
+	_this.rotate = new Mago3D.RotateInteraction();
+	Ppmap.getManager().interactionCollection.add(_this.rotate);
 
     //
 	_this.setSelectionInteraction(true);
 
     //
-    let handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
+    _this.handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
 
      //왼쪽 클릭
-     handler.setInputAction(function(event){
-        rotate.setTargetType('native');
-		rotate.setActive(true);
+     _this.handler.setInputAction(function(event){
+        _this.rotate.setTargetType('native');
+		_this.rotate.setActive(true);
 
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
     //오른쪽 클릭
-    handler.setInputAction(function(event){
-       handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-       handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+    _this.handler.setInputAction(function(event){
+        _this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+       _this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
        //
-       rotate.setActive(false);
+       _this.rotate.setActive(false);
        _this.setSelectionInteraction(false);
 
        //
@@ -456,19 +483,19 @@ DesignLayerObj.prototype.processToolMove = function(){
 	_this.setSelectionInteraction(true);
 
     //
-    let handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
+    _this.handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
 
      //왼쪽 클릭
-     handler.setInputAction(function(event){
+     _this.handler.setInputAction(function(event){
         Ppmap.getManager().defaultTranslateInteraction.setTargetType('native');
 		Ppmap.getManager().defaultTranslateInteraction.setActive(true);
 
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
     //오른쪽 클릭
-    handler.setInputAction(function(event){
-       handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-       handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+    _this.handler.setInputAction(function(event){
+        _this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+       _this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
        //
        Ppmap.getManager().defaultTranslateInteraction.setActive(false);
        _this.setSelectionInteraction(false);
@@ -518,10 +545,10 @@ DesignLayerObj.prototype.processToolDelete = function(){
 	_this.setSelectionInteraction(true);
 
     //
-    let handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
+    _this.handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
 
      //왼쪽 클릭
-     handler.setInputAction(function(event){
+     _this.handler.setInputAction(function(event){
         // 선택된 데이터 라이브러리 정보 추출
         let extrusionBuildings = Ppmap.getManager().selectionManager.getSelectedGeneralArray();
         //
@@ -530,9 +557,9 @@ DesignLayerObj.prototype.processToolDelete = function(){
    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
    //오른쪽 클릭
-   handler.setInputAction(function(event){
-       handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-       handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+   _this.handler.setInputAction(function(event){
+    _this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+       _this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
        //
        _this.setSelectionInteraction(false);
 
@@ -559,10 +586,10 @@ DesignLayerObj.prototype.processToolSelect = function(){
 	_this.setSelectionInteraction(true);
 
     //
-    let handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
+    _this.handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
 
     //왼쪽 클릭
-    handler.setInputAction(function(event){
+    _this.handler.setInputAction(function(event){
          // 선택된 데이터 라이브러리 정보 추출
          let nodes = Ppmap.getManager().selectionManager.getSelectedGeneralArray();
          console.log(nodes);
@@ -570,9 +597,9 @@ DesignLayerObj.prototype.processToolSelect = function(){
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
     //오른쪽 클릭
-    handler.setInputAction(function(event){
-        handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-        handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+    _this.handler.setInputAction(function(event){
+        _this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+        _this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
         //
 		_this.setSelectionInteraction(false);
 
