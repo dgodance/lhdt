@@ -24,11 +24,19 @@ DS.init = function(){
   * @param {number} currentPage 현재 페이지 번호
   * @param {Node} html를 표시할 엘리먼트
   * @param {Function} 페이지 번호 클릭시 호출할 콜백함수
+  * @param {object} option {'pageSize', 'maxPages'}
   * @author gravity
   * @since	20200824	init
   */
- DS.pagination = function(totalItems, currentPage, $el, callbackFn){
- 	let paging = Pp.paginate(totalItems, currentPage, 10, 5);
+ DS.pagination = function(totalItems, currentPage, $el, callbackFn, option){
+	let opt = Pp.extend({'pageSize':10, 'maxPages':5}, option);
+	
+	//
+	let pageSize = opt.pageSize ? opt.pageSize : 10;
+	let maxPages = opt.maxPages ? opt.maxPages : 5;
+	
+ 	let paging = Pp.paginate(totalItems, currentPage, pageSize, maxPages);
+
  	
  	let s = '';
 	s += '<ul class="pagination">';
@@ -58,7 +66,12 @@ DS.init = function(){
  	
  	//페이지 클릭 이벤트
  	$('ul.pagination > li').click(function(){
+		$('ul.pagination > li').removeClass('on');
+		//
  		let pageNo = $(this).data('page-no');
+		//
+		$('ul.pagination > li[data-page-no="'+pageNo+'"]').addClass('on');
+		//
  		callbackFn(pageNo);
  	});
  };

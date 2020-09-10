@@ -20,5 +20,7 @@ table.ds-data-library-list > tbody > tr {font-weight:normal; background-color:wh
 table.ds-data-library-list > tbody > tr.on {font-weight:bold !important; background-color:lightyellow !important;}
 table.design-layers > tbody > tr {font-weight:normal; background-color:white;}
 table.design-layers > tbody > tr.on {font-weight:bold !important; background-color:lightyellow !important;}
+table.design-layer-land td {text-align:left !important;}
+table.design-layer-land > tbody > tr > td:first-child {background-color:#f3f3f3 !important;}
 
 .cursor-pointer {cursor:pointer !important;}
