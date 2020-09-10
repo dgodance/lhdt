@@ -16,9 +16,9 @@ import java.sql.ResultSet;
 @Slf4j
 class AttributeInsertSqlTest {
 
-	String inputDirectory = "D:\\data\\mago3d\\smart-tiling-attribute";
-	String insertSqlFile = "D:\\data\\mago3d\\sql\\insert.txt";
-	String updateSqlFile = "D:\\data\\mago3d\\sql\\update.txt";
+	String inputDirectory = "C:\\data\\mago3d\\smart-tiling-attribute";
+	String insertSqlFile = "C:\\data\\mago3d\\sql\\insert.txt";
+	String updateSqlFile = "C:\\data\\mago3d\\sql\\update.txt";
 	
 	@Disabled
 	void test() throws Exception {

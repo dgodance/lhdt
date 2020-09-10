@@ -45,6 +45,70 @@ var extrusionTools = function (magoInstance){
 	}); 
 	magoManager.interactionCollection.add(addStaticModelByPointInteraction);
 	
+
+	var extrudeLandByClickInteraction = new Mago3D.ClickInteraction({
+		handleUpEvent : function(e) {
+			
+			var viewer = MAGO3D_INSTANCE.getViewer(); 
+			var scene = viewer.scene;
+	        var pickRay = viewer.camera.getPickRay(e.point.screenCoordinate);
+
+	        //선택된 imageryLayer들이 배열로 넘어옴. 그중에서 선택해서 쓰세요. 이거는 예제라 하나라고 가정하고 진행할게요.
+	        var selectedImageryLayers = viewer.imageryLayers.pickImageryLayerInRay(pickRay, scene, function (layer) {
+	        	return !layer.isBaseLayer();
+	        });
+	        
+	        if(selectedImageryLayers) {
+	  			var selectedImageryLayer = selectedImageryLayers[0];
+	  			var imagerProvider = selectedImageryLayer.imageryProvider;
+	  			var layerName = imagerProvider.layers;
+	  			var currentCqlFilter = imagerProvider._resource.queryParameters.cql_filter;
+	  			var geoCoord = e.point.geographicCoordinate;
+	  			
+	  			var req = new Cesium.Resource({
+	  				url : 'http://localhost:18080/geoserver/lhdt/wfs',
+	  				queryParameters : {
+	  					service : 'wfs',
+	  					version : '1.0.0',
+	  					request : 'GetFeature',
+	  					typeNames : layerName,
+	  					srsName : 'EPSG:3857',
+	  					outputFormat : 'application/json',
+	  					cql_filter : currentCqlFilter + ' AND ' + 'CONTAINS(the_geom, POINT(' + geoCoord.longitude + ' ' + geoCoord.latitude + '))'
+	  				}
+	  			});
+	  			
+	  			new Cesium.GeoJsonDataSource().load(req).then(function(e) {
+	  				var entities = e.entities.values;
+	       	 		
+	       	 		for(var i in entities) {
+	       	 			var entity = entities[i];
+	       	 			var polygonHierarchy  = entity.polygon.hierarchy.getValue().positions;
+	       	 			
+	       	 			/**
+			   	 		 * @class Mago3D.ExtrusionBuilding
+			   	 		 * Polygon geometry과 높이를 이용하여 건물을 생성
+			   	 		 * 
+			   	 		 * Mago3D.ExtrusionBuilding의 static method인 makeExtrusionBuildingByCartesian3Array 함수를 통해 빌딩을 생성,
+			   	 		 * Cesium의 Cartesian3 배열과 높이, 스타일관련 옵션으로 건물 객체 반환
+			   	 		 */
+			   	 		var building = Mago3D.ExtrusionBuilding.makeExtrusionBuildingByCartesian3Array(polygonHierarchy.reverse(), 20, {
+			   	 			color : new Mago3D.Color(0.2, 0.7, 0.8, 0.4)
+			   	 		});
+			   	 		
+			   	 		building.type = 'land';
+			   	 		building.layerId = entity.id; 
+			   	 		/**
+			   	 		 * magoManager에 속한 modeler 인스턴스의 addObject 메소드를 통해 모델 등록, 뒤의 숫자는 데이터가 표출되는 최소 레벨을 의미. 숫자가 낮을수록 멀리서 보임
+			   	 		 */
+			   	 		magoManager.modeler.addObject(building, 12);
+	       	 			
+	       	 		}
+	  			});
+	        }
+		}
+	}); 
+	magoManager.interactionCollection.add(extrudeLandByClickInteraction);
 	var viewer = magoInstance.getViewer();
 	
 	/**
@@ -456,9 +520,10 @@ var extrusionTools = function (magoInstance){
 							var fbs2CenterWC = tmat2.transformPoint3D(fbs2.centerPoint);
 							
 							var faceDistance = fbs1CenterWC.distToPoint(fbs2CenterWC) - fbs1.r - fbs2.r;
-							if(minFaceDistance > surfaceDistance) {
+							if(minFaceDistance > faceDistance) {
 								face1 = f1;
 								face2 = f2;
+								minFaceDistance = faceDistance;
 							}
 						}
 					}
@@ -551,6 +616,29 @@ var extrusionTools = function (magoInstance){
 			selectionManager.clearCurrents();
 			magoManager.defaultSelectInteraction.clear();
 		}
+		
+		this.extrudeLandByClickInteraction = function(on) {
+			if(on) {
+				extrudeLandByClickInteraction.setActive(true);
+			} else {
+				extrudeLandByClickInteraction.setActive(false);
+			}
+		}
+		
+		this.deleteExtrudeLand = function() {
+			
+			var selectionManager = magoManager.selectionManager;
+			var modeler = magoManager.modeler;
+			var lands = modeler.getObjectByKV('type','land');
+			
+			for(var i in lands) {
+				var land = lands[i];
+				modeler.removeObject(land);
+			}
+			selectionManager.clearCurrents();
+			magoManager.defaultSelectInteraction.clear();
+			magoManager.defaultSelectInteraction.clear();
+		}
 	}
 	
 	
@@ -608,7 +696,7 @@ var extrusionTools = function (magoInstance){
 		$('#dataLibraryDialog .btnGroup button[data-runtype="toggle"]').click(function(){
 			var selected = $('#dataLibraryDHTML li.listElement div.data-library.on');
 			if(selected.length === 0) {
-				alert('선택된 라이브러리가 없습니다').
+				alert('선택된 라이브러리가 없습니다');
 				return;
 			}
 			

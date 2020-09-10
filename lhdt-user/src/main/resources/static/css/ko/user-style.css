@@ -749,8 +749,8 @@ text-indent: unset;
 /* PAGINATION */
 .pagination {
 position: relative;
-margin: 7px 0;
 text-align: center;
+padding-top: 10px;
 }
 .pagination li {
 display: inline-block;
@@ -2187,7 +2187,8 @@ max-width: 120px;
 span.infoTag > span {
 display: inline-block;
 margin-right: 5px;
-color: #999;
+/*color: #999;*/
+color: #258fff;
 }
 
 .hiddenTag {
@@ -2279,6 +2280,22 @@ button.circle {
 button.circle:hover {
 	color: #258fff;
 	border: 1px solid #258fff;
+}
+button.box {
+	width: 40px;
+	font-size: 18px;
+	border: 1px solid #797979;
+	background-color: #fff;
+	color: #797979;
+	padding: 5px;
+}
+button.box:hover {
+	color: #258fff;
+	border: 1px solid #258fff;
+}
+.buttonLable {
+	font-size: 13px;
+	margin-top: 5px;
 }
 
 /* ///// GNB WRAP ///// */
@@ -2489,6 +2506,7 @@ ul.listDefault li.on > ul li > button {
 	display: flex; /* NEW, Spec - Opera 12.1, Firefox 20+ */
 	justify-content: center;
 	padding-top: 15px;
+	border-left: 1px solid #005689;
 }
 .searchDataType > div {
 	text-align: center;
@@ -2496,6 +2514,7 @@ ul.listDefault li.on > ul li > button {
 .searchDataType input {
 	-webkit-appearance: none;
 	-moz-appearance: none;
+	-ms-appearance: none;
 	appearance: none;
 	font-size: 27px;
 	color: #ccc;
@@ -2527,7 +2546,10 @@ ul.listDefault li.on > ul li > button {
 	background-color: #258fff55;
 }
 
-
+.searchDataInputWrap {
+	border-left: 1px solid #005689;
+	padding: 10px 20px 15px 20px;
+}
 .searchDataInput {
 	display: -webkit-box; /* OLD - iOS 6-, Safari 3.1-6 */
 	display: -moz-box; /* OLD - Firefox 19- (buggy but mostly works) */
@@ -2537,7 +2559,6 @@ ul.listDefault li.on > ul li > button {
 	background-color: #fff;
 	border: 1px solid #003457;
 	justify-content: space-between;
-	margin: 10px 20px 15px 20px;
 }
 .searchDataInput > * {
 	height: 35px;
@@ -2569,8 +2590,8 @@ ul.listDefault li.on > ul li > button {
 	display: -webkit-flex; /* NEW - Chrome */
 	display: flex; /* NEW, Spec - Opera 12.1, Firefox 20+ */
 	background-color: #fff;
-	padding: 10px;
-	height: 80px;
+	padding: 10px 20px;
+	height: 50px;
 }
 .searchDataFilter > * {
 	height: 30px;
@@ -2583,26 +2604,27 @@ ul.listDefault li.on > ul li > button {
 .searchDataFilter select {
 	-webkit-appearance: none;
 	-moz-appearance: none;
+	-ms-appearance: none;
 	appearance: none;
-	width: 122px;
+	width: 152px;
 	cursor: pointer;
-	background: url(/images/ko/ico.png) no-repeat 97px -740px;
+	background: url(/images/ko/ico.png) no-repeat 126px -740px;
 }
 .filterSelect {
 	color: #258fff;
 	border: 1px solid #797979;
-	width: 100px;
-	height: 28px;
+	width: 120px;
 	line-height: 28px;
 	cursor: pointer;
 	background: url(/images/ko/ico.png) no-repeat 97px -740px;
+	text-align: left;
 }
 
 
 .searchDataFilterLayer {
 	position: absolute;
 	top: 185px;
-	left: 200px;
+	left: 240px;
 	width: 350px;
 	background-color: #fff;
 	z-index: 2000;
@@ -2639,6 +2661,7 @@ ul.listDefault li.on > ul li > button {
 .searchDataFilterType input {
 	-webkit-appearance: none;
 	-moz-appearance: none;
+	-ms-appearance: none;
 	appearance: none;
 	font-size: 27px;
 	color: #797979;
@@ -2672,10 +2695,11 @@ ul.listDefault li.on > ul li > button {
 }
 
 .listElement {
-	padding: 15px 20px 10px 20px;
+	padding: 15px 15px 10px 15px;
 	border: 1px solid #ccc;
 	border-bottom: none;
 	cursor: pointer;
+	min-height: 100px;
 }
 .listElement:hover {
 	background-color: #eff7ff;
@@ -2686,7 +2710,8 @@ ul.listDefault li.on > ul li > button {
 .rightButtonWrap {
 	float: right;
 	display: flex;
-	flex-direction: column;
+	/*flex-direction: column;*/
+	margin-top: 10px;
 }
 
 .titleWrap p {
@@ -2711,11 +2736,11 @@ ul.listDefault li.on > ul li > button {
 	color: #797979;
 }
 .infoWrap {
-	padding: 10px 30px;
+	padding: 10px 120px 10px 30px;
 }
 .infoWrap > p {
-	margin-top: 5px;
-	font-size: 14px;
+	/*margin-top: 5px;*/
+	/*font-size: 14px;*/
 }
 .moreWrap {
 	text-align: center;
@@ -2739,10 +2764,9 @@ ul.listDefault li.on > ul li > button {
 }
 
 .paginationWrap {
-	padding: 15px 0;
 	background-color: #eee;
+	height: 45px;
 }
-
 
 
 .text-right {text-align:right  !important;}
