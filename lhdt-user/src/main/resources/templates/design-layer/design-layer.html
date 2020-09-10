@@ -1,0 +1,98 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<div id="designLayerContent" class="modelerContent contents yScroll fullHeight" style="display:none;">
+<ul class="listDrop">
+
+	<li class="on">
+		<p>디자인 레이어<span class="collapse-icon">icon</span></p>
+    </li>
+</ul>
+       
+	<div class="ds-modeler" style="border: 1px solid #efefef;padding:5px;">
+		<h3 class="">디자인 레이어</h3>
+		
+		<div class="form-group form-group-data">
+			<label for="urban-group1">신도시</label> 
+			<select id="urban-group1" >
+				<option value="">전체</option>
+				<!-- by js -->
+			</select>
+		</div>
+		<div class="form-group form-group-data">
+			<label for="urban-group2">지역</label> 
+			<select id="urban-group2" >
+				<option value="">전체</option>
+				<!-- by js -->
+			</select>
+		</div>
+
+		<div class="list">
+			<div class="design-layers dataGroupSummary table-data-group-summary">
+				<!-- by js -->
+			</div>
+
+		</div>
+	</div>
+
+	<div class="ds-tool marT10" style="border: 1px solid #efefef;padding:5px;">
+		<h3 class="">도구</h3>
+		<div class="">
+			<button class="textBtnSub  design-layer-tool-none" style="display:none;">none</button>
+			<button class="textBtnSub  design-layer-tool-point">점으로생성</button>
+			<button class="textBtnSub  design-layer-tool-line">선으로생성</button>
+			<button class="textBtnSub  design-layer-tool-select">선택</button>
+			<button class="textBtnSub  design-layer-tool-delete">삭제</button>
+			<button class="textBtnSub  design-layer-tool-move">이동</button>
+		</div>
+	</div>
+
+	<!--
+
+		<div class="ds-category marT10" style="border: 1px solid #efefef;padding:5px;">
+			<h3 class=" marT10">카테고리</h3>
+			<div class="form-group form-group-data">
+				<label for="before-category">변경전</label> 
+				<input type="text" name="selectedDataLibrary" class="ds-selected-data-library" readonlye="readonly"/>
+			</div>
+			<div class="form-group form-group-data">
+				<label for="after-category">변경후</label> <select id="after-category" name="searchDataGroup">
+					<option value="">선택</option>
+				</select>
+			</div>
+			
+			<div class="form-group button-group-center">
+				<button type="button" class="btnTextF ds-change-category" title="검색">변경</button>
+			</div>
+			
+		</div>
+	-->
+
+<style>
+.text-left {text-align:left !important;}
+</style>	
+
+
+<!--  -->
+<script id="design-layer-template" type="text/x-handlebars-template">
+<table class="table-word-break design-layers" summary="디자인 레이어 목록">
+	<caption class="hiddenTag">디자인 레이어 목록</caption>
+	<colgroup>
+		<col class="col-width-15">
+		<col class="col-number" width="*">
+	</colgroup>
+	<thead>
+		<tr>
+			<th scope="col" class="col-number">선택</th>
+			<th scope="col" class="col-number">디자인 레이어명</th>
+		</tr>
+	</thead>
+	<tbody>
+		{{#each datas}}
+		<tr >
+			<td class="col-number"><input type="checkbox" name="design-layer-id" value="{{designLayerId}}"></td>
+			<td class="col-number text-left cursor-pointer">{{designLayerName}}</td>
+		</tr>
+		{{/each}}
+	</tbody>
+</table>
+</script>
+</div>

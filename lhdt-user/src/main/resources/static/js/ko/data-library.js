@@ -173,8 +173,38 @@ ModelerObj.prototype.setEventHandler = function(){
 
 
 /**
+ * setter tool
+ * @param {ModelerObj.Tool}
+ */
+ModelerObj.prototype.setTool = function(tool){
+	let beforeTool = this.tool;
+	this.tool = tool;
+
+	//
+	if('function' === typeof(this.toolChanged)){
+		this.toolChanged(beforeTool, this.tool);
+	}
+};
+
+/**
+ * getter tool
+ * @returns {ModelerObj.Tool}
+ */
+ ModelerObj.prototype.getTool = function(){
+	return this.tool;
+};
+
+
+ModelerObj.prototype.isTool = function(tool){
+    return this.getTool() === tool;
+}
+
+
+
+/**
  * dataLibraryId로 데이터 조회
- * @returns {object}
+ * @param {string|number} dataLibraryId
+ * @returns {object|null}
  *
  */
 ModelerObj.prototype.getDataById =function(dataLibraryId){
@@ -197,7 +227,6 @@ ModelerObj.prototype.getDataById =function(dataLibraryId){
 
 /**
  * lonLat위치에 데이터 라이브러리 추가(표시)하기
- * @param {object} data 데이터 라이브러리
  * @param {LonLat} lonLat
  */
 ModelerObj.prototype.showDataLibraryAtMap = function(lonLat){
@@ -236,27 +265,6 @@ ModelerObj.prototype.showDataLibraryAtMap = function(lonLat){
 	});
 };
 
-/**
- * setter tool
- * @param {ModelerObj.Tool}
- */
-ModelerObj.prototype.setTool = function(tool){
-	let beforeTool = this.tool;
-	this.tool = tool;
-
-	//
-	if('function' === typeof(this.toolChanged)){
-		this.toolChanged(beforeTool, this.tool);
-	}
-};
-
-/**
- * getter tool
- * @returns {ModelerObj.Tool}
- */
- ModelerObj.prototype.getTool = function(){
-	return this.tool;
-};
 
 
 /**
@@ -483,6 +491,7 @@ ModelerObj.prototype.processToolPoint = function(){
  * 도구 - 선
  */ 
 ModelerObj.prototype.processToolLine = function(){
+    //LonLat을 지도에 표시하기 위한 좌표형태로 변환
 	let _toDataPositions = function(lonLats){
 		let arr=[];
 
@@ -501,6 +510,7 @@ ModelerObj.prototype.processToolLine = function(){
 				'altitude': 0,
 			}
 
+            //10m 간격
 			let dataPositions = Mago3D.GeographicCoordSegment.getArcInterpolatedGeoCoords(p1, p2, 10);
 			//
 			arr = arr.concat(dataPositions);			
