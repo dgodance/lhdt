@@ -218,6 +218,7 @@
 		Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxODQ0NTUxYi1mODg3LTQxZTEtYmU2Zi00NzQ0ODI3YjI1ZDIiLCJpZCI6MTUxODYsInNjb3BlcyI6WyJhc2wiLCJhc3IiLCJhc3ciLCJnYyJdLCJpYXQiOjE1Njc0MDU5MDJ9.gqA_lEtPeiKI_Tn6WbBKfcaSaiHmj0f1GmcD0VBtmPc";
 
 		var geoPolicyJson = NDTP.policy;
+//<<<<<<< HEAD
 		var cesiumViewerOption = {};
 		cesiumViewerOption.infoBox = false;
 		cesiumViewerOption.navigationHelpButton = false;
@@ -230,6 +231,27 @@
 		cesiumViewerOption.terrainProvider = new Cesium.CesiumTerrainProvider({
 			url: Cesium.IonResource.fromAssetId(85669),
 		});
+/*		
+=======
+		var option = {};
+		option.infoBox = false;
+		option.navigationHelpButton = false;
+		option.selectionIndicator = false;
+		option.homeButton = false;
+		option.fullscreenButton = false;
+		option.geocoder = false;
+		option.baseLayerPicker = false;
+			
+		option.defaultControl = {};
+		option.defaultControl.zoom = false;
+		option.defaultControl.initCamera = false;
+		option.defaultControl.fullScreen = false;
+		option.defaultControl.measure = false;
+		option.defaultControl.tools = false;
+		option.defaultControl.attribution = false;
+		option.defaultControl.overviewMap = false;
+>>>>>>> develop
+*/
 
 		/**
 		 * @param {Stirng} containerId container div id. required.
@@ -238,7 +260,7 @@
 		 * @param {object} options Cesium viewer parameter. option.
 		 * @param {Cesium.Viewer} legacyViewer 타 시스템과의 연동의 경우 view 객체가 생성되어서 넘어 오는 경우가 있음. option.
 		*/
-		MAGO3D_INSTANCE = new Mago3D.Mago3d('magoContainer', geoPolicyJson, {loadend : magoLoadEnd}, cesiumViewerOption);
+		MAGO3D_INSTANCE = new Mago3D.Mago3d('magoContainer', geoPolicyJson, {loadend : magoLoadEnd}, option);
 	}
 
 	var beforePointId = null;
@@ -258,7 +280,7 @@
 		}); */
 
 		// mago3d logo 추가
-		Mago3D.tempCredit(viewer);
+		//Mago3D.tempCredit(viewer);
 
 		//우측 상단 지도 컨트롤러
 		MapControll(viewer);

@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 데이터 Library 그룹
@@ -74,6 +75,8 @@ public class DataLibraryGroup extends Search {
 
 	// 설명
 	private String description;
+
+	List<DataLibrary> dataLibraryList;
 	
 	@Getter(AccessLevel.NONE)
 	@Setter(AccessLevel.NONE)

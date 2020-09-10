@@ -1,16 +1,12 @@
 package lhdt.domain.common;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-
+import lhdt.domain.ConverterType;
 import lhdt.domain.ServerTarget;
 import lhdt.domain.uploaddata.UploadDataType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
 
 @ToString
 @Builder
@@ -20,11 +16,9 @@ import lombok.ToString;
 @AllArgsConstructor
 public class QueueMessage implements Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 3921739919596885061L;
 
+	private ConverterType converterType;
 	private ServerTarget serverTarget;
 	private String userId;
 	

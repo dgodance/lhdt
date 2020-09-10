@@ -6,6 +6,11 @@ update geopolicy set
 	geoserver_password = 'geoserver';
 
 
+update geopolicy
+set init_longitude = '127.01288139968887',
+	init_latitude = '37.44959387479118';
+commit;
+
 -- smart tiling 이후에 해 줘야 할 작업, 벌크 업로드 시 처리됨.
 -- 1 데이터 건수 수정	
 

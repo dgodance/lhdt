@@ -81,7 +81,7 @@ values
 insert into menu(menu_id, menu_type, menu_target, name, name_en, ancestor, parent, depth, view_order, url, url_alias, html_id, html_content_id,
     css_class, default_yn, use_yn, display_yn)
 values
-    (1001, '1', '0', '검색', 'SEARCH', 1001, 0, 1, 1, '/search', null, 'searchMenu', 'searchContent', 'search', 'Y', 'Y', 'Y'),
+    --(1001, '1', '0', '검색', 'SEARCH', 1001, 0, 1, 1, '/search', null, 'searchMenu', 'searchContent', 'search', 'Y', 'Y', 'Y'),
     (1002, '1', '0', '데이터', 'DATA', 1002, 0, 1, 2, '/data/map', null, 'dataMenu', 'dataContent', 'data', 'Y', 'Y', 'Y'),
     (1003, '1', '0', '변환', 'CONVERTER', 1003, 0, 1, 3, '/upload-data/list', null, 'converterMenu', 'converterContent', 'converter', 'Y', 'Y', 'Y'),
     (1005, '1', '0', 'Extrusion', 'EXTRUSION', 1005, 0, 1, 5, '/extrusion', null, 'extrusionMenu', 'extrusionContent', 'extrusion', 'Y', 'Y', 'Y'),
@@ -154,14 +154,14 @@ values
 	(86, 1, 86, 'Y'),
 	(87, 1, 87, 'Y'),
 	(88, 1, 88, 'Y'),
-	(NEXTVAL('user_group_menu_seq'), 1, 1001, 'Y'),
+	--(NEXTVAL('user_group_menu_seq'), 1, 1001, 'Y'),
 	(NEXTVAL('user_group_menu_seq'), 1, 1002, 'Y'),
 	(NEXTVAL('user_group_menu_seq'), 1, 1003, 'Y'),
 	(NEXTVAL('user_group_menu_seq'), 1, 1005, 'Y'),
 	(NEXTVAL('user_group_menu_seq'), 1, 1007, 'Y'),
 	(NEXTVAL('user_group_menu_seq'), 1, 1008, 'Y'),
 
-	(NEXTVAL('user_group_menu_seq'), 2, 1001, 'Y'),
+	--(NEXTVAL('user_group_menu_seq'), 2, 1001, 'Y'),
 	(NEXTVAL('user_group_menu_seq'), 2, 1002, 'Y'),
 	(NEXTVAL('user_group_menu_seq'), 2, 1003, 'Y'),
 	(NEXTVAL('user_group_menu_seq'), 2, 1005, 'Y'),
@@ -228,25 +228,34 @@ INSERT INTO data_library_group (
 	data_library_group_id, data_library_group_key, data_library_group_name, data_library_group_path, data_library_group_target, sharing, user_id,
 	ancestor, parent, depth, view_order, children, basic, available, data_library_count)
 values
-	(1, 'basic', '기본', 'infra/data-library/basic/', 'admin', 'common', 'admin', 1, 0, 1, 1, 0, true, true, 0)
-
-	;
-
+	(1, 'basic', '기본', 'infra/data-library/basic/', 'admin', 'common', 'admin', 1, 0, 1, 1, 0, true, true, 0);
 
 INSERT INTO public.urban_group(
 	urban_group_id, urban_group_key, urban_group_name, user_id, ancestor, parent, depth, view_order, children, available, basic)
 VALUES
-    (1, '', '3기 신도시', 'admin', 1, 0, 1, 1, 10, true, true),
-    (2, '', '남양주 왕숙 신도시', 'admin', 1, 1, 2, 2, 0, true, true),
-    (3, '', '하남 교산 신도시', 'admin', 1, 1, 2, 3, 0, true, true),
-    (4, '', '인천 계양 신도시', 'admin', 1, 1, 2, 4, 0, true, true),
-    (5, '', '고양 창릉 신도시', 'admin', 1, 1, 2, 5, 0, true, true),
-    (6, '', '부천 대장 신도시', 'admin', 1, 1, 2, 6, 0, true, true),
-    (7, '', '과천 과천 지구', 'admin', 1, 1, 2, 7, 0, true, true),
-    (8, '', '안산 장상지구', 'admin', 1, 1, 2, 8, 0, true, true),
-    (9, '', '용인 구성역', 'admin', 1, 1, 2, 9, 0, true, true),
-    (10, '', '안산 신길2지구', 'admin', 1, 1, 2, 10, 0, true, true),
-    (11, '', '수원 당수2지구', 'admin', 1, 1, 2, 11, 0, true, true)
+    (1, 'a', '3기 신도시', 'admin', 1, 0, 1, 1, 10, true, true),
+    (2, 'b', '남양주 왕숙 신도시', 'admin', 1, 1, 2, 2, 0, true, true),
+    (3, 'c', '하남 교산 신도시', 'admin', 1, 1, 2, 3, 0, true, true),
+    (4, 'd', '인천 계양 신도시', 'admin', 1, 1, 2, 4, 0, true, true),
+    (5, 'e', '고양 창릉 신도시', 'admin', 1, 1, 2, 5, 0, true, true),
+    (6, 'f', '부천 대장 신도시', 'admin', 1, 1, 2, 6, 0, true, true),
+    (7, 'g', '과천 과천 지구', 'admin', 1, 1, 2, 7, 0, true, true),
+    (8, 'h', '안산 장상지구', 'admin', 1, 1, 2, 8, 0, true, true),
+    (9, 'i', '용인 구성역', 'admin', 1, 1, 2, 9, 0, true, true),
+    (10, 'j', '안산 신길2지구', 'admin', 1, 1, 2, 10, 0, true, true),
+    (11, 'k', '수원 당수2지구', 'admin', 1, 1, 2, 11, 0, true, true)
 ;
+
+-- 건축한계선
+-- 구역계
+-- 벽면한계선
+-- 상층부관리구간
+-- 상층부관리구간
+-- 중저층배치구간
+-- 중저층배치권장구간
+-- 커뮤니티회랑
+-- 탑상형배치구간
+-- 탑상형배치권장구간
+-- 획지
 
 commit;

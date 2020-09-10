@@ -206,7 +206,7 @@ public class DataLibraryConverterServiceImpl implements DataLibraryConverterServ
 
             // TODO enum binding 이 잘 안되서, 임시로 string으로 함. 고쳐야 함
             log.info("### status = {}, dataLibraryConverterJobFile = {}", conversionJobResult.getResultStatus(), dataLibraryConverterJobFile);
-            if (ConverterJobResultStatus.SUCCESS == ConverterJobResultStatus.findByStatus(conversionJobResult.getResultStatus().toLowerCase())) {
+            if (ConverterJobResultStatus.SUCCESS == conversionJobResult.getResultStatus()) {
                 // 상태가 성공인 경우
                 // 데이터를 등록 혹은 갱신. 상태를 use(사용중)로 등록.
                 DataLibrary dataLibrary = upsertDataLibrary(userId, dataLibraryConverterJobId, converterTargetCount, dataLibraryUploadFile);
@@ -345,6 +345,11 @@ public class DataLibraryConverterServiceImpl implements DataLibraryConverterServ
             dataLibraryName = fileName.substring(0, fileName.lastIndexOf("."));
         }
 
+        // 데이터 라이브러리 경로
+        String adminDataLibraryServicePath = propertiesConfig.getAdminDataLibraryServicePath();
+        DataLibraryGroup dataLibraryGroup = dataLibraryGroupService.getDataLibraryGroup(DataLibraryGroup.builder().dataLibraryGroupId(dataLibraryGroupId).build());
+        String dataLibraryPath = adminDataLibraryServicePath + dataLibraryGroup.getDataLibraryGroupKey() + "/" + dataLibraryKey;
+
         String dataType = dataLibraryUploadFile.getDataType();
         String sharing = dataLibraryUploadFile.getSharing();
         String mappingType = dataLibraryUploadFile.getMappingType();
@@ -364,6 +369,7 @@ public class DataLibraryConverterServiceImpl implements DataLibraryConverterServ
             dataLibrary.setDataType(dataType);
             dataLibrary.setDataLibraryKey(dataLibraryKey);
             dataLibrary.setDataLibraryName(dataLibraryName);
+            dataLibrary.setDataLibraryPath(dataLibraryPath);
             dataLibrary.setUserId(userId);
             //dataLibrary.setStatus(DataStatus.PROCESSING.name().toLowerCase());
             dataLibrary.setStatus(DataLibraryStatus.USE.name().toLowerCase());
@@ -375,6 +381,7 @@ public class DataLibraryConverterServiceImpl implements DataLibraryConverterServ
 //            dataLibrary.setMappingType(mappingType);
             dataLibrary.setDataType(dataType);
             dataLibrary.setDataLibraryName(dataLibraryName);
+            dataLibrary.setDataLibraryPath(dataLibraryPath);
             dataLibrary.setUserId(userId);
             //dataLibrary.setStatus(DataStatus.PROCESSING.name().toLowerCase());
             dataLibrary.setStatus(DataLibraryStatus.USE.name().toLowerCase());

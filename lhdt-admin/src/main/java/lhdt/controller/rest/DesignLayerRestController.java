@@ -222,11 +222,20 @@ public class DesignLayerRestController implements AuthorizationController {
 			} else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
 				extrusionColumns = geoPolicy.getShapeBuildingRequiredColumns();
 			}
+
+			if(StringUtils.isEmpty(extrusionColumns)) {
+				result.put("statusCode", HttpStatus.BAD_REQUEST.value());
+				result.put("errorCode", "upload.designlayer.policy");
+				return result;
+			}
+
 			// 2. 레이어 기본 정보 및 레이어 이력 정보 등록
 			updateDesignLayerMap = designLayerService.insertDesignLayer(designLayer, designLayerFileInfoList);
+			log.info("++++++++++++++++++++++++++++++++-------------------------- designLayerFileInfoList = {}", designLayerFileInfoList);
 			if (!designLayerFileInfoList.isEmpty()) {
 				// 3. geometry 정보 insert
 				List<DesignLayer> shapePropertiesList = shapeFileParser.getExtrusionModelList(objectMapper, extrusionColumns);
+				log.info("++++++++++++++++++++++++++++++++-------------------------- shapePropertiesList = {}", shapePropertiesList);
 				designLayerService.insertShapeInfo(designLayer, shapePropertiesList);
 				// 4. 속성 파일이 있다면 업데이트(geometry insert 후에 versionId 가 없는 것들 중에서 업데이트)
 				String attributeFileName = getAttributeFile(designLayerFileInfoList);
@@ -427,6 +436,13 @@ public class DesignLayerRestController implements AuthorizationController {
 			} else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
 				extrusionColumns = geoPolicy.getShapeBuildingRequiredColumns();
 			}
+
+			if(StringUtils.isEmpty(extrusionColumns)) {
+				result.put("statusCode", HttpStatus.BAD_REQUEST.value());
+				result.put("errorCode", "upload.designlayer.policy");
+				return result;
+			}
+
             // 4. 레이어 기본 정보 및 레이어 이력 정보 등록
             Map<String, Object> updateDesignLayerMap = designLayerService.updateDesignLayer(designLayer, isDesignDesignLayerFileInfoExist, designLayerFileInfoList);
             if(!designLayerFileInfoList.isEmpty()) {
@@ -857,6 +873,7 @@ public class DesignLayerRestController implements AuthorizationController {
     	if(!designLayerFileInfoList.isEmpty()) {
     		long validCount = designLayerFileInfoList.stream()
     				.filter(designLayerFileInfo -> {
+    					log.info("==== designLayerFileInfo = {}", designLayerFileInfo);
     					String fileExt = designLayerFileInfo.getFileExt().toLowerCase().trim();
     					return fileExt.equals(ShapeFileExt.SHP.getValue()) || fileExt.equals(ShapeFileExt.DBF.getValue()) || fileExt.equals(ShapeFileExt.SHX.getValue());
     				})

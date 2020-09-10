@@ -24,6 +24,7 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -260,20 +261,26 @@ public class DesignLayerServiceImpl implements DesignLayerService {
      * @throws Exception
      */
     @Transactional
-    public void insertShapeInfo(DesignLayer designLayer, List<DesignLayer> shapeInfoList) throws Exception {
+    public void insertShapeInfo(DesignLayer designLayer, List<DesignLayer> shapeInfoList) {
         if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
             shapeInfoList.forEach(f -> {
-                f.setDesignLayerId(designLayer.getDesignLayerId());
-                f.setDesignLayerGroupId(designLayer.getDesignLayerGroupId());
-                f.setCoordinate(designLayer.getCoordinate().split(":")[1]);
-                designLayerMapper.insertGeometryLand(modelMapper.map(f, DesignLayerLand.class));
+                var designLayerLand = modelMapper.map(f, DesignLayerLand.class);
+                designLayerLand.setDesignLayerId(designLayer.getDesignLayerId());
+                designLayerLand.setDesignLayerGroupId(designLayer.getDesignLayerGroupId());
+                designLayerLand.setCoordinate(Integer.valueOf(designLayer.getCoordinate().split(":")[1]));
+                designLayerLand.setTheGeom(f.getTheGeom());
+                designLayerLand.setIdentificationCode(f.getShapeId());
+                designLayerMapper.insertGeometryLand(designLayerLand);
             });
         } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
             shapeInfoList.forEach(f -> {
-                f.setDesignLayerId(designLayer.getDesignLayerId());
-                f.setDesignLayerGroupId(designLayer.getDesignLayerGroupId());
-                f.setCoordinate(designLayer.getCoordinate().split(":")[1]);
-                designLayerMapper.insertGeometryBuilding(modelMapper.map(f, DesignLayerBuilding.class));
+                var designLayerBuilding = modelMapper.map(f, DesignLayerBuilding.class);
+                designLayerBuilding.setDesignLayerId(designLayer.getDesignLayerId());
+                designLayerBuilding.setDesignLayerGroupId(designLayer.getDesignLayerGroupId());
+                designLayerBuilding.setCoordinate(Integer.valueOf(designLayer.getCoordinate().split(":")[1]));
+                designLayerBuilding.setTheGeom(f.getTheGeom());
+                designLayerBuilding.setBuildId(f.getShapeId());
+                designLayerMapper.insertGeometryBuilding(designLayerBuilding);
             });
         }
     }
@@ -352,41 +359,41 @@ public class DesignLayerServiceImpl implements DesignLayerService {
                 for (CSVRecord record : records) {
                     if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(type.toUpperCase())) {
                         DesignLayerLand designLayerLand = DesignLayerLand.builder()
-                                .shapeId(Long.valueOf(record.get(0)))
-                                .businessType(record.get(1))
-                                .businessDistrict(record.get(2))
-                                .blockNumber(record.get(3))
-                                .landNumber(record.get(4))
-                                .landArea(record.get(5))
-                                .useageArea(record.get(6))
-                                .landUseage(record.get(7))
-                                .landDivision(record.get(8))
-                                .useage(record.get(9))
-                                .useageSpecification(record.get(10))
-                                .useageRecommended(record.get(11))
-                                .useageAllowed(record.get(12))
-                                .useageLimited(record.get(13))
-                                .useageDisapproval(record.get(14))
-                                .buildingLandRatio(record.get(15))
+                                .identificationCode(Long.valueOf(record.get(0)))
+                                .projectType(record.get(1))
+                                .projectTitle(record.get(2))
+                                .blockCode(record.get(3))
+                                .lotCode(record.get(4))
+                                .lotArea(record.get(5))
+                                .landuseZoning(record.get(6))
+                                .landusePlan(record.get(7))
+                                .lotDivideMarge(record.get(8))
+                                .buildingUse(record.get(9))
+                                .buildingUseDefined(record.get(10))
+                                .buildingUseRecommended(record.get(11))
+                                .buildingUseAllowed(record.get(12))
+                                .buildingUseConditional(record.get(13))
+                                .buildingUseForbidden(record.get(14))
+                                .buildingCoverageRatio(record.get(15))
                                 .floorAreaRatio(record.get(16))
                                 .floorAreaRatioStandard(record.get(17))
                                 .floorAreaRatioAllowed(record.get(18))
-                                .floorAreaRatioUpperLimit(record.get(19))
-                                .highestHeight(record.get(20))
-                                .highestFloor(record.get(21))
+                                .floorAreaRatioMaximum(record.get(19))
+                                .maximumBuildingHeight(record.get(20))
+                                .maximumBuildingFloors(record.get(21))
                                 .housingType(record.get(22))
-                                .householdsNumber(record.get(23))
-                                .standardPoint(record.get(24))
+                                .numberOfHouseholds(record.get(23))
+                                .reference(record.get(24))
                                 .build();
                         designLayerMapper.updateDesignLayerLandAttributes(designLayerLand);
                     } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(type.toUpperCase())) {
                         DesignLayerBuilding building = DesignLayerBuilding.builder()
-                                .shapeId(Long.valueOf(record.get(0)))
-                                .buildingHeight(record.get(1))
-                                .buildingFloors(record.get(2))
-                                .buildingArea(record.get(3))
-                                .complexBuilding(record.get(4))
-                                .parentId(Long.valueOf(record.get(5)))
+                                .buildId(Long.valueOf(record.get(0)))
+                                .buildHeight(record.get(1))
+                                .buildFloor(record.get(2))
+                                .buildArea(record.get(3))
+                                .buildComplex(record.get(4))
+                                .parentId(record.get(5))
                                 .build();
                         designLayerMapper.updateDesignLayerBuildingAttributes(building);
                     }
@@ -602,26 +609,35 @@ public class DesignLayerServiceImpl implements DesignLayerService {
 	private HttpStatus getDesignLayerStatus(GeoPolicy geopolicy, String designLayerKey) {
 		HttpStatus httpStatus = null;
 		try {
-			HttpHeaders headers = new HttpHeaders();
-			headers.setContentType(MediaType.TEXT_XML);
-			// geoserver basic 암호화 아이디:비밀번호 를 base64로 encoding
-			headers.add("Authorization", "Basic " + Base64.getEncoder()
-					.encodeToString((geopolicy.getGeoserverUser() + ":" + geopolicy.getGeoserverPassword()).getBytes()));
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.TEXT_XML);
+            // geoserver basic 암호화 아이디:비밀번호 를 base64로 encoding
+            headers.add("Authorization", "Basic " + Base64.getEncoder()
+                    .encodeToString((geopolicy.getGeoserverUser() + ":" + geopolicy.getGeoserverPassword()).getBytes()));
 
-			List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
-			// Add the String Message converter
-			messageConverters.add(new StringHttpMessageConverter());
-			// Add the message converters to the restTemplate
-			RestTemplate restTemplate = new RestTemplate();
-			restTemplate.setMessageConverters(messageConverters);
+            List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
+            // Add the String Message converter
+            messageConverters.add(new StringHttpMessageConverter());
+            // Add the message converters to the restTemplate
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.setMessageConverters(messageConverters);
 
-			HttpEntity<String> entity = new HttpEntity<>(headers);
-			String url = geopolicy.getGeoserverDataUrl() + "/rest/workspaces/" + geopolicy.getGeoserverDataWorkspace()
-					+ "/datastores/" + geopolicy.getGeoserverDataStore() + "/featuretypes/" + designLayerKey;
-			log.info("-------- url = {}", url);
-			ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
-			httpStatus = response.getStatusCode();
-			log.info("-------- designLayerKey = {}, statusCode = {}, body = {}", designLayerKey, response.getStatusCodeValue(), response.getBody());
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+            String url = geopolicy.getGeoserverDataUrl() + "/rest/workspaces/" + geopolicy.getGeoserverDataWorkspace()
+                    + "/datastores/" + geopolicy.getGeoserverDataStore() + "/featuretypes/" + designLayerKey;
+            log.info("-------- url = {}", url);
+            ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+            httpStatus = response.getStatusCode();
+            log.info("-------- designLayerKey = {}, statusCode = {}, body = {}", designLayerKey, response.getStatusCodeValue(), response.getBody());
+        }
+         catch(HttpClientErrorException e) {
+             String message = e.getMessage();
+             if (message.indexOf("404") >= 0) {
+                 httpStatus = HttpStatus.NOT_FOUND;
+             } else {
+                 LogMessageSupport.printMessage(e, "-------- HttpClientErrorException message = {}", message);
+                 httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+             }
 		} catch (RestClientException e) {
 		    LogMessageSupport.printMessage(e, "-------- RestClientException message = {}", e.getMessage());
 			String message = e.getMessage();
@@ -697,7 +713,7 @@ public class DesignLayerServiceImpl implements DesignLayerService {
             // 클라이언트가 request에 실어 보내는 데이타(body)의 형식(MediaType)를 표현
             headers.setContentType(MediaType.TEXT_XML);
             // geoserver basic 암호화 아이디:비밀번호 를 base64로 encoding
-            headers.add("Authorization", "Basic " + Base64.getEncoder().encodeToString( (geopolicy.getGeoserverUser() + ":" + geopolicy.getGeoserverPassword()).getBytes()));
+            headers.add("Authorization", "Basic " + Base64.getEncoder().encodeToString((geopolicy.getGeoserverUser() + ":" + geopolicy.getGeoserverPassword()).getBytes()));
 
             List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
             //Add the String Message converter
@@ -711,6 +727,15 @@ public class DesignLayerServiceImpl implements DesignLayerService {
             ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
             httpStatus = response.getStatusCode();
             log.info("-------- getDesignLayerStyle styleName = {}, statusCode = {}, body = {}", designLayerKey, response.getStatusCodeValue(), response.getBody());
+        }
+         catch(HttpClientErrorException e) {
+             String message = e.getMessage();
+             if (message.indexOf("404") >= 0) {
+                 httpStatus = HttpStatus.NOT_FOUND;
+             } else {
+                 LogMessageSupport.printMessage(e, "-------- HttpClientErrorException message = {}", message);
+                 httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+             }
         } catch (RestClientException e) {
             LogMessageSupport.printMessage(e, "-------- RestClientException message = {}", e.getMessage());
 			String message = e.getMessage();
@@ -743,35 +768,44 @@ public class DesignLayerServiceImpl implements DesignLayerService {
 		String layerStyleFileData = null;
 		HttpStatus httpStatus = null;
 		try {
-			GeoPolicy geopolicy = geoPolicyService.getGeoPolicy();
+            GeoPolicy geopolicy = geoPolicyService.getGeoPolicy();
 
-			RestTemplate restTemplate = new RestTemplate();
+            RestTemplate restTemplate = new RestTemplate();
 
-			HttpHeaders headers = new HttpHeaders();
-			// 클라이언트가 서버에 어떤 형식(MediaType)으로 달라는 요청을 할 수 있는데 이게 Accpet 헤더를 뜻함.
-			List<MediaType> acceptList = new ArrayList<>();
-			acceptList.add(MediaType.TEXT_XML);
-			headers.setAccept(acceptList);
+            HttpHeaders headers = new HttpHeaders();
+            // 클라이언트가 서버에 어떤 형식(MediaType)으로 달라는 요청을 할 수 있는데 이게 Accpet 헤더를 뜻함.
+            List<MediaType> acceptList = new ArrayList<>();
+            acceptList.add(MediaType.TEXT_XML);
+            headers.setAccept(acceptList);
 
-			// 클라이언트가 request에 실어 보내는 데이타(body)의 형식(MediaType)를 표현
-			headers.setContentType(MediaType.TEXT_XML);
-			// geoserver basic 암호화 아이디:비밀번호 를 base64로 encoding
-			headers.add("Authorization", "Basic " + Base64.getEncoder()
-					.encodeToString((geopolicy.getGeoserverUser() + ":" + geopolicy.getGeoserverPassword()).getBytes()));
+            // 클라이언트가 request에 실어 보내는 데이타(body)의 형식(MediaType)를 표현
+            headers.setContentType(MediaType.TEXT_XML);
+            // geoserver basic 암호화 아이디:비밀번호 를 base64로 encoding
+            headers.add("Authorization", "Basic " + Base64.getEncoder()
+                    .encodeToString((geopolicy.getGeoserverUser() + ":" + geopolicy.getGeoserverPassword()).getBytes()));
 
-			List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
-			// Add the String Message converter
-			messageConverters.add(new StringHttpMessageConverter());
-			// Add the message converters to the restTemplate
-			restTemplate.setMessageConverters(messageConverters);
+            List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
+            // Add the String Message converter
+            messageConverters.add(new StringHttpMessageConverter());
+            // Add the message converters to the restTemplate
+            restTemplate.setMessageConverters(messageConverters);
 
-			HttpEntity<String> entity = new HttpEntity<>(headers);
+            HttpEntity<String> entity = new HttpEntity<>(headers);
 
-			String url = geopolicy.getGeoserverDataUrl() + "/rest/styles/" + geometryType.toLowerCase() + ".sld";
-			ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
-			httpStatus = response.getStatusCode();
-			layerStyleFileData = response.getBody().toString();
-			log.info("-------- getLayerDefaultStyleFileData geometry type = {}, statusCode = {}, body = {}", geometryType, response.getStatusCodeValue(), response.getBody());
+            String url = geopolicy.getGeoserverDataUrl() + "/rest/styles/" + geometryType.toLowerCase() + ".sld";
+            ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+            httpStatus = response.getStatusCode();
+            layerStyleFileData = response.getBody().toString();
+            log.info("-------- getLayerDefaultStyleFileData geometry type = {}, statusCode = {}, body = {}", geometryType, response.getStatusCodeValue(), response.getBody());
+        }
+         catch(HttpClientErrorException e) {
+             String message = e.getMessage();
+             if (message.indexOf("404") >= 0) {
+                 httpStatus = HttpStatus.NOT_FOUND;
+             } else {
+                 LogMessageSupport.printMessage(e, "-------- HttpClientErrorException message = {}", message);
+                 httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+             }
 		} catch (RestClientException e) {
 		    LogMessageSupport.printMessage(e, "-------- RestClientException message = {}", e.getMessage());
 			String message = e.getMessage();
@@ -803,47 +837,56 @@ public class DesignLayerServiceImpl implements DesignLayerService {
 		String layerStyleFileData = null;
 		HttpStatus httpStatus = null;
 		try {
-			GeoPolicy geopolicy = geoPolicyService.getGeoPolicy();
-			DesignLayer designLayer = designLayerMapper.getDesignLayer(designLayerId);
+            GeoPolicy geopolicy = geoPolicyService.getGeoPolicy();
+            DesignLayer designLayer = designLayerMapper.getDesignLayer(designLayerId);
 
-			RestTemplate restTemplate = new RestTemplate();
+            RestTemplate restTemplate = new RestTemplate();
 
-			HttpHeaders headers = new HttpHeaders();
-			// 클라이언트가 서버에 어떤 형식(MediaType)으로 달라는 요청을 할 수 있는데 이게 Accpet 헤더를 뜻함.
-			List<MediaType> acceptList = new ArrayList<>();
-			acceptList.add(MediaType.TEXT_XML);
-			headers.setAccept(acceptList);
+            HttpHeaders headers = new HttpHeaders();
+            // 클라이언트가 서버에 어떤 형식(MediaType)으로 달라는 요청을 할 수 있는데 이게 Accpet 헤더를 뜻함.
+            List<MediaType> acceptList = new ArrayList<>();
+            acceptList.add(MediaType.TEXT_XML);
+            headers.setAccept(acceptList);
 
-			// 클라이언트가 request에 실어 보내는 데이타(body)의 형식(MediaType)를 표현
-			headers.setContentType(MediaType.TEXT_XML);
-			// geoserver basic 암호화 아이디:비밀번호 를 base64로 encoding
-			headers.add("Authorization", "Basic " + Base64.getEncoder()
-					.encodeToString((geopolicy.getGeoserverUser() + ":" + geopolicy.getGeoserverPassword()).getBytes()));
+            // 클라이언트가 request에 실어 보내는 데이타(body)의 형식(MediaType)를 표현
+            headers.setContentType(MediaType.TEXT_XML);
+            // geoserver basic 암호화 아이디:비밀번호 를 base64로 encoding
+            headers.add("Authorization", "Basic " + Base64.getEncoder()
+                    .encodeToString((geopolicy.getGeoserverUser() + ":" + geopolicy.getGeoserverPassword()).getBytes()));
 
-			List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
-			// Add the String Message converter
-			messageConverters.add(new StringHttpMessageConverter());
-			// Add the message converters to the restTemplate
-			restTemplate.setMessageConverters(messageConverters);
+            List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
+            // Add the String Message converter
+            messageConverters.add(new StringHttpMessageConverter());
+            // Add the message converters to the restTemplate
+            restTemplate.setMessageConverters(messageConverters);
 
-			HttpEntity<String> entity = new HttpEntity<>(headers);
+            HttpEntity<String> entity = new HttpEntity<>(headers);
 
-			String url = geopolicy.getGeoserverDataUrl() + "/rest/workspaces/" + geopolicy.getGeoserverDataWorkspace() + "/styles/" + designLayer.getDesignLayerKey() + ".sld";
-			ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
-			httpStatus = response.getStatusCode();
-			layerStyleFileData = response.getBody().toString();
-			log.info("-------- designLayerKey = {}, statusCode = {}, body = {}", designLayer.getDesignLayerKey(), response.getStatusCodeValue(), response.getBody());
+            String url = geopolicy.getGeoserverDataUrl() + "/rest/workspaces/" + geopolicy.getGeoserverDataWorkspace() + "/styles/" + designLayer.getDesignLayerKey() + ".sld";
+            ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+            httpStatus = response.getStatusCode();
+            layerStyleFileData = response.getBody().toString();
+            log.info("-------- designLayerKey = {}, statusCode = {}, body = {}", designLayer.getDesignLayerKey(), response.getStatusCodeValue(), response.getBody());
+
+        } catch(HttpClientErrorException e) {
+            String message = e.getMessage();
+            if (message.indexOf("404") >= 0) {
+                httpStatus = HttpStatus.NOT_FOUND;
+            } else {
+                LogMessageSupport.printMessage(e, "-------- HttpClientErrorException message = {}", message);
+                httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+            }
 		} catch (RestClientException e) {
-		    LogMessageSupport.printMessage(e, "-------- RestClientException message = {}", e.getMessage());
-			String message = e.getMessage();
+            String message = e.getMessage();
+            LogMessageSupport.printMessage(e, "-------- RestClientException message = {}", message);
 			if (message.indexOf("404") >= 0) {
 				httpStatus = HttpStatus.NOT_FOUND;
 			} else {
 				httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
 			}
 		} catch (Exception e) {
-		    LogMessageSupport.printMessage(e, "-------- exception message = {}", e.getMessage());
-			String message = e.getMessage();
+            String message = e.getMessage();
+            LogMessageSupport.printMessage(e, "-------- exception message = {}", message);
 			if (message.indexOf("404") >= 0) {
 				httpStatus = HttpStatus.NOT_FOUND;
 			} else {

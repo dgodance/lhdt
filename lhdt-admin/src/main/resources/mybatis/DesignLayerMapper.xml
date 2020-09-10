@@ -175,21 +175,21 @@
 			SELECT NEXTVAL('design_layer_land_seq')
 		</selectKey>
 		INSERT INTO design_layer_land (
-			design_layer_land_id, design_layer_id, design_layer_group_id, shape_id, the_geom
+			design_layer_land_id, design_layer_id, design_layer_group_id, identification_code, the_geom
 		) VALUES (
-			#{designLayerLandId}, #{designLayerId}, #{designLayerGroupId}, #{shapeId}, st_transform(ST_GeomFromText(#{theGeom},#{coordinate}),4326)
+			#{designLayerLandId}, #{designLayerId}, #{designLayerGroupId}, #{identificationCode}, st_transform(ST_GeomFromText(#{theGeom},#{coordinate}),4326)
 		)
 	</insert>
 
-	<insert id="insertGeometryBuilding" parameterType="designLayerBuilding">
+	<insert id="insertGeometryBuilding" parameterType="designLayerLand">
 		/* insertGeometryBuilding */
 		<selectKey keyProperty="designLayerBuildingId" resultType="long" order="BEFORE">
 			SELECT NEXTVAL('design_layer_building_seq')
 		</selectKey>
 		INSERT INTO design_layer_building (
-			design_layer_building_id, design_layer_id, design_layer_group_id, shape_id, the_geom
+			design_layer_building_id, design_layer_id, design_layer_group_id, build_id, the_geom
 		) VALUES (
-			#{designLayerBuildingId}, #{designLayerId}, #{designLayerGroupId}, #{shapeId}, st_transform(ST_GeomFromText(#{theGeom},#{coordinate}),4326)
+			#{designLayerBuildingId}, #{designLayerId}, #{designLayerGroupId}, #{buildId}, st_transform(ST_GeomFromText(#{theGeom},#{coordinate}),4326)
 		)
 	</insert>
 
@@ -225,42 +225,42 @@
 
 	<update id="updateDesignLayerLandAttributes" parameterType="designLayerLand">
 		UPDATE design_layer_land
-		SET business_type = #{businessType},
-			business_district = #{businessDistrict},
-			block_number = #{blockNumber},
-			land_number = #{landNumber},
-			land_area = #{landArea},
-			useage_area = #{useageArea},
-			land_useage = #{landUseage},
-			land_division = #{landDivision},
-			useage = #{useage},
-			useage_specification = #{useageSpecification},
-			useage_recommended = #{useageRecommended},
-			useage_allowed = #{useageAllowed},
-			useage_limited = #{useageLimited},
-			useage_disapproval = #{useageDisapproval},
-			building_land_ratio = #{buildingLandRatio},
+		SET project_type = #{projectType},
+			project_title = #{projectTitle},
+			block_code = #{blockCode},
+			lot_code = #{lotCode},
+			lot_area = #{lotArea},
+			landuse_zoning = #{landuseZoning},
+			landuse_plan = #{landusePlan},
+			lot_divide_marge = #{lotDivideMarge},
+			building_use = #{buildingUse},
+			building_use_defined = #{buildingUseDefined},
+			building_use_recommended = #{buildingUseRecommended},
+			building_use_allowed = #{buildingUseAllowed},
+			building_use_conditional = #{buildingUseConditional},
+			building_use_forbidden = #{buildingUseForbidden},
+			building_coverage_ratio = #{buildingCoverageRatio},
 			floor_area_ratio = #{floorAreaRatio},
 			floor_area_ratio_standard = #{floorAreaRatioStandard},
 			floor_area_ratio_allowed = #{floorAreaRatioAllowed},
-			floor_area_ratio_upper_limit = #{floorAreaRatioUpperLimit},
-			highest_height = #{highestHeight},
-			highest_floor = #{highestFloor},
+			floor_area_ratio_maximum = #{floorAreaRatioMaximum},
+			maximum_building_height = #{maximumBuildingHeight},
+			maximum_building_floors = #{maximumBuildingFloors},
 			housing_type = #{housingType},
-			households_number = #{householdsNumber},
-			standard_point = #{standardPoint}
-		WHERE shape_id = #{shapeId}
+			number_of_households = #{numberOfHouseholds},
+			reference = #{reference}
+		WHERE identification_code = #{identificationCode}
 			AND version_id IS NULL
 	</update>
 
 	<update id="updateDesignLayerBuildingAttributes" parameterType="designLayerBuilding">
 		UPDATE design_layer_building
-		SET building_height = #{buildingHeight},
-			building_floors = #{buildingFloors},
-			building_area = #{buildingArea},
-			complex_building = #{complexBuilding},
+		SET build_height = #{buildHeight},
+			build_floor = #{buildFloor},
+			build_area = #{buildArea},
+			build_complex = #{buildComplex},
 			parent_id = #{parentId}
-		WHERE shape_id = #{shapeId}
+		WHERE build_id = #{buildId}
 			AND version_id IS NULL
 	</update>
 
