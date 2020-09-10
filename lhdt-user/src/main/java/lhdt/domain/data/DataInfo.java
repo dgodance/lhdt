@@ -9,6 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Data 정보
@@ -22,11 +23,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DataInfo extends Search implements Serializable {
-	
+
 	private static final long serialVersionUID = 6267402319518438249L;
-	
+
 	public static final String F4D_PREFIX = "F4D_";
-	
+
 	/******** 화면 오류 표시용 ********/
 	private String messageCode;
 	private String errorCode;
@@ -38,18 +39,18 @@ public class DataInfo extends Search implements Serializable {
 	private String referrer;
 	// 고유번호
 	private Integer userGroupId;
-	
+
 	// 위도
 	private BigDecimal latitude;
 	// 경도
 	private BigDecimal longitude;
-	
+
 	// 사용자명
 	private String userId;
 	// 수정자 아이디
 	private String updateUserId;
 	private String userName;
-	
+
 	/****** validator ********/
 	private MethodType methodType;
 
@@ -67,7 +68,7 @@ public class DataInfo extends Search implements Serializable {
 	private String dataGroupKey;
 	// smart
 	private Boolean tiling;
-	
+
 	// data 고유 식별번호
 	private String dataKey;
 	// data 고유 식별번호
@@ -76,13 +77,16 @@ public class DataInfo extends Search implements Serializable {
 	private String dataName;
 	// 데이터 타입(중복). 3ds,obj,dae,collada,ifc,las,citygml,indoorgml,etc
 	private String dataType;
+
+	private String[] dataTypes;
+
 	// common : 공통, public : 공개, private : 개인, group : 그룹
 	private String sharing;
 	// 부모 고유번호
 	private Long parent;
 	// 부모 이름(화면 표시용)
 	private String parentName;
-	
+
 	// origin : latitude, longitude, height 를 origin에 맟춤. boundingboxcenter : latitude, longitude, height 를 boundingboxcenter에 맟춤.
 	private String mappingType;
 
@@ -96,7 +100,7 @@ public class DataInfo extends Search implements Serializable {
 	private BigDecimal pitch;
 	// roll
 	private BigDecimal roll;
-	
+
 	// 조상
 	private Integer childrenAncestor;
 	// 부모
@@ -105,7 +109,7 @@ public class DataInfo extends Search implements Serializable {
 	private Integer childrenDepth;
 	// 순서
 	private Integer childrenViewOrder;
-	
+
 	// 기본 정보
 	private String metainfo;
 	// data 상태. processing : 변환중, use : 사용중, unused : 사용중지(관리자), delete : 삭제(비표시)
@@ -116,31 +120,31 @@ public class DataInfo extends Search implements Serializable {
 	private Boolean objectAttributeExist;
 	// 설명
 	private String description;
-	
+
 	@Getter(AccessLevel.NONE)
 	@Setter(AccessLevel.NONE)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
 	private LocalDateTime viewUpdateDate;
-	
+
 	@Getter(AccessLevel.NONE)
 	@Setter(AccessLevel.NONE)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
 	private LocalDateTime viewInsertDate;
-	
+
 	public LocalDateTime getViewUpdateDate() {
 		return this.updateDate;
 	}
 	public LocalDateTime getViewInsertDate() {
 		return this.insertDate;
 	}
-	
-	// 수정일 
+
+	// 수정일
 	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime updateDate;
 	// 등록일
 	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime insertDate;
-	
+
 	public String getViewMetainfo() {
 		if(this.metainfo == null || "".equals( metainfo) || metainfo.length() < 20) {
 			return metainfo;

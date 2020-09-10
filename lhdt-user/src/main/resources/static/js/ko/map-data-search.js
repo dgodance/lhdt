@@ -4,6 +4,7 @@ $(document).ready(function() {
 
    // 검색 버튼 클릭
    $("#mapDataSearch").click(function() {
+      initSearchForm();
       mapDataSearch(1);
       //mapDataInfoList(1, $("#searchDataName").val(), $("#searchDataGroup").val(), $("#searchDataType").val());
    });
@@ -11,6 +12,7 @@ $(document).ready(function() {
    // 검색 엔터키
    $("#mapDataSearch").keyup(function(e) {
       if (e.keyCode == 13) {
+         initSearchForm();
          mapDataSearch(1);
       }
       //if(e.keyCode == 13) mapDataInfoList(1, $("#searchDataName").val(), $("#searchDataGroup").val(), $("#searchDataType").val());
@@ -20,10 +22,13 @@ $(document).ready(function() {
    $('#searchFilterMore').click(function() {
       $('#searchFilterContent').toggle();
    });
+   $('#searchFilterMore').focusout(function() {
+      $('#searchFilterContent').hide();
+   });
 
    // 필터 적용
    $('#filterApplyButton').click(function() {
-      mapDataSearch(1);
+      mapDataSearchFilter(1);
       $('#searchFilterContent').hide();
    });
 
@@ -38,13 +43,48 @@ $(document).ready(function() {
       $('#searchFilterContent').hide();
    });
 
+   // 검색종류 변경
+   $('input[name="searchWord"]').change(function() {
+      initSearchForm();
+      var searchDataType = $(this).val();
+      if (searchDataType === 'data_group_name') {
+         $('#searchDataType').hide();
+         $('#searchFilterMore').hide();
+         $('#searchDataSharing').show();
+      } else {
+         $('#searchDataSharing').hide();
+         $('#searchDataType').show();
+         $('#searchFilterMore').show();
+      }
+   });
+
+   // 데이터 종류 변경
+   $('#searchDataType').change(function() {
+      mapDataSearch(1);
+   });
+
+   // 공유타입 변경
+   $('#searchDataSharing').change(function() {
+      mapDataSearch(1);
+   });
+
 });
 
+function initSearchForm() {
+   $('#filterInitButton').click();
+   $('#searchDataType').val("");
+   $('#searchDataSharing').val("");
+}
+
 function getFormData($form){
-   var unindexed_array = $form.serializeArray();
+   var unindexed_array = $form.find(':visible').serializeArray();
    var indexed_array = {};
    $.map(unindexed_array, function(n, i){
-      indexed_array[n['name']] = n['value'];
+      if (indexed_array[n['name']]) {
+         indexed_array[n['name']] += ',' + n['value'];
+      } else {
+         indexed_array[n['name']] = n['value'];
+      }
    });
    return indexed_array;
 }
@@ -60,7 +100,29 @@ function mapDataSearch(pageNo) {
       mapDataGroupList(pageNo, params);
    } else if (params.searchWord === 'data_name') {
       mapDataInfoList(pageNo, params);
-   } else if (params.searchWord === 'data_road_name') {
+   } else if (params.searchWord === 'data_address_name') {
+      alert('Not implemented yet!');
+   }
+}
+
+function mapDataSearchFilter(pageNo) {
+
+   $('#dataInfoContent div').hide();
+
+   var $form = $("#searchDataForm");
+   var searchParams = getFormData($form);
+
+   var $formFilter = $("#searchDataFilterForm");
+   var filterParams = getFormData($formFilter);
+
+   var params = Object.assign({}, searchParams, filterParams);
+
+   //var params = $('#searchDataForm').serialize();
+   if (params.searchWord === 'data_group_name') {
+      mapDataGroupList(pageNo, params);
+   } else if (params.searchWord === 'data_name') {
+      mapDataInfoList(pageNo, params);
+   } else if (params.searchWord === 'data_address_name') {
       alert('Not implemented yet!');
    }
 }
