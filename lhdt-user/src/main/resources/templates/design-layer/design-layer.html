@@ -47,6 +47,7 @@
 	</div>
 	
 	<div class="design-layer-land-wrapper">
+		<a href="#top"></a>
 		<div class="design-layer-land  dataGroupSummary table-data-group-summary"><!--by js--></div>
 		
 		<div class="pagination"></div>
@@ -104,7 +105,7 @@
 </script>
 
 <!--  -->
-<script id="design-layer-land-template" type="text/x-handlebars-template">
+<script id="design-layer-land-template" type="text/x-handlebars-template">	
 		<table class="table-word-break design-layer-land" summary="디자인 레이어 필지정보">
 			<caption class="hiddenTag">디자인 레이어 필지정보</caption>
 			<colgroup>
@@ -119,25 +120,73 @@
 			</thead>
 			<tbody>
 				
-				<tr>
-					<td></td>
-					<td>{{data.designLayerGroupId}} {{data.designLayerId}} {{data.designLayerLandId}}</td>
-				</tr>				
-				<tr>
-					<td>디자인 레이어 그룹</td>
-					<td>{{data.designLayerGroupName}}</td>
-				</tr>
+				<!--
+					<tr>
+						<td></td>
+						<td>{{data.designLayerGroupId}} {{data.designLayerId}} {{data.designLayerLandId}}</td>
+					</tr>				
+				-->
 				<tr>
 					<td>디자인 레이어</td>
-					<td>{{data.designLayerName}}</td>
+					<td>{{getDataName data.designLayerId}}</td>
 				</tr>
 
 				<tr>
-					<td>건폐율</td>
-					<td>{{data.buildingCoverageRatio}}</td>
+					<td>사업유형</td>
+					<td>{{data.projectType}}</td>
 				</tr>
-
-
+				<tr>
+					<td>사업지구</td>
+					<td>{{data.projectTitle}}</td>
+				</tr>
+				<tr>
+					<td>가구번호</td>
+					<td>{{data.blockCode}}</td>
+				</tr>
+				<tr>
+					<td>획지번호</td>
+					<td>{{data.lotCode}}</td>
+				</tr>
+				<tr>
+					<td>획지면적</td>
+					<td>{{data.lotArea}}</td>
+				</tr>
+				<tr>
+					<td>용도지역</td>
+					<td>{{data.landuseZoning}}</td>
+				</tr>
+				<tr>
+					<td>토지이용</td>
+					<td>{{data.landusePlan}}</td>
+				</tr>
+				<tr>
+					<td>대지분할합필</td>
+					<td>{{data.lotDivideMarge}}</td>
+				</tr>
+				<tr>
+					<td>용도</td>
+					<td>{{data.buildingUse}}</td>
+				</tr>
+				<tr>
+					<td>용도-지정</td>
+					<td>{{data.buildingUseDefined}}</td>
+				</tr>
+				<tr>
+					<td>용도-권장</td>
+					<td>{{data.buildingUseRecommended}}</td>
+				</tr>
+				<tr>
+					<td>용도-허용</td>
+					<td>{{data.buildingUseAllowed}}</td>
+				</tr>
+				<tr>
+					<td>용도-제한</td>
+					<td>{{data.buildingUseConditional}}</td>
+				</tr>
+				<tr>
+					<td>용도-불허</td>
+					<td>{{data.buildingUseForbidden}}</td>
+				</tr>
 				<tr>
 					<td>건폐율</td>
 					<td>{{data.buildingCoverageRatio}}</td>
@@ -157,6 +206,26 @@
 				<tr>
 					<td>용적률-상한</td>
 					<td>{{data.floorAreaRatioMaximum}}</td>
+				</tr>
+				<tr>
+					<td>최고높이</td>
+					<td>{{data.maximumBuildingHeight}}</td>
+				</tr>
+				<tr>
+					<td>최고층수</td>
+					<td>{{data.maximumBuildingFloors}}</td>
+				</tr>
+				<tr>
+					<td>주택유형</td>
+					<td>{{data.housingType}}</td>
+				</tr>
+				<tr>
+					<td>세대수</td>
+					<td>{{data.numberOfHouseholds}}</td>
+				</tr>
+				<tr>
+					<td>기준시점</td>
+					<td>{{data.reference}}</td>
 				</tr>
 			</tbody>
 		</table>

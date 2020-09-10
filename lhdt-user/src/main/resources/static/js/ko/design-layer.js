@@ -300,6 +300,7 @@ DesignLayerObj.prototype.processToolIntersection = function(){
             _this.showLandData(pageNo);
             //페이징 표시
             DS.pagination(_this.lands.length, pageNo, $('div.design-layer-land-wrapper .pagination'), function(_pageNo){
+                //
                 _this.showLandData(_pageNo);
             }, {'pageSize':1, 'maxPages':10});
 		});
@@ -319,8 +320,12 @@ DesignLayerObj.prototype.processToolIntersection = function(){
 };
 
 
+/**
+ * 필지 정보 표시
+ * @param {number} pageNo 페이지 번호
+ */
 DesignLayerObj.prototype.showLandData = function(pageNo){
-    console.log('showLandData', pageNo);
+    let _this = this;
     //
     Ppui.remove('table.design-layer-land');
 
@@ -329,8 +334,20 @@ DesignLayerObj.prototype.showLandData = function(pageNo){
     let template = Handlebars.compile(source);
 
     //
+    Handlebars.registerHelper('getDataName', function(designLayerId){
+        if(Pp.isEmpty(designLayerId)){
+            return '';
+        }
+        //
+        return _this.getDataById(designLayerId).designLayerName;        
+    });
+
+    //
     let html = template({'data': this.lands[pageNo-1]});
     $('div.design-layer-land').append(html);
+
+    //
+    location.href = '#top';                
 };
 
 /**
