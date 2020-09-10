@@ -25,6 +25,7 @@ DesignLayerObj.Tool = {
     DELETE: 4,
     MOVE: 5,
     ROTATE: 6,
+    UPDOWN: 7,
 };
 
 /**
@@ -132,7 +133,7 @@ DesignLayerObj.prototype.setTool = function(tool){
     this.toolChanged(beforeTool, this.tool);
 
     //
-    toastr.info('선택된 도구 : ' + this.getToolName(this.tool));
+    //toastr.info('선택된 도구 : ' + this.getToolName(this.tool));
 };
 
 
@@ -175,11 +176,20 @@ DesignLayerObj.prototype.toolChanged = function(beforeTool, afterTool){
     if(this.isTool(DesignLayerObj.Tool.ROTATE)){
         this.processToolRotate();
     }
+    
+    //높이조절
+    if(this.isTool(DesignLayerObj.Tool.UPDOWN)){
+        this.processToolUpdown();
+    }
 
     
 };
 
 
+/**
+ * 지도에서 객체 선택 상태로 할지 말지 
+ * @param {boolean} onOff 
+ */
 DesignLayerObj.prototype.setSelectionInteraction = function(onOff){
     if(onOff){
         //
@@ -191,6 +201,53 @@ DesignLayerObj.prototype.setSelectionInteraction = function(onOff){
     }
 };
 
+
+/**
+ * 도구 - 높이조절 처리
+ */
+DesignLayerObj.prototype.processToolUpdown = function(){    
+    //
+    if(!this.isTool(DesignLayerObj.Tool.UPDOWN)){
+        return;
+    }
+    
+    //
+    let _this = this;
+    /**
+	 * 선택된 객체를 마우스로 회전시키는 기능
+	 */
+	var rotate = new Mago3D.RotateInteraction();
+	Ppmap.getManager().interactionCollection.add(rotate);
+
+    //
+    _this.setSelectionInteraction(true);
+    /**
+	 * 선택된 객체(디자인 레이어)를 마우스로 높낮이 조절하는 기능
+	 */
+	var upanddown = new Mago3D.NativeUpDownInteraction();
+	Ppmap.getManager().interactionCollection.add(upanddown);
+
+    //
+    let handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
+
+     //왼쪽 클릭
+     handler.setInputAction(function(event){
+        upanddown.setActive(true);
+
+    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+    //오른쪽 클릭
+    handler.setInputAction(function(event){
+       handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+       handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+       //
+       upanddown.setActive(false);
+       _this.setSelectionInteraction(false);
+
+       //
+       Ppui.trigger('.design-layer-tool-none', 'click');
+   }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+};
 
 /**
  * 도구 - 회전 처리
