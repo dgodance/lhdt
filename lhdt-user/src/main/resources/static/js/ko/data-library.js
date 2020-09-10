@@ -13,6 +13,9 @@ let ModelerObj = function(){
 	this.selectedData = null;
 	//
 	this.tool = ModelerObj.Tool.NONE;
+
+	//
+	this.handler = null;
 	
 	console.log(new Date(), this);
 }
@@ -131,43 +134,6 @@ ModelerObj.prototype.setEventHandler = function(){
 		
 	});
 
-	//TODO 카테고리 > 변경버튼 클릭
-	Ppui.on(document.querySelector('.ds-change-category'), 'click', function(){
-		
-	});
-	
-	
-	//TODO my모델러 > 검색 버튼 클릭
-	Ppui.on(document.querySelector('.ds-modeler-search'), 'click', function(){
-		
-	});
-	
-
-
-	//TODO my모델러 > 신규 버튼 클릭
-	Ppui.on(document.querySelector('.ds-modeler-new'), 'click', function(){
-		
-	});
-	
-	
-	//TODO my모델러 > 읽어오기 버튼 클릭
-	Ppui.on(document.querySelector('.ds-modeler-load'), 'click', function(){
-		
-	});
-	
-	
-	//TODO my모델러 > 삭제 버튼 클릭
-	Ppui.on(document.querySelector('.ds-modeler-delete'), 'click', function(){
-		
-	});
-	
-	
-	//TODO my모델러 > 저장 버튼 클릭
-	Ppui.on(document.querySelector('.ds-modeler-save'), 'click', function(){
-		
-	});
-
-
 };
 
 
@@ -181,9 +147,8 @@ ModelerObj.prototype.setTool = function(tool){
 	this.tool = tool;
 
 	//
-	if('function' === typeof(this.toolChanged)){
-		this.toolChanged(beforeTool, this.tool);
-	}
+	this.toolChanged(beforeTool, this.tool);
+	
 };
 
 /**
@@ -273,6 +238,8 @@ ModelerObj.prototype.showDataLibraryAtMap = function(lonLat){
  * @returns {void}
  */
 ModelerObj.prototype.toolChanged = function(beforeTool, afterTool){
+	toastr.info(this.getTool());
+	//
 	Ppui.removeClass('[class*=ds-tool]', 'active');
 
 	//
@@ -282,9 +249,16 @@ ModelerObj.prototype.toolChanged = function(beforeTool, afterTool){
     Ppui.addClass(selector, 'active');
     
     //
-    if(ModelerObj.Tool.NONE === afterTool){
+    if(this.isTool(ModelerObj.Tool.NONE)){
         //
-	    Ppmap.getManager().defaultSelectInteraction.setActive(false);
+		Ppmap.getManager().defaultSelectInteraction.setActive(false);
+		
+		//
+		if(Pp.isNotNull(this.handler)){
+			this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+			this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+			this.handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+		}
     }
 	
 };
@@ -362,7 +336,7 @@ ModelerObj.prototype.processToolMove = function(){
 	Ppmap.removeInputAction('all');
 
 	//
-	let handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);	
+	_this.handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);	
 	
 	//
 	Ppmap.getManager().defaultSelectInteraction.setTargetType('f4d');
@@ -374,12 +348,12 @@ ModelerObj.prototype.processToolMove = function(){
 	Ppmap.getManager().defaultTranslateInteraction.setActive(true);
 	
 	//클릭 이벤트 등록
-	handler.setInputAction(function(event){
+	_this.handler.setInputAction(function(event){
 		//이벤트 제거
 		//
 		if(ModelerObj.Tool.MOVE !== _this.getTool()){
 			//
-			handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+			_this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
 			//
 			Ppmap.getManager().defaultSelectInteraction.setActive(false);
 			return;	
@@ -390,13 +364,13 @@ ModelerObj.prototype.processToolMove = function(){
 	}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
 	//오른쪽 클릭
-	handler.setInputAction(function(){
+	_this.handler.setInputAction(function(){
 		//
 		_this.setTool(ModelerObj.Tool.NONE);
 		
 		//
-		handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-		handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+		_this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+		_this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 
 		//
 		Ppmap.getManager().defaultSelectInteraction.setActive(false);
@@ -419,7 +393,7 @@ ModelerObj.prototype.processToolSelect = function(){
 	Ppmap.removeInputAction('all');
 
 	//
-	let handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);	
+	_this.handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);	
 	
 	//
 	Ppmap.getManager().defaultSelectInteraction.setTargetType('f4d');
@@ -427,12 +401,12 @@ ModelerObj.prototype.processToolSelect = function(){
 	Ppmap.getManager().isCameraMoved = true;
 	
 	//클릭 이벤트 등록
-	handler.setInputAction(function(event){
+	_this.handler.setInputAction(function(event){
 		//이벤트 제거
 		//
 		if(ModelerObj.Tool.SELECT !== _this.getTool()){
 			//
-			handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+			_this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
 			//
 			Ppmap.getManager().defaultSelectInteraction.setActive(false);
 		}
@@ -458,12 +432,12 @@ ModelerObj.prototype.processToolPoint = function(){
 	Ppmap.removeInputAction('all');
 	
 	//
-	let handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
+	_this.handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
 	//클릭
-	handler.setInputAction(function(event){
+	_this.handler.setInputAction(function(event){
 		if(ModelerObj.Tool.POINT !== _this.getTool()){
-			handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-			handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+			_this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+			_this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 			return;
 		}
 		//
@@ -474,12 +448,12 @@ ModelerObj.prototype.processToolPoint = function(){
 	}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 	
 	//오른쪽 클릭
-	handler.setInputAction(function(event){
+	_this.handler.setInputAction(function(event){
 		_this.setTool(ModelerObj.Tool.NONE);
 		
 		//
-		handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-		handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+		_this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+		_this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 		
 		
 	}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
@@ -535,14 +509,14 @@ ModelerObj.prototype.processToolLine = function(){
 	let points = [];
 
 	//
-	let handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
+	_this.handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
 
 	//클릭
-	handler.setInputAction(function(event){
+	_this.handler.setInputAction(function(event){
 		if(ModelerObj.Tool.LINE !== _this.getTool()){
-			handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-			handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-			handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+			_this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+			_this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+			_this.handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 			return;
 		}
 
@@ -556,7 +530,7 @@ ModelerObj.prototype.processToolLine = function(){
 	}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
 	//오른쪽 클릭
-	handler.setInputAction(function(event){
+	_this.handler.setInputAction(function(event){
 		//
 		_this.setTool(ModelerObj.Tool.NONE);
 		
@@ -564,9 +538,9 @@ ModelerObj.prototype.processToolLine = function(){
 		Ppmap.removeAll();		
 
 		//
-		handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-		handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-		handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+		_this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+		_this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+		_this.handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 		
 		//
 		let dataPositions = _toDataPositions(points);
@@ -579,7 +553,7 @@ ModelerObj.prototype.processToolLine = function(){
 	}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 
 	//이동
-	handler.setInputAction(function(event){
+	_this.handler.setInputAction(function(event){
 		// 선 그리기
 		if(0 == points.length){
 			return;
@@ -587,9 +561,9 @@ ModelerObj.prototype.processToolLine = function(){
 
 		//
 		if(ModelerObj.Tool.LINE !== _this.getTool()){
-			handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-			handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-			handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+			_this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+			_this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+			_this.handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 		}
 
 		//
@@ -648,12 +622,12 @@ ModelerObj.prototype.processToolDelete = function(){
 	Ppmap.removeInputAction('all');
 
 	//
-	let handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
+	_this.handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
 	
 	//
-	handler.setInputAction(function(event){
+	_this.handler.setInputAction(function(event){
 		if(ModelerObj.Tool.DELETE !== _this.getTool()){
-			handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+			_this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
 			//
 			Ppmap.getManager().defaultSelectInteraction.setActive(false);
 			return;
@@ -868,7 +842,7 @@ ModelerObj.prototype.renderDatas = function(pageNo){
 	
 	
 	//페이징 html 표시
-	DS.pagination(datas.length, (pageNo?pageNo:1), $('.pagination'), function(_pageNo){
+	DS.pagination(datas.length, (pageNo?pageNo:1), $('div.ds-modeler .pagination'), function(_pageNo){
 		//console.log(_pageNo);
 		_this.renderDatas(_pageNo);
 	});
