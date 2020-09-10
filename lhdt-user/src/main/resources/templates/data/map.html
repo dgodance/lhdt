@@ -172,8 +172,6 @@
 
 	function magoInit() {
 		var geoPolicyJson = NDTP.policy;
-
-
 		/**
 		 * @param {Stirng} containerId container div id. required.
 		 * @param {object} serverPolicy mage3d geopolicy. required.
@@ -233,6 +231,14 @@
 		NDTP.issueController = new IssueController(magoInstance);
 		
 		extrusionTools(magoInstance);
+		
+		f4dController.addSmartTileGroup({
+			dataGroupId : 10000,
+			dataGroupKey : 'sKorea_Gyeonggi_Gwacheon',
+			dataGroupName : '과천시 건물들',
+			dataGroupPath : 'infra/sKorea_Gyeonggi_Gwacheon/',
+			smartTileIndexPath: "infra/_TILE"
+		});
 	}
 
 	// smart tiling data flyTo

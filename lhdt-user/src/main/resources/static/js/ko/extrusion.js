@@ -236,7 +236,7 @@ var extrusionTools = function (magoInstance){
 		   	 		 * Cesium의 Cartesian3 배열과 높이, 스타일관련 옵션으로 건물 객체 반환
 		   	 		 */
 		   	 		var building = Mago3D.ExtrusionBuilding.makeExtrusionBuildingByCartesian3Array(polygonHierarchy.reverse(), parseFloat(height))
-		   	 		
+		   	 		console.info(building);
 		   	 		building.layerId = model.id; 
 		   	 		
 		   	 		/**
