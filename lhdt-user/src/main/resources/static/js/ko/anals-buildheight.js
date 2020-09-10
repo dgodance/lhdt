@@ -99,7 +99,9 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
                 const color = getColor(p, min, max);
                 console.log(color);
                 // data_group_id = 2, master datakey = MasterPlan
-                changeColorAPI(magoInstance, obj.dataGroupId,  'F4D_'+ obj.dataKey, null,
+                // changeColorAPI(magoInstance, obj.dataGroupId,  'F4D_'+ obj.dataKey, null,
+                //     'isPhysical=true', color.r + ',' + color.g + ',' + color.b)
+                changeColorAPI(magoInstance, obj.dataGroupId,  obj.dataKey, null,
                     'isPhysical=true', color.r + ',' + color.g + ',' + color.b)
             }
         });
