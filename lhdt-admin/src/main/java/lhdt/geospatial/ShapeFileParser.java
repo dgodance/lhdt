@@ -78,7 +78,9 @@ public class ShapeFileParser {
                         }
                     } else {
                         // 옵션 속성 값일 경우 json 통으로 넣음.
-                        attributesMap.put(attributeName, attribute.getValue().toString());
+                        if(attribute.getValue() != null) {
+                            attributesMap.put(attributeName, attribute.getValue().toString());
+                        }
                     }
                 }
 
