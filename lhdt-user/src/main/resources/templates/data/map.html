@@ -55,6 +55,7 @@
 		<!-- S: CONTENTS WRAP -->
 		<div id="contentsWrap" class="contentsWrap" style="display: none;">
 			<div th:replace="~{/data-library/data-library :: #dataLibraryContent}"></div>
+			<div th:replace="~{/design-layer/design-layer :: #designLayerContent}"></div>
 
 			<div th:replace="~{/cityplan/cityplan :: #cityPlanContent}"></div>
 			<div th:replace="~{/landscape/landscape :: #landscapeContent}"></div>
@@ -156,7 +157,8 @@
 <script type="text/javascript" th:src="@{/externlib/ds/ppmap-0.9-legacy.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>
 <script type="text/javascript" th:src="@{/externlib/ds/dsobj-0.1-snapshot.js(lang=${lang},cacheVersion=${contentCacheVersion})}"  defer></script>
 
-<script type="text/javascript" th:src="@{/js/{lang}/data-library.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/design-layer.js(lang=${lang},cacheVersion=${contentCacheVersion})}" defer></script>
+<script type="text/javascript" th:src="@{/js/{lang}/data-library.js(lang=${lang},cacheVersion=${contentCacheVersion})}" defer></script>
 <script type="text/javascript" th:src="@{/js/{lang}/anals-buildheight.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/anals-landscapedirect.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/anals-landscape.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
@@ -801,7 +803,7 @@
 		$("#twoDepthUrbanGroup").html("");
 		$("#twoDepthUrbanGroup").html(twoDepthContent);
 
-		showDesignLayer(7);
+		showDesignLayer(10001);
 		showDataLibrary();
 	}
 

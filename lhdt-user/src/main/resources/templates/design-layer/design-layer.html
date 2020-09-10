@@ -1,29 +1,34 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
-<div id="dataLibraryContent" class="modelerContent contents yScroll fullHeight" style="display:none;">
+<div id="designLayerContent" class="modelerContent contents yScroll fullHeight" style="display:none;">
 <ul class="listDrop">
 
 	<li class="on">
-		<p>데이터 라이브러리<span class="collapse-icon">icon</span></p>
+		<p>디자인 레이어<span class="collapse-icon">icon</span></p>
     </li>
 </ul>
        
 	<div class="ds-modeler" style="border: 1px solid #efefef;padding:5px;">
-		<h3 class="">데이터 라이브러리 </h3>
+		<h3 class="">디자인 레이어</h3>
 		
 		<div class="form-group form-group-data">
-			<label for="data-library-group">그룹</label> 
-			<select id="data-library-group" >
+			<label for="urban-group1">신도시</label> 
+			<select id="urban-group1" >
+				<option value="">전체</option>
+				<!-- by js -->
+			</select>
+		</div>
+		<div class="form-group form-group-data">
+			<label for="urban-group2">지역</label> 
+			<select id="urban-group2" >
 				<option value="">전체</option>
 				<!-- by js -->
 			</select>
 		</div>
 
 		<div class="list">
-			<div class="ds-modeler-list dataGroupSummary table-data-group-summary">
+			<div class="design-layers dataGroupSummary table-data-group-summary">
 				<!-- by js -->
 			</div>
-
-			<div class="pagination"></div>
 
 		</div>
 	</div>
@@ -31,11 +36,12 @@
 	<div class="ds-tool marT10" style="border: 1px solid #efefef;padding:5px;">
 		<h3 class="">도구</h3>
 		<div class="">
-			<button class="textBtnSub  ds-tool-point">점으로생성</button>
-			<button class="textBtnSub  ds-tool-line">선으로생성</button>
-			<button class="textBtnSub  ds-tool-select">선택</button>
-			<button class="textBtnSub  ds-tool-delete">삭제</button>
-			<button class="textBtnSub  ds-tool-move">이동</button>
+			<button class="textBtnSub  design-layer-tool-none" style="display:none;">none</button>
+			<button class="textBtnSub  design-layer-tool-point">점으로생성</button>
+			<button class="textBtnSub  design-layer-tool-line">선으로생성</button>
+			<button class="textBtnSub  design-layer-tool-select">선택</button>
+			<button class="textBtnSub  design-layer-tool-delete">삭제</button>
+			<button class="textBtnSub  design-layer-tool-move">이동</button>
 		</div>
 	</div>
 
@@ -66,27 +72,24 @@
 
 
 <!--  -->
-<script id="data-library-template" type="text/x-handlebars-template">
-<table class="table-word-break ds-data-library-list" summary="데이터 라이브러리 목록">
-	<caption class="hiddenTag">데이터 라이브러리 목록</caption>
+<script id="design-layer-template" type="text/x-handlebars-template">
+<table class="table-word-break design-layers" summary="디자인 레이어 목록">
+	<caption class="hiddenTag">디자인 레이어 목록</caption>
 	<colgroup>
-		<col class="col-number" width="10%">
-		<col class="col-number" width="*">
+		<col class="col-width-15">
 		<col class="col-number" width="*">
 	</colgroup>
 	<thead>
 		<tr>
 			<th scope="col" class="col-number">선택</th>
-			<th scope="col" class="col-number">데이터 라이브러리</th>
-			<th scope="col" class="col-number">그룹</th>
+			<th scope="col" class="col-number">디자인 레이어명</th>
 		</tr>
 	</thead>
 	<tbody>
 		{{#each datas}}
 		<tr >
-			<td class="col-number"><input type="radio" name="dataLibraryId" value="{{dataLibraryId}}"></td>
-			<td class="col-number text-left cursor-pointer">{{dataLibraryName}}</td>
-			<td class="col-number text-left cursor-pointer">{{showGroupName dataLibraryGroupId}}</td>
+			<td class="col-number"><input type="checkbox" name="design-layer-id" value="{{designLayerId}}"></td>
+			<td class="col-number text-left cursor-pointer">{{designLayerName}}</td>
 		</tr>
 		{{/each}}
 	</tbody>

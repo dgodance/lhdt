@@ -55,7 +55,7 @@ Ppmap.setCursor = function(cursor){
 /**
  */
 Ppmap.getManager = function(){
-	return MAGO3D_INSTANCE.getMagoManager();
+    return MAGO3D_INSTANCE.getMagoManager();
 };
 
 

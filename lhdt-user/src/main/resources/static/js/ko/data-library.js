@@ -12,7 +12,7 @@ let ModelerObj = function(){
 	//
 	this.selectedData = null;
 	//
-	this.setTool(ModelerObj.Tool.NONE);
+	this.tool = ModelerObj.Tool.NONE;
 	
 	console.log(new Date(), this);
 }
@@ -173,8 +173,38 @@ ModelerObj.prototype.setEventHandler = function(){
 
 
 /**
+ * setter tool
+ * @param {ModelerObj.Tool}
+ */
+ModelerObj.prototype.setTool = function(tool){
+	let beforeTool = this.tool;
+	this.tool = tool;
+
+	//
+	if('function' === typeof(this.toolChanged)){
+		this.toolChanged(beforeTool, this.tool);
+	}
+};
+
+/**
+ * getter tool
+ * @returns {ModelerObj.Tool}
+ */
+ ModelerObj.prototype.getTool = function(){
+	return this.tool;
+};
+
+
+ModelerObj.prototype.isTool = function(tool){
+    return this.getTool() === tool;
+}
+
+
+
+/**
  * dataLibraryId로 데이터 조회
- * @returns {object}
+ * @param {string|number} dataLibraryId
+ * @returns {object|null}
  *
  */
 ModelerObj.prototype.getDataById =function(dataLibraryId){
@@ -197,7 +227,6 @@ ModelerObj.prototype.getDataById =function(dataLibraryId){
 
 /**
  * lonLat위치에 데이터 라이브러리 추가(표시)하기
- * @param {object} data 데이터 라이브러리
  * @param {LonLat} lonLat
  */
 ModelerObj.prototype.showDataLibraryAtMap = function(lonLat){
@@ -236,27 +265,6 @@ ModelerObj.prototype.showDataLibraryAtMap = function(lonLat){
 	});
 };
 
-/**
- * setter tool
- * @param {ModelerObj.Tool}
- */
-ModelerObj.prototype.setTool = function(tool){
-	let beforeTool = this.tool;
-	this.tool = tool;
-
-	//
-	if('function' === typeof(this.toolChanged)){
-		this.toolChanged(beforeTool, this.tool);
-	}
-};
-
-/**
- * getter tool
- * @returns {ModelerObj.Tool}
- */
- ModelerObj.prototype.getTool = function(){
-	return this.tool;
-};
 
 
 /**
@@ -271,9 +279,49 @@ ModelerObj.prototype.toolChanged = function(beforeTool, afterTool){
 	let selector = '.ds-tool-' + ModelerObj.getToolName(afterTool).toLowerCase();
 	
 	//
-	Ppui.addClass(selector, 'active');
+    Ppui.addClass(selector, 'active');
+    
+    //
+    if(ModelerObj.Tool.NONE === afterTool){
+        //
+	    Ppmap.getManager().defaultSelectInteraction.setActive(false);
+    }
 	
 };
+
+
+/**
+ * 맵에서 노드 선택이 변경되면 호출됨
+ * @param {Node} nodes 선택된 노드들
+ */
+ModelerObj.prototype.nodeSelected = function(nodes){
+    if(Pp.isEmpty(nodes)){
+        //
+        Ppui.find('.ds-selected-data-library').value = '';
+        //
+        return;
+    }
+
+    //
+    for(let i=0; i<nodes.length; i++){
+        let d = nodes[i];
+
+        //
+        let dataLibraryId = d.data.projectId;
+        let dataLibraryKey = d.data.buildingSeed.buildingId.replace(/F4D_/gi, '');
+
+        //
+        let data = this.getDataById(dataLibraryId);
+        //console.log(data);
+
+        //
+        //Ppui.find('.ds-selected-data-library').value = data.dataLibraryName;
+    }
+};
+
+ModelerObj.prototype.dataChanged = function(beforeData, afterData){
+
+}
 
 
 /**
@@ -387,10 +435,11 @@ ModelerObj.prototype.processToolSelect = function(){
 			handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
 			//
 			Ppmap.getManager().defaultSelectInteraction.setActive(false);
-			return;	
 		}
 		
-		//TODO 선택된 데이터 라이브러리 정보 추출
+        // 선택된 데이터 라이브러리 정보 추출
+        let nodes = Ppmap.getManager().selectionManager.getSelectedF4dNodeArray();
+        _this.nodeSelected(nodes);
 
 	}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 };
@@ -442,6 +491,7 @@ ModelerObj.prototype.processToolPoint = function(){
  * 도구 - 선
  */ 
 ModelerObj.prototype.processToolLine = function(){
+    //LonLat을 지도에 표시하기 위한 좌표형태로 변환
 	let _toDataPositions = function(lonLats){
 		let arr=[];
 
@@ -460,6 +510,7 @@ ModelerObj.prototype.processToolLine = function(){
 				'altitude': 0,
 			}
 
+            //10m 간격
 			let dataPositions = Mago3D.GeographicCoordSegment.getArcInterpolatedGeoCoords(p1, p2, 10);
 			//
 			arr = arr.concat(dataPositions);			
@@ -884,7 +935,13 @@ ModelerObj.prototype.getDataLibraries = function(callbackFn){
 //
 let mobj = new ModelerObj();
 
-//
+//TODO 모델러(데이터 라이브러리) 메뉴 선택시에 호출되도록 수정해야 함
 window.addEventListener('load', function(){
-	mobj.init();	
+    let intvl = setInterval(function(){
+        if(Pp.isNotNull(MAGO3D_INSTANCE)){
+            clearInterval(intvl);
+            //
+            mobj.init();	    
+        }
+    }, 500);
 });
