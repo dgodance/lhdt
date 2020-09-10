@@ -167,7 +167,7 @@ var extrusionTools = function (magoInstance){
 			    	transparent : true,
 			    	srs:'EPSG:4326',
 			    	format: "image/png",
-			    	cql_filter : `design_layer_id=${model.id}`
+			    	cql_filter : `design_layer_id=${model.id} AND enable_yn='Y'`
 			    },
 			    layers : model.layername
 			});
@@ -213,7 +213,7 @@ var extrusionTools = function (magoInstance){
 			/**
 			 * 대상 레이어의 id를 찾는 쿼리를  cql_filter에 선언
 			 */
-			res.queryParameters.cql_filter = `design_layer_id=${model.id}`;
+			res.queryParameters.cql_filter = `design_layer_id=${model.id} AND enable_yn='Y'`;
 			
 			/**
 			 * Cesium GeoJsonDataSource 클래스를 이용하여 wfs요청. 자동으로 geojson을 파싱하여 객체화 해주어 비즈니스로직만 구현하면 됨.
@@ -223,6 +223,9 @@ var extrusionTools = function (magoInstance){
 				
 	   	 		for(var i in entities) {
 	   	 			var entity = entities[i];
+	   	 			var properties = entity.properties;
+	   	 			var height = properties.build_height.getValue();
+	   	 			height = (!height || height.length === 0) ? FLOOR_HEIGHT * 7 : height;
 		   	 		var polygonHierarchy  = entity.polygon.hierarchy.getValue().positions;
 		   	 		
 		   	 		/**
@@ -232,7 +235,7 @@ var extrusionTools = function (magoInstance){
 		   	 		 * Mago3D.ExtrusionBuilding의 static method인 makeExtrusionBuildingByCartesian3Array 함수를 통해 빌딩을 생성,
 		   	 		 * Cesium의 Cartesian3 배열과 높이, 스타일관련 옵션으로 건물 객체 반환
 		   	 		 */
-		   	 		var building = Mago3D.ExtrusionBuilding.makeExtrusionBuildingByCartesian3Array(polygonHierarchy.reverse(), FLOOR_HEIGHT * 7)
+		   	 		var building = Mago3D.ExtrusionBuilding.makeExtrusionBuildingByCartesian3Array(polygonHierarchy.reverse(), parseFloat(height))
 		   	 		
 		   	 		building.layerId = model.id; 
 		   	 		
