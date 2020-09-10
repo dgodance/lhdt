@@ -246,7 +246,7 @@ DesignLayerObj.prototype.setSelectionInteraction = function(onOff){
 /**
  * 도구 - 필지정보조회 처리
  */
-DesignLayerObj.prototype.processToolIntersection = function(){    
+DesignLayerObj.prototype.processToolIntersection = function() {
     let _getData = function(datas){
         if(Pp.isEmpty(datas)){
             return null;
@@ -309,14 +309,16 @@ DesignLayerObj.prototype.processToolIntersection = function(){
                 'altitude': null
             }]
         };
+
         //
-          $.ajax({
+       $.ajax({
             url: "/api/geometry/intersection/design-layers",
             type: "POST",
             data: JSON.stringify(param),
 			dataType: 'json',
 			contentType: 'application/json;charset=utf-8'
         }).done(function(res) {
+            debugger;
             _this.lands=[];
             //
             if(Pp.isNotEmpty(res._embedded) && Pp.isNotEmpty(res._embedded.designLayerLands)){
@@ -335,6 +337,81 @@ DesignLayerObj.prototype.processToolIntersection = function(){
                 //
                 _this.showLandData(_pageNo);
             }, {'pageSize':1, 'maxPages':10});
+
+
+            //////////////갓도//////////////////////
+           const geometry = res._embedded.designLayerLands[0].theGeom;
+           //
+           const parseArr = Terraformer.WKT.parse(geometry);
+           const geometryInfo = [];
+           const oneLot = parseArr.coordinates[0][0];
+           for(let obj of oneLot) {
+               geometryInfo.push({
+                   'longitude': obj[0],
+                   'latitude': obj[1],
+                   'altitude': null
+               });
+           }
+           let param = {
+               'wkt': null,
+               'type': 'building',
+               'buffer': 0.0001,
+               'maxFeatures': 10,
+               'geometryInfo': geometryInfo
+           };
+           $.ajax({
+               url: "/api/geometry/intersection/design-layers",
+               type: "POST",
+               data: JSON.stringify(param),
+               dataType: 'json',
+               contentType: 'application/json;charset=utf-8'
+           }).done(function(res) {
+               const lotArr = [];
+               for(let obj of oneLot) {
+                   lotArr.push(obj[0])
+                   lotArr.push(obj[1])
+               }
+               console.log(lotArr)
+               const lotCart = Cesium.Cartesian3.fromDegreesArray(lotArr)
+
+               const builds = res._embedded.designLayerBuildings;
+               const buildsMap = {};
+               let sumArea = 0;
+               for(let obj of builds) {
+                   const buildArr = []
+                   for(let obj2 of Terraformer.WKT.parse(obj.theGeom).coordinates[0][0]) {
+                       buildArr.push(obj2[0])
+                       buildArr.push(obj2[1])
+                   }
+                   const cart = Cesium.Cartesian3.fromDegreesArray(buildArr);
+                   buildsMap[obj.designLayerBuildingId] = {
+                       position : cart,
+                       area: getArea(cart),
+                       height: obj.buildFloor
+                   };
+                   sumArea += buildsMap[obj.designLayerBuildingId].area;
+                   console.log(buildsMap)
+               }
+
+               const buildFloorAreaParam = [];
+               for(const p in buildsMap){
+                   buildFloorAreaParam.push(buildsMap[p].area)
+               }
+
+               const buildConvAreaParam = [];
+               for(const p in buildsMap){
+                   buildConvAreaParam.push([buildsMap[p].area, buildsMap[p].height])
+               }
+               const lotArea = getArea(lotCart);
+                $('#nowFloorCov').text(calcFloorCoverage(buildFloorAreaParam, lotArea));
+                $('#nowBuildCov').text(calcBuildCoverage(buildConvAreaParam, lotArea));
+
+               // 필지에 대한 면적을 알고있음..
+               // 필지에 대한 면적을 구한다
+               // 빌딩들에 대한 면적을 알고있음..
+               // 빌딩들에 대한 면적을 구한다.
+           });
+
 		});
 			
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
@@ -950,3 +1027,103 @@ window.addEventListener('load', function(){
         }
     }, 500);
 });
+
+
+
+const ratioStructure = {
+
+}
+
+
+// 건폐율 계산 및 view (건축면적 / 대지면적)
+function buildingToLandRatioCalc() {
+    if (pickedName === "") {
+        alert("오브젝트를 먼저 선택해 주시기 바랍니다.");
+        return;
+    }
+    let plottage = parseFloat(allObject[pickedName].plottage); // 대지면적
+    let totalFloorArea = parseFloat(allObject[pickedName].totalFloorArea); // 총 건축면적
+
+    if (plottage === 0.0) {
+        return;
+    }
+    let result = (totalFloorArea / plottage) * 100.0;
+    // $("#curBuildingToLandRatio").val(result.toFixed(2));
+}
+
+// 건폐율 계산
+// 건물바닥면적 / 대지면적 * 100
+/**
+ *
+ * @param floorCoverList build floor Area Calc Val List sample => [50, 20, 30, 10]
+ * @param lotTargetArea lot floor Area Calc Val List  sample => 50
+ * @returns {number}
+ */
+function calcFloorCoverage(floorCoverList, lotTargetArea) {
+    // 각층 바닥 면접의 합
+    // 각층 * 바닥 면접
+    let sumFllor = 0;
+    for(const obj of floorCoverList) {
+        sumFllor += obj;
+    }
+    return parseInt(sumFllor / lotTargetArea * 100);
+}
+
+/**
+ *
+ * @param floorCoverList build floor Area with height Calc Val List sample => [[50, 10] [20, 5], [30, 5], [10, 5]]
+ * @param lotTargetArea lot floor Area Calc Val List  sample => 50
+ * @returns {number}
+ */
+function calcBuildCoverage(floorCoverList, lotTargetArea) {
+    // 각층 바닥 면접의 합
+    // 각층 * 바닥 면접
+    let sumFloor = 0;
+    for(const obj of floorCoverList) {
+        sumFloor += obj[0] * obj[1];
+    }
+    return parseInt(sumFloor / lotTargetArea * 100);
+}
+
+// 모든 빌딩들의 연면적 합
+function totalAreaCalc(entityArray) {
+    let sum = 0;
+    entityArray.forEach(entity => {
+        sum += entity.totalBuildingFloorArea;
+    });
+    return sum;
+}
+
+
+function getArea(positions) {
+    areaInMeters = 0;
+    if (positions.length >= 3)
+    {
+        var points = [];
+        for(var i = 0, len = positions.length; i < len; i++)
+        {
+            var cartographic = Cesium.Cartographic.fromCartesian(positions[i]);
+            points.push(new Cesium.Cartesian2(cartographic.longitude, cartographic.latitude));
+        }
+        if(Cesium.PolygonPipeline.computeWindingOrder2D(points) === Cesium.WindingOrder.CLOCKWISE)
+        {
+            points.reverse();
+        }
+
+        var triangles = Cesium.PolygonPipeline.triangulate(points);
+
+        for(var i = 0, len = triangles.length; i < len; i+=3)
+        {
+            areaInMeters += calArea(points[triangles[i]], points[triangles[i + 1]], points[triangles[i + 2]]);
+        }
+    }
+    return areaInMeters;
+}
+
+function calArea(t1, t2, t3, i) {
+    var r = Math.abs(t1.x * (t2.y - t3.y) + t2.x * (t3.y - t1.y) + t3.x * (t1.y - t2.y)) / 2;
+    var cartographic = new Cesium.Cartographic((t1.x + t2.x + t3.x) / 3, (t1.y + t2.y + t3.y) / 3);
+    var cartesian = _viewer.scene.globe.ellipsoid.cartographicToCartesian(cartographic);
+    var magnitude = Cesium.Cartesian3.magnitude(cartesian);
+    return r * magnitude * magnitude * Math.cos(cartographic.latitude)
+}

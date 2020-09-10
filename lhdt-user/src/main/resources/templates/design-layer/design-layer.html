@@ -105,7 +105,7 @@
 </script>
 
 <!--  -->
-<script id="design-layer-land-template" type="text/x-handlebars-template">	
+<script id="design-layer-land-template" type="text/x-handlebars-template">
 		<table class="table-word-break design-layer-land" summary="디자인 레이어 필지정보">
 			<caption class="hiddenTag">디자인 레이어 필지정보</caption>
 			<colgroup>
@@ -226,6 +226,16 @@
 				<tr>
 					<td>기준시점</td>
 					<td>{{data.reference}}</td>
+				</tr>
+			</tbody>
+			<tbody>
+				<tr>
+					<td>현재용적률</td>
+					<td id="nowFloorCov"></td>
+				</tr>
+				<tr>
+					<td>현재건폐율</td>
+					<td id="nowBuildCov"></td>
 				</tr>
 			</tbody>
 		</table>
