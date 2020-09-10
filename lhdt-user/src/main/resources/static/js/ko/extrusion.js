@@ -235,8 +235,9 @@ var extrusionTools = function (magoInstance){
 		   	 		 * Mago3D.ExtrusionBuilding의 static method인 makeExtrusionBuildingByCartesian3Array 함수를 통해 빌딩을 생성,
 		   	 		 * Cesium의 Cartesian3 배열과 높이, 스타일관련 옵션으로 건물 객체 반환
 		   	 		 */
-		   	 		var building = Mago3D.ExtrusionBuilding.makeExtrusionBuildingByCartesian3Array(polygonHierarchy.reverse(), parseFloat(height))
-		   	 		console.info(building);
+		   	 		var building = Mago3D.ExtrusionBuilding.makeExtrusionBuildingByCartesian3Array(polygonHierarchy.reverse(), parseFloat(height), {
+		   	 			color : new Mago3D.Color(1,0,0,1)
+		   	 		})
 		   	 		building.layerId = model.id; 
 		   	 		
 		   	 		/**
