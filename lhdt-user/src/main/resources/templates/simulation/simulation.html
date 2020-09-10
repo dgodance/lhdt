@@ -118,67 +118,8 @@
 	</li>
 	 -->
 </ul>
-
-<!-- TODO 다른곳으로 위치 옮기면 좋겠음0904 -->
-<style>
-#skylineModal > h2 {color:#333;}
-.ds-image {display: none;}
-.ds-image.on {display: block;}
-.ds-image-skyline {display: none;}
-.ds-image-skyline.on {display: block;}
-.ds-image-thumb {margin-bottom: 5px; cursor: pointer;}
-.ds-image-thumb.on, .ds-image-skyline-thumb.on {border: 5px solid yellow; padding:1px;}
-.ds-image-skyline-thumb {margin-bottom: 5px; cursor: pointer;}
-</style>
-
 <script type="text/javascript" th:src="@{/js/ko/time-series.js}" defer></script>
 
-
-<!-- skylineModal -->
-<div class="dialog" role="dialog" id="skylineModal" style="display:none;">
-	<div style="float:left; width:90%">
-		<div>
-			<img class="ds-image" data-index="0"/>
-		</div>
-		<div>
-			<img class="ds-image" data-index="1"/>
-		</div>
-		<div>
-			<img class="ds-image" data-index="2"/>
-		</div>
-		<div>
-			<img class="ds-image-skyline" data-index="0" />
-		</div>
-		<div>
-			<img class="ds-image-skyline" data-index="1" />
-		</div>
-		<div>
-			<img class="ds-image-skyline" data-index="2" />
-		</div>
-	</div>
-	
-	
-	
-	 <div style="float:right; width:10%">
-        <div class="text-center marB10">
-            <h2>원경</h2>
-            <img class="ds-image-thumb" alt="원경" title="원경" width="64" height="64" data-index="0">
-            <img class="ds-image-skyline-thumb" alt="원경" title="원경 스카이라인" width="64" height="64" data-index="0">
-        </div>
-        <div class="text-center marB10">
-    		<h2>중경</h2>
-            <img class="ds-image-thumb" alt="중경" title="중경" width="64" height="64" data-index="1">
-            <img class="ds-image-skyline-thumb" alt="중경" title="중경 스카이라인" width="64" height="64" data-index="1">
-        </div>
-        <div class="text-center marB10">
-    		<h2>근경</h2>
-            <img class="ds-image-thumb" alt="근경" title="근경" width="64" height="64" data-index="2">
-            <img class="ds-image-skyline-thumb" alt="근경" title="근경 스카이라인" width="64" height="64" data-index="2">
-        </div>
-    </div>
-    	
-</div>
-<!-- //skylineModal -->
 
 
 

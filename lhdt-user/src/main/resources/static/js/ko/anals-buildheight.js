@@ -50,8 +50,10 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
 			let d = _polyPoint[i];
             geometryInfo.push({'longitude': d.lon, 'latitude': d.lat});
 		}
+        let d = _polyPoint[0];
+        geometryInfo.push({'longitude': d.lon, 'latitude': d.lat});
+
         const param = {
-		    wkt: '',
             geometryInfo: geometryInfo
         };
 
@@ -67,25 +69,19 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
 				console.log('empty data', data);
 				return;	
 			}
-			
-			//
-			
-			
-            //const jsonData = JSON.parse(data);
 
-/*
+            const dataInfos = data._embedded.dataInfos;
             min = 0;
-            max = jsonData.length;
-            for(var p in jsonData) {
-                var obj = jsonData[p];
-                var color = getColor(p, min, max);
+            max = dataInfos.length
+            for(let p in dataInfos) {
+                const obj = dataInfos[p];
+                const color = getColor(p, min, max);
                 console.log(color);
-                changeColorAPI(magoInstance, obj.data_group_id, obj.data_key, null,
+                // data_group_id = 2, master datakey = MasterPlan
+                changeColorAPI(magoInstance, obj.dataGroupId, obj.dataKey, null,
                     'isPhysical=true', color.r + ',' + color.g + ',' + color.b)
             }
-*/
         })
-		
     })
 
     function startDrawPolyLine() {
