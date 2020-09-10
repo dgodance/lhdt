@@ -1,35 +1,35 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
 <div id="cityPlanContent" class="contents yScroll fullHeight" style="display:none;">
     <ul class="listDrop">
-        <li class="on">
-            <p th:text="성절토"><span class="collapse-icon">icon</span></p>
-            <div id="cutfillProcess" class="listContents">
-                <ul>
-                    <li>
-                        <label for="cutfillToggle" th:text="활성화"></label>
-                        <input type="checkbox" value="" id="cutfillToggle" placeholder=""/>
-                        <button type="button" id="cutfillBtn" th:text="작동"></button>
-                    </li>
-                </ul>
-            </div>
-        </li>
+<!--        <li>-->
+<!--            <p th:text="성절토"><span class="collapse-icon">icon</span></p>-->
+<!--            <div id="cutfillProcess" class="listContents">-->
+<!--                <ul>-->
+<!--                    <li>-->
+<!--                        <label for="cutfillToggle" th:text="활성화"></label>-->
+<!--                        <input type="checkbox" value="" id="cutfillToggle" placeholder=""/>-->
+<!--                        <button type="button" id="cutfillBtn" th:text="작동"></button>-->
+<!--                    </li>-->
+<!--                </ul>-->
+<!--            </div>-->
+<!--        </li>-->
 
         <li class="on ds-li-lot-view">
             <p th:text="단지가시화"><span class="collapse-icon">icon</span></p>
             <th:block th:insert="~{/cityplan/cityplan-lot-view :: #lotViewProcess}"/>
         </li>
 
-        <li class="on">
-            <p th:text="지구계획분석"><span class="collapse-icon">icon</span></p>
-            <div id="cityPlanProcess" class="listContents">
-                <ul>
-                    <li>
-                        <label for="cityplanBtn" th:text="등록모델정보"></label>
-                        <button type="button" id="cityplanBtn" th:text="확인"></button>
-                    </li>
-                </ul>
-            </div>
-        </li>
+<!--        <li>-->
+<!--            <p th:text="지구계획분석"><span class="collapse-icon">icon</span></p>-->
+<!--            <div id="cityPlanProcess" class="listContents">-->
+<!--                <ul>-->
+<!--                    <li>-->
+<!--                        <label for="cityplanBtn" th:text="등록모델정보"></label>-->
+<!--                        <button type="button" id="cityplanBtn" th:text="확인"></button>-->
+<!--                    </li>-->
+<!--                </ul>-->
+<!--            </div>-->
+<!--        </li>-->
 
         <li class="on">
             <p th:text="평균높이분석"><span class="collapse-icon">icon</span></p>
