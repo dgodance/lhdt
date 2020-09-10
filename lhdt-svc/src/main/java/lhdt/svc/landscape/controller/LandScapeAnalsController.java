@@ -1,6 +1,7 @@
 package lhdt.svc.landscape.controller;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -9,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lhdt.svc.landscape.model.LSAnalsPredict;
+import lhdt.svc.landscape.types.LSAnalsPredictType;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
@@ -16,6 +19,7 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -166,6 +170,15 @@ public class LandScapeAnalsController extends SvcController {
 	@ResponseBody
 	public ResponseEntity<Map<String,Object>> uploadFile(MultipartHttpServletRequest request) throws IllegalStateException, IOException {
 		class InnerClass{
+			LSAnalsPredictType lsAnalsPredictType;
+
+			public InnerClass() {
+
+			}
+
+			public InnerClass(LSAnalsPredictType lsAnalsPredictType) {
+				this.lsAnalsPredictType = lsAnalsPredictType;
+			}
 			/**
 			 * 파일 저장
 			 * @param source
@@ -187,7 +200,7 @@ public class LandScapeAnalsController extends SvcController {
 			 * @throws IOException
 			 */
 			@SuppressWarnings({ "unchecked", "rawtypes" })
-			String requestSkylineImage(MultipartFile file) throws IOException {
+			LSAnalsPredict requestPredictImage(MultipartFile file) throws IOException {
 				//
 				Path path = Paths.get(fileUploadPath);
 				String filename = System.nanoTime() + ".png";
@@ -199,12 +212,25 @@ public class LandScapeAnalsController extends SvcController {
 				try(CloseableHttpClient httpclient = HttpClients.createDefault()){
 					HttpPost httppost = new HttpPost(predictServerUrl);
 
+					org.apache.http.HttpEntity reqEntity;
 					//
-					org.apache.http.HttpEntity reqEntity = MultipartEntityBuilder.create()
-							.addPart("image", new FileBody(path.resolve(filename).toFile()))
-							.addPart("format", new StringBody("base64", org.apache.http.entity.ContentType.TEXT_PLAIN))
-							.addPart("command", new StringBody("skyline_detection", org.apache.http.entity.ContentType.TEXT_PLAIN))
-							.build();
+					if(this.lsAnalsPredictType == LSAnalsPredictType.스카이라인) {
+						reqEntity = MultipartEntityBuilder.create()
+								.addPart("image", new FileBody(path.resolve(filename).toFile()))
+								.addPart("color", new StringBody("ff8da7", org.apache.http.entity.ContentType.TEXT_PLAIN))
+								.addPart("thickness", new StringBody("7", org.apache.http.entity.ContentType.TEXT_PLAIN))
+								.addPart("format", new StringBody("base64", org.apache.http.entity.ContentType.TEXT_PLAIN))
+								.addPart("command", new StringBody("skyline_detection", org.apache.http.entity.ContentType.TEXT_PLAIN))
+								.build();
+					} else {
+						reqEntity = MultipartEntityBuilder.create()
+								.addPart("image", new FileBody(path.resolve(filename).toFile()))
+								.addPart("color", new StringBody("ff8da7", org.apache.http.entity.ContentType.TEXT_PLAIN))
+								.addPart("thickness", new StringBody("7", org.apache.http.entity.ContentType.TEXT_PLAIN))
+								.addPart("format", new StringBody("base64", org.apache.http.entity.ContentType.TEXT_PLAIN))
+								.addPart("command", new StringBody("view_shielding_rate", org.apache.http.entity.ContentType.TEXT_PLAIN))
+								.build();
+					}
 
 					//
 					httppost.setEntity(reqEntity);
@@ -212,6 +238,8 @@ public class LandScapeAnalsController extends SvcController {
 					//
 					log.debug("executing request {}", httppost.getRequestLine());
 					org.apache.http.HttpEntity resEntity = null;
+
+					int timeout = 5;
 
 					//
 					try( CloseableHttpResponse response = httpclient.execute(httppost)){
@@ -221,27 +249,36 @@ public class LandScapeAnalsController extends SvcController {
 
 						//
 						if(null == resEntity) {
-							return "";
+							return null;
 						}
 
 						//
 						String str = EntityUtils.toString(resEntity);
 						if(null == str || 0 == str.length()) {
 							log.warn("<<.requestskylineImage - empty str");
-							return "";
+							return null;
 						}
 
 						//
 						if(!str.trim().startsWith("{")) {
 							log.warn("<<.requestskylineImage - not json string {}", str);
-							return "";
+							return null;
 						}
 
 						//
 						Map<String,Object> map = new ObjectMapper().readValue(str, Map.class);
+						LSAnalsPredict lsAnalsPredict = new LSAnalsPredict();
+						var resultImg = ((Map)map.get("result")).get("output_img").toString();
+						lsAnalsPredict.setLsAnalsPredictType(this.lsAnalsPredictType);
+						lsAnalsPredict.setOutput_img(resultImg);
+						if(this.lsAnalsPredictType == LSAnalsPredictType.조망차폐) {
+							var resultRatio = ((Map)map.get("result")).get("shielding_rate").toString();
+							BigDecimal b = new BigDecimal( resultRatio);
+							lsAnalsPredict.setShielding_rate(b.longValue());
 
+						}
 						//
-						return ((Map)map.get("result")).get("output_img").toString();
+						return lsAnalsPredict;
 					}catch(Exception e) {
 						log.error("{}",e);
 					}finally {
@@ -258,24 +295,23 @@ public class LandScapeAnalsController extends SvcController {
 				}
 				
 				//
-				return "";
+				return null;
 
 			}
 
 		}//
-
 		//		log.debug("{}",request.getFileMap());
 
 
 		//
-		InnerClass ic = new InnerClass();
+		var lsAnalsPredictTypeString = request.getParameter("lsAnalsPredictType");
+		InnerClass ic = new InnerClass(LSAnalsPredictType.valueOf(lsAnalsPredictTypeString));
 
 		//
 		Map<String,Object> resultMap = new HashMap<>();
-
 		//
 		Map<String, MultipartFile> fileMap = request.getFileMap();		
-		resultMap.put("base64"	, ic.requestSkylineImage(fileMap.get("blob")));		
+		resultMap.put("predictInfo"	, ic.requestPredictImage(fileMap.get("blob")));
 		resultMap.put("dt", new Date());
 
 
@@ -359,13 +395,10 @@ public class LandScapeAnalsController extends SvcController {
 		}
 		
 	}
-	
+
 	/**
-	 * 데이터(이미지 정보) 등록. 임시
-	 * @param groupId
-	 * @param imageGbn
-	 * @param gbn
-	 * @param filename
+	 *
+	 * @param fileInfo
 	 */
 	private void registDummy(FileInfo fileInfo) {
 		log.debug("{}", fileInfo);

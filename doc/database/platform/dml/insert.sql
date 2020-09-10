@@ -86,11 +86,7 @@ values
     (1003, '1', '0', '변환', 'CONVERTER', 1003, 0, 1, 3, '/upload-data/list', null, 'converterMenu', 'converterContent', 'converter', 'Y', 'Y', 'Y'),
     (1005, '1', '0', 'Extrusion', 'EXTRUSION', 1005, 0, 1, 5, '/extrusion', null, 'extrusionMenu', 'extrusionContent', 'extrusion', 'Y', 'Y', 'Y'),
     (1007, '1', '0', '레이어', 'LAYER', 1007, 0, 1, 7, '/layer/list', null, 'layerMenu', 'layerContent', 'layer', 'Y', 'Y', 'Y'),
-    (1008, '1', '0', '환경설정', 'USER POLICY', 1008, 0, 1, 8, '/user-policy/modify', null, 'userPolicyMenu', 'userPolicyContent', 'userPolicy', 'Y', 'Y', 'Y')	(10005, '1', '0', '지구설계', 'CITYPLAN', 'ko', 10005, 0, 1, 8, '/cityplan', '', null, 'cityPlanMenu', 'cityPlanContent', '', '', null, 'Y', 'Y', 'Y', '', '2020-08-24 04:19:09.389417'),
-    (10005, '1', '0', '지구설계', 'CITYPLAN', 'ko', 10005, 0, 1, 8, '/cityplan', '', null, 'cityPlanMenu', 'cityPlanContent', '', '', null, 'Y', 'Y', 'Y', '', '2020-08-24 04:19:09.389417'),
-	(10007, '1', '0', '일조분석', 'sunShine', 'ko', 10007, 0, 1, 11, '/sunshine', '', null, 'sunshineMenu', 'sunshineContent', '', '', null, 'Y', 'Y', 'Y', '', '2020-08-24 04:31:40.857677'),
-	(10008, '1', '0', '경관분석', 'landscape', 'ko', 10008, 0, 1, 10, '/landscape', '', null, 'landscapeMenu', 'landscapeContent', '', '', null, 'Y', 'Y', 'Y', '', '2020-08-24 04:50:34.423244'),
-	(10009, '1', '0', '모델러', 'Modeler', 'ko', 10009, 0, 1, 14, '/modeler', '', null, 'modelerMenu', 'modelerContent', '', '', null, 'N', 'Y', 'Y', '', '2020-08-25 02:35:47.179563');
+    (1008, '1', '0', '환경설정', 'USER POLICY', 1008, 0, 1, 8, '/user-policy/modify', null, 'userPolicyMenu', 'userPolicyContent', 'userPolicy', 'Y', 'Y', 'Y');
 
 
 
@@ -164,10 +160,6 @@ values
 	(NEXTVAL('user_group_menu_seq'), 1, 1005, 'Y'),
 	(NEXTVAL('user_group_menu_seq'), 1, 1007, 'Y'),
 	(NEXTVAL('user_group_menu_seq'), 1, 1008, 'Y'),
-	(NEXTVAL('user_group_menu_seq'), 1, 10005, 'Y'),
-	(NEXTVAL('user_group_menu_seq'), 1, 10007, 'Y'),
-	(NEXTVAL('user_group_menu_seq'), 1, 10008, 'Y'),
-	(NEXTVAL('user_group_menu_seq'), 1, 10009, 'Y'),
 
 	--(NEXTVAL('user_group_menu_seq'), 2, 1001, 'Y'),
 	(NEXTVAL('user_group_menu_seq'), 2, 1002, 'Y'),

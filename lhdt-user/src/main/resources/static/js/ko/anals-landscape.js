@@ -55,6 +55,10 @@ const xyz2 = {'lon':127.2925, 'lat':36.4824};	//종료점
 
 const PREDICT_SERVER_URL = 'http://localhost:8090/svc/landscape_anals/uploadFileAndGetSkylineImage';
 
+const lsPredictType = {
+	0: "스카이라인",
+	1: "조망차폐"
+}
 
 /**
  * 스카이라인
@@ -65,13 +69,19 @@ const PREDICT_SERVER_URL = 'http://localhost:8090/svc/landscape_anals/uploadFile
 const SkylineObj = function(){
 	
 	//원/중/근경 point xyz
-	this._viewPoint = {}	
+	this._viewPoint = {}
 	
 	//캡처한 이미지(blob)
 	this._captureBlob = {};
 	
 	//스카이라인 이미지(blob)
 	this._skylineBlob = {};
+	
+	//조망차폐 이미지(blob)
+	this._shieldingBlob = {};
+
+	//조망차폐 이미지(blob)
+	this._shieldingRatio = {};
 
 	//시작 위치
 	this._xyz1 = null;
@@ -112,28 +122,38 @@ SkylineObj.prototype.setEventHandler = function(){
 	Ppui.on('.ds-show-modal', 'click', function(){
 		the.showModal();
 	});
-	
-	
-	
+
 	//캡처된 원/중/근경 이미지 표시 클릭
 	let showImageColl = Ppui.find('.ds-image-thumb');
 	for(let i=0; i<showImageColl.length; i++){
 		let node = showImageColl[i];
 		Ppui.click(node, function(){
-			Ppui.removeClass(['.ds-image-thumb', '.ds-image-skyline-thumb'], 'on');
+			Ppui.removeClass(['.ds-image-thumb', '.ds-image-skyline-thumb', '.ds-image-shielding-thumb'], 'on');
 			Ppui.addClass(node, 'on');
 			the.showCaptureImage(parseInt(node.dataset.index));
-		});		
+		});
 	}
-	
-	//분석된 원/중/근경 이미지 표시 클릭
+
+	//분석된 스카이라인 원/중/근경 이미지 표시 클릭
 	let showImageSkylineColl = Ppui.find('.ds-image-skyline-thumb');
 	for(let i=0; i<showImageSkylineColl.length; i++){
 		let node = showImageSkylineColl[i];
 		Ppui.click(node, function(){
-			Ppui.removeClass(['.ds-image-thumb', '.ds-image-skyline-thumb'], 'on');
+			Ppui.removeClass(['.ds-image-thumb', '.ds-image-skyline-thumb', '.ds-image-shielding-thumb'], 'on');
 			Ppui.addClass(node, 'on');
 			the.showSkylineImage(parseInt(node.dataset.index));
+		});
+	}
+
+	//분석된 조망차폐 원/중/근경 이미지 표시 클릭
+	let showImageShieldingColl = Ppui.find('.ds-image-shielding-thumb');
+	for(let i=0; i<showImageShieldingColl.length; i++){
+		let node = showImageShieldingColl[i];
+		Ppui.click(node, function(){
+			Ppui.removeClass(['.ds-image-thumb', '.ds-image-skyline-thumb', '.ds-image-shielding-thumb'], 'on');
+			Ppui.addClass(node, 'on');
+			the.showShieldingImage(parseInt(node.dataset.index));
+			$('#sky-shielding').text(the.getShieldingRatio(node.dataset.index));
 		});
 	}
 	
@@ -338,11 +358,21 @@ SkylineObj.prototype.autoCaptureAllMenual = function(callbackFn) {
 				that.setCaptureImgSrc(i, that.getCaptureBlob(i));
 				that.setCaptureThumbImgSrc(i, that.getCaptureBlob(i));
 			}
-	
+
 			//모든 blob 업로드 & get 스카이라인 base64
-			that.uploadBlobAndGetSkylineImageAll(function(){
+			that.uploadBlobAndGetPredictImageAll('스카이라인',function(){
 				console.log('<<.uploadBlobAndGetSkylineImageAll');
-	
+
+				//
+				if(Pp.isNotNull(callbackFn)){
+					callbackFn();
+				}
+			});
+
+			//모든 blob 업로드 & get 스카이라인 base64
+			that.uploadBlobAndGetPredictImageAll('조망차폐',function(){
+				console.log('<<.uploadBlobAndGetSkylineImageAll');
+
 				//
 				if(Pp.isNotNull(callbackFn)){
 					callbackFn();
@@ -378,23 +408,63 @@ SkylineObj.prototype.getCaptureBlob = function(gbn){
 };
 
 /**
- * set 스카이라인 이미지(blob) 
+ * set 스카이라인 이미지(blob)
  * @param {number} gbn
  * @param {Blob} blob
- */ 
+ */
 SkylineObj.prototype.setSkylineBlob = function(gbn, blob){
 	this._skylineBlob[gbn] = blob;
 };
 
 
 /**
- * get 스카이라인 이미지(blob) 
+ * get 스카이라인 이미지(blob)
  * @param {number} gbn
  * @returns {Blob}
- */ 
+ */
 SkylineObj.prototype.getSkylineBlob = function(gbn){
 	return this._skylineBlob[gbn];
 };
+
+/**
+ * set 조망차폐 이미지(blob)
+ * @param {number} gbn
+ * @param {Blob} blob
+ */
+SkylineObj.prototype.setShieldingBlob = function(gbn, blob){
+	this._shieldingBlob[gbn] = blob;
+};
+
+
+/**
+ * get 조망차폐 이미지(blob)
+ * @param {number} gbn
+ * @returns {Blob}
+ */
+SkylineObj.prototype.getShieldingBlob = function(gbn){
+	return this._shieldingBlob[gbn];
+};
+
+
+/**
+ * set 조망차폐 정보
+ * @param {number} gbn
+ * @param {Blob} blob
+ */
+SkylineObj.prototype.setShieldingRatio = function(gbn, blob){
+	this._shieldingRatio[gbn] = blob;
+};
+
+
+/**
+ * get 조망차폐 정보
+ * @param {number} gbn
+ * @returns {Blob}
+ */
+SkylineObj.prototype.getShieldingRatio = function(gbn){
+	return this._shieldingRatio[gbn];
+};
+
 
 
 
@@ -556,6 +626,7 @@ SkylineObj.prototype.drawLine = function(xyz1, xyz2){
 
 
 /**
+ * 갓도 수정..
  * flyTo & 캡처후 콜백함수 호출
  * @param {LonLatAlt} xyz
  * @param {ViewPoint} gbn
@@ -572,7 +643,7 @@ SkylineObj.prototype.flyToAndCapture = function(gbn, callbackFn){
 	const hpr = new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(heading), Cesium.Math.toRadians(0), Cesium.Math.toRadians(0));
 	
 	//
-	Ppmap.flyTo(xyz, hpr, {'duration':0.5}, function(){
+	Ppmap.flyTo(xyz, hpr, {'duration':3}, function(){
 		//
 		the.captureMap(function(blob){
 			//
@@ -588,7 +659,7 @@ SkylineObj.prototype.flyToAndCapture = function(gbn, callbackFn){
  * @param {ViewPoint} gbn
  * @param {function} callbackFn 처리된 이미지 받은 후 호출한 콜백함수
  */
-SkylineObj.prototype.uploadBlobAndGetSkylineImage = function(gbn, callbackFn){
+SkylineObj.prototype.uploadBlobAndGetAnalsImage = function(gbn, lsAnalsPredictType, callbackFn){
 	//
 	if(gbn >= this.getViewPointCo()){
 		console.log(i, 'break');
@@ -598,10 +669,12 @@ SkylineObj.prototype.uploadBlobAndGetSkylineImage = function(gbn, callbackFn){
 	//
 	let fd = new FormData();
 	fd.append('blob', this.getCaptureBlob(gbn));
-	
+	fd.append('lsAnalsPredictType', lsAnalsPredictType);
+
 	//
 	Pp.submitFormData(PREDICT_SERVER_URL, fd, function(json){
-		callbackFn(json.base64)
+		debugger;
+		callbackFn(json)
 	}, {});
 	
 };
@@ -611,7 +684,7 @@ SkylineObj.prototype.uploadBlobAndGetSkylineImage = function(gbn, callbackFn){
  * 모든  blob 업로드 & get 스카인라인 base64후 콜백함수 호출
  * @param {function} callbackFn 모든 작업 완료 후 호출할 콜백함수
  */
-SkylineObj.prototype.uploadBlobAndGetSkylineImageAll = function(callbackFn){
+SkylineObj.prototype.uploadBlobAndGetPredictImageAll = function(lsAnalsPredictType, callbackFn){
 	//
 	let the = this;
 	
@@ -622,14 +695,19 @@ SkylineObj.prototype.uploadBlobAndGetSkylineImageAll = function(callbackFn){
 			//
 			return;
 		}
-		
-		//
-		the.uploadBlobAndGetSkylineImage(gbn, function(base64){
-			//
-			the.setSkylineBlob(gbn, base64ToBlob(base64));
-			//화면에 표시
-			the.setSkylineImgSrc(gbn, the.getSkylineBlob(gbn));
-			the.setSkylineThumbImgSrc(gbn, the.getSkylineBlob(gbn));
+		the.uploadBlobAndGetAnalsImage(gbn, lsAnalsPredictType, function(json){
+			const base64 = json.predictInfo.output_img;
+			const ratio = json.predictInfo.shielding_rate;
+			if(lsAnalsPredictType === '스카이라인') {
+				the.setSkylineBlob(gbn, base64ToBlob(base64));
+				the.setSkylineImgSrc(gbn, the.getSkylineBlob(gbn));
+				the.setSkylineThumbImgSrc(gbn, the.getSkylineBlob(gbn));
+			} else {
+				the.setShieldingBlob(gbn, base64ToBlob(base64));
+				the.setShieldingRatio(gbn, ratio)
+				the.setShieldingImgSrc(gbn, the.getShieldingBlob(gbn));
+				the.setShieldingThumbImgSrc(gbn, the.getShieldingBlob(gbn));
+			}
 			//
 			_upload(++gbn);
 		});
@@ -638,10 +716,6 @@ SkylineObj.prototype.uploadBlobAndGetSkylineImageAll = function(callbackFn){
 	//
 	_upload(ViewPoint.A);	
 };
-
-
-
-
 
 /**
  * 결과창 표시
@@ -725,12 +799,46 @@ SkylineObj.prototype.setSkylineImgSrc = function(gbn, blob){
 };
 
 /**
+ * 조망차폐 이미지(blob)를 <img>에 설정
+ * @param {number} gbn
+ * @param {Blob} blob
+ */
+SkylineObj.prototype.setShieldingImgSrc = function(gbn, blob){
+	let img = Ppui.find('.ds-image-shielding[data-index="'+gbn+'"]');
+	if(Pp.isNull(img)){
+		console.log('null img');
+		return;
+	}
+
+	//
+	//img.src = 'data:image/png;base64,' + base64;
+	img.src = window.URL.createObjectURL(blob);
+};
+
+/**
  * 스카이라인 이미지(blob)를 thumbnail <img>에 설정
  * @param {number} gbn
  * @param {Blob} blob
  */
 SkylineObj.prototype.setSkylineThumbImgSrc = function(gbn, blob){
 	let img = Ppui.find('.ds-image-skyline-thumb[data-index="'+gbn+'"]');
+	if(Pp.isNull(img)){
+		console.log('null img');
+		return;
+	}
+
+	//
+	//img.src = 'data:image/png;base64,' + base64;
+	img.src = window.URL.createObjectURL(blob);
+};
+
+/**
+ * 조망차폐 이미지(blob)를 thumbnail <img>에 설정
+ * @param {number} gbn
+ * @param {Blob} blob
+ */
+SkylineObj.prototype.setShieldingThumbImgSrc = function(gbn, blob){
+	let img = Ppui.find('.ds-image-shielding-thumb[data-index="'+gbn+'"]');
 	if(Pp.isNull(img)){
 		console.log('null img');
 		return;
@@ -748,14 +856,13 @@ SkylineObj.prototype.setSkylineThumbImgSrc = function(gbn, blob){
  */
 SkylineObj.prototype.showCaptureImage = function(gbn){
 	//
-	Ppui.removeClass(['.ds-image', '.ds-image-skyline'], 'on');
-	Ppui.removeClass(['.ds-image-thumb', '.ds-image-skyline-thumb'], 'on');
-	
+	Ppui.removeClass(['.ds-image', '.ds-image-skyline', '.ds-image-shielding', '.ds-image-shielding-table'], 'on');
+	Ppui.removeClass(['.ds-image-thumb', '.ds-image-skyline-thumb', '.ds-image-shielding-thumb'], 'on');
+
 	//
 	Ppui.addClass('.ds-image[data-index="'+gbn+'"]', 'on');
 	Ppui.addClass('.ds-image-thumb[data-index="'+gbn+'"]', 'on');
 };
-
 
 /**
  * 스카이라인 이미지 <img> show
@@ -763,12 +870,27 @@ SkylineObj.prototype.showCaptureImage = function(gbn){
  */
 SkylineObj.prototype.showSkylineImage = function(gbn){
 	//
-	Ppui.removeClass(['.ds-image', '.ds-image-skyline'], 'on');
-	Ppui.removeClass(['.ds-image-thumb', '.ds-image-skyline-thumb'], 'on');
-	
+	Ppui.removeClass(['.ds-image', '.ds-image-skyline', '.ds-image-shielding', '.ds-image-shielding-table'], 'on');
+	Ppui.removeClass(['.ds-image-thumb', '.ds-image-skyline-thumb', '.ds-image-shielding-thumb'], 'on');
+
 	//
 	Ppui.addClass('.ds-image-skyline[data-index="'+gbn+'"]', 'on');
 	Ppui.addClass('.ds-image-skyline-thumb[data-index="'+gbn+'"]', 'on');
+};
+
+/**
+ * 조망차폐 이미지 <img> show
+ * @param {ViewPoint|number} gbn
+ */
+SkylineObj.prototype.showShieldingImage = function(gbn){
+	//
+	Ppui.removeClass(['.ds-image', '.ds-image-skyline', '.ds-image-shielding', '.ds-image-shielding-table'], 'on');
+	Ppui.removeClass(['.ds-image-thumb', '.ds-image-skyline-thumb', '.ds-image-shielding-thumb'], 'on');
+
+	//
+	Ppui.addClass('.ds-image-shielding[data-index="'+gbn+'"]', 'on');
+	Ppui.addClass('.ds-image-shielding-thumb[data-index="'+gbn+'"]', 'on');
+	Ppui.addClass('.ds-image-shielding-table', 'on');
 
 };
 
