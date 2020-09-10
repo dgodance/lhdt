@@ -14,6 +14,7 @@
 .text-center {text-align:center  !important;}
 
 button.textBtnSub.active {background-color:#636363; color:white; font-weight:bold;}
+button[class*=ds-tool] {width:49% !important; margin-bottom:2px;}
 
 table.ds-data-library-list > tbody > tr {font-weight:normal; background-color:white;}
 table.ds-data-library-list > tbody > tr.on {font-weight:bold !important; background-color:lightyellow !important;}
