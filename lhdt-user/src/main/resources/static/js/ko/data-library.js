@@ -858,8 +858,16 @@ ModelerObj.prototype.getGroup = function(dataLibraryGroupId){
  */
 ModelerObj.prototype.getDataLibraries = function(callbackFn){
 	let _this = this;
+	
+	//
+	_this.dataLibraries = [];
+	
+	
+	//
 	Pp.get('../api/data-libraries', [], function(res){
-		_this.dataLibraries = res._embedded.dataLibraries;
+		if(Pp.isNotEmpty(res._embedded) && Pp.isNotEmpty(res._embedded.dataLibraries)){
+			_this.dataLibraries = res._embedded.dataLibraries;			
+		}
 		
 		//
 		if(Pp.isNotNull(callbackFn)){

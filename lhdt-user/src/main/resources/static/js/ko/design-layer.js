@@ -212,7 +212,7 @@ DesignLayerObj.prototype.toolChanged = function(beforeTool, afterTool){
         }
 
         //
-        _clearExtrusionLands();
+        //_clearExtrusionLands();
     }
 
     //선택
@@ -874,8 +874,11 @@ DesignLayerObj.prototype.getDesignLayerGroups = function(){
     let _this = this;
 
     //
+    _this.groups = [];
     Pp.get('../api/design-layer-groups', [], function(res){
-        _this.groups = res._embedded.designLayerGroups;;
+        if(Pp.isNotEmpty(res._embedded) && Pp.isNotEmpty(res._embedded.designLayerGroups)){
+            _this.groups = res._embedded.designLayerGroups;
+        }
         return _this.groups;
     }, {'async':false});
 };
@@ -889,8 +892,11 @@ DesignLayerObj.prototype.getDesignLayers = function(){
     let _this = this;
 
     //
+    _this.datas = [];
     Pp.get('../api/design-layers', [], function(res){
-        _this.datas = res._embedded.designLayers;
+        if(Pp.isNotEmpty(res._embedded) && Pp.isNotEmpty(res._embedded.designLayers)){
+            _this.datas = res._embedded.designLayers;
+        }
         return _this.datas;
     }, {'async':false});
 };
@@ -903,10 +909,13 @@ DesignLayerObj.prototype.getDesignLayers = function(){
 DesignLayerObj.prototype.getUrbanGroups = function(){
     let _this = this;
 
+    _this.urbanGroups = [];
     //
     Pp.get('../api/urban-groups', [], function(res){
-        _this.urbanGroups = res._embedded.urbanGroups;
-        return _this.datas;
+        if(Pp.isNotEmpty(res._embedded) && Pp.isNotEmpty(res._embedded.urbanGroups)){
+            _this.urbanGroups = res._embedded.urbanGroups;
+        }
+        return _this.urbanGroups;
     }, {'async':false});
 };
 
