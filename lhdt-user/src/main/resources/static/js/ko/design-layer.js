@@ -16,11 +16,11 @@ const DesignLayerObj = function(){
     this.lands=[];
 
     //
-    this.handler = null;
-    //
     this.rotate = null;
     //
     this.upanddown = null;
+    //
+    this.handler = null;
 };
 
 /**
@@ -89,45 +89,12 @@ DesignLayerObj.prototype.setEventHandler = function(){
     /**
      * 도구 - 선택
      */
-    Ppui.click('[class*=design-layer-tool]', function(){
-        //선택된 엘리먼트로 도구 정보 조회하기
-        let _getTool = function(el){
-            for(let i=0; i<el.classList.length; i++){
-                let className = el.classList[i];
-                let toolName = className.replace(/design-layer-tool-/gi, '');
-    
-                let keys = Object.keys(DesignLayerObj.Tool);
-                for(let j=0; j<keys.length; j++){
-                    let k = keys[j];
-    
-                    //
-                    if(toolName === k.toLowerCase()){
-                        return DesignLayerObj.Tool[k];
-                    }
-                }
-            }
-    
-            //
-            return DesignLayerObj.Tool.NONE;
-        };
-    
+    Ppui.click('[class*=design-layer-tool]', function () {
         //
-        let className = 'active';
-        let b = Ppui.hasClass(this, className);
-    
-        //
-        Ppui.removeClass('[class*=design-layer-tool]', className);
-    
+        let afterTool = Ppui.hasClass(this, 'active') ? ModelerObj.Tool.NONE : _this.getToolByEl(this);
         //
         _this.setTool(DesignLayerObj.Tool.NONE);
-        //
-        if(!b){
-            Ppui.addClass(this, 'active');
-            tool = _getTool(this);
-        }
-    
-        //
-        _this.setTool(tool);
+        _this.setTool(afterTool);
     });
 };
 
@@ -144,8 +111,6 @@ DesignLayerObj.prototype.setTool = function(tool){
     //
     this.toolChanged(beforeTool, this.tool);
 
-    //
-    //toastr.info('선택된 도구 : ' + this.getToolName(this.tool));
 };
 
 
@@ -158,9 +123,90 @@ DesignLayerObj.prototype.getTool = function(){
 };
 
 
-DesignLayerObj.prototype.isTool = function(tool){
+DesignLayerObj.prototype.toolIs = function(tool){
     return this.tool === tool;
 }
+
+
+/**
+ * tool로 해당 button's 엘리먼트 구하기
+ * @param {DesignLayerObj.Tool} tool
+ */
+DesignLayerObj.prototype.getElByTool = function (tool) {
+    let toolName = '';
+    let keys = Object.keys(DesignLayerObj.Tool);
+
+    for (let i = 0; i < keys.length; i++) {
+        let k = keys[i];
+
+        //
+        if (tool == DesignLayerObj.Tool[k]) {
+            toolName = k.toLowerCase();
+        }
+    }
+
+
+    let coll = Ppui.find('button[class*=design-layer-tool]');
+    for (let i = 0; i < coll.length; i++) {
+        let el = coll.item(i);
+
+        for (let j = 0; j < el.classList.length; j++) {
+            let className = el.classList[j].replace(/design-layer-tool-/gi, '');
+
+            //
+            if (toolName === className) {
+                return el;
+            }
+        }
+    }
+
+    //
+    return;
+};
+
+
+/**
+ * el로 tool 구하기
+ * @param {Element} el
+ * @returns {DesignLayerObj.Tool}
+ */
+DesignLayerObj.prototype.getToolByEl = function (el) {
+    let keys = Object.keys(DesignLayerObj.Tool);
+
+    //
+    for (let i = 0; i < keys.length; i++) {
+        let k = keys[i];
+
+        for (let j = 0; j < el.classList.length; j++) {
+            let className = el.classList[j].replace(/design-layer-tool-/gi, '');
+
+            //
+            //console.log(k, className);
+            if (className === k.toLowerCase()) {
+                return DesignLayerObj.Tool[k];
+            }
+        }
+    }
+
+    //
+    return DesignLayerObj.Tool.NONE;
+};
+
+
+
+/**
+ * 
+ * @param {any} e
+ */
+DesignLayerObj.prototype.selectedf4dCallback = function (e) {
+    console.log(e);
+
+    //
+    if (Ppui.hasClass('button.design-layer-tool-delete', 'active')) {
+        //TODO 삭제
+        return;
+    }
+};
 
 
 /**
@@ -168,8 +214,17 @@ DesignLayerObj.prototype.isTool = function(tool){
  * @param {number} beforeTool 변경 전 도구
  * @param {number} afterTool 변경 후 도구
  */
-DesignLayerObj.prototype.toolChanged = function(beforeTool, afterTool){
-    //toastr.info(this.getToolName(this.getTool()));
+DesignLayerObj.prototype.toolChanged = function (beforeTool, afterTool) {
+    console.log(this.getToolName(beforeTool), '=>', this.getToolName(afterTool));
+
+
+    //
+    Ppui.hide('div.design-layer-land-wrapper');
+
+    //
+    Ppui.removeClass(this.getElByTool(beforeTool), 'active');
+    Ppui.addClass(this.getElByTool(afterTool), 'active');
+
 
     //건물 높이 extrusion 삭제
     let _clearExtrusionLands = function(){
@@ -191,7 +246,7 @@ DesignLayerObj.prototype.toolChanged = function(beforeTool, afterTool){
     };
 
     //모든 이벤트/정보 클리어
-    if(this.isTool(DesignLayerObj.Tool.NONE)){
+    if(this.toolIs(DesignLayerObj.Tool.NONE)){
         //
         this.setSelectionInteraction(false);
         //
@@ -206,52 +261,50 @@ DesignLayerObj.prototype.toolChanged = function(beforeTool, afterTool){
         }
 
         //
-        if(Pp.isNotNull(this.handler)){
-            this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-            this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+        if (Pp.isNotNull(this.handler) && !this.handler.isDestroyed()) {
+            this.handler.destroy();
         }
+
 
         //
         //_clearExtrusionLands();
     }
 
     //선택
-    if(this.isTool(DesignLayerObj.Tool.SELECT)){
+    if(this.toolIs(DesignLayerObj.Tool.SELECT)){
         this.processToolSelect();
     }
 
     //삭제
-    if(this.isTool(DesignLayerObj.Tool.DELETE)){
+    if(this.toolIs(DesignLayerObj.Tool.DELETE)){
         this.processToolDelete();
     }
     
     //이동
-    if(this.isTool(DesignLayerObj.Tool.MOVE)){
+    if(this.toolIs(DesignLayerObj.Tool.MOVE)){
         this.processToolMove();
     }
     
     //회전
-    if(this.isTool(DesignLayerObj.Tool.ROTATE)){
+    if(this.toolIs(DesignLayerObj.Tool.ROTATE)){
         this.processToolRotate();
     }
     
     //높이조절
-    if(this.isTool(DesignLayerObj.Tool.UPDOWN)){
+    if(this.toolIs(DesignLayerObj.Tool.UPDOWN)){
         this.processToolUpdown();
     }
     
     //필지정보조회
-    if(this.isTool(DesignLayerObj.Tool.INTERSECTION)){
+    if(this.toolIs(DesignLayerObj.Tool.INTERSECTION)){
         this.processToolIntersection();
     }
     
     //필지높이조절
-    if(this.isTool(DesignLayerObj.Tool.LANDUPDOWN)){
+    if(this.toolIs(DesignLayerObj.Tool.LANDUPDOWN)){
         this.processToolLandUpdown();
     }
 
-    //
-    Ppui.hide('div.design-layer-land-wrapper');
 };
 
 
@@ -267,6 +320,7 @@ DesignLayerObj.prototype.setSelectionInteraction = function(onOff){
         Ppmap.getManager().isCameraMoved = true;
     }else{
         Ppmap.getManager().defaultSelectInteraction.setActive(onOff);
+        Ppmap.getManager().off(Mago3D.MagoManager.EVENT_TYPE.SELECTEDF4D, this.selectedf4dCallback);
     }
 };
 
@@ -376,7 +430,7 @@ DesignLayerObj.prototype.extrudeLandByCtsn2 = function(ctsn2){
  */
 DesignLayerObj.prototype.processToolLandUpdown = function(){
     //
-    if(!this.isTool(DesignLayerObj.Tool.LANDUPDOWN)){
+    if(!this.toolIs(DesignLayerObj.Tool.LANDUPDOWN)){
         return;
     }
 
@@ -395,12 +449,9 @@ DesignLayerObj.prototype.processToolLandUpdown = function(){
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
     //오른쪽 클릭
-    _this.handler.setInputAction(function(event){
-        _this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-        _this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-    
+    _this.handler.setInputAction(function(event){        
         //
-        Ppui.trigger('.design-layer-tool-none', 'click');
+        _this.setTool(DesignLayerObj.Tool.NONE);
     }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 };
 
@@ -435,7 +486,7 @@ DesignLayerObj.prototype.processToolIntersection = function() {
 
 
     //
-    if(!this.isTool(DesignLayerObj.Tool.INTERSECTION)){
+    if(!this.toolIs(DesignLayerObj.Tool.INTERSECTION)){
         return;
     }
     
@@ -449,7 +500,7 @@ DesignLayerObj.prototype.processToolIntersection = function() {
     _this.handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
 
      //왼쪽 클릭
-     _this.handler.setInputAction(function(event){
+    _this.handler.setInputAction(function(event){
         let lonLat = Ppmap.Convert.ctsn2ToLonLat(event.position);
 
         //
@@ -579,13 +630,9 @@ DesignLayerObj.prototype.processToolIntersection = function() {
 
     //오른쪽 클릭
     _this.handler.setInputAction(function(event){
-        _this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-       _this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-       //       
-       _this.setSelectionInteraction(false);
+        //       
+        _this.setTool(DesignLayerObj.Tool.NONE);
 
-       //
-       Ppui.trigger('.design-layer-tool-none', 'click');
    }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 };
 
@@ -625,7 +672,7 @@ DesignLayerObj.prototype.showLandData = function(pageNo){
  */
 DesignLayerObj.prototype.processToolUpdown = function(){    
     //
-    if(!this.isTool(DesignLayerObj.Tool.UPDOWN)){
+    if(!this.toolIs(DesignLayerObj.Tool.UPDOWN)){
         return;
     }
     
@@ -640,25 +687,15 @@ DesignLayerObj.prototype.processToolUpdown = function(){
 	_this.upanddown = new Mago3D.NativeUpDownInteraction();
 	Ppmap.getManager().interactionCollection.add(_this.upanddown);
 
+    _this.upanddown.setActive(true);
+
     //
     _this.handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
 
-     //왼쪽 클릭
-     _this.handler.setInputAction(function(event){
-        _this.upanddown.setActive(true);
-
-    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-
+    
     //오른쪽 클릭
-    _this.handler.setInputAction(function(event){
-        _this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-       _this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-       //
-       _this.upanddown.setActive(false);
-       _this.setSelectionInteraction(false);
-
-       //
-       Ppui.trigger('.design-layer-tool-none', 'click');
+    _this.handler.setInputAction(function (event) {
+        _this.setTool(DesignLayerObj.Tool.NONE);
    }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 };
 
@@ -667,7 +704,7 @@ DesignLayerObj.prototype.processToolUpdown = function(){
  */
 DesignLayerObj.prototype.processToolRotate = function(){    
     //
-    if(!this.isTool(DesignLayerObj.Tool.ROTATE)){
+    if(!this.toolIs(DesignLayerObj.Tool.ROTATE)){
         return;
     }
     
@@ -681,27 +718,16 @@ DesignLayerObj.prototype.processToolRotate = function(){
 
     //
 	_this.setSelectionInteraction(true);
+    _this.rotate.setTargetType('native');
+	_this.rotate.setActive(true);
 
     //
     _this.handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
 
-     //왼쪽 클릭
-     _this.handler.setInputAction(function(event){
-        _this.rotate.setTargetType('native');
-		_this.rotate.setActive(true);
-
-    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
     //오른쪽 클릭
-    _this.handler.setInputAction(function(event){
-        _this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-       _this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-       //
-       _this.rotate.setActive(false);
-       _this.setSelectionInteraction(false);
-
-       //
-       Ppui.trigger('.design-layer-tool-none', 'click');
+    _this.handler.setInputAction(function (event) {
+        _this.setTool(DesignLayerObj.Tool.NONE);
    }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 };
 
@@ -710,7 +736,7 @@ DesignLayerObj.prototype.processToolRotate = function(){
  */
 DesignLayerObj.prototype.processToolMove = function(){    
     //
-    if(!this.isTool(DesignLayerObj.Tool.MOVE)){
+    if(!this.toolIs(DesignLayerObj.Tool.MOVE)){
         return;
     }
     
@@ -720,26 +746,16 @@ DesignLayerObj.prototype.processToolMove = function(){
     //
 	_this.setSelectionInteraction(true);
 
+    Ppmap.getManager().defaultTranslateInteraction.setTargetType('native');
+    Ppmap.getManager().defaultTranslateInteraction.setActive(true);
+
     //
     _this.handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
 
-     //왼쪽 클릭
-     _this.handler.setInputAction(function(event){
-        Ppmap.getManager().defaultTranslateInteraction.setTargetType('native');
-		Ppmap.getManager().defaultTranslateInteraction.setActive(true);
-
-    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
     //오른쪽 클릭
     _this.handler.setInputAction(function(event){
-        _this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-       _this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-       //
-       Ppmap.getManager().defaultTranslateInteraction.setActive(false);
-       _this.setSelectionInteraction(false);
-
-       //
-       Ppui.trigger('.design-layer-tool-none', 'click');
+        _this.setTool(DesignLayerObj.Tool.NONE);
    }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 };
 
@@ -772,7 +788,7 @@ DesignLayerObj.prototype.processToolDelete = function(){
 
 
     //
-    if(!this.isTool(DesignLayerObj.Tool.DELETE)){
+    if(!this.toolIs(DesignLayerObj.Tool.DELETE)){
         return;
     }
     
@@ -786,7 +802,7 @@ DesignLayerObj.prototype.processToolDelete = function(){
     _this.handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
 
      //왼쪽 클릭
-     _this.handler.setInputAction(function(event){
+    _this.handler.setInputAction(function(event){
         // 선택된 데이터 라이브러리 정보 추출
         let extrusionBuildings = Ppmap.getManager().selectionManager.getSelectedGeneralArray();
         //
@@ -795,14 +811,8 @@ DesignLayerObj.prototype.processToolDelete = function(){
    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
    //오른쪽 클릭
-   _this.handler.setInputAction(function(event){
-    _this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-       _this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-       //
-       _this.setSelectionInteraction(false);
-
-       //
-       Ppui.trigger('.design-layer-tool-none', 'click');
+    _this.handler.setInputAction(function(event){
+       _this.setTool(DesignLayerObj.Tool.NONE);
    }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 
 };
@@ -813,7 +823,7 @@ DesignLayerObj.prototype.processToolDelete = function(){
  */
 DesignLayerObj.prototype.processToolSelect = function(){
     //
-    if(!this.isTool(DesignLayerObj.Tool.SELECT)){
+    if(!this.toolIs(DesignLayerObj.Tool.SELECT)){
         return;
     }
 
@@ -836,13 +846,7 @@ DesignLayerObj.prototype.processToolSelect = function(){
 
     //오른쪽 클릭
     _this.handler.setInputAction(function(event){
-        _this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-        _this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-        //
-		_this.setSelectionInteraction(false);
-
-        //
-        Ppui.trigger('.design-layer-tool-none', 'click');
+        _this.setTool(DesignLayerObj.Tool.NONE);
     }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 };
 
