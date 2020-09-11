@@ -11,7 +11,7 @@ function District(magoInstance, viewer) {
         this.deleteDistrict();
         var now = new Date();
         var rand = (now - now % 5000) / 5000;
-        var policy = NDTP.policy;
+        var policy = LHDT.policy;
         // 시도(2) + 시군구(3) + 읍면동(3) + 리(2)
         var queryString;
         if (bjcdLen==10){
@@ -47,7 +47,7 @@ function District(magoInstance, viewer) {
     }
 
     this.deleteDistrict = function () {
-        var districtProvider = NDTP.map.getImageryLayerById('district');
+        var districtProvider = LHDT.map.getImageryLayerById('district');
         if (districtProvider) {
             viewer.imageryLayers.remove(districtProvider);
         }

@@ -56,7 +56,7 @@
 	//Cesium.Ion.defaultAccessToken = '';
 	//var viewer = new Cesium.Viewer('magoContainer');
 	var MAGO3D_INSTANCE;
-	var NDTP = NDTP || {
+	var LHDT = LHDT || {
 		policy : {},
 		baseLayers : {}
 	};
@@ -64,13 +64,13 @@
 	var entities = null;
 	
 	initPolicy(function(policy, baseLayers){
-		NDTP.policy = policy;
-		NDTP.baseLayers = baseLayers;
+		LHDT.policy = policy;
+		LHDT.baseLayers = baseLayers;
 		magoInit();
 	});
 	
 	function magoInit() {
-		var geoPolicyJson = NDTP.policy;
+		var geoPolicyJson = LHDT.policy;
 		var option = {};
 		option.infoBox = false;
 		option.navigationHelpButton = false;
@@ -103,7 +103,7 @@
 	var beforePointId = null;
 	function magoLoadEnd(e) {
 		var magoInstance = e;
-		var geoPolicyJson = NDTP.policy;
+		var geoPolicyJson = LHDT.policy;
 		viewer = magoInstance.getViewer(); 
 		entities = viewer.entities;
 		var magoManager = magoInstance.getMagoManager();
@@ -158,7 +158,7 @@
 		});
 		
 		setTimeout(function(){
-			var map = new mapInit(magoInstance, NDTP.baseLayers, geoPolicyJson);
+			var map = new mapInit(magoInstance, LHDT.baseLayers, geoPolicyJson);
         	map.initLayer();
         }, geoPolicyJson.initDuration * 1000);
 	}

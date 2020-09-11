@@ -780,7 +780,7 @@ DesignLayerObj.prototype.showDesignLayer = function(designLayerId, isShow){
  * @param {boolean} isShow 화면 표시 여부
  */
 DesignLayerObj.prototype.extrusionModelWMSToggle = function(model, isShow){
-    let url = [NDTP.policy.geoserverDataUrl, NDTP.policy.geoserverDataStore, model.ogctype].join('/');
+    let url = [LHDT.policy.geoserverDataUrl, LHDT.policy.geoserverDataStore, model.ogctype].join('/');
     //
     var imageryLayers = Ppmap.getViewer().imageryLayers;
     if(isShow) {
@@ -819,7 +819,7 @@ DesignLayerObj.prototype.extrusionModelBuildingToggle = function(model, isShow) 
 	 */
 	let _wfsResource = new Cesium.Resource({
         //
-		url : [NDTP.policy.geoserverDataUrl, NDTP.policy.geoserverDataStore, model.ogctype].join('/'),
+		url : [LHDT.policy.geoserverDataUrl, LHDT.policy.geoserverDataStore, model.ogctype].join('/'),
 		queryParameters : {
 			service : 'wfs',
 			version : '1.0.0',

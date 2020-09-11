@@ -195,20 +195,20 @@
 	}
 
 	var MAGO3D_INSTANCE;
-	var NDTP = NDTP || {
+	var LHDT = LHDT || {
 		policy : {},
 		dataGroup : {},
 		baseLayers : {}
 	};
 
 	initPolicy(function(policy, baseLayers){
-		NDTP.policy = policy;
-		NDTP.baseLayers = baseLayers;
+		LHDT.policy = policy;
+		LHDT.baseLayers = baseLayers;
 		magoInit();
 	});
 
 	function magoInit() {
-		var geoPolicyJson = NDTP.policy;
+		var geoPolicyJson = LHDT.policy;
 		/**
 		 * @param {Stirng} containerId container div id. required.
 		 * @param {object} serverPolicy mage3d geopolicy. required.
@@ -222,7 +222,7 @@
 
 	function magoLoadEnd(e) {
 		var magoInstance = e;
-		var geoPolicyJson = NDTP.policy;
+		var geoPolicyJson = LHDT.policy;
 		var viewer = magoInstance.getViewer();
 		var magoManager = magoInstance.getMagoManager();
 		var f4dController = magoInstance.getF4dController();
@@ -260,15 +260,15 @@
 
         // 기본 레이어 랜더링
         setTimeout(function(){
-        	NDTP.map = new mapInit(magoInstance, NDTP.baseLayers, geoPolicyJson);
-        	NDTP.map.initLayer();
+        	LHDT.map = new mapInit(magoInstance, LHDT.baseLayers, geoPolicyJson);
+        	LHDT.map.initLayer();
         	cesiumCreditAlt(); //웹접근성
         }, geoPolicyJson.initDuration * 1000);
 
 		//지도상에 데이터 다루는거
 		MapDataControll(magoInstance);
 
-		NDTP.issueController = new IssueController(magoInstance);
+		LHDT.issueController = new IssueController(magoInstance);
 		
 		extrusionTools(magoInstance);
 		
@@ -624,7 +624,7 @@
 						insertIssueFlag = true;
 						issueDialog.dialog('close');
 
-						NDTP.issueController.addIssue({
+						LHDT.issueController.addIssue({
 							longitude : parseFloat(lon),
 							latitude : parseFloat(lat),
 							altitude : parseFloat(alt),
