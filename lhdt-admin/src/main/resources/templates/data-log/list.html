@@ -117,7 +117,7 @@
 										<tr th:if="${dataInfoLogList.empty}">
 											<td colspan="10" class="col-none">데이터 변경 이력이 존재하지 않습니다.</td>
 										</tr>
-										<tr th:if="${!dataInfoLogList.empty}" th:each="dataInfoLog : ${dataInfoLogList}">
+										<tr th:unless="${dataInfoLogList.empty}" th:each="dataInfoLog : ${dataInfoLogList}">
 											<td class="col-checkbox">
 												<input type="checkbox" id="dataInfoLogId_${dataInfoLog.dataLogId}" name="dataLogId" th:value="${dataInfoLog.dataLogId}" />
 											</td>

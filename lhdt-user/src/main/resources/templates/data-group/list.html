@@ -78,7 +78,7 @@
 						<td colspan="9" class="col-none"><th:block th:text="#{converter.data.group.does.not.exist}"></th:block></td>
                     </tr>
                     
-                    <th:block th:if="${!dataGroupList.empty}">
+                    <th:block th:unless="${dataGroupList.empty}">
 						<th:block th:each="dataGroup : ${dataGroupList}">
 							<th:block th:if="${dataGroup.depth == 1}">
 							<tr class="oneDepthClass">

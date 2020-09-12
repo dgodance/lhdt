@@ -62,7 +62,7 @@
 											<td colspan="6" class="col-none">메뉴가 존재하지 않습니다.</td>
 										</tr>
 
-										<th:block th:if="${!menuList.empty}" th:each="menu : ${menuList}">
+										<th:block th:unless="${menuList.empty}" th:each="menu : ${menuList}">
 											<th:block  th:if="${menu.depth == 0}">
 												<tr style="background: #ededed;">
 													<td class="col-name" th:text="${menu.name}" style="text-align: left; padding-left: 15px"></td>

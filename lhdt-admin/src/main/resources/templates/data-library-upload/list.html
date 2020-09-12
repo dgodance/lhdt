@@ -125,7 +125,7 @@
 											<td colspan="11" class="col-none">파일 업로딩 이력이 존재하지 않습니다.</td>
 										</tr>
 
-										<tr th:if="${!dataLibraryUploadList.empty}" th:each="dataLibraryUpload : ${dataLibraryUploadList}">
+										<tr th:unless="${dataLibraryUploadList.empty}" th:each="dataLibraryUpload : ${dataLibraryUploadList}">
 											<td class="col-checkbox">
 												<input type="checkbox" th:id="|dataLibraryUploadId_${dataLibraryUpload.dataLibraryUploadId}|" name="dataLibraryUploadId"
 													   th:value="${dataLibraryUpload.dataLibraryUploadId}" />

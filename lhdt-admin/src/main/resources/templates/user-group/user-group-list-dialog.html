@@ -7,7 +7,6 @@
 			<colgroup>
 				<col class="col-name"></col>
 				<col class="col-toggle"></col>
-				<col class="col-id"></col>
 				<col class="col-function"></col>
 				<col class="col-date"></col>
 				<col class="col-toggle"></col>
@@ -23,10 +22,10 @@
 			</thead>
 			<tbody>
 				<tr th:if="${userGroupList.empty}">
-					<td colspan="6" class="col-none">사용자 그룹이 존재하지 않습니다.</td>
+					<td colspan="5" class="col-none">사용자 그룹이 존재하지 않습니다.</td>
 				</tr>
 
-				<th:block th:if="${!userGroupList.empty}" th:each="userGroup : ${userGroupList}">
+				<th:block th:unless="${userGroupList.empty}" th:each="userGroup : ${userGroupList}">
 					<th:block th:if="${userGroup.depth == 1}">
 						<tr class="oneDepthClass">
 							<td class="col-name ellipsis" style="max-width:300px; text-align: left;" nowrap="nowrap">

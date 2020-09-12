@@ -142,7 +142,7 @@
 							<td colspan="11" class="col-none"><th:block th:text="#{upload.history.does.not.exist}"></th:block></td>
 						</tr>
 
-						<tr th:if="${!uploadDataList.empty}" th:each="uploadData : ${uploadDataList}">
+						<tr th:unless="${uploadDataList.empty}" th:each="uploadData : ${uploadDataList}">
 							<td class="col-checkbox">
 								<input type="checkbox" th:id="|uploadDataId_${uploadData.uploadDataId}|" name="uploadDataId" th:value="${uploadData.uploadDataId}" />
 							</td>

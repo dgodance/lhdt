@@ -125,7 +125,7 @@
 											<td colspan="10" class="col-none" th:text="#{data.library.does.not.exist}"></td>
 										</tr>
 
-										<tr th:if="${!dataLibraryList.empty}" th:each="dataLibrary : ${dataLibraryList}">
+										<tr th:unless="${dataLibraryList.empty}" th:each="dataLibrary : ${dataLibraryList}">
 											<td class="col-checkbox">
 												<label class="hiddenTag">선택 체크박스</label>
 												<input type="checkbox" th:id="|dataLibraryId_${dataLibrary.dataLibraryId}|" name="dataLibraryId" value="${dataLibrary.dataLibraryId}" />

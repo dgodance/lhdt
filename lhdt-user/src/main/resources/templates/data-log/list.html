@@ -133,7 +133,7 @@
 						<tr th:if="${dataInfoLogList.empty}">
 							<td colspan="10" class="col-none"><th:block th:text="#{data.log.change.history.does.not.exist}"></th:block></td>
 						</tr>
-						<tr th:if="${!dataInfoLogList.empty}" th:each="dataInfoLog : ${dataInfoLogList}">
+						<tr th:unless="${dataInfoLogList.empty}" th:each="dataInfoLog : ${dataInfoLogList}">
 							<td class="col-checkbox">
 								<input type="checkbox" id="dataInfoLogId_${dataInfoLog.dataLogId}" name="dataLogId" th:value="${dataInfoLog.dataLogId}" />
 							</td>

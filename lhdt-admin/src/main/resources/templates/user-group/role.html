@@ -55,7 +55,7 @@
 											<tr th:if="${roleList.empty}">
 												<td colspan="8" class="col-none">Role이 존재하지 않습니다.</td>
 											</tr>
-											<tr th:if="${!roleList.empty}" th:each="role : ${roleList}">
+											<tr th:unless="${roleList.empty}" th:each="role : ${roleList}">
 												<td class="col-checkbox">
 													<input type="checkbox" th:id="|roleId${role.roleId}|" name="roleId" th:value="${role.roleId}" />
 												</td>

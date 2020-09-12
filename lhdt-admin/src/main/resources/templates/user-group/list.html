@@ -41,6 +41,7 @@
 								<caption class="hiddenTag">사용자 그룹</caption>
 								<colgroup>
 									<col class="col-name"></col>
+									<col class="col-name"></col>
 									<col class="col-id"></col>
 									<col class="col-toggle"></col>
 									<col class="col-toggle"></col>
@@ -64,10 +65,10 @@
 								</thead>
 								<tbody>
 									<tr th:if="${userGroupList.empty}">
-										<td colspan="8" class="col-none"><th:block th:text="#{user.group.empty}"></th:block></td>
+										<td colspan="9" class="col-none"><th:block th:text="#{user.group.empty}"></th:block></td>
 									</tr>
 
-									<th:block th:if="${!userGroupList.empty}">
+									<th:block th:unless="${userGroupList.empty}">
 										<th:block th:each="userGroup : ${userGroupList}">
 											<th:block th:if="${userGroup.depth == 1}">
 											<tr class="oneDepthClass">
