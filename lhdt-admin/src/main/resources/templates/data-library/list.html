@@ -121,11 +121,13 @@
 										</tr>
 									</thead> 
 									<tbody>
-										<tr th:if="${dataLibraryList.empty}">
+<th:block th:if="${dataLibraryList.empty}">
+										<tr>
 											<td colspan="10" class="col-none" th:text="#{data.library.does.not.exist}"></td>
 										</tr>
-
-										<tr th:unless="${dataLibraryList.empty}" th:each="dataLibrary : ${dataLibraryList}">
+</th:block>
+<th:block th:unless="${dataLibraryList.empty}" th:each="dataLibrary : ${dataLibraryList}">
+										<tr>
 											<td class="col-checkbox">
 												<label class="hiddenTag">선택 체크박스</label>
 												<input type="checkbox" th:id="|dataLibraryId_${dataLibrary.dataLibraryId}|" name="dataLibraryId" value="${dataLibrary.dataLibraryId}" />
@@ -156,6 +158,7 @@
 												<th:block th:text="${#temporals.format(dataLibrary.insertDate,'yyyy-MM-dd HH:mm')}"></th:block>
 											</td>
 										</tr>
+</th:block>
 									</tbody>
 								</table>
 							</form>

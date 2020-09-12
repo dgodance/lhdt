@@ -132,11 +132,13 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr th:if="${userList.empty}">
+<th:block th:if="${userList.empty}">
+                                        <tr>
                                             <td colspan="9" class="col-none">사용자 목록이 존재하지 않습니다.</td>
                                         </tr>
-                                        
-                                        <tr th:unless="${userList.empty}" th:each="user : ${userList}">
+</th:block>
+<th:block th:unless="${userList.empty}" th:each="user : ${userList}">
+                                        <tr>
                                             <td class="col-checkbox">
                                                 <label th:for="|userId_${user.userId}|" class="hiddenTag"></label>
                                                 <input type="checkbox" th:id="|userId_${user.userId}|" name="userId" th:value="${user.userId}" />
@@ -190,6 +192,7 @@
                                                 <p th:text="${#temporals.format(user.insertDate,'yyyy-MM-dd HH:mm')}"></p>
                                             </td>
                                         </tr>
+</th:block>
                                     </tbody>
                                 </table>
 							</form>

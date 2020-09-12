@@ -57,12 +57,12 @@
 												<th scope="col">HTML ID</th>
 											</tr>
 										</thead>
-										
-										<tr th:if="${menuList.empty}">
+<th:block th:if="${menuList.empty}">
+										<tr>
 											<td colspan="6" class="col-none">메뉴가 존재하지 않습니다.</td>
 										</tr>
-
-										<th:block th:unless="${menuList.empty}" th:each="menu : ${menuList}">
+</th:block>
+<th:block th:unless="${menuList.empty}" th:each="menu : ${menuList}">
 											<th:block  th:if="${menu.depth == 0}">
 												<tr style="background: #ededed;">
 													<td class="col-name" th:text="${menu.name}" style="text-align: left; padding-left: 15px"></td>
@@ -100,7 +100,7 @@
 											<td class="col-name" th:text="${menu.url}" style="text-align: left;"></td>
 											<td class="col-name" th:text="${menu.htmlId}" style="text-align: left;"></td>
 										</tr>
-										</th:block>
+</th:block>
 									</table>
 								</div>
 								<div class="button-group">

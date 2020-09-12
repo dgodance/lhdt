@@ -118,11 +118,13 @@
 									</tr>
 								</thead>
 								<tbody>
-									<tr th:if="${dataAdjustLogList.empty}">
+<th:block th:if="${dataAdjustLogList.empty}">
+									<tr>
 										<td colspan="11" class="col-none">데이터 변경 요청 이력이 존재하지 않습니다.</td>
 									</tr>
-
-									<tr th:unless="${dataAdjustLogList.empty}" th:each="dataAdjustLog : ${dataAdjustLogList}">
+</th:block>
+<th:block th:unless="${dataAdjustLogList.empty}" th:each="dataAdjustLog : ${dataAdjustLogList}">
+									<tr>
 										<td class="col-checkbox">
 											<label for="|dataAdjustLogId_${dataAdjustLog.dataAdjustLogId}|" class="hiddenTag">선택 체크박스</label>
 											<input type="checkbox" id="|dataAdjustLogId_${dataAdjustLog.dataAdjustLogId}|" name="dataAdjustLogId" value="${dataAdjustLog.dataAdjustLogId}" />
@@ -163,6 +165,7 @@
 											<th:block th:text="${#temporals.format(dataAdjustLog.insertDate,'yyyy-MM-dd HH:mm')}"></th:block>
 										</td>
 									</tr>
+</th:block>
 								</tbody>
 							</table>
 						</form>

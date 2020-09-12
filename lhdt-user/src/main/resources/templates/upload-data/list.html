@@ -138,11 +138,13 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr th:if="${uploadDataList.empty}">
+<th:block th:if="${uploadDataList.empty}">
+						<tr>
 							<td colspan="11" class="col-none"><th:block th:text="#{upload.history.does.not.exist}"></th:block></td>
 						</tr>
-
-						<tr th:unless="${uploadDataList.empty}" th:each="uploadData : ${uploadDataList}">
+</th:block>
+<th:block th:unless="${uploadDataList.empty}" th:each="uploadData : ${uploadDataList}">
+						<tr>
 							<td class="col-checkbox">
 								<input type="checkbox" th:id="|uploadDataId_${uploadData.uploadDataId}|" name="uploadDataId" th:value="${uploadData.uploadDataId}" />
 							</td>
@@ -182,6 +184,7 @@
 								<th:block th:text="${#temporals.format(uploadData.insertDate,'yyyy-MM-dd HH:mm')}"></th:block>
 							</td>
 						</tr>
+</th:block>
 					</tbody>
 				</table>
 			</form>

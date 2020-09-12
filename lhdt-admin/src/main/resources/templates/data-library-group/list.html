@@ -69,11 +69,12 @@
 									</tr>
 								</thead>
 								<tbody>
-									<tr th:if="${dataLibraryGroupList.empty}">
+<th:block th:if="${dataLibraryGroupList.empty}">
+									<tr>
 										<td colspan="9" class="col-none">데이터 라이브러리 그룹이 존재하지 않습니다.</td>
                                     </tr>
-
-                                    <th:block th:unless="${dataLibraryGroupList.empty}" th:each="dataLibraryGroup : ${dataLibraryGroupList}">
+</th:block>
+<th:block th:unless="${dataLibraryGroupList.empty}" th:each="dataLibraryGroup : ${dataLibraryGroupList}">
 										<th:block th:if="${dataLibraryGroup.depth == 1}">
 										<tr class="oneDepthClass">
 											<td class="col-key ellipsis" style="max-width: 300px;">
@@ -144,7 +145,7 @@
 											<th:block th:text="${#temporals.format(dataLibraryGroup.insertDate,'yyyy-MM-dd HH:mm')}"></th:block>
 										</td>
 									</tr>
-									</th:block>
+</th:block>
 								</tbody>
 							</table>
 							<!-- E: 데이터 라이브러리 그룹 목록 -->

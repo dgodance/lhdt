@@ -57,10 +57,12 @@
 								</tr>
 								</thead>
 								<tbody>
-								<tr th:if="${designLayerGroupList.empty}">
+<th:block th:if="${designLayerGroupList.empty}">
+								<tr>
 									<td colspan="7" class="col-none">디자인 레이어 그룹이 존재하지 않습니다.</td>
 								</tr>
-								<th:block th:unless="${designLayerGroupList.empty}" th:each="designLayerGroup : ${designLayerGroupList}">
+</th:block>
+<th:block th:unless="${designLayerGroupList.empty}" th:each="designLayerGroup : ${designLayerGroupList}">
 									<th:block th:if="${designLayerGroup.depth == 1}">
 										<tr class="oneDepthClass">
 											<td class="col-key ellipsis" style="max-width: 300px;">
@@ -136,7 +138,7 @@
 										th:text="${#temporals.format(designLayerGroup.insertDate, 'yyyy-MM-dd HH:mm:ss')}">
 									</td>
 									</tr>
-								</th:block>
+</th:block>
 								</tbody>
 							</table>
 						</div>

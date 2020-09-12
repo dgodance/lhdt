@@ -20,13 +20,12 @@
 		</tr>
 		</thead>
 		<tbody>
-
-		<th:block th:if="${layerGroupList.empty}">
+<th:block th:if="${layerGroupList.empty}">
 			<tr>
 				<td colspan="6" class="col-none">레이어 그룹이 존재하지 않습니다.</td>
 			</tr>
-		</th:block>
-		<th:block th:unless="${layerGroupList.empty}" th:each="layerGroup : ${layerGroupList}">
+</th:block>
+<th:block th:unless="${layerGroupList.empty}" th:each="layerGroup : ${layerGroupList}">
 			<th:block th:if="${layerGroup.depth == 1}">
 				<tr th:class="layerGroup">
 					<td class="col-name ellipsis" style="max-width:300px; text-align: left;" nowrap="nowrap">
@@ -67,7 +66,7 @@
 				   th:onclick="confirmParent([[${layerGroup.layerGroupId}]], [[${layerGroup.layerGroupName}]], [[${layerGroup.depth}]]); return false;">확인</a>
 			</td>
 			</tr>
-		</th:block>
+</th:block>
 		</tbody>
 	</table>
 </div>

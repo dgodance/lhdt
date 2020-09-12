@@ -92,12 +92,10 @@ AnalsLandScapeDiff.prototype.moveCameraByStatus = function(status) {
 AnalsLandScapeDiff.prototype.renderDiffDropdown = function() {
 	let the = this;
 	
-    debugger;
     const html = $('#landscapeDiffSource').html();
     const template_html = Handlebars.compile(html);
     
     $.get(LS_DIFF_REST_URL + '/group').done(function(data) {
-        debugger;
         const lsGroupData = {
             landscapeGroupList: data
         }
@@ -119,7 +117,6 @@ AnalsLandScapeDiff.prototype.renderDiffDropdown = function() {
 			
 			//
             Ppmap.captureMap(function(blob) {
-                debugger;
                 const formData = new FormData();
 
 

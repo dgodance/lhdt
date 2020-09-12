@@ -125,11 +125,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr th:if="${converterJobList.empty}">
+<th:block th:if="${converterJobList.empty}">
+                        <tr>
                             <td colspan="9" class="col-none"><th:block th:text="#{converter.job.does.not.exist}"></th:block></td>
                         </tr>
-
-                        <tr th:unless="${converterJobList.empty}" th:each="converterJob: ${converterJobList}">
+</th:block>
+<th:block th:unless="${converterJobList.empty}" th:each="converterJob: ${converterJobList}">
+                        <tr>
                             <td class="col-number" th:text="${converterJobStat.count + ((pagination.pageNo-1)*10)}"></td>
 
                             <td class="col-type">
@@ -168,6 +170,7 @@
                                 <th:block th:text="${#temporals.format(converterJob.insertDate,'yyyy-MM-dd HH:mm')}"></th:block>
                             </td>
                         </tr>
+</th:block>
                     </tbody>
                 </table>
             </form>

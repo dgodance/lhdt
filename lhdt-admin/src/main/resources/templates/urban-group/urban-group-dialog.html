@@ -22,13 +22,12 @@
             </tr>
             </thead>
             <tbody>
-
-                <th:block th:if="${urbanGroupList.empty}">
+<th:block th:if="${urbanGroupList.empty}">
                     <tr>
                         <td colspan="6" class="col-none">도시 그룹이 존재하지 않습니다.</td>
                     </tr>
-                </th:block>
-                <th:block th:unless="${urbanGroupList.empty}" th:each="urbanGroup : ${urbanGroupList}">
+</th:block>
+<th:block th:unless="${urbanGroupList.empty}" th:each="urbanGroup : ${urbanGroupList}">
                     <th:block th:if="${urbanGroup.depth == 1}">
                         <tr th:class="urbanGroup">
                             <td class="col-name ellipsis" style="max-width:300px; text-align: left;" nowrap="nowrap">
@@ -70,7 +69,7 @@
                            th:onclick="confirmParent([[${urbanGroup.urbanGroupId}]], [[${urbanGroup.urbanGroupName}]], [[${urbanGroup.depth}]]); return false;">확인</a>
                     </td>
                 </tr>
-                </th:block>
+</th:block>
             </tbody>
         </table>
         <div class="button-group">

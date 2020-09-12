@@ -22,11 +22,12 @@
                 </tr>
             </thead>
             <tbody>
-                <tr th:if="${dataGroupList.empty}">
+<th:block th:if="${dataGroupList.empty}">
+                <tr>
                     <td colspan="6" class="col-none">데이터 그룹이 존재하지 않습니다.</td>
                 </tr>
-
-                <th:block th:unless="${dataGroupList.empty}" th:each="dataGroup : ${dataGroupList}">
+</th:block>
+<th:block th:unless="${dataGroupList.empty}" th:each="dataGroup : ${dataGroupList}">
                     <th:block th:if="${dataGroup.depth == 1}">
                     <tr class="oneDepthClass">  
                         <td class="col-name ellipsis" style="max-width:300px; text-align: left;" nowrap="nowrap">
@@ -69,7 +70,7 @@
                         <a href="#" th:onclick="confirmDataGroup([[${dataGroup.dataGroupId}]], [[${dataGroup.dataGroupName}]]); return false;">확인</a>
                     </td>
                 </tr>
-                </th:block>
+ </th:block>
             </tbody>
         </table>
     </div>
