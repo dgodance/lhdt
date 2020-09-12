@@ -28,33 +28,35 @@
             </tr>
 </th:block>
 <th:block th:unless="${designLayerGroupList.empty}" th:each="designLayerGroup : ${designLayerGroupList}">
-    <th:block th:if="${designLayerGroup.depth == 1}">
-            <tr th:class="layerGroup">
+            <tr>
                 <td class="col-name ellipsis" style="max-width:300px; text-align: left;" nowrap="nowrap">
+    <th:block th:if="${designLayerGroup.depth == 1}">
                     <span style="padding-left: 0px; font-size: 1.5em; color: Dodgerblue;">
                         <i class="fa fa-folder oneFolder" aria-hidden="true"></i>
                     </span>
-                    <span th:text="${designLayerGroup.designLayerGroupName}"></span>
-                </td>
     </th:block>
     <th:block th:if="${designLayerGroup.depth == 2}">
-            <tr class="twoDepthClass">
-                <td class="col-name ellipsis" style="max-width:300px; text-align: left;" nowrap="nowrap">
                     <span style="padding-left: 40px; font-size: 1.5em; color: Mediumslateblue;">
                         <i class="fa fa-folder oneFolder" aria-hidden="true"></i>
                     </span>
-                    <span th:text="${designLayerGroup.designLayerGroupName}"></span>
-                </td>
     </th:block>
     <th:block th:if="${designLayerGroup.depth == 3}">
-            <tr class="threeDepthClass">
-                <td class="col-name ellipsis" style="max-width:300px; text-align: left;" nowrap="nowrap">
                     <span style="padding-left: 80px; font-size: 1.5em; color: Tomato;">
                         <i class="fa fa-folder oneFolder" aria-hidden="true"></i>
                     </span>
+    </th:block>
+    <th:block th:if="${designLayerGroup.depth == 4}">
+                    <span style="padding-left: 120px; font-size: 1.5em; color: #82c91e;">
+                        <i class="fa fa-folder oneFolder" aria-hidden="true"></i>
+                    </span>
+    </th:block>
+    <th:block th:if="${designLayerGroup.depth == 5}">
+                    <span style="padding-left: 160px; font-size: 1.5em; color: #f783ac;">
+                        <i class="fa fa-folder oneFolder" aria-hidden="true"></i>
+                    </span>
+    </th:block>
                     <span th:text="${designLayerGroup.designLayerGroupName}"></span>
                 </td>
-    </th:block>
                 <td class="col-type">
                     <th:block th:if="${#bools.isTrue(designLayerGroup.available)}" th:text="'사용'"></th:block>
                     <th:block th:if="${#bools.isFalse(designLayerGroup.available)}" th:text="'미사용'"></th:block>

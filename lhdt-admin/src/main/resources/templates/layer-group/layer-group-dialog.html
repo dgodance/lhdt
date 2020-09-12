@@ -27,45 +27,47 @@
             </tr>
 </th:block>
 <th:block th:unless="${layerGroupList.empty}" th:each="layerGroup : ${layerGroupList}">
-            <th:block th:if="${layerGroup.depth == 1}">
-                <tr th:class="layerGroup">
-                    <td class="col-name ellipsis" style="max-width:300px; text-align: left;" nowrap="nowrap">
-                        <span style="padding-left: 0px; font-size: 1.5em; color: Dodgerblue;">
-                            <i class="fa fa-folder oneFolder" aria-hidden="true"></i>
-                        </span>
-                        <span th:text="${layerGroup.layerGroupName}"></span>
-                    </td>
-            </th:block>
-            <th:block th:if="${layerGroup.depth == 2}">
-                <tr class="twoDepthClass">
-                    <td class="col-name ellipsis" style="max-width:300px; text-align: left;" nowrap="nowrap">
-                        <span style="padding-left: 40px; font-size: 1.5em; color: Mediumslateblue;">
-                            <i class="fa fa-folder oneFolder" aria-hidden="true"></i>
-                        </span>
-                        <span th:text="${layerGroup.layerGroupName}"></span>
-                    </td>
-            </th:block>
-            <th:block th:if="${layerGroup.depth == 3}">
-                <tr class="threeDepthClass">
-                    <td class="col-name ellipsis" style="max-width:300px; text-align: left;" nowrap="nowrap">
-                        <span style="padding-left: 80px; font-size: 1.5em; color: Tomato;">
-                            <i class="fa fa-folder oneFolder" aria-hidden="true"></i>
-                        </span>
-                        <span th:text="${layerGroup.layerGroupName}"></span>
-                    </td>
-            </th:block>
-            <td class="col-type">
-                <th:block th:if="${#bools.isTrue(layerGroup.available)}" th:text="'사용'"></th:block>
-                <th:block th:if="${#bools.isFalse(layerGroup.available)}" th:text="'미사용'"></th:block>
-            </td>
-            <td class="col-type" th:text="${layerGroup.userId}"></td>
-            <td class="col-key" th:text="${layerGroup.description}"></td>
-            <td class="col-date" th:text="${#temporals.format(layerGroup.insertDate, 'yyyy-MM-dd HH:mm:ss')}">
-            </td>
-            <td class="col-toggle">
-                <a href="#"
-                   th:onclick="confirmParent([[${layerGroup.layerGroupId}]], [[${layerGroup.layerGroupName}]], [[${layerGroup.depth}]]); return false;">확인</a>
-            </td>
+            <tr>
+                <td class="col-name ellipsis" style="max-width:300px; text-align: left;" nowrap="nowrap">
+    <th:block th:if="${layerGroup.depth == 1}">
+                    <span style="padding-left: 0px; font-size: 1.5em; color: Dodgerblue;">
+                        <i class="fa fa-folder oneFolder" aria-hidden="true"></i>
+                    </span>
+    </th:block>
+    <th:block th:if="${layerGroup.depth == 2}">
+                    <span style="padding-left: 40px; font-size: 1.5em; color: Mediumslateblue;">
+                        <i class="fa fa-folder oneFolder" aria-hidden="true"></i>
+                    </span>
+    </th:block>
+    <th:block th:if="${layerGroup.depth == 3}">
+                    <span style="padding-left: 80px; font-size: 1.5em; color: Tomato;">
+                        <i class="fa fa-folder oneFolder" aria-hidden="true"></i>
+                    </span>
+    </th:block>
+    <th:block th:if="${layerGroup.depth == 4}">
+                    <span style="padding-left: 120px; font-size: 1.5em; color: #82c91e;">
+                        <i class="fa fa-folder oneFolder" aria-hidden="true"></i>
+                    </span>
+    </th:block>
+    <th:block th:if="${layerGroup.depth == 5}">
+                    <span style="padding-left: 160px; font-size: 1.5em; color: #f783ac;">
+                        <i class="fa fa-folder oneFolder" aria-hidden="true"></i>
+                    </span>
+    </th:block>
+                    <span th:text="${layerGroup.layerGroupName}"></span>
+                </td>
+                <td class="col-type">
+                    <th:block th:if="${#bools.isTrue(layerGroup.available)}" th:text="'사용'"></th:block>
+                    <th:block th:if="${#bools.isFalse(layerGroup.available)}" th:text="'미사용'"></th:block>
+                </td>
+                <td class="col-type" th:text="${layerGroup.userId}"></td>
+                <td class="col-key" th:text="${layerGroup.description}"></td>
+                <td class="col-date" th:text="${#temporals.format(layerGroup.insertDate, 'yyyy-MM-dd HH:mm:ss')}">
+                </td>
+                <td class="col-toggle">
+                    <a href="#"
+                       th:onclick="confirmParent([[${layerGroup.layerGroupId}]], [[${layerGroup.layerGroupName}]], [[${layerGroup.depth}]]); return false;">확인</a>
+                </td>
             </tr>
 </th:block>
         </tbody>
