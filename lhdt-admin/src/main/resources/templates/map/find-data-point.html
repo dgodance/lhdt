@@ -183,10 +183,10 @@
 	//Cesium.Ion.defaultAccessToken = '';
 	//var viewer = new Cesium.Viewer('magoContainer');
 	var MAGO3D_INSTANCE;
-	// ndtp 전역 네임스페이스
+	// lhdt 전역 네임스페이스
 	let dataGroupMap = new Map();
 	dataGroupMap.set(parseInt('${dataInfo.dataGroupId}'), '[[${dataInfo.dataGroupName}]]');
-	var NDTP = NDTP ||{
+	var LHDT = LHDT ||{
 		policy : {},
 		dataGroup : dataGroupMap,
 		baseLayers : {}
@@ -195,14 +195,14 @@
 	var entities = null;
 	
 	initPolicy(function(policy, baseLayers){
-		NDTP.policy = policy;
-		NDTP.baseLayers = baseLayers;
+		LHDT.policy = policy;
+		LHDT.baseLayers = baseLayers;
 		magoInit();
 	},'[[${dataInfo.dataId}]]');
 
 	function magoInit() {
 
-		var geoPolicyJson = NDTP.policy;
+		var geoPolicyJson = LHDT.policy;
 
 		var option = {};
 		option.infoBox = false;
@@ -236,7 +236,7 @@
 	var beforePointId = null;
 	function magoLoadEnd(e) {
 		var magoInstance = e;
-		var geoPolicyJson = NDTP.policy;
+		var geoPolicyJson = LHDT.policy;
 		viewer = magoInstance.getViewer();
 		entities = viewer.entities;
 		var magoManager = magoInstance.getMagoManager();
@@ -273,8 +273,8 @@
 
 	    // 기본 레이어 랜더링
 // 		setTimeout(function(){
-// 			var ndtpMap = new mapInit(magoInstance, NDTP.baseLayers, geoPolicyJson);
-// 			ndtpMap.initLayer();
+// 			var lhdtMap = new mapInit(magoInstance, LHDT.baseLayers, geoPolicyJson);
+// 			lhdtMap.initLayer();
 //         }, geoPolicyJson.initDuration * 1000);
 
 		/* setTimeout(function(){

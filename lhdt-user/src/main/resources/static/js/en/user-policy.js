@@ -90,11 +90,11 @@ var UserPolicy = function(magoInstance) {
 
 	//카메라 위치 기반 이슈 가져오기
 	function getCenterRadiusIssue(){
-		NDTP.issueController.getCenterRadiusIssue();
+		LHDT.issueController.getCenterRadiusIssue();
 	}
 	
 	//이슈 클리어, layer 도입해야함
 	function clearCenterRadiusIssue(){
-		NDTP.issueController.clearIssue();
+		LHDT.issueController.clearIssue();
 	}
 }

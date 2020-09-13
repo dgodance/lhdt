@@ -121,11 +121,13 @@
 										</tr>
 									</thead>
 									<tbody>
-										<tr th:if="${dataLibraryUploadList.empty}">
+<th:block th:if="${dataLibraryUploadList.empty}">
+										<tr>
 											<td colspan="11" class="col-none">파일 업로딩 이력이 존재하지 않습니다.</td>
 										</tr>
-
-										<tr th:if="${!dataLibraryUploadList.empty}" th:each="dataLibraryUpload : ${dataLibraryUploadList}">
+</th:block>
+<th:block th:unless="${dataLibraryUploadList.empty}" th:each="dataLibraryUpload : ${dataLibraryUploadList}">
+										<tr>
 											<td class="col-checkbox">
 												<input type="checkbox" th:id="|dataLibraryUploadId_${dataLibraryUpload.dataLibraryUploadId}|" name="dataLibraryUploadId"
 													   th:value="${dataLibraryUpload.dataLibraryUploadId}" />
@@ -164,6 +166,7 @@
 												<th:block th:text="${#temporals.format(dataLibraryUpload.insertDate,'yyyy-MM-dd HH:mm')}"></th:block>
 											</td>
 										</tr>
+</th:block>
 									</tbody>
 								</table>
 								<!-- E: 업로딩 데이터 목록 -->

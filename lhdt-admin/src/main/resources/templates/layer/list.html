@@ -114,12 +114,12 @@
 									</tr>
 								</thead>
 								<tbody>
-								<th:block th:if="${layerList.empty}">
+<th:block th:if="${layerList.empty}">
 									<tr>
 										<td colspan="7" class="col-none">Layer 가 존재하지 않습니다.</td>
 									</tr>
-								</th:block>
-								<th:block th:unless="${layerList.empty}" th:each="layer : ${layerList}">
+</th:block>
+<th:block th:unless="${layerList.empty}" th:each="layer : ${layerList}">
 									<tr>
 										<td class="col-key" th:text="${layer.layerName}"></td>
 					                    <td class="col-key" style="text-align: left;" nowrap="nowrap" th:text="${layer.layerKey}"></td>
@@ -139,7 +139,7 @@
 											th:text="${#temporals.format(layer.updateDate, 'yyyy-MM-dd HH:mm:ss')}">
 										</td>
 					                </tr>
-								</th:block>
+</th:block>
 								</tbody>
 							</table>
 							</form>

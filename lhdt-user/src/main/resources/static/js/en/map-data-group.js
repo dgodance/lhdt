@@ -91,7 +91,7 @@ function dataGroupList() {
 						return !dataGroup.tiling;
 					});
 					
-					NDTP.dataGroup = dataGroupMap;
+					LHDT.dataGroup = dataGroupMap;
 					
 					dataList(noneTilingDataGroupList);
 

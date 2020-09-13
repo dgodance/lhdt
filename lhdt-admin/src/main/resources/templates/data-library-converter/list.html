@@ -112,14 +112,14 @@
                                             <td colspan="9" class="col-none">데이터 라이브러리 변환 결과가 존재하지 않습니다.</td>
                                         </tr>
 </th:block>
-<th:block th:if="${!dataLibraryConverterJobList.empty}" th:each="dataLibraryConverterJob: ${dataLibraryConverterJobList}">
+<th:block th:unless="${dataLibraryConverterJobList.empty}" th:each="dataLibraryConverterJob: ${dataLibraryConverterJobList}">
                                         <tr>
                                             <td class="col-number" th:text="${dataLibraryConverterJobStat.count + ((pagination.pageNo-1)*10)}"></td>
                                             <td class="col-type">
-    <th:block th:if="${#strings.equals(dataLibraryConverterJob.converterTemplate, 'basic')}">기본</th:block>
-    <th:block th:if="${#strings.equals(dataLibraryConverterJob.converterTemplate, 'building')}">빌딩</th:block>
-    <th:block th:if="${#strings.equals(dataLibraryConverterJob.converterTemplate, 'extra-big-building')}">초대형 빌딩</th:block>
-    <th:block th:if="${#strings.equals(dataLibraryConverterJob.converterTemplate, 'point-cloud')}">point cloud</th:block>
+                                                <th:block th:if="${#strings.equals(dataLibraryConverterJob.converterTemplate, 'basic')}">기본</th:block>
+                                                <th:block th:if="${#strings.equals(dataLibraryConverterJob.converterTemplate, 'building')}">빌딩</th:block>
+                                                <th:block th:if="${#strings.equals(dataLibraryConverterJob.converterTemplate, 'extra-big-building')}">초대형 빌딩</th:block>
+                                                <th:block th:if="${#strings.equals(dataLibraryConverterJob.converterTemplate, 'point-cloud')}">point cloud</th:block>
                                             </td>
                                             <td class="col-name ellipsis" style="min-width:200px;max-width:200px;">
                                                 <a th:text="${dataLibraryConverterJob.title}"

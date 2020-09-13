@@ -54,10 +54,21 @@ $(document).ready(function() {
       initSearchForm();
       var searchDataType = $(this).val();
       if (searchDataType === 'data_group_name') {
+         $('#searchDataName').attr( 'placeholder', JS_MESSAGE['search.input.data.group.name'] );
+
          $('#searchDataType').hide();
          $('#searchFilterMore').hide();
          $('#searchDataSharing').show();
+      } else if (searchDataType === 'data_address_name') {
+         $('#searchDataName').attr( 'placeholder', JS_MESSAGE['search.input.data.address'] );
+
+         $('#searchDataSharing').hide();
+         $('#searchDataType').show();
+         $('#searchFilterMore').show();
       } else {
+         $('#searchDataName').attr( 'placeholder', JS_MESSAGE['search.input.data.name'] );
+
+         // data_name
          $('#searchDataSharing').hide();
          $('#searchDataType').show();
          $('#searchFilterMore').show();
@@ -324,7 +335,7 @@ function dataGroupList() {
                   return !dataGroup.tiling;
                });
 
-               NDTP.dataGroup = dataGroupMap;
+               LHDT.dataGroup = dataGroupMap;
 
                dataList(noneTilingDataGroupList);
 

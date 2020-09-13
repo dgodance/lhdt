@@ -11,6 +11,10 @@ JS_MESSAGE["loading"] = "로딩중입니다.";
 JS_MESSAGE["requested"] = "요청 하였습니다.";
 JS_MESSAGE["searching"] = "검색중입니다.";
 
+JS_MESSAGE["search.input.data.name"] = "데이터명을 입력하여 주십시오.";
+JS_MESSAGE["search.input.data.group.name"] = "데이터 그룹명을 입력하여 주십시오.";
+JS_MESSAGE["search.input.data.address"] = "도로명 입력하여 주십시오.";
+
 JS_MESSAGE["apply"] = "적용되었습니다.";
 JS_MESSAGE["upload"] = "업로딩 중입니다.";
 JS_MESSAGE["proceed.confirm"] = "진행 하시겠습니까?";
@@ -73,16 +77,6 @@ JS_MESSAGE["user.session.close"] = "선택하신 사용자의 세션을 종료 �
 JS_MESSAGE["user.insert"] = "사용자를 등록 하였습니다.";
 JS_MESSAGE["user.info.update"] = "사용자 정보를 수정 하였습니다.";
 JS_MESSAGE["user.id.notexist"] = "아이디가 존재하지 않습니다.";
-
-// ticks
-
-//user group
-
-//input group
-
-//role
-
-//widget
 
 JS_MESSAGE["data.name.empty"] = "데이터명을 입력하여 주십시오.";
 JS_MESSAGE["data.name.invalid"] = "데이터명이 유효하지 않습니다.";
