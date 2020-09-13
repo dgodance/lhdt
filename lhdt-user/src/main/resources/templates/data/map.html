@@ -103,10 +103,17 @@
 		<!-- S: GNB WRAP -->
 		<div th:replace="~{/fragments/global-search :: #gnbWrap}"></div>
 		<!-- E: GNB WRAP -->
+		
+		<!-- S: MAP CTRL WRAP -->
+		<div th:replace="~{/fragments/map-control :: #mapCtrlWrap}"></div>
+		<!-- E: MAP CTRL WRAP -->
+		
 		<div class="sliderWrap" id="saRange">
 			<label for="timeInput" class="hiddenTag">saRange</label>
 			<input id="timeInput"/>
 		</div>
+	</div>
+
 	<!-- E: MAP -->
 	</div>
 </div>
@@ -209,6 +216,16 @@
 
 	function magoInit() {
 		var geoPolicyJson = NDTP.policy;
+		var option = {};
+		option.defaultControl = {};
+		option.defaultControl.zoom = false;
+		option.defaultControl.initCamera = false;
+		option.defaultControl.fullScreen = false;
+		option.defaultControl.measure = false;
+		option.defaultControl.tools = false;
+		option.defaultControl.attribution = false;
+		option.defaultControl.overviewMap = true;
+
 		/**
 		 * @param {Stirng} containerId container div id. required.
 		 * @param {object} serverPolicy mage3d geopolicy. required.
@@ -216,7 +233,7 @@
 		 * @param {object} options  viewer parameter. option.
 		 * @param {Cesium.Viewer} legacyViewer 타 시스템과의 연동의 경우 view 객체가 생성되어서 넘어 오는 경우가 있음. option.
 		*/
-		MAGO3D_INSTANCE = new Mago3D.Mago3d('magoContainer', geoPolicyJson, {loadend : magoLoadEnd}, {});
+		MAGO3D_INSTANCE = new Mago3D.Mago3d('magoContainer', geoPolicyJson, {loadend : magoLoadEnd}, option);
 
 	}
 

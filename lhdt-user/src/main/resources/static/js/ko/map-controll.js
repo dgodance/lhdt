@@ -655,3 +655,54 @@ function goMagoAPIGuide(url) {
 	return false;
 }
 
+$(document).ready(function() {
+	// 처음
+	$('#mapCtrlHome').click(function() {
+		alert('처음 위치로 이동합니다!');
+	});
+
+	// 전체화면
+	$('#mapCtrlFullScreen').click(function() {
+		$(this).toggleClass('on');
+	});
+
+	// 측정
+	$('#mapCtrlMeasure').click(function() {
+		$(this).toggleClass('on');
+		$('#controlMeasureWrap').toggle();
+	});
+
+	// 거리 측정
+	$('#mapCtrlMeasureDistance').click(function() {
+		$(this).siblings().removeClass('on');
+		$(this).toggleClass('on');
+	});
+
+	// 면적 측정
+	$('#mapCtrlMeasureArea').click(function() {
+		$(this).siblings().removeClass('on');
+		$(this).toggleClass('on');
+	});
+
+	// 높이 측정
+	$('#mapCtrlMeasureHeight').click(function() {
+		$(this).siblings().removeClass('on');
+		$(this).toggleClass('on');
+	});
+
+	// 설정
+	$('#mapCtrlSetting').click(function() {
+		$(this).toggleClass('on');
+	});
+
+	// 확대
+	$('#mapCtrlZoomIn').click(function() {
+
+	});
+
+	// 축소
+	$('#mapCtrlZoomOut').click(function() {
+
+	});
+});
+

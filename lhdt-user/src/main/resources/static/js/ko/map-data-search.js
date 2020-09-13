@@ -22,9 +22,15 @@ $(document).ready(function() {
    $('#searchFilterMore').click(function() {
       $('#searchFilterContent').toggle();
    });
-   $('#searchFilterMore').focusout(function() {
-      $('#searchFilterContent').hide();
+   $('#searchFilterMore').focusout(function(event) {
+      if ($(event.relatedTarget).parents('#searchDataFilterForm').length < 1) {
+         $('#searchFilterContent').hide();
+      }
    });
+   $('#searchDataFilterForm input').click(function(e) {
+      e.stopPropagation();
+   });
+
 
    // 필터 적용
    $('#filterApplyButton').click(function() {
@@ -74,6 +80,7 @@ function initSearchForm() {
    $('#filterInitButton').click();
    $('#searchDataType').val("");
    $('#searchDataSharing').val("");
+   $('#searchFilterContent').hide();
 }
 
 function getFormData($form){

@@ -2553,7 +2553,7 @@ ul.listDefault li.on > ul li > button {
 	display: -webkit-flex; /* NEW - Chrome */
 	display: flex; /* NEW, Spec - Opera 12.1, Firefox 20+ */
 	background-color: #fff;
-	border: 1px solid #003457;
+	/*border: 1px solid #003457;*/
 	justify-content: space-between;
 }
 .searchDataInput > * {
@@ -2574,7 +2574,7 @@ ul.listDefault li.on > ul li > button {
 }
 .searchDataInput > button.btnSearch {
 	width: 60px;
-	background-color: #0066a2;
+	background-color: #262b3f;
 	color: #fff;
 }
 
@@ -2732,7 +2732,7 @@ ul.listDefault li.on > ul li > button {
 	color: #797979;
 }
 .infoWrap {
-	padding: 10px 120px 10px 30px;
+	padding: 10px 100px 10px 30px;
 }
 .infoWrap > p {
 	/*margin-top: 5px;*/
@@ -2764,5 +2764,188 @@ ul.listDefault li.on > ul li > button {
 	height: 45px;
 }
 
-
 .text-right {text-align:right  !important;}
+
+/* ////////// MAP CTRL ////////// */
+.mapCtrl {
+	position: absolute;
+	right: 0;
+	z-index: 1000;
+	margin: 10px;
+}
+.mapCtrl > div.controlWrap {
+	width: 40px;
+	margin-bottom: 5px;
+	border: 1px solid #ccc;
+	box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.4);
+	background-color: #fff;
+}
+.mapCtrl > div.controlMeasureWrap {
+	position: absolute;
+	top: 100px;
+	right: 43px;
+	display: flex;
+	width: 120px;
+	margin: 0;
+	box-shadow: none;
+	border: 1px solid #ccc;
+	background-color: #fff;
+}
+.mapCtrl button {
+	width: 40px;
+	height: 50px;
+	padding: 0;
+	border: none;
+	cursor: pointer;
+	border-bottom: 1px solid #eee;
+	background-image: url(/images/ko/ico_mapctrl.png);
+	background-color: transparent;
+
+}
+.mapCtrl button:last-child {
+	border-bottom: none;
+}
+.mapCtrl button > span {
+	display: inline-block;
+	width: 40px;
+	font-size: 10px;
+	padding-top: 27px;
+	letter-spacing: -1px;
+}
+.mapCtrl button > span:hover {
+	color: #0066a2;
+}
+/* /// DEFAULT /// */
+.mapCtrl button.go {
+	background-position: 8px 5px ;
+}
+.mapCtrl button.fs {
+	background-position: -40px 5px ;
+}
+.mapCtrl button.st {
+	background-position: -93px 5px ;
+}
+.mapCtrl button.zi {
+	width: 40px;
+	height: 40px;
+	background-position: -138px 12px ;
+}
+.mapCtrl button.zo {
+	width: 40px;
+	height: 40px;
+	background-position: -187px 15px ;
+}
+.mapCtrl button.ms {
+	background-position: -243px 8px ;
+}
+.mapCtrl button.ms_di {
+	background-position: -293px 8px ;
+}
+.mapCtrl button.ms_ar {
+	background-position: -343px 8px ;
+}
+.mapCtrl button.ms_hi {
+	background-position: -393px 8px ;
+}
+
+/* /// HOVER /// */
+.mapCtrl button:hover > span {
+	color: #0066a2;
+}
+.mapCtrl button.go:hover {
+	background-position: 8px -45px ;
+}
+.mapCtrl button.fs:hover {
+	background-position: -40px -45px ;
+}
+.mapCtrl button.st:hover {
+	background-position: -93px -45px ;
+}
+.mapCtrl button.zi:hover {
+	width: 40px;
+	height: 40px;
+	background-position: -138px -38px ;
+}
+.mapCtrl button.zo:hover {
+	width: 40px;
+	height: 40px;
+	background-position: -187px -35px ;
+}
+.mapCtrl button.ms:hover {
+	background-position: -243px -42px ;
+}
+.mapCtrl button.ms_di:hover {
+	background-position: -293px -42px ;
+}
+.mapCtrl button.ms_ar:hover {
+	background-position: -343px -42px ;
+}
+.mapCtrl button.ms_hi:hover {
+	background-position: -393px -42px ;
+}
+
+/* /// ON /// */
+.mapCtrl button.on {
+	background-color: #0066a2;
+}
+.mapCtrl button.on > span {
+	color: #fff;
+}
+.mapCtrl button.go.on {
+	background-position: 8px 105px ;
+}
+.mapCtrl button.fs.on {
+	background-position: -40px 105px ;
+}
+.mapCtrl button.st.on {
+	background-position: -93px 105px ;
+}
+.mapCtrl button.zi.on {
+	width: 40px;
+	height: 40px;
+	background-position: -138px 112px ;
+}
+.mapCtrl button.zo.on {
+	width: 40px;
+	height: 40px;
+	background-position: -187px 115px ;
+}
+.mapCtrl button.ms.on {
+	background-position: -243px 108px ;
+}
+.mapCtrl button.ms_di.on {
+	background-position: -293px 108px ;
+}
+.mapCtrl button.ms_ar.on {
+	background-position: -343px 108px ;
+}
+.mapCtrl button.ms_hi.on {
+	background-position: -393px 108px ;
+}
+.bearing {
+	position: fixed;
+	right: 0;
+	bottom: 150px;
+	cursor: pointer;
+	stroke:#fff;
+	width:95px;
+	height:95px;
+	background-image: url(/images/ko/ico_bearing.png);
+	background-size: 70%;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+.bearingIn {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 36px;
+	height: 36px;
+	margin: -17px 0 0 -17px;
+	border-radius: 50%;
+	background-color: #0066a2;
+	background-image: url(/images/ko/ico_bearing_in.png);
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
