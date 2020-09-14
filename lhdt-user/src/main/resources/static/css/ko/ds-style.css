@@ -20,7 +20,165 @@ table.ds-data-library-list > tbody > tr {font-weight:normal; background-color:wh
 table.ds-data-library-list > tbody > tr.on {font-weight:bold !important; background-color:lightyellow !important;}
 table.design-layers > tbody > tr {font-weight:normal; background-color:white;}
 table.design-layers > tbody > tr.on {font-weight:bold !important; background-color:lightyellow !important;}
-table.design-layer-land td {text-align:left !important;}
-table.design-layer-land > tbody > tr > td:first-child {background-color:#f3f3f3 !important;}
 
 .cursor-pointer {cursor:pointer !important;}
+
+
+table.design-layer-land {
+    color: #444;
+    font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
+    font-size: 13px;
+    line-height: 1.5em;
+    list-style: none;
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+    outline: 0;
+    vertical-align: top;
+    border-collapse: collapse;
+    border-spacing: 0;
+    table-layout: fixed;
+    width: calc(100% - 1px);
+}
+
+table.design-layer-land > thead {
+    color: #444;
+    font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
+    font-size: 13px;
+    line-height: 1.5em;
+    list-style: none;
+    cursor: pointer;
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin: 0;
+    padding: 0;
+    outline: 0;
+    vertical-align: top;
+}
+
+table.design-layer-land > thead > tr {
+    color: #444;
+    font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
+    font-size: 13px;
+    line-height: 1.5em;
+    list-style: none;
+    cursor: pointer;
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin: 0;
+    padding: 0;
+    outline: 0;
+    vertical-align: top;
+}
+
+table.design-layer-land > thead > tr > th {
+    list-style: none;
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin: 0;
+    outline: 0;
+    color: #444;
+    font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
+    font-size: 13px;
+    line-height: 1.5em;
+    background-color: #f3f3f3;
+    word-break: break-all;
+    vertical-align: middle;
+    border-right: 1px solid #ccc;
+    padding: 3px 0;
+    cursor: default;
+    text-align: center;
+    border-top: 2px solid #19334a;
+}
+
+table.design-layer-land > thead > tr > th:last-child {
+    list-style: none;
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin: 0;
+    outline: 0;
+    color: #444;
+    font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
+    font-size: 13px;
+    line-height: 1.5em;
+    background-color: #f3f3f3;
+    word-break: break-all;
+    vertical-align: middle;
+    padding: 3px 0;
+    cursor: default;
+    text-align: center;
+    border-top: 2px solid #19334a;
+    border-right: none;
+}
+
+table.design-layer-land > tbody {
+    color: #444;
+    font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
+    font-size: 13px;
+    line-height: 1.5em;
+    list-style: none;
+    cursor: pointer;
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin: 0;
+    padding: 0;
+    outline: 0;
+    vertical-align: top;
+}
+
+table.design-layer-land > tbody > tr{
+    color: #444;
+    font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
+    font-size: 13px;
+    line-height: 1.5em;
+    list-style: none;
+    cursor: pointer;
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin: 0;
+    padding: 0;
+    outline: 0;
+    vertical-align: top;
+    font-weight: normal;
+    background-color: white;
+}
+
+table.design-layer-land > tbody > tr > td{
+    list-style: none;
+    border-collapse: collapse;
+    border-spacing: 0;
+    font-weight: normal;
+    margin: 0;
+    outline: 0;
+    color: #444;
+    font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
+    line-height: 1.5em;
+    word-break: break-all;
+    vertical-align: middle;
+    padding: 7px 5px;
+    border-right: 1px solid #ccc;
+    font-size: 14px;
+    border-bottom: 1px solid #ccc;
+    text-align: center;
+    cursor: default;
+}
+
+table.design-layer-land > tbody > tr > td:last-child {
+    list-style: none;
+    border-collapse: collapse;
+    border-spacing: 0;
+    font-weight: bold !important;
+    margin: 0;
+    outline: 0;
+    color: #444;
+    font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
+    line-height: 1.5em;
+    text-align: left  !important;
+    cursor: pointer !important;
+    word-break: break-all;
+    vertical-align: middle;
+    padding: 7px 5px;
+    font-size: 14px;
+    border-bottom: 1px solid #ccc;
+    border-right: none;
+}

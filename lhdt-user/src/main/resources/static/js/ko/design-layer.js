@@ -14,6 +14,8 @@ const DesignLayerObj = function(){
     this.tool = DesignLayerObj.Tool.NONE;
     //intersection한 필지 정보 목록
     this.lands=[];
+    //체크된 필지 레이어 정보
+    this.landLayer = {};
 
     //
     this.rotate = null;
@@ -95,6 +97,131 @@ DesignLayerObj.prototype.setEventHandler = function(){
         //
         _this.setTool(DesignLayerObj.Tool.NONE);
         _this.setTool(afterTool);
+    });
+
+
+    /**
+     * 전체 필지 높이 up/down
+     */
+    Ppui.click('.ds-toggle-land-updown', function(){
+
+        /**
+         * on된 디자인 레이어와 관련된 정보(디자인 레이어 목록, imageryLayer 목록)
+         */
+        let _getDatas = function(){
+            let coll = Ppui.find('[name=design-layer-id]:checked');
+            if(Pp.isEmpty(coll)){
+                return [];
+            }
+
+            //
+            if(coll instanceof Element){
+                coll = [coll];
+            }
+
+            let json = {};
+            for(let i=0; i<coll.length; i++){
+                let el = coll[i];
+                let designLayerId = el.value;
+                let data = _this.getDataById(designLayerId)
+
+                //
+                if(null == data){
+                    continue;
+                }
+
+                //
+                if('land' !== data.designLayerGroupType){
+                    //continue;
+                }
+
+                if(Pp.isNull(_this.landLayer[designLayerId])){
+                    continue;
+                }
+
+                //
+                json[designLayerId] = {
+                    'data': data,
+                    'layer': _this.landLayer[designLayerId],
+                }
+            }
+
+            //
+            return json;
+        };
+
+
+        /**
+         * 필지 높이 up/down
+         * @param {Object} d {'data':Object, 'layer':ImageryLayer}
+         * @param {boolean} isShow
+         */
+        let _updownFeatures = function (d, isShow) {
+
+            //
+            if(!isShow){
+                _this.offExtrusionLand(d.data.designLayerId);
+               
+                //
+                return;
+            }
+
+            //
+            let imageryProvider = d.layer.imageryProvider;
+            let layerName = imageryProvider.layers;
+            let currentCqlFilter = imageryProvider._resource.queryParameters.cql_filter;
+
+            //feature 정보 요청
+            _this.getFeatures({ 'typeNames': layerName, 'cql_filter': currentCqlFilter }, function (e) {
+                let entities = e.entities.values;
+
+                //
+                for (let i = 0; i < entities.length; i++) {
+                    let entity = entities[i];
+                    var polygonHierarchy = entity.polygon.hierarchy.getValue().positions;
+
+                    //
+                    let h = Pp.nvl(entity.properties._maximum_building_floors._value, null);
+                    if (Pp.isEmpty(h)) {
+                        //높이값 없음
+                        //console.log('empty height', entity);
+                        continue;
+                    }
+
+                    //필지 height 변경
+                    var building = Mago3D.ExtrusionBuilding.makeExtrusionBuildingByCartesian3Array(polygonHierarchy.reverse(), h * 3.3, {
+                        color: new Mago3D.Color(0.2, 0.7, 0.8, 0.4)
+                    });
+
+                    building.type = 'land';
+                    building.layerId = entity.id;
+                    building.designLayerId = d.data.designLayerId;
+                    /**
+                     * magoManager에 속한 modeler 인스턴스의 addObject 메소드를 통해 모델 등록, 뒤의 숫자는 데이터가 표출되는 최소 레벨을 의미. 숫자가 낮을수록 멀리서 보임
+                     */
+                    Ppmap.getManager().modeler.addObject(building, 12);
+                }
+            });
+        }
+
+
+        //on/off 판단
+        let b = this.checked;
+
+        //get on된 디자인 레이어(필지) 목록
+        let json = _getDatas();
+
+        //get 각 디자인 레이별 height
+        let designLayerIds = Object.keys(json);
+		for(let i=0; i<designLayerIds.length; i++){
+            let designLayerId = designLayerIds[i];
+			let d = json[designLayerId];
+             
+            //
+            _updownFeatures(d, b);
+		}
+
+
     });
 };
 
@@ -337,21 +464,13 @@ DesignLayerObj.prototype.extrudeLandByImageryLayer = function(selectedImageryLay
     var currentCqlFilter = imagerProvider._resource.queryParameters.cql_filter;    
 
     //
-    var req = new Cesium.Resource({
-        url : [NDTP.policy.geoserverDataUrl, NDTP.policy.geoserverDataStore, 'wfs'].join('/'),  
-        queryParameters : {
-            service : 'wfs',
-            version : '1.0.0',
-            request : 'GetFeature',
-            typeNames : layerName,
-            srsName : 'EPSG:3857',
-            outputFormat : 'application/json',
-            cql_filter : currentCqlFilter + ' AND ' + 'CONTAINS(the_geom, POINT(' + geoCoord.longitude + ' ' + geoCoord.latitude + '))'
-        }
-    });
+    let opt = {
+        'typeNames' : layerName,
+        'cql_filter': currentCqlFilter + ' AND ' + 'CONTAINS(the_geom, POINT(' + geoCoord.longitude + ' ' + geoCoord.latitude + '))',
+    };
 
     //
-    new Cesium.GeoJsonDataSource().load(req).then(function(e) {
+    this.getFeatures(opt, function(e){
         var entities = e.entities.values;
         //
         if(Pp.isEmpty(entities)){
@@ -360,14 +479,14 @@ DesignLayerObj.prototype.extrudeLandByImageryLayer = function(selectedImageryLay
         }
 
         //
-        for(var i in entities) {
+        for(let i=0; i<entities.length; i++) {
             var entity = entities[i];
 
             //
-            let h = Pp.nvl(entity.properties._maximum_building_floors, null);
-            if(Pp.isNull(h)){
+            let h = Pp.nvl(entity.properties._maximum_building_floors._value, null);
+            if(Pp.isEmpty(h)){
                 //높이값 없음
-                console.log('empty height', entity);
+                //console.log('empty height', entity);
                 continue;
             }
 
@@ -384,16 +503,18 @@ DesignLayerObj.prototype.extrudeLandByImageryLayer = function(selectedImageryLay
                 color : new Mago3D.Color(0.2, 0.7, 0.8, 0.4)
             });
             building.type = 'land';
+            building.designLayerId = selectedImageryLayer.layerId;
             /**
              * magoManager에 속한 modeler 인스턴스의 addObject 메소드를 통해 모델 등록, 뒤의 숫자는 데이터가 표출되는 최소 레벨을 의미. 숫자가 낮을수록 멀리서 보임
              */
             Ppmap.getManager().modeler.addObject(building, 12);            
         }
     });
+
 };
 
 /**
- * 필지 높이조절
+ * 특정 위치(지도에서 마우스 클릭)의 필지 높이조절
  * @param {Cartesian2} ctsn2 
  */
 DesignLayerObj.prototype.extrudeLandByCtsn2 = function(ctsn2){
@@ -471,6 +592,7 @@ DesignLayerObj.prototype.processToolIntersection = function() {
     };
 
 
+    //데이터 화면에 표시
     let _showData = function(data){
         Ppui.remove('table.design-layer-land');
 
@@ -483,6 +605,7 @@ DesignLayerObj.prototype.processToolIntersection = function() {
         $('div.design-layer-land').append(html);
 
     };
+
 
 
     //
@@ -536,19 +659,22 @@ DesignLayerObj.prototype.processToolIntersection = function() {
             if(Pp.isNotEmpty(res._embedded) && Pp.isNotEmpty(res._embedded.designLayerLands)){
                 _this.lands = res._embedded.designLayerLands;
             }
-            
-            //
-            Ppui.show('div.design-layer-land-wrapper');
 
-            //
-            let pageNo=1;
-            //데이터 표시
-            _this.showLandData(pageNo);
-            //페이징 표시
-            DS.pagination(_this.lands.length, pageNo, $('div.design-layer-land-wrapper .pagination'), function(_pageNo){
-                //
-                _this.showLandData(_pageNo);
-            }, {'pageSize':1, 'maxPages':10});
+            //값 표시
+            _this.showLandData(1);
+            
+            // //
+            // Ppui.show('div.design-layer-land-wrapper');
+
+            // //
+            // let pageNo=1;
+            // //데이터 표시
+            // _this.showLandData(pageNo);
+            // //페이징 표시
+            // DS.pagination(_this.lands.length, pageNo, $('div.design-layer-land-wrapper .pagination'), function(_pageNo){
+            //     //
+            //     _this.showLandData(_pageNo);
+            // }, {'pageSize':1, 'maxPages':10});
 
 
             //////////////갓도//////////////////////
@@ -639,12 +765,18 @@ DesignLayerObj.prototype.processToolIntersection = function() {
 
 /**
  * 필지 정보 표시
- * @param {number} pageNo 페이지 번호
+ * @param {number} pageNo 페이지 번호 1부터시작
  */
 DesignLayerObj.prototype.showLandData = function(pageNo){
     let _this = this;
     //
-    Ppui.remove('table.design-layer-land');
+    Ppui.remove('div.design-layer-land-modal');
+
+    //
+    if(0 === this.lands.length){
+        toastr.info('필지정보가 없습니다.');
+        return;
+    }
 
     //handlerbars
     let source = $('#design-layer-land-template').html();
@@ -661,10 +793,26 @@ DesignLayerObj.prototype.showLandData = function(pageNo){
 
     //
     let html = template({'data': this.lands[pageNo-1]});
-    $('div.design-layer-land').append(html);
-
+    $('body').append(html);
+    
     //
-    location.href = '#top';                
+    $('div.design-layer-land-modal').dialog({
+        autoOpen: false,
+		width: 600,
+		height: 400,
+		modal: true,
+		resizable: false,
+		title : '필지정보',
+		show:{
+			'effect':'fade',
+			'duration':500
+		},
+		buttons:{
+			'닫기':function(){
+				$(this).dialog('close')
+			}
+		}
+    }).dialog('open');
 };
 
 /**
@@ -962,6 +1110,7 @@ DesignLayerObj.prototype.renderUrbanGroup = function(selector, datas){
     
     //
     Ppui.bindDatas(selector, datas, option);
+    
 
     //
     Ppui.trigger(selector, 'change');
@@ -1093,15 +1242,53 @@ DesignLayerObj.prototype.extrusionModelWMSToggle = function(model, isShow){
         var imageryLayer = new Cesium.ImageryLayer(prov/*, {alpha : 0.7}*/);
         imageryLayer.layerId = model.id;
         imageryLayers.add(imageryLayer);
+
+        //
+        this.landLayer[model.id] = imageryLayer;
     } else {
         var target = imageryLayers._layers.filter(function(layer){return layer.layerId === model.id});
         if(target.length === 1)
         {
             imageryLayers.remove(target[0]);
         }
+
+        //
+        this.landLayer[model.id] = null;
+
+        //
+        this.offExtrusionLand(model.id);
     }
 };
 
+
+
+/**
+ * 필지 바닥정보로 높이를 올린 디자인 레이어 지도에서 삭제하기
+ * @param {*} designLayerId 
+ */
+DesignLayerObj.prototype.offExtrusionLand = function(designLayerId){
+    var modeler = Ppmap.getManager().modeler;
+        
+    var models = modeler.objectsArray;
+    if(Pp.isEmpty(models)){
+        return;
+    }
+    //
+    for(let i=0; i<models.length; i++){
+        let building = models[i];
+        if(Pp.isNull(building)){
+            continue;
+        }
+
+        //console.log(building, designLayerId);
+        if(building.designLayerId == designLayerId || building.layerId == designLayerId) {
+            /**
+                 * modeler 인스턴스의 removeObject 메소드를 통해 모델 삭제
+                 */
+            modeler.removeObject(building);
+        }
+    }
+};
 
 /**
  * 
@@ -1187,6 +1374,43 @@ DesignLayerObj.prototype.extrusionModelBuildingToggle = function(model, isShow) 
         }
     }
 }
+
+
+/**
+ * geoserver에 요청
+ * @param {Object} option {'url':string, 'typeNames':string, 'cql_filter':string}
+ * @param {Function} callbackFn 콜백함수
+ */
+DesignLayerObj.prototype.getFeatures = function(option, callbackFn){
+    let opt = Pp.extend({'url':[LHDT.policy.geoserverDataUrl, LHDT.policy.geoserverDataStore, 'wfs'].join('/')}, option);
+
+    //
+    let queryParameters = {
+        serivice: 'wfs',
+        version: '1.0.0',
+        request: 'GetFeature',
+        srsName: 'EPSG:3857',
+        outputFormat: 'application/json',
+    };
+    if(Pp.isNotEmpty(opt.typeNames)){
+        queryParameters.typeNames = opt.typeNames;
+    }
+    if(Pp.isNotEmpty(opt.cql_filter)){
+        queryParameters.cql_filter = opt.cql_filter;
+    }
+
+    //
+    let req = new Cesium.Resource({
+        url : opt.url,
+        queryParameters : queryParameters
+    });
+
+    //
+    new Cesium.GeoJsonDataSource.load(req).then(function(e){
+        callbackFn(e);
+    });
+
+};
 
 
 //
