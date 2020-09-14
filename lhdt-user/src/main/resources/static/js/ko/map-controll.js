@@ -756,6 +756,9 @@ Compass.prototype.setOrbitMode = function(e) {
 	var subtract = Cesium.Cartesian2.subtract(offset, divCenter, this.scratch2d);
 	this.setOrbitCursor(subtract);
 	
+	var fan = this.compassElement.getElementsByClassName('bearingInFan').item(0);
+	fan.style.display = 'block';
+	
 	document.addEventListener("pointermove", this.orbitMouseMove, false);
     document.addEventListener("pointerup", this.orbitMouseUp, false);
 	this._viewer.clock.onTick.addEventListener(this.orbitTick);
@@ -778,6 +781,9 @@ Compass.prototype.orbitMouseUp = function(e) {
 	document.removeEventListener("pointermove", this.orbitMouseMove, false);
     document.removeEventListener("pointerup", this.orbitMouseUp, false);
 	this._viewer.clock.onTick.removeEventListener(this.orbitTick);
+	
+	var fan = this.compassElement.getElementsByClassName('bearingInFan').item(0);
+	fan.style.display = 'none';
 }
 
 Compass.prototype.orbitTick = function(e) {
@@ -799,6 +805,9 @@ Compass.prototype.orbitTick = function(e) {
 	}
 	this._camera.lookAtTransform(transform);
 	this.orbitLastTimestamp = currentTime;
+	
+	var fan = this.compassElement.getElementsByClassName('bearingInFan').item(0);
+	fan.style.transform = `rotate(-${this.orbitCursorAngle}rad)`;
 }
 
 Compass.prototype.setOrbitCursor = function (sub) {
@@ -870,7 +879,7 @@ Compass.prototype.getTimeStamp = function() {
 }
 
 Compass.prototype.setSvgRotate = function() {
-	this.compassElement.getElementsByTagName('svg').item(0).style.transform = `rotate(-${this._camera.heading}rad)`;
+	this.compassElement.getElementsByTagName('svg').item(1).style.transform = `rotate(-${this._camera.heading}rad)`;
 }
 
 $(document).ready(function() {
