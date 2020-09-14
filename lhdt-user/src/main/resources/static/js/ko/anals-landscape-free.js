@@ -515,7 +515,6 @@ LsAnalsAutoObj.prototype.createTwoPoints = function(){
 	
 };
 
-
 /**
  * 분석
  */
@@ -541,4 +540,18 @@ window.addEventListener('load', function(){
 		}
 		
 	}, 500);
+})
+
+$(function() {
+    leftMouseDoubleClick();
+    function leftMouseDoubleClick() {
+        const handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().canvas);
+        handler.setInputAction( (click) => {
+                console.log(click);
+                let xyz = Ppmap.cartesian2ToLonLat(click.position);
+                console.log(xyz);
+            },
+            Cesium.ScreenSpaceEventType.LEFT_CLICK
+        );
+    }
 })

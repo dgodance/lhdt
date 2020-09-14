@@ -27,7 +27,7 @@ public class MainController extends CmmnController {
 	@Autowired
 	private HelloService service;
 	
-	@RequestMapping("/dashboard")
+	@RequestMapping("")
 	public String index(Model model) {
 		
 		model.addAttribute(CmmnConst.DATAS, service.findAll());
