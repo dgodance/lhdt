@@ -29,11 +29,11 @@ import lhdt.admin.svc.lhdt.service.SigninService;
 import lhdt.admin.svc.lhdt.support.PasswordSupport;
 import lhdt.admin.svc.lhdt.support.RoleSupport;
 import lhdt.admin.svc.lhdt.support.SessionUserSupport;
-import lhdt.ds.common.misc.DsConst;
-import lhdt.ds.common.misc.DsController;
-import lhdt.ds.common.misc.DsSessionUtils;
-import lhdt.ds.common.misc.DsUtils;
-import lhdt.ds.common.misc.DsWebUtils;
+import lhdt.cmmn.misc.CmmnConst;
+import lhdt.cmmn.misc.CmmnController;
+import lhdt.cmmn.misc.CmmnSessionUtils;
+import lhdt.cmmn.misc.CmmnUtils;
+import lhdt.cmmn.misc.CmmnWebUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -44,7 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Controller
 @RequestMapping("/sign")
-public class SigninController extends DsController {
+public class SigninController extends CmmnController {
 	
 	@Autowired
 	private PolicyService policyService;
@@ -60,7 +60,7 @@ public class SigninController extends DsController {
 		
 		model.addAttribute("signinForm", new UserInfo());
 		model.addAttribute("policy", new HashMap<>());
-		model.addAttribute("contentCacheVersion", DsUtils.createShortUid(""));
+		model.addAttribute("contentCacheVersion", CmmnUtils.createShortUid(""));
 		
 		return P + "signin";
 	}
@@ -124,7 +124,7 @@ public class SigninController extends DsController {
 //		userSession.setPassword(null);
 //		userSession.setSalt(null);
 		
-		userSession.setSigninIp(DsWebUtils.getConectIp(request));
+		userSession.setSigninIp(CmmnWebUtils.getConectIp(request));
 //		LhdtHttpSessionBindingListener sessionListener = new LhdtHttpSessionBindingListener();
 //		request.getSession().setAttribute("USER_SESSION", userSession);
 //		request.getSession().setAttribute(userSession.getUserId(), sessionListener);
@@ -141,7 +141,7 @@ public class SigninController extends DsController {
 		//TODO 중복로그인이면...
 		
 		//세션에 로그인 정보 저장
-		DsSessionUtils.set(request, DsConst.USER_SESSION, userSession);
+		CmmnSessionUtils.set(request, CmmnConst.USER_SESSION, userSession);
 		
 		//
 		return new RedirectView("../main/dashboard");
@@ -189,7 +189,7 @@ public class SigninController extends DsController {
 		}
 		
 		// 초기 세팅시만 이 값을 N으로 세팅해서 사용자 Role 체크 하지 않음
-		if(DsConst.N.equals(userSession.getUserRoleCheckYn())) {
+		if(CmmnConst.N.equals(userSession.getUserRoleCheckYn())) {
 			// 사용자 그룹 ROLE 확인
 			List<String> userGroupRoleKeyList = CacheManager.getUserGroupRoleKeyList(userSession.getUserGroupId());
 			if(!RoleSupport.isUserGroupRoleValid(userGroupRoleKeyList, RoleKey.ADMIN_SIGNIN.name())) {
@@ -212,7 +212,7 @@ public class SigninController extends DsController {
 		
 		// 중복 사인인 허용 하지 않을 경우, 동일 아이디로 생성된 세션이 존재할 경우 파기
 		log.info("##################################### userDuplicationSigninYn() = {}", policy.getUserDuplicationSigninYn());
-		if(DsConst.N.equals(policy.getUserDuplicationSigninYn())) {
+		if(CmmnConst.N.equals(policy.getUserDuplicationSigninYn())) {
 			if(SessionUserSupport.isExistSession(userSession.getUserId())) {
 				log.info("######################### 중복 사인인 userId = {}", userSession.getUserId());
 				SessionUserSupport.invalidateSession(userSession.getUserId());

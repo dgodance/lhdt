@@ -2,7 +2,7 @@ package lhdt.svc.common;
 
 import javax.persistence.MappedSuperclass;
 
-import lhdt.ds.common.domain.DsDomain;
+import lhdt.cmmn.domain.CmmnDomain;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,6 +10,6 @@ import lombok.Setter;
 @MappedSuperclass
 @Getter
 @Setter
-public abstract class Domain extends DsDomain {
+public abstract class Domain extends CmmnDomain {
    
 }

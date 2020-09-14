@@ -2,7 +2,7 @@ package lhdt.admin.svc.cityplanning.service;
 
 import lhdt.admin.svc.cityplanning.domain.CPDistricInfo;
 import lhdt.admin.svc.common.AdminSvcService;
-import lhdt.ds.common.misc.DsService;
+import lhdt.cmmn.misc.CmmnService;
 
 import java.util.List;
 

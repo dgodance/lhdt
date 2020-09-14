@@ -6,7 +6,7 @@ package lhdt.svc.common.fileinfo.model;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 
-import lhdt.ds.common.domain.DsDomain;
+import lhdt.cmmn.domain.CmmnDomain;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,7 +25,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FileInfo extends DsDomain {
+public class FileInfo extends CmmnDomain {
 	@Column(name = "file_ext")
 	private String fileExt;
 	

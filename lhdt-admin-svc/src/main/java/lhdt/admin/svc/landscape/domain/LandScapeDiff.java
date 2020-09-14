@@ -6,8 +6,8 @@ import com.sun.istack.NotNull;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 
 import lhdt.admin.svc.file.domain.FileInfo;
-import lhdt.ds.common.domain.DsDomain;
-import lhdt.ds.common.misc.DsField;
+import lhdt.cmmn.domain.CmmnDomain;
+import lhdt.cmmn.misc.CmmnField;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,9 +28,9 @@ import java.sql.SQLException;
 @AllArgsConstructor
 @NoArgsConstructor
 @TypeDef(name="jsonb", typeClass=JsonBinaryType.class)
-public class LandScapeDiff extends DsDomain {
+public class LandScapeDiff extends CmmnDomain {
     @NotNull
-    @DsField(bizKey = true, order = 0)
+    @CmmnField(bizKey = true, order = 0)
     @Column(name = "ls_diff_name")
     private String lsDiffName;
 
@@ -44,13 +44,13 @@ public class LandScapeDiff extends DsDomain {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="ls_diff_group_id")
-    @DsField(bizKey = true, order = 1)
+    @CmmnField(bizKey = true, order = 1)
     private LandScapeDiffGroup landScapeDiffGroup;
 
     @JsonIgnore
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name="ls_diff_img_id")
-    @DsField(bizKey = true, order = 2)
+    @CmmnField(bizKey = true, order = 2)
     private FileInfo lsDiffImgInfo;
 }

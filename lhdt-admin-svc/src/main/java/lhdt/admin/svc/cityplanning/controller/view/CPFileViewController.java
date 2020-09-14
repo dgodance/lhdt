@@ -1,28 +1,33 @@
 package lhdt.admin.svc.cityplanning.controller.view;
 
-import lhdt.admin.svc.file.domain.FileInfo;
-import lhdt.admin.svc.cityplanning.domain.CPReportDetail;
-import lhdt.admin.svc.cityplanning.exception.NotSupportCsvFileException;
-import lhdt.admin.svc.cityplanning.model.CPFileRegistParam;
-import lhdt.admin.svc.file.service.FileInfoService;
-import lhdt.admin.svc.cityplanning.service.CPReportDetailService;
-import lhdt.admin.svc.cityplanning.service.CPReportParserService;
-import lhdt.admin.svc.cityplanning.service.impl.CPCsvReportParserServiceImpl;
-import lhdt.ds.common.misc.DSPageSize;
-import lhdt.ds.common.misc.DSPaginator;
-import lhdt.ds.common.misc.DSPaginatorInfo;
-import lhdt.ds.common.misc.DsFileMaster;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.util.List;
+
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import java.io.IOException;
-import java.util.List;
+import lhdt.admin.svc.cityplanning.domain.CPReportDetail;
+import lhdt.admin.svc.cityplanning.exception.NotSupportCsvFileException;
+import lhdt.admin.svc.cityplanning.model.CPFileRegistParam;
+import lhdt.admin.svc.cityplanning.service.CPReportDetailService;
+import lhdt.admin.svc.cityplanning.service.CPReportParserService;
+import lhdt.admin.svc.cityplanning.service.impl.CPCsvReportParserServiceImpl;
+import lhdt.admin.svc.file.domain.FileInfo;
+import lhdt.admin.svc.file.service.FileInfoService;
+import lhdt.cmmn.misc.CmmnFileMaster;
+import lhdt.cmmn.misc.CmmnPageSize;
+import lhdt.cmmn.misc.CmmnPaginator;
+import lhdt.cmmn.misc.CmmnPaginatorInfo;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Controller
@@ -43,10 +48,10 @@ public class CPFileViewController {
             @RequestParam(value = "filePage", defaultValue = "1") Integer file_page,
             Model model) {
         Page<FileInfo> cpLocalInfoPage = fileInfoService
-                .findAllPgByStartPg(file_page -1, DSPageSize.NOTICE.getContent());
+                .findAllPgByStartPg(file_page -1, CmmnPageSize.NOTICE.getContent());
         model.addAttribute("cpLocalInfoPage", cpLocalInfoPage);
 
-        DSPaginatorInfo cpLocalPageNav = DSPaginator.getPaginatorMap(cpLocalInfoPage, DSPageSize.NOTICE);
+        CmmnPaginatorInfo cpLocalPageNav = CmmnPaginator.getPaginatorMap(cpLocalInfoPage, CmmnPageSize.NOTICE);
         model.addAttribute("cpFileInfoPageInfo", cpLocalPageNav);
 
         return "/cp-file/index";
@@ -83,7 +88,7 @@ public class CPFileViewController {
                 this.cpReportDetailService.registAll(cpReportDetailList);
             }
         } catch (NotSupportCsvFileException e) {
-            fileInfos.forEach(p -> new DsFileMaster(p.toString()).delete());
+            fileInfos.forEach(p -> new CmmnFileMaster(p.toString()).delete());
             e.printStackTrace();
         } catch (InvalidFormatException e) {
             e.printStackTrace();

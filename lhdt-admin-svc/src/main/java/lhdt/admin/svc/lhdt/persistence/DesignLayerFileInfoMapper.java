@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import lhdt.admin.svc.lhdt.domain.DesignLayerFileInfo;
-import lhdt.ds.common.config.LhdtConnMapper;
+import lhdt.cmmn.config.LhdtConnMapper;
 
 /**
  * design layer shape 파일 정보

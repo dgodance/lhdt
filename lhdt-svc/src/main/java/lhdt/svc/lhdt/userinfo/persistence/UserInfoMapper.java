@@ -3,7 +3,7 @@
  */
 package lhdt.svc.lhdt.userinfo.persistence;
 
-import lhdt.ds.common.config.LhdtConnMapper;
+import lhdt.cmmn.config.LhdtConnMapper;
 
 /**
  * @author gravity@daumsoft.com

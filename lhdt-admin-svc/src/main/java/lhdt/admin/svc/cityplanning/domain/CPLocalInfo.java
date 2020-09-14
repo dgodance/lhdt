@@ -1,8 +1,9 @@
 package lhdt.admin.svc.cityplanning.domain;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import lhdt.ds.common.domain.DsDomain;
-import lhdt.ds.common.misc.DsField;
+
+import lhdt.cmmn.domain.CmmnDomain;
+import lhdt.cmmn.misc.CmmnField;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,7 +24,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CPLocalInfo extends DsDomain {
+public class CPLocalInfo extends CmmnDomain {
     public CPLocalInfo(String localName) {
         this.localName = localName;
     }
@@ -31,7 +32,7 @@ public class CPLocalInfo extends DsDomain {
      * 지역명
      */
     @Column(name = "local_name")
-    @DsField(bizKey = true, order = 0)
+    @CmmnField(bizKey = true, order = 0)
     private String localName;
 
     @JsonManagedReference

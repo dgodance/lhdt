@@ -13,8 +13,8 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lhdt.admin.svc.common.Domain;
-import lhdt.ds.common.domain.DsDomain;
-import lhdt.ds.common.misc.DsField;
+import lhdt.cmmn.domain.CmmnDomain;
+import lhdt.cmmn.misc.CmmnField;
 import lombok.*;
 
 /**
@@ -28,10 +28,10 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class LowInfo extends DsDomain {
+public class LowInfo extends CmmnDomain {
 
     @Column(name = "low_info_name")
-    @DsField(bizKey = true, order = 0)
+    @CmmnField(bizKey = true, order = 0)
     private String lowInfoName;
 
     @JsonManagedReference

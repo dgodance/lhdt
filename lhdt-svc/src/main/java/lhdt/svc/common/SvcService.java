@@ -3,14 +3,14 @@
  */
 package lhdt.svc.common;
 
-import lhdt.ds.common.misc.DsService;
+import lhdt.cmmn.misc.CmmnService;
 
 /**
  * 모든  interface의 부모
  * @author gravity@daumsoft.com
  * 
  */
-public  interface SvcService<DOMAIN, IDTYPE> extends DsService<DOMAIN, IDTYPE>  {
+public  interface SvcService<DOMAIN, IDTYPE> extends CmmnService<DOMAIN, IDTYPE>  {
 //	
 //	/**
 //	 * id(pk)로 1건 조회

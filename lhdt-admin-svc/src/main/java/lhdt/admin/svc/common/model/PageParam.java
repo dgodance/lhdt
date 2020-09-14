@@ -1,11 +1,12 @@
 package lhdt.admin.svc.common.model;
 
-import lhdt.ds.common.misc.DSPaginatorInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
+
+import lhdt.cmmn.misc.CmmnPaginatorInfo;
 
 import java.util.List;
 
@@ -15,7 +16,7 @@ import java.util.List;
 @Builder
 public class PageParam<T> {
     private List<T> page;
-    private DSPaginatorInfo pagenationInfo;
+    private CmmnPaginatorInfo pagenationInfo;
     private Integer size;
     private Integer nowPageNum;
 }

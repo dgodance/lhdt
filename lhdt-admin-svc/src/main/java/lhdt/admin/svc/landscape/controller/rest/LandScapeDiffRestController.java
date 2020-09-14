@@ -29,16 +29,16 @@ import lhdt.admin.svc.landscape.model.LandScapeDiffParam;
 import lhdt.admin.svc.landscape.service.LandScapeBizService;
 import lhdt.admin.svc.landscape.service.LandScapeDiffGroupService;
 import lhdt.admin.svc.landscape.service.LandScapeDiffService;
-import lhdt.ds.common.misc.DSPageSize;
-import lhdt.ds.common.misc.DSPaginator;
-import lhdt.ds.common.misc.DSPaginatorInfo;
-import lhdt.ds.common.misc.DsController;
+import lhdt.cmmn.misc.CmmnController;
+import lhdt.cmmn.misc.CmmnPageSize;
+import lhdt.cmmn.misc.CmmnPaginator;
+import lhdt.cmmn.misc.CmmnPaginatorInfo;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
 @RequestMapping("/ls-diff-rest")
-public class LandScapeDiffRestController extends DsController {
+public class LandScapeDiffRestController extends CmmnController {
     @Autowired
     private LandScapeDiffGroupService landScapeDiffGroupService;
     @Autowired
@@ -66,8 +66,8 @@ public class LandScapeDiffRestController extends DsController {
         var landScapeDiffGroup = this.landScapeDiffGroupService.findById(id);
         Page<LandScapeDiffDefault> cpLocalInfoPage = landScapeDiffService
                 .findAllByLandScapeDiffGroup(landScapeDiffGroup, nowPageNum -1,
-                        DSPageSize.NOTICE.getContent());
-        DSPaginatorInfo cpLocalPageNav = DSPaginator.getPaginatorMap(cpLocalInfoPage, DSPageSize.NOTICE);
+                        CmmnPageSize.NOTICE.getContent());
+        CmmnPaginatorInfo cpLocalPageNav = CmmnPaginator.getPaginatorMap(cpLocalInfoPage, CmmnPageSize.NOTICE);
 
         var sendParam = new PageParam<LandScapeDiffDefault>();
         sendParam.setPage(cpLocalInfoPage.getContent());

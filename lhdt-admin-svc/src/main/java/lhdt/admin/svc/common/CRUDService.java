@@ -1,9 +1,10 @@
 package lhdt.admin.svc.common;
 
-import lhdt.ds.common.domain.DsDomain;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+
+import lhdt.cmmn.domain.CmmnDomain;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -3,7 +3,7 @@
  */
 package lhdt.svc.common;
 
-import lhdt.ds.common.misc.DsMapper;
+import lhdt.cmmn.misc.CmmnMapper;
 
 /**
  * mybatis용 mapper의 부모
@@ -11,6 +11,6 @@ import lhdt.ds.common.misc.DsMapper;
  * @since 2020. 8. 10.
  *
  */
-public interface SvcMapper<DOMAIN, IDTYPE> extends DsMapper<DOMAIN, IDTYPE> {
+public interface SvcMapper<DOMAIN, IDTYPE> extends CmmnMapper<DOMAIN, IDTYPE> {
 
 }

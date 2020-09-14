@@ -1,21 +1,22 @@
 package lhdt.admin.svc.file.service.impl;
 
-import lhdt.admin.svc.file.domain.FileInfo;
-import lhdt.admin.svc.file.persistence.FileInfoRepository;
-import lhdt.admin.svc.file.persistence.FileInfoMapper;
-import lhdt.admin.svc.file.service.FileInfoService;
-import lhdt.admin.svc.common.AdminSvcServiceImpl;
-import lhdt.admin.svc.landscape.domain.LandScapeDiff;
-import lhdt.ds.common.misc.DsFileMaster;
-import lombok.RequiredArgsConstructor;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.PostConstruct;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import lhdt.admin.svc.common.AdminSvcServiceImpl;
+import lhdt.admin.svc.file.domain.FileInfo;
+import lhdt.admin.svc.file.persistence.FileInfoMapper;
+import lhdt.admin.svc.file.persistence.FileInfoRepository;
+import lhdt.admin.svc.file.service.FileInfoService;
+import lhdt.cmmn.misc.CmmnFileMaster;
+import lombok.RequiredArgsConstructor;
 
 /**
  * 지구계획 파일 처리 서비스
@@ -74,7 +75,7 @@ public class FileInfoServiceImpl
             Long size = multipartFile.getSize();
 
             // 서버에서 저장 할 파일 이름
-            String saveFileName = DsFileMaster.genFileNameByFullTime();
+            String saveFileName = CmmnFileMaster.genFileNameByFullTime();
 
             System.out.println("originFilename : " + originFilename);
             System.out.println("extensionName : " + extName);
@@ -99,7 +100,7 @@ public class FileInfoServiceImpl
         for(int i = 0; i < multipartFiles.length; i++) {
             var file = files.get(i);
             try {
-                DsFileMaster.writeFileByNameAndPath(multipartFiles[i], file.toString());
+                CmmnFileMaster.writeFileByNameAndPath(multipartFiles[i], file.toString());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

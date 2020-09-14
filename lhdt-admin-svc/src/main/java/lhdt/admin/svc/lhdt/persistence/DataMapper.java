@@ -8,7 +8,7 @@ import lhdt.admin.svc.lhdt.domain.DataGroup;
 import lhdt.admin.svc.lhdt.domain.DataInfo;
 import lhdt.admin.svc.lhdt.domain.DataInfoSimple;
 import lhdt.admin.svc.lhdt.domain.FileInfo;
-import lhdt.ds.common.config.LhdtConnMapper;
+import lhdt.cmmn.config.LhdtConnMapper;
 
 /**
  * Data

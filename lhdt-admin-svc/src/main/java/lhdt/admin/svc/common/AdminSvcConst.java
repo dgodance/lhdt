@@ -3,7 +3,7 @@
  */
 package lhdt.admin.svc.common;
 
-import lhdt.ds.common.misc.DsConst;
+import lhdt.cmmn.misc.CmmnConst;
 
 /**
  * 상수 정의
@@ -11,6 +11,6 @@ import lhdt.ds.common.misc.DsConst;
  * @since 2020. 8. 18.
  *
  */
-public class AdminSvcConst extends DsConst {
+public class AdminSvcConst extends CmmnConst {
 
 }

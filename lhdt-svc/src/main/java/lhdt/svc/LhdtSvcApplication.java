@@ -6,7 +6,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
 
-@ComponentScan({"lhdt.ds.common", "lhdt.svc"})
+@ComponentScan({"lhdt.cmmn", "lhdt.svc"})
 @SpringBootApplication
 public class LhdtSvcApplication extends SpringBootServletInitializer {
 
