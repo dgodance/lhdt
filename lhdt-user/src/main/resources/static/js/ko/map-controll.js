@@ -1001,6 +1001,31 @@ $(document).ready(function() {
 			$('.mago3d-overlayContainer-defaultControl').css('right', '0');
 		}
 	});
+	
+	$('#mapSettingBboxToggle').click(function() {
+		$(this).toggleClass('on');
+		
+		var magoManager = MAGO3D_INSTANCE.getMagoManager();
+		magoManager.magoPolicy.setShowBoundingBox($(this).hasClass('on'));
+	});
+	
+	$('#mapSettingLabelToggle').click(function() {
+		$(this).toggleClass('on');
+		var magoManager = MAGO3D_INSTANCE.getMagoManager();
+		magoManager.magoPolicy.setShowLabelInfo($(this).hasClass('on'));
+	});
+	
+	$('#mapSettingOriginToggle').click(function() {
+		$(this).toggleClass('on');
+		var magoManager = MAGO3D_INSTANCE.getMagoManager();
+		magoManager.magoPolicy.setShowOrigin($(this).hasClass('on'));
+	});
+	
+	$('#mapSettingShadowToggle').click(function() {
+		$(this).toggleClass('on');
+		var magoManager = MAGO3D_INSTANCE.getMagoManager();
+		magoManager.sceneState.setApplySunShadows($(this).hasClass('on'));
+	});
 
 	// 확대
 	$('#mapCtrlZoomIn').click(function() {
