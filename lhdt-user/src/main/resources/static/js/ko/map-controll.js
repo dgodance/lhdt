@@ -723,8 +723,7 @@ Compass.prototype.handleDblClick = function(e) {
 	this._scene.tweens.add(tween);
 }
 Compass.prototype.handleDown = function(e) {
-	var tagName = e.target.tagName;
-	if(tagName === 'DIV') {
+	if(e.target.className === 'bearingIn') {
 		this.setOrbitMode(e);
 	} else {
 		this.setRotateMode(e);
@@ -879,7 +878,9 @@ Compass.prototype.getTimeStamp = function() {
 }
 
 Compass.prototype.setSvgRotate = function() {
-	this.compassElement.getElementsByTagName('svg').item(1).style.transform = `rotate(-${this._camera.heading}rad)`;
+	this.compassElement.style.transform = `rotate(-${this._camera.heading}rad)`;
+	this.compassElement.getElementsByClassName('bearingIn').item(0).style.transform = `rotate(${this._camera.heading}rad)`;
+	
 }
 
 $(document).ready(function() {
