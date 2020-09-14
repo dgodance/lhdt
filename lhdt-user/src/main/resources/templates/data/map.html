@@ -55,7 +55,7 @@
 		<!-- S: CONTENTS WRAP -->
 		<div id="contentsWrap" class="contentsWrap" style="display: none;">
 			<div th:replace="~{/data-library/data-library :: #dataLibraryContent}"></div>
-			<div th:replace="~{/design-layer/design-layer :: #designLayerContent}"></div>
+			
 
 			<div th:replace="~{/cityplan/cityplan :: #cityPlanContent}"></div>
 			<div th:replace="~{/landscape/landscape :: #landscapeContent}"></div>
@@ -130,7 +130,6 @@
 <div th:replace="~{/data/sample-data-attribute-template :: #sampleDataAttributeDialogWrap}"></div>
 <div th:replace="~{/issue/issue-dialog :: #issueForm}"></div>
 
-<div th:replace="~{/extrusion/design-layer-toolbar-dialog :: #designLayerDialog}"></div>
 <div th:replace="~{/extrusion/data-library-toolbar-dialog :: #dataLibraryDialog}"></div>
 
 <script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
