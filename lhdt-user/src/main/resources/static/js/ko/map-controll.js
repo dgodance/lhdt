@@ -655,6 +655,224 @@ function goMagoAPIGuide(url) {
 	return false;
 }
 
+var Compass = function(cViewer, div) {
+	this.compassElement = div;
+	
+	this._viewer = cViewer;
+	this._scene = this._viewer.scene;
+	this._camera = this._scene.camera;
+	this.scratch2d = new Cesium.Cartesian2();
+	
+	this.isRotating = false;
+	this.rotateIsLook = false;
+	this.rotateInitialCursorAngle = 0;
+	this.rotateInitialCameraAngle = 0;
+	this.rotateInitialCameraDistance = 0;
+	this.rotateFrame;
+	
+	this.isOrbiting = false;
+	this.orbitLastTimestamp;
+	this.orbitFrame;
+	this.orbitIsLook = false;
+	this.orbitCursorAngle = 0;
+	this.orbitCursorOpacity = 0;
+	
+	this.rotateMouseMove = this.rotateMouseMove.bind(this);
+	this.rotateMouseUp = this.rotateMouseUp.bind(this);
+	
+	this.orbitMouseMove = this.orbitMouseMove.bind(this);
+	this.orbitMouseUp = this.orbitMouseUp.bind(this);
+	this.orbitTick = this.orbitTick.bind(this);
+	
+	var that = this;
+	this.compassElement.addEventListener(
+		'mousedown',
+		function(e){
+			that.handleDown(e);
+		}
+		,false
+	);
+	
+	this.compassElement.addEventListener(
+		'dblclick',
+		function(e){
+			that.handleDblClick(e);
+		}
+		,false
+	);
+
+	this._viewer.clock.onTick.addEventListener(this.setSvgRotate.bind(this));
+}
+Compass.prototype.handleDblClick = function(e) {
+	this.scratch2d.x = this._scene.canvas.clientWidth / 2;
+	this.scratch2d.y = this._scene.canvas.clientHeight / 2;
+	
+	var pickRay = this._camera.getPickRay(this.scratch2d);
+	var pick = this._scene.globe.pick(pickRay, this._scene);
+	
+	if(!pick) this._camera.flyHome();
+	
+	var frame = Cesium.Transforms.eastNorthUpToFixedFrame(pick);
+	var subtract = Cesium.Cartesian3.subtract(pick, this._camera.position, new Cesium.Cartesian3());
+	var tween = Cesium.CameraFlightPath.createTween(this._scene, {
+		destination : Cesium.Matrix4.multiplyByPoint(frame, new Cesium.Cartesian3(0, 0, Cesium.Cartesian3.magnitude(subtract)), new Cesium.Cartesian3()),
+		direction : Cesium.Matrix4.multiplyByPointAsVector(frame, new Cesium.Cartesian3(0,0,-1), new Cesium.Cartesian3()),
+		up : Cesium.Matrix4.multiplyByPointAsVector(frame,  new Cesium.Cartesian3(0,1,0), new Cesium.Cartesian3()),
+		duraion : 1.2
+	});
+	this._scene.tweens.add(tween);
+}
+Compass.prototype.handleDown = function(e) {
+	var tagName = e.target.tagName;
+	if(tagName === 'DIV') {
+		this.setOrbitMode(e);
+	} else {
+		this.setRotateMode(e);
+	}
+}
+
+Compass.prototype.setOrbitMode = function(e) {
+	this.isOrbiting = true;
+	this.orbitLastTimestamp = this.getTimeStamp();
+	
+	this.scratch2d.x = this._scene.canvas.clientWidth / 2;
+	this.scratch2d.y = this._scene.canvas.clientHeight / 2;
+	
+	var pickRay = this._camera.getPickRay(this.scratch2d);
+	var pick = this._scene.globe.pick(pickRay, this._scene);
+	
+	if(pick) {
+		this.orbitFrame = Cesium.Transforms.eastNorthUpToFixedFrame(pick, Cesium.Ellipsoid.WGS84);
+		this.orbitIsLook = false;
+	} else {
+		this.orbitFrame = Cesium.Transforms.eastNorthUpToFixedFrame(this._camera.positionWC, Cesium.Ellipsoid.WGS84);
+		this.orbitIsLook = true;
+	}
+	
+	var br = this.compassElement.getBoundingClientRect();
+	var divCenter = new Cesium.Cartesian2((br.right - br.left) / 2, (br.bottom - br.top) / 2);
+	var offset = new Cesium.Cartesian2(e.clientX - br.left, e.clientY - br.top);
+	
+	var subtract = Cesium.Cartesian2.subtract(offset, divCenter, this.scratch2d);
+	this.setOrbitCursor(subtract);
+	
+	document.addEventListener("pointermove", this.orbitMouseMove, false);
+    document.addEventListener("pointerup", this.orbitMouseUp, false);
+	this._viewer.clock.onTick.addEventListener(this.orbitTick);
+}
+
+Compass.prototype.orbitMouseMove = function(e) {
+	var br = this.compassElement.getBoundingClientRect();
+	var divCenter = new Cesium.Cartesian2((br.right - br.left) / 2, (br.bottom - br.top) / 2);
+	var offset = new Cesium.Cartesian2(e.clientX - br.left, e.clientY - br.top);
+	
+	var subtract = Cesium.Cartesian2.subtract(offset, divCenter, this.scratch2d);
+	this.setOrbitCursor(subtract);
+}
+
+Compass.prototype.orbitMouseUp = function(e) {
+	
+	this.isOrbiting = false;
+	this.orbitLastTimestamp = undefined;
+	
+	document.removeEventListener("pointermove", this.orbitMouseMove, false);
+    document.removeEventListener("pointerup", this.orbitMouseUp, false);
+	this._viewer.clock.onTick.removeEventListener(this.orbitTick);
+}
+
+Compass.prototype.orbitTick = function(e) {
+	var currentTime = this.getTimeStamp();
+	var offsetTime = (currentTime - this.orbitLastTimestamp) * (2.5 * (this.orbitCursorOpacity - 0.5) / 1e3);
+	var angle1 = this.orbitCursorAngle + Cesium.Math.PI_OVER_TWO;
+	
+	var cos = Math.cos(angle1) * offsetTime;
+	var sin = Math.sin(angle1) * offsetTime;
+	
+	var transform = Cesium.Matrix4.clone(this._camera.transform);
+	this._camera.lookAtTransform(this.orbitFrame);
+	if(this.orbitIsLook) { 
+		this._camera.look(Cesium.Cartesian3.UNIT_Z, -cos);
+		this._camera.look(this._camera.right, -sin);
+	} else {
+		this._camera.rotateLeft(cos);
+		this._camera.rotateUp(sin);
+	}
+	this._camera.lookAtTransform(transform);
+	this.orbitLastTimestamp = currentTime;
+}
+
+Compass.prototype.setOrbitCursor = function (sub) {
+	var br = this.compassElement.getBoundingClientRect();
+	var o = Math.atan2(-sub.y, sub.x);
+	this.orbitCursorAngle = Cesium.Math.zeroToTwoPi(o - Cesium.Math.PI_OVER_TWO);
+	var magnitude = Cesium.Cartesian2.magnitude(sub);
+	var s = br.width / 2;
+	var min = Math.min(magnitude / s, 1);
+	var opacity = 0.5 * min * min + 0.5;
+	this.orbitCursorOpacity = opacity;
+}
+
+Compass.prototype.setRotateMode = function(e) {
+	this.isRotating = true;
+	var br = this.compassElement.getBoundingClientRect();
+	this.rotateInitialCursorAngle = Math.atan2(-br.y, br.x);
+	this.scratch2d.x = this._scene.canvas.clientWidth / 2;
+	this.scratch2d.y = this._scene.canvas.clientHeight / 2;
+	
+	var pickRay = this._camera.getPickRay(this.scratch2d);
+	var pick = this._scene.globe.pick(pickRay, this._scene);
+	
+	if(pick) {
+		this.rotateFrame = Cesium.Transforms.eastNorthUpToFixedFrame(pick, Cesium.Ellipsoid.WGS84);
+		this.rotateIsLook = false;
+	} else {
+		this.rotateFrame = Cesium.Transforms.eastNorthUpToFixedFrame(this._camera.positionWC, Cesium.Ellipsoid.WGS84);
+		this.rotateIsLook = true;
+	}
+	
+	var transform = Cesium.Matrix4.clone(this._camera.transform);
+	
+	this._camera.lookAtTransform(this.rotateFrame);	
+	this.rotateInitialCameraAngle = Math.atan2(this._camera.position.y, this._camera.position.x);
+    this.rotateInitialCameraDistance = Cesium.Cartesian3.magnitude(new Cesium.Cartesian3(this._camera.position.x, this._camera.position.y,0));
+    this._camera.lookAtTransform(transform);
+	
+	document.addEventListener("pointermove", this.rotateMouseMove, false);
+    document.addEventListener("pointerup", this.rotateMouseUp, false);
+}
+
+Compass.prototype.rotateMouseMove = function(e) {
+	var divRect = this.compassElement.getBoundingClientRect();
+	var divCenter = new Cesium.Cartesian2((divRect.right - divRect.left) / 2, (divRect.bottom - divRect.top) / 2);
+	var offset = new Cesium.Cartesian2(e.clientX - divRect.left, e.clientY - divRect.top);
+
+	var subtract = Cesium.Cartesian2.subtract(offset, divCenter, this.scratch2d);
+	var angle1 = Math.atan2(-subtract.y, subtract.x) - this.rotateInitialCursorAngle;
+	var angle2 = Cesium.Math.zeroToTwoPi(this.rotateInitialCameraAngle - angle1);
+	
+	var transform = Cesium.Matrix4.clone(this._camera.transform);
+	
+	this._camera.lookAtTransform(this.rotateFrame);
+	var atan2 = Math.atan2(this._camera.position.y, this._camera.position.x);
+	this._camera.rotateRight(angle2 - atan2);
+	this._camera.lookAtTransform(transform);
+}
+
+Compass.prototype.rotateMouseUp = function(e) {
+	this.isRotating = false;
+	
+	document.removeEventListener("pointermove", this.rotateMouseMove, false);
+    document.removeEventListener("pointerup", this.rotateMouseUp, false);
+}
+
+Compass.prototype.getTimeStamp = function() {
+	return new Date().getTime();
+}
+
+Compass.prototype.setSvgRotate = function() {
+	this.compassElement.getElementsByTagName('svg').item(0).style.transform = `rotate(-${this._camera.heading}rad)`;
+}
+
 $(document).ready(function() {
 	// 처음
 	$('#mapCtrlHome').click(function() {
@@ -799,4 +1017,6 @@ $(document).ready(function() {
 		}
 	});
 });
+
+
 
