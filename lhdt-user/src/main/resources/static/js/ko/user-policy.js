@@ -76,10 +76,29 @@ var UserPolicy = function(magoInstance) {
 	$("#findStartPoint").click(function(e){
 		var magoManager = MAGO3D_INSTANCE.getMagoManager();
 		// TODO event 삭제 필요 
-		magoManager.once(Mago3D.MagoManager.EVENT_TYPE.CLICK, function(result) {
-			var longitude = result.clickCoordinate.geographicCoordinate.longitude;
-			var latitude = result.clickCoordinate.geographicCoordinate.latitude;
+		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.CLICK, function(result) {
+
+			var longitude = result.point.geographicCoordinate.longitude;
+			var latitude = result.point.geographicCoordinate.latitude;
 			var altitude = getCameraCurrentPositionAPI(MAGO3D_INSTANCE).alt;
+
+			var x = result.point.worldCoordinate.x;
+			var y = result.point.worldCoordinate.y;
+			var z = result.point.worldCoordinate.z;
+
+			var pointGraphic = new Cesium.PointGraphics({
+				pixelSize : 10,
+				heightReference : Cesium.HeightReference.CLAMP_TO_GROUND,
+				color : Cesium.Color.AQUAMARINE,
+				outlineColor : Cesium.Color.WHITE,
+				outlineWidth : 2
+			});
+
+			var viewer = MAGO3D_INSTANCE.getViewer();
+			var addedEntity = viewer.entities.add({
+				position : new Cesium.Cartesian3(x, y, z),
+				point : pointGraphic
+			});
 			
 			$("#initLatitude").val(latitude);
 			$("#initLongitude").val(longitude);

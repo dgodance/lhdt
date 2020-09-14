@@ -658,12 +658,80 @@ function goMagoAPIGuide(url) {
 $(document).ready(function() {
 	// 처음
 	$('#mapCtrlHome').click(function() {
-		alert('처음 위치로 이동합니다!');
+		var magoManager = MAGO3D_INSTANCE.getMagoManager();
+		if (magoManager.isCesiumGlobe()) {
+			var config = magoManager.configInformation;
+			if (config.initCameraEnable) {
+				var lon = parseFloat(config.initLongitude);
+				var lat = parseFloat(config.initLatitude);
+				var height = parseFloat(config.initAltitude);
+				var duration = parseInt(config.initDuration);
+				if (isNaN(lon) || isNaN(lat) || isNaN(height)) {
+					throw new Error('Longitude, Latitude, Height must number type.');
+				}
+				if (isNaN(duration)) {
+					duration = 3;
+				}
+				magoManager.flyTo(lon, lat, height, duration);
+			}
+		}
 	});
 
 	// 전체화면
 	$('#mapCtrlFullScreen').click(function() {
 		$(this).toggleClass('on');
+
+		var magoManager = MAGO3D_INSTANCE.getMagoManager();
+		var target = document.getElementById(magoManager.config.getContainerId());
+		if (this.full) {
+			if (isFullScreen()) {
+				exitFullScreen();
+				this.full = false;
+			}
+		} else {
+			if (isFullScreenSupported()) {
+				requestFullScreen(target);
+				this.full = true;
+			}
+		}
+
+		function isFullScreenSupported() {
+			var body = document.body;
+			return !!(
+				body.webkitRequestFullscreen ||
+				(body.msRequestFullscreen && document.msFullscreenEnabled) ||
+				(body.requestFullscreen && document.fullscreenEnabled)
+			);
+		}
+
+		function isFullScreen() {
+			return !!(
+				document.webkitIsFullScreen ||
+				document.msFullscreenElement ||
+				document.fullscreenElement
+			);
+		}
+
+		function requestFullScreen(element) {
+			if (element.requestFullscreen) {
+				element.requestFullscreen();
+			} else if (element.msRequestFullscreen) {
+				element.msRequestFullscreen();
+			} else if (element.webkitRequestFullscreen) {
+				element.webkitRequestFullscreen();
+			}
+		}
+
+		function exitFullScreen() {
+			if (document.exitFullscreen) {
+				document.exitFullscreen();
+			} else if (document.msExitFullscreen) {
+				document.msExitFullscreen();
+			} else if (document.webkitExitFullscreen) {
+				document.webkitExitFullscreen();
+			}
+		}
+
 	});
 
 	// 측정
@@ -693,16 +761,42 @@ $(document).ready(function() {
 	// 설정
 	$('#mapCtrlSetting').click(function() {
 		$(this).toggleClass('on');
+		if ($(this).hasClass('on')) {
+			$('#mapSettingWrap').css('width', '340px');
+			$('#mapCtrlWrap').css('right', '340px');
+			$('#mapCtrlCompassOut').css('right', '340px');
+			$('.mago3d-overlayContainer-defaultControl').css('right', '340px');
+		} else {
+			$('#mapSettingWrap').css('width', '0');
+			$('#mapCtrlWrap').css('right', '0');
+			$('#mapCtrlCompassOut').css('right', '0');
+			$('.mago3d-overlayContainer-defaultControl').css('right', '0');
+		}
 	});
 
 	// 확대
 	$('#mapCtrlZoomIn').click(function() {
+		var magoManager = MAGO3D_INSTANCE.getMagoManager();
+		if (magoManager.isCesiumGlobe()) {
+			var scene = magoManager.scene;
+			var camera = scene.camera;
+			var cartographicPosition = Cesium.Cartographic.fromCartesian(camera.position);
+			var alt = cartographicPosition.height;
+			scene.camera.zoomIn(alt * 0.1);
 
+		}
 	});
 
 	// 축소
 	$('#mapCtrlZoomOut').click(function() {
-
+		var magoManager = MAGO3D_INSTANCE.getMagoManager();
+		if (magoManager.isCesiumGlobe()) {
+			var scene = magoManager.scene;
+			var camera = scene.camera;
+			var cartographicPosition = Cesium.Cartographic.fromCartesian(camera.position);
+			var alt = cartographicPosition.height;
+			scene.camera.zoomOut(alt * 0.1);
+		}
 	});
 });
 

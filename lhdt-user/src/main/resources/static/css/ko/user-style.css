@@ -2949,3 +2949,80 @@ ul.listDefault li.on > ul li > button {
 	background-position: center;
 }
 
+/* ////////// TAB SETUP ////////// */
+.sideNav {
+	height: 100%;
+	width: 0;
+	position: fixed;
+	z-index: 1000;
+	top: 0;
+	right: 0;
+	background-color: #fff;
+	overflow-x: hidden;
+	/*transition: 0.5s;*/
+	margin-top: 50px;
+	padding-top: 10px;
+}
+.sideNav > div.userPolicyContent {
+	margin: 10px;
+}
+.tabSetup {
+	display: flex;
+	justify-content: space-evenly;
+	margin-bottom: 10px;
+}
+.tabSetup li {
+	/*flex: 1 1 auto;*/
+	/*min-width: 70px;*/
+	height: 70px;
+	cursor: pointer;
+	border: 1px solid #d3d3d3;
+	/*box-sizing: border-box;*/
+	/*list-style: none;*/
+	/*text-align: center;*/
+	background-color: #fff;
+	background-image: url(/images/ko/tab_setup.png);
+	background-repeat: no-repeat;
+}
+.tabSetup li > span {
+	display: inline-block;
+	width: 70px;
+	font-size: 13px;
+	font-weight: bold;
+	padding-top: 45px;
+	text-align: center;
+}
+.tabSetup li.bbox {
+	background-position: center 15px;
+}
+.tabSetup li.label {
+	background-position: center -125px;
+}
+.tabSetup li.origin {
+	background-position: center -265px;
+}
+.tabSetup li.shadow {
+	background-position: center -402px;
+}
+.tabSetup li:hover {
+	background-color: #eee;
+}
+.tabSetup li.on > span {
+	color: #fff;
+}
+.tabSetup li.on {
+	border: 1px solid #0067b4;
+	background-color: #0c74c1;
+}
+.tabSetup li.bbox.on {
+	background-position: center -57px;
+}
+.tabSetup li.label.on {
+	background-position: center -195px;
+}
+.tabSetup li.origin.on {
+	background-position: center -335px;
+}
+.tabSetup li.shadow.on {
+	background-position: center -472px;
+}
