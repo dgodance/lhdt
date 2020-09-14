@@ -79,6 +79,7 @@ sourceSets {
 
 dependencies {
     implementation project(':common')
+    implementation project(':lhdt-cmmn')
 
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-hateoas'
@@ -119,6 +120,7 @@ dependencies {
 	compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.12'
 	compile group: 'org.apache.httpcomponents', name: 'httpcore', version: '4.4.13'
 	compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.12'
+	
 	
     
 }

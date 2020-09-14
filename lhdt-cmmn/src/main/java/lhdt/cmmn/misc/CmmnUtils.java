@@ -3,6 +3,7 @@
  */
 package lhdt.cmmn.misc;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.net.URI;
@@ -15,8 +16,18 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 
@@ -138,7 +149,141 @@ public class CmmnUtils extends PpUtil{
 	}
 	
 	
+	/**
+	 * @see lhdt.cmmn.misc.CmmnUtils.httpDelete(String, Map<String, Object>)
+	 * @param uri
+	 * @return
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 */
+	public static String httpDelete(String uri) throws ClientProtocolException, IOException {
+		return httpDelete(uri, null);
+	}
 	
+	/**
+	 * delete method로 호출
+	 * @param uri
+	 * @param param
+	 * @return
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 */
+	public static String httpDelete(String uri, Map<String,Object> param) throws ClientProtocolException, IOException {
+		try(CloseableHttpClient httpClient = HttpClients.createDefault()){
+			
+			//
+			if(PpUtil.isNotEmpty(param)) {
+				uri += "?_=" + PpUtil.createShortUid("");
+				
+				//
+				Iterator<String> iter = param.keySet().iterator();
+				while(iter.hasNext()) {
+					String k = "";
+					uri +=  "&" + k + "=" + param.get(k);
+				}
+			}
+			
+			//	
+			HttpDelete hd = new HttpDelete(uri);
+			//
+			try(CloseableHttpResponse response = httpClient.execute(hd)){
+				HttpEntity entity = response.getEntity();
+				if(null == entity) {
+					return null;
+				}
+				
+				//
+				return EntityUtils.toString(entity);
+			}
+		}
+		//
+	}
+	
+	
+	/**
+	 * @see lhdt.cmmn.misc.CmmnUtils.httpGet(String, Map<String, Object>)
+	 * @param uri
+	 * @return
+	 * @throws IOException
+	 */
+	public static String httpGet(String uri) throws IOException {
+		return httpGet(uri, null);
+	}
+	
+	/**
+	 * 
+	 * @param uri
+	 * @param param
+	 * @return
+	 * @throws IOException
+	 */
+	public static String httpGet(String uri, Map<String,Object> param) throws IOException {
+		try(CloseableHttpClient httpClient = HttpClients.createDefault()){
+			
+			//
+			if(PpUtil.isNotEmpty(param)) {
+				uri += "?_=" + PpUtil.createShortUid("");
+				
+				//
+				Iterator<String> iter = param.keySet().iterator();
+				while(iter.hasNext()) {
+					String k = "";
+					uri +=  "&" + k + "=" + param.get(k);
+				}
+			}
+			
+			//	
+			HttpGet g = new HttpGet(uri);
+			//
+			try(CloseableHttpResponse response = httpClient.execute(g)){
+				HttpEntity entity = response.getEntity();
+				if(null == entity) {
+					return null;
+				}
+				
+				//
+				return EntityUtils.toString(entity);
+			}
+		}
+		//
+	}
+	
+	
+	
+	public static String httpPost(String uri, HttpEntity reqEntity) throws ClientProtocolException, IOException {
+		try(CloseableHttpClient httpClient = HttpClients.createDefault()){
+			
+			//
+//			if(PpUtil.isNotEmpty(param)) {
+//				uri += "?_=" + PpUtil.createShortUid("");
+//				
+//				//
+//				Iterator<String> iter = param.keySet().iterator();
+//				while(iter.hasNext()) {
+//					String k = "";
+//					uri +=  "&" + k + "=" + param.get(k);
+//				}
+//			}
+			
+			//
+			
+			//	
+			HttpPost hp = new HttpPost(uri);
+			hp.setEntity(reqEntity);
+			
+			//
+			try(CloseableHttpResponse response = httpClient.execute(hp)){
+				HttpEntity entity = response.getEntity();
+				if(null == entity) {
+					return null;
+				}
+				
+				//
+				return EntityUtils.toString(entity);
+			}
+		}
+		//
+	}
 	
 	/**
 	 * create HttpClient
