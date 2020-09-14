@@ -19,8 +19,8 @@ import lhdt.admin.svc.lhdt.domain.Policy;
 import lhdt.admin.svc.lhdt.domain.UserGroupMenu;
 import lhdt.admin.svc.lhdt.domain.UserSession;
 import lhdt.admin.svc.lhdt.domain.YOrN;
-import lhdt.ds.common.misc.DsConst;
-import lhdt.ds.common.misc.DsUtils;
+import lhdt.cmmn.misc.CmmnConst;
+import lhdt.cmmn.misc.CmmnUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -76,7 +76,7 @@ public class ConfigInterceptor extends HandlerInterceptorAdapter {
 			Menu menu = CacheManager.getMenuMap().get(clickMenuId);
 			Menu parentMenu = CacheManager.getMenuMap().get(clickParentId);
 			if(menu != null) {
-				if(DsConst.Y.equals(menu.getDisplayYn())) {
+				if(CmmnConst.Y.equals(menu.getDisplayYn())) {
 					menu.setAliasName(null);
 					parentMenu.setAliasName(null);
 				} else {

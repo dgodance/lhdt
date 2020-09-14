@@ -3,7 +3,7 @@ package lhdt.admin.svc.lhdt.persistence;
 import java.util.List;
 
 import lhdt.admin.svc.lhdt.domain.DataAdjustLog;
-import lhdt.ds.common.config.LhdtConnMapper;
+import lhdt.cmmn.config.LhdtConnMapper;
 
 /**
  * 데이터 geometry 변경 이력

@@ -2,8 +2,8 @@ package lhdt.admin.svc.file.domain.listener;
 
 import dev.hyunlab.core.vo.PpFileVO;
 import lhdt.admin.svc.file.domain.FileInfo;
-import lhdt.ds.common.misc.DsFile;
-import lhdt.ds.common.misc.DsUtils;
+import lhdt.cmmn.misc.CmmnFile;
+import lhdt.cmmn.misc.CmmnUtils;
 
 import javax.persistence.PreRemove;
 import java.io.File;

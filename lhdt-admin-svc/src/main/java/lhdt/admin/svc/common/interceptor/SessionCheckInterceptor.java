@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import lhdt.admin.svc.common.AdminSvcUtils;
 import lhdt.admin.svc.lhdt.domain.UserSession;
-import lhdt.ds.common.interceptor.DsSessionCheckInterceptor;
+import lhdt.cmmn.interceptor.CmmnSessionCheckInterceptor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component(value="sessionCheckInterceptor")
-public class SessionCheckInterceptor extends DsSessionCheckInterceptor {
+public class SessionCheckInterceptor extends CmmnSessionCheckInterceptor {
 
 	@Value("#{servletContext.contextPath}")
 	private String contextPath;

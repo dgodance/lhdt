@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lhdt.admin.svc.file.domain.FileInfo;
-import lhdt.ds.common.domain.DsDomain;
-import lhdt.ds.common.misc.DsField;
+import lhdt.cmmn.domain.CmmnDomain;
+import lhdt.cmmn.misc.CmmnField;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,7 +27,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CPDistricInfo extends DsDomain {
+public class CPDistricInfo extends CmmnDomain {
     public CPDistricInfo(String districtName) {
         this.districtName = districtName;
     }
@@ -35,13 +35,13 @@ public class CPDistricInfo extends DsDomain {
      * 도면번호(명)
      */
     @Column(name = "district_name")
-    @DsField(bizKey = true, order = 0)
+    @CmmnField(bizKey = true, order = 0)
     private String districtName;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="cpDistricInfos")
-    @DsField(bizKey = true, order = 1)
+    @CmmnField(bizKey = true, order = 1)
     private CPLocalInfo cpLocalInfo;
 
     @OneToMany(mappedBy = "cpDistricInfo", fetch= FetchType.LAZY,

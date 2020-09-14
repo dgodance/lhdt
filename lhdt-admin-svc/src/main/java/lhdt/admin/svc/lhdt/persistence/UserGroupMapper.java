@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Select;
 import lhdt.admin.svc.lhdt.domain.UserGroup;
 import lhdt.admin.svc.lhdt.domain.UserGroupMenu;
 import lhdt.admin.svc.lhdt.domain.UserGroupRole;
-import lhdt.ds.common.config.LhdtConnMapper;
+import lhdt.cmmn.config.LhdtConnMapper;
 
 @LhdtConnMapper
 public interface UserGroupMapper {

@@ -2,8 +2,8 @@ package lhdt.admin.svc.landscape.domain;
 
 import com.sun.istack.NotNull;
 import lhdt.admin.svc.landscape.type.LandScapeAnalsType;
+import lhdt.cmmn.domain.CmmnDomain;
 import lhdt.admin.svc.landscape.type.LSPointActionType;
-import lhdt.ds.common.domain.DsDomain;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,7 +18,7 @@ import javax.persistence.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class LandScapePoint extends DsDomain {
+public class LandScapePoint extends CmmnDomain {
     @NotNull
     @Column(name = "land_scape_point_name")
     private String landScapePointName;

@@ -7,8 +7,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import dev.hyunlab.web.util.PpWebSessionUtil;
 import lhdt.admin.svc.lhdt.domain.UserSession;
-import lhdt.ds.common.misc.DsConst;
-import lhdt.ds.common.misc.DsUtils;
+import lhdt.cmmn.misc.CmmnConst;
+import lhdt.cmmn.misc.CmmnUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @Slf4j
-public class AdminSvcUtils extends DsUtils {
+public class AdminSvcUtils extends CmmnUtils {
 	
 	
 	/**
@@ -27,7 +27,7 @@ public class AdminSvcUtils extends DsUtils {
 	 * @return
 	 */
 	public static UserSession getUserSession(HttpServletRequest request) {
-		Object obj = PpWebSessionUtil.get(request, DsConst.USER_SESSION);
+		Object obj = PpWebSessionUtil.get(request, CmmnConst.USER_SESSION);
 		
 		if(null == obj) {
 			log.warn("<<.getUserSession - null userSession");

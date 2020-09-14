@@ -5,9 +5,9 @@ import lhdt.admin.svc.landscape.domain.LandScapeDiffGroupDTO.LSDiffGroupMeta;
 import lhdt.admin.svc.landscape.domain.LandScapeDiffGroupDTO.LSDiffGroupTable;
 import lhdt.admin.svc.landscape.domain.LandScapeDiffGroupDTO.LSDiffGroupTableDefault;
 import lhdt.admin.svc.landscape.service.LandScapeDiffGroupService;
-import lhdt.ds.common.misc.DSPageSize;
-import lhdt.ds.common.misc.DSPaginator;
-import lhdt.ds.common.misc.DSPaginatorInfo;
+import lhdt.cmmn.misc.CmmnPageSize;
+import lhdt.cmmn.misc.CmmnPaginator;
+import lhdt.cmmn.misc.CmmnPaginatorInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -31,10 +31,10 @@ public class LandScapeDiffGroupRestController {
             @RequestParam(value = "lsGroupPage", defaultValue = "1") Integer landscape_page,
             Model model) {
         Page<LandScapeDiffGroup> cpLocalInfoPage = landScapeDiffGroupService
-                .findAllPgByStartPg(landscape_page -1, DSPageSize.NOTICE.getContent());
+                .findAllPgByStartPg(landscape_page -1, CmmnPageSize.NOTICE.getContent());
         model.addAttribute("lsGroupPage", cpLocalInfoPage);
 
-        DSPaginatorInfo cpLocalPageNav = DSPaginator.getPaginatorMap(cpLocalInfoPage, DSPageSize.NOTICE);
+        CmmnPaginatorInfo cpLocalPageNav = CmmnPaginator.getPaginatorMap(cpLocalInfoPage, CmmnPageSize.NOTICE);
         model.addAttribute("lsGroupPageInfo", cpLocalPageNav);
 
         LSDiffGroupTable p = new LSDiffGroupTable();

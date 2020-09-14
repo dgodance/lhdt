@@ -3,8 +3,8 @@ package lhdt.admin.svc.cityplanning.domain;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lhdt.admin.svc.file.domain.FileInfo;
-import lhdt.ds.common.domain.DsDomain;
-import lhdt.ds.common.misc.DsField;
+import lhdt.cmmn.domain.CmmnDomain;
+import lhdt.cmmn.misc.CmmnField;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,12 +23,12 @@ import javax.persistence.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CPReportDetail extends DsDomain {
+public class CPReportDetail extends CmmnDomain {
     /**
      * 식별키
      */
     @Column(name = "cp_id")
-    @DsField(bizKey = true, order = 1)
+    @CmmnField(bizKey = true, order = 1)
     private Long lotId;
 
     /**

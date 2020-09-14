@@ -3,7 +3,7 @@
  */
 package lhdt.admin.svc.common;
 
-import lhdt.ds.common.misc.DsService;
+import lhdt.cmmn.misc.CmmnService;
 
 /**
  * 모든 service의 부모
@@ -11,6 +11,6 @@ import lhdt.ds.common.misc.DsService;
  * @since 2020. 8. 18.
  *
  */
-public interface AdminSvcService<DOMAIN, IDTYPE> extends DsService<DOMAIN, IDTYPE> {
+public interface AdminSvcService<DOMAIN, IDTYPE> extends CmmnService<DOMAIN, IDTYPE> {
 
 }

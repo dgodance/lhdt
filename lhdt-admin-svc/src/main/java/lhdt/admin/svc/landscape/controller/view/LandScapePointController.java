@@ -7,10 +7,10 @@ import lhdt.admin.svc.landscape.model.LandScapeRegistParam;
 import lhdt.admin.svc.landscape.service.LandScapePointService;
 import lhdt.admin.svc.landscape.type.LSPointActionType;
 import lhdt.admin.svc.landscape.type.LandScapeAnalsType;
-import lhdt.ds.common.misc.DSPageSize;
-import lhdt.ds.common.misc.DSPaginator;
-import lhdt.ds.common.misc.DSPaginatorInfo;
-import lhdt.ds.common.misc.DsUtils;
+import lhdt.cmmn.misc.CmmnPageSize;
+import lhdt.cmmn.misc.CmmnPaginator;
+import lhdt.cmmn.misc.CmmnPaginatorInfo;
+import lhdt.cmmn.misc.CmmnUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -38,10 +38,10 @@ public class LandScapePointController {
             @RequestParam(value = "landScapePage", defaultValue = "1") Integer landscape_page,
             Model model) {
         Page<LandScapePoint> cpLocalInfoPage = landScapeService
-                .findAllPgByStartPg(landscape_page -1, DSPageSize.NOTICE.getContent());
+                .findAllPgByStartPg(landscape_page -1, CmmnPageSize.NOTICE.getContent());
         model.addAttribute("landScapePage", cpLocalInfoPage);
 
-        DSPaginatorInfo cpLocalPageNav = DSPaginator.getPaginatorMap(cpLocalInfoPage, DSPageSize.NOTICE);
+        CmmnPaginatorInfo cpLocalPageNav = CmmnPaginator.getPaginatorMap(cpLocalInfoPage, CmmnPageSize.NOTICE);
         model.addAttribute("landScapePageInfo", cpLocalPageNav);
 
         return "/landscape-point/index";
@@ -49,7 +49,7 @@ public class LandScapePointController {
 
     @GetMapping("/regist")
     public String addCityInfoByParam(Model model) {
-        var apara2 = DsUtils.getEnum2Map(LandScapeAnalsType.class, 0);
+        var apara2 = CmmnUtils.getEnum2Map(LandScapeAnalsType.class, 0);
         model.addAttribute("landScapeAnalsType", apara2);
         return "/landscape-point/edit";
     }

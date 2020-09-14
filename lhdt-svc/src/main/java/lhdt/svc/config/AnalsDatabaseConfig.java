@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import lhdt.ds.common.config.AnalsConnMapper;
+import lhdt.cmmn.config.AnalsConnMapper;
 import lombok.extern.slf4j.Slf4j;
 
 /**

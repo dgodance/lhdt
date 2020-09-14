@@ -12,9 +12,9 @@ import lhdt.admin.svc.landscape.domain.landScapeAnalsDTO.LandScapeAnalsTable;
 import lhdt.admin.svc.landscape.model.LandScapeRegistParam;
 import lhdt.admin.svc.landscape.service.LandScapePointService;
 import lhdt.admin.svc.landscape.type.LandScapeAnalsType;
-import lhdt.ds.common.misc.DSPageSize;
-import lhdt.ds.common.misc.DSPaginator;
-import lhdt.ds.common.misc.DSPaginatorInfo;
+import lhdt.cmmn.misc.CmmnPageSize;
+import lhdt.cmmn.misc.CmmnPaginator;
+import lhdt.cmmn.misc.CmmnPaginatorInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -39,9 +39,9 @@ public class LandScapePointRestController {
     @GetMapping
     public PageParam<LandScapeAnalsTable> getNoticePage(
             @RequestParam(value = "lsDiffPage", defaultValue = "1") Integer nowPageNum) {
-        Page<LandScapePoint> cpLocalInfoPage = landScapeService.findAllPgByStartPg(nowPageNum-1, DSPageSize.NOTICE.getContent());
+        Page<LandScapePoint> cpLocalInfoPage = landScapeService.findAllPgByStartPg(nowPageNum-1, CmmnPageSize.NOTICE.getContent());
 
-        DSPaginatorInfo cpLocalPageNav = DSPaginator.getPaginatorMap(cpLocalInfoPage, DSPageSize.NOTICE);
+        CmmnPaginatorInfo cpLocalPageNav = CmmnPaginator.getPaginatorMap(cpLocalInfoPage, CmmnPageSize.NOTICE);
         List<LandScapeAnalsTable> result = new ArrayList<>();
         for (LandScapePoint landScapePoint : cpLocalInfoPage.getContent()) {
             var lsat = new LandScapeAnalsTable();
@@ -81,9 +81,9 @@ public class LandScapePointRestController {
             @RequestParam(value = "lsGroupPage", defaultValue = "1") Integer landscape_page,
             Model model) {
         Page<LandScapePoint> cpLocalInfoPage = landScapeService
-                .findAllPgByStartPg(landscape_page -1, DSPageSize.NOTICE.getContent());
+                .findAllPgByStartPg(landscape_page -1, CmmnPageSize.NOTICE.getContent());
 
-        DSPaginatorInfo cpLocalPageNav = DSPaginator.getPaginatorMap(cpLocalInfoPage, DSPageSize.NOTICE);
+        CmmnPaginatorInfo cpLocalPageNav = CmmnPaginator.getPaginatorMap(cpLocalInfoPage, CmmnPageSize.NOTICE);
 
         LSDiffGroupTable p = new LSDiffGroupTable();
         var meta = new LSDiffGroupMeta(1,1,-1,100,"asc","id");

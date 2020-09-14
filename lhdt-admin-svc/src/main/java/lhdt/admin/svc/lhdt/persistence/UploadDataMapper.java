@@ -4,7 +4,7 @@ import java.util.List;
 
 import lhdt.admin.svc.lhdt.domain.UploadData;
 import lhdt.admin.svc.lhdt.domain.UploadDataFile;
-import lhdt.ds.common.config.LhdtConnMapper;
+import lhdt.cmmn.config.LhdtConnMapper;
 
 @LhdtConnMapper
 public interface UploadDataMapper {

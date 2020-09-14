@@ -2,7 +2,7 @@ package lhdt.admin.svc.lhdt.persistence;
 
 import lhdt.admin.svc.lhdt.domain.DataSmartTilingFileInfo;
 import lhdt.admin.svc.lhdt.domain.DataSmartTilingFileParseLog;
-import lhdt.ds.common.config.LhdtConnMapper;
+import lhdt.cmmn.config.LhdtConnMapper;
 
 /**
  * Smart Tiling 데이터 파일 관리

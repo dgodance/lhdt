@@ -3,14 +3,14 @@
  */
 package lhdt.svc.common;
 
-import lhdt.ds.common.misc.DsServiceImpl;
+import lhdt.cmmn.misc.CmmnServiceImpl;
 
 /**
  * 모든 service impl 의 부모
  * @author gravity@daumsoft.com
  *
  */
-public  class SvcServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> extends DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements SvcService<DOMAIN, IDTYPE> {
+public  class SvcServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> extends CmmnServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements SvcService<DOMAIN, IDTYPE> {
 //	/**
 //	 * jpa
 //	 */

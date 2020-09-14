@@ -3,13 +3,13 @@
  */
 package lhdt.svc.common;
 
-import lhdt.ds.common.misc.DsConst;
+import lhdt.cmmn.misc.CmmnConst;
 
 /**
  * 공통 상수
  * @author gravity@daumsoft.com
  *
  */
-public class SvcConst extends DsConst{
+public class SvcConst extends CmmnConst{
 
 }

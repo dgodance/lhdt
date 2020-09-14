@@ -17,7 +17,7 @@ include ':lhdt-sensorthings'
 include ':html'
 include ':doc'
 include ':lhdt-svc'
-include ':lhdt-ds-common'
+include ':lhdt-cmmn'
 include ':lhdt-admin-svc'
 
 //project(':common').projectDir = "$rootDir/common" as File

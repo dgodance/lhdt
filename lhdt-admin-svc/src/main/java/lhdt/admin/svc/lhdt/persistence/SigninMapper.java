@@ -2,7 +2,7 @@ package lhdt.admin.svc.lhdt.persistence;
 
 import lhdt.admin.svc.lhdt.domain.UserInfo;
 import lhdt.admin.svc.lhdt.domain.UserSession;
-import lhdt.ds.common.config.LhdtConnMapper;
+import lhdt.cmmn.config.LhdtConnMapper;
 
 
 /**

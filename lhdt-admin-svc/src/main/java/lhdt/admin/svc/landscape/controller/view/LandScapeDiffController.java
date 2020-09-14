@@ -6,9 +6,9 @@ import lhdt.admin.svc.landscape.domain.LandScapeDiff;
 import lhdt.admin.svc.landscape.domain.LandScapeDiffGroup;
 import lhdt.admin.svc.landscape.service.LandScapeDiffGroupService;
 import lhdt.admin.svc.landscape.service.LandScapeDiffService;
-import lhdt.ds.common.misc.DSPageSize;
-import lhdt.ds.common.misc.DSPaginator;
-import lhdt.ds.common.misc.DSPaginatorInfo;
+import lhdt.cmmn.misc.CmmnPageSize;
+import lhdt.cmmn.misc.CmmnPaginator;
+import lhdt.cmmn.misc.CmmnPaginatorInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.utils.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,10 +35,10 @@ public class LandScapeDiffController {
             @RequestParam(value = "lsDiffPage", defaultValue = "1") Integer landscape_page,
             Model model) {
         Page<LandScapeDiff> cpLocalInfoPage = landScapeDiffService
-                .findAllPgByStartPg(landscape_page -1, DSPageSize.NOTICE.getContent());
+                .findAllPgByStartPg(landscape_page -1, CmmnPageSize.NOTICE.getContent());
         model.addAttribute("lsDiffPage", cpLocalInfoPage);
 
-        DSPaginatorInfo cpLocalPageNav = DSPaginator.getPaginatorMap(cpLocalInfoPage, DSPageSize.NOTICE);
+        CmmnPaginatorInfo cpLocalPageNav = CmmnPaginator.getPaginatorMap(cpLocalInfoPage, CmmnPageSize.NOTICE);
         model.addAttribute("lsDiffPageInfo", cpLocalPageNav);
 
         return "landscape-diff/index";

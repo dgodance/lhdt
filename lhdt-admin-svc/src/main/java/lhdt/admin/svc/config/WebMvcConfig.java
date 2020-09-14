@@ -4,29 +4,23 @@
 package lhdt.admin.svc.config;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.filter.HiddenHttpMethodFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import lhdt.admin.svc.common.interceptor.SessionCheckInterceptor;
-import lhdt.ds.common.interceptor.DsCsrfInterceptor;
-import lhdt.ds.common.interceptor.DsLocaleInterceptor;
-import lhdt.ds.common.interceptor.DsMiscInterceptor;
+import lhdt.cmmn.interceptor.CmmnCsrfInterceptor;
+import lhdt.cmmn.interceptor.CmmnLocaleInterceptor;
+import lhdt.cmmn.interceptor.CmmnMiscInterceptor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -37,13 +31,13 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 	@Autowired
-	private DsMiscInterceptor miscInterceptor;
+	private CmmnMiscInterceptor miscInterceptor;
 	
 	@Autowired
-	private DsLocaleInterceptor localeInterceptor;
+	private CmmnLocaleInterceptor localeInterceptor;
 
 	@Autowired
-	private DsCsrfInterceptor csrfInterceptor;
+	private CmmnCsrfInterceptor csrfInterceptor;
 	
 	@Autowired
 	private SessionCheckInterceptor sessionCheckInterceptor;

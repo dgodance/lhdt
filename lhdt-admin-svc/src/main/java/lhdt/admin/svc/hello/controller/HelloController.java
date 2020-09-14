@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import lhdt.admin.svc.common.AdminSvcController;
 import lhdt.admin.svc.hello.service.HelloService;
-import lhdt.ds.common.misc.DsConst;
+import lhdt.cmmn.misc.CmmnConst;
 
 /**
  * @author gravity@daumsoft.com
@@ -32,7 +32,7 @@ public class HelloController extends AdminSvcController {
 	public String helloList(HttpServletRequest request, Model model) {
 		
 		model.addAttribute("dt", new Date());
-		model.addAttribute(DsConst.DATAS, service.findAll());
+		model.addAttribute(CmmnConst.DATAS, service.findAll());
 		//
 		return "hello/helloList";
 	}

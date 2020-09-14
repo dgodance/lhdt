@@ -3,7 +3,7 @@ package lhdt.admin.svc.lhdt.persistence;
 import org.apache.ibatis.annotations.Select;
 
 import lhdt.admin.svc.lhdt.domain.Policy;
-import lhdt.ds.common.config.LhdtConnMapper;
+import lhdt.cmmn.config.LhdtConnMapper;
 
 /**
  * 운영 정책
