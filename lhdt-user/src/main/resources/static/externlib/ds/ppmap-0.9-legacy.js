@@ -101,6 +101,113 @@ Ppmap.removeEntity = function(entity){
 	MAGO3D_INSTANCE.getViewer().entities.remove(entity);
 }
 
+/**
+ * PointAndLabel 생성
+ * @param entityName
+ * @param lon
+ * @param lat
+ * @param option
+ * @returns {*}
+ */
+Ppmap.createPointAndLabel = function(entityName, text, lon, lat, option) {
+    let worldPosition = Cesium.Cartesian3.fromDegrees(lon, lat);
+
+    //
+    let opt = Pp.extend({}, option);
+
+    var entity = MAGO3D_INSTANCE.getViewer().entities.add({
+        name: entityName,
+        position: worldPosition,
+        label: {
+            text: text,
+            font: "24px Helvetica",
+            fillColor: Cesium.Color.SKYBLUE,
+            outlineColor: Cesium.Color.BLACK,
+            outlineWidth: 2,
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            pixelOffset:  new Cesium.Cartesian2(0, -30),
+            scale: 0.6,
+            showBackground: true,
+            horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+            translucencyByDistance: new Cesium.NearFarScalar(
+                1.5e1,
+                1.0,
+                1.5e4,
+                0
+            ),
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
+        },
+        point: {
+            color: (opt.color ? opt.color : Cesium.Color.RED),
+            pixelSize: 10,
+            outlineColor: Cesium.Color.YELLOW,
+            outlineWidth: 2,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
+        }
+    });
+    return entity;
+}
+
+
+/**
+ * polyline entity 생성
+ * @param {string} entityName
+ * @param {array} arr [LonLat,LonLat,...]
+ * @param {object} option TODO
+ * @returns {Entity}
+ */
+Ppmap.createPolylineAndLabel = function(entityName,text, lonLats, option) {
+    //
+    let arr=[];
+    //
+    for(let i=0; i<lonLats.length; i++){
+        let d = lonLats[i];
+        //
+        arr.push(d.lon);
+        arr.push(d.lat);
+    }
+    var pp = Cesium.Cartesian3.fromDegreesArray(arr);
+    var result = new Cesium.Cartesian3();
+    Cesium.Cartesian3.midpoint(pp[0], pp[1], result);
+    var entity = MAGO3D_INSTANCE.getViewer().entities.add({
+        name: entityName,
+        position: result,
+        label: {
+            text: text,
+            font: "24px Helvetica",
+            fillColor: Cesium.Color.SKYBLUE,
+            outlineColor: Cesium.Color.BLACK,
+            outlineWidth: 2,
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            pixelOffset:  new Cesium.Cartesian2(0, -30),
+            scale: 0.6,
+            showBackground: true,
+            horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+            translucencyByDistance: new Cesium.NearFarScalar(
+                1.5e1,
+                1.0,
+                1.5e4,
+                0
+            ),
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
+        },
+        polyline: {
+            // This callback updates positions each frame.
+            positions: new Cesium.CallbackProperty(function() {
+                return Cesium.Cartesian3.fromDegreesArray(arr);
+            }, false),
+            width: 10,
+            clampToGround: true,
+            material: new Cesium.PolylineOutlineMaterialProperty({
+                color: Cesium.Color.YELLOW,
+            })
+        },
+    });
+
+    //
+    return entity;
+}
 
 /**
  * point entity 생성

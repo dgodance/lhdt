@@ -11,6 +11,7 @@ import lhdt.admin.svc.landscape.domain.LandScapePoint;
 import lhdt.admin.svc.landscape.domain.landScapeAnalsDTO.LandScapeAnalsTable;
 import lhdt.admin.svc.landscape.model.LandScapeRegistParam;
 import lhdt.admin.svc.landscape.service.LandScapePointService;
+import lhdt.admin.svc.landscape.type.LSPointActionType;
 import lhdt.admin.svc.landscape.type.LandScapeAnalsType;
 import lhdt.cmmn.misc.CmmnPageSize;
 import lhdt.cmmn.misc.CmmnPaginator;
@@ -35,6 +36,45 @@ public class LandScapePointRestController {
     private CPDistricInfoService cpDistricInfoService;
     @Autowired
     private CPLocalInfoService cpLocalInfoService;
+
+    @GetMapping("/init")
+    public void initLandScapePoint() {
+        var 관문체육공원 = new LandScapePoint();
+            관문체육공원.setLandScapePointName("관문체육공원");
+            관문체육공원.setLandScapePointType(LandScapeAnalsType.점);
+            관문체육공원.setStartLandScapePos(new Point(126.99875270102235, 37.44287398124129));
+        var 국립과천과학관 = new LandScapePoint();
+            국립과천과학관.setLandScapePointName("국립과천과학관");
+            국립과천과학관.setLandScapePointType(LandScapeAnalsType.점);
+            국립과천과학관.setStartLandScapePos(new Point(127.00540150129355, 37.43927881140079));
+        var 렛츠런파크 = new LandScapePoint();
+            렛츠런파크.setLandScapePointName("렛츠런파크(경마공원)");
+            렛츠런파크.setLandScapePointType(LandScapeAnalsType.점);
+            렛츠런파크.setStartLandScapePos(new Point(127.01562276173183, 37.44720187165418));
+        var 경관축1 = new LandScapePoint();
+            경관축1.setLandScapePointName("경관축-1");
+            경관축1.setLandScapePointType(LandScapeAnalsType.선);
+            경관축1.setStartLandScapePos(new Point(126.99896976329445, 37.44853931256331));
+            경관축1.setEndLandScapePos(new Point(127.01533500746086, 37.454836635719914));
+        var 경관축2 = new LandScapePoint();
+            경관축2.setLandScapePointName("경관축-2");
+            경관축2.setLandScapePointType(LandScapeAnalsType.선);
+            경관축2.setStartLandScapePos(new Point(127.0097119874613, 37.45487159803625));
+            경관축2.setEndLandScapePos(new Point(127.01207488668167, 37.450720315122005));
+        var 경관축3  = new LandScapePoint();
+            경관축3.setLandScapePointName("경관축-3");
+            경관축3.setLandScapePointType(LandScapeAnalsType.선);
+            경관축3.setStartLandScapePos(new Point(127.00667087736848, 37.45249937252622));
+            경관축3.setEndLandScapePos(new Point(127.00758985145977, 37.45098191657632));
+        var resultList = new ArrayList<LandScapePoint>();
+        resultList.add(관문체육공원);
+        resultList.add(국립과천과학관);
+        resultList.add(렛츠런파크);
+        resultList.add(경관축1);
+        resultList.add(경관축2);
+        resultList.add(경관축3);
+        resultList.forEach(p -> landScapeService.regist(p));
+    }
 
     @GetMapping
     public PageParam<LandScapeAnalsTable> getNoticePage(
