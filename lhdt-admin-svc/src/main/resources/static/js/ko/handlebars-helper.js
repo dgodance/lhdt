@@ -27,7 +27,6 @@ Handlebars.registerHelper('formatNumber', function(value) {
 });
 
 Handlebars.registerHelper('numberEqual', function(v1, v2, options) {
-    debugger;
 	if(v1 === v2) {
 		return options.fn(this);
 	}

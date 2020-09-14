@@ -27,7 +27,7 @@ public class MainController extends DsController {
 	@Autowired
 	private HelloService service;
 	
-	@RequestMapping("/dashboard")
+	@RequestMapping("")
 	public String index(Model model) {
 		
 		model.addAttribute(DsConst.DATAS, service.findAll());
