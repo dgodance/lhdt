@@ -72,6 +72,7 @@ class DesignLayerAPIControllerTests extends BaseControllerTest {
                         relaxedResponseFields(
                                 fieldWithPath("designLayerId").description("design layer 고유번호"),
                                 fieldWithPath("urbanGroupId").description("도시그룹 고유번호"),
+                                fieldWithPath("designLayerGroupType").description("design layer 그룹 타입. land : 땅, building : 빌딩"),
                                 fieldWithPath("designLayerGroupId").description("design layer 그룹 고유번호"),
                                 fieldWithPath("designLayerKey").description("design layer 고유키(API용)"),
                                 fieldWithPath("designLayerName").description("design layer 명"),
