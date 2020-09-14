@@ -99,12 +99,12 @@
 									<th scope="col">등록일</th>
 								</tr>
 								</thead>
-								<th:block th:if="${roleList.empty}">
+<th:block th:if="${roleList.empty}">
 									<tr>
 										<td colspan="9" class="col-none">Role 이 존재하지 않습니다.</td>
 									</tr>
-								</th:block>
-								<th:block th:unless="${roleList.empty}" th:each="role : ${roleList}">
+</th:block>
+<th:block th:unless="${roleList.empty}" th:each="role : ${roleList}">
 									<tr>
 										<td class="col-number" th:text="${roleStat.count + ((pagination.pageNo-1)*10)}"></td>
 										<td class="col-name" th:text="${role.roleName}" style="text-align: left;"></td>
@@ -136,7 +136,7 @@
 											<th:block th:text="${#temporals.format(role.insertDate, 'yyyy-MM-dd HH:mm:ss')}"></th:block>
 										</td>
 									</tr>
-								</th:block>
+</th:block>
 							</table>
 						</div>
 						<div th:replace="~{/common/pagination :: #paginationArea}"></div>

@@ -11,6 +11,10 @@ JS_MESSAGE["loading"] = "Loading";
 JS_MESSAGE["requested"] = "Requested";
 JS_MESSAGE["searching"] = "Searching.";
 
+JS_MESSAGE["search.input.data.name"] = "데이터명을 입력하여 주십시오.";
+JS_MESSAGE["search.input.data.group.name"] = "데이터 그룹명을 입력하여 주십시오.";
+JS_MESSAGE["search.input.data.address"] = "도로명 입력하여 주십시오.";
+
 JS_MESSAGE["apply"] = "적용되었습니다.";
 JS_MESSAGE["upload"] = "업로딩 중입니다.";
 JS_MESSAGE["proceed.confirm"] = "진행 하시겠습니까?";
@@ -74,9 +78,23 @@ JS_MESSAGE["user.insert"] = "사용자를 등록 하였습니다.";
 JS_MESSAGE["user.info.update"] = "사용자 정보를 수정 하였습니다.";
 JS_MESSAGE["user.id.notexist"] = "아이디가 존재하지 않습니다.";
 
-// ticks
-
-//user group
+JS_MESSAGE["data.name.empty"] = "데이터명을 입력하여 주십시오.";
+JS_MESSAGE["data.name.invalid"] = "데이터명이 유효하지 않습니다.";
+JS_MESSAGE["data.group.id.empty"] = "데이터 그룹명 입력하여 주십시오.";
+JS_MESSAGE["data.sharing.empty"] = "공유 유형을 입력하여 주십시오.";
+JS_MESSAGE["data.type.empty"] = "데이터 타입을 선택하여 주십시오.";
+JS_MESSAGE["data.longitude.empty"] = "경도를  입력하여 주십시오.";
+JS_MESSAGE["data.latitude.empty"] = "위도를 입력하여 주십시오.";
+JS_MESSAGE["data.altitude.empty"] = "높이를  입력하여 주십시오.";
+JS_MESSAGE["data.file.empty"] = "파일을 입력하여 주십시오.";
+JS_MESSAGE["data.insert"] = "데이터를 등록 하였습니다.";
+JS_MESSAGE["data.update.check"] = "현재 입력된 위치와 회전 정보를 db에 저장하시겠습니까?";
+JS_MESSAGE["data.update.request.check"] = "이 데이터는 관리자가 업로드 하였거나, 다른 사용자가 업로드한 데이터 입니다.\n입력된 위치와 회전정보 변경을 요청 하시겠습니까?";
+JS_MESSAGE["data.smart.tiling.grant.required"] = "변경 권한(Smart Tiling)이 존재하지 않습니다.";
+JS_MESSAGE["data.not.loaded"] = "아직 로드되지 않은 데이터입니다.\n이동 후 다시 시도해 주시기 바랍니다.";
+JS_MESSAGE["data.info.incorrect"] = "객체 정보가 올바르지 않습니다. 확인하여 주십시오.";
+JS_MESSAGE["data.select"] = "데이터 선택을 해주십시오.";
+JS_MESSAGE["data.not.select"] = "선택된 데이터가 없습니다.";
 
 //input group
 

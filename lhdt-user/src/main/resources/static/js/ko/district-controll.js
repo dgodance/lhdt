@@ -13,7 +13,7 @@ function District(magoInstance, viewer) {
         this.deleteDistrict();
         var now = new Date();
         var rand = (now - now % 5000) / 5000;
-        var policy = NDTP.policy;
+        var policy = LHDT.policy;
 
         var sdoCodeStr = sdoCode.toString();
         var sggCodeStr = sggCode.toString();
@@ -56,7 +56,7 @@ function District(magoInstance, viewer) {
     },
 
     this.deleteDistrict = function () {
-        var districtProvider = NDTP.map.getImageryLayerById('district');
+        var districtProvider = LHDT.map.getImageryLayerById('district');
         if (districtProvider) {
             viewer.imageryLayers.remove(districtProvider);
         }

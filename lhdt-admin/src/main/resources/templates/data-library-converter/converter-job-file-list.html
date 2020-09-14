@@ -98,11 +98,13 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr th:if="${converterJobFileList.empty}">
+<th:block th:if="${converterJobFileList.empty}">
+                                        <tr>
                                             <td colspan="9" class="col-none">Converter Job이 존재하지 않습니다.</td>
                                         </tr>
-
-                                        <tr th:if="${!converterJobFileList.empty}" th:each="converterJobFile: ${converterJobFileList}">
+</th:block>
+<th:block th:unless="${converterJobFileList.empty}" th:each="converterJobFile: ${converterJobFileList}">
+                                        <tr>
                                             <td class="col-number" th:text="${converterJobFile.count}"></td>
                                             <td class="col-type" th:text="${converterJobFile.dataType}"></td>
                                             <td class="col-type" th:if="${#strings.equals(converterJobFile.status, 'ready')}" th:text="준비"></td>
@@ -121,6 +123,7 @@
                                                 <th:block th:text="${#temporals.format(converterJobFile.insertDate,'yyyy-MM-dd HH:mm')}"></th:block>
                                             </td>
                                         </tr>
+</th:block>
                                     </tbody>
                                 </table>
                             </form>

@@ -200,7 +200,7 @@
 			<if test="mappingType != null and mappingType != ''">
 			mapping_type = #{mappingType},
 			</if>
-			<if test="latitude != null and latitude gt 0 and longitude != null and longitude gt 0">
+			<if test="latitude != null and latitude gte -90 and latitude lte 90 and longitude != null and longitude gte -180 and logitude lte 180">
 			location = ST_GeomFromText(#{location}, 4326),
 			</if>
 			<if test="altitude != null">

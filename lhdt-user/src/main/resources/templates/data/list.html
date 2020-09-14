@@ -134,10 +134,13 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr th:if="${dataInfoList.empty}">
+<th:block th:if="${dataInfoList.empty}">
+						<tr>
 							<td colspan="12" class="col-none"><th:block th:text="#{data.does.not.exist}"></th:block></td>
 						</tr>
-						<tr th:if="${!dataInfoList.empty}" th:each="dataInfo : ${dataInfoList}">
+</th:block>
+<th:block th:unless="${dataInfoList.empty}" th:each="dataInfo : ${dataInfoList}">
+						<tr>
 							<td class="col-number" th:text="${dataInfoStat.count + ((pagination.pageNo-1)*10)}"></td>
 							<td class="col-name ellipsis" th:text="${dataInfo.dataGroupName}" style="min-width:100px;max-width:100px;"></td>
 							<td class="col-name ellipsis" style="min-width:160px;max-width:160px;">
@@ -183,6 +186,7 @@
 								<th:block th:text="${#temporals.format(dataInfo.insertDate,'yyyy-MM-dd HH:mm')}"></th:block>
 							</td>
 						</tr>
+</th:block>
 					</tbody>
 				</table>
 			</form>

@@ -13,7 +13,7 @@
                         <th:block th:text="#{data.administrator}"></th:block>
                     {{else}}
                         {{#ifMatch userId ../owner}}
-                            {{userId}}
+                            <th:block th:text="#{common.owner}"></th:block>
                         {{else}}
                             {{userId}}
                         {{/ifMatch}}
