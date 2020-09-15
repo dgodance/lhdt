@@ -41,6 +41,7 @@ DesignLayerObj.Tool = {
     UPDOWN: 7,
     INTERSECTION : 8,
     LANDUPDOWN : 9,
+    CHKDISTANCE : 10,
 };
 
 DesignLayerObj.GeometryType = {
@@ -317,6 +318,7 @@ DesignLayerObj.prototype.getElByTool = function (tool) {
  * @returns {DesignLayerObj.Tool}
  */
 DesignLayerObj.prototype.getToolByEl = function (el) {
+    debugger;
     let keys = Object.keys(DesignLayerObj.Tool);
 
     //
@@ -496,10 +498,15 @@ DesignLayerObj.prototype.toolChanged = function (beforeTool, afterTool) {
     if(this.toolIs(DesignLayerObj.Tool.INTERSECTION)){
         this.processToolIntersection();
     }
-    
+
     //필지높이조절
     if(this.toolIs(DesignLayerObj.Tool.LANDUPDOWN)){
         this.processToolLandUpdown();
+    }
+
+    //이격거리체크
+    if(this.toolIs(DesignLayerObj.Tool.CHKDISTANCE)){
+        this.processChkDistance();
     }
 
 };
@@ -581,8 +588,14 @@ DesignLayerObj.prototype.extrudeLandByImageryLayer = function(selectedImageryLay
             Ppmap.getManager().modeler.addObject(building, 12);            
         }
     });
-
 };
+
+DesignLayerObj.prototype.checkDistance = function(ctsn2){
+    let viewer = MAGO3D_INSTANCE.getViewer();
+    let scene = viewer.scene;
+    let pickRay = viewer.camera.getPickRay(ctsn2.position);
+
+}
 
 /**
  * 특정 위치(지도에서 마우스 클릭)의 필지 높이조절
@@ -616,6 +629,35 @@ DesignLayerObj.prototype.extrudeLandByCtsn2 = function(ctsn2){
         this.extrudeLandByImageryLayer(d, geoCoord);
     }
 };
+
+DesignLayerObj.prototype.processChkDistance = function(){
+    debugger;
+    //
+    if(!this.toolIs(DesignLayerObj.Tool.CHKDISTANCE)){
+        return;
+    }
+
+    //
+    let _this = this;
+
+
+    //
+    _this.handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
+
+    //왼쪽 클릭
+    _this.handler.setInputAction(function(event){
+        //
+        _this.checkDistance(event);
+
+    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+    //오른쪽 클릭
+    _this.handler.setInputAction(function(event){
+        //
+        _this.setTool(DesignLayerObj.Tool.NONE);
+    }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+
+}
 
 /**
  * 도구 - 필지 높이조절

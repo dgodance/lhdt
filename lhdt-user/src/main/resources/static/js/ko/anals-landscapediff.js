@@ -182,10 +182,10 @@ AnalsLandScapeDiff.prototype.flyToByCameraStatus = function(id){
     });	
 };
 
-
 function renderDiffContentDefault() {
     new AnalsLandScapeDiff().renderDiffContent($('#landscapeGroup').val());
 }
+
 function renderDiffContentDefaultWithPage(pageNum) {
     new AnalsLandScapeDiff().renderDiffContent($('#landscapeGroup').val(), pageNum);
 }
@@ -304,6 +304,7 @@ function paginLandScapeList(paginNum) {
 const analsLandScapeDiff = new AnalsLandScapeDiff();
 //
 $(document).ready(function() {
+    debugger;
     analsLandScapeDiff.renderDiffDropdown();
     analsLandScapeDiff.init();
 })
