@@ -80,7 +80,11 @@ DesignLayerObj.prototype.setEventHandler = function(){
      * 건물 높이 change
      */
     Ppui.change('input.ds-design-layer-building-floor-co', function(){
-        console.log(this.value);
+        //console.log(this.value);
+
+        if(Pp.isEmpty(_this.selectedExtrusionBuilding)){
+            return;
+        }
 
         //
         let h = parseInt(this.value) * HEIGHT_PER_FLOOR;
@@ -369,9 +373,14 @@ DesignLayerObj.prototype.leftupCallback = function(e){
     //
     if(designLayerObj.toolIs(DesignLayerObj.Tool.SELECT)){
         let nodes = Ppmap.getManager().selectionManager.getSelectedGeneralArray();
-
+        
         //
         if(Pp.isEmpty(nodes)){
+            //
+            designLayerObj.selectedExtrusionBuilding = null;
+            Ppui.hide('div.ds-design-layer-building-updown');
+
+            //
             return;
         }
 
