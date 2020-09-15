@@ -307,9 +307,38 @@ Ppmap.createPolylineAndLabel = function(entityName,text, lonLats, option) {
 Ppmap.createPoint = function(entityName, lon, lat, option) {
     let worldPosition = Cesium.Cartesian3.fromDegrees(lon, lat);
 
-	//
-	let opt = Pp.extend({}, option);
-    
+    //
+    let opt = Pp.extend({}, option);
+
+    var entity = MAGO3D_INSTANCE.getViewer().entities.add({
+        name: entityName,
+        position: worldPosition,
+        point: {
+            color: (opt.color ? opt.color : Cesium.Color.RED),
+            pixelSize: 10,
+            outlineColor: Cesium.Color.YELLOW,
+            outlineWidth: 2,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
+        }
+    });
+    return entity;
+}
+
+/**
+ * point entity 생성
+ * @param {string} entityName
+ * @param {number} lon
+ * @param {number} lat
+ * @param {object} option TODO
+ * @returns {Entity}
+ */
+Ppmap.createPointAndAlt = function(entityName, lon, lat, alt, option) {
+    let worldPosition = Cesium.Cartesian3.fromDegrees(lon, lat, alt);
+
+    //
+    let opt = Pp.extend({}, option);
+
     var entity = MAGO3D_INSTANCE.getViewer().entities.add({
         name: entityName,
         position: worldPosition,
