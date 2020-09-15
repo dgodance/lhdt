@@ -160,7 +160,7 @@ DesignLayerObj.prototype.setEventHandler = function(){
 
             //
             if(!isShow){
-                _this.offExtrusionLand(d.data.designLayerId);
+                _this.offExtrusionModel(d.data.designLayerId);
                
                 //
                 return;
@@ -1256,17 +1256,17 @@ DesignLayerObj.prototype.extrusionModelWMSToggle = function(model, isShow){
         this.landLayer[model.id] = null;
 
         //
-        this.offExtrusionLand(model.id);
+        this.offExtrusionModel(model.id);
     }
 };
 
 
 
 /**
- * 필지 바닥정보로 높이를 올린 디자인 레이어 지도에서 삭제하기
+ * extrusion model(필지 바닥정보로 높이를 올린 디자인 레이어,빌딩) 지도에서 삭제하기
  * @param {*} designLayerId 
  */
-DesignLayerObj.prototype.offExtrusionLand = function(designLayerId){
+DesignLayerObj.prototype.offExtrusionModel = function(designLayerId){
     var modeler = Ppmap.getManager().modeler;
         
     var models = modeler.objectsArray;
@@ -1282,9 +1282,6 @@ DesignLayerObj.prototype.offExtrusionLand = function(designLayerId){
 
         //console.log(building, designLayerId);
         if(building.designLayerId == designLayerId || building.layerId == designLayerId) {
-            /**
-                 * modeler 인스턴스의 removeObject 메소드를 통해 모델 삭제
-                 */
             modeler.removeObject(building);
         }
     }
@@ -1296,45 +1293,20 @@ DesignLayerObj.prototype.offExtrusionLand = function(designLayerId){
  * @param {bool} isShow
  */
 DesignLayerObj.prototype.extrusionModelBuildingToggle = function(model, isShow) {
-    /**
-	 * wfs 요청(건물 등의 데이터를 요청할 때 사용) 기본 객체
-	 */
-	let _wfsResource = new Cesium.Resource({
-        //
-		url : [LHDT.policy.geoserverDataUrl, LHDT.policy.geoserverDataStore, model.ogctype].join('/'),
-		queryParameters : {
-			service : 'wfs',
-			version : '1.0.0',
-			request : 'GetFeature',
-			srsName : 'EPSG:3857',
-			outputFormat : 'application/json'
-		}
-    });
-    
+  
     if(isShow) {
-        /**
-         * 위에서 생성한 기본 wfs 요청 객체를 복사,
-         */
-        var res = _wfsResource.clone();
-        
-        /**
-         * 대상 레이어를 typeNames에 선언
-         */
-        res.queryParameters.typeNames = model.layername;
-        /**
-         * 대상 레이어의 id를 찾는 쿼리를  cql_filter에 선언
-         */
-        res.queryParameters.cql_filter = 'design_layer_id=' + model.id;
-        
-        /**
-         * Cesium GeoJsonDataSource 클래스를 이용하여 wfs요청. 자동으로 geojson을 파싱하여 객체화 해주어 비즈니스로직만 구현하면 됨.
-         */
-        var loader = new Cesium.GeoJsonDataSource().load(res).then(function(e){
+      
+        let opt = {
+            'typeNames': model.layername,
+            'cql_filter': 'design_layer_id=' + model.id
+        };
+        this.getFeatures(opt, function(e){
+        // var loader = new Cesium.GeoJsonDataSource().load(res).then(function(e){
             var entities = e.entities.values;
             var FLOOR_HEIGHT = 3.3;
             
                 for(var i in entities) {
-                    var entity = entities[i];
+                    var entity = entities[i];                    
                     var polygonHierarchy  = entity.polygon.hierarchy.getValue().positions;
                     
                     /**
@@ -1355,23 +1327,24 @@ DesignLayerObj.prototype.extrusionModelBuildingToggle = function(model, isShow) 
                 }
         });
     } else {
-        var modeler = Ppmap.getManager().modeler;
+        this.offExtrusionModel(model.id);
+        // var modeler = Ppmap.getManager().modeler;
         
-        var models = modeler.objectsArray;
-        if(Pp.isEmpty(models)){
-            return;
-        }
-        //
-        for(let i=0; i<models.length; i++){
-            let building = models[i];
+        // var models = modeler.objectsArray;
+        // if(Pp.isEmpty(models)){
+        //     return;
+        // }
+        // //
+        // for(let i=0; i<models.length; i++){
+        //     let building = models[i];
 
-            if(building.layerId === model.id) {
-                /**
-                     * modeler 인스턴스의 removeObject 메소드를 통해 모델 삭제
-                     */
-                modeler.removeObject(building);
-            }
-        }
+        //     if(building.layerId == model.id) {
+        //         /**
+        //              * modeler 인스턴스의 removeObject 메소드를 통해 모델 삭제
+        //              */
+        //         modeler.removeObject(building);
+        //     }
+        // }
     }
 }
 
