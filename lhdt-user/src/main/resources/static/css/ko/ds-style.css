@@ -17,7 +17,7 @@
 .mt-10 {margin-top:10px !important;}
 .mt-15 {margin-top:10px !important;}
 
-button.textBtnSub.active {background-color:#636363; color:white; font-weight:bold;}
+button.textBtnSub.active {background-color:#258FFF; color:white; font-weight:bold;}
 button[class*=ds-tool], button[class*=design-layer-tool] {width:49% !important; margin-bottom:2px;}
 
 table.ds-data-library-list > tbody > tr {font-weight:normal; background-color:white;}
