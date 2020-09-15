@@ -73,85 +73,6 @@ lsDrawLingComponent.prototype.drawLine = function() {
 
 }
 
-/**
- * @deprecated 20200908
- * @see LsAnalsAutoObj
- */
-const lsAnalsBtn = function() {
-    this._ele = '#landscapeAnalsBtn'
-}
-
-lsAnalsBtn.prototype.init = function() {
-    //this.eventHandler();
-}
-
-lsAnalsBtn.prototype.eventHandler = function() {
-	
-	//분석 버튼 클릭
-    $(this._ele).click(function() {
-        debugger;
-        const startPos = cesiumMouseEvt.pos.start;
-        const endPos = cesiumMouseEvt.pos.end;
-
-		//
-		if(Pp.isEmpty(startPos) || Pp.isEmpty(endPos)){
-			toastr.warning('지도위에 경관축이 생성되지 않았습니다. 분석을 취소합니다.');
-			return;
-		}
-		
-		//
-		let xyz1 = {'lon': startPos.long, 'lat': startPos.lat};
-		let xyz2 = {'lon': endPos.long, 'lat': endPos.lat};
-		
-		//
-		Ppmap.removeAll();
-		//
-		Ppmap.createPolyline('ls-diff', [xyz1, xyz2]);
-		//
-		new SkylineObj().init().process(xyz1, xyz2);
-
-
-		/*
-        const pos1 = {
-            lon: startPos.long,
-            lat: startPos.lat,
-            alt: startPos.alt
-        }
-
-        const pos2 = {
-            lon: endPos.long,
-            lat: endPos.lat,
-            alt: endPos.alt
-        }
-
-		//
-		if(Pp.isNull(skylineObj)){
-			skylineObj = new SkylineObj();
-			skylineObj.init();
-		}
-		
-		//
-		toastr.info('경관 분석중입니다. <br/>잠시만 기다리시기 바랍니다.');
-		Ppui.find('body').style.cursor = 'wait';
-		
-		// 현재 카메라 상태 백업
-		let cameraStatusBackup = Ppmap.getCameraStatus();
-
-        //
-        skylineObj.execCalcViewPoint(pos1, pos2);
-        skylineObj.autoCaptureAllMenual(function(){
-			//
-			toastr.info('경관 분석이 완료되었습니다.');		
-			Ppui.find('body').style.cursor = 'default';
-				
-			// 백업된 카메라 상태 복원
-			Ppmap.flyToByCameraStatus(cameraStatusBackup);
-		});
-		*/
-    })
-}
-
-
 const cesiumMouseEvt = {
     viewer: undefined,
     scene: undefined,
@@ -438,20 +359,23 @@ LsAnalsAutoObj.prototype.createTwoPoints = function(){
 	
 	//마우스 왼쪽 클릭 이벤트 등록
     handler.setInputAction( function(click) {
+
 		//점1 세팅
 		if(Pp.isEmpty(_this._xyz1.lon)){
 			_this._xyz1 = Ppmap.cartesian2ToLonLat(click.position);
+            _this._xyz1.alt = new lsAnalsMoveInputBox().getHeight();
 			//		
-			Ppmap.createPoint('ls-anals-auto-xyz1', _this._xyz1.lon, _this._xyz1.lat);	
+			Ppmap.createPointAndAlt('ls-anals-auto-xyz1', _this._xyz1.lon, _this._xyz1.lat, _this._xyz1.alt);
 			//
 			return;
 		}
 
 		//점2 세팅
 		if(Pp.isEmpty(_this._xyz2.lon)){
-			_this._xyz2 = Ppmap.cartesian2ToLonLat(click.position);			
+			_this._xyz2 = Ppmap.cartesian2ToLonLat(click.position);
+            _this._xyz2.alt = new lsAnalsMoveInputBox().getHeight();
 			//		
-			Ppmap.createPoint('ls-anals-auto-xyz2', _this._xyz2.lon, _this._xyz2.lat);	
+			Ppmap.createPointAndAlt('ls-anals-auto-xyz2', _this._xyz2.lon, _this._xyz2.lat, _this._xyz2.alt);
 		}
 		
 		//
@@ -508,7 +432,7 @@ LsAnalsAutoObj.prototype.createTwoPoints = function(){
 		
 		//
 		window['entity'] = entity;		
-		}, 
+		},
 		Cesium.ScreenSpaceEventType.MOUSE_MOVE
 	);
 	
@@ -538,16 +462,17 @@ window.addEventListener('load', function(){
 			clearInterval(interval);
 			lsAnalsAutoObj.init();
 		}
+
 	}, 500);
 })
 
-// 삭제예정
 // $(function() {
 //     leftMouseDoubleClick();
 //     function leftMouseDoubleClick() {
 //         const handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().canvas);
 //         handler.setInputAction( (click) => {
 //                 console.log(click);
+//                 debugger;
 //                 let xyz = Ppmap.cartesian2ToLonLat(click.position);
 //                 console.log(xyz);
 //             },

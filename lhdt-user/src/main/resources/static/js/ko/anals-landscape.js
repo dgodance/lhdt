@@ -1,5 +1,58 @@
 
+const lsAnalsMoveTypeDropDownList = function() {
+	this._ele = "#lsAnalsMoveTypeGroup";
+	this._height = 1.8;
+}
+lsAnalsMoveTypeDropDownList.prototype.init = function(obj) {
+	const lsAnalsMoveInputBox = obj.lsAnalsMoveInputBox;
+	$('#landscapeMoveTypeName').val(this._height);
+	this.change(lsAnalsMoveInputBox);
+}
 
+lsAnalsMoveTypeDropDownList.prototype.change = function (lsAnalsMoveInputBox) {
+	let that = this;
+	$(that._ele).change(function() {
+		const val = that._val = $(this).val();
+		if(val === "0") {
+			that._height = 1.8;
+		} else {
+			that._height = 1.5;
+		}
+		lsAnalsMoveInputBox.setText(that._height);
+	});
+}
+lsAnalsMoveTypeDropDownList.prototype.getHeight = function() {
+	return this._height;
+}
+
+/**
+ * @dependency lsAnalsMoveTypeDropDownList
+ */
+const lsAnalsMoveInputBox = function() {
+	this._ele = '#landscapeMoveTypeName';
+}
+
+lsAnalsMoveInputBox.prototype.init = function(obj) {
+	const lsAnalsDropDown = obj.lsAnalsDropDown;
+	this.setText(lsAnalsDropDown.getHeight());
+}
+
+lsAnalsMoveInputBox.prototype.setText = function(height) {
+	$(this._ele).val(height);
+}
+
+lsAnalsMoveInputBox.prototype.getHeight = function() {
+	if($(this._ele).val() === undefined) {
+		alert('분석 높이를 입력해주세요!');
+		return;
+	}
+	const result = parseFloat($(this._ele).val());
+	if(result === NaN) {
+		alert('올바른 수를 입력해주세요');
+		return;
+	}
+	return result;
+}
 
 const lsDropDownList = function() {
 	this._ele = '#lsAnalsActionGroup';
@@ -23,21 +76,21 @@ lsDropDownList.prototype.change = function () {
 	let that = this;
 	$(that._ele).change(function() {
 		Ppmap.removeAll();
-		
-		
+
+
 		//
 		const val = that._val = $(this).val();
 		if(val === "0") {
 			const p = new lsFreeAnalsWidget();
 			p.defaultRender()
-			
+
 			//
 			lsAnalsAutoObj = new LsAnalsAutoObj();
 			lsAnalsAutoObj.init();
 		} else {
 			const p = new lsSavedAnalsWidget();
 			p.reqeustDataBylsAnalsPg();
-			
+
 			//
 			lsAnalsSavedObj = new LsAnalsSavedObj();
 			lsAnalsSavedObj.init();
@@ -67,16 +120,16 @@ const lsPredictType = {
  * @since	20200812	init
  */
 const SkylineObj = function(){
-	
+
 	//원/중/근경 point xyz
 	this._viewPoint = {}
-	
+
 	//캡처한 이미지(blob)
 	this._captureBlob = {};
-	
+
 	//스카이라인 이미지(blob)
 	this._skylineBlob = {};
-	
+
 	//조망차폐 이미지(blob)
 	this._shieldingBlob = {};
 
@@ -92,17 +145,17 @@ const SkylineObj = function(){
 
 
 /**
- * 
+ *
  */
 SkylineObj.prototype.init = function(){
 	//
 	this.setEventHandler();
-	
+
 	//
 	console.log(new Date(), 'SkylineObj', '<<.init');
 	//
 	return this;
-	
+
 };
 
 SkylineObj.prototype.calcTwoPointSimulation = function() {
@@ -117,7 +170,7 @@ SkylineObj.prototype.calcTwoPointSimulation = function() {
 SkylineObj.prototype.setEventHandler = function(){
 	//
 	let the = this;
-	
+
 	//모달 표시
 	Ppui.on('.ds-show-modal', 'click', function(){
 		the.showModal();
@@ -156,26 +209,26 @@ SkylineObj.prototype.setEventHandler = function(){
 			$('#sky-shielding').text(the.getShieldingRatio(node.dataset.index));
 		});
 	}
-	
-	
+
+
 	//자동으로 3점 지도 캡처 & get 스카이라인 base64 & show modal
 	Ppui.on('.ds-autoall', 'click' ,function(){
 		the.autoCaptureAllMenual();
 	});
-	
-	
-	
+
+
+
 	//테스트 위치로 이동
 	Ppui.on('.ds-flyto', 'click', function(){
 		//세종시청
 		gotoFly(127.2891, 36.4800, 10);
-		
+
 		//TODO 지도위에 HTML 표시하기. 성공
-		
-		
+
+
 	});
-	
-	
+
+
 	//2점 선택했다고 치고...draw 2 points
 	Ppui.on('.ds-points2', 'click', function(){
 		//시작점
@@ -184,65 +237,65 @@ SkylineObj.prototype.setEventHandler = function(){
 		the.drawPoint(xyz2.lon, xyz2.lat);
 		//선
 		the.drawLine(xyz1, xyz2);
-		
+
 	});
-	
-	
-	
+
+
+
 	//원/중/근경 위치 계산 & 점표시
 	Ppui.on('.ds-points3', 'click', function(){
 		let viewPoint = the.calcViewPoint(xyz1, xyz2);
-		
+
 		//점 표시
 		for(let i=0; i<3; i++){
 			the.drawPoint(viewPoint[i].lon, viewPoint[i].lat);
 		}
-		
+
 	});
 
 	//원경 클릭 이벤트
 	Ppui.on('.ds-movetop1', 'click', function(){
 		//
 		let heading = Ppmap.getHeading(xyz1, xyz2);
-		
+
 		//
 		const xyz = Pp.extend(the.getViewPoint(ViewPoint.A), {'alt':30.0});
 		//
 		const hpr = new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(heading), Cesium.Math.toRadians(0), Cesium.Math.toRadians(0));
 		//
 		Ppmap.flyTo(xyz, hpr, {'duration':0.5});
-		
+
 	});
 
 	//중경 클릭 이벤트
 	Ppui.on('.ds-movetop2', 'click', function(){
 		let heading = Ppmap.getHeading(xyz1, xyz2);
-		
+
 		//
 		const xyz = Pp.extend(the.getViewPoint(ViewPoint.B), {'alt':30.0});
 		//
 		const hpr = new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(heading), Cesium.Math.toRadians(0), Cesium.Math.toRadians(0));
 		//
-		Ppmap.flyTo(xyz, hpr, {'duration':0.5});		
+		Ppmap.flyTo(xyz, hpr, {'duration':0.5});
 	});
-		
-		
+
+
 	//근경 클릭 이벤트
 	Ppui.on('.ds-movetop3', 'click', function(){
 		let heading = Ppmap.getHeading(xyz1, xyz2);
-		
+
 		//
 		const xyz = Pp.extend(the.getViewPoint(ViewPoint.C), {'alt':30.0});
 		const hpr = new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(heading), Cesium.Math.toRadians(0), Cesium.Math.toRadians(0));
 		//
 		Ppmap.flyTo(xyz, hpr, {'duration':0.5});
-		
+
 	});
-	
-	
+
+
 	//
 	console.log('SkylineObj', '<<.setEventHandler');
-		
+
 };
 
 
@@ -262,21 +315,21 @@ function base64ToBlob(base64, contentType){
 	let byteCharacters = window.atob(base64);
 	let byteArrays=[];
 	let sliceSize=512;
-	
+
 	for(let offset=0; offset<byteCharacters.length; offset+=sliceSize){
 		let slice = byteCharacters.slice(offset, offset + sliceSize);
-		
+
 		//
 		let byteNumbers = new Array(slice.length);
 		for(let i=0; i<slice.length; i++){
 			byteNumbers[i] = slice.charCodeAt(i);
 		}
-		
+
 		//
 		let byteArray = new Uint8Array(byteNumbers);
 		byteArrays.push(byteArray);
 	}
-	
+
 	//
 	let blob = new Blob(byteArrays, {type:contentType});
 	return blob;
@@ -315,7 +368,7 @@ SkylineObj.prototype.execCalcViewPoint = function(xyz1, xyz2) {
 
 	const that = this;
 	let viewPoint = that.calcViewPoint(xyz1, xyz2);
-	
+
 	//
 	let colors = [Cesium.Color.ORANGE, Cesium.Color.GREEN, Cesium.Color.BLUE];
 
@@ -349,10 +402,10 @@ SkylineObj.prototype.autoCaptureAllMenual = function(callbackFn) {
 		//모든 점 자동 캡처
 		that.autoCaptureAll(function(){
 			console.log('<<.autoCaptureAll');
-	
+
 			//show modal
 			that.showModal();
-	
+
 			//캡처 blob <img>에 할당
 			for(let i=0; i<that.getViewPointCo(); i++){
 				that.setCaptureImgSrc(i, that.getCaptureBlob(i));
@@ -390,19 +443,19 @@ SkylineObj.prototype.autoCaptureAllMenual = function(callbackFn) {
 }
 
 /**
- * set 캡처 이미지(blob) 
+ * set 캡처 이미지(blob)
  * @param {number} gbn
  * @param {Blob} blob
- */ 
+ */
 SkylineObj.prototype.setCaptureBlob = function(gbn, blob){
 	this._captureBlob[gbn] = blob;
 };
 
 /**
- * get 캡처 이미지(blob) 
+ * get 캡처 이미지(blob)
  * @param {number} gbn
  * @returns {Blob} blob
- */ 
+ */
 SkylineObj.prototype.getCaptureBlob = function(gbn){
 	return this._captureBlob[gbn];
 };
@@ -474,7 +527,7 @@ SkylineObj.prototype.getShieldingRatio = function(gbn){
  * @deprecated 20200902
  */
 SkylineObj.prototype.setViewer = function(viewer){
-	Ppmap.viewer = viewer;	
+	Ppmap.viewer = viewer;
 };
 
 
@@ -488,7 +541,7 @@ SkylineObj.prototype.getViewPoint = function(gbn){
 	if(Pp.isNotNull(gbn)){
 		return this._viewPoint[gbn];
 	}
-	
+
 	//
 	return this._viewPoint;
 }
@@ -503,21 +556,21 @@ SkylineObj.prototype.getViewPointCo = function(){
 
 
 /**
- * 3점 자동 캡처 
+ * 3점 자동 캡처
  * @param {function} callbackFn 자동 캡처 완료 후 호출할 콜백함수
  */
 SkylineObj.prototype.autoCaptureAll = function(callbackFn){
 	//
 	let the = this;
-	
+
 	//
 	let _flyToAndCapture = function(gbn){
-		
+
 		if(gbn >= the.getViewPointCo()){
 			callbackFn();
 			return;
 		}
-		
+
 		//
 		the.flyToAndCapture(gbn, function(blob){
 			//
@@ -526,9 +579,9 @@ SkylineObj.prototype.autoCaptureAll = function(callbackFn){
 			_flyToAndCapture(++gbn);
 		});
 	}
-	
+
 	//
-	_flyToAndCapture(ViewPoint.A);	
+	_flyToAndCapture(ViewPoint.A);
 };
 
 
@@ -538,13 +591,13 @@ SkylineObj.prototype.autoCaptureAll = function(callbackFn){
  * @param {function} callbackFn 캡처 완료 후 호출할 콜백함수. 옵션
  */
 SkylineObj.prototype.captureMap = function(callbackFn){
-	
+
 	//
 	Ppmap.captureMap(function(blob){
 		if(Pp.isNotNull(callbackFn)){
 			callbackFn(blob);
 		}
-	});	
+	});
 };
 
 
@@ -578,9 +631,10 @@ SkylineObj.prototype.calcViewPoint = function(beginXyz, endXyz){
 	for(let i=0; i<3; i++){
 		let times = (i+1);
 		//
-		this._viewPoint[i] = {'lon' : (beginXyz.lon + (diffx*times)), 'lat': (beginXyz.lat + (diffy*times))};		
+		this._viewPoint[i] = {'lon' : (beginXyz.lon + (diffx*times)), 'lat': (beginXyz.lat + (diffy*times)),
+		'alt': beginXyz.alt};
 	}
-	
+
 	//
 	return this._viewPoint;
 };
@@ -619,7 +673,7 @@ SkylineObj.prototype.drawLine = function(xyz1, xyz2){
 			positions: Cesium.Cartesian3.fromDegreesArray([xyz1.lon, xyz1.lat, xyz2.lon, xyz2.lat]),
 			width: 5,
 			material: Cesium.Color.YELLOW,
-			clampToGround: true				
+			clampToGround: true
 		}
 	})
 };
@@ -634,14 +688,14 @@ SkylineObj.prototype.drawLine = function(xyz1, xyz2){
  */
 SkylineObj.prototype.flyToAndCapture = function(gbn, callbackFn){
 	let the = this;
-	
+
 	//
 	let heading = Ppmap.getHeading(this._xyz1, this._xyz2);
 	//
-	const xyz = Pp.extend(the.getViewPoint(gbn), {'alt':30.0});
+	const xyz = Pp.extend(the.getViewPoint(gbn), {'alt': this._xyz1.alt});
 	//
 	const hpr = new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(heading), Cesium.Math.toRadians(0), Cesium.Math.toRadians(0));
-	
+
 	//
 	Ppmap.flyTo(xyz, hpr, {'duration':3}, function(){
 		//
@@ -665,7 +719,7 @@ SkylineObj.prototype.uploadBlobAndGetAnalsImage = function(gbn, lsAnalsPredictTy
 		console.log(i, 'break');
 		return;
 	}
-	
+
 	//
 	let fd = new FormData();
 	fd.append('blob', this.getCaptureBlob(gbn));
@@ -676,7 +730,7 @@ SkylineObj.prototype.uploadBlobAndGetAnalsImage = function(gbn, lsAnalsPredictTy
 		debugger;
 		callbackFn(json)
 	}, {});
-	
+
 };
 
 
@@ -687,7 +741,7 @@ SkylineObj.prototype.uploadBlobAndGetAnalsImage = function(gbn, lsAnalsPredictTy
 SkylineObj.prototype.uploadBlobAndGetPredictImageAll = function(lsAnalsPredictType, callbackFn){
 	//
 	let the = this;
-	
+
 	//
 	let _upload = function(gbn){
 		if(gbn >= the.getViewPointCo()){
@@ -712,16 +766,16 @@ SkylineObj.prototype.uploadBlobAndGetPredictImageAll = function(lsAnalsPredictTy
 			_upload(++gbn);
 		});
 	};
-	
+
 	//
-	_upload(ViewPoint.A);	
+	_upload(ViewPoint.A);
 };
 
 /**
  * 결과창 표시
  */
 SkylineObj.prototype.showModal = function(){
-	
+
 	//모달창 실행
 	let $skylineModal =  $('#skylineModal').dialog({
 		autoOpen: false,
@@ -902,16 +956,16 @@ SkylineObj.prototype.saveAllImages = function(){
 	if(!confirm('저장하시겠습니까?')){
 		return;
 	}
-	
+
 	//
 	let url = 'http://localhost:8090/svc/landscape_anals/saveCaptureAndSkylineImages';
 	let fd = new FormData();
-	
+
 	for(let i=0; i<this.getViewPointCo(); i++){
 		fd.append('capture['+i+']', this.getCaptureBlob(i));
 		fd.append('skyline['+i+']', this.getSkylineBlob(i));
 	}
-	
+
 	//
 	Pp.submitFormData(url, fd, function(){
 		toastr.info('저장되었습니다.');
@@ -938,11 +992,11 @@ SkylineObj.prototype.process = function(xyz1, xyz2){
 		return;
 	}
 
-	
+
 	//
 	toastr.info('경관 분석중입니다. <br/>잠시만 기다리시기 바랍니다.');
 	Ppui.find('body').style.cursor = 'wait';
-	
+
 	// 현재 카메라 상태 백업
 	let cameraStatusBackup = Ppmap.getCameraStatus();
 
@@ -950,16 +1004,26 @@ SkylineObj.prototype.process = function(xyz1, xyz2){
     this.execCalcViewPoint(xyz1, xyz2);
     this.autoCaptureAllMenual(function(){
 		//
-		toastr.info('경관 분석이 완료되었습니다.');		
+		toastr.info('경관 분석이 완료되었습니다.');
 		Ppui.find('body').style.cursor = 'default';
-			
+
 		// 백업된 카메라 상태 복원
 		Ppmap.flyToByCameraStatus(cameraStatusBackup);
 	});
 };
 
+const lsAnalsObjectManger = {
+	lsAnalsDropDown: undefined,
+	lsAnalsMoveInputBox: undefined
+};
 
 
-$(document).ready(function() {
+function AnalsLandScape() {
 	new lsDropDownList().init();
-});
+	const lsAnalsMoveTypeDropDownList1 = new lsAnalsMoveTypeDropDownList();
+	const lsAnalsMoveInputBox1 = new lsAnalsMoveInputBox();
+	lsAnalsObjectManger.lsAnalsDropDown = lsAnalsMoveTypeDropDownList1;
+	lsAnalsObjectManger.lsAnalsMoveInputBox = lsAnalsMoveInputBox1;
+	lsAnalsMoveTypeDropDownList1.init(lsAnalsObjectManger);
+	lsAnalsMoveInputBox1.init(lsAnalsObjectManger);
+}
