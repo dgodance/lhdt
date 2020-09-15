@@ -179,7 +179,6 @@ table.design-layer-land > tbody > tr > td:last-child {
     font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
     line-height: 1.5em;
     text-align: left  !important;
-    cursor: pointer !important;
     word-break: break-all;
     vertical-align: middle;
     padding: 7px 5px;

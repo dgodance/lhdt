@@ -131,7 +131,7 @@
 			</colgroup>
 			<thead>
 				<tr>
-					<th>항목</th>
+					<th>구분</th>
 					<th>값</th>
 				</tr>
 			</thead>
@@ -142,11 +142,7 @@
 						<td></td>
 						<td>{{data.designLayerGroupId}} {{data.designLayerId}} {{data.designLayerLandId}}</td>
 					</tr>				
-					<tr>
-						<td>디자인 레이어</td>
-						<td>{{getDataName data.designLayerId}}</td>
-					</tr>
-					
+				
 					<tr>
 						<td>사업유형</td>
 						<td>{{data.projectType}}</td>
@@ -220,11 +216,11 @@
 				</tr>
 				<tr>
 					<td>현재용적률(%)</td>
-					<td id="nowFloorCov"></td>
+					<td id="nowFloorCov">{{data.nowFloorCov}}</td>
 				</tr>
 				<tr>
 					<td>현재건폐율(%)</td>
-					<td id="nowBuildCov"></td>
+					<td id="nowBuildCov">{{data.nowBuildCov}}</td>
 				</tr>
 				<tr>
 					<td>최고높이(층)</td>
