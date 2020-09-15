@@ -13,6 +13,10 @@
 .text-left {text-align:left  !important;}
 .text-center {text-align:center  !important;}
 
+.mt-5 {margin-top:10px !important;}
+.mt-10 {margin-top:10px !important;}
+.mt-15 {margin-top:10px !important;}
+
 button.textBtnSub.active {background-color:#636363; color:white; font-weight:bold;}
 button[class*=ds-tool], button[class*=design-layer-tool] {width:49% !important; margin-bottom:2px;}
 
@@ -22,6 +26,7 @@ table.design-layers > tbody > tr {font-weight:normal; background-color:white;}
 table.design-layers > tbody > tr.on {font-weight:bold !important; background-color:lightyellow !important;}
 
 .cursor-pointer {cursor:pointer !important;}
+.cursor-default {cursor:default !important;}
 
 
 table.design-layer-land {

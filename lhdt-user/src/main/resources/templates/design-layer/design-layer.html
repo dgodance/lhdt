@@ -1,5 +1,5 @@
-<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
-<div id="designLayerContent" class="listContents" style="display:block">
+< xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<div id="designLayerContent" class="listContents" style="display:block;">
 <!-- <ul class="listDrop">
 
 	<li class="on">
@@ -52,9 +52,15 @@
 			<button class="textBtnSub  design-layer-tool-updown">높이조절</button>
 			<button class="textBtnSub  design-layer-tool-intersection">필지정보조회</button>
 			<button class="textBtnSub  design-layer-tool-landupdown">필지높이조절</button>
-			<button class="textBtnSub  design-layer-tool-chkdistance">이격거리체크</button>
 		</div>
 	</div>
+
+
+	<div class="ds-design-layer-building-updown mt-10" style="display: none;border: 1px solid #efefef;padding:5px;">
+		<h3>건물 높이 변경</h3>
+		<input type="number" class="ds-design-layer-building-floor-co form-group-data mt-10 col-width-50" value="0" min="0" max="100" step="1"/>
+	</div>
+	
 	
 	<div class="design-layer-land-wrapper">
 		<a href="#top"></a>
