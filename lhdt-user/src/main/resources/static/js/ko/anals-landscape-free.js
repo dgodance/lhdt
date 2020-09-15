@@ -538,7 +538,6 @@ window.addEventListener('load', function(){
 			clearInterval(interval);
 			lsAnalsAutoObj.init();
 		}
-		
 	}, 500);
 })
 
