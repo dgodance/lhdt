@@ -5,6 +5,15 @@
 const Ppmap = function () {
 };
 
+
+
+Ppmap.PointType = {
+    CARTESIAN2:0,
+    CARTESIAN3:1,
+    CARTESIAN4:2,
+    LONLAT:3,
+}
+
 /**
  */
 Ppmap.init = function () {
@@ -28,6 +37,76 @@ Ppmap.getViewer = function () {
  */
 Ppmap.setViewer = function (viewer) {
     this._viewer = viewer;
+}
+
+
+/**
+ * 넓이 계산
+ * @param {Array<LonLat|Cartesian3>} arr 
+ * @param {Ppmap.PointType} pointType 
+ * @returns {Number} 넓이
+ */
+Ppmap.calcArea = function(arr, pointType){
+    let ctsn3s = [];
+
+    //
+    if(Ppmap.PointType.LONLAT === pointType){
+        for(let i=0; i<arr.length; i++){
+            let lonLat = arr[i];
+
+            let ctsn3 = Ppmap.Convert.lonLatToCtsn3(lonLat.lon, lonLat.lat);
+            ctsn3s.push(ctsn3);
+        }
+    }
+
+    //
+    if(Ppmap.PointType.CARTESIAN3 === pointType){
+        ctsn3s = arr;
+    }
+
+    //
+    areaInMeters = 0;
+    if (ctsn3s.length >= 3)
+    {
+        var points = [];
+        for(var i = 0, len = ctsn3s.length; i < len; i++)
+        {
+            var cartographic = Cesium.Cartographic.fromCartesian(ctsn3s[i]);
+            points.push(new Cesium.Cartesian2(cartographic.longitude, cartographic.latitude));
+        }
+        if(Cesium.PolygonPipeline.computeWindingOrder2D(points) === Cesium.WindingOrder.CLOCKWISE)
+        {
+            points.reverse();
+        }
+
+        var triangles = Cesium.PolygonPipeline.triangulate(points);
+
+        for(var i = 0, len = triangles.length; i < len; i+=3)
+        {
+            areaInMeters += Ppmap.calTriangleArea(points[triangles[i]], points[triangles[i + 1]], points[triangles[i + 2]]);
+        }
+    }
+    return areaInMeters;
+};
+
+
+
+/**
+ * 삼각형의 넓이 계산
+ * @param {*} t1 
+ * @param {*} t2 
+ * @param {*} t3 
+ * @param {*} i 
+ * @returns {Long}
+ */
+Ppmap.calTriangleArea = function(t1, t2, t3, i) {
+    var r = Math.abs(t1.x * (t2.y - t3.y) + t2.x * (t3.y - t1.y) + t3.x * (t1.y - t2.y)) / 2;
+    var cartographic = new Cesium.Cartographic((t1.x + t2.x + t3.x) / 3, (t1.y + t2.y + t3.y) / 3);
+    var cartesian = _viewer.scene.globe.ellipsoid.cartographicToCartesian(cartographic);
+    var magnitude = Cesium.Cartesian3.magnitude(cartesian);
+
+    //
+    return r * magnitude * magnitude * Math.cos(cartographic.latitude)
 }
 
 /**
@@ -669,12 +748,50 @@ Ppmap.Convert = {
         };
     },
 
+    /**
+     * LonLat을 Cartesian3로 변환
+     * @param {number} lon 
+     * @param {number} lat 
+     * @param {number|null} alt 
+     * @returns {Cartesian3}
+     */
+    lonLatToCtsn3: function(lon, lat, alt){
+        return Cesium.Cartesian3.fromDegrees(lon, lat);
+    },
+
 	toLonLat: function(lon, lat, alt)   {
 		return {
 			'lon': lon,
 			'lat': lat,
 			'alt': (alt?alt:0),
 		}
-	}
+    },
+    
+
+    /**
+     * theGeom(MultiPolygon)을 Array<LonLat>로 변환
+     * @param {String} theGeom 
+     * @returns {Array<LonLat>}
+     */
+    multiPolygonToLonLats: function(theGeom){
+        let multiPolygon = Terraformer.WKT.parse(theGeom);
+        let arr = multiPolygon.coordinates[0][0];
+
+        //
+        let lonLats=[];
+        for(let i=0; i<arr.length; i++){
+            let d = arr[i];
+            //
+            lonLats.push({
+                'lon': d[0],
+                'longitude': d[0],
+                'lat': d[1],
+                'latitude': d[1],
+            })
+        }
+
+        //
+        return lonLats;
+    }
 
 };
