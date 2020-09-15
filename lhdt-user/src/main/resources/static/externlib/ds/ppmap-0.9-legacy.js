@@ -16,6 +16,10 @@ Ppmap.init = function () {
  * 
  */
 Ppmap.getViewer = function () {
+    if(Pp.isNull(MAGO3D_INSTANCE)){
+        throw new Error('NULL MAGO3D_INSTANCE');
+    }
+    //
     return MAGO3D_INSTANCE.getViewer();
 }
 
@@ -55,6 +59,10 @@ Ppmap.setCursor = function(cursor){
 /**
  */
 Ppmap.getManager = function(){
+    if(Pp.isNull(MAGO3D_INSTANCE)){
+        throw new Error('NULL MAGO3D_INSTANCE');
+    }
+    //
     return MAGO3D_INSTANCE.getMagoManager();
 };
 
