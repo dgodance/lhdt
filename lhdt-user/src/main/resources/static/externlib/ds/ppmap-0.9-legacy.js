@@ -42,6 +42,17 @@ Ppmap.setViewer = function (viewer) {
 
 /**
  * 넓이 계산
+ * @param {string} theGeom MULTIPOLYGON 문자열
+ */
+Ppmap.calcAreaByTheGeom = function(theGeom){
+    let landLonLats = Ppmap.Convert.multiPolygonToLonLats(theGeom);
+
+    //
+    return Ppmap.calcArea(landLonLats, Ppmap.PointType.LONLAT);
+};
+
+/**
+ * 넓이 계산
  * @param {Array<LonLat|Cartesian3>} arr 
  * @param {Ppmap.PointType} pointType 
  * @returns {Number} 넓이
