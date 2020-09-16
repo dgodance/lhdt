@@ -406,24 +406,61 @@ Ppmap.cartesian2ToLonLat = function(ctsn2){
 };
 
 
+
 /**
-cartographic을 {'lon', 'lat'}으로 변환
+ * cartesian2를 LonLat을 변환
+ */
+Ppmap.cartesian2ToLonLatAlt = function(ctsn2){
+	const ctsn3 = MAGO3D_INSTANCE.getViewer().scene.pickPosition(ctsn2);
+	const cartographic = Cesium.Cartographic.fromCartesian(ctsn3);
+
+	//
+	return Ppmap.cartoToLonLatAlt(cartographic);
+};
+
+
+/**
+ cartographic을 {'lon', 'lat'}으로 변환
  * @param {Cartographic} cartographic
  * @returns {LonLat}
  */
 Ppmap.cartoToLonLat = function(cartographic){
-	if(Pp.isEmpty(cartographic)){
-		return {
-			'lon': NaN,	
-			'lat': NaN,	
-		}
-	}
-	
-	//
-	return {
-		'lon':Cesium.Math.toDegrees(cartographic.longitude),
-		'lat': Cesium.Math.toDegrees(cartographic.latitude)
-	};
+    if(Pp.isEmpty(cartographic)){
+        return {
+            'lon': NaN,
+            'lat': NaN,
+        }
+    }
+
+    //
+    return {
+        'lon':Cesium.Math.toDegrees(cartographic.longitude),
+        'lat': Cesium.Math.toDegrees(cartographic.latitude)
+    };
+}
+
+
+
+/**
+ cartographic을 {'lon', 'lat', 'alt'}으로 변환
+ * @param {Cartographic} cartographic
+ * @returns {LonLatAlt}
+ */
+Ppmap.cartoToLonLatAlt = function(cartographic){
+    if(Pp.isEmpty(cartographic)){
+        return {
+            'lon': NaN,
+            'lat': NaN,
+            'alt': NaN
+        }
+    }
+
+    //
+    return {
+        'lon':Cesium.Math.toDegrees(cartographic.longitude),
+        'lat': Cesium.Math.toDegrees(cartographic.latitude),
+        'alt': Cesium.Math.toDegrees(cartographic.height)
+    };
 }
 
 

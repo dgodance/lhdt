@@ -326,7 +326,7 @@ LsAnalsAutoObj.prototype.setEventHandler = function(){
 			el.disabled = true;
 			
 			//
-			_this.createTwoPoints();			
+			_this.createTwoPoints();
 		});
 	});
 };

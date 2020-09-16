@@ -34,6 +34,7 @@
 	<div th:replace="~{/landscape-widget/landscape-widget :: #landscapeDiffWarp}"></div>
 	<div th:replace="~{/landscape-widget/ls-view-anals-widget :: #lsViewAnalsWarp}"></div>
 	<div th:replace="~{/landscape-widget/ls-free-anals-widget :: #lsFreeAnalsWarp}"></div>
+	<div th:replace="~{/landscape-widget/ls-height-anals-widget :: #lsHeightViewAnalsWarp}"></div>
 	<div th:replace="~{/landscape-widget/ls-saved-anals-widget :: #lsSavedAnalsWrap}"></div>
 </div>
 <div id="loadingWrap">
@@ -176,6 +177,7 @@
 <script type="text/javascript" th:src="@{/js/{lang}/anals-landscape-free.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/anals-landscape-saved.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/anals-landscape-view.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/anals-landscape-height.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/anals-landscapediff.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/anals-sunshine.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 
@@ -279,17 +281,19 @@
         // 환경 설정.
         UserPolicy(magoInstance);
 
-        // 분석
-		AnalsBuildHeight(viewer, magoInstance);
-		AnalsLandScapeDirection(viewer, magoInstance);
-		AnalsSunshine(viewer, magoInstance);
-		AnalsLandScape();
 		//AnalsLandScapeView(viewer, magoInstance);
 
         // 기본 레이어 랜더링
         setTimeout(function(){
         	LHDT.map = new mapInit(magoInstance, LHDT.baseLayers, geoPolicyJson);
         	LHDT.map.initLayer();
+
+			// 분석
+			AnalsBuildHeight(viewer, magoInstance);
+			AnalsLandScapeDirection(viewer, magoInstance);
+			AnalsSunshine(viewer, magoInstance);
+			AnalsLandScape();
+			AnalsHeightLandScapeView(viewer, magoInstance);
         	cesiumCreditAlt(); //웹접근성
         }, geoPolicyJson.initDuration * 1000);
 
