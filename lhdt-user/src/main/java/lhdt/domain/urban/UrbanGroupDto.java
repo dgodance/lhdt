@@ -5,6 +5,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.hateoas.server.core.Relation;
 
 import javax.validation.constraints.Size;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -20,6 +21,12 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Relation(collectionRelation = "urbanGroups")
 public class UrbanGroupDto {
+
+    /****** 화면 표시용 *******/
+    // 위도
+    private BigDecimal latitude;
+    // 경도
+    private BigDecimal longitude;
 
     // 고유번호
     private Integer urbanGroupId;
@@ -38,6 +45,10 @@ public class UrbanGroupDto {
     private LocalDateTime endDate;
     // POINT(위도, 경도)
     private String location;
+    // 높이
+    private BigDecimal altitude;
+    // Map 이동시간
+    private Integer duration;
     // 면적
     private Integer area;
     // 수용 인구

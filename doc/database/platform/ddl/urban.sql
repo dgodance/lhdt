@@ -19,6 +19,9 @@ create table urban_group (
     start_date                      timestamp with time zone,
     end_date                        timestamp with time zone,
     location		 			    GEOMETRY(POINT, 4326),
+    altitude					    numeric(13,7),
+	duration					    integer,
+
     area                            bigint                              default 0,
     receiving_population            int                                 default 0,
     receiving_household             int                                 default 0,
@@ -43,10 +46,12 @@ comment on column urban_group.view_order is '나열 순서';
 comment on column urban_group.children is '자식 존재 개수';
 comment on column urban_group.basic is 'true : 기본(초기 등록), false : 선택';
 comment on column urban_group.available is '사용유무, true : 사용, false : 사용안함';
+comment on column urban_group.duration is 'Map 이동시간';
 
 comment on column urban_group.start_date is '시작일';
 comment on column urban_group.end_date is '종료일';
-comment on column urban_group.location is 'POINT(위도, 경도)';
+comment on column urban_group.location is 'POINT(위도, 경도). 공간 검색 속도 때문에 altitude는 분리';
+comment on column urban_group.altitude is '높이';
 comment on column urban_group.area is '면적';
 comment on column urban_group.receiving_population is '수용 인구';
 comment on column urban_group.receiving_household is '수용 세대';

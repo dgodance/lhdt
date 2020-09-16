@@ -63,51 +63,66 @@
 								</tr>
 </th:block>
 <th:block th:unless="${designLayerGroupList.empty}" th:each="designLayerGroup : ${designLayerGroupList}">
-									<th:block th:if="${designLayerGroup.depth == 1}">
-										<tr class="oneDepthClass">
-											<td class="col-key ellipsis" style="max-width: 300px;">
-									<span th:onclick="childrenDisplayToggle([[${designLayerGroup.depth}]], [[${designLayerGroup.designLayerGroupId}]], [[${designLayerGroup.ancestor}]]);"
-										  style="padding-left: 0px; font-size: 1.6em;">
-										<i th:id="|oneDepthArrow-${designLayerGroup.designLayerGroupId}|"
-										   class="fa fa-caret-right oneArrow" aria-hidden="true"></i>
-									</span>&nbsp;
-												<span style="font-size: 1.5em; color: Dodgerblue;">
-										<i th:id="|oneDepthFolder-${designLayerGroup.designLayerGroupId}|"
-										   class="fa fa-folder oneFolder" aria-hidden="true"></i>
-									</span>
-												<span th:text="${designLayerGroup.designLayerGroupName}"></span>
-											</td>
-									</th:block>
-									<th:block th:if="${designLayerGroup.depth == 2} ">
-										<tr th:class="|twoDepthClass oneDepthParent-${designLayerGroup.parent}|"
-											style="display: none;">
-											<td class="col-key ellipsis" style="max-width: 300px;">
+								<tr th:class="|rowId-${designLayerGroup.designLayerGroupId} rowDepth-${designLayerGroup.depth} rowAncestor-${designLayerGroup.ancestor} rowParent-${designLayerGroup.parent}|">
+									<td class="col-key ellipsis" style="max-width: 300px;">
+	<th:block th:with="paddingLeftValue = ${(designLayerGroup.depth -1)  * 40}">
+										<span th:onclick="childrenDisplayToggle([[${designLayerGroup.designLayerGroupId}]], [[${designLayerGroup.depth}]],
+											[[${designLayerGroup.ancestor}]], [[${designLayerGroup.parent}]]);"
+											th:style="|padding-left: ${paddingLeftValue}px; font-size: 1.6em;|">
+											<i th:id="|myArrow-${designLayerGroup.designLayerGroupId}|"
+											   th:class="|fa fa-caret-right depthArrow-${designLayerGroup.depth} parentArrow-${designLayerGroup.parent}|" aria-hidden="true"></i>
+										</span>&nbsp;
+	</th:block>
+	<th:block th:if="${designLayerGroup.depth == 1}">
+										<span style="font-size: 1.5em; color: Dodgerblue;">
+	</th:block>
+	<th:block th:if="${designLayerGroup.depth == 2}">
+										<span style="font-size: 1.5em; color: Mediumslateblue;">
+	</th:block>
+	<th:block th:if="${designLayerGroup.depth == 3}">
+										<span style="font-size: 1.5em; color: Tomato;">
+	</th:block>
+	<th:block th:if="${designLayerGroup.depth == 4}">
+										<span style="font-size: 1.5em; color: #82c91e;">
+	</th:block>
+	<th:block th:if="${designLayerGroup.depth == 5}">
+										<span style="font-size: 1.5em; color: #f783ac;">
+	</th:block>
+											<i th:id="|myFolder-${designLayerGroup.designLayerGroupId}|"
+											   th:class="|fa fa-folder depthFolder-${designLayerGroup.depth} parentFolder-${designLayerGroup.parent}|" aria-hidden="true"></i>
+										</span>
+
+
+
+<!--
+	<th:block th:if="${designLayerGroup.depth == 1}">
 										<span th:onclick="childrenDisplayToggle([[${designLayerGroup.depth}]], [[${designLayerGroup.designLayerGroupId}]], [[${designLayerGroup.ancestor}]]);"
-											  style="padding-left: 40px; font-size: 1.6em;">
-											<i th:id="|twoDepthArrow-${designLayerGroup.designLayerGroupId}|"
-											   th:class="|fa fa-caret-right twoArrow ancestorArrow-${designLayerGroup.ancestor}|"
+											th:style="padding-left: |0|px; font-size: 1.6em;">
+											<i th:id="|oneDepthArrow-${designLayerGroup.designLayerGroupId}|" class="fa fa-caret-right oneArrow" aria-hidden="true"></i>
+										</span>&nbsp;
+										<span style="font-size: 1.5em; color: Dodgerblue;">
+											<i th:id="|oneDepthFolder-${designLayerGroup.designLayerGroupId}|" class="fa fa-folder oneFolder" aria-hidden="true"></i>
+										</span>
+	</th:block>
+	<th:block th:if="${designLayerGroup.depth == 2} ">
+										<span th:onclick="childrenDisplayToggle([[${designLayerGroup.depth}]], [[${designLayerGroup.designLayerGroupId}]], [[${designLayerGroup.ancestor}]]);"
+											style="padding-left: 40px; font-size: 1.6em;">
+											<i th:id="|twoDepthArrow-${designLayerGroup.designLayerGroupId}|" th:class="|fa fa-caret-right twoArrow ancestorArrow-${designLayerGroup.ancestor}|"
 											   aria-hidden="true"></i>
 										</span>&nbsp;
-												<span style="font-size: 1.5em; color: Mediumslateblue;">
-											<i th:id="|twoDepthArrow-${designLayerGroup.designLayerGroupId}|"
-											   th:class="|fa fa-folder twoFolder ancestorFolder-${designLayerGroup.ancestor}|"
+										<span style="font-size: 1.5em; color: Mediumslateblue;">
+											<i th:id="|twoDepthArrow-${designLayerGroup.designLayerGroupId}|" th:class="|fa fa-folder twoFolder ancestorFolder-${designLayerGroup.ancestor}|"
 											   aria-hidden="true"></i>
 										</span>
-												<span th:text="${designLayerGroup.designLayerGroupName}"></span>
-											</td>
-									</th:block>
-									<th:block th:if="${designLayerGroup.depth == 3}">
-										<tr th:class="|threeDepthClass twoDepthParent-${designLayerGroup.parent} ancestor-${designLayerGroup.ancestor}|"
-											style="display: none;">
-											<td class="col-key ellipsis" style="max-width: 300px;">
+	</th:block>
+	<th:block th:if="${designLayerGroup.depth == 3}">
 										<span style="padding-left: 80px; font-size: 1.5em; color: Tomato;">
-											<i th:id="|threeDepthFolder-${designLayerGroup.designLayerGroupId}|"
-											   th:class="|fa fa-folder threeFolder ancestorFolder-${designLayerGroup.ancestor}|"
+											<i th:id="|threeDepthFolder-${designLayerGroup.designLayerGroupId}|" th:class="|fa fa-folder threeFolder ancestorFolder-${designLayerGroup.ancestor}|"
 											   aria-hidden="true"></i>
 										</span>
-												<span th:text="${designLayerGroup.designLayerGroupName}"></span>
-											</td>
-									</th:block>
+	</th:block>-->
+										<span th:text="${designLayerGroup.designLayerGroupName}"></span>
+									</td>
 									<td class="col-type">
 										<th:block th:if="${#bools.isTrue(designLayerGroup.available)}" th:text="사용"></th:block>
 										<th:block th:if="${#bools.isFalse(designLayerGroup.available)}" th:text="미사용"></th:block>
@@ -159,41 +174,141 @@
 <script th:inline="javascript">
 	//펼치기
 	function openAll() {
-		$(".threeDepthClass").show();
-		$(".twoDepthClass").show();
+		$(".rowDepth-5").show();
+		$(".rowDepth-4").show();
+		$(".rowDepth-3").show();
+		$(".rowDepth-2").show();
 
 		// fa-caret-right
 		// fa-caret-down
-		$(".oneArrow").removeClass("fa-caret-right");
-		$(".oneArrow").addClass("fa-caret-down");
-		$(".twoArrow").removeClass("fa-caret-right");
-		$(".twoArrow").addClass("fa-caret-down");
+		$(".depthArrow-1").removeClass("fa-caret-right");
+		$(".depthArrow-1").addClass("fa-caret-down");
+		$(".depthArrow-2").removeClass("fa-caret-right");
+		$(".depthArrow-2").addClass("fa-caret-down");
+		$(".depthArrow-3").removeClass("fa-caret-right");
+		$(".depthArrow-3").addClass("fa-caret-down");
+		$(".depthArrow-4").removeClass("fa-caret-right");
+		$(".depthArrow-4").addClass("fa-caret-down");
+		$(".depthArrow-5").removeClass("fa-caret-right");
+		$(".depthArrow-5").addClass("fa-caret-down");
 
-		$(".oneFolder").removeClass("fa-folder");
-		$(".oneFolder").addClass("fa-folder-open");
-		$(".twoFolder").removeClass("fa-folder");
-		$(".twoFolder").addClass("fa-folder-open");
+		$(".depthFolder-1").removeClass("fa-folder");
+		$(".depthFolder-1").addClass("fa-folder-open");
+		$(".depthFolder-2").removeClass("fa-folder");
+		$(".depthFolder-2").addClass("fa-folder-open");
+		$(".depthFolder-3").removeClass("fa-folder");
+		$(".depthFolder-3").addClass("fa-folder-open");
+		$(".depthFolder-4").removeClass("fa-folder");
+		$(".depthFolder-4").addClass("fa-folder-open");
+		$(".depthFolder-5").removeClass("fa-folder");
+		$(".depthFolder-5").addClass("fa-folder-open");
 	}
 
 	// 접기
 	function closeAll() {
-		$(".threeDepthClass").hide();
-		$(".twoDepthClass").hide();
+		$(".rowDepth-5").hide();
+		$(".rowDepth-4").hide();
+		$(".rowDepth-3").hide();
+		$(".rowDepth-2").hide();
 
-		$(".oneArrow").removeClass("fa-caret-down");
-		$(".oneArrow").addClass("fa-caret-right");
-		$(".twoArrwo").removeClass("fa-caret-down");
-		$(".twoArrwo").addClass("fa-caret-right");
+		$(".depthArrow-1").removeClass("fa-caret-down");
+		$(".depthArrow-1").addClass("fa-caret-right");
+		$(".depthArrow-2").removeClass("fa-caret-down");
+		$(".depthArrow-2").addClass("fa-caret-right");
+		$(".depthArrow-3").removeClass("fa-caret-down");
+		$(".depthArrow-3").addClass("fa-caret-right");
+		$(".depthArrow-4").removeClass("fa-caret-down");
+		$(".depthArrow-4").addClass("fa-caret-right");
+		$(".depthArrow-5").removeClass("fa-caret-down");
+		$(".depthArrow-5").addClass("fa-caret-right");
 
-		$(".oneFolder").removeClass("fa-folder-open");
-		$(".oneFolder").addClass("fa-folder");
-		$(".twoFolder").removeClass("fa-folder-open");
-		$(".twoFolder").addClass("fa-folder");
+		$(".depthFolder-1").removeClass("fa-folder-open");
+		$(".depthFolder-1").addClass("fa-folder");
+		$(".depthFolder-2").removeClass("fa-folder-open");
+		$(".depthFolder-2").addClass("fa-folder");
+		$(".depthFolder-3").removeClass("fa-folder-open");
+		$(".depthFolder-3").addClass("fa-folder");
+		$(".depthFolder-4").removeClass("fa-folder-open");
+		$(".depthFolder-4").addClass("fa-folder");
+		$(".depthFolder-5").removeClass("fa-folder-open");
+		$(".depthFolder-5").addClass("fa-folder");
 	}
 
 	// 화살표 클릭시
-	function childrenDisplayToggle(depth, id, ancestor) {
-		if (depth === 1) {
+	function childrenDisplayToggle(id, depth, ancestor, parent) {
+		var isOpen = true;
+		var clickClass = $("#myArrow-" + id).attr("class");
+		if (clickClass.indexOf("right") >= 0) {
+			isOpen = false;
+			// 닫힘 상태라 펼침
+			$("#myArrow-" + id).removeClass("fa-caret-right");
+			$("#myArrow-" + id).addClass("fa-caret-down");
+			$("#myFolder-" + id).removeClass("fa-folder");
+			$("#myFolder-" + id).addClass("fa-folder-open");
+		} else {
+			// 펼침 상태라 닫힘
+			$("#myArrow-" + id).removeClass("fa-caret-down");
+			$("#myArrow-" + id).addClass("fa-caret-right");
+			$("#myFolder-" + id).removeClass("fa-folder-open");
+			$("#myFolder-" + id).addClass("fa-folder");
+		}
+
+		if(depth !== 5) {
+			// 자식을 찾으세요.
+			$(".rowParent-" + id).each(function() {
+				console.log("----------- id = " + $(this).attr("class"));
+				if(isOpen) {
+					// 내가 열려 있으면 자식을 닫고, 나도 닫는다.
+				} else {
+
+				}
+				// row 자체를 display
+			});
+		}
+
+
+
+		/*if ($(".parentClass-" + id).css("display") === "none") {
+			// 자식이 접힌 상태
+			$(".parentClass-" + id).show();
+
+			$("#idArrow-" + id).removeClass("fa-caret-right");
+			$("#idArrow-" + id).addClass("fa-caret-down");
+			$("#idFolder-" + id).removeClass("fa-folder");
+			$("#idFolder-" + id).addClass("fa-folder-open");
+
+			// 자식을 펼침
+			$(".arrow-" + id).removeClass("fa-caret-down");
+			$(".arrow-" + id).addClass("fa-caret-right");
+			$(".folder-" + id).removeClass("fa-folder-open");
+			$(".folder-" + id).addClass("fa-folder");
+		} else {
+			// 자식이 펼친 상태
+			if(depth != 1) $(".parentClass-" + parent).hide();
+			$(".parentClass-" + id).hide();
+
+			var clickClass = $("#idArrow-" + id).attr("class");
+			if (clickClass.indexOf("right") >= 0) {
+				// 닫힘 상태라 펼침
+				$("#idArrow-" + id).removeClass("fa-caret-right");
+				$("#idArrow-" + id).addClass("fa-caret-down");
+				$("#idFolder-" + id).removeClass("fa-folder");
+				$("#idFolder-" + id).addClass("fa-folder-open");
+			} else {
+				// 펼침 상태라 닫힘
+				$("#idArrow-" + id).removeClass("fa-caret-down");
+				$("#idArrow-" + id).addClass("fa-caret-right");
+				$("#idFolder-" + id).removeClass("fa-folder-open");
+				$("#idFolder-" + id).addClass("fa-folder");
+			}
+
+			$(".arrow-" + ancestor).removeClass("fa-caret-down");
+			$(".arrow-" + ancestor).addClass("fa-caret-right");
+			$(".folder-" + ancestor).removeClass("fa-folder-open");
+			$(".folder-" + ancestor).addClass("fa-folder");
+		}*/
+
+		/*if (depth === 1) {
 			if ($(".oneDepthParent-" + id).css("display") === "none") {
 				// 접힌 상태
 				$(".oneDepthParent-" + id).show();
@@ -260,6 +375,25 @@
 					$("#twoDepthFolder-" + id).addClass("fa-folder");
 				}
 			}
+		}*/
+	}
+
+
+	// 자식을 펼침
+	function openChild(id, depth) {
+		if(depth === 5) {
+
+		} else {
+
+		}
+	}
+
+	// 자식을 닫음
+	function closeChild(id, depth) {
+		if(depth === 5) {
+			// 자식
+		} else {
+
 		}
 	}
 
