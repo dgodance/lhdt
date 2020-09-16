@@ -20,6 +20,11 @@ const DesignLayerObj = function(){
     this.selectedExtrusionBuilding={};
 
     //
+    this.selectedLand = {};
+    //
+    this.selectedBuilding = {};
+
+    //
     this.rotate = null;
     //
     this.upanddown = null;
@@ -112,6 +117,9 @@ DesignLayerObj.prototype.setEventHandler = function(){
         let urbanGroupId = this.value;
         //디자인 레이어 목록 렌더링
         _this.renderDesignLayersByUrbanGroupId(urbanGroupId);
+
+        //
+        _this.showUrbanInfo(urbanGroupId);
     });
 
 
@@ -376,6 +384,104 @@ DesignLayerObj.prototype.changeHeightCallback = function(e){
 
 
 /**
+ * 
+ * @param {*} json
+ */
+DesignLayerObj.prototype.deselectedGeneralObjectCallback = function(json){
+    console.log('deselectedGeneralObjectCallback', json);
+
+    //
+    let _this = designLayerObj;
+
+    //
+    if(_this.toolIs(DesignLayerObj.Tool.SELECT)){
+        if(Pp.isNotEmpty(_this.selectedBuilding) && json.deselected._guid == _this.selectedBuilding._guid){
+            _this.selectedBuilding = null;
+        }
+    
+        //
+        _this.showBuildingInfo(_this.selectedBuilding);
+    }
+}
+
+
+/**
+ * 
+ * @param {*} json
+ */
+DesignLayerObj.prototype.selectedGeneralObjectCallback = function(json){
+    console.log('selectedGeneralObjectCallback', json);
+
+    //
+    let _this = this;
+
+
+    //
+    if(_this.toolIs(DesignLayerObj.Tool.SELECT)){   
+        //
+        _this.selectedBuilding = null;
+        //
+        if(Pp.isNotNull(json.selected) && json.selected instanceof Mago3D.ExtrusionBuilding){
+            _this.selectedBuilding = json.selected;
+        }
+
+        //
+        _this.showBuildingInfo(_this.selectedBuilding);
+
+
+
+
+
+
+
+        // let nodes = Ppmap.getManager().selectionManager.getSelectedGeneralArray();
+        // console.log(nodes);
+        // //
+        // if(Pp.isEmpty(nodes)){
+        //     //
+        //     designLayerObj.selectedExtrusionBuilding = null;
+        //     Ppui.hide('div.ds-design-layer-building-updown');
+
+        //     //건물/필지 정보 모달리스 창 삭제
+        //     $('div.design-layer-land-modal').each(function(i,item){
+        //         $(item).remove();
+        //     });
+            
+
+        //     //
+        //     return;
+        // }
+
+        // //
+        // for(let i=0; i<nodes.length; i++){
+        //     let d = nodes[i];
+            
+            
+        //     //
+        //     if(Pp.isNotEmpty(d['getHeight'])){
+        //         designLayerObj.selectedExtrusionBuilding = d;
+        //         console.log('selectedExtrusionBuilding', d);
+
+        //         let h = d.getHeight();
+        //         // //층수
+        //         let floorCo = parseInt(h / HEIGHT_PER_FLOOR);
+        //         // console.log(h, floorCo);
+        //         // // d.setHeight(100);
+
+        //         //화면에 표시
+        //         Ppui.show('div.ds-design-layer-building-updown');
+        //         Ppui.find('input.ds-design-layer-building-floor-co').value = floorCo;
+
+        //         //
+        //         designLayerObj.xxx();
+        //     }
+        // }
+        
+    }
+};
+
+
+/**
  * left up시 호출되는 콜백함수
  * @param {BrowserEvent} e 
  */
@@ -384,51 +490,9 @@ DesignLayerObj.prototype.leftupCallback = function(e){
 
     //
     if(designLayerObj.toolIs(DesignLayerObj.Tool.SELECT)){
-        let nodes = Ppmap.getManager().selectionManager.getSelectedGeneralArray();
-        
-        //
-        if(Pp.isEmpty(nodes)){
-            //
-            designLayerObj.selectedExtrusionBuilding = null;
-            Ppui.hide('div.ds-design-layer-building-updown');
-
-            //건물/필지 정보 모달리스 창 삭제
-            $('div.design-layer-land-modal').each(function(i,item){
-                $(item).remove();
-            });
-            
-
-            //
-            return;
-        }
-
-        //
-        for(let i=0; i<nodes.length; i++){
-            let d = nodes[i];
-            // console.log(d);
-
-
-            //
-            if(Pp.isNotEmpty(d['getHeight'])){
-                designLayerObj.selectedExtrusionBuilding = d;
-                let h = d.getHeight();
-                // //층수
-                let floorCo = parseInt(h / HEIGHT_PER_FLOOR);
-                // console.log(h, floorCo);
-                // // d.setHeight(100);
-
-                //화면에 표시
-                Ppui.show('div.ds-design-layer-building-updown');
-                Ppui.find('input.ds-design-layer-building-floor-co').value = floorCo;
-
-                //
-                designLayerObj.xxx();
-            }
-        }
-        
+        //필지정보표시
+        designLayerObj.showLandInfo(e);
     }
-
-
 };
 
 
@@ -495,6 +559,9 @@ DesignLayerObj.prototype.toolChanged = function (beforeTool, afterTool) {
         //
         Ppui.hide('div.ds-design-layer-building-updown');
 
+        //close 모달리스 창 
+        $('div.design-layer-modeless-wrapper').dialog('close');
+
 
         //
         //_clearExtrusionLands();
@@ -558,6 +625,8 @@ DesignLayerObj.prototype.setSelectionInteraction = function(onOff){
         Ppmap.getManager().off(Mago3D.MagoManager.EVENT_TYPE.SELECTEDF4D, this.selectedf4dCallback);
         Ppmap.getManager().off(Mago3D.MagoManager.EVENT_TYPE.LEFTUP, this.leftupCallback);
         Ppmap.getManager().off(Mago3D.MagoManager.EVENT_TYPE.CHANGEHEIGHT, this.changeHeightCallback);
+        Ppmap.getManager().off(Mago3D.MagoManager.EVENT_TYPE.SELECTEDGENERALOBJECT, this.selectedGeneralObjectCallback);
+        Ppmap.getManager().off(Mago3D.MagoManager.EVENT_TYPE.DESELECTEDGENERALOBJECT, this.deselectedGeneralObjectCallback);
     }
 };
 
@@ -798,129 +867,24 @@ DesignLayerObj.prototype.processToolIntersection = function() {
    
     //
     _this.setSelectionInteraction(true);
+
+    Ppmap.getManager().on(Mago3D.MagoManager.EVENT_TYPE.LEFTUP, _this.leftupCallback);
    
     //
     _this.handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
 
      //왼쪽 클릭
-    _this.handler.setInputAction(function(event){
-        let lonLat = Ppmap.Convert.ctsn2ToLonLat(event.position);
+    // _this.handler.setInputAction(function(event){
+    //     let lonLat = Ppmap.Convert.ctsn2ToLonLat(event.position);
 
-        //
-        if(Pp.isEmpty(lonLat) || Pp.isEmpty(lonLat.lon)){
-            console.log('empty lonLat');
-            return;
-        }
+    //     //
+    //     if(Pp.isEmpty(lonLat) || Pp.isEmpty(lonLat.lon)){
+    //         console.log('empty lonLat');
+    //         return;
+    //     }
 
-        //request 특정 위치의 필지정보
-        _this.getGeometryByIntersection(DesignLayerObj.GeometryType.LAND, [lonLat], function(res){
-            _this.lands=[];
-            //
-            if(Pp.isNotEmpty(res._embedded) && Pp.isNotEmpty(res._embedded.designLayerLands)){
-                _this.lands = res._embedded.designLayerLands;
-            }
-
-            //값 표시
-            _this.showLandData(1);
-
-            //
-            if(0 == _this.lands.length){
-                return;
-            }
-
-
-        
-            //get land's polygon 
-            let geometryInfo = _getLandPolygon(_this.lands[0].theGeom);
-
-            //request geometry by intersection of building
-            _this.getGeometryByIntersection(DesignLayerObj.GeometryType.BUILDING, geometryInfo, function(res){
-                if(Pp.isEmpty(res._embedded) || Pp.isEmpty(res._embedded.designLayerBuildings)){
-                    console.log('empty designLayerBuildings');
-                    return;
-                }
-
-                //
-                const lotDegreesArray = [];
-                for(let i=0; i<geometryInfo.length; i++) {
-                    lotDegreesArray.push(geometryInfo[i].longitude);
-                    lotDegreesArray.push(geometryInfo[i].latitude);
-                }
-                //console.log(lotArr)
-                const ctsn3sOfLot = Cesium.Cartesian3.fromDegreesArray(lotDegreesArray);
-
-                const designLayerBuildings = res._embedded.designLayerBuildings;
-                const buildsMap = {};
-                //sum(전체 건물면적)
-                let sumArea = 0;
-
-                //(필지에 속한)빌딩 갯수만큼 루프
-                for(let building of designLayerBuildings) {
-                    const buildingCoords = [];
-                    let multiPolygon = Terraformer.WKT.parse(building.theGeom);
-                    //좌표 갯수만큼 루프
-                    for(let obj2 of multiPolygon.coordinates[0][0]) {
-                        buildingCoords.push(obj2[0]);
-                        buildingCoords.push(obj2[1]);
-                    }
-
-                    //
-                    const ctsn3sOfBuilding = Cesium.Cartesian3.fromDegreesArray(buildingCoords);
-                    buildsMap[building.designLayerBuildingId] = {
-                        position : ctsn3sOfBuilding,
-                        area: getArea(ctsn3sOfBuilding),
-                        height: building.buildFloor
-                    };
-                    sumArea += buildsMap[building.designLayerBuildingId].area;
-                    //console.log(buildsMap)
-                }
-
-                //용적율
-                const buildFloorAreaParam = [];
-                for(const p in buildsMap){
-                    buildFloorAreaParam.push(buildsMap[p].area)
-                }
-
-                //건폐율
-                const buildConvAreaParam = [];
-                for(const p in buildsMap){
-                    buildConvAreaParam.push([buildsMap[p].area, buildsMap[p].height])
-                }
-
-                //
-                const lotArea = getArea(ctsn3sOfLot);
-                console.log(lotArea, ctsn3sOfLot);
-                //결과 화면 표시
-                $('#nowFloorCov').text(calcFloorCoverage(buildFloorAreaParam, lotArea));//건폐율
-                $('#nowBuildCov').text(calcBuildCoverage(buildConvAreaParam, lotArea));//용적율
-
-                // 필지에 대한 면적을 알고있음..
-                // 필지에 대한 면적을 구한다
-                // 빌딩들에 대한 면적을 알고있음..
-                // 빌딩들에 대한 면적을 구한다.
-            });
-
-        });
-
-
-        //
-        // let param = {
-        //     'wkt': null,
-        //     'type': 'land',
-        //     'buffer': 0.0001,
-        //     'maxFeatures': 10,
-        //     'geometryInfo': [lonLat]
-        // };
-
-        //
-    //    $.ajax({
-    //         url: "/api/geometry/intersection/design-layers",
-    //         type: "POST",
-    //         data: JSON.stringify(param),
-	// 		dataType: 'json',
-	// 		contentType: 'application/json;charset=utf-8'
-    //     }).done(function(res) {
-    //         debugger;
+    //     //request 특정 위치의 필지정보
+    //     _this.getGeometryByIntersection(DesignLayerObj.GeometryType.LAND, [lonLat], function(res){
     //         _this.lands=[];
     //         //
     //         if(Pp.isNotEmpty(res._embedded) && Pp.isNotEmpty(res._embedded.designLayerLands)){
@@ -929,85 +893,192 @@ DesignLayerObj.prototype.processToolIntersection = function() {
 
     //         //값 표시
     //         _this.showLandData(1);
+
+    //         //
+    //         if(0 == _this.lands.length){
+    //             return;
+    //         }
+
+
+        
+    //         //get land's polygon 
+    //         let geometryInfo = _getLandPolygon(_this.lands[0].theGeom);
+
+    //         //request geometry by intersection of building
+    //         _this.getGeometryByIntersection(DesignLayerObj.GeometryType.BUILDING, geometryInfo, function(res){
+    //             if(Pp.isEmpty(res._embedded) || Pp.isEmpty(res._embedded.designLayerBuildings)){
+    //                 console.log('empty designLayerBuildings');
+    //                 return;
+    //             }
+
+    //             //
+    //             const lotDegreesArray = [];
+    //             for(let i=0; i<geometryInfo.length; i++) {
+    //                 lotDegreesArray.push(geometryInfo[i].longitude);
+    //                 lotDegreesArray.push(geometryInfo[i].latitude);
+    //             }
+    //             //console.log(lotArr)
+    //             const ctsn3sOfLot = Cesium.Cartesian3.fromDegreesArray(lotDegreesArray);
+
+    //             const designLayerBuildings = res._embedded.designLayerBuildings;
+    //             const buildsMap = {};
+    //             //sum(전체 건물면적)
+    //             let sumArea = 0;
+
+    //             //(필지에 속한)빌딩 갯수만큼 루프
+    //             for(let building of designLayerBuildings) {
+    //                 const buildingCoords = [];
+    //                 let multiPolygon = Terraformer.WKT.parse(building.theGeom);
+    //                 //좌표 갯수만큼 루프
+    //                 for(let obj2 of multiPolygon.coordinates[0][0]) {
+    //                     buildingCoords.push(obj2[0]);
+    //                     buildingCoords.push(obj2[1]);
+    //                 }
+
+    //                 //
+    //                 const ctsn3sOfBuilding = Cesium.Cartesian3.fromDegreesArray(buildingCoords);
+    //                 buildsMap[building.designLayerBuildingId] = {
+    //                     position : ctsn3sOfBuilding,
+    //                     area: getArea(ctsn3sOfBuilding),
+    //                     height: building.buildFloor
+    //                 };
+    //                 sumArea += buildsMap[building.designLayerBuildingId].area;
+    //                 //console.log(buildsMap)
+    //             }
+
+    //             //용적율
+    //             const buildFloorAreaParam = [];
+    //             for(const p in buildsMap){
+    //                 buildFloorAreaParam.push(buildsMap[p].area)
+    //             }
+
+    //             //건폐율
+    //             const buildConvAreaParam = [];
+    //             for(const p in buildsMap){
+    //                 buildConvAreaParam.push([buildsMap[p].area, buildsMap[p].height])
+    //             }
+
+    //             //
+    //             const lotArea = getArea(ctsn3sOfLot);
+    //             console.log(lotArea, ctsn3sOfLot);
+    //             //결과 화면 표시
+    //             $('#nowFloorCov').text(calcFloorCoverage(buildFloorAreaParam, lotArea));//건폐율
+    //             $('#nowBuildCov').text(calcBuildCoverage(buildConvAreaParam, lotArea));//용적율
+
+    //             // 필지에 대한 면적을 알고있음..
+    //             // 필지에 대한 면적을 구한다
+    //             // 빌딩들에 대한 면적을 알고있음..
+    //             // 빌딩들에 대한 면적을 구한다.
+    //         });
+
+    //     });
+
+
+    //     //
+    //     // let param = {
+    //     //     'wkt': null,
+    //     //     'type': 'land',
+    //     //     'buffer': 0.0001,
+    //     //     'maxFeatures': 10,
+    //     //     'geometryInfo': [lonLat]
+    //     // };
+
+    //     //
+    // //    $.ajax({
+    // //         url: "/api/geometry/intersection/design-layers",
+    // //         type: "POST",
+    // //         data: JSON.stringify(param),
+	// // 		dataType: 'json',
+	// // 		contentType: 'application/json;charset=utf-8'
+    // //     }).done(function(res) {
+    // //         debugger;
+    // //         _this.lands=[];
+    // //         //
+    // //         if(Pp.isNotEmpty(res._embedded) && Pp.isNotEmpty(res._embedded.designLayerLands)){
+    // //             _this.lands = res._embedded.designLayerLands;
+    // //         }
+
+    // //         //값 표시
+    // //         _this.showLandData(1);
             
 
 
-    //         //////////////갓도//////////////////////
-    //        const geometry = res._embedded.designLayerLands[0].theGeom;
-    //        //
-    //        const parseArr = Terraformer.WKT.parse(geometry);
-    //        const geometryInfo = [];
-    //        const oneLot = parseArr.coordinates[0][0];
-    //        for(let obj of oneLot) {
-    //            geometryInfo.push({
-    //                'longitude': obj[0],
-    //                'latitude': obj[1],
-    //                'altitude': null
-    //            });
-    //        }
-    //        let param = {
-    //            'wkt': null,
-    //            'type': 'building',
-    //            'buffer': 0.0001,
-    //            'maxFeatures': 10,
-    //            'geometryInfo': geometryInfo
-    //        };
-    //        $.ajax({
-    //            url: "/api/geometry/intersection/design-layers",
-    //            type: "POST",
-    //            data: JSON.stringify(param),
-    //            dataType: 'json',
-    //            contentType: 'application/json;charset=utf-8'
-    //        }).done(function(res) {
-    //            const lotArr = [];
-    //            for(let obj of oneLot) {
-    //                lotArr.push(obj[0])
-    //                lotArr.push(obj[1])
-    //            }
-    //            //console.log(lotArr)
-    //            const lotCart = Cesium.Cartesian3.fromDegreesArray(lotArr)
+    // //         //////////////갓도//////////////////////
+    // //        const geometry = res._embedded.designLayerLands[0].theGeom;
+    // //        //
+    // //        const parseArr = Terraformer.WKT.parse(geometry);
+    // //        const geometryInfo = [];
+    // //        const oneLot = parseArr.coordinates[0][0];
+    // //        for(let obj of oneLot) {
+    // //            geometryInfo.push({
+    // //                'longitude': obj[0],
+    // //                'latitude': obj[1],
+    // //                'altitude': null
+    // //            });
+    // //        }
+    // //        let param = {
+    // //            'wkt': null,
+    // //            'type': 'building',
+    // //            'buffer': 0.0001,
+    // //            'maxFeatures': 10,
+    // //            'geometryInfo': geometryInfo
+    // //        };
+    // //        $.ajax({
+    // //            url: "/api/geometry/intersection/design-layers",
+    // //            type: "POST",
+    // //            data: JSON.stringify(param),
+    // //            dataType: 'json',
+    // //            contentType: 'application/json;charset=utf-8'
+    // //        }).done(function(res) {
+    // //            const lotArr = [];
+    // //            for(let obj of oneLot) {
+    // //                lotArr.push(obj[0])
+    // //                lotArr.push(obj[1])
+    // //            }
+    // //            //console.log(lotArr)
+    // //            const lotCart = Cesium.Cartesian3.fromDegreesArray(lotArr)
 
-    //            const builds = res._embedded.designLayerBuildings;
-    //            const buildsMap = {};
-    //            let sumArea = 0;
-    //            for(let obj of builds) {
-    //                const buildArr = []
-    //                for(let obj2 of Terraformer.WKT.parse(obj.theGeom).coordinates[0][0]) {
-    //                    buildArr.push(obj2[0])
-    //                    buildArr.push(obj2[1])
-    //                }
-    //                const cart = Cesium.Cartesian3.fromDegreesArray(buildArr);
-    //                buildsMap[obj.designLayerBuildingId] = {
-    //                    position : cart,
-    //                    area: getArea(cart),
-    //                    height: obj.buildFloor
-    //                };
-    //                sumArea += buildsMap[obj.designLayerBuildingId].area;
-    //                //console.log(buildsMap)
-    //            }
+    // //            const builds = res._embedded.designLayerBuildings;
+    // //            const buildsMap = {};
+    // //            let sumArea = 0;
+    // //            for(let obj of builds) {
+    // //                const buildArr = []
+    // //                for(let obj2 of Terraformer.WKT.parse(obj.theGeom).coordinates[0][0]) {
+    // //                    buildArr.push(obj2[0])
+    // //                    buildArr.push(obj2[1])
+    // //                }
+    // //                const cart = Cesium.Cartesian3.fromDegreesArray(buildArr);
+    // //                buildsMap[obj.designLayerBuildingId] = {
+    // //                    position : cart,
+    // //                    area: getArea(cart),
+    // //                    height: obj.buildFloor
+    // //                };
+    // //                sumArea += buildsMap[obj.designLayerBuildingId].area;
+    // //                //console.log(buildsMap)
+    // //            }
 
-    //            const buildFloorAreaParam = [];
-    //            for(const p in buildsMap){
-    //                buildFloorAreaParam.push(buildsMap[p].area)
-    //            }
+    // //            const buildFloorAreaParam = [];
+    // //            for(const p in buildsMap){
+    // //                buildFloorAreaParam.push(buildsMap[p].area)
+    // //            }
 
-    //            const buildConvAreaParam = [];
-    //            for(const p in buildsMap){
-    //                buildConvAreaParam.push([buildsMap[p].area, buildsMap[p].height])
-    //            }
-    //            const lotArea = getArea(lotCart);
-    //             $('#nowFloorCov').text(calcFloorCoverage(buildFloorAreaParam, lotArea));
-    //             $('#nowBuildCov').text(calcBuildCoverage(buildConvAreaParam, lotArea));
+    // //            const buildConvAreaParam = [];
+    // //            for(const p in buildsMap){
+    // //                buildConvAreaParam.push([buildsMap[p].area, buildsMap[p].height])
+    // //            }
+    // //            const lotArea = getArea(lotCart);
+    // //             $('#nowFloorCov').text(calcFloorCoverage(buildFloorAreaParam, lotArea));
+    // //             $('#nowBuildCov').text(calcBuildCoverage(buildConvAreaParam, lotArea));
 
-    //            // 필지에 대한 면적을 알고있음..
-    //            // 필지에 대한 면적을 구한다
-    //            // 빌딩들에 대한 면적을 알고있음..
-    //            // 빌딩들에 대한 면적을 구한다.
-    //        });
+    // //            // 필지에 대한 면적을 알고있음..
+    // //            // 필지에 대한 면적을 구한다
+    // //            // 빌딩들에 대한 면적을 알고있음..
+    // //            // 빌딩들에 대한 면적을 구한다.
+    // //        });
 
-		// });
+	// 	// });
 			
-    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+    // }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
     //오른쪽 클릭
     _this.handler.setInputAction(function(event){
@@ -1243,6 +1314,8 @@ DesignLayerObj.prototype.processToolSelect = function(){
     _this.setSelectionInteraction(true);
     //
     Ppmap.getManager().on(Mago3D.MagoManager.EVENT_TYPE.LEFTUP, _this.leftupCallback);
+    Ppmap.getManager().on(Mago3D.MagoManager.EVENT_TYPE.SELECTEDGENERALOBJECT, _this.selectedGeneralObjectCallback);
+    Ppmap.getManager().on(Mago3D.MagoManager.EVENT_TYPE.DESELECTEDGENERALOBJECT, _this.deselectedGeneralObjectCallback);
 
     //
     _this.handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
@@ -1804,6 +1877,24 @@ DesignLayerObj.prototype.xxx = function(){
 
 
     /**
+     * designLayerLand 구하기. lotArea에 값이 존재하는 1st 데이터 리턴
+     * @param {Object} res api호출해서 받은 데이터
+     */
+    let _getDesignLayerLand = function(res){
+        for(let i=0; i<res._embedded.designLayerLands.length; i++){
+            let d = res._embedded.designLayerLands[i];
+            //
+            if(Pp.isNotEmpty(d.lotArea)){
+                return d;
+            }
+        }
+
+        //default로 0번째 데이터 리턴
+        return res._embedded.designLayerLands[0];
+    }
+
+
+    /**
      * 모달리스 실행
      * @param {Object} designLayerLand 필지 정보
      * @param {ExtrusionBuilding} selectedExtrusionBuilding 선택된 건물
@@ -1869,8 +1960,8 @@ DesignLayerObj.prototype.xxx = function(){
         return;
     }
 
-    //필지. default index:0
-    let designLayerLand = res._embedded.designLayerLands[0];
+    //필지. 
+    let designLayerLand = _getDesignLayerLand(res);
 
     //multiPolygon문자열을 LonLat 목록으로 변환
     let landLonLats = Ppmap.Convert.multiPolygonToLonLats(designLayerLand.theGeom);
@@ -1953,6 +2044,327 @@ DesignLayerObj.prototype.calcFloorAreaRatio = function(landArea, totFloorAreas){
     //
     return tot / landArea * 100;
 }
+
+
+
+/**
+ * 지역 정보 모달 표시
+ * @param {string|number} urbanGroupId 도시 그룹 아이디
+ */
+DesignLayerObj.prototype.showUrbanInfo = function(urbanGroupId){
+    //get 지역 정보
+    //calc 전체 세대수
+    //calc 전체 평균 평형
+    //show modeless
+
+    let source = $('#design-layer-modeless-template').html();
+    let template = Handlebars.compile(source);
+    let html = template({'data':{}});
+
+    //
+    $('body').append(html);
+
+    $('div.design-layer-modeless-wrapper').dialog({
+        autoOpen: false,
+        width: 430,
+        height: 250,
+        modal: false,
+        resizable: false,
+        title : '정보',
+    }).dialog('open');
+
+    //
+    $('div.design-layer-urban-wrapper').show();
+};
+
+
+
+
+/**
+ * 필지 정보 표시
+ * @param {BrowserEvent}
+ */
+DesignLayerObj.prototype.showLandInfo = function(browserEvent){
+    let _this = this;
+
+
+
+    //
+    let _getDesignLayerLand = function(res){
+        for(let i=0; i<res._embedded.designLayerLands.length; i++){
+            let d = res._embedded.designLayerLands[i];
+            //
+            if(Pp.isNotEmpty(d.lotArea)){
+                return d;
+            }
+        }
+
+        //default로 0번째 데이터 리턴
+        return res._embedded.designLayerLands[0];
+    }
+
+    //층수 select에 값 바인드, 이벤트 설정
+    let _renderFloorCo = function(){
+        let $floorCo = $wrapper.find('select.floor-co');
+        if(0 === $floorCo.find('option').length){
+            let options = '';
+            for(let i=0; i<100; i++){
+                options += '<option value="'+i+'">'+i+'</option>';
+            }
+            //select 이벤트 등록
+            $floorCo.html(options)
+                .unbind('change')
+                .change(function(){
+                    // 필지내 전체 건물 층수 변경
+                    _this.setBuldingHeightByTheGeom(_this.selectedLand, $floorCo.val());
+                });
+            
+            //up 이벤트 등록
+            $wrapper.find('button.up-floor-co').unbind('click')
+                .click(function(){
+                    // select value증가
+                    let v = parseInt($wrapper.find('select.floor-co').val()) + 1;
+                    $wrapper.find('select.floor-co').val((100<v ? 100 : v));
+                    // select change 이벤트 호출
+                    $wrapper.find('select.floor-co').trigger('change');
+                });
+    
+            //down 이벤트 등록
+            $wrapper.find('button.down-floor-co').unbind('click')
+                .click(function(){
+                    // select value 감소
+                    let v = parseInt($wrapper.find('select.floor-co').val()) - 1;
+                    $wrapper.find('select.floor-co').val((0>v ? 0 : v));
+                    // select change 이벤트 호출
+                    $wrapper.find('select.floor-co').trigger('change');
+                });
+        }
+    }
+
+
+
+
+    //
+    let $wrapper = $('div.design-layer-land-wrapper');
+
+    //get 필지 정보 by 좌표    
+    let geographicCoord = browserEvent.point.geographicCoordinate;
+    
+    let res = this.getGeometryByIntersection(DesignLayerObj.GeometryType.LAND, [geographicCoord], null, {'async':false});
+    
+    //
+    let isEmpty = Pp.isEmpty(res._embedded) || Pp.isEmpty(res._embedded.designLayerLands);
+    //필지 정보 없으면 모달창>필지 hide
+    if(isEmpty){
+        //hide
+        $wrapper.hide();
+        //
+        $('div.design-layer-building-wrapper').hide();
+    }else{
+        $wrapper.show();
+    }
+    this.resizeModelessHeight();
+
+    //
+    if(isEmpty){
+        return;
+    }
+
+
+    //층수 select값 바인드
+    _renderFloorCo();
+
+    
+    //
+    this.selectedLand = _getDesignLayerLand(res);
+    console.log(this.selectedLand);
+    
+    // 값 바인드
+    $wrapper.find('td.building-coverage-ratio').text(this.selectedLand.buildingCoverageRatio);
+    $wrapper.find('td.floor-area-ratio').text(this.selectedLand.floorAreaRatio);
+    $wrapper.find('td.maximum-building-floors').text(this.selectedLand.maximumBuildingFloors);
+};
+
+
+/**
+ * 
+ * @param {Mago3D.ExtrusionBuilding} extrusionBuilding 
+ */
+DesignLayerObj.prototype.showBuildingInfo = function(extrusionBuilding){
+    console.log(extrusionBuilding);
+    let _this = this;
+
+    //
+    let _renderFloorCo = function($wrapper){
+        if(0 === $wrapper.find('select.floor-co > option').length){
+            let s = '';
+            for(let i=0; i<100; i++){
+                s += '<option value="'+i+'">'+i+'</option>';
+            }
+            //
+            $wrapper.find('select.floor-co').html(s)
+                .unbind('change')
+                .change(function(){
+                    // 건물 높이 변경
+                    let h =  parseInt($wrapper.find('select.floor-co').val()) * HEIGHT_PER_FLOOR;
+                    _this.selectedBuilding.setHeight(h);
+
+                    //TODO 용적률 다시 계산
+                    //TODO 세대수 다시 계산
+                    //TODO 필지 > 용적률 다시 계산
+                });
+    
+            //UP 이벤트 등록
+            $wrapper.find('button.up-floor-co')
+                .unbind('click')
+                .click(function(){
+                    // 층수 증가
+                    let v = parseInt($wrapper.find('select.floor-co').val()) + 1;
+                    v = (100 < v ? 100 : v);
+                    $wrapper.find('select.floor-co').val(v);
+                    //
+                    $wrapper.find('select.floor-co').trigger('change');
+                });
+                
+            //down 이벤트 등록
+            $wrapper.find('button.down-floor-co')
+                .unbind('click')
+                .click(function(){
+                    // 층수 감소
+                    let v = parseInt($wrapper.find('select.floor-co').val()) - 1;
+                    v = (0 > v ? 0 : v);
+                    $wrapper.find('select.floor-co').val(v);
+                    //
+                    $wrapper.find('select.floor-co').trigger('change');
+                });
+        }
+    };
+
+
+    let $wrapper = $('div.design-layer-building-wrapper');
+
+    //
+    _renderFloorCo($wrapper);
+    
+
+    //
+    if(Pp.isNull(extrusionBuilding)){
+        $wrapper.hide();
+    }else{
+        $wrapper.show();
+    }
+    this.resizeModelessHeight();
+    
+
+
+    //데이터가 없으면
+    if(Pp.isNull(extrusionBuilding)){
+        //
+        return;
+    }
+    
+    // 데이터 바인드
+    if(Pp.isEmpty(extrusionBuilding['_originHeight'])){
+        extrusionBuilding['_originHeight'] = extrusionBuilding.getHeight();
+    }
+    $wrapper.find('td.floor-co').text(parseInt(extrusionBuilding['_originHeight'] / HEIGHT_PER_FLOOR));
+
+    let h = extrusionBuilding.getHeight();
+    if(Pp.isNotEmpty(h)){        
+        $wrapper.find('select.floor-co').val(parseInt(h / HEIGHT_PER_FLOOR));
+    }
+
+};
+
+
+/**
+ * 건물 층수 설정
+ * @param {String} theGeom multipolygon 문자열
+ * @param {number} floorCo 층수
+ */
+DesignLayerObj.prototype.setBuldingHeightByTheGeom = function(theGeom, floorCo){
+    let lonLats = Ppmap.Convert.multiPolygonToLonLats(theGeom);
+
+    //
+    this.setBuldingHeightByLonLats(lonLats, floorCo);
+};
+
+
+/**
+ * 건물 층수 설정
+ * @param {Array<LonLat>} lonLats lonlat 목록
+ * @param {number} floorCo 층수
+ */
+DesignLayerObj.prototype.setBuldingHeightByLonLats = function(lonLats, floorCo){
+    //
+    let arr = [];
+    for(let i=0; i<lonLats.length; i++){
+        let d = lonLats[i];
+
+        arr.push(new Mago3D.geographicCoord(d.lon, d.lat, 0));
+    }
+
+    //
+    let polygon2ds = Mago3D.Polygon2D.makePolygonByGeographicCoordArray(arr);
+    //
+	let buildings = Ppmap.getManager().selectionManager.selectionByPolygon2D(polygon2D, 'native');
+
+    //
+    this.setBuldingHeightByBuildings(buildings, floorCo);
+};
+
+
+/**
+ * 건물 층수 설정
+ * @param {Mago3D.ExtrusionBuilding} buildings 건물 목록
+ * @param {number} floorCo 층수
+ */
+DesignLayerObj.prototype.setBuldingHeightByBuildings = function(buildings, floorCo){
+    for(let i=0; i<buildings.length; i++){
+        this.setBuldingHeightByBuilding(buildings[i], floorCo);
+    }
+};
+
+
+/**
+ * 건물 층수 설정
+ * @param {Mago3D.ExtrusionBuilding} building 건물
+ * @param {number} floorCo 층수
+ */
+DesignLayerObj.prototype.setBuldingHeightByBuilding = function(building, floorCo){
+    if(Pp.isEmpty(building)){
+        return;
+    }
+
+    //
+    building.setHeight(floorCo * HEIGHT_PER_FLOOR);
+};
+
+
+/**
+ * modeless창 height 자동 변경
+ */
+DesignLayerObj.prototype.resizeModelessHeight = function(){
+    let h = 0;
+    //
+    if($('div.design-layer-urban-wrapper').is(':visible')){
+        h += 250;
+    }
+    //
+    if($('div.design-layer-land-wrapper').is(':visible')){
+        h += 200;
+    }
+    //
+    if($('div.design-layer-building-wrapper').is(':visible')){
+        h += 200;
+    }
+
+    //
+    $('div.design-layer-modeless-wrapper').dialog('option', {'height':h})
+        .dialog('open');
+    
+};
+
 
 
 //
