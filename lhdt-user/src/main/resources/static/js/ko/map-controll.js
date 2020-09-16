@@ -723,8 +723,7 @@ Compass.prototype.handleDblClick = function(e) {
 	this._scene.tweens.add(tween);
 }
 Compass.prototype.handleDown = function(e) {
-	var tagName = e.target.tagName;
-	if(tagName === 'DIV') {
+	if(e.target.className === 'bearingIn') {
 		this.setOrbitMode(e);
 	} else {
 		this.setRotateMode(e);
@@ -756,6 +755,9 @@ Compass.prototype.setOrbitMode = function(e) {
 	var subtract = Cesium.Cartesian2.subtract(offset, divCenter, this.scratch2d);
 	this.setOrbitCursor(subtract);
 	
+	var fan = this.compassElement.getElementsByClassName('bearingInFan').item(0);
+	fan.style.display = 'block';
+	
 	document.addEventListener("pointermove", this.orbitMouseMove, false);
     document.addEventListener("pointerup", this.orbitMouseUp, false);
 	this._viewer.clock.onTick.addEventListener(this.orbitTick);
@@ -778,6 +780,9 @@ Compass.prototype.orbitMouseUp = function(e) {
 	document.removeEventListener("pointermove", this.orbitMouseMove, false);
     document.removeEventListener("pointerup", this.orbitMouseUp, false);
 	this._viewer.clock.onTick.removeEventListener(this.orbitTick);
+	
+	var fan = this.compassElement.getElementsByClassName('bearingInFan').item(0);
+	fan.style.display = 'none';
 }
 
 Compass.prototype.orbitTick = function(e) {
@@ -799,6 +804,9 @@ Compass.prototype.orbitTick = function(e) {
 	}
 	this._camera.lookAtTransform(transform);
 	this.orbitLastTimestamp = currentTime;
+	
+	var fan = this.compassElement.getElementsByClassName('bearingInFan').item(0);
+	fan.style.transform = `rotate(-${this.orbitCursorAngle}rad)`;
 }
 
 Compass.prototype.setOrbitCursor = function (sub) {
@@ -870,7 +878,9 @@ Compass.prototype.getTimeStamp = function() {
 }
 
 Compass.prototype.setSvgRotate = function() {
-	this.compassElement.getElementsByTagName('svg').item(0).style.transform = `rotate(-${this._camera.heading}rad)`;
+	this.compassElement.style.transform = `rotate(-${this._camera.heading}rad)`;
+	this.compassElement.getElementsByClassName('bearingIn').item(0).style.transform = `rotate(${this._camera.heading}rad)`;
+	
 }
 
 $(document).ready(function() {
@@ -990,6 +1000,31 @@ $(document).ready(function() {
 			$('#mapCtrlCompassOut').css('right', '0');
 			$('.mago3d-overlayContainer-defaultControl').css('right', '0');
 		}
+	});
+	
+	$('#mapSettingBboxToggle').click(function() {
+		$(this).toggleClass('on');
+		
+		var magoManager = MAGO3D_INSTANCE.getMagoManager();
+		magoManager.magoPolicy.setShowBoundingBox($(this).hasClass('on'));
+	});
+	
+	$('#mapSettingLabelToggle').click(function() {
+		$(this).toggleClass('on');
+		var magoManager = MAGO3D_INSTANCE.getMagoManager();
+		magoManager.magoPolicy.setShowLabelInfo($(this).hasClass('on'));
+	});
+	
+	$('#mapSettingOriginToggle').click(function() {
+		$(this).toggleClass('on');
+		var magoManager = MAGO3D_INSTANCE.getMagoManager();
+		magoManager.magoPolicy.setShowOrigin($(this).hasClass('on'));
+	});
+	
+	$('#mapSettingShadowToggle').click(function() {
+		$(this).toggleClass('on');
+		var magoManager = MAGO3D_INSTANCE.getMagoManager();
+		magoManager.sceneState.setApplySunShadows($(this).hasClass('on'));
 	});
 
 	// 확대

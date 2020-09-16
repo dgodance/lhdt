@@ -30,6 +30,8 @@ public class DesignLayerDto implements Serializable {
     private Integer urbanGroupId;
     // 디자인 레이어 그룹 아이디
     private Integer designLayerGroupId;
+    // design layer 분류. land : 땅, building : 빌딩
+    private String designLayerGroupType;
     // 디자인 레이어 그룹명
     private String designLayerGroupName;
     // 디자인 레이어 키
