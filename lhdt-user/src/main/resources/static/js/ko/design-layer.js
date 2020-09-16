@@ -413,7 +413,7 @@ DesignLayerObj.prototype.selectedGeneralObjectCallback = function(json){
     console.log('selectedGeneralObjectCallback', json);
 
     //
-    let _this = this;
+    let _this = designLayerObj;
 
 
     //
@@ -2066,7 +2066,7 @@ DesignLayerObj.prototype.showUrbanInfo = function(urbanGroupId){
 
     $('div.design-layer-modeless-wrapper').dialog({
         autoOpen: false,
-        width: 430,
+        width: 500,
         height: 250,
         modal: false,
         resizable: false,
@@ -2116,7 +2116,7 @@ DesignLayerObj.prototype.showLandInfo = function(browserEvent){
                 .unbind('change')
                 .change(function(){
                     // 필지내 전체 건물 층수 변경
-                    _this.setBuldingHeightByTheGeom(_this.selectedLand, $floorCo.val());
+                    _this.setBuldingHeightByTheGeom(_this.selectedLand.theGeom, $floorCo.val());
                 });
             
             //up 이벤트 등록
@@ -2180,14 +2180,14 @@ DesignLayerObj.prototype.showLandInfo = function(browserEvent){
     console.log(this.selectedLand);
     
     // 값 바인드
-    $wrapper.find('td.building-coverage-ratio').text(this.selectedLand.buildingCoverageRatio);
-    $wrapper.find('td.floor-area-ratio').text(this.selectedLand.floorAreaRatio);
-    $wrapper.find('td.maximum-building-floors').text(this.selectedLand.maximumBuildingFloors);
+    $wrapper.find('td.plan-building-coverage-ratio').text(this.selectedLand.buildingCoverageRatio);
+    $wrapper.find('td.plan-floor-area-ratio').text(this.selectedLand.floorAreaRatio);
+    $wrapper.find('td.plan-maximum-building-floors').text(this.selectedLand.maximumBuildingFloors);
 };
 
 
 /**
- * 
+ * 건물정보 표시
  * @param {Mago3D.ExtrusionBuilding} extrusionBuilding 
  */
 DesignLayerObj.prototype.showBuildingInfo = function(extrusionBuilding){
@@ -2301,13 +2301,13 @@ DesignLayerObj.prototype.setBuldingHeightByLonLats = function(lonLats, floorCo){
     for(let i=0; i<lonLats.length; i++){
         let d = lonLats[i];
 
-        arr.push(new Mago3D.geographicCoord(d.lon, d.lat, 0));
+        arr.push(new Mago3D.GeographicCoord(d.lon, d.lat, 0));
     }
 
     //
     let polygon2ds = Mago3D.Polygon2D.makePolygonByGeographicCoordArray(arr);
     //
-	let buildings = Ppmap.getManager().selectionManager.selectionByPolygon2D(polygon2D, 'native');
+	let buildings = Ppmap.getManager().selectionManager.selectionByPolygon2D(polygon2ds, 'native');
 
     //
     this.setBuldingHeightByBuildings(buildings, floorCo);
@@ -2345,23 +2345,27 @@ DesignLayerObj.prototype.setBuldingHeightByBuilding = function(building, floorCo
  * modeless창 height 자동 변경
  */
 DesignLayerObj.prototype.resizeModelessHeight = function(){
-    let h = 0;
+    let h = 250;
     //
-    if($('div.design-layer-urban-wrapper').is(':visible')){
-        h += 250;
-    }
+    // if($('div.design-layer-urban-wrapper').is(':visible')){
+    //     console.log('on 지역');
+    //     h += 250;
+    // }
     //
     if($('div.design-layer-land-wrapper').is(':visible')){
+        console.log('on 필지');
         h += 200;
     }
     //
     if($('div.design-layer-building-wrapper').is(':visible')){
+        console.log('on 건물');
         h += 200;
     }
 
     //
     $('div.design-layer-modeless-wrapper').dialog('option', {'height':h})
         .dialog('open');
+
     
 };
 
