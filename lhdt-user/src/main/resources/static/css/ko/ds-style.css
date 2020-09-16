@@ -13,23 +13,55 @@
 .text-left {text-align:left  !important;}
 .text-center {text-align:center  !important;}
 
-.mt-5 {margin-top:10px !important;}
+.mt-2 {margin-top:2px !important;}
+.mt-5 {margin-top:5px !important;}
 .mt-10 {margin-top:10px !important;}
-.mt-15 {margin-top:10px !important;}
+.mt-15 {margin-top:15px !important;}
+.mt-20 {margin-top:20px !important;}
 
-button.textBtnSub.active {background-color:#258FFF; color:white; font-weight:bold;}
+.cursor-pointer {cursor:pointer !important;}
+.cursor-default {cursor:default !important;}
+
+.w-30 {width:30% !important;}
+
+button.textBtnSub.active {background-color:#258FFF; color:white; font-weight:bold;background-image: url('../../images/ico_checked.png') !important; background-repeat: no-repeat; background-size: 32px;}
 button[class*=ds-tool], button[class*=design-layer-tool] {width:49% !important; margin-bottom:2px;}
+button[class*=ds-tool][class=active] {background-image: '../../images/ico_checked.png'; background-repeat: no-repeat;}
 
 table.ds-data-library-list > tbody > tr {font-weight:normal; background-color:white;}
 table.ds-data-library-list > tbody > tr.on {font-weight:bold !important; background-color:lightyellow !important;}
 table.design-layers > tbody > tr {font-weight:normal; background-color:white;}
 table.design-layers > tbody > tr.on {font-weight:bold !important; background-color:lightyellow !important;}
 
-.cursor-pointer {cursor:pointer !important;}
-.cursor-default {cursor:default !important;}
+div.design-layer-modeless-wrapper select {
+    margin: 0;
+    outline: 0;
+    vertical-align: middle;
+    font-family: Arial,Helvetica,sans-serif;
+    border-color: #d5d5d5;
+    color: #7d7d7d;
+    font-size: small;
+    line-height: 1.5em;
+    padding: 5px;
+    width: 50px;
+}
+
+div.design-layer-modeless-wrapper button[class*=floor-co] {
+    margin: 0;
+    outline: 0;
+    cursor: pointer;
+    font-family: Arial,Helvetica,sans-serif;
+    padding: 5px;
+    line-height: 1.5em;
+    font-size: small;
+    vertical-align: middle;
+    width: 30px;
+}
 
 
-table.design-layer-land {
+
+
+table[class*=design-layer] {
     color: #444;
     font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
     font-size: 13px;
@@ -46,7 +78,7 @@ table.design-layer-land {
     width: calc(100% - 1px);
 }
 
-table.design-layer-land > thead {
+table[class*=design-layer] > thead {
     color: #444;
     font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
     font-size: 13px;
@@ -61,7 +93,7 @@ table.design-layer-land > thead {
     vertical-align: top;
 }
 
-table.design-layer-land > thead > tr {
+table[class*=design-layer] > thead > tr {
     color: #444;
     font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
     font-size: 13px;
@@ -76,7 +108,7 @@ table.design-layer-land > thead > tr {
     vertical-align: top;
 }
 
-table.design-layer-land > thead > tr > th {
+table[class*=design-layer] > thead > tr > th {
     list-style: none;
     border-collapse: collapse;
     border-spacing: 0;
@@ -96,7 +128,7 @@ table.design-layer-land > thead > tr > th {
     border-top: 2px solid #19334a;
 }
 
-table.design-layer-land > thead > tr > th:last-child {
+table[class*=design-layer] > thead > tr > th:last-child {
     list-style: none;
     border-collapse: collapse;
     border-spacing: 0;
@@ -116,7 +148,7 @@ table.design-layer-land > thead > tr > th:last-child {
     border-right: none;
 }
 
-table.design-layer-land > tbody {
+table[class*=design-layer] > tbody {
     color: #444;
     font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
     font-size: 13px;
@@ -131,7 +163,7 @@ table.design-layer-land > tbody {
     vertical-align: top;
 }
 
-table.design-layer-land > tbody > tr{
+table[class*=design-layer] > tbody > tr{
     color: #444;
     font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
     font-size: 13px;
@@ -148,7 +180,7 @@ table.design-layer-land > tbody > tr{
     background-color: white;
 }
 
-table.design-layer-land > tbody > tr > td{
+table[class*=design-layer] > tbody > tr > td{
     list-style: none;
     border-collapse: collapse;
     border-spacing: 0;
@@ -168,7 +200,7 @@ table.design-layer-land > tbody > tr > td{
     cursor: default;
 }
 
-table.design-layer-land > tbody > tr > td:last-child {
+table[class*=design-layer] > tbody > tr > td:last-child {
     list-style: none;
     border-collapse: collapse;
     border-spacing: 0;

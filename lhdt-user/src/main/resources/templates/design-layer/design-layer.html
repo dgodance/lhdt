@@ -204,8 +204,12 @@
 						<td>용적률</td>
 						<td>{{data.floorAreaRatio}}</td>
 					</tr>
+					
+					<tr>
+						<td>가구번호, 획지번호</td>
+						<td>{{data.blockCode}} {{data.lotArea}}</td>
+					</tr>
 				-->
-				
 				<tr>
 					<td>용적률-기준(%)</td>
 					<td>{{data.floorAreaRatioStandard}}</td>
@@ -262,6 +266,140 @@
 	</div>
 </script>
 
+
+<!--  -->
+<script th:src="@{/js/ko/complex-indict.js}"></script>
+<script id="design-layer-modeless-template" type="text/x-handlebars-template">
+	<div class="design-layer-modeless-wrapper" style="display: none;">
+		<!--지역-->
+		<div class="design-layer-urban-wrapper" style="display: none;">
+			<h3>지역</h3>
+			<table class="table-word-break design-layer-urban" summary="지역 정보">
+				<caption class="hiddenTag">지역 정보</caption>
+				<colgroup>
+					<col class="col-width-25">
+					<col class="col-number" width="*">
+					<col class="col-width-25">
+					<col class="col-number" width="*">
+				</colgroup>
+				<thead>
+					<tr>
+						<th>구분</th>
+						<th>값</th>
+						<th>구분</th>
+						<th>값</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>사업지구</td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td>전체 세대수</td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td>ㅇㅇㅇ</td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	
+		<!--필지-->
+		<div class="design-layer-land-wrapper mt-20" style="display: none;">
+			<h3>필지</h3>
+			<table class="table-word-break design-layer-land" summary="필지 정보">
+				<caption class="hiddenTag">필지 정보</caption>
+				<colgroup>
+					<col class="col-width-25">
+					<col class="col-number" width="*">
+					<col class="col-width-25">
+					<col class="col-number" width="*">
+				</colgroup>
+				<thead>
+					<tr>
+						<th>구분</th>
+						<th>기준</th>
+						<th>계획</th>
+						<th>현재</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>건폐율(%)</td>
+						<td class="stnd-building-coverage-ratio"></td>
+						<td class="plan-building-coverage-ratio"></td>
+						<td class="now-building-coverage-ratio"></td>
+					</tr>
+					<tr>
+						<td>용적률(%)</td>
+						<td class="stnd-floor-area-ratio"></td>
+						<td class="plan-floor-area-ratio"></td>
+						<td class="now-after-floor-area-ratio"></td>
+					</tr>
+					<tr>
+						<td>최고층수(층)</td>
+						<td class="stnd-maximum-building-floors"></td>
+						<td class="plan-maximum-building-floors"></td>
+						<td class="now-maximum-building-floors"></td>
+					</tr>
+				</tbody>
+			</table>
+			<div class="form-group form-group-data mt-2">
+				<label for="floor-co" class="w-30">전체 건물 층수 변경</label> 
+				<select class="floor-co">
+					<!--by js. 1~100-->
+				</select>
+				<button type="button" class="up-floor-co">△</button>
+				<button type="button" class="down-floor-co">▽</button>				
+			</div>
+		</div>
+		
+		<!--건물-->
+		<div class="design-layer-building-wrapper mt-20" style="display: none;">
+			<h3>건물</h3>
+			<table class="table-word-break design-layer-building" summary="건물 정보">
+				<caption class="hiddenTag">건물 정보</caption>
+				<colgroup>
+					<col class="col-width-35">
+					<col class="col-number" width="*">
+					<col class="col-number" width="*">
+				</colgroup>
+				<thead>
+					<tr>
+						<th>구분</th>
+						<th>계획</th>
+						<th>변경후</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr class="floor-co">
+						<td>층수(층)</td>
+						<td class="floor-co"></td>
+						<td>
+							<select class="floor-co"><!-- by js. 1~100 --></select>
+							<button type="button" class="up-floor-co">△</button>
+							<button type="button" class="down-floor-co">▽</button>
+						</td>
+					</tr>					
+					<tr class="house-hold-co">
+						<td>세대수(세대)</td>
+						<td></td>
+						<td></td>
+					</tr>					
+				</tbody>
+			</table>
+		</div>
+	</div>
+</script>
 
 
 </div>

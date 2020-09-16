@@ -13,6 +13,10 @@ var extrusionTools = function (magoInstance){
 	var upanddown = new Mago3D.NativeUpDownInteraction();
 	magoManager.interactionCollection.add(upanddown);
 	
+	upanddown.on(Mago3D.NativeUpDownInteraction.EVENT_TYPE.CHANGEHEIGHT, function(e){
+		console.info(e);
+	});
+	
 	/**
 	 * 클릭을 통한 데이터 라이브러리를 지도상에 표출
 	 * Mago3D.ClickInteraction 인스턴스 생성 시 handleUpEvent를 등록하면 다른 기능들도 활용 가능.
