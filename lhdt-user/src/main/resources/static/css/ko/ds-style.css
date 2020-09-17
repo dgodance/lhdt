@@ -12,6 +12,7 @@
 
 .text-left {text-align:left  !important;}
 .text-center {text-align:center  !important;}
+.text-right {text-align:right  !important;}
 
 .mt-2 {margin-top:2px !important;}
 .mt-5 {margin-top:5px !important;}
@@ -210,7 +211,7 @@ table[class*=design-layer] > tbody > tr > td:last-child {
     color: #444;
     font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
     line-height: 1.5em;
-    text-align: left  !important;
+    /* text-align: left  !important; */
     word-break: break-all;
     vertical-align: middle;
     padding: 7px 5px;

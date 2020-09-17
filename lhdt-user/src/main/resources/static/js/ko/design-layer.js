@@ -1160,10 +1160,12 @@ DesignLayerObj.prototype.processToolUpdown = function(){
     /**
 	 * 선택된 객체(디자인 레이어)를 마우스로 높낮이 조절하는 기능
 	 */
-    _this.upanddown = new Mago3D.NativeUpDownInteraction();
-    _this.upanddown.on(Mago3D.NativeUpDownInteraction.EVENT_TYPE.CHANGEHEIGHT, _this.changeHeightCallback);
-
-	Ppmap.getManager().interactionCollection.add(_this.upanddown);
+    if(Pp.isNull(_this.upanddown)){
+        _this.upanddown = new Mago3D.NativeUpDownInteraction();
+        _this.upanddown.on(Mago3D.NativeUpDownInteraction.EVENT_TYPE.CHANGEHEIGHT, _this.changeHeightCallback);
+    
+        Ppmap.getManager().interactionCollection.add(_this.upanddown);
+    }
 
     _this.upanddown.setActive(true);
 
@@ -1193,12 +1195,14 @@ DesignLayerObj.prototype.processToolRotate = function(){
     /**
 	 * 선택된 객체를 마우스로 회전시키는 기능
 	 */
-	_this.rotate = new Mago3D.RotateInteraction();
-	Ppmap.getManager().interactionCollection.add(_this.rotate);
+    if(Pp.isNull(_this.rotate)){
+        _this.rotate = new Mago3D.RotateInteraction();
+        _this.rotate.setTargetType('native');
+        Ppmap.getManager().interactionCollection.add(_this.rotate);
+    }
 
     //
 	_this.setSelectionInteraction(true);
-    _this.rotate.setTargetType('native');
 	_this.rotate.setActive(true);
 
     //
@@ -2036,6 +2040,13 @@ DesignLayerObj.prototype.calcBuildingCoverageRatio = function(landArea, floorAre
  */
 DesignLayerObj.prototype.calcFloorAreaRatio = function(landArea, totFloorAreas){
     let tot=0.0;
+
+    //
+    if(Pp.isEmpty(totFloorAreas)){
+        return tot;
+    }
+
+
     //
     for(let i=0; i<totFloorAreas.length; i++){
         tot += totFloorAreas[i];
@@ -2094,7 +2105,7 @@ DesignLayerObj.prototype.showLandInfo = function(browserEvent){
         for(let i=0; i<res._embedded.designLayerLands.length; i++){
             let d = res._embedded.designLayerLands[i];
             //
-            if(Pp.isNotEmpty(d.lotArea)){
+            if(Pp.isNotEmpty(d.lotCode)){
                 return d;
             }
         }
@@ -2278,24 +2289,80 @@ DesignLayerObj.prototype.showBuildingInfo = function(extrusionBuilding){
 
 
 /**
- * 건물 층수 설정
- * @param {String} theGeom multipolygon 문자열
+ * 특정영역(필지)내의 모든 건물 층수 설정
+ * @param {String} theGeom (필지의)multipolygon 문자열
  * @param {number} floorCo 층수
  */
 DesignLayerObj.prototype.setBuldingHeightByTheGeom = function(theGeom, floorCo){
+    let _this = this;
+
+    /**
+     * 특정 영역내의 모든 건물 용적률 계산&표시
+     * @param {Array<LonLat>} lonLats 
+     */
+    let _renderFloorAreaRatio = function(lonLats){
+        //영역내 건물 목록
+        let buildings = _this.getBuildingsByPolygon(lonLats);
+        //영역의 면적
+        let landArea = Ppmap.calcArea(lonLats, Ppmap.PointType.LONLAT);
+        //영역의 용적률
+        let floorAreaRatio = _this.calcFloorAreaRatioByBuildings(landArea, buildings);
+
+        //표시
+        $('div.design-layer-land-wrapper td.now-floor-area-ratio').text(floorAreaRatio);
+    };
+
+    //
+    let _renderMaximumFloorCo = function(lonLats){
+        //영역내 건물 목록
+        let buildings = _this.getBuildingsByPolygon(lonLats);
+        //최고 층수
+        let max = _this.getMaximumFloorCo(buildings);
+
+        //표시
+        $('div.design-layer-land-wrapper td.now-maximum-building-floors').text(max);
+    };
+
+
+    //
     let lonLats = Ppmap.Convert.multiPolygonToLonLats(theGeom);
 
     //
     this.setBuldingHeightByLonLats(lonLats, floorCo);
+
+    //현재 용적률 계산&표시
+    _renderFloorAreaRatio(lonLats);
+    //현재 최고층수 계산&표시
+    _renderMaximumFloorCo(lonLats);
+};
+
+
+DesignLayerObj.prototype.getMaximumFloorCo = function(buildings){
+    if(Pp.isEmpty(buildings)){
+        return 0;
+    }
+
+    //
+    let max = -999;
+    for(let i=0; i<buildings.length; i++){
+        let d = buildings[i];
+        let h = parseInt(d.getHeight() / HEIGHT_PER_FLOOR);
+        if(max < h){
+            max = h;
+        }
+    }
+
+    //
+    return max;
 };
 
 
 /**
- * 건물 층수 설정
- * @param {Array<LonLat>} lonLats lonlat 목록
- * @param {number} floorCo 층수
+ * 좌표 목록으로 ExtrusionBuilding 목록 구하기
+ * @param {Array<LonLat>} lonLats 좌표 목록
+ * @returns {Array<ExtrusionBuilding>}
  */
-DesignLayerObj.prototype.setBuldingHeightByLonLats = function(lonLats, floorCo){
+DesignLayerObj.prototype.getBuildingsByPolygon = function(lonLats){
     //
     let arr = [];
     for(let i=0; i<lonLats.length; i++){
@@ -2307,7 +2374,19 @@ DesignLayerObj.prototype.setBuldingHeightByLonLats = function(lonLats, floorCo){
     //
     let polygon2ds = Mago3D.Polygon2D.makePolygonByGeographicCoordArray(arr);
     //
-	let buildings = Ppmap.getManager().selectionManager.selectionByPolygon2D(polygon2ds, 'native');
+    return Ppmap.getManager().selectionManager.selectionByPolygon2D(polygon2ds, 'native');
+}
+
+
+/**
+ * 건물 층수 설정
+ * @param {Array<LonLat>} lonLats lonlat 목록
+ * @param {number} floorCo 층수
+ */
+DesignLayerObj.prototype.setBuldingHeightByLonLats = function(lonLats, floorCo){
+    
+    //
+	let buildings = this.getBuildingsByPolygon(lonLats);
 
     //
     this.setBuldingHeightByBuildings(buildings, floorCo);
@@ -2342,6 +2421,30 @@ DesignLayerObj.prototype.setBuldingHeightByBuilding = function(building, floorCo
 
 
 /**
+ * 필지의 용적률 계산
+ * @param {number} landArea 필지 면적
+ * @param {Array<Mago3D.ExtrusionBuilding>} buildings 필지내 건물 목록
+ * @returns {Number} 용적률
+ */
+DesignLayerObj.prototype.calcFloorAreaRatioByBuildings = function(landArea, buildings){
+    if(Pp.isEmpty(buildings)){
+        return 0.0;
+    }
+
+    //
+    let totFloorAreas=[];
+    for(let i=0; i<buildings.length; i++){
+        let d = buildings[i];
+        console.log('DesignLayerObj', 'calcFloorAreaRatioByBuildings', 'TODO 빌딩의 바닥면적 필요(가이아가 제공해주는 값)');
+        totFloorAreas.push((d.getHeight()*HEIGHT_PER_FLOOR) * Pp.nvl(d['buildingArea'], 0.0));
+    }
+
+    //
+    return this.calcFloorAreaRatio(landArea, totFloorAreas);
+}
+
+
+/**
  * modeless창 height 자동 변경
  */
 DesignLayerObj.prototype.resizeModelessHeight = function(){
@@ -2353,12 +2456,10 @@ DesignLayerObj.prototype.resizeModelessHeight = function(){
     // }
     //
     if($('div.design-layer-land-wrapper').is(':visible')){
-        console.log('on 필지');
         h += 200;
     }
     //
     if($('div.design-layer-building-wrapper').is(':visible')){
-        console.log('on 건물');
         h += 200;
     }
 
