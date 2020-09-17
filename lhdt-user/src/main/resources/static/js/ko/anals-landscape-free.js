@@ -99,7 +99,6 @@ const cesiumMouseEvt = {
     clearEntity: function() {
         cesiumMouseEvt.pos.start = undefined;
         cesiumMouseEvt.pos.end = undefined;
-        debugger;
         const entityLine = cesiumMouseEvt.entity.line;
         const entityStartDot = cesiumMouseEvt.entity.start;
         const entityEndDot = cesiumMouseEvt.entity.end;
