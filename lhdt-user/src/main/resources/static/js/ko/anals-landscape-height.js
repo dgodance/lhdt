@@ -213,6 +213,7 @@ function AnalsHeightLandScapeView(viewer, magoInstance) {
      */
     LSHeightAnals.prototype.genHeightView = function(maxHeight) {
         const direction = this.getDirectionByTwoPoint();
+        this.cameraHeight = [];
         for(let i = 0; i < maxHeight; i++) {
             this.cameraHeight.push(this.genView(i+1, direction));
         }
