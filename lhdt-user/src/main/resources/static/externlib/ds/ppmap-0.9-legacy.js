@@ -333,6 +333,7 @@ Ppmap.createPoint = function(entityName, lon, lat, option) {
             heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
         }
     });
+    debugger;
     return entity;
 }
 
