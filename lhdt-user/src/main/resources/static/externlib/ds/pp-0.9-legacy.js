@@ -1,5 +1,7 @@
 'use strict';
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -434,39 +436,44 @@ var Pp = function () {
 
         /**
          * obj가 공백인지 여부
-         * @param {string | number | Array<any>|Map|undefined} strOrArr 문자열|배열
+         * @param {any} obj 문자열|배열
          * @returns {boolean}
          */
 
     }, {
         key: 'isEmpty',
-        value: function isEmpty(strOrArr) {
-            if (Pp.isNull(strOrArr)) {
+        value: function isEmpty(obj) {
+            if (Pp.isNull(obj)) {
                 return true;
             }
 
             //숫자형은 항상 false
-            if ("number" === typeof strOrArr) {
+            if ("number" === typeof obj) {
                 return false;
             }
 
             //
-            if (strOrArr instanceof Map) {
-                return 0 === strOrArr.size;
+            if (obj instanceof Map) {
+                return 0 === obj.size;
             }
 
             //
-            if (Array.isArray(strOrArr)) {
-                if (0 === strOrArr.length) {
+            if (Array.isArray(obj)) {
+                if (0 === obj.length) {
                     return true;
                 }
             }
 
             //
-            if ("string" === typeof strOrArr) {
-                if (0 === strOrArr.length) {
+            if ("string" === typeof obj) {
+                if (0 === obj.length) {
                     return true;
                 }
+            }
+
+            //object이면 키의 갯수로 확인
+            if ('object' === (typeof obj === 'undefined' ? 'undefined' : _typeof(obj))) {
+                return 0 === Object.keys(obj).length;
             }
 
             //
