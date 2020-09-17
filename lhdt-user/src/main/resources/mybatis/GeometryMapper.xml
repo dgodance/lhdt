@@ -86,6 +86,32 @@
         </if>
     </select>
 
+    <select id="getIntersectionDesignLayerBuildingHeights" parameterType="spatialOperationInfo" resultType="designLayerBuildingHeightDto">
+        /* getIntersectionDesignLayerBuildingHeights */
+        SELECT
+        design_layer_building_height_id,
+        design_layer_id,
+        design_layer_group_id,
+        build_id,
+        build_maximum_floors,
+        update_date,
+        insert_date,
+        st_astext(the_geom) as the_geom
+        FROM design_layer_building_height
+        WHERE enable_yn='Y'
+        <choose>
+            <when test="buffer !=null and buffer > 0" >
+                AND st_intersects(st_buffer(ST_GeomFromText(#{wkt},4326),#{buffer}), the_geom) = true
+            </when>
+            <otherwise>
+                AND st_intersects(ST_GeomFromText(#{wkt},4326), the_geom) = true
+            </otherwise>
+        </choose>
+        <if test="maxFeatures !=null and maxFeatures > 0">
+            limit #{maxFeatures}
+        </if>
+    </select>
+
     <select id="getIntersectionDatas" parameterType="spatialOperationInfo" resultType="dataInfo">
         /* getIntersectionDatas */
         SELECT

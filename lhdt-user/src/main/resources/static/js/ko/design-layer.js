@@ -379,7 +379,6 @@ DesignLayerObj.prototype.getElByTool = function (tool) {
  * @returns {DesignLayerObj.Tool}
  */
 DesignLayerObj.prototype.getToolByEl = function (el) {
-    debugger;
     let keys = Object.keys(DesignLayerObj.Tool);
 
     //
@@ -778,7 +777,6 @@ DesignLayerObj.prototype.extrudeLandByCtsn2 = function(ctsn2){
 };
 
 DesignLayerObj.prototype.processChkDistance = function(){
-    debugger;
     //
     if(!this.currentToolIs(DesignLayerObj.Tool.CHKDISTANCE)){
         return;

@@ -104,8 +104,8 @@
 		WHERE design_layer_id = #{designLayerId}
 	</select>
 
-	<select id="getDesignLayerBuildingHeight" parameterType="long" resultType="string">
-		/* getDesignLayerBuildingHeight */
+	<select id="getDesignLayerBuildingHeightExtent" parameterType="long" resultType="string">
+		/* getDesignLayerBuildingHeightExtent */
 		SELECT
 			concat(st_xmin(st_extent(the_geom)),',',
 				   st_ymin(st_extent(the_geom)),',',
@@ -192,7 +192,7 @@
 		)
 	</insert>
 
-	<insert id="insertGeometryBuilding" parameterType="designLayerLand">
+	<insert id="insertGeometryBuilding" parameterType="designLayerBuilding">
 		/* insertGeometryBuilding */
 		<selectKey keyProperty="designLayerBuildingId" resultType="long" order="BEFORE">
 			SELECT NEXTVAL('design_layer_building_seq')
@@ -210,9 +210,9 @@
 			SELECT NEXTVAL('design_layer_building_height_seq')
 		</selectKey>
 		INSERT INTO design_layer_building_height (
-			design_layer_building_id, design_layer_id, design_layer_group_id, build_id, the_geom
+			design_layer_building_height_id, design_layer_id, design_layer_group_id, build_id, the_geom
 		) VALUES (
-			#{designLayerBuildingId}, #{designLayerId}, #{designLayerGroupId}, #{buildId}, st_transform(ST_GeomFromText(#{theGeom},#{coordinate}),4326)
+			#{designLayerBuildingHeightId}, #{designLayerId}, #{designLayerGroupId}, #{buildId}, st_transform(ST_GeomFromText(#{theGeom},#{coordinate}),4326)
 		)
 	</insert>
 

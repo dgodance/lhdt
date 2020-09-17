@@ -35,6 +35,8 @@ public class DesignLayerBuildingHeight {
     private String enableYn;
     // shape 버전 아이디
     private Integer versionId;
+    // 좌표계
+    private Integer coordinate;
 
     // 수정일
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
