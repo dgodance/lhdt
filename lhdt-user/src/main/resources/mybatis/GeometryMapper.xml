@@ -65,6 +65,8 @@
             build_area,
             build_complex,
             parent_id,
+            build_unit_type,
+            build_unit_count,
             properties,
             update_date,
             insert_date,

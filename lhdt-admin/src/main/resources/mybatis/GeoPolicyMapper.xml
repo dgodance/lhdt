@@ -59,7 +59,7 @@
 			layer_source_coordinate = #{layerSourceCoordinate},
 			layer_target_coordinate = #{layerTargetCoordinate}, -->
 			shape_land_required_columns = #{shapeLandRequiredColumns},
-			shape_building_required_columns = #{shapeBuildingRequiredColumns},
+			shape_building_required_columns = #{shapeBuildingRequiredColumns}
 		WHERE geopolicy_id = #{geoPolicyId}
 	</update>
 

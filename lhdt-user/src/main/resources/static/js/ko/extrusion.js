@@ -306,8 +306,8 @@ var extrusionTools = function (magoInstance){
 		   	 		var building = Mago3D.ExtrusionBuilding.makeExtrusionBuildingByCartesian3Array(polygonHierarchy.reverse(), parseFloat(height), {
 		   	 			color : new Mago3D.Color(1,0,0,1)
 		   	 		})
-		   	 		building.layerId = model.id; 
-		   	 		
+		   	 		building.layerId = model.id;
+		   	 		building.floorHeight = FLOOR_HEIGHT;
 		   	 		/**
 		   	 		 * magoManager에 속한 modeler 인스턴스의 addObject 메소드를 통해 모델 등록, 뒤의 숫자는 데이터가 표출되는 최소 레벨을 의미. 숫자가 낮을수록 멀리서 보임
 		   	 		 */
@@ -784,5 +784,16 @@ var extrusionTools = function (magoInstance){
 	 */
 	function screenToGeographicCoord(screen){
 		return worldCoordToGeographic(screenToWorldCoord(screen));
+	}
+	
+	function lonlatArrayToPolygon2d(lonlatArray) {
+		var geographicCoordsList = new Mago3D.GeographicCoordsList();
+		var array = [];
+		for(var i in lonlatArray) {
+			var lonlat = lonlatArray[i];
+			array.push(new Mago3D.GeographicCoord(lonlat.longitude, lonlat.latitude, 0));
+		}
+		
+		return Mago3D.Polygon2D.makePolygonByGeographicCoordArray(array);
 	}
 };

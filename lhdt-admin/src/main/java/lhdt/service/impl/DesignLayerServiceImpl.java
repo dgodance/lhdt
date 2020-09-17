@@ -394,6 +394,8 @@ public class DesignLayerServiceImpl implements DesignLayerService {
                                 .buildArea(record.get(3))
                                 .buildComplex(record.get(4))
                                 .parentId(record.get(5))
+                                .buildingUnitType(record.get(6))
+                                .buildingUnitCount(record.get(7))
                                 .build();
                         designLayerMapper.updateDesignLayerBuildingAttributes(building);
                     }
