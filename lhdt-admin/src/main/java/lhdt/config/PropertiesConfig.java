@@ -93,4 +93,6 @@ public class PropertiesConfig {
     private String designLayerLandTable;
     // extrusion model 시뮬레이션 빌딩 shape 파일 테이블 이름. design_layer_building
     private String designLayerBuildingTable;
+    // extrusion model 시뮬레이션 빌딩 shape 파일 테이블 이름. design_layer_building_height
+    private String designLayerBuildingHeightTable;
 }

@@ -112,6 +112,8 @@ public class DesignLayerFileInfoServiceImpl implements DesignLayerFileInfoServic
 			result = designLayerFileInfoMapper.updateLandDataFileVersion(fileVersion);
 		} else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayerGroupType)) {
 			result = designLayerFileInfoMapper.updateBuildingDataFileVersion(fileVersion);
+		} else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayerGroupType)) {
+			result = designLayerFileInfoMapper.updateBuildingHeightDataFileVersion(fileVersion);
 		}
 
 		return result;

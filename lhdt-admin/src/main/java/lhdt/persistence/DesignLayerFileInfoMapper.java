@@ -124,6 +124,13 @@ public interface DesignLayerFileInfoMapper {
 	 * @return
 	 */
 	int updateBuildingPreDataDisable(Long designLayerId);
+
+	/**
+	 * 해당 design 레이어의 이전 데이터를 전부 비활성화 상태로 수정
+	 * @param designLayerId
+	 * @return
+	 */
+	int updateBuildingHeightPreDataDisable(Long designLayerId);
 	
 	/**
 	 * land 테이블 데이터 version 갱신
@@ -138,6 +145,13 @@ public interface DesignLayerFileInfoMapper {
 	 * @return
 	 */
 	int updateBuildingDataFileVersion(Integer fileVersion);
+
+	/**
+	 * building height 테이블 데이터 version 갱신
+	 * @param fileVersion
+	 * @return
+	 */
+	int updateBuildingHeightDataFileVersion(Integer fileVersion);
 	
 	/**
 	 * shape 테이블 데이터 상태 변경
@@ -152,6 +166,13 @@ public interface DesignLayerFileInfoMapper {
 	 * @return
 	 */
 	int updateBuildingStatus(Integer fileVersion);
+
+	/**
+	 * shape 테이블 데이터 상태 변경
+	 * @param map
+	 * @return
+	 */
+	int updateBuildingHeightStatus(Integer fileVersion);
 	
 	/**
 	 * design 레이어 삭제

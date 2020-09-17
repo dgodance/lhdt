@@ -26,6 +26,13 @@ public interface GeometryMapper {
     List<DesignLayerBuildingDto> getIntersectionDesignLayerBuildings(SpatialOperationInfo spatialOperationInfo);
 
     /**
+     * geometry intersection 빌딩 정보 리턴
+     * @param spatialOperationInfo geometry 정보
+     * @return
+     */
+    List<DesignLayerBuildingDto> getIntersectionDesignLayerBuildingHeights(SpatialOperationInfo spatialOperationInfo);
+
+    /**
      * geometry intersection 데이터 정보 리턴
      * @param spatialOperationInfo geometry 정보
      * @return

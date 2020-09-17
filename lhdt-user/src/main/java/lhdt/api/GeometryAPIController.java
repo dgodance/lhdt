@@ -52,6 +52,8 @@ public class GeometryAPIController {
             designLayerList = geometryService.getIntersectionDesignLayerLands(spatialOperationInfo);
         } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(type)) {
             designLayerList = geometryService.getIntersectionDesignLayerBuildings(spatialOperationInfo);
+        } else if(DesignLayer.DesignLayerType.BUILDING_HEIGHT == DesignLayer.DesignLayerType.valueOf(type)) {
+            designLayerList = geometryService.getIntersectionDesignLayerBuildingHeights(spatialOperationInfo);
         }
         List<EntityModel<?>> designLayerEntity = designLayerList.stream().map(EntityModel::of).collect(Collectors.toList());
 

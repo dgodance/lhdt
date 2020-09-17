@@ -1,9 +1,6 @@
 package lhdt.persistence;
 
-import lhdt.domain.extrusionmodel.DesignLayer;
-import lhdt.domain.extrusionmodel.DesignLayerBuilding;
-import lhdt.domain.extrusionmodel.DesignLayerGroup;
-import lhdt.domain.extrusionmodel.DesignLayerLand;
+import lhdt.domain.extrusionmodel.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -46,6 +43,13 @@ public interface DesignLayerMapper {
      * @return
      */
     String getDesignLayerBuildingExtent(Long designLayerId);
+
+    /**
+     * design Layer building height extent 취득
+     * @param designLayerId
+     * @return
+     */
+    String getDesignLayerBuildingHeightExtent(Long designLayerId);
     
     /**
      * designLayerKey 중복 체크
@@ -111,6 +115,13 @@ public interface DesignLayerMapper {
     int insertGeometryBuilding(DesignLayerBuilding designLayer);
 
     /**
+     * building info insert
+     * @param designLayer
+     * @return
+     */
+    int insertGeometryBuildingHeight(DesignLayerBuildingHeight designLayer);
+
+    /**
     * Design Layer 트리 정보 수정
     * @param designLayer
     * @return
@@ -146,6 +157,13 @@ public interface DesignLayerMapper {
     int updateDesignLayerBuildingAttributes(DesignLayerBuilding designLayerBuilding);
 
     /**
+     * design layer building 속성 정보 업데이트
+     * @param designLayerBuildingHeight
+     * @return
+     */
+    int updateDesignLayerBuildingHeightAttributes(DesignLayerBuildingHeight designLayerBuildingHeight);
+
+    /**
     * Design Layer 삭제
     * @param designLayerId
     * @return
@@ -165,6 +183,13 @@ public interface DesignLayerMapper {
      * @return
      */
     int deleteGeometryBuilding(Map<String,Object> map);
+
+    /**
+     * building geometry delete
+     * @param map
+     * @return
+     */
+    int deleteGeometryBuildingHeight(Map<String,Object> map);
     
     /**
      * 디자인 레이어 그룹 고유번호를 이용한 삭제

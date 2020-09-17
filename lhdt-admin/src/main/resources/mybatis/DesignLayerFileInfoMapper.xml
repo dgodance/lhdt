@@ -126,6 +126,11 @@
         UPDATE design_layer_building SET enable_yn = 'N' WHERE design_layer_id = #{designLayerId}
     </update>
 
+    <update id="updateBuildingHeightPreDataDisable" parameterType="long">
+        /* updateBuildingHeightPreDataDisable */
+        UPDATE design_layer_building_height SET enable_yn = 'N' WHERE design_layer_id = #{designLayerId}
+    </update>
+
     <!--land 테이블을 데이터 버전 갱신 -->
     <update id="updateLandDataFileVersion" parameterType="int">
         /* updateLandDataFileVersion */
@@ -144,6 +149,15 @@
         WHERE version_id IS NULL
     </update>
 
+    <!--building height 테이블을 데이터 버전 갱신 -->
+    <update id="updateBuildingHeightDataFileVersion" parameterType="int">
+        /* updateBuildingHeightDataFileVersion */
+        UPDATE design_layer_building_height
+        SET enable_yn = 'Y',
+            version_id = #{fileVersion}
+        WHERE version_id IS NULL
+    </update>
+
     <!-- shape 테이블 데이터 상태 변경 -->
     <update id="updateLandStatus" parameterType="int">
         /* updateLandStatus */
@@ -155,6 +169,13 @@
     <update id="updateBuildingStatus" parameterType="int">
         /* updateBuildingStatus */
         UPDATE design_layer_building
+        SET enable_yn = 'Y'
+        WHERE version_id = #{fileVersion}
+    </update>
+
+    <update id="updateBuildingHeightStatus" parameterType="int">
+        /* updateBuildingHeightStatus */
+        UPDATE design_layer_building_height
         SET enable_yn = 'Y'
         WHERE version_id = #{fileVersion}
     </update>
