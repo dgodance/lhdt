@@ -362,8 +362,8 @@ LsAnalsAutoObj.prototype.createTwoPoints = function(){
 
 		//점1 세팅
 		if(Pp.isEmpty(_this._xyz1.lon)){
-			_this._xyz1 = Ppmap.cartesian2ToLonLat(click.position);
-            _this._xyz1.alt = new lsAnalsMoveInputBox().getHeight();
+			_this._xyz1 = Ppmap.cartesian2ToLonLatAlt(click.position);
+            _this._xyz1.alt = _this._xyz1.alt + new lsAnalsMoveInputBox().getHeight();
 			//		
 			Ppmap.createPointAndAlt('ls-anals-auto-xyz1', _this._xyz1.lon, _this._xyz1.lat, _this._xyz1.alt);
 			//
@@ -372,8 +372,8 @@ LsAnalsAutoObj.prototype.createTwoPoints = function(){
 
 		//점2 세팅
 		if(Pp.isEmpty(_this._xyz2.lon)){
-			_this._xyz2 = Ppmap.cartesian2ToLonLat(click.position);
-            _this._xyz2.alt = new lsAnalsMoveInputBox().getHeight();
+			_this._xyz2 = Ppmap.cartesian2ToLonLatAlt(click.position);
+            _this._xyz2.alt = _this._xyz2.alt + new lsAnalsMoveInputBox().getHeight();
 			//		
 			Ppmap.createPointAndAlt('ls-anals-auto-xyz2', _this._xyz2.lon, _this._xyz2.lat, _this._xyz2.alt);
 		}
@@ -454,10 +454,10 @@ LsAnalsAutoObj.prototype.doAnals = function(){
 
 //
 let lsAnalsAutoObj = new LsAnalsAutoObj();
-//
+
 window.addEventListener('load', function(){
 	let interval = setInterval(function(){
-		if(null != Ppui.find('#landscapeAnalsBtn')){
+		if(null != Ppui.find('.ds-create-two-points')){
 			//
 			clearInterval(interval);
 			lsAnalsAutoObj.init();
