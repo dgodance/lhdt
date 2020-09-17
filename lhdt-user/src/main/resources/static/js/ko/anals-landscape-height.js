@@ -23,7 +23,7 @@ function AnalsHeightLandScapeView(viewer, magoInstance) {
 
     LSHeightDropDownList.prototype.evt = function() {
         $(this._ele).change(function(value) {
-            lsHeightAnals.analsHeightView($(value).val());
+            lsHeightAnals.analsHeightView($(this).val());
         });
     }
 
@@ -70,8 +70,7 @@ function AnalsHeightLandScapeView(viewer, magoInstance) {
         //여러점 선택 버튼 클릭
         Ppui.click('#lsHeightBtn', function(){
             let el = this;
-            debugger;
-
+            toastr.info('지도상에서 경관점을 클릭하시기 바랍니다.');
             that.createTwoPoint();
         });
     };
@@ -106,6 +105,7 @@ function AnalsHeightLandScapeView(viewer, magoInstance) {
                     //
                     Ppmap.createPointAndAlt('ls-anals-auto-xyz1', _this._xyz1.lon, _this._xyz1.lat, _this._xyz1.alt);
                     //
+                    toastr.info('지도상에서 경관방향을 지정해주시길 바랍니다.');
                     return;
                 }
 
@@ -249,10 +249,21 @@ function AnalsHeightLandScapeView(viewer, magoInstance) {
         }
     }
     const lsHeightDropDown = new LSHeightDropDownList();
-    lsHeightDropDown.init();
     const lsHeightAnals = new LSHeightAnals();
     const lsViewAnalsWidget = new LSHeightViewAnalsWidget();
     const lsHeightViewAnals =  new LSHeightViewAnals();
     lsViewAnalsWidget.defaultRender();
     lsHeightViewAnals.init();
+    $(document).ready(function() {
+        debugger;
+        let interval = setInterval(function(){
+            debugger;
+            if(null != Ppui.find(lsHeightDropDown._ele)){
+                //
+                clearInterval(interval);
+                lsHeightDropDown.init();
+            }
+
+        }, 500);
+    });
 }
