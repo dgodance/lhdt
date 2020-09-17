@@ -1723,7 +1723,25 @@ DesignLayerObj.prototype.extrusionModelBuildingToggle = function(model, isShow) 
                     var building = Mago3D.ExtrusionBuilding.makeExtrusionBuildingByCartesian3Array(polygonHierarchy.reverse(), FLOOR_HEIGHT * 7)
                     
                     building.layerId = model.id; 
-                    
+                    //면적
+                    if(Pp.isNotEmpty(entity.properties['build_area'])){
+                        building.area = parseFloat(entity.properties['build_area'].getValue());
+                    }else{
+                        building.area = 0.0;
+                    }                        
+                    //unit type
+                    if(Pp.isNotEmpty(entity.properties['build_unit_type'])){
+                        building.unitType = entity.properties['build_unit_type'].getValue();
+                        console.log('unittype', building);
+                    }else{
+                        building.unitType = '0';
+                    }
+                    //unit count
+                    if(Pp.isNotEmpty(entity.properties['build_unit_count'])){
+                        building.unitCount = parseInt(entity.properties['build_unit_count'].getValue());
+                    }else{
+                        building.unitCount = 0;
+                    }
                     /**
                      * magoManager에 속한 modeler 인스턴스의 addObject 메소드를 통해 모델 등록, 뒤의 숫자는 데이터가 표출되는 최소 레벨을 의미. 숫자가 낮을수록 멀리서 보임
                      */
@@ -2305,6 +2323,24 @@ DesignLayerObj.prototype.showBuildingInfo = function(extrusionBuilding){
     console.log(extrusionBuilding);
     let _this = this;
 
+    //값 표시
+    let _render = function(data){
+        //층수-기준
+        $wrapper.find('td.floor-co').text(data.floorCo0);
+        //층수-계획
+        $wrapper.find('select.floor-co').val(data.floorCo1);
+        
+        //세대수-기준
+        $wrapper.find('td.household-co:first').text(data.householdCo0);
+        //세대수-계획
+        $wrapper.find('td.household-co:last').text(data.householdCo1);
+
+        //연면적-기준
+        $wrapper.find('td.total-floor-area:first').text(data.totalFloorArea0);
+        //연면적-계획
+        $wrapper.find('td.total-floor-area:last').text(data.totalFloorArea1);
+    };
+
     //
     let _renderFloorCo = function($wrapper){
         if(0 === $wrapper.find('select.floor-co > option').length){
@@ -2372,18 +2408,38 @@ DesignLayerObj.prototype.showBuildingInfo = function(extrusionBuilding){
         //
         return;
     }
+
+    //
+    let data = {};
     
     // 데이터 바인드
     if(Pp.isEmpty(extrusionBuilding['_originHeight'])){
         extrusionBuilding['_originHeight'] = extrusionBuilding.getHeight();
     }
-    $wrapper.find('td.floor-co').text(parseInt(extrusionBuilding['_originHeight'] / HEIGHT_PER_FLOOR));
+    //층수-기준
+    data.floorCo0 = this.toFloorCo(extrusionBuilding['_originHeight']);
+    
 
+    //층수-계획
     let h = extrusionBuilding.getHeight();
     if(Pp.isNotEmpty(h)){        
-        $wrapper.find('select.floor-co').val(parseInt(h / HEIGHT_PER_FLOOR));
+        data.floorCo1 = this.toFloorCo(h);
+        
     }
 
+    //기준 세대수=unit_count * 층수
+    data.householdCo0 = extrusionBuilding.unitCount * this.toFloorCo(extrusionBuilding['_originHeight']);        
+
+    //계획 세대수
+    data.householdCo1 = extrusionBuilding.unitCount * this.toFloorCo(extrusionBuilding.getHeight());
+
+    //TODO 연면적-기준
+    data.totalFloorArea0 = parseInt(extrusionBuilding.unitType) * data.householdCo0;
+    //TODO 연면적-계획
+    data.totalFloorArea1 = parseInt(extrusionBuilding.unitType) * data.householdCo1;
+
+    //값 화면에 표시
+    _render(data);
 };
 
 
@@ -2470,16 +2526,6 @@ DesignLayerObj.prototype.calcBuildingCoverageRatioByLonLats = function(lonLats){
  */
 DesignLayerObj.prototype.calcBuildingCoverageRatioByBuildings = function(landArea, buildings){
     
-    /**
-     * 건물의 넓이 계산
-     * asis 건물 바닥 면적으로 계산
-     * TODO 가이아에서 제공해주는 값 사용해야 함
-     * @param {ExtrusionBuilding} building 건물
-     */
-    let _area = function(building){
-        return Ppmap.calcArea(building.geographicCoordList.geographicCoordsArray, Ppmap.PointType.LONLAT);
-    };
-
     //
     let tot=0.0;
 
@@ -2487,7 +2533,7 @@ DesignLayerObj.prototype.calcBuildingCoverageRatioByBuildings = function(landAre
         let d = buildings[i];
 
         //
-        tot += _area(d);
+        tot += d.area;
     }
 
     //
@@ -2622,15 +2668,6 @@ DesignLayerObj.prototype.setBuldingHeightByBuilding = function(building, floorCo
  * @returns {Number} 용적률
  */
 DesignLayerObj.prototype.calcFloorAreaRatioByBuildings = function(landArea, buildings){
-    /**
-     * 건물 바닥면적 구하기
-     * asis 바닥면적 계산
-     * TODO 가이아가 제공해주는 값 사용해야 함
-     * @param {Mago3D.ExtrusionBuilding} building 건물
-     */
-    let _area = function(building){
-        return Ppmap.calcArea(building.geographicCoordList.geographicCoordsArray, Ppmap.PointType.LONLAT);
-    };
 
     //
     if(Pp.isEmpty(buildings)){
@@ -2642,7 +2679,7 @@ DesignLayerObj.prototype.calcFloorAreaRatioByBuildings = function(landArea, buil
     for(let i=0; i<buildings.length; i++){
         let d = buildings[i];
         //console.log('DesignLayerObj', 'calcFloorAreaRatioByBuildings', 'TODO 빌딩의 바닥면적 필요(가이아가 제공해주는 값)');
-        totFloorAreas.push((d.getHeight()*HEIGHT_PER_FLOOR) * _area(d));
+        totFloorAreas.push((d.getHeight()*HEIGHT_PER_FLOOR) * d.area);
     }
 
     //
@@ -2659,11 +2696,11 @@ DesignLayerObj.prototype.resizeModelessHeight = function(){
    
     //필지
     if(Pp.isNotEmpty(this.selectedLand)){
-        h += 220;
+        h += 230;
     }
     //건물
     if(Pp.isNotEmpty(this.selectedBuilding)){
-        h += 150;
+        h += 160;
     }
 
     //
@@ -2678,6 +2715,24 @@ DesignLayerObj.prototype.resizeModelessHeight = function(){
     
     // console.log(h, Pp.isNotEmpty(this.selectedLand), Pp.isNotEmpty(this.selectedBuilding));
 };
+
+
+/**
+ * 건물 높이를 층수로 변환
+ * @param {*} buildingHeight 건물 높이(m)
+ */
+DesignLayerObj.prototype.toFloorCo = function(buildingHeight){
+    return parseInt(buildingHeight / HEIGHT_PER_FLOOR);
+}
+
+
+/**
+ * 건물 층수를 높이로 변환
+ * @param {*} buildingFloorCo 건물 층수
+ */
+DesignLayerObj.prototype.toHeight = function(buildingFloorCo){
+    return buildingFloorCo * HEIGHT_PER_FLOOR;
+}
 
 
 
