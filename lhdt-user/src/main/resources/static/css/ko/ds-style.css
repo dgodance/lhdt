@@ -25,6 +25,8 @@
 
 .w-30 {width:30% !important;}
 
+.ui-dialog { z-index: 1000 !important ;}
+
 button.textBtnSub.active {background-color:#258FFF; color:white; font-weight:bold;background-image: url('../../images/ico_checked.png') !important; background-repeat: no-repeat; background-size: 32px;}
 button[class*=ds-tool], button[class*=design-layer-tool] {width:49% !important; margin-bottom:2px;}
 button[class*=ds-tool][class=active] {background-image: '../../images/ico_checked.png'; background-repeat: no-repeat;}
