@@ -206,7 +206,6 @@ function gotoScene(id) {
 
 		//
 		let entity = null;
-		debugger;
 		//
 		if('점' === res.landScapePointType){
 			entity = Ppmap.createPointAndLabel('ls-anals-saved-point', res.landScapePointName,
@@ -303,7 +302,6 @@ function paginLandScapeList(paginNum) {
 const analsLandScapeDiff = new AnalsLandScapeDiff();
 //
 $(document).ready(function() {
-    debugger;
     analsLandScapeDiff.renderDiffDropdown();
     analsLandScapeDiff.init();
 })

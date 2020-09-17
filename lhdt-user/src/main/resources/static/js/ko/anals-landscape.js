@@ -358,7 +358,6 @@ SkylineObj.prototype.drawTwoPointLine = function(xyz1, xyz2) {
  * @returns {void}
  */
 SkylineObj.prototype.execCalcViewPoint = function(xyz1, xyz2) {
-	debugger;
 
 	//
 	if(Pp.isEmpty(xyz1) || Pp.isEmpty(xyz2)){
@@ -727,7 +726,6 @@ SkylineObj.prototype.uploadBlobAndGetAnalsImage = function(gbn, lsAnalsPredictTy
 
 	//
 	Pp.submitFormData(PREDICT_SERVER_URL, fd, function(json){
-		debugger;
 		callbackFn(json)
 	}, {});
 

@@ -74,6 +74,7 @@ create table geopolicy(
 
     shape_land_required_columns                         varchar(1000)       default 'id,the_geom',
     shape_building_required_columns                     varchar(1000)       default 'id,the_geom',
+    shape_building_height_required_columns              varchar(1000)       default 'id,the_geom',
 	
 	insert_date											timestamp with time zone	default now(),
 

@@ -221,6 +221,8 @@ public class DesignLayerRestController implements AuthorizationController {
 				extrusionColumns = geoPolicy.getShapeLandRequiredColumns();
 			} else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
 				extrusionColumns = geoPolicy.getShapeBuildingRequiredColumns();
+			} else if(DesignLayer.DesignLayerType.BUILDING_HEIGHT == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
+				extrusionColumns = geoPolicy.getShapeBuildingHeightRequiredColumns();
 			}
 
 			if(StringUtils.isEmpty(extrusionColumns)) {
@@ -435,6 +437,8 @@ public class DesignLayerRestController implements AuthorizationController {
 				extrusionColumns = geoPolicy.getShapeLandRequiredColumns();
 			} else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
 				extrusionColumns = geoPolicy.getShapeBuildingRequiredColumns();
+			} else if(DesignLayer.DesignLayerType.BUILDING_HEIGHT == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
+				extrusionColumns = geoPolicy.getShapeBuildingHeightRequiredColumns();
 			}
 
 			if(StringUtils.isEmpty(extrusionColumns)) {

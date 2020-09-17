@@ -147,7 +147,6 @@ var AnalsLandScapeDirection = function(viewer, magoInstance) {
 
 
     function drawLandScapePoint(pos) {
-        debugger;
         return viewer.entities.add({
             position: new Cesium.Cartesian3.fromDegrees(pos.long, pos.lat, pos.alt),
             ellipsoid: {

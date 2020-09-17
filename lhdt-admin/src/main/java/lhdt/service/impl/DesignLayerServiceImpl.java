@@ -107,6 +107,8 @@ public class DesignLayerServiceImpl implements DesignLayerService {
             extent = designLayerMapper.getDesignLayerLandExtent(designLayerId);
         } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
             extent = designLayerMapper.getDesignLayerBuildingExtent(designLayerId);
+        } else if(DesignLayer.DesignLayerType.BUILDING_HEIGHT == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
+            extent = designLayerMapper.getDesignLayerBuildingHeightExtent(designLayerId);
         }
 
        return extent;
@@ -216,6 +218,8 @@ public class DesignLayerServiceImpl implements DesignLayerService {
                     designLayerFileInfoMapper.updateLandPreDataDisable(designLayerId);
                 } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
                     designLayerFileInfoMapper.updateBuildingPreDataDisable(designLayerId);
+                } else if(DesignLayer.DesignLayerType.BUILDING_HEIGHT == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
+                    designLayerFileInfoMapper.updateBuildingHeightPreDataDisable(designLayerId);
                 }
             }
 
@@ -262,6 +266,7 @@ public class DesignLayerServiceImpl implements DesignLayerService {
      */
     @Transactional
     public void insertShapeInfo(DesignLayer designLayer, List<DesignLayer> shapeInfoList) {
+        // TODO : 중복되는거 하나로 묶기
         if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
             shapeInfoList.forEach(f -> {
                 var designLayerLand = modelMapper.map(f, DesignLayerLand.class);
@@ -281,6 +286,16 @@ public class DesignLayerServiceImpl implements DesignLayerService {
                 designLayerBuilding.setTheGeom(f.getTheGeom());
                 designLayerBuilding.setBuildId(f.getShapeId());
                 designLayerMapper.insertGeometryBuilding(designLayerBuilding);
+            });
+        } else if(DesignLayer.DesignLayerType.BUILDING_HEIGHT == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
+            shapeInfoList.forEach(f -> {
+                var designLayerBuildingHeight = modelMapper.map(f, DesignLayerBuildingHeight.class);
+                designLayerBuildingHeight.setDesignLayerId(designLayer.getDesignLayerId());
+                designLayerBuildingHeight.setDesignLayerGroupId(designLayer.getDesignLayerGroupId());
+                designLayerBuildingHeight.setCoordinate(Integer.valueOf(designLayer.getCoordinate().split(":")[1]));
+                designLayerBuildingHeight.setTheGeom(f.getTheGeom());
+                designLayerBuildingHeight.setBuildId(f.getShapeId());
+                designLayerMapper.insertGeometryBuildingHeight(designLayerBuildingHeight);
             });
         }
     }
@@ -305,8 +320,14 @@ public class DesignLayerServiceImpl implements DesignLayerService {
         GeoPolicy geoPolicy = geoPolicyService.getGeoPolicy();
         String designLayerSourceCoordinate = geoPolicy.getLayerSourceCoordinate();
         String designLayerTargetCoordinate = geoPolicy.getLayerTargetCoordinate();
-        String tableName = DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayerGroupType) ?
-                propertiesConfig.getDesignLayerLandTable() : propertiesConfig.getDesignLayerBuildingTable();
+        String tableName = null;
+        if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(designLayerGroupType)) {
+            tableName = propertiesConfig.getDesignLayerLandTable();
+        } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayerGroupType)) {
+            tableName = propertiesConfig.getDesignLayerBuildingTable();
+        } else if(DesignLayer.DesignLayerType.BUILDING_HEIGHT == DesignLayer.DesignLayerType.valueOf(designLayerGroupType)) {
+            tableName = propertiesConfig.getDesignLayerBuildingHeightTable();
+        }
         String sql = "SELECT * FROM " + tableName + " WHERE version_id=" + versionId + " AND design_layer_id=" + designLayerId;
 
         Ogr2OgrExecute ogr2OgrExecute = new Ogr2OgrExecute(osType, driver, shpEncoding, exportPath, sql, designLayerSourceCoordinate, designLayerTargetCoordinate);
@@ -334,6 +355,9 @@ public class DesignLayerServiceImpl implements DesignLayerService {
         } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
             designLayerFileInfoMapper.updateBuildingPreDataDisable(designLayerId);
             designLayerFileInfoMapper.updateBuildingStatus(fileVersion);
+        } else if(DesignLayer.DesignLayerType.BUILDING_HEIGHT == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
+            designLayerFileInfoMapper.updateBuildingHeightPreDataDisable(designLayerId);
+            designLayerFileInfoMapper.updateBuildingHeightStatus(fileVersion);
         }
 
         DesignLayerFileInfo designLayerFileInfo = new DesignLayerFileInfo();
@@ -399,6 +423,12 @@ public class DesignLayerServiceImpl implements DesignLayerService {
                                 .build();
                         if(!record.get(8).isEmpty()) building.setBuildUnitCount(Integer.valueOf(record.get(8)));
                         designLayerMapper.updateDesignLayerBuildingAttributes(building);
+                    } else if(DesignLayer.DesignLayerType.BUILDING_HEIGHT == DesignLayer.DesignLayerType.valueOf(type.toUpperCase())) {
+                        DesignLayerBuildingHeight buildingHeight = DesignLayerBuildingHeight.builder()
+                                .buildId(Long.valueOf(record.get(0)))
+                                .buildMaximumFloors(Integer.valueOf(record.get(1)))
+                                .build();
+                        designLayerMapper.updateDesignLayerBuildingHeightAttributes(buildingHeight);
                     }
                 }
             } else {
@@ -442,6 +472,10 @@ public class DesignLayerServiceImpl implements DesignLayerService {
                 designLayerFileInfoMapper.updateBuildingPreDataDisable(designLayer.getDesignLayerId());
                 designLayerFileInfoMapper.updateBuildingStatus(fileVersion);
                 designLayerMapper.deleteGeometryBuilding(map);
+            } else if(DesignLayer.DesignLayerType.BUILDING_HEIGHT == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
+                designLayerFileInfoMapper.updateBuildingHeightPreDataDisable(designLayer.getDesignLayerId());
+                designLayerFileInfoMapper.updateBuildingHeightStatus(fileVersion);
+                designLayerMapper.deleteGeometryBuildingHeight(map);
             }
 			// 이전 design 레이어 이력을 활성화
             designLayerFileInfoMapper.updateDesignLayerFileInfoByTeamId(designLayerFileInfo);
@@ -482,6 +516,8 @@ public class DesignLayerServiceImpl implements DesignLayerService {
                 designLayerMapper.deleteGeometryLand(map);
             } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
                 designLayerMapper.deleteGeometryBuilding(map);
+            } else if(DesignLayer.DesignLayerType.BUILDING_HEIGHT == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
+                designLayerMapper.deleteGeometryBuildingHeight(map);
             }
 		}
 
@@ -529,6 +565,8 @@ public class DesignLayerServiceImpl implements DesignLayerService {
                 tableName = propertiesConfig.getDesignLayerLandTable();
             } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
                 tableName = propertiesConfig.getDesignLayerBuildingTable();
+            } else if(DesignLayer.DesignLayerType.BUILDING_HEIGHT == DesignLayer.DesignLayerType.valueOf(designLayer.getDesignLayerGroupType().toUpperCase())) {
+                tableName = propertiesConfig.getDesignLayerBuildingHeightTable();
             }
             String xmlString = "<?xml version=\"1.0\" encoding=\"utf-8\"?><featureType><name>" + designLayerKey + "</name><nativeName>"+tableName+"</nativeName></featureType>";
 

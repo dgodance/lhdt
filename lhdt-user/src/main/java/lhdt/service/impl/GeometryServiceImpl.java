@@ -3,6 +3,7 @@ package lhdt.service.impl;
 import lhdt.domain.common.SpatialOperationInfo;
 import lhdt.domain.data.DataInfo;
 import lhdt.domain.extrusionmodel.DesignLayerBuildingDto;
+import lhdt.domain.extrusionmodel.DesignLayerBuildingHeightDto;
 import lhdt.domain.extrusionmodel.DesignLayerLandDto;
 import lhdt.persistence.GeometryMapper;
 import lhdt.service.GeometryService;
@@ -33,6 +34,13 @@ public class GeometryServiceImpl implements GeometryService {
         spatialOperationInfo.setWkt(GeometrySupport.toWKT(spatialOperationInfo.getGeometryInfo()));
 
         return geometryMapper.getIntersectionDesignLayerBuildings(spatialOperationInfo);
+    }
+
+    @Transactional(readOnly=true)
+    public List<DesignLayerBuildingHeightDto> getIntersectionDesignLayerBuildingHeights(SpatialOperationInfo spatialOperationInfo) {
+        spatialOperationInfo.setWkt(GeometrySupport.toWKT(spatialOperationInfo.getGeometryInfo()));
+
+        return geometryMapper.getIntersectionDesignLayerBuildingHeights(spatialOperationInfo);
     }
 
     @Transactional(readOnly=true)

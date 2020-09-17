@@ -333,7 +333,6 @@ Ppmap.createPoint = function(entityName, lon, lat, option) {
             heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
         }
     });
-    debugger;
     return entity;
 }
 
@@ -688,8 +687,7 @@ Ppmap.toCartesian3 = function () {
 * 지도 방향? 초기화
 */
 Ppmap.resetRotate = function (callbackFn) {
-    debugger;
-	let json={};
+    let json={};
 	json.destination = MAGO3D_INSTANCE.getViewer().scene.camera.positionWC;
 	json.duration = 1;
 	if(Pp.isNotEmpty(callbackFn)){

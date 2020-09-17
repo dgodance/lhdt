@@ -37,8 +37,8 @@
 		<typeAlias type="lhdt.domain.extrusionmodel.DesignLayerLand" alias="designLayerLand" />
 		<typeAlias type="lhdt.domain.extrusionmodel.DesignLayerBuilding" alias="designLayerBuilding" />
 		<typeAlias type="lhdt.domain.extrusionmodel.DesignLayerBuildingHeight" alias="designLayerBuildingHeight" />
-		<typeAlias type="lhdt.domain.extrusionmodel.DesignLayerBuildingUnit" alias="designLayerBuilding" />
-		<typeAlias type="lhdt.domain.extrusionmodel.DesignLayerAttribute" alias="designLayerBuildingUnit" />
+		<typeAlias type="lhdt.domain.extrusionmodel.DesignLayerBuildingUnit" alias="designLayerBuildingUnit" />
+		<typeAlias type="lhdt.domain.extrusionmodel.DesignLayerAttribute" alias="designLayerAttribute" />
 		<typeAlias type="lhdt.domain.extrusionmodel.DesignLayerFileInfo" alias="designLayerFileInfo" />
 		<typeAlias type="lhdt.domain.extrusionmodel.DesignLayerLog" alias="designLayerLog" />
 		<typeAlias type="lhdt.domain.policy.GeoPolicy" alias="geoPolicy" />
