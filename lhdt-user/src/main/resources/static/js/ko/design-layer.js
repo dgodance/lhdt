@@ -2419,6 +2419,26 @@ DesignLayerObj.prototype.showBuildingInfo = function(extrusionBuilding){
 
 
 /**
+ * 
+ * @param {*} landData 
+ */
+DesignLayerObj.prototype.renderUrbanInfo = function(landData){
+    let data={};
+    //세대수
+    data.householdCo = landData.householdCo + 6800;
+    //인구수
+    data.populationCo = Math.round(data.householdCo * 2.3);
+
+    //
+    let $wrapper = $('div.design-layer-urban-wrapper');
+    //
+    $wrapper.find('td.household-co:first').text(Pp.addComma(data.householdCo));
+    $wrapper.find('td.population-co:first').text(Pp.addComma(data.populationCo));
+};
+
+
+
+/**
  * 필지관련 건폐,용적,.... 화면에 표시
  * @param {object} land 필지
  */
@@ -2518,11 +2538,11 @@ DesignLayerObj.prototype.renderLandInfo = function(land){
     data.landuseZoning = land.landuseZoning;
     //건폐율-기준,허용,변경
     data.buildingCoverageRatioStandard = land.buildingCoverageRatioStandard;
-    data.buildingCoverageRatioAllowed = land.buildingCoverageRatioAlowed;
+    data.buildingCoverageRatioAllowed = land.buildingCoverageRatio;
     data.buildingCoverageRatio = _buildingCoverageRatio(land);
     //용적률-기준,허용,변경
-    data.floorAreaRatioStandard = land.floorAreaRatioStandard;
-    data.floorAreaRatioAllowed = land.floorAreaRatioAllowed;
+    data.floorAreaRatioStandard = land.floorAreaRatioMaximum;
+    data.floorAreaRatioAllowed = land.floorAreaRatio;
     data.floorAreaRatio = _floorAreaRatio(land);
     //세대수
     data.householdCo = _householdCo(land);
@@ -2531,11 +2551,11 @@ DesignLayerObj.prototype.renderLandInfo = function(land){
     let $wrapper = $('div.design-layer-land-wrapper');
     //
     $wrapper.find('td.building-coverage-ratio:first').text(data.buildingCoverageRatioStandard);
-    $wrapper.find('td.building-coverage-ratio:eq(1)').text(data.buildingCoverageRatioAllow);
+    $wrapper.find('td.building-coverage-ratio:eq(1)').text(data.buildingCoverageRatioAllowed);
     $wrapper.find('td.building-coverage-ratio:last').text(data.buildingCoverageRatio.toFixed(2));
     //
     $wrapper.find('td.floor-area-ratio:first').text(data.floorAreaRatioStandard);
-    $wrapper.find('td.floor-area-ratio:eq(1)').text(data.floorAreaRatioAllow);
+    $wrapper.find('td.floor-area-ratio:eq(1)').text(data.floorAreaRatioAllowed);
     $wrapper.find('td.floor-area-ratio:last').text(data.floorAreaRatio.toFixed(2));
     //
     $wrapper.find('td.lot-code').text(data.lotCode);
@@ -2543,6 +2563,9 @@ DesignLayerObj.prototype.renderLandInfo = function(land){
     $wrapper.find('td.landuse-zoning').text(data.landuseZoning);
     //
     $wrapper.find('td.household-co').text(Pp.addComma(data.householdCo));
+
+    //
+    this.renderUrbanInfo(data);
 };
 
 /**
@@ -2838,7 +2861,7 @@ DesignLayerObj.prototype.calcFloorAreaRatioByBuildings = function(landArea, buil
  */
 DesignLayerObj.prototype.resizeModelessHeight = function(){
 
-    let h = 270;
+    let h = 330;
    
     //필지
     if(Pp.isNotEmpty(this.selectedLand)){
