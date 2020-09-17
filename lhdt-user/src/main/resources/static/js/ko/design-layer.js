@@ -2283,8 +2283,14 @@ DesignLayerObj.prototype.showLandInfo = function(browserEvent){
     
     // 값 바인드
     $wrapper.find('td.plan-building-coverage-ratio').text(this.selectedLand.buildingCoverageRatio);
+    $wrapper.find('td.now-building-coverage-ratio').text(this.selectedLand.buildingCoverageRatio);
+
     $wrapper.find('td.plan-floor-area-ratio').text(this.selectedLand.floorAreaRatio);
+    $wrapper.find('td.now-floor-area-ratio').text(this.selectedLand.floorAreaRatio);
+
     $wrapper.find('td.plan-maximum-building-floors').text(this.selectedLand.maximumBuildingFloors);
+    $wrapper.find('td.now-maximum-building-floors').text(this.selectedLand.maximumBuildingFloors);
+
 };
 
 
