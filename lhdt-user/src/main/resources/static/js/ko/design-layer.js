@@ -19,14 +19,14 @@ const DesignLayerObj = function(){
     //선택된 extrusion 건물
     this.selectedExtrusionBuilding={};
 
-    //
+    //선택된 필지
     this.selectedLand = {};
-    //
+    //선택된 건물
     this.selectedBuilding = {};
 
-    //
+    //회전
     this.rotate = null;
-    //
+    //높이변경
     this.upanddown = null;
     //
     this.handler = null;
@@ -2125,7 +2125,7 @@ DesignLayerObj.prototype.calcFloorAreaRatio = function(landArea, totFloorAreas){
  */
 DesignLayerObj.prototype.showUrbanInfo = function(urbanGroupId){
   
-
+    //
     $('div.design-layer-urban-wrapper').hide();
     $('div.design-layer-land-wrapper').hide();
     $('div.design-layer-building-wrapper').hide();
@@ -2133,7 +2133,10 @@ DesignLayerObj.prototype.showUrbanInfo = function(urbanGroupId){
 
     //
     if(Pp.isEmpty(urbanGroupId)){
-        this.resizeModelessHeight(false, false, false);
+        if(Pp.isNotNull(this.$dialog)){
+            this.$dialog.dialog('close');
+        }
+        //
         return;
     }
 
@@ -2176,7 +2179,7 @@ DesignLayerObj.prototype.showUrbanInfo = function(urbanGroupId){
 
     //
     $wrapper.show();
-    this.resizeModelessHeight(true);
+    this.resizeModelessHeight();
 };
 
 
@@ -2258,39 +2261,36 @@ DesignLayerObj.prototype.showLandInfo = function(browserEvent){
     let isEmpty = Pp.isEmpty(res._embedded) || Pp.isEmpty(res._embedded.designLayerLands);
     //필지 정보 없으면 모달창>필지 hide
     if(isEmpty){
+        //
+        this.selectedLand = null;
         //hide
         $wrapper.hide();
         //
         $('div.design-layer-building-wrapper').hide();
     }else{
+        //
+        this.selectedLand = _getDesignLayerLand(res);
         $wrapper.show();
     }
-    this.resizeModelessHeight(true, !isEmpty);
-
+        
+    this.resizeModelessHeight();
+    
     //
     if(isEmpty){
         return;
     }
-
-
+        
     //층수 select값 바인드
     _renderFloorCo();
-
     
-    //
-    this.selectedLand = _getDesignLayerLand(res);
-    console.log(this.selectedLand);
     
     // 값 바인드
     $wrapper.find('td.plan-building-coverage-ratio').text(this.selectedLand.buildingCoverageRatio);
-    $wrapper.find('td.now-building-coverage-ratio').text(this.selectedLand.buildingCoverageRatio);
-
     $wrapper.find('td.plan-floor-area-ratio').text(this.selectedLand.floorAreaRatio);
-    $wrapper.find('td.now-floor-area-ratio').text(this.selectedLand.floorAreaRatio);
-
     $wrapper.find('td.plan-maximum-building-floors').text(this.selectedLand.maximumBuildingFloors);
-    $wrapper.find('td.now-maximum-building-floors').text(this.selectedLand.maximumBuildingFloors);
 
+    //
+    this.buildingHeightChanged(this.selectedLand, null);
 };
 
 
@@ -2355,11 +2355,12 @@ DesignLayerObj.prototype.showBuildingInfo = function(extrusionBuilding){
 
     //
     if(Pp.isNull(extrusionBuilding)){
+        this.selectedBuilding = null;
         $wrapper.hide();
     }else{
         $wrapper.show();
     }
-    this.resizeModelessHeight(true, true, Pp.isNotNull(extrusionBuilding));
+    this.resizeModelessHeight();
     
 
 
@@ -2407,20 +2408,22 @@ DesignLayerObj.prototype.setBuldingHeightByTheGeom = function(theGeom, floorCo){
  * @param {Mago3D.ExtrusionBuilding|null} selectedBuilding
  */
 DesignLayerObj.prototype.buildingHeightChanged = function(selectedLand, selectedBuilding){
+    let $wrapper = $('div.design-layer-land-wrapper');
+
     //필지 > 현재 건폐율 계산&표시
     let buildingCoverageRatio = this.calcBuildingCoverageRatioByLand(selectedLand);
-    $('div.design-layer-land-wrapper td.now-building-coverage-ratio').text(buildingCoverageRatio);
+    $wrapper.find('td.now-building-coverage-ratio').text(buildingCoverageRatio);
     
     //필지 > 현재 용적률 계산&표시
     let floorAreaRatio = this.calcFloorAreaRatioByLand(selectedLand);
-    $('div.design-layer-land-wrapper td.now-floor-area-ratio').text(floorAreaRatio);
+    $wrapper.find('td.now-floor-area-ratio').text(floorAreaRatio);
     
     //필지 > 현재 최고층수 계산&표시
     let maxh = this.getMaximumFloorCoByLand(selectedLand);
-    $('div.design-layer-land-wrapper td.now-maximum-building-floors').text(maxh);
+    $wrapper.find('td.now-maximum-building-floors').text(maxh);
     
     //
-    if(null == selectedBuilding){
+    if(Pp.isEmpty(selectedBuilding)){
         return;
     }
 
@@ -2624,24 +2627,17 @@ DesignLayerObj.prototype.calcFloorAreaRatioByBuildings = function(landArea, buil
 
 /**
  * modeless창 height 자동 변경
- * @param {Boolean} urbanShow
- * @param {Boolean} landShow
- * @param {Boolean} buildingShow
  */
-DesignLayerObj.prototype.resizeModelessHeight = function(urbanShow, landShow, buildingShow){
-    console.log(urbanShow, landShow, buildingShow);
+DesignLayerObj.prototype.resizeModelessHeight = function(){
 
-    let h = 0;
-    
-    if(urbanShow){
-        h += 270;
-    }
-    
-    if(landShow){
+    let h = 270;
+   
+    //
+    if(Pp.isNotEmpty(this.selectedLand)){
         h += 220;
     }
     //
-    if(buildingShow){
+    if(Pp.isNotEmpty(this.selectedBuilding)){
         h += 150;
     }
 
@@ -2654,6 +2650,7 @@ DesignLayerObj.prototype.resizeModelessHeight = function(urbanShow, landShow, bu
     this.$dialog.dialog('option', {'height':h})
         .dialog((0==h?'close':'open'));
     
+    console.log(h, Pp.isNotEmpty(this.selectedLand), Pp.isNotEmpty(this.selectedBuilding));
 };
 
 
