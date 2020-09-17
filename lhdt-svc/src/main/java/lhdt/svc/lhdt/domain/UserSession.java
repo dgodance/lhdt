@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
-import lhdt.ds.common.domain.LhdtDomain;
+import lhdt.cmmn.domain.LhdtDomain;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

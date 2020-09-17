@@ -5,7 +5,7 @@ package lhdt.admin.svc.lowinfo.persistence;
 
 import lhdt.admin.svc.common.AdminSvcMapper;
 import lhdt.admin.svc.lowinfo.domain.LowInfo;
-import lhdt.ds.common.config.AnalsConnMapper;
+import lhdt.cmmn.config.AnalsConnMapper;
 
 /**
  * @author gravity@daumsoft.com

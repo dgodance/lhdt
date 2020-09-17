@@ -2,7 +2,7 @@ package lhdt.admin.svc.lhdt.persistence;
 
 import lhdt.admin.svc.lhdt.domain.DataObjectAttribute;
 import lhdt.admin.svc.lhdt.domain.DataObjectAttributeFileInfo;
-import lhdt.ds.common.config.LhdtConnMapper;
+import lhdt.cmmn.config.LhdtConnMapper;
 
 
 /**

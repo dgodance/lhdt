@@ -3,7 +3,7 @@
  */
 package lhdt.admin.svc.common;
 
-import lhdt.ds.common.misc.DsServiceImpl;
+import lhdt.cmmn.misc.CmmnServiceImpl;
 
 /**
  * 모든 serviceImpl의 부모
@@ -11,6 +11,6 @@ import lhdt.ds.common.misc.DsServiceImpl;
  * @since 2020. 8. 18.
  *
  */
-public class AdminSvcServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> extends DsServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements AdminSvcService<DOMAIN, IDTYPE> {
+public class AdminSvcServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> extends CmmnServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements AdminSvcService<DOMAIN, IDTYPE> {
 
 }

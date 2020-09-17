@@ -3,8 +3,8 @@
  */
 package lhdt.svc.common.fileinfo.persistence;
 
-import lhdt.ds.common.config.AnalsConnMapper;
-import lhdt.ds.common.misc.DsMapper;
+import lhdt.cmmn.config.AnalsConnMapper;
+import lhdt.cmmn.misc.CmmnMapper;
 import lhdt.svc.common.fileinfo.model.FileInfo;
 
 /**
@@ -13,6 +13,6 @@ import lhdt.svc.common.fileinfo.model.FileInfo;
  *
  */
 @AnalsConnMapper
-public interface FileInfoMapper extends DsMapper<FileInfo, Long> {
+public interface FileInfoMapper extends CmmnMapper<FileInfo, Long> {
 
 }

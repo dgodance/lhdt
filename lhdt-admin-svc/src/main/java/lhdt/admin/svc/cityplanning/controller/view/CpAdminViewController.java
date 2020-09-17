@@ -5,9 +5,9 @@ import lhdt.admin.svc.cityplanning.domain.CPLocalInfo;
 import lhdt.admin.svc.cityplanning.model.CPManagedRegistParam;
 import lhdt.admin.svc.cityplanning.service.CPDistricInfoService;
 import lhdt.admin.svc.cityplanning.service.CPLocalInfoService;
-import lhdt.ds.common.misc.DSPageSize;
-import lhdt.ds.common.misc.DSPaginator;
-import lhdt.ds.common.misc.DSPaginatorInfo;
+import lhdt.cmmn.misc.CmmnPageSize;
+import lhdt.cmmn.misc.CmmnPaginator;
+import lhdt.cmmn.misc.CmmnPaginatorInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,17 +32,17 @@ public class CpAdminViewController {
             @RequestParam(value = "districPage", defaultValue = "1") Integer distric_page,
             Model model) {
         Page<CPLocalInfo> cpLocalInfoPage = cpLocalInfoService
-                .findAllPgByStartPg(local_page -1, DSPageSize.NOTICE.getContent());
+                .findAllPgByStartPg(local_page -1, CmmnPageSize.NOTICE.getContent());
         model.addAttribute("cpLocalInfoPage", cpLocalInfoPage);
 
-        DSPaginatorInfo cpLocalPageNav = DSPaginator.getPaginatorMap(cpLocalInfoPage, DSPageSize.NOTICE);
+        CmmnPaginatorInfo cpLocalPageNav = CmmnPaginator.getPaginatorMap(cpLocalInfoPage, CmmnPageSize.NOTICE);
         model.addAttribute("cpLocalInfoPageInfo", cpLocalPageNav);
 
         Page<CPDistricInfo> cpDistricInfoPage = cpDistricInfoService
-                .findAllPgByStartPg(distric_page -1, DSPageSize.NOTICE.getContent());
+                .findAllPgByStartPg(distric_page -1, CmmnPageSize.NOTICE.getContent());
         model.addAttribute("cpDistricInfoPage", cpDistricInfoPage);
 
-        DSPaginatorInfo cpDistricPageNav = DSPaginator.getPaginatorMap(cpDistricInfoPage, DSPageSize.NOTICE);
+        CmmnPaginatorInfo cpDistricPageNav = CmmnPaginator.getPaginatorMap(cpDistricInfoPage, CmmnPageSize.NOTICE);
         model.addAttribute("cpDistricInfoPageInfo", cpDistricPageNav);
 
         return "/cp/index";

@@ -3,10 +3,10 @@ package lhdt.admin.svc.lowinfo.controller.view;
 import lhdt.admin.svc.lhdt.domain.UserInfo;
 import lhdt.admin.svc.lowinfo.domain.LowInfo;
 import lhdt.admin.svc.lowinfo.service.LowInfoService;
-import lhdt.ds.common.misc.DSPageSize;
-import lhdt.ds.common.misc.DSPaginator;
-import lhdt.ds.common.misc.DSPaginatorInfo;
-import lhdt.ds.common.misc.DsUtils;
+import lhdt.cmmn.misc.CmmnPageSize;
+import lhdt.cmmn.misc.CmmnPaginator;
+import lhdt.cmmn.misc.CmmnPaginatorInfo;
+import lhdt.cmmn.misc.CmmnUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +29,10 @@ public class LowInfoViewController {
     public String getNoticePage(
             @RequestParam(value = "page", defaultValue = "1") Integer page,
             Model model) {
-        Page<LowInfo> noticePage = lowInfoService.findAllPgByStartPg(page -1, DSPageSize.NOTICE.getContent());
+        Page<LowInfo> noticePage = lowInfoService.findAllPgByStartPg(page -1, CmmnPageSize.NOTICE.getContent());
         model.addAttribute("lowInfoPage", noticePage);
 
-        DSPaginatorInfo pageNav = DSPaginator.getPaginatorMap(noticePage, DSPageSize.NOTICE);
+        CmmnPaginatorInfo pageNav = CmmnPaginator.getPaginatorMap(noticePage, CmmnPageSize.NOTICE);
         model.addAttribute("lowInfoPageInfo", pageNav);
 
         return "/low-info/index";

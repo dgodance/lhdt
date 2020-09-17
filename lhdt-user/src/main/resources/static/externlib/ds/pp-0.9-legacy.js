@@ -377,6 +377,62 @@ var Pp = function () {
         }
 
         /**
+         * arr요소중 하나라도 empty인지 검사
+         * @param {Array<any>} arr 
+         * @returns {Boolean} 하나라도 empty이면 true
+         * @since 20200915 init
+         */
+
+    }, {
+        key: 'isAnyEmpty',
+        value: function isAnyEmpty(arr) {
+            if (Pp.isEmpty(arr)) {
+                return false;
+            }
+
+            //
+            for (var i = 0; i < arr.length; i++) {
+                var d = arr[i];
+
+                var b = Pp.isEmpty(d);
+                if (b) {
+                    return true;
+                }
+            }
+
+            //
+            return false;
+        }
+
+        /**
+         * arr의 모든 요소가 empty인지 여부
+         * @param {Array<any>} arr 
+         * @returns {Boolean} 모든 요소가 empty이면 true
+         * @since 20200915 init
+         */
+
+    }, {
+        key: 'isAllEmpty',
+        value: function isAllEmpty(arr) {
+            if (Pp.isEmpty(arr)) {
+                return true;
+            }
+
+            //
+            for (var i = 0; i < arr.length; i++) {
+                var d = arr[i];
+
+                var b = Pp.isEmpty(d);
+                if (!b) {
+                    return false;
+                }
+            }
+
+            //
+            return true;
+        }
+
+        /**
          * obj가 공백인지 여부
          * @param {string | number | Array<any>|Map|undefined} strOrArr 문자열|배열
          * @returns {boolean}
@@ -976,7 +1032,6 @@ var Pp = function () {
             var currentPage = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
             var pageSize = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 10;
             var maxPages = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 10;
-			
 
 
             // calculate total pages

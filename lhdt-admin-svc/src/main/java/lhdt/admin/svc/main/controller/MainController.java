@@ -9,8 +9,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import lhdt.admin.svc.hello.service.HelloService;
-import lhdt.ds.common.misc.DsConst;
-import lhdt.ds.common.misc.DsController;
+import lhdt.cmmn.misc.CmmnConst;
+import lhdt.cmmn.misc.CmmnController;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -21,16 +21,16 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Controller
 @RequestMapping("/main")
-public class MainController extends DsController {
+public class MainController extends CmmnController {
 	private static final String P = "main/";
 	
 	@Autowired
 	private HelloService service;
 	
-	@RequestMapping("/dashboard")
+	@RequestMapping("")
 	public String index(Model model) {
 		
-		model.addAttribute(DsConst.DATAS, service.findAll());
+		model.addAttribute(CmmnConst.DATAS, service.findAll());
 		log.debug("{}", model);
 		
 		return P + "dashboard";

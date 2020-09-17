@@ -9,10 +9,10 @@ import lhdt.admin.svc.file.domain.listener.FileInfoListener;
 import lhdt.admin.svc.file.type.FileClsType;
 import lhdt.admin.svc.file.type.FileType;
 import lhdt.admin.svc.landscape.domain.LandScapeDiff;
-import lhdt.ds.common.domain.DsDomain;
-import lhdt.ds.common.misc.DsField;
-import lhdt.ds.common.misc.DsFile;
-import lhdt.ds.common.misc.DsFileMaster;
+import lhdt.cmmn.domain.CmmnDomain;
+import lhdt.cmmn.misc.CmmnField;
+import lhdt.cmmn.misc.CmmnFile;
+import lhdt.cmmn.misc.CmmnFileMaster;
 import lombok.*;
 
 import javax.persistence.*;
@@ -33,13 +33,13 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class FileInfo extends DsDomain implements DsFile {
+public class FileInfo extends CmmnDomain implements CmmnFile {
     /**
      * 파일명
      */
     @NotNull
     @Column(name = "file_name")
-    @DsField(bizKey = true, order = 0)
+    @CmmnField(bizKey = true, order = 0)
     private String fileName;
 
     /**
@@ -47,7 +47,7 @@ public class FileInfo extends DsDomain implements DsFile {
      */
     @NotNull
     @Column(name = "file_path")
-    @DsField(bizKey = true, order = 1)
+    @CmmnField(bizKey = true, order = 1)
     private String filePath;
 
     /**
@@ -73,7 +73,7 @@ public class FileInfo extends DsDomain implements DsFile {
      */
     @NotNull
     @Column(name = "file_ext")
-    @DsField(bizKey = true, order = 2)
+    @CmmnField(bizKey = true, order = 2)
     private String fileExtention;
 
     /**

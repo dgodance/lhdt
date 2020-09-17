@@ -56,7 +56,8 @@ public class SigninController {
 		model.addAttribute("policy", policy);
 		model.addAttribute("contentCacheVersion", policy.getContentCacheVersion());
 
-		return "/sign/signin";
+//		return "/sign/signin";
+		return "/sign/login";
 	}
 
 	/**

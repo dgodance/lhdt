@@ -3,8 +3,8 @@ package lhdt.admin.svc.landscape.domain;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
 import lhdt.admin.svc.cityplanning.domain.CPDistricInfo;
-import lhdt.ds.common.domain.DsDomain;
-import lhdt.ds.common.misc.DsField;
+import lhdt.cmmn.domain.CmmnDomain;
+import lhdt.cmmn.misc.CmmnField;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,9 +20,9 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class LandScapeDiffGroup extends DsDomain {
+public class LandScapeDiffGroup extends CmmnDomain {
     @NotNull
-    @DsField(bizKey = true, order = 0)
+    @CmmnField(bizKey = true, order = 0)
     @Column(name = "ls_diff_group_name")
     private String lsDiffGrupName;
 

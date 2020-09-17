@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import lhdt.ds.common.misc.DsController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,12 +19,13 @@ import lhdt.admin.svc.lhdt.domain.Role;
 import lhdt.admin.svc.lhdt.service.RoleService;
 import lhdt.admin.svc.lhdt.support.SQLInjectSupport;
 import lhdt.admin.svc.lhdt.utils.DateUtils;
+import lhdt.cmmn.misc.CmmnController;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Controller
 @RequestMapping("/role")
-public class RoleController extends DsController {
+public class RoleController extends CmmnController {
 	private static final String P = "role/";
 
 	@Autowired

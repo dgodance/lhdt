@@ -15,7 +15,6 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import lhdt.ds.common.interceptor.DsMiscInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.thymeleaf.TemplateEngine;
@@ -26,6 +25,8 @@ import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 
+import lhdt.cmmn.interceptor.CmmnMiscInterceptor;
+
 /**
  * @author gravity@daumsoft.com
  *
@@ -34,7 +35,7 @@ import org.thymeleaf.templateresolver.ITemplateResolver;
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 	@Autowired
-	private DsMiscInterceptor miscInterceptor;
+	private CmmnMiscInterceptor miscInterceptor;
 
 	@PostConstruct
 	private void init() {

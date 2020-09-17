@@ -1,3 +1,14 @@
+//층별 높이(m)
+const HEIGHT_PER_FLOOR = 3.3;
+
+//경관 비교
+const	LS_DIFF_REST_URL = 'http://localhost:9091/adminsvc/ls-diff-rest';
+//경관 점
+const	LS_POINT_REST_URL = 'http://localhost:9091/adminsvc/ls-point-rest';
+
+
+
+
 /**
  * 업무 공통 js
  * @author	gravity
@@ -57,6 +68,11 @@ DS.init = function(){
 	}
 	
 	//
+	if(0 === paging.pages.length){
+		s += '	<li class=""	data-page-no="1">1</li>';
+	}
+	
+	//
 	s += '	<li class="ico end" data-page-no="'+paging.totalPages+'">마지막</li>';
 	
 	s += '</ul>';
@@ -82,8 +98,3 @@ window.addEventListener('load', function(){
 });
 
 
-
-//경관 비교
-const	LS_DIFF_REST_URL = 'http://localhost:9091/adminsvc/ls-diff-rest';
-//경관 점
-const	LS_POINT_REST_URL = 'http://localhost:9091/adminsvc/ls-point-rest';

@@ -13,8 +13,9 @@ let ModelerObj = function(){
 	this.selectedData = null;
 	//
 	this.tool = ModelerObj.Tool.NONE;
+	//
+	this.handler = null;
 	
-	console.log(new Date(), this);
 }
 
 /**
@@ -35,21 +36,19 @@ ModelerObj.Tool = {
  * 초기
  */
 ModelerObj.prototype.init = function(){
-	let _this = this;
 	
 	//
-	_this.setEventHandler();
+	this.setEventHandler();
 	
-	//그룹 목록 조회
-	_this.getGroups(function(){
-		_this.renderGroups();
-		
-		//데이터 목록 조회
-		_this.getDataLibraries(function(){
-			//
-			_this.renderDatas(1);
-		});		
-	});
+	//그룹 목록
+	this.getGroups();
+	this.renderGroups();
+
+	//데이터 목록
+	this.getDataLibraries();
+	this.renderDatas(1);
+
+
 	
 	//
 	console.log('ModelerObj', '<<.init');
@@ -68,106 +67,85 @@ ModelerObj.prototype.setEventHandler = function(){
 	Ppui.change('#data-library-group', function(){
 		_this.renderDatas();
 	});
-		
-	// 도구 - 선택 클릭
-	Ppui.click('.ds-tool-select', function(){
-		//
-		_this.setTool(Ppui.hasClass(this, 'active') ? ModelerObj.Tool.NONE : ModelerObj.Tool.SELECT); 		
-		
-		
-		//
-		_this.processToolSelect();
-	});
-	
-	
-	// 도구 - 점 클릭
-	Ppui.click('.ds-tool-point', function(){
-		//
-		if(Pp.isEmpty(_this.selectedData)){
-			toastr.warning('데이터 라이브러리를 선택하시기 바랍니다.');
-			return;
-		}
-
-		//
-		_this.setTool(Ppui.hasClass(this, 'active') ? ModelerObj.Tool.NONE : ModelerObj.Tool.POINT); 		
-		
-		//
-		_this.processToolPoint();		
-	});
-	
-	
-	// 도구 - 선 클릭
-	Ppui.click('.ds-tool-line', function(){
-		//
-		if(Pp.isEmpty(_this.selectedData)){
-			toastr.warning('데이터 라이브러리를 선택하시기 바랍니다.');
-			return;
-		}
-
-		//
-		_this.setTool(Ppui.hasClass(this, 'active') ? ModelerObj.Tool.NONE : ModelerObj.Tool.LINE); 		
-		
-		//
-		_this.processToolLine();
-			
-	});
-	
-	// 도구 - 지우기 클릭
-	Ppui.click('.ds-tool-delete', function(){
-		//
-		_this.setTool(Ppui.hasClass(this, 'active') ? ModelerObj.Tool.NONE : ModelerObj.Tool.DELETE); 		
-		
-		//
-		_this.processToolDelete();
-	});
-	
-	//도구 - 이동 클릭
-	Ppui.click('.ds-tool-move', function(){
-		//
-		_this.setTool(Ppui.hasClass(this, 'active') ? ModelerObj.Tool.NONE : ModelerObj.Tool.MOVE); 		
-		
-		//
-		_this.processToolMove();
-		
-	});
-
-	//TODO 카테고리 > 변경버튼 클릭
-	Ppui.on(document.querySelector('.ds-change-category'), 'click', function(){
-		
-	});
-	
-	
-	//TODO my모델러 > 검색 버튼 클릭
-	Ppui.on(document.querySelector('.ds-modeler-search'), 'click', function(){
-		
-	});
-	
 
 
-	//TODO my모델러 > 신규 버튼 클릭
-	Ppui.on(document.querySelector('.ds-modeler-new'), 'click', function(){
-		
-	});
-	
-	
-	//TODO my모델러 > 읽어오기 버튼 클릭
-	Ppui.on(document.querySelector('.ds-modeler-load'), 'click', function(){
-		
-	});
-	
-	
-	//TODO my모델러 > 삭제 버튼 클릭
-	Ppui.on(document.querySelector('.ds-modeler-delete'), 'click', function(){
-		
-	});
-	
-	
-	//TODO my모델러 > 저장 버튼 클릭
-	Ppui.on(document.querySelector('.ds-modeler-save'), 'click', function(){
-		
+	/**
+	 * 토글 버튼 클릭
+	 */ 
+	Ppui.click('button[class*=ds-tool]', function () {
+		//
+		let afterTool = Ppui.hasClass(this, 'active') ? ModelerObj.Tool.NONE : _this.getToolByEl(this);
+		//
+		_this.setTool(ModelerObj.Tool.NONE);
+		_this.setTool(afterTool);
 	});
 
 
+		
+};
+
+
+/**
+ * tool로 해당 button's 엘리먼트 구하기
+ * @param {ModelerObj.Tool} tool
+ */
+ModelerObj.prototype.getElByTool = function (tool) {
+	let toolName = '';
+	let keys = Object.keys(ModelerObj.Tool);
+
+	for (let i = 0; i < keys.length; i++) {
+		let k = keys[i];
+
+		//
+		if (tool == ModelerObj.Tool[k]) {
+			toolName = k.toLowerCase();
+        }
+	}
+
+
+	let coll = Ppui.find('button[class*=ds-tool]');
+	for (let i = 0; i < coll.length; i++) {
+		let el = coll.item(i);
+
+		for (let j = 0; j < el.classList.length; j++) {
+			let className = el.classList[j].replace(/ds-tool-/gi, '');
+
+			//
+			if (toolName === className) {
+				return el;
+            }
+        }
+	}
+
+	//
+	return;
+};
+
+
+/**
+ * el로 tool 구하기
+ * @param {Element} el
+ */
+ModelerObj.prototype.getToolByEl = function (el) {
+	let keys = Object.keys(ModelerObj.Tool);
+
+	//
+	for (let i = 0; i < keys.length; i++) {
+		let k = keys[i];
+
+		for (let j = 0; j < el.classList.length; j++) {
+			let className = el.classList[j].replace(/ds-tool-/gi, '');
+
+			//
+			//console.log(k, className);
+			if (className === k.toLowerCase()) {
+				return ModelerObj.Tool[k];
+            }
+        }
+    }
+	
+	//
+	return ModelerObj.Tool.NONE;
 };
 
 
@@ -178,12 +156,12 @@ ModelerObj.prototype.setEventHandler = function(){
  */
 ModelerObj.prototype.setTool = function(tool){
 	let beforeTool = this.tool;
+	//
 	this.tool = tool;
 
 	//
-	if('function' === typeof(this.toolChanged)){
-		this.toolChanged(beforeTool, this.tool);
-	}
+	this.toolChanged(beforeTool, this.tool);
+	
 };
 
 /**
@@ -195,7 +173,7 @@ ModelerObj.prototype.setTool = function(tool){
 };
 
 
-ModelerObj.prototype.isTool = function(tool){
+ModelerObj.prototype.toolIs = function(tool){
     return this.getTool() === tool;
 }
 
@@ -266,27 +244,95 @@ ModelerObj.prototype.showDataLibraryAtMap = function(lonLat){
 };
 
 
+/**
+ * 마고 클릭 이벤트 콜백
+ * @param {any} e
+ */
+ModelerObj.prototype.selectedf4dCallback = function (e) {
+	//삭제이면
+	if (Ppui.hasClass('button.ds-tool-delete', 'active')) {
+		var selectionManager = Ppmap.getManager().selectionManager;
+		var selected = Ppmap.getManager().selectionManager.getSelectedF4dNode();
+		if (Pp.isEmpty(selected)) {
+			return;
+		}
+
+		//
+		MAGO3D_INSTANCE.getF4dController().deleteF4dMember(selected.data.projectId, selected.data.nodeId);
+		Ppmap.getManager().defaultSelectInteraction.clear();
+		selectionManager.clearCurrents();
+		return;
+	}
+
+	//
+};
 
 /**
  * tool이 변경되면 호출됨
  * @param {ModelerObj.Tool}
  * @returns {void}
  */
-ModelerObj.prototype.toolChanged = function(beforeTool, afterTool){
-	Ppui.removeClass('[class*=ds-tool]', 'active');
-
-	//
-	let selector = '.ds-tool-' + ModelerObj.getToolName(afterTool).toLowerCase();
-	
-	//
-    Ppui.addClass(selector, 'active');
+ModelerObj.prototype.toolChanged = function (beforeTool, afterTool) {
+	console.log(ModelerObj.getToolName(beforeTool), ' => ', ModelerObj.getToolName(afterTool));
     
     //
-    if(ModelerObj.Tool.NONE === afterTool){
+    if(this.toolIs(ModelerObj.Tool.NONE)){
         //
-	    Ppmap.getManager().defaultSelectInteraction.setActive(false);
+		Ppmap.getManager().defaultSelectInteraction.setActive(false);
+		Ppmap.getManager().defaultTranslateInteraction.setActive(false);
+		Ppmap.getManager().off(Mago3D.MagoManager.EVENT_TYPE.SELECTEDF4D, this.selectedf4dCallback);
+
+		//
+		if (Pp.isNotNull(this.handler) && !this.handler.isDestroyed()) {
+			this.handler.destroy();
+        }
+	}
+
+	//
+	Ppui.removeClass(this.getElByTool(beforeTool), 'active');
+	Ppui.addClass(this.getElByTool(afterTool), 'active');
+
+	//
+	if (this.toolIs(ModelerObj.Tool.DELETE)) {
+		this.processToolDelete();
     }
-	
+
+	//
+	if (this.toolIs(ModelerObj.Tool.LINE)) {
+
+		//
+		if (0 === Ppui.find('table.ds-data-library-list tr.on').length) {
+			toastr.warning('데이터 라이브러리를 선택하시기 바랍니다.');
+			this.setTool(ModelerObj.Tool.NONE);
+			return;
+		}
+
+		//
+		this.processToolLine();
+	}	
+
+	//
+	if (this.toolIs(ModelerObj.Tool.POINT)) {
+
+		//
+		if (0 === Ppui.find('table.ds-data-library-list tr.on').length) {
+			toastr.warning('데이터 라이브러리를 선택하시기 바랍니다.');
+			this.setTool(ModelerObj.Tool.NONE);
+			return;
+		}
+		//
+		this.processToolPoint();
+	}
+
+	//
+	if (this.toolIs(ModelerObj.Tool.SELECT)) {
+		this.processToolSelect();
+	}
+
+	//
+	if (this.toolIs(ModelerObj.Tool.MOVE)) {
+		this.processToolMove();
+	}
 };
 
 
@@ -319,8 +365,13 @@ ModelerObj.prototype.nodeSelected = function(nodes){
     }
 };
 
+/**
+ *	
+ * @param {any} beforeData 변경전 데이터
+ * @param {any} afterData 변경후 데이터
+ */
 ModelerObj.prototype.dataChanged = function(beforeData, afterData){
-
+	//TODO
 }
 
 
@@ -352,56 +403,33 @@ ModelerObj.getToolName = function(tool){
  * 도구 - 이동
  */
 ModelerObj.prototype.processToolMove = function(){
-	if(ModelerObj.Tool.MOVE !== this.getTool()){
+	if(!this.toolIs(ModelerObj.Tool.MOVE)){
 		return;
 	}
 
 	//
 	let _this = this;
-	//이벤트 제거
-	Ppmap.removeInputAction('all');
-
-	//
-	let handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);	
-	
-	//
-	Ppmap.getManager().defaultSelectInteraction.setTargetType('f4d');
-	Ppmap.getManager().defaultSelectInteraction.setActive(true);
-	Ppmap.getManager().isCameraMoved = true;
 
 	//
 	Ppmap.getManager().defaultTranslateInteraction.setTargetType('f4d');
 	Ppmap.getManager().defaultTranslateInteraction.setActive(true);
 	
-	//클릭 이벤트 등록
-	handler.setInputAction(function(event){
-		//이벤트 제거
-		//
-		if(ModelerObj.Tool.MOVE !== _this.getTool()){
-			//
-			handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-			//
-			Ppmap.getManager().defaultSelectInteraction.setActive(false);
-			return;	
-		}
-		
-		//TODO 선택된 데이터 라이브러리 정보 추출
+	//
+	Ppmap.getManager().defaultSelectInteraction.setTargetType('f4d');
+	Ppmap.getManager().defaultSelectInteraction.setActive(true);
+	Ppmap.getManager().isCameraMoved = true;
+	
 
-	}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+	//
+	_this.handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);	
 
 	//오른쪽 클릭
-	handler.setInputAction(function(){
-		//
-		_this.setTool(ModelerObj.Tool.NONE);
-		
-		//
-		handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-		handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-
-		//
-		Ppmap.getManager().defaultSelectInteraction.setActive(false);
-		Ppmap.getManager().defaultTranslateInteraction.setActive(false);
-
+	_this.handler.setInputAction(function(){
+		if(_this.toolIs(ModelerObj.Tool.MOVE)){
+			//
+			_this.setTool(ModelerObj.Tool.NONE);
+		}
+		//console.log('move right clicked');
 	}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 };
 
@@ -409,39 +437,30 @@ ModelerObj.prototype.processToolMove = function(){
  * 도구 - 선택
  */ 
 ModelerObj.prototype.processToolSelect = function(){
-	if(ModelerObj.Tool.SELECT !== this.getTool()){
+	if(!this.toolIs(ModelerObj.Tool.SELECT)){
 		return;
 	}
-
 	//
 	let _this = this;
-	//이벤트 제거
-	Ppmap.removeInputAction('all');
 
-	//
-	let handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);	
 	
-	//
 	Ppmap.getManager().defaultSelectInteraction.setTargetType('f4d');
 	Ppmap.getManager().defaultSelectInteraction.setActive(true);
 	Ppmap.getManager().isCameraMoved = true;
+	Ppmap.getManager().on(Mago3D.MagoManager.EVENT_TYPE.SELECTEDF4D, _this.selectedf4dCallback);
 	
-	//클릭 이벤트 등록
-	handler.setInputAction(function(event){
-		//이벤트 제거
-		//
-		if(ModelerObj.Tool.SELECT !== _this.getTool()){
-			//
-			handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-			//
-			Ppmap.getManager().defaultSelectInteraction.setActive(false);
-		}
-		
-        // 선택된 데이터 라이브러리 정보 추출
-        let nodes = Ppmap.getManager().selectionManager.getSelectedF4dNodeArray();
-        _this.nodeSelected(nodes);
 
-	}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+	//
+	_this.handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);	
+	
+	////오른쪽 클릭
+	_this.handler.setInputAction(function(){
+		if (_this.toolIs(ModelerObj.Tool.SELECT)) {
+			//
+			_this.setTool(ModelerObj.Tool.NONE);
+		}
+		//console.log('select right clicked');
+	}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 };
 
 
@@ -449,39 +468,34 @@ ModelerObj.prototype.processToolSelect = function(){
  * 도구 - 점
  */
 ModelerObj.prototype.processToolPoint = function(){
-	if(ModelerObj.Tool.POINT !== this.getTool()){
+	if(!this.toolIs(ModelerObj.Tool.POINT)){
 		return;
 	}
 
+
 	//
 	let _this = this;
-	Ppmap.removeInputAction('all');
 	
 	//
-	let handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
+	_this.handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
 	//클릭
-	handler.setInputAction(function(event){
-		if(ModelerObj.Tool.POINT !== _this.getTool()){
-			handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-			handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-			return;
+	_this.handler.setInputAction(function(event){
+		if(_this.toolIs(ModelerObj.Tool.POINT)){
+			//
+			let lonLat = Ppmap.Convert.ctsn2ToLonLat(event.position);
+			
+			//데이터 라이브러리 표시
+			_this.showDataLibraryAtMap(lonLat);
 		}
-		//
-		let lonLat = Ppmap.Convert.ctsn2ToLonLat(event.position);
-		
-		//데이터 라이브러리 표시
-		_this.showDataLibraryAtMap(lonLat);
 	}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 	
 	//오른쪽 클릭
-	handler.setInputAction(function(event){
-		_this.setTool(ModelerObj.Tool.NONE);
-		
-		//
-		handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-		handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-		
-		
+	_this.handler.setInputAction(function(event){
+		if (_this.toolIs(ModelerObj.Tool.POINT)) {
+			//
+			_this.setTool(ModelerObj.Tool.NONE);
+		}
+		//console.log('point right clicked');
 	}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 		
 };
@@ -521,76 +535,60 @@ ModelerObj.prototype.processToolLine = function(){
 	};
 
 
-	//
-	if(ModelerObj.Tool.LINE !== this.getTool()){
+	if(!this.toolIs(ModelerObj.Tool.LINE)){
 		return;
 	}
-
 	//
 	let _this = this;
-	//
-	Ppmap.removeInputAction('all');
-
+	
 	//
 	let points = [];
 
 	//
-	let handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
+	_this.handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
 
 	//클릭
-	handler.setInputAction(function(event){
-		if(ModelerObj.Tool.LINE !== _this.getTool()){
-			handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-			handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-			handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-			return;
+	_this.handler.setInputAction(function(event){
+		if(_this.toolIs(ModelerObj.Tool.LINE)){
+			//
+			let lonLat = Ppmap.Convert.ctsn2ToLonLat(event.position);
+			points.push(lonLat);
+			
+			//
+			Ppmap.createPoint('data-library-tool-line-point', lonLat.lon, lonLat.lat);
 		}
-
-		//
-		let lonLat = Ppmap.Convert.ctsn2ToLonLat(event.position);
-		points.push(lonLat);
-
-		//
-		Ppmap.createPoint('data-library-tool-line-point', lonLat.lon, lonLat.lat);
-
+		
+		
 	}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-
+	
 	//오른쪽 클릭
-	handler.setInputAction(function(event){
-		//
-		_this.setTool(ModelerObj.Tool.NONE);
+	_this.handler.setInputAction(function(event){
+			if(_this.toolIs(ModelerObj.Tool.LINE)){
+				// 점, 선 삭제
+				Ppmap.removeAll();		
+				
+				//
+				let dataPositions = _toDataPositions(points);
+				//
+				for(let i=0; i<dataPositions.length; i++){
+					let d = dataPositions[i];
+					// 데이터 라이브러리 표시
+					_this.showDataLibraryAtMap(Ppmap.Convert.toLonLat(d.longitude, d.latitude));
+				}
 		
-		// 점, 선 삭제
-		Ppmap.removeAll();		
-
-		//
-		handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-		handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-		handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-		
-		//
-		let dataPositions = _toDataPositions(points);
-		//
-		for(let i=0; i<dataPositions.length; i++){
-			let d = dataPositions[i];
-			// 데이터 라이브러리 표시
-			_this.showDataLibraryAtMap(Ppmap.Convert.toLonLat(d.longitude, d.latitude));
-		}
+				//
+				_this.setTool(ModelerObj.Tool.NONE);
+			}
+		//console.log('line right clicked');
 	}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 
 	//이동
-	handler.setInputAction(function(event){
+	_this.handler.setInputAction(function(event){
 		// 선 그리기
 		if(0 == points.length){
 			return;
 		}
 
-		//
-		if(ModelerObj.Tool.LINE !== _this.getTool()){
-			handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-			handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-			handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-		}
 
 		//
 		Ppmap.removeEntity(window['line'+points.length]);
@@ -636,66 +634,51 @@ ModelerObj.prototype.processToolLine = function(){
  * 도구 - 삭제
  */
 ModelerObj.prototype.processToolDelete = function(){
-	//
-	if(ModelerObj.Tool.DELETE !== this.getTool()){
+	if(!this.toolIs(ModelerObj.Tool.DELETE)){
 		return;
 	}
-	
+
 	//
 	let _this = this;
-
-	//이벤트 제거
-	Ppmap.removeInputAction('all');
+		
+	//
+	Ppmap.getManager().defaultSelectInteraction.setTargetType('f4d');
+	Ppmap.getManager().defaultSelectInteraction.setActive(true);
+	Ppmap.getManager().isCameraMoved = true;
+	Ppmap.getManager().on(Mago3D.MagoManager.EVENT_TYPE.SELECTEDF4D, _this.selectedf4dCallback);
 
 	//
-	let handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
+	_this.handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
+		
 	
-	//
-	handler.setInputAction(function(event){
-		if(ModelerObj.Tool.DELETE !== _this.getTool()){
-			handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+	//오른쪽 클릭
+	_this.handler.setInputAction(function(){
+		if (_this.toolIs(ModelerObj.Tool.DELETE)) {
 			//
-			Ppmap.getManager().defaultSelectInteraction.setActive(false);
-			return;
+			_this.setTool(ModelerObj.Tool.NONE);
 		}
-		
-		//
-		Ppmap.getManager().defaultSelectInteraction.setTargetType('f4d');
-		Ppmap.getManager().defaultSelectInteraction.setActive(true);
-		Ppmap.getManager().isCameraMoved = true;
-		
-		
-		var selectionManager = Ppmap.getManager().selectionManager;
-		var selectedData = Ppmap.getManager().selectionManager.getSelectedF4dNode();
-		if(!selectedData) {
-			console.log('선택된 데이터가 없습니다');
-			return;
-		}
-		MAGO3D_INSTANCE.getF4dController().deleteF4dMember(selectedData.data.projectId, selectedData.data.nodeId);
-		Ppmap.getManager().defaultSelectInteraction.clear();
-		selectionManager.clearCurrents();
-		
-	}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+		//console.log('delete right clicked');
+	}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 };
 
 
 
 /**
- * 데이터 라이브러리 > 그룹 목록 로드
+ * 데이터 라이브러리 > 그룹 목록 로드. 동기호출
  */
-ModelerObj.prototype.getGroups = function(callbackFn){
+ModelerObj.prototype.getGroups = function(){
 	let _this = this;
 	
 	//	
+	_this.dataLibraryGroups = [];
 	Pp.get('../api/data-library-groups', [], function(res){
-		_this.dataLibraryGroups = res._embedded.dataLibraryGroups;
-		
-		//
-		if(Pp.isNotNull(callbackFn)){
-			//
-			callbackFn(_this.dataLibraryGroups);			
+		if(Pp.isNotEmpty(res._embedded) && Pp.isNotEmpty(res._embedded.dataLibraryGroups)){
+			_this.dataLibraryGroups = res._embedded.dataLibraryGroups;
 		}
-	});
+		//
+		return _this.dataLibraryGroups;
+		
+	}, {'async':false});
 };
 
 
@@ -899,37 +882,20 @@ ModelerObj.prototype.getGroup = function(dataLibraryGroupId){
 /**
  * 데이터 라이브러리 목록
  */
-ModelerObj.prototype.getDataLibraries = function(callbackFn){
+ModelerObj.prototype.getDataLibraries = function(){
 	let _this = this;
+	
+	//
+	_this.dataLibraries = [];
 	Pp.get('../api/data-libraries', [], function(res){
-		_this.dataLibraries = res._embedded.dataLibraries;
-		
-		//
-		if(Pp.isNotNull(callbackFn)){
-			callbackFn(_this.dataLibraries);
+		if(Pp.isNotEmpty(res._embedded) && Pp.isNotEmpty(res._embedded.dataLibraries)){
+			_this.dataLibraries = res._embedded.dataLibraries;			
 		}
-	});
+		//
+		return _this.dataLibraries;
+	
+	}, {'async':false});
 };
-
-//TODO 데이터 라이브러리 > 목록 > 라디오버튼 클릭
-
-
-
-//TODO 카테고리 > 변경전 선택박스 로드
-//TODO 카테고리 > 변경후 선택박스 로드
-
-
-//TODO 속성 > 속정정보 표시
-
-
-
-//TODO my모델러 > 검색어 입력
-//TODO my모델러 > 목록 표시
-//TODO my모델러 > 목록 > 라디오 버튼 클릭
-
-
-
-
 
 
 //

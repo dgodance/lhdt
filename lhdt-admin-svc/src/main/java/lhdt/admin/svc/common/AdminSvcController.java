@@ -6,8 +6,8 @@ package lhdt.admin.svc.common;
 import javax.servlet.http.HttpServletRequest;
 
 import lhdt.admin.svc.lhdt.domain.UserSession;
-import lhdt.ds.common.misc.DsConst;
-import lhdt.ds.common.misc.DsController;
+import lhdt.cmmn.misc.CmmnConst;
+import lhdt.cmmn.misc.CmmnController;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -17,11 +17,11 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @Slf4j
-public class AdminSvcController extends DsController {
+public class AdminSvcController extends CmmnController {
 	
 	
 	protected UserSession getUserSession(HttpServletRequest request) {
-		Object obj = request.getSession().getAttribute(DsConst.USER_SESSION);
+		Object obj = request.getSession().getAttribute(CmmnConst.USER_SESSION);
 		if(null == obj) {
 			log.warn("<<.getUserSession - null userSession");
 			return null;

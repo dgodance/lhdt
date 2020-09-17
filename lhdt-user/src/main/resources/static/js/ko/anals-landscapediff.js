@@ -159,7 +159,6 @@ AnalsLandScapeDiff.prototype.renderDiffContent = function(groupId, pageNum) {
 	
 	//
     $.get(LS_DIFF_REST_URL + '/'+groupId+'?lsDiffPage='+pageNum).done(function(diffObj) {
-        debugger;
         $('#landscapeDiffDetDataDiv').empty();
         $('#landscapeDiffDetDataDiv').append(template(diffObj));
         $('#landscapeName').val("");
@@ -182,10 +181,10 @@ AnalsLandScapeDiff.prototype.flyToByCameraStatus = function(id){
     });	
 };
 
-
 function renderDiffContentDefault() {
     new AnalsLandScapeDiff().renderDiffContent($('#landscapeGroup').val());
 }
+
 function renderDiffContentDefaultWithPage(pageNum) {
     new AnalsLandScapeDiff().renderDiffContent($('#landscapeGroup').val(), pageNum);
 }
@@ -207,10 +206,11 @@ function gotoScene(id) {
 
 		//
 		let entity = null;
-		
+		debugger;
 		//
 		if('점' === res.landScapePointType){
-			entity = Ppmap.createPoint('ls-anals-saved-point', res.startLandScapePos.x, res.startLandScapePos.y);
+			entity = Ppmap.createPointAndLabel('ls-anals-saved-point', res.landScapePointName,
+                res.startLandScapePos.x, res.startLandScapePos.y);
 		}
 		if('선' === res.landScapePointType){
 			let xyz1 = {
@@ -221,7 +221,7 @@ function gotoScene(id) {
 				'lon': res.endLandScapePos.x,
 				'lat': res.endLandScapePos.y
 			}
-			entity = Ppmap.createPolyline('ls-anals-saved-line', [xyz1, xyz2]);
+			entity = Ppmap.createPolylineAndLabel('ls-anals-saved-line', res.landScapePointName, [xyz1, xyz2]);
 		}
 
 
@@ -303,6 +303,7 @@ function paginLandScapeList(paginNum) {
 const analsLandScapeDiff = new AnalsLandScapeDiff();
 //
 $(document).ready(function() {
+    debugger;
     analsLandScapeDiff.renderDiffDropdown();
     analsLandScapeDiff.init();
 })

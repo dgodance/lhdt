@@ -6,9 +6,11 @@ $(()=> {
     lsDropDownList.initDropDownVal();
     editEvt();
 
-    //const p = new asideMenuComponent('ls-point-wrap', 'ls-diff-point');
-    //p.setMenu();
+    const p = new asideMenuComponent('ls-point-wrap', 'ls-diff-point');
+    p.setMenu();
 });
+
+
 
 const landScapeTypeSelect = {
     ele: '#landScapeTypeSelect',
@@ -132,6 +134,14 @@ const cesiumInit = {
     viewer: undefined,
     scene: undefined,
     canvas: undefined,
+    mago: {
+        MAGO3D_INSTANCE: undefined,
+        NDTP : {
+            policy : {},
+            dataGroup : {},
+            baseLayers : {}
+        }
+    },
     init: function() {
         const extent = Cesium.Rectangle.fromDegrees(117.896284, 31.499028, 139.597380, 43.311528);
 
@@ -163,6 +173,56 @@ const cesiumInit = {
         this.canvas = this.viewer.canvas;
         return this;
     },
+    magoInit: function() {
+        const that = this;
+        initPolicy(function(policy, baseLayers){
+            that.mago.NDTP.policy = policy;
+            that.mago.NDTP.baseLayers = baseLayers;
+            that.mago.MAGO3D_INSTANCE = new Mago3D.Mago3d(that.ele, that.mago.NDTP.policy,
+                {loadend : that.magoLoadEnd}, {});
+        });
+
+    },
+    magoLoadEnd(e) {
+        const that = this;
+        debugger;
+        var magoInstance = e;
+        var geoPolicyJson = that.mago.NDTP.policy;
+        var viewer = magoInstance.getViewer();
+        var magoManager = magoInstance.getMagoManager();
+        var f4dController = magoInstance.getF4dController();
+
+        // TODO : 세슘 MAP 선택 UI 제거,엔진에서 처리로 변경 예정.
+        if(viewer.baseLayerPicker) viewer.baseLayerPicker.destroy();
+        viewer.scene.globe.depthTestAgainstTerrain = true;
+        //viewer.scene.screenSpaceCameraController.minimumZoomDistance = 10;
+
+        magoManager.on(Mago3D.MagoManager.EVENT_TYPE.MOUSEMOVE, function(result) {
+            //console.info(result);
+        });
+
+
+    },
+    initPolicy: function(callback, dataId) {
+        if (!dataId) dataId = "";
+        $.ajax({
+            url: "/geopolicies/user?dataId=" + dataId,
+            type: "GET",
+            headers: {"X-Requested-With": "XMLHttpRequest"},
+            dataType: "json",
+            success: function (msg) {
+                if (msg.statusCode <= 200) {
+                    callback(msg.geoPolicy, msg.baseLayers);
+                } else {
+                    alert(JS_MESSAGE[msg.errorCode]);
+                }
+            },
+            error: function (request, status, error) {
+                alert(JS_MESSAGE["ajax.error.message"]);
+            }
+        });
+
+    }
 };
 
 const cesiumMouseEvt = {

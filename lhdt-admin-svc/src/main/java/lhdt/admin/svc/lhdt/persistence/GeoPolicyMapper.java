@@ -1,7 +1,7 @@
 package lhdt.admin.svc.lhdt.persistence;
 
 import lhdt.admin.svc.lhdt.domain.GeoPolicy;
-import lhdt.ds.common.config.LhdtConnMapper;
+import lhdt.cmmn.config.LhdtConnMapper;
 
 /**
  * 2D, 3D 운영 정책

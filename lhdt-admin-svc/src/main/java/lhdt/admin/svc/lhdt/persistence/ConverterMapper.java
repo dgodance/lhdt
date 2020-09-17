@@ -4,7 +4,7 @@ import java.util.List;
 
 import lhdt.admin.svc.lhdt.domain.ConverterJob;
 import lhdt.admin.svc.lhdt.domain.ConverterJobFile;
-import lhdt.ds.common.config.LhdtConnMapper;
+import lhdt.cmmn.config.LhdtConnMapper;
 
 /**
  * f4d converter manager

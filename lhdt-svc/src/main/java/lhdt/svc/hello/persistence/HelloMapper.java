@@ -3,7 +3,7 @@
  */
 package lhdt.svc.hello.persistence;
 
-import lhdt.ds.common.config.AnalsConnMapper;
+import lhdt.cmmn.config.AnalsConnMapper;
 import lhdt.svc.common.SvcMapper;
 import lhdt.svc.hello.domain.Hello;
 

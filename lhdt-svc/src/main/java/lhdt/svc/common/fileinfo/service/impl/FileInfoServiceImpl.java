@@ -8,7 +8,7 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import lhdt.ds.common.misc.DsServiceImpl;
+import lhdt.cmmn.misc.CmmnServiceImpl;
 import lhdt.svc.common.fileinfo.model.FileInfo;
 import lhdt.svc.common.fileinfo.persistence.FileInfoMapper;
 import lhdt.svc.common.fileinfo.persistence.FileInfoRepository;
@@ -20,7 +20,7 @@ import lhdt.svc.common.fileinfo.service.FileInfoService;
  *
  */
 @Service("fileInfoService")
-public class FileInfoServiceImpl extends DsServiceImpl<FileInfoRepository, FileInfoMapper, FileInfo, Long> implements FileInfoService {
+public class FileInfoServiceImpl extends CmmnServiceImpl<FileInfoRepository, FileInfoMapper, FileInfo, Long> implements FileInfoService {
 
 	@Autowired
 	private FileInfoRepository jpaRepo;

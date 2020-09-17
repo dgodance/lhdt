@@ -21,14 +21,14 @@ import org.springframework.http.HttpStatus;
 
 import dev.hyunlab.core.PpTransferObject;
 import dev.hyunlab.core.util.PpDateUtil;
-import lhdt.ds.common.misc.DsUtils;
+import lhdt.cmmn.misc.CmmnUtils;
 
 /**
  * 이것저것 유틸리티
  * @author gravity@daumsoft.com
  *
  */
-public class SvcUtils extends DsUtils{
+public class SvcUtils extends CmmnUtils{
 	
 	/**
 	 * result map 생성

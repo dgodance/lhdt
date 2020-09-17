@@ -19,7 +19,7 @@ import lhdt.admin.svc.lhdt.domain.Key;
 import lhdt.admin.svc.lhdt.domain.UserSession;
 import lhdt.admin.svc.lhdt.service.AccessLogService;
 import lhdt.admin.svc.lhdt.support.URLSupport;
-import lhdt.ds.common.misc.DsWebUtils;
+import lhdt.cmmn.misc.CmmnWebUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -63,7 +63,7 @@ public class LogInterceptor extends HandlerInterceptorAdapter {
     	
     	AccessLog accessLog = new AccessLog();
     	accessLog.setRequestUri(uri);
-    	accessLog.setClientIp(DsWebUtils.getConectIp(request));
+    	accessLog.setClientIp(CmmnWebUtils.getConectIp(request));
     	
     	HttpSession session = request.getSession();
     	UserSession userSession = (UserSession)session.getAttribute(Key.USER_SESSION.name());

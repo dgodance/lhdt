@@ -11,8 +11,8 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import dev.hyunlab.web.util.PpWebSessionUtil;
 import lhdt.admin.svc.lhdt.domain.UserSession;
-import lhdt.ds.common.misc.DsConst;
-import lhdt.ds.common.misc.DsController;
+import lhdt.cmmn.misc.CmmnConst;
+import lhdt.cmmn.misc.CmmnController;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Controller
 @RequestMapping("/sign")
-public class SignoutController extends DsController {
+public class SignoutController extends CmmnController {
 
 	
 	@Value("#{servletContext.contextPath}")
@@ -39,7 +39,7 @@ public class SignoutController extends DsController {
 	 */
 	@GetMapping(value = "/signout")
 	public RedirectView signout(HttpServletRequest request) {
-		UserSession userSession =   (UserSession)PpWebSessionUtil.get(request, DsConst.USER_SESSION);
+		UserSession userSession =   (UserSession)PpWebSessionUtil.get(request, CmmnConst.USER_SESSION);
 
 		if(userSession == null) {
 			return new RedirectView(contextPath + loginUri);
@@ -48,7 +48,7 @@ public class SignoutController extends DsController {
 		//
 		HttpSession session = request.getSession();
 		session.removeAttribute(userSession.getUserId());
-		session.removeAttribute(DsConst.USER_SESSION);
+		session.removeAttribute(CmmnConst.USER_SESSION);
 		session.invalidate();
 
 		//

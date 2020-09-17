@@ -5,6 +5,15 @@
 const Ppmap = function () {
 };
 
+
+
+Ppmap.PointType = {
+    CARTESIAN2:0,
+    CARTESIAN3:1,
+    CARTESIAN4:2,
+    LONLAT:3,
+}
+
 /**
  */
 Ppmap.init = function () {
@@ -16,6 +25,10 @@ Ppmap.init = function () {
  * 
  */
 Ppmap.getViewer = function () {
+    if(Pp.isNull(MAGO3D_INSTANCE)){
+        throw new Error('NULL MAGO3D_INSTANCE');
+    }
+    //
     return MAGO3D_INSTANCE.getViewer();
 }
 
@@ -24,6 +37,87 @@ Ppmap.getViewer = function () {
  */
 Ppmap.setViewer = function (viewer) {
     this._viewer = viewer;
+}
+
+
+/**
+ * 넓이 계산
+ * @param {string} theGeom MULTIPOLYGON 문자열
+ */
+Ppmap.calcAreaByTheGeom = function(theGeom){
+    let landLonLats = Ppmap.Convert.multiPolygonToLonLats(theGeom);
+
+    //
+    return Ppmap.calcArea(landLonLats, Ppmap.PointType.LONLAT);
+};
+
+/**
+ * 넓이 계산
+ * @param {Array<LonLat|Cartesian3>} arr 
+ * @param {Ppmap.PointType} pointType 
+ * @returns {Number} 넓이
+ */
+Ppmap.calcArea = function(arr, pointType){
+    let ctsn3s = [];
+
+    //
+    if(Ppmap.PointType.LONLAT === pointType){
+        for(let i=0; i<arr.length; i++){
+            let lonLat = arr[i];
+
+            let ctsn3 = Ppmap.Convert.lonLatToCtsn3(lonLat.lon, lonLat.lat);
+            ctsn3s.push(ctsn3);
+        }
+    }
+
+    //
+    if(Ppmap.PointType.CARTESIAN3 === pointType){
+        ctsn3s = arr;
+    }
+
+    //
+    areaInMeters = 0;
+    if (ctsn3s.length >= 3)
+    {
+        var points = [];
+        for(var i = 0, len = ctsn3s.length; i < len; i++)
+        {
+            var cartographic = Cesium.Cartographic.fromCartesian(ctsn3s[i]);
+            points.push(new Cesium.Cartesian2(cartographic.longitude, cartographic.latitude));
+        }
+        if(Cesium.PolygonPipeline.computeWindingOrder2D(points) === Cesium.WindingOrder.CLOCKWISE)
+        {
+            points.reverse();
+        }
+
+        var triangles = Cesium.PolygonPipeline.triangulate(points);
+
+        for(var i = 0, len = triangles.length; i < len; i+=3)
+        {
+            areaInMeters += Ppmap.calTriangleArea(points[triangles[i]], points[triangles[i + 1]], points[triangles[i + 2]]);
+        }
+    }
+    return areaInMeters;
+};
+
+
+
+/**
+ * 삼각형의 넓이 계산
+ * @param {*} t1 
+ * @param {*} t2 
+ * @param {*} t3 
+ * @param {*} i 
+ * @returns {Long}
+ */
+Ppmap.calTriangleArea = function(t1, t2, t3, i) {
+    var r = Math.abs(t1.x * (t2.y - t3.y) + t2.x * (t3.y - t1.y) + t3.x * (t1.y - t2.y)) / 2;
+    var cartographic = new Cesium.Cartographic((t1.x + t2.x + t3.x) / 3, (t1.y + t2.y + t3.y) / 3);
+    var cartesian = _viewer.scene.globe.ellipsoid.cartographicToCartesian(cartographic);
+    var magnitude = Cesium.Cartesian3.magnitude(cartesian);
+
+    //
+    return r * magnitude * magnitude * Math.cos(cartographic.latitude)
 }
 
 /**
@@ -55,6 +149,10 @@ Ppmap.setCursor = function(cursor){
 /**
  */
 Ppmap.getManager = function(){
+    if(Pp.isNull(MAGO3D_INSTANCE)){
+        throw new Error('NULL MAGO3D_INSTANCE');
+    }
+    //
     return MAGO3D_INSTANCE.getMagoManager();
 };
 
@@ -101,6 +199,113 @@ Ppmap.removeEntity = function(entity){
 	MAGO3D_INSTANCE.getViewer().entities.remove(entity);
 }
 
+/**
+ * PointAndLabel 생성
+ * @param entityName
+ * @param lon
+ * @param lat
+ * @param option
+ * @returns {*}
+ */
+Ppmap.createPointAndLabel = function(entityName, text, lon, lat, option) {
+    let worldPosition = Cesium.Cartesian3.fromDegrees(lon, lat);
+
+    //
+    let opt = Pp.extend({}, option);
+
+    var entity = MAGO3D_INSTANCE.getViewer().entities.add({
+        name: entityName,
+        position: worldPosition,
+        label: {
+            text: text,
+            font: "24px Helvetica",
+            fillColor: Cesium.Color.SKYBLUE,
+            outlineColor: Cesium.Color.BLACK,
+            outlineWidth: 2,
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            pixelOffset:  new Cesium.Cartesian2(0, -30),
+            scale: 0.6,
+            showBackground: true,
+            horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+            translucencyByDistance: new Cesium.NearFarScalar(
+                1.5e1,
+                1.0,
+                1.5e4,
+                0
+            ),
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
+        },
+        point: {
+            color: (opt.color ? opt.color : Cesium.Color.RED),
+            pixelSize: 10,
+            outlineColor: Cesium.Color.YELLOW,
+            outlineWidth: 2,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
+        }
+    });
+    return entity;
+}
+
+
+/**
+ * polyline entity 생성
+ * @param {string} entityName
+ * @param {array} arr [LonLat,LonLat,...]
+ * @param {object} option TODO
+ * @returns {Entity}
+ */
+Ppmap.createPolylineAndLabel = function(entityName,text, lonLats, option) {
+    //
+    let arr=[];
+    //
+    for(let i=0; i<lonLats.length; i++){
+        let d = lonLats[i];
+        //
+        arr.push(d.lon);
+        arr.push(d.lat);
+    }
+    var pp = Cesium.Cartesian3.fromDegreesArray(arr);
+    var result = new Cesium.Cartesian3();
+    Cesium.Cartesian3.midpoint(pp[0], pp[1], result);
+    var entity = MAGO3D_INSTANCE.getViewer().entities.add({
+        name: entityName,
+        position: result,
+        label: {
+            text: text,
+            font: "24px Helvetica",
+            fillColor: Cesium.Color.SKYBLUE,
+            outlineColor: Cesium.Color.BLACK,
+            outlineWidth: 2,
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            pixelOffset:  new Cesium.Cartesian2(0, -30),
+            scale: 0.6,
+            showBackground: true,
+            horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+            translucencyByDistance: new Cesium.NearFarScalar(
+                1.5e1,
+                1.0,
+                1.5e4,
+                0
+            ),
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
+        },
+        polyline: {
+            // This callback updates positions each frame.
+            positions: new Cesium.CallbackProperty(function() {
+                return Cesium.Cartesian3.fromDegreesArray(arr);
+            }, false),
+            width: 10,
+            clampToGround: true,
+            material: new Cesium.PolylineOutlineMaterialProperty({
+                color: Cesium.Color.YELLOW,
+            })
+        },
+    });
+
+    //
+    return entity;
+}
 
 /**
  * point entity 생성
@@ -113,9 +318,38 @@ Ppmap.removeEntity = function(entity){
 Ppmap.createPoint = function(entityName, lon, lat, option) {
     let worldPosition = Cesium.Cartesian3.fromDegrees(lon, lat);
 
-	//
-	let opt = Pp.extend({}, option);
-    
+    //
+    let opt = Pp.extend({}, option);
+
+    var entity = MAGO3D_INSTANCE.getViewer().entities.add({
+        name: entityName,
+        position: worldPosition,
+        point: {
+            color: (opt.color ? opt.color : Cesium.Color.RED),
+            pixelSize: 10,
+            outlineColor: Cesium.Color.YELLOW,
+            outlineWidth: 2,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
+        }
+    });
+    return entity;
+}
+
+/**
+ * point entity 생성
+ * @param {string} entityName
+ * @param {number} lon
+ * @param {number} lat
+ * @param {object} option TODO
+ * @returns {Entity}
+ */
+Ppmap.createPointAndAlt = function(entityName, lon, lat, alt, option) {
+    let worldPosition = Cesium.Cartesian3.fromDegrees(lon, lat, alt);
+
+    //
+    let opt = Pp.extend({}, option);
+
     var entity = MAGO3D_INSTANCE.getViewer().entities.add({
         name: entityName,
         position: worldPosition,
@@ -183,24 +417,61 @@ Ppmap.cartesian2ToLonLat = function(ctsn2){
 };
 
 
+
 /**
-cartographic을 {'lon', 'lat'}으로 변환
+ * cartesian2를 LonLat을 변환
+ */
+Ppmap.cartesian2ToLonLatAlt = function(ctsn2){
+	const ctsn3 = MAGO3D_INSTANCE.getViewer().scene.pickPosition(ctsn2);
+	const cartographic = Cesium.Cartographic.fromCartesian(ctsn3);
+
+	//
+	return Ppmap.cartoToLonLatAlt(cartographic);
+};
+
+
+/**
+ cartographic을 {'lon', 'lat'}으로 변환
  * @param {Cartographic} cartographic
  * @returns {LonLat}
  */
 Ppmap.cartoToLonLat = function(cartographic){
-	if(Pp.isEmpty(cartographic)){
-		return {
-			'lon': NaN,	
-			'lat': NaN,	
-		}
-	}
-	
-	//
-	return {
-		'lon':Cesium.Math.toDegrees(cartographic.longitude),
-		'lat': Cesium.Math.toDegrees(cartographic.latitude)
-	};
+    if(Pp.isEmpty(cartographic)){
+        return {
+            'lon': NaN,
+            'lat': NaN,
+        }
+    }
+
+    //
+    return {
+        'lon':Cesium.Math.toDegrees(cartographic.longitude),
+        'lat': Cesium.Math.toDegrees(cartographic.latitude)
+    };
+}
+
+
+
+/**
+ cartographic을 {'lon', 'lat', 'alt'}으로 변환
+ * @param {Cartographic} cartographic
+ * @returns {LonLatAlt}
+ */
+Ppmap.cartoToLonLatAlt = function(cartographic){
+    if(Pp.isEmpty(cartographic)){
+        return {
+            'lon': NaN,
+            'lat': NaN,
+            'alt': NaN
+        }
+    }
+
+    //
+    return {
+        'lon':Cesium.Math.toDegrees(cartographic.longitude),
+        'lat': Cesium.Math.toDegrees(cartographic.latitude),
+        'alt': Cesium.Math.toDegrees(cartographic.height)
+    };
 }
 
 
@@ -548,8 +819,21 @@ Ppmap.Convert = {
         //
         return {
             'lon':Cesium.Math.toDegrees(cartographic.longitude),
-            'lat': Cesium.Math.toDegrees(cartographic.latitude)
+            'lat': Cesium.Math.toDegrees(cartographic.latitude),
+            'longitude':Cesium.Math.toDegrees(cartographic.longitude),
+            'latitude': Cesium.Math.toDegrees(cartographic.latitude),
         };
+    },
+
+    /**
+     * LonLat을 Cartesian3로 변환
+     * @param {number} lon 
+     * @param {number} lat 
+     * @param {number|null} alt 
+     * @returns {Cartesian3}
+     */
+    lonLatToCtsn3: function(lon, lat, alt){
+        return Cesium.Cartesian3.fromDegrees(lon, lat);
     },
 
 	toLonLat: function(lon, lat, alt)   {
@@ -558,6 +842,41 @@ Ppmap.Convert = {
 			'lat': lat,
 			'alt': (alt?alt:0),
 		}
-	}
+    },
+    
+
+    /**
+     * theGeom(MultiPolygon)을 Array<LonLat>로 변환
+     * @param {String} theGeom 
+     * @returns {Array<LonLat>}
+     */
+    multiPolygonToLonLats: function(theGeom){
+        let multiPolygon = Terraformer.WKT.parse(theGeom);
+        let arr = multiPolygon.coordinates[0][0];
+
+        //
+        let lonLats=[];
+        for(let i=0; i<arr.length; i++){
+            let d = arr[i];
+            //
+            lonLats.push({
+                'lon': d[0],
+                'longitude': d[0],
+                'lat': d[1],
+                'latitude': d[1],
+            })
+        }
+
+        //
+        return lonLats;
+    },
+
+    /**
+     * @see multiPolygonToLonLats
+     * @param {string} theGeom 
+     */
+    theGeomStringToLonLats : function(theGeom){
+        return this.multiPolygonToLonLats(theGeom);
+    }
 
 };

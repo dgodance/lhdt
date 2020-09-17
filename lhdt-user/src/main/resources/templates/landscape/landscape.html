@@ -16,18 +16,18 @@
 <div th:replace="~{/landscape-widget/landscape-widget :: #landscapeDiffWarp}"/>
 
     <ul class="listDrop">
-        <li class="on">
-            <p th:text="가시권분석"><span class="collapse-icon">icon</span></p>
-            <div id="visibilityProcess" class="listContents">
-                <ul>
-                    <li>
-                        <label for="visibilityToggle" th:text="활성화"></label>
-                        <input type="checkbox" id="visibilityToggle" value="" placeholder=""/>
-                        <button type="button" id="visibilityBtn" th:text="작동"></button>
-                    </li>
-                </ul>
-            </div>
-        </li>
+<!--        <li class="on">-->
+<!--            <p th:text="가시권분석"><span class="collapse-icon">icon</span></p>-->
+<!--            <div id="visibilityProcess" class="listContents">-->
+<!--                <ul>-->
+<!--                    <li>-->
+<!--                        <label for="visibilityToggle" th:text="활성화"></label>-->
+<!--                        <input type="checkbox" id="visibilityToggle" value="" placeholder=""/>-->
+<!--                        <button type="button" id="visibilityBtn" th:text="작동"></button>-->
+<!--                    </li>-->
+<!--                </ul>-->
+<!--            </div>-->
+<!--        </li>-->
         <li class="on">
             <p th:text="경관분석"><span class="collapse-icon">icon</span></p>
             <div id="landScapeAnalsProcess"
@@ -36,6 +36,18 @@
                 border: 1px solid #e0e0e0;
                 background-color: #fff;">
                 <div class="form-group form-group-data">
+                    <label for="lsAnalsMoveTypeGroup">분석높이</label>
+                    <select id="lsAnalsMoveTypeGroup" name="lsAnalsMoveTypeGroup" style="width: 90px;">
+                        <option value="0">
+                            보행자
+                        </option>
+                        <option value="1">
+                            자동차
+                        </option>
+                    </select>
+                    <input type="number" id="landscapeMoveTypeName" name="landscapeMoveTypeName"
+                           style="width: 95px;"
+                           placeholder="분석높이" size="5" step="0.1">
                     <label for="lsAnalsActionGroup">작업 방식</label>
                     <select id="lsAnalsActionGroup" name="lsAnalsActionGroup">
                         <option value="0">
@@ -60,6 +72,28 @@
                 <div id="landscapeDiffDataDiv">
                 </div>
                 <div id="landscapeDiffDetDataDiv">
+                </div>
+            </div>
+        </li>
+        <!-- 경관보기는 필요없을꺼같음.. 경관 분석에 옵션을 주면 해결될 것으로 보임. -->
+        <li class="on">
+            <p th:text="경관높이분석"><span class="collapse-icon">icon</span></p>
+            <div style="display: block;
+                padding: 10px;
+                border: 1px solid #e0e0e0;
+                background-color: #fff;">
+                <div id="lsHeightViewContent">
+                </div>
+            </div>
+        </li>
+        <!-- 경관보기는 필요없을꺼같음.. 경관 분석에 옵션을 주면 해결될 것으로 보임. -->
+        <li class="on" style="display: none">
+            <p th:text="경관보기"><span class="collapse-icon">icon</span></p>
+            <div style="display: block;
+                padding: 10px;
+                border: 1px solid #e0e0e0;
+                background-color: #fff;">
+                <div id="lsViewContent">
                 </div>
             </div>
         </li>

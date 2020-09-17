@@ -5,9 +5,9 @@ import lhdt.admin.svc.lowinfo.domain.LowInfo;
 import lhdt.admin.svc.lowinfo.domain.LowInfoDet;
 import lhdt.admin.svc.lowinfo.service.LowInfoDetService;
 import lhdt.admin.svc.lowinfo.service.LowInfoService;
-import lhdt.ds.common.misc.DSPageSize;
-import lhdt.ds.common.misc.DSPaginator;
-import lhdt.ds.common.misc.DSPaginatorInfo;
+import lhdt.cmmn.misc.CmmnPageSize;
+import lhdt.cmmn.misc.CmmnPaginator;
+import lhdt.cmmn.misc.CmmnPaginatorInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,10 +33,10 @@ public class LowInfoDetViewController {
     public String getNoticePage(
             @RequestParam(value = "page", defaultValue = "1") Integer page,
             Model model) {
-        Page<LowInfoDet> noticePage = lowInfoDetService.findAllPgByStartPg(page -1, DSPageSize.NOTICE.getContent());
+        Page<LowInfoDet> noticePage = lowInfoDetService.findAllPgByStartPg(page -1, CmmnPageSize.NOTICE.getContent());
         model.addAttribute("lowInfoDetPage", noticePage);
 
-        DSPaginatorInfo pageNav = DSPaginator.getPaginatorMap(noticePage, DSPageSize.NOTICE);
+        CmmnPaginatorInfo pageNav = CmmnPaginator.getPaginatorMap(noticePage, CmmnPageSize.NOTICE);
         model.addAttribute("lowInfoDetPageInfo", pageNav);
 
         return "/low-info-det/index";
