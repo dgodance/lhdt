@@ -25,6 +25,7 @@
             building_use_conditional,
             building_use_forbidden,
             building_coverage_ratio,
+            building_coverage_ratio_standard,
             floor_area_ratio,
             floor_area_ratio_standard,
             floor_area_ratio_allowed,
