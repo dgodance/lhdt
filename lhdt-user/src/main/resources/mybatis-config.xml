@@ -26,6 +26,7 @@
 		<typeAlias type="lhdt.domain.extrusionmodel.DesignLayer" alias="designLayer" />
 		<typeAlias type="lhdt.domain.extrusionmodel.DesignLayerLandDto" alias="designLayerLandDto" />
 		<typeAlias type="lhdt.domain.extrusionmodel.DesignLayerBuildingDto" alias="designLayerBuildingDto" />
+		<typeAlias type="lhdt.domain.extrusionmodel.DesignLayerBuildingHeightDto" alias="designLayerBuildingHeightDto" />
 		<typeAlias type="lhdt.domain.extrusionmodel.DataLibraryGroup" alias="dataLibraryGroup" />
 		<typeAlias type="lhdt.domain.extrusionmodel.DataLibrary" alias="dataLibrary" />
 		<typeAlias type="lhdt.domain.policy.GeoPolicy" alias="geoPolicy" />
