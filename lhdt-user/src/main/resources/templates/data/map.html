@@ -124,6 +124,10 @@
 		<!-- S: BASE MAP TOGGLE -->
 		<div th:replace="~{/fragments/base-map :: #baseMapToggle}"></div>
 		<!-- E: BASE MAP TOGGLE -->
+		
+		<!-- S: BASE MAP TOGGLE -->
+		<div th:replace="~{/fragments/terrain-toggle :: #terrainToggle}"></div>
+		<!-- E: BASE MAP TOGGLE -->
 
 		<div class="sliderWrap" id="saRange">
 			<label for="timeInput" class="hiddenTag">saRange</label>
@@ -208,6 +212,7 @@
 <script type="text/javascript" th:src="@{/js/{lang}/drawer/polygon-drawer.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/extrusion.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/base-map-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/terrain-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 
 <script type="text/javascript">
 
@@ -329,6 +334,7 @@
 		var compass = new Compass(viewer, document.getElementById('mapCtrlCompassOut'));
 		
 		var baseMapController = new BaseMapController(viewer);
+		var terrainController = new TerrainController(viewer, 'http://localhost:8888/tilesets/terrain/');
 		
         var promises = [];
         var garaJsonCnt = 28;
