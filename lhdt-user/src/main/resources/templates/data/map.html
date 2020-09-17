@@ -144,6 +144,7 @@
 <div th:replace="~{/issue/issue-dialog :: #issueForm}"></div>
 
 <div th:replace="~{/extrusion/data-library-toolbar-dialog :: #dataLibraryDialog}"></div>
+<div th:replace="~{/extrusion/design-layer-toolbar-dialog :: #designLayerDialog}"></div>
 
 <script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
@@ -365,6 +366,17 @@
             error:function(request,status,error){
                 alert(JS_MESSAGE["ajax.error.message"]);
             }
+        });
+        
+        magoManager.modeler.on(Mago3D.Modeler.EVENT_TYPE.ADD, function(e){
+        	var model = e.add;
+        	var geoLocData = model.getCurrentGeoLocationData();
+        	var geoCoord = geoLocData.geographicCoord;
+        	
+        	var promise = Cesium.sampleTerrain(viewer.terrainProvider, 17, [Cesium.Cartographic.fromDegrees(geoCoord.longitude, geoCoord.latitude)]);
+        	promise.then(function(t){
+        		model.setTerrainHeight(t[0].height);
+        	});
         });
 	}
 
