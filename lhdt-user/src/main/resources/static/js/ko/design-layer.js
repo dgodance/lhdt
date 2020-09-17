@@ -1723,6 +1723,7 @@ DesignLayerObj.prototype.extrusionModelBuildingToggle = function(model, isShow) 
                     var building = Mago3D.ExtrusionBuilding.makeExtrusionBuildingByCartesian3Array(polygonHierarchy.reverse(), FLOOR_HEIGHT * 7)
                     
                     building.layerId = model.id; 
+                    building['__originHeight'] = Pp.nvl(building.getHeight(), 0.0);
                     //면적
                     if(Pp.isNotEmpty(entity.properties['build_area'])){
                         building.area = parseFloat(entity.properties['build_area'].getValue());
@@ -2243,6 +2244,9 @@ DesignLayerObj.prototype.showLandInfo = function(browserEvent){
                 .change(function(){
                     // 필지내 전체 건물 층수 변경
                     _this.setBuldingHeightByTheGeom(_this.selectedLand.theGeom, $floorCo.val());
+
+                    //
+                    _this.renderLandInfo(_this.selectedLand);
                 });
             
             //up 이벤트 등록
@@ -2353,10 +2357,10 @@ DesignLayerObj.prototype.showBuildingInfo = function(extrusionBuilding){
                 .unbind('change')
                 .change(function(){
                     // 건물 높이 변경
-                    let h =  parseInt($wrapper.find('select.floor-co').val()) * HEIGHT_PER_FLOOR;
+                    let h =  _this.toHeight(parseInt($wrapper.find('select.floor-co').val()));
                     _this.selectedBuilding.setHeight(h);
 
-                    _this.buildingHeightChanged(_this.selectedLand, extrusionBuilding);
+                    _this.renderBuildingInfo(_this.selectedBuilding);
                 });
     
             //UP 이벤트 등록
@@ -2402,44 +2406,183 @@ DesignLayerObj.prototype.showBuildingInfo = function(extrusionBuilding){
     this.resizeModelessHeight();
     
 
+    //
+    this.renderBuildingInfo(extrusionBuilding);
+};
 
-    //데이터가 없으면
-    if(Pp.isNull(extrusionBuilding)){
+
+
+
+/**
+ * 필지관련 건폐,용적,.... 화면에 표시
+ * @param {object} land 필지
+ */
+DesignLayerObj.prototype.renderLandInfo = function(land){
+    let _this = this;
+
+
+
+    //
+    let _landArea = function(land){
+        //multiPolygon문자열을 LonLat 목록으로 변환
+        let landLonLats = Ppmap.Convert.theGeomStringToLonLats(land.theGeom);
+
+        //LonLat목록으로 필지 넓이 계산
+        return Ppmap.calcArea(landLonLats, Ppmap.PointType.LONLAT);
+    };
+
+    //건폐율 = sum(건물바닥넓이) / 필지바닥넓이 * 100
+    let _buildingCoverageRatio = function(land){
+        //multiPolygon문자열을 LonLat 목록으로 변환
+        let lonLats = Ppmap.Convert.theGeomStringToLonLats(land.theGeom);
+
+        //필지내 건물 목록
+        let buildings = _this.getBuildingsByLonLats(lonLats);
+
         //
+        let totBuildingArea=0;
+        for(let i=0; i<buildings.length; i++){
+            let d = buildings[i];
+
+            totBuildingArea += d.area;
+        }
+
+        //
+        return totBuildingArea / _landArea(land) * 100;
+    };
+
+    //세대수 = unit_count * 층수
+    let _householdCo = function(land){
+        //multiPolygon문자열을 LonLat 목록으로 변환
+        let lonLats = Ppmap.Convert.theGeomStringToLonLats(land.theGeom);
+
+        //필지내 건물 목록
+        let buildings = _this.getBuildingsByLonLats(lonLats);
+
+        //
+        let co=0;
+        for(let i=0; i<buildings.length; i++){
+            let d = buildings[i];
+
+            //
+            co += (d.unitCount * _this.toFloorCo(d.getHeight()));
+        }
+
+        //
+        return co;
+    };
+
+    //용적률 = sum(건물바닥넓이*층수) / 필지넓이 * 100
+    let _floorAreaRatio = function(land){
+        //multiPolygon문자열을 LonLat 목록으로 변환
+        let lonLats = Ppmap.Convert.theGeomStringToLonLats(land.theGeom);
+
+        //필지내 건물 목록
+        let buildings = _this.getBuildingsByLonLats(lonLats);
+
+         //
+         let tot=0;
+         for(let i=0; i<buildings.length; i++){
+             let d = buildings[i];
+ 
+             //
+             tot += (d.area * _this.toFloorCo(d.getHeight()));
+         }
+
+         //
+         return tot / _landArea(land) * 100;
+    };
+
+
+
+    //
+    //console.log('renderLandInfo', land);
+
+    //
+    if(Pp.isEmpty(land)){
         return;
     }
 
+
+    let data={};
+    //필지 면적
+    data.landArea = _landArea(land);
+    //단지명
+    data.lotCode = land.lotCode;
+    //용도지역지구
+    data.landuseZoning = land.landuseZoning;
+    //건폐율-기준,허용,변경
+    data.buildingCoverageRatioStandard = land.buildingCoverageRatioStandard;
+    data.buildingCoverageRatioAllowed = land.buildingCoverageRatioAlowed;
+    data.buildingCoverageRatio = _buildingCoverageRatio(land);
+    //용적률-기준,허용,변경
+    data.floorAreaRatioStandard = land.floorAreaRatioStandard;
+    data.floorAreaRatioAllowed = land.floorAreaRatioAllowed;
+    data.floorAreaRatio = _floorAreaRatio(land);
+    //세대수
+    data.householdCo = _householdCo(land);
+
     //
-    let data = {};
-    
-    // 데이터 바인드
-    if(Pp.isEmpty(extrusionBuilding['_originHeight'])){
-        extrusionBuilding['_originHeight'] = extrusionBuilding.getHeight();
+    let $wrapper = $('div.design-layer-land-wrapper');
+    //
+    $wrapper.find('td.building-coverage-ratio:first').text(data.buildingCoverageRatioStandard);
+    $wrapper.find('td.building-coverage-ratio:eq(1)').text(data.buildingCoverageRatioAllow);
+    $wrapper.find('td.building-coverage-ratio:last').text(data.buildingCoverageRatio.toFixed(2));
+    //
+    $wrapper.find('td.floor-area-ratio:first').text(data.floorAreaRatioStandard);
+    $wrapper.find('td.floor-area-ratio:eq(1)').text(data.floorAreaRatioAllow);
+    $wrapper.find('td.floor-area-ratio:last').text(data.floorAreaRatio.toFixed(2));
+    //
+    $wrapper.find('td.lot-code').text(data.lotCode);
+    //
+    $wrapper.find('td.landuse-zoning').text(data.landuseZoning);
+    //
+    $wrapper.find('td.household-co').text(Pp.addComma(data.householdCo));
+};
+
+/**
+ * 건물 정보 화면에 표시
+ * @param {ExtrusionBuilding} building 건물
+ */
+DesignLayerObj.prototype.renderBuildingInfo = function(building){
+    if(Pp.isEmpty(building)){
+        return;
     }
-    //층수-기준
-    data.floorCo0 = this.toFloorCo(extrusionBuilding['_originHeight']);
-    
 
-    //층수-계획
-    let h = extrusionBuilding.getHeight();
-    if(Pp.isNotEmpty(h)){        
-        data.floorCo1 = this.toFloorCo(h);
-        
-    }
 
-    //기준 세대수=unit_count * 층수
-    data.householdCo0 = extrusionBuilding.unitCount * this.toFloorCo(extrusionBuilding['_originHeight']);        
+    let data={};
+    //층수
+    data.floorCo0 = this.toFloorCo(building['__originHeight']);
+    data.floorCo1 = this.toFloorCo(building.getHeight());
+    //세대수
+    data.householdCo0 = building.unitCount * data.floorCo0;
+    data.householdCo1 = building.unitCount * data.floorCo1;
+    //연면적
+    data.totalFloorArea0 = parseInt(building.unitType) * data.householdCo0;
+    data.totalFloorArea1 = parseInt(building.unitType) * data.householdCo1;
+    //평형
+    data.unitType = building.unitType;
+    //주동조합
+    data.unionType = '2호';
 
-    //계획 세대수
-    data.householdCo1 = extrusionBuilding.unitCount * this.toFloorCo(extrusionBuilding.getHeight());
+    //
+    let $wrapper = $('div.design-layer-building-wrapper');
+    //
+    $wrapper.find('td.floor-co:first').text(data.floorCo0);
+    $wrapper.find('select.floor-co').val(data.floorCo1);
+    //
+    $wrapper.find('td.household-co:first').text(Pp.addComma(data.householdCo0));
+    $wrapper.find('td.household-co:last').text(Pp.addComma(data.householdCo1));
+    //
+    $wrapper.find('td.total-floor-area:first').text(Pp.addComma(data.totalFloorArea0));
+    $wrapper.find('td.total-floor-area:last').text(Pp.addComma(data.totalFloorArea1));
+    //
+    $wrapper.find('td.unit-type:first').text(data.unitType);
+    //
+    $wrapper.find('td.union-type:first').text(data.unionType);
 
-    //TODO 연면적-기준
-    data.totalFloorArea0 = parseInt(extrusionBuilding.unitType) * data.householdCo0;
-    //TODO 연면적-계획
-    data.totalFloorArea1 = parseInt(extrusionBuilding.unitType) * data.householdCo1;
-
-    //값 화면에 표시
-    _render(data);
+    //
+    this.renderLandInfo(this.selectedLand);
 };
 
 
@@ -2482,11 +2625,8 @@ DesignLayerObj.prototype.buildingHeightChanged = function(selectedLand, selected
     $wrapper.find('td.now-maximum-building-floors').text(maxh);
     
     //
-    if(Pp.isEmpty(selectedBuilding)){
-        return;
-    }
-
-    console.log('TODO 건물 세대수 계산&표시. 가이아가 유닛정보 제공해 주어야 함');
+    this.renderBuildingInfo(selectedBuilding);
+    
 };
 
 
@@ -2696,11 +2836,11 @@ DesignLayerObj.prototype.resizeModelessHeight = function(){
    
     //필지
     if(Pp.isNotEmpty(this.selectedLand)){
-        h += 230;
+        h += 300;
     }
     //건물
     if(Pp.isNotEmpty(this.selectedBuilding)){
-        h += 160;
+        h += 250;
     }
 
     //
@@ -2722,7 +2862,7 @@ DesignLayerObj.prototype.resizeModelessHeight = function(){
  * @param {*} buildingHeight 건물 높이(m)
  */
 DesignLayerObj.prototype.toFloorCo = function(buildingHeight){
-    return parseInt(buildingHeight / HEIGHT_PER_FLOOR);
+    return Math.round(buildingHeight / HEIGHT_PER_FLOOR);
 }
 
 
