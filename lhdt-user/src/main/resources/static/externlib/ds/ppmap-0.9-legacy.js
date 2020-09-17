@@ -65,7 +65,7 @@ Ppmap.calcArea = function(arr, pointType){
         for(let i=0; i<arr.length; i++){
             let lonLat = arr[i];
 
-            let ctsn3 = Ppmap.Convert.lonLatToCtsn3(lonLat.lon, lonLat.lat);
+            let ctsn3 = Ppmap.Convert.lonLatToCtsn3(Pp.nvl(lonLat['lon'], lonLat['longitude']), Pp.nvl(lonLat['lat'], lonLat['latitude']));
             ctsn3s.push(ctsn3);
         }
     }
