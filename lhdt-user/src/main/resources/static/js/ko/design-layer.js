@@ -2222,7 +2222,7 @@ DesignLayerObj.prototype.showLandInfo = function(browserEvent){
                 });
             
             //up 이벤트 등록
-            $wrapper.find('button.up-floor-co').unbind('click')
+            $wrapper.find('a.up-floor-co').unbind('click')
                 .click(function(){
                     // select value증가
                     let v = parseInt($wrapper.find('select.floor-co').val()) + 1;
@@ -2232,7 +2232,7 @@ DesignLayerObj.prototype.showLandInfo = function(browserEvent){
                 });
     
             //down 이벤트 등록
-            $wrapper.find('button.down-floor-co').unbind('click')
+            $wrapper.find('a.down-floor-co').unbind('click')
                 .click(function(){
                     // select value 감소
                     let v = parseInt($wrapper.find('select.floor-co').val()) - 1;
@@ -2315,7 +2315,7 @@ DesignLayerObj.prototype.showBuildingInfo = function(extrusionBuilding){
                 });
     
             //UP 이벤트 등록
-            $wrapper.find('button.up-floor-co')
+            $wrapper.find('a.up-floor-co')
                 .unbind('click')
                 .click(function(){
                     // 층수 증가
@@ -2327,7 +2327,7 @@ DesignLayerObj.prototype.showBuildingInfo = function(extrusionBuilding){
                 });
                 
             //down 이벤트 등록
-            $wrapper.find('button.down-floor-co')
+            $wrapper.find('a.down-floor-co')
                 .unbind('click')
                 .click(function(){
                     // 층수 감소
