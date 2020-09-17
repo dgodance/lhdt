@@ -21,7 +21,6 @@ var AnalsCityPlanning = function(viewer, magoInstance) {
     });
 
     $('#cityPlanAreaTestBtn').click(function(e) {
-        debugger;
         const url = "http://localhost:8090/anals/cityplanning/area";
         const obj = {
             width : 5,
@@ -39,11 +38,9 @@ var AnalsCityPlanning = function(viewer, magoInstance) {
             method: 'GET',
             dataType: 'json'
         }).done(function(datas) {
-            debugger;
             for ( var obj of datas ) {
                 Cesium.GeoJsonDataSource.load(JSON.parse(obj.st_asgeojson))
                     .then(dataSource => {
-                        debugger;
                         let entitis = dataSource.entities._entities._array;
                         for(let index in entitis) {
                             let entitiyObj = entitis[index];
@@ -66,7 +63,6 @@ var AnalsCityPlanning = function(viewer, magoInstance) {
                     });
             }
         }).fail(function(xhr, status, errorThrown) {
-            debugger;
             console.log(status);
         })
     });

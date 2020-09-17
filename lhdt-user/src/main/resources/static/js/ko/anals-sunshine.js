@@ -37,7 +37,6 @@ function AnalsSunshine(viewer, magoInstance) {
                     that.changeSunShineByHour(hourNum);
                 });
                 $('#timeInput').on('change', function() {
-                    debugger;
                     const hourNum = parseInt(this.value)+1;
                     that.changeSunShineByHour(hourNum);
                 });

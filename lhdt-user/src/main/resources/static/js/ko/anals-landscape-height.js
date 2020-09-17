@@ -98,7 +98,6 @@ function AnalsHeightLandScapeView(viewer, magoInstance) {
         //마우스 왼쪽 클릭 이벤트 등록
         handler.setInputAction( function(click) {
 
-            debugger;
                 //점1 세팅
                 if(Pp.isEmpty(_this._xyz1.lon)){
                     _this._xyz1 = Ppmap.cartesian2ToLonLatAlt(click.position);
@@ -177,7 +176,6 @@ function AnalsHeightLandScapeView(viewer, magoInstance) {
      * 분석
      */
     LSHeightViewAnals.prototype.doAnals = function() {
-        debugger;
         if(Pp.isEmpty(this._xyz1.lon) || Pp.isEmpty(this._xyz2.lon)){
             toastr.warning('경관점이 선택되지 않았습니다. <br>분석을 취소합니다.');
             return;
@@ -253,9 +251,7 @@ function AnalsHeightLandScapeView(viewer, magoInstance) {
     lsViewAnalsWidget.defaultRender();
     lsHeightViewAnals.init();
     $(document).ready(function() {
-        debugger;
         let interval = setInterval(function(){
-            debugger;
             if(null != Ppui.find(lsHeightDropDown._ele)){
                 //
                 clearInterval(interval);
