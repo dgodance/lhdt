@@ -2,6 +2,7 @@ drop table if exists design_layer_group cascade;
 drop table if exists design_layer cascade;
 drop table if exists design_layer_land cascade;
 drop table if exists design_layer_building cascade;
+drop table if exists design_layer_building_height cascade;
 drop table if exists design_layer_building_unit cascade;
 drop table if exists design_layer_file_info cascade;
 drop table if exists design_layer_attribute cascade;
@@ -233,6 +234,35 @@ comment on column design_layer_building.enable_yn is '활성화 유무';
 comment on column design_layer_building.version_id is 'shape 버전 관리를 위한 번호';
 comment on column design_layer_building.update_date is '수정일';
 comment on column design_layer_building.insert_date is '등록일';
+
+-- design layer building height
+create table design_layer_building_height (
+	design_layer_building_height_id             bigint,
+	design_layer_id					            bigint,
+	design_layer_group_id			            integer,
+	build_id                                    bigint,
+	build_maximum_floors                        integer,
+    properties					                jsonb,
+	the_geom                                    geometry(MultiPolygon,4326),
+    enable_yn                                   char(1),
+    version_id                                  integer,
+	update_date					                timestamp with time zone,
+	insert_date					                timestamp with time zone 		default now(),
+	constraint design_layer_building_height_pk 		primary key (design_layer_building_height_id)
+);
+
+comment on table design_layer_building_height is '디자인 레이어 건축물 높이';
+comment on column design_layer_building_height.design_layer_building_height_id is 'design layer building 고유번호';
+comment on column design_layer_building_height.design_layer_id is 'design layer 고유번호';
+comment on column design_layer_building_height.design_layer_group_id is 'design layer 그룹 고유번호';
+comment on column design_layer_building_height.build_id is 'shape 파일 고유번호';
+comment on column design_layer_building_height.build_maximum_floors is '최고층수';
+comment on column design_layer_building_height.properties is '필수 컬럼 외 속성 값등을 key, value 형태로 저장하기 위함';
+comment on column design_layer_building_height.the_geom is 'geometry';
+comment on column design_layer_building_height.enable_yn is '활성화 유무';
+comment on column design_layer_building_height.version_id is 'shape 버전 관리를 위한 번호';
+comment on column design_layer_building_height.update_date is '수정일';
+comment on column design_layer_building_height.insert_date is '등록일';
 
 
 create table design_layer_building_unit (
