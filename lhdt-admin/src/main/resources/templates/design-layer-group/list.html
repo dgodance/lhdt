@@ -66,8 +66,7 @@
 								<tr th:class="|rowId-${designLayerGroup.designLayerGroupId} rowDepth-${designLayerGroup.depth} rowAncestor-${designLayerGroup.ancestor} rowParent-${designLayerGroup.parent}|">
 									<td class="col-key ellipsis" style="max-width: 300px;">
 	<th:block th:with="paddingLeftValue = ${(designLayerGroup.depth -1)  * 40}">
-										<span th:onclick="childrenDisplayToggle([[${designLayerGroup.designLayerGroupId}]], [[${designLayerGroup.depth}]],
-											[[${designLayerGroup.ancestor}]], [[${designLayerGroup.parent}]]);"
+										<span th:onclick="childrenDisplayToggle([[${designLayerGroup.designLayerGroupId}]], [[${designLayerGroup.depth}]], [[${designLayerGroup.depth}]]);"
 											th:style="|padding-left: ${paddingLeftValue}px; font-size: 1.6em;|">
 											<i th:id="|myArrow-${designLayerGroup.designLayerGroupId}|"
 											   th:class="|fa fa-caret-right depthArrow-${designLayerGroup.depth} parentArrow-${designLayerGroup.parent}|" aria-hidden="true"></i>
@@ -235,7 +234,7 @@
 	}
 
 	// 화살표 클릭시
-	function childrenDisplayToggle(id, depth, ancestor, parent) {
+	function childrenDisplayToggle(id, depth, originDepth) {
 		var isOpen = true;
 		var clickClass = $("#myArrow-" + id).attr("class");
 		if (clickClass.indexOf("right") >= 0) {
@@ -253,19 +252,24 @@
 			$("#myFolder-" + id).addClass("fa-folder");
 		}
 
-		if(depth !== 5) {
+		/*if(depth !== 5) {
 			// 자식을 찾으세요.
 			$(".rowParent-" + id).each(function() {
-				console.log("----------- id = " + $(this).attr("class"));
-				if(isOpen) {
-					// 내가 열려 있으면 자식을 닫고, 나도 닫는다.
-				} else {
+				var tempClass = $(this).attr("class");
+				var childId = tempClass.substr(6, 2);
+				console.log("--------------------- childId = " + childId);
 
+				if(isOpen) {
+					// 자식을 표시
+					$(".rowId-" + childId).show();
+				} else {
+					// 자식을 오픈한다.
+					$(".rowId-" + childId).hide();
 				}
-				// row 자체를 display
+				childrenDisplayToggle(childId, depth + 1, depth);
 			});
 		}
-
+*/
 
 
 		/*if ($(".parentClass-" + id).css("display") === "none") {
@@ -376,25 +380,6 @@
 				}
 			}
 		}*/
-	}
-
-
-	// 자식을 펼침
-	function openChild(id, depth) {
-		if(depth === 5) {
-
-		} else {
-
-		}
-	}
-
-	// 자식을 닫음
-	function closeChild(id, depth) {
-		if(depth === 5) {
-			// 자식
-		} else {
-
-		}
 	}
 
 	// 위로 이동
