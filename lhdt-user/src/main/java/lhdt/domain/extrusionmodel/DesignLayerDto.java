@@ -45,7 +45,7 @@ public class DesignLayerDto implements Serializable {
     private String userId;
     // 공유 타입. 0 : 공개, 1 : 개인, 2 : 그룹
     private String sharing;
-    // OGC Web Services (정적, 동적)
+    // OGC Web Services (wms, wfs, wcs, wps)
     private String ogcWebServices;
     // 도형 타입 (point, line, polygon)
     private String geometryType;

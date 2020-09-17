@@ -259,7 +259,9 @@
 			build_floor = #{buildFloor},
 			build_area = #{buildArea},
 			build_complex = #{buildComplex},
-			parent_id = #{parentId}
+			parent_id = #{parentId},
+			build_unit_type = #{buildUnitType},
+			build_unit_count = #{buildUnitCount}
 		WHERE build_id = #{buildId}
 			AND version_id IS NULL
 	</update>

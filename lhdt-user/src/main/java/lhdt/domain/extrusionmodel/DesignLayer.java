@@ -75,10 +75,10 @@ public class DesignLayer extends Search implements Serializable {
     // 레이어 선 색상
     private String layerLineColor;
     // 레이어 선 스타일(두께)
-    @Range(min=1, max=5)	
+    @Range(min = 1, max = 5)
     private Float layerLineStyle;
     // 레이어 투명도
-    @Range(min=1, max=100)	
+    @Range(min = 1, max = 100)
     private Float layerAlphaStyle;
 
     // 나열 순서
