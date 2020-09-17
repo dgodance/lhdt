@@ -785,4 +785,15 @@ var extrusionTools = function (magoInstance){
 	function screenToGeographicCoord(screen){
 		return worldCoordToGeographic(screenToWorldCoord(screen));
 	}
+	
+	function lonlatArrayToPolygon2d(lonlatArray) {
+		var geographicCoordsList = new Mago3D.GeographicCoordsList();
+		var array = [];
+		for(var i in lonlatArray) {
+			var lonlat = lonlatArray[i];
+			array.push(new Mago3D.GeographicCoord(lonlat.longitude, lonlat.latitude, 0));
+		}
+		
+		return Mago3D.Polygon2D.makePolygonByGeographicCoordArray(array);
+	}
 };
