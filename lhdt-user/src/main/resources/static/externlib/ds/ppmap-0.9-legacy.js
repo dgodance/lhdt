@@ -869,6 +869,14 @@ Ppmap.Convert = {
 
         //
         return lonLats;
+    },
+
+    /**
+     * @see multiPolygonToLonLats
+     * @param {string} theGeom 
+     */
+    theGeomStringToLonLats : function(theGeom){
+        return this.multiPolygonToLonLats(theGeom);
     }
 
 };

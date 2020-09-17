@@ -58,8 +58,8 @@ var Ppui = function () {
                 }
 
                 //
-                if (Pp.isEmpty(datas)) {
-                    return;
+                if (Pp.isNull(datas)) {
+                    datas = [];
                 }
 
                 //헤더 텍스트 존재하면
