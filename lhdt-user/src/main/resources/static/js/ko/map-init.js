@@ -153,7 +153,7 @@ function mapInit(magoInstance, baseLayers, policy) {
 		}
 		
 		var addedLayer = viewer.imageryLayers.addImageryProvider(provider, targetIndex);
-		addedLyer.id = layerKey;
+		addedLayer.id = layerKey;
 	};
 	
 	/**
