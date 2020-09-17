@@ -33,12 +33,12 @@ public class DesignLayerBuilding {
     private String parentId;
     // 필수 칼럼 제외한 데이터
     private String properties;
-    // 수정일
-    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime updateDate;
-    // 등록일
-    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime insertDate;
+
+    // 유닛 타입
+    private String buildingUnitType;
+    // 유닛 타입이 사용된 개수
+    private String buildingUnitCount;
+
     // wkt
     private String theGeom;
     // 활성화 여부 'Y', 'N'
@@ -47,4 +47,11 @@ public class DesignLayerBuilding {
     private Integer versionId;
     // 좌표계
     private Integer coordinate;
+
+    // 수정일
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime updateDate;
+    // 등록일
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime insertDate;
 }
