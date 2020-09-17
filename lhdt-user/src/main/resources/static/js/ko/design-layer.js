@@ -95,7 +95,7 @@ DesignLayerObj.prototype.setEventHandler = function(){
         }
 
         //건물 높이 수정
-        let h = parseInt(this.value) * HEIGHT_PER_FLOOR;
+        let h = _this.toHeight(parseInt(this.value));
         _this.selectedExtrusionBuilding.setHeight(h);
 
         //
@@ -1697,7 +1697,9 @@ DesignLayerObj.prototype.offExtrusionModel = function(designLayerId){
  * @param {bool} isShow
  */
 DesignLayerObj.prototype.extrusionModelBuildingToggle = function(model, isShow) {
-  
+    let _this = this;
+
+
     if(isShow) {
       
         let opt = {
@@ -1720,7 +1722,11 @@ DesignLayerObj.prototype.extrusionModelBuildingToggle = function(model, isShow) 
                      * Mago3D.ExtrusionBuilding의 static method인 makeExtrusionBuildingByCartesian3Array 함수를 통해 빌딩을 생성,
                      * Cesium의 Cartesian3 배열과 높이, 스타일관련 옵션으로 건물 객체 반환
                      */
-                    var building = Mago3D.ExtrusionBuilding.makeExtrusionBuildingByCartesian3Array(polygonHierarchy.reverse(), FLOOR_HEIGHT * 7)
+                    
+                    
+                    // let h = parseFloat(entity.properties.build_height._value);
+                    // var building = Mago3D.ExtrusionBuilding.makeExtrusionBuildingByCartesian3Array(polygonHierarchy.reverse(), _this.toFloorCo(h))
+                    let building = entityToMagoExtrusionBuilding(entity);
                     
                     building.layerId = model.id; 
                     building['__originHeight'] = Pp.nvl(building.getHeight(), 0.0);
@@ -1729,7 +1735,7 @@ DesignLayerObj.prototype.extrusionModelBuildingToggle = function(model, isShow) 
                         building.area = parseFloat(entity.properties['build_area'].getValue());
                     }else{
                         building.area = 0.0;
-                    }                        
+                    }   
                     //unit type
                     if(Pp.isNotEmpty(entity.properties['build_unit_type'])){
                         building.unitType = entity.properties['build_unit_type'].getValue();
@@ -2324,7 +2330,6 @@ DesignLayerObj.prototype.showLandInfo = function(browserEvent){
  * @param {Mago3D.ExtrusionBuilding} extrusionBuilding 
  */
 DesignLayerObj.prototype.showBuildingInfo = function(extrusionBuilding){
-    console.log(extrusionBuilding);
     let _this = this;
 
     //값 표시
@@ -2797,7 +2802,7 @@ DesignLayerObj.prototype.setBuldingHeightByBuilding = function(building, floorCo
     }
 
     //
-    building.setHeight(floorCo * HEIGHT_PER_FLOOR);
+    building.setHeight(this.toHeight(floorCo));
 };
 
 
@@ -2820,7 +2825,7 @@ DesignLayerObj.prototype.calcFloorAreaRatioByBuildings = function(landArea, buil
         let d = buildings[i];
         //console.log('DesignLayerObj', 'calcFloorAreaRatioByBuildings', 'TODO 빌딩의 바닥면적 필요(가이아가 제공해주는 값)');
         totFloorAreas.push(this.toFloorCo(d.getHeight()) * d.area);
-        console.log(this.toFloorCo(d.getHeight()), d.area, d.getHeight());
+        //console.log(this.toFloorCo(d.getHeight()), d.area, d.getHeight());
     }
 
     //
