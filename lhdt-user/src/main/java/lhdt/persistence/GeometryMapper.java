@@ -3,6 +3,7 @@ package lhdt.persistence;
 import lhdt.domain.common.SpatialOperationInfo;
 import lhdt.domain.data.DataInfo;
 import lhdt.domain.extrusionmodel.DesignLayerBuildingDto;
+import lhdt.domain.extrusionmodel.DesignLayerBuildingHeightDto;
 import lhdt.domain.extrusionmodel.DesignLayerLandDto;
 import org.springframework.stereotype.Repository;
 
@@ -30,7 +31,7 @@ public interface GeometryMapper {
      * @param spatialOperationInfo geometry 정보
      * @return
      */
-    List<DesignLayerBuildingDto> getIntersectionDesignLayerBuildingHeights(SpatialOperationInfo spatialOperationInfo);
+    List<DesignLayerBuildingHeightDto> getIntersectionDesignLayerBuildingHeights(SpatialOperationInfo spatialOperationInfo);
 
     /**
      * geometry intersection 데이터 정보 리턴
