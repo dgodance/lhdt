@@ -2245,7 +2245,7 @@ DesignLayerObj.prototype.showLandInfo = function(browserEvent){
                     // 필지내 전체 건물 층수 변경
                     _this.setBuldingHeightByTheGeom(_this.selectedLand.theGeom, $floorCo.val());
 
-                    //
+                    //필지 정보 
                     _this.renderLandInfo(_this.selectedLand);
                 });
             
@@ -2819,7 +2819,8 @@ DesignLayerObj.prototype.calcFloorAreaRatioByBuildings = function(landArea, buil
     for(let i=0; i<buildings.length; i++){
         let d = buildings[i];
         //console.log('DesignLayerObj', 'calcFloorAreaRatioByBuildings', 'TODO 빌딩의 바닥면적 필요(가이아가 제공해주는 값)');
-        totFloorAreas.push((d.getHeight()*HEIGHT_PER_FLOOR) * d.area);
+        totFloorAreas.push(this.toFloorCo(d.getHeight()) * d.area);
+        console.log(this.toFloorCo(d.getHeight()), d.area, d.getHeight());
     }
 
     //
