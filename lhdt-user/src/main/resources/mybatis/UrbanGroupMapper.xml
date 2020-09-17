@@ -10,11 +10,13 @@
 			urban_group_id, urban_group_name, user_id, ancestor, parent, depth, view_order, children, basic, available,
 			start_date, end_date, viewStartDate, viewEndDate,
 			location, area, receiving_population, receiving_household, project_operator, transfer_local_government,
+			longitude, latitude, altitude, duration,
 			description, insert_date, path, cycle
 		) AS (
 		SELECT A.urban_group_id, A.urban_group_name, A.user_id, A.ancestor, A.parent, A.depth, A.view_order, A.children, A.basic, A.available,
 			A.start_date, A.end_date, TO_CHAR(A.start_date, 'YYYY-MM-DD') AS viewStartDate, TO_CHAR(A.end_date, 'YYYY-MM-DD') AS viewEndDate,
 			A.location, A.area, A.receiving_population, A.receiving_household, A.project_operator, A.transfer_local_government,
+			ST_X(A.location) AS longitude, ST_Y(A.location) AS latitude, A.altitude, A.duration,
 			A.description, A.insert_date, ARRAY[A.view_order], false
 		FROM urban_group A
 		WHERE A.parent = 0
@@ -25,6 +27,7 @@
 		SELECT A.urban_group_id, A.urban_group_name, A.user_id, A.ancestor, A.parent, A.depth, A.view_order, A.children, A.basic, A.available,
 			A.start_date, A.end_date, TO_CHAR(A.start_date, 'YYYY-MM-DD') AS viewStartDate, TO_CHAR(A.end_date, 'YYYY-MM-DD') AS viewEndDate,
 		 	A.location, A.area, A.receiving_population, A.receiving_household, A.project_operator, A.transfer_local_government,
+			ST_X(A.location) AS longitude, ST_Y(A.location) AS latitude, A.altitude, A.duration,
 			A.description, A.insert_date, path || A.view_order, A.urban_group_id = ANY(path)
 		FROM urban_group A, urban_group_tree B
 		WHERE A.parent = B.urban_group_id AND not cycle
@@ -32,6 +35,7 @@
 		SELECT urban_group_id, urban_group_name, user_id, ancestor, parent, depth, view_order, children, basic, available,
 			start_date, end_date, viewStartDate, viewEndDate,
 			location, area, receiving_population, receiving_household, project_operator, transfer_local_government,
+			longitude, latitude, altitude, duration,
 			description, insert_date, path
 		FROM urban_group_tree
 		ORDER BY path

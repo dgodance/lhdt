@@ -106,6 +106,8 @@ class UrbanGroupAPIControllerTests extends BaseControllerTest {
                                 fieldWithPath("transferLocalGovernment").description("지자체로 양도 시기"),
                                 fieldWithPath("latitude").description("위도"),
                                 fieldWithPath("longitude").description("경도"),
+                                fieldWithPath("altitude").description("높이"),
+                                fieldWithPath("duraction").description("이동 시간"),
                                 fieldWithPath("description").description("설명"),
                                 fieldWithPath("updateDate").description("수정일"),
                                 fieldWithPath("insertDate").description("등록일")
@@ -162,6 +164,8 @@ class UrbanGroupAPIControllerTests extends BaseControllerTest {
                 .longitude(BigDecimal.valueOf(36.497006))
                 .latitude(BigDecimal.valueOf(127.262219))
                 .location("POINT(127.262219 36.497006)")
+                .altitude(BigDecimal.valueOf(3000.000000))
+                .duration(3)
                 .area(0)
                 .receivingPopulation(0)
                 .receivingHousehold(0)
