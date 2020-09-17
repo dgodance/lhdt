@@ -388,7 +388,7 @@ LsAnalsAutoObj.prototype.createTwoPoints = function(){
             Ppmap.restoreCursor();		
 
 			//
-			Ppui.find('.ds-create-two-points').disabled = false;	
+			// Ppui.find('.ds-create-two-points').disabled = false;
 
 			//분석. 0.5초 지연
 			setTimeout(function(){
