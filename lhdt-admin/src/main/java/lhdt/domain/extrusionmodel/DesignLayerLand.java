@@ -50,6 +50,8 @@ public class DesignLayerLand {
     private String buildingUseForbidden;
     // 건폐율
     private String buildingCoverageRatio;
+    // 건폐율 기준
+    private String buildingCoverageRatioStandard;
     // 용적률
     private String floorAreaRatio;
     // 용적률-기준

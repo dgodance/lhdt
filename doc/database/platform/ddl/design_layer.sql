@@ -142,6 +142,7 @@ create table design_layer_land (
     building_use_conditional                    varchar(3000),
     building_use_forbidden                      varchar(3000),
     building_coverage_ratio                     varchar(100),
+    building_coverage_ratio_standard            varchar(100),
     floor_area_ratio                            varchar(100),
     floor_area_ratio_standard                   varchar(100),
     floor_area_ratio_allowed                    varchar(100),
@@ -180,6 +181,7 @@ comment on column design_layer_land.building_use_allowed is '용도-허용';
 comment on column design_layer_land.building_use_conditional is '용도-제한';
 comment on column design_layer_land.building_use_forbidden is '용도-불허';
 comment on column design_layer_land.building_coverage_ratio is '건폐율';
+comment on column design_layer_land.building_coverage_ratio_standard is '건폐율 기준';
 comment on column design_layer_land.floor_area_ratio is '용적률';
 comment on column design_layer_land.floor_area_ratio_standard is '용적률-기준';
 comment on column design_layer_land.floor_area_ratio_allowed is '용적률-허용';
