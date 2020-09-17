@@ -105,7 +105,7 @@
 	</select>
 
 	<select id="getDesignLayerBuildingHeightExtent" parameterType="long" resultType="string">
-		/* getDesignLayerBuildingHeight */
+		/* getDesignLayerBuildingHeightExtent */
 		SELECT
 			concat(st_xmin(st_extent(the_geom)),',',
 				   st_ymin(st_extent(the_geom)),',',
