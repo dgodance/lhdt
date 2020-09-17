@@ -145,6 +145,7 @@ create table data_library (
 	data_library_key					varchar(100)					not null,
 	data_library_name				    varchar(256)					not null,
 	data_library_path				    varchar(256),
+	data_library_thumbnail              varchar(256),
 	data_type					        varchar(30),
 	user_id						        varchar(32),
 	service_type				        varchar(30),
@@ -165,6 +166,7 @@ comment on column data_library.data_library_converter_job_id is 'data library co
 comment on column data_library.data_library_key is 'data library 고유키(API용)';
 comment on column data_library.data_library_name is 'data library명';
 comment on column data_library.data_library_path is 'data library 경로';
+comment on column data_library.data_library_thumbnail is 'data library 썸네일';
 comment on column data_library.data_type is '데이터 타입(중복). 3ds,obj,dae,collada,ifc,las,citygml,indoorgml,etc';
 comment on column data_library.user_id is '사용자명';
 comment on column data_library.service_type is '서비스 타입 (정적, 동적)';

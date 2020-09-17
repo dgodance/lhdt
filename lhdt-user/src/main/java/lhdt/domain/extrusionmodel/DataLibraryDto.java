@@ -44,6 +44,8 @@ public class DataLibraryDto implements Serializable {
 	private String dataLibraryName;
 	// data library 경로
 	private String dataLibraryPath;
+	// data library 썸네일
+	private String dataLibraryThumbnail;
 
 	// 데이터 타입(중복). 3ds,obj,dae,collada,ifc,las,citygml,indoorgml,etc
 	private String dataType;
