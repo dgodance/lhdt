@@ -389,14 +389,15 @@ public class DesignLayerServiceImpl implements DesignLayerService {
                     } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(type.toUpperCase())) {
                         DesignLayerBuilding building = DesignLayerBuilding.builder()
                                 .buildId(Long.valueOf(record.get(0)))
-                                .buildHeight(record.get(1))
-                                .buildFloor(record.get(2))
-                                .buildArea(record.get(3))
-                                .buildComplex(record.get(4))
-                                .parentId(record.get(5))
-                                .buildingUnitType(record.get(6))
-                                .buildingUnitCount(record.get(7))
+                                .buildName(record.get(1))
+                                .buildHeight(record.get(2))
+                                .buildFloor(record.get(3))
+                                .buildArea(record.get(4))
+                                .buildComplex(record.get(5))
+                                .parentId(record.get(6))
+                                .buildUnitType(record.get(7))
                                 .build();
+                        if(!record.get(8).isEmpty()) building.setBuildUnitCount(Integer.valueOf(record.get(8)));
                         designLayerMapper.updateDesignLayerBuildingAttributes(building);
                     }
                 }

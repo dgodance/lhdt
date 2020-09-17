@@ -37,9 +37,9 @@ public class DesignLayerBuilding {
     private String properties;
 
     // 유닛 타입
-    private String buildingUnitType;
+    private String buildUnitType;
     // 유닛 타입이 사용된 개수
-    private String buildingUnitCount;
+    private Integer buildUnitCount;
 
     // wkt
     private String theGeom;

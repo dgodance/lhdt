@@ -36,9 +36,9 @@ public class DesignLayerBuildingDto {
     // 부모식별키
     private String parentId;
     // 유닛 타입
-    private String buildingUnitType;
+    private String buildUnitType;
     // 유닛 타입이 사용된 개수
-    private String buildingUnitCount;
+    private Integer buildUnitCount;
     // 필수 칼럼 제외한 데이터
     private String properties;
     // 수정일
