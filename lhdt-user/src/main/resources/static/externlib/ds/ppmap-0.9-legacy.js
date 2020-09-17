@@ -470,7 +470,7 @@ Ppmap.cartoToLonLatAlt = function(cartographic){
     return {
         'lon':Cesium.Math.toDegrees(cartographic.longitude),
         'lat': Cesium.Math.toDegrees(cartographic.latitude),
-        'alt': Cesium.Math.toDegrees(cartographic.height)
+        'alt': cartographic.height
     };
 }
 

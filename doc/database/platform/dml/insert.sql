@@ -9,8 +9,8 @@ values
 insert into user_info(
 	user_id, user_group_id, user_name, password, user_role_check_yn, last_signin_date)
 values
-	('admin', 1, '슈퍼관리자', '비밀번호', 'N', now()),
-	('lhdt', 2, 'Gaia3D', '비밀번호', 'Y', now());
+	('admin', 1, '슈퍼관리자', '$2a$10$KFr/2p5Og2jBy8NkTaEb/eoUna6AVlQ.A7s4YpPJ9A8dZwLYum5f.', 'N', now()),
+	('lhdt', 2, 'Gaia3D', '$2a$10$KFr/2p5Og2jBy8NkTaEb/eoUna6AVlQ.A7s4YpPJ9A8dZwLYum5f.', 'Y', now());
 
 -- 관리자 메뉴
 insert into menu(menu_id, menu_type, menu_target, name, name_en, ancestor, parent, depth, view_order, url, url_alias, html_id, css_class, default_yn, use_yn, display_yn)
@@ -82,11 +82,16 @@ insert into menu(menu_id, menu_type, menu_target, name, name_en, ancestor, paren
     css_class, default_yn, use_yn, display_yn)
 values
     --(1001, '1', '0', '검색', 'SEARCH', 1001, 0, 1, 1, '/search', null, 'searchMenu', 'searchContent', 'search', 'Y', 'Y', 'Y'),
-    (1002, '1', '0', '데이터', 'DATA', 1002, 0, 1, 2, '/data/map', null, 'dataMenu', 'dataContent', 'data', 'Y', 'Y', 'Y'),
-    (1003, '1', '0', '변환', 'CONVERTER', 1003, 0, 1, 3, '/upload-data/list', null, 'converterMenu', 'converterContent', 'converter', 'Y', 'Y', 'Y'),
-    (1005, '1', '0', 'Extrusion', 'EXTRUSION', 1005, 0, 1, 5, '/extrusion', null, 'extrusionMenu', 'extrusionContent', 'extrusion', 'Y', 'Y', 'Y'),
-    (1007, '1', '0', '레이어', 'LAYER', 1007, 0, 1, 7, '/layer/list', null, 'layerMenu', 'layerContent', 'layer', 'Y', 'Y', 'Y'),
-    (1008, '1', '0', '환경설정', 'USER POLICY', 1008, 0, 1, 8, '/user-policy/modify', null, 'userPolicyMenu', 'userPolicyContent', 'userPolicy', 'Y', 'Y', 'Y');
+    (1001, '1', '0', '지구설계', 'CITYPLAN', 1001, 0, 1, 1, '/cityplan', null, 'cityPlanMenu', 'cityPlanContent', 'cityplan', 'Y', 'Y', 'Y'),
+    (1002, '1', '0', '경관분석', 'LANDSCAPE', 1002, 0, 1, 2, '/landscape', null, 'landScapePlanMenu', 'landScapeContent', 'landscape', 'Y', 'Y', 'Y'),
+    (1003, '1', '0', '일조분석', 'SUNSHINE', 1003, 0, 1, 3, '/sunshine', null, 'sunShinePlanMenu', 'sunShineContent', 'sunshine', 'Y', 'Y', 'Y'),
+    (1004, '1', '0', '모델러', 'MODELER', 1004, 0, 1, 4, '/data-library', null, 'dataLibraryMenu', 'dataLibraryContent', 'modeler', 'Y', 'Y', 'Y'),
+
+    (1101, '1', '0', '데이터', 'DATA', 1101, 0, 1, 5, '/data/map', null, 'dataMenu', 'dataContent', 'data', 'Y', 'Y', 'Y'),
+    (1102, '1', '0', '변환', 'CONVERTER', 1102, 0, 1, 6, '/upload-data/list', null, 'converterMenu', 'converterContent', 'converter', 'Y', 'Y', 'Y'),
+    /*(1103, '1', '0', 'Extrusion', 'EXTRUSION', 1103, 0, 1, 7, '/extrusion', null, 'extrusionMenu', 'extrusionContent', 'extrusion', 'Y', 'Y', 'Y'),*/
+    (1104, '1', '0', '레이어', 'LAYER', 1104, 0, 1, 8, '/layer/list', null, 'layerMenu', 'layerContent', 'layer', 'Y', 'Y', 'Y'),
+    (1105, '1', '0', '환경설정', 'USER POLICY', 1105, 0, 1, 9, '/user-policy/modify', null, 'userPolicyMenu', 'userPolicyContent', 'userPolicy', 'Y', 'Y', 'Y');
 
 
 
@@ -155,18 +160,26 @@ values
 	(87, 1, 87, 'Y'),
 	(88, 1, 88, 'Y'),
 	--(NEXTVAL('user_group_menu_seq'), 1, 1001, 'Y'),
+	(NEXTVAL('user_group_menu_seq'), 1, 1001, 'Y'),
 	(NEXTVAL('user_group_menu_seq'), 1, 1002, 'Y'),
 	(NEXTVAL('user_group_menu_seq'), 1, 1003, 'Y'),
-	(NEXTVAL('user_group_menu_seq'), 1, 1005, 'Y'),
-	(NEXTVAL('user_group_menu_seq'), 1, 1007, 'Y'),
-	(NEXTVAL('user_group_menu_seq'), 1, 1008, 'Y'),
+	(NEXTVAL('user_group_menu_seq'), 1, 1004, 'Y'),
+	(NEXTVAL('user_group_menu_seq'), 1, 1101, 'Y'),
+	(NEXTVAL('user_group_menu_seq'), 1, 1102, 'Y'),
+	/*(NEXTVAL('user_group_menu_seq'), 1, 1103, 'Y'),*/
+	(NEXTVAL('user_group_menu_seq'), 1, 1104, 'Y'),
+	(NEXTVAL('user_group_menu_seq'), 1, 1105, 'Y'),
 
 	--(NEXTVAL('user_group_menu_seq'), 2, 1001, 'Y'),
+	(NEXTVAL('user_group_menu_seq'), 2, 1001, 'Y'),
 	(NEXTVAL('user_group_menu_seq'), 2, 1002, 'Y'),
 	(NEXTVAL('user_group_menu_seq'), 2, 1003, 'Y'),
-	(NEXTVAL('user_group_menu_seq'), 2, 1005, 'Y'),
-	(NEXTVAL('user_group_menu_seq'), 2, 1007, 'Y'),
-	(NEXTVAL('user_group_menu_seq'), 2, 1008, 'Y');
+	(NEXTVAL('user_group_menu_seq'), 2, 1004, 'Y'),
+	(NEXTVAL('user_group_menu_seq'), 2, 1101, 'Y'),
+	(NEXTVAL('user_group_menu_seq'), 2, 1102, 'Y'),
+	/*(NEXTVAL('user_group_menu_seq'), 2, 1103, 'Y'),*/
+	(NEXTVAL('user_group_menu_seq'), 2, 1104, 'Y'),
+	(NEXTVAL('user_group_menu_seq'), 2, 1105, 'Y');
 
 insert into user_group_role(user_group_role_id, user_group_id, role_id)
 values

@@ -125,9 +125,6 @@ function AnalsHeightLandScapeView(viewer, magoInstance) {
                     //
                     Ppmap.restoreCursor();
 
-                    //
-                    Ppui.find('.ds-create-two-points').disabled = false;
-
                     //분석. 0.5초 지연
                     setTimeout(function(){
                         _this.doAnals();
