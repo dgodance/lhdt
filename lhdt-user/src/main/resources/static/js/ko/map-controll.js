@@ -997,6 +997,9 @@ $(document).ready(function() {
 			$('#baseMapToggle').css({
 				right : '392px'
 			});
+			$('#terrainToggle').css({
+				right : '612px'
+			});
 		} else {
 			$('#mapSettingWrap').css('width', '0');
 			$('#mapCtrlWrap').css('right', '0');
@@ -1004,6 +1007,9 @@ $(document).ready(function() {
 			$('.mago3d-overlayContainer-defaultControl').css('right', '0');
 			$('#baseMapToggle').css({
 				right : '50px'
+			});
+			$('#terrainToggle').css({
+				right : '270px'
 			});
 		}
 	});

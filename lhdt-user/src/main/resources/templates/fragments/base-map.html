@@ -1,5 +1,5 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
-    <div id="baseMapToggle" style="position: absolute;right: 50px;z-index: 1000;margin: 10px;">
+    <div id="baseMapToggle" style="position: absolute;right: 50px;z-index: 1000;margin: 10px;cursor:pointer;">
         <div id="baseMapType-base" data-type="base" style="width:64px;height:58px;display: inline-block;border-radius: 5px;border: 1px solid #C6C6C6;">
         	<img th:src="@{/images/{lang}/ic_map_sat.png(lang=${lang},cacheVersion=${contentCacheVersion})}" style="border-radius: 5px;border: 1px solid #C6C6C6;">
         </div>
