@@ -136,7 +136,7 @@ DesignLayerObj.prototype.setEventHandler = function(){
             Ppmap.getManager().flyTo(urbanGroup.longitude, urbanGroup.latitude, urbanGroup.altitude, 1);
         };
 
-        //
+        //관련 레이어 모두 off
         let _offLayer = function(urbanGroupId){
             $('table.design-layers input[name=design-layer-id]:checked').each(function(i,item){
                 //
@@ -150,7 +150,7 @@ DesignLayerObj.prototype.setEventHandler = function(){
         // 관련 레이어 모두 off
         _offLayer(urbanGroupId);
 
-        // 툴
+        // 툴 변경
         _this.setTool(DesignLayerObj.Tool.NONE);
         
         //
@@ -326,7 +326,12 @@ DesignLayerObj.prototype.getTool = function(){
 };
 
 
-DesignLayerObj.prototype.toolIs = function(tool){
+/**
+ * 현재 설정된 툴이 tool과 동일한지 여부
+ * @param {DesignLayerObj.TOOL} tool 
+ * @returns {Boolean}
+ */
+DesignLayerObj.prototype.currentToolIs = function(tool){
     return this.tool === tool;
 }
 
@@ -425,7 +430,7 @@ DesignLayerObj.prototype.changeHeightCallback = function(e){
 
 
 /**
- * 
+ * ExtrusionBuilding이 선택 해제되면 호출되는 콜백함수
  * @param {*} json
  */
 DesignLayerObj.prototype.deselectedGeneralObjectCallback = function(json){
@@ -435,7 +440,7 @@ DesignLayerObj.prototype.deselectedGeneralObjectCallback = function(json){
     let _this = designLayerObj;
 
     //
-    if(_this.toolIs(DesignLayerObj.Tool.SELECT)){
+    if(_this.currentToolIs(DesignLayerObj.Tool.SELECT)){
         if(Pp.isNotEmpty(_this.selectedBuilding) && json.deselected._guid == _this.selectedBuilding._guid){
             _this.selectedBuilding = null;
         }
@@ -447,7 +452,7 @@ DesignLayerObj.prototype.deselectedGeneralObjectCallback = function(json){
 
 
 /**
- * 
+ * ExtrusionBuilding 선택되면 호출되는 콜백함수
  * @param {*} json
  */
 DesignLayerObj.prototype.selectedGeneralObjectCallback = function(json){
@@ -458,7 +463,7 @@ DesignLayerObj.prototype.selectedGeneralObjectCallback = function(json){
 
 
     //
-    if(_this.toolIs(DesignLayerObj.Tool.SELECT)){   
+    if(_this.currentToolIs(DesignLayerObj.Tool.SELECT)){   
         //
         _this.selectedBuilding = null;
         //
@@ -530,7 +535,7 @@ DesignLayerObj.prototype.leftupCallback = function(e){
     console.log('leftup', e);
 
     //
-    if(designLayerObj.toolIs(DesignLayerObj.Tool.SELECT)){
+    if(designLayerObj.currentToolIs(DesignLayerObj.Tool.SELECT)){
         //필지정보표시
         designLayerObj.showLandInfo(e);
     }
@@ -578,7 +583,7 @@ DesignLayerObj.prototype.toolChanged = function (beforeTool, afterTool) {
     };
 
     //모든 이벤트/정보 클리어
-    if(this.toolIs(DesignLayerObj.Tool.NONE)){
+    if(this.currentToolIs(DesignLayerObj.Tool.NONE)){
         //
         this.setSelectionInteraction(false);
         //
@@ -609,42 +614,42 @@ DesignLayerObj.prototype.toolChanged = function (beforeTool, afterTool) {
     }
 
     //선택
-    if(this.toolIs(DesignLayerObj.Tool.SELECT)){
+    if(this.currentToolIs(DesignLayerObj.Tool.SELECT)){
         this.processToolSelect();
     }
 
     //삭제
-    if(this.toolIs(DesignLayerObj.Tool.DELETE)){
+    if(this.currentToolIs(DesignLayerObj.Tool.DELETE)){
         this.processToolDelete();
     }
     
     //이동
-    if(this.toolIs(DesignLayerObj.Tool.MOVE)){
+    if(this.currentToolIs(DesignLayerObj.Tool.MOVE)){
         this.processToolMove();
     }
     
     //회전
-    if(this.toolIs(DesignLayerObj.Tool.ROTATE)){
+    if(this.currentToolIs(DesignLayerObj.Tool.ROTATE)){
         this.processToolRotate();
     }
     
     //높이조절
-    if(this.toolIs(DesignLayerObj.Tool.UPDOWN)){
+    if(this.currentToolIs(DesignLayerObj.Tool.UPDOWN)){
         this.processToolUpdown();
     }
     
     //필지정보조회
-    if(this.toolIs(DesignLayerObj.Tool.INTERSECTION)){
+    if(this.currentToolIs(DesignLayerObj.Tool.INTERSECTION)){
         this.processToolIntersection();
     }
 
     //필지높이조절
-    if(this.toolIs(DesignLayerObj.Tool.LANDUPDOWN)){
+    if(this.currentToolIs(DesignLayerObj.Tool.LANDUPDOWN)){
         this.processToolLandUpdown();
     }
 
     //이격거리체크
-    if(this.toolIs(DesignLayerObj.Tool.CHKDISTANCE)){
+    if(this.currentToolIs(DesignLayerObj.Tool.CHKDISTANCE)){
         this.processChkDistance();
     }
 
@@ -775,7 +780,7 @@ DesignLayerObj.prototype.extrudeLandByCtsn2 = function(ctsn2){
 DesignLayerObj.prototype.processChkDistance = function(){
     debugger;
     //
-    if(!this.toolIs(DesignLayerObj.Tool.CHKDISTANCE)){
+    if(!this.currentToolIs(DesignLayerObj.Tool.CHKDISTANCE)){
         return;
     }
 
@@ -806,7 +811,7 @@ DesignLayerObj.prototype.processChkDistance = function(){
  */
 DesignLayerObj.prototype.processToolLandUpdown = function(){
     //
-    if(!this.toolIs(DesignLayerObj.Tool.LANDUPDOWN)){
+    if(!this.currentToolIs(DesignLayerObj.Tool.LANDUPDOWN)){
         return;
     }
 
@@ -899,7 +904,7 @@ DesignLayerObj.prototype.processToolIntersection = function() {
 
 
     //
-    if(!this.toolIs(DesignLayerObj.Tool.INTERSECTION)){
+    if(!this.currentToolIs(DesignLayerObj.Tool.INTERSECTION)){
         return;
     }
     
@@ -1189,7 +1194,7 @@ DesignLayerObj.prototype.showLandData = function(pageNo){
  */
 DesignLayerObj.prototype.processToolUpdown = function(){    
     //
-    if(!this.toolIs(DesignLayerObj.Tool.UPDOWN)){
+    if(!this.currentToolIs(DesignLayerObj.Tool.UPDOWN)){
         return;
     }
     
@@ -1227,7 +1232,7 @@ DesignLayerObj.prototype.processToolUpdown = function(){
  */
 DesignLayerObj.prototype.processToolRotate = function(){    
     //
-    if(!this.toolIs(DesignLayerObj.Tool.ROTATE)){
+    if(!this.currentToolIs(DesignLayerObj.Tool.ROTATE)){
         return;
     }
     
@@ -1261,7 +1266,7 @@ DesignLayerObj.prototype.processToolRotate = function(){
  */
 DesignLayerObj.prototype.processToolMove = function(){    
     //
-    if(!this.toolIs(DesignLayerObj.Tool.MOVE)){
+    if(!this.currentToolIs(DesignLayerObj.Tool.MOVE)){
         return;
     }
     
@@ -1313,7 +1318,7 @@ DesignLayerObj.prototype.processToolDelete = function(){
 
 
     //
-    if(!this.toolIs(DesignLayerObj.Tool.DELETE)){
+    if(!this.currentToolIs(DesignLayerObj.Tool.DELETE)){
         return;
     }
     
@@ -1348,7 +1353,7 @@ DesignLayerObj.prototype.processToolDelete = function(){
  */
 DesignLayerObj.prototype.processToolSelect = function(){
     //
-    if(!this.toolIs(DesignLayerObj.Tool.SELECT)){
+    if(!this.currentToolIs(DesignLayerObj.Tool.SELECT)){
         return;
     }
 
@@ -2114,7 +2119,7 @@ DesignLayerObj.prototype.calcFloorAreaRatio = function(landArea, totFloorAreas){
     }
 
     //
-    return tot / landArea * 100;
+    return (tot / landArea * 100).toFixed(2);
 }
 
 
@@ -2404,8 +2409,8 @@ DesignLayerObj.prototype.setBuldingHeightByTheGeom = function(theGeom, floorCo){
 
 /**
  * 빌딩 높이 변경 후 호출됨
- * @param {object} selectedLand
- * @param {Mago3D.ExtrusionBuilding|null} selectedBuilding
+ * @param {object} selectedLand 필지
+ * @param {Mago3D.ExtrusionBuilding|null} selectedBuilding 건물
  */
 DesignLayerObj.prototype.buildingHeightChanged = function(selectedLand, selectedBuilding){
     let $wrapper = $('div.design-layer-land-wrapper');
@@ -2466,18 +2471,29 @@ DesignLayerObj.prototype.calcBuildingCoverageRatioByLonLats = function(lonLats){
  * @param {Array<Mago3D.ExtrusionBuilding>} buildings 필지내 건물 목록
  */
 DesignLayerObj.prototype.calcBuildingCoverageRatioByBuildings = function(landArea, buildings){
+    
+    /**
+     * 건물의 넓이 계산
+     * asis 건물 바닥 면적으로 계산
+     * TODO 가이아에서 제공해주는 값 사용해야 함
+     * @param {ExtrusionBuilding} building 건물
+     */
+    let _area = function(building){
+        return Ppmap.calcArea(building.geographicCoordList.geographicCoordsArray, Ppmap.PointType.LONLAT);
+    };
+
+    //
     let tot=0.0;
 
     for(let i=0; i<buildings.length; i++){
         let d = buildings[i];
 
         //
-        console.log('TODO 건물 면적 필요(가이아에서 제공 예정)');
-        tot += Pp.nvl(d['buildingArea'], 0.0);
+        tot += _area(d);
     }
 
     //
-    return tot / landArea * 100;
+    return (tot / landArea * 100).toFixed(2);
 };
 
 /**
@@ -2608,6 +2624,17 @@ DesignLayerObj.prototype.setBuldingHeightByBuilding = function(building, floorCo
  * @returns {Number} 용적률
  */
 DesignLayerObj.prototype.calcFloorAreaRatioByBuildings = function(landArea, buildings){
+    /**
+     * 건물 바닥면적 구하기
+     * asis 바닥면적 계산
+     * TODO 가이아가 제공해주는 값 사용해야 함
+     * @param {Mago3D.ExtrusionBuilding} building 건물
+     */
+    let _area = function(building){
+        return Ppmap.calcArea(building.geographicCoordList.geographicCoordsArray, Ppmap.PointType.LONLAT);
+    };
+
+    //
     if(Pp.isEmpty(buildings)){
         return 0.0;
     }
@@ -2616,8 +2643,8 @@ DesignLayerObj.prototype.calcFloorAreaRatioByBuildings = function(landArea, buil
     let totFloorAreas=[];
     for(let i=0; i<buildings.length; i++){
         let d = buildings[i];
-        console.log('DesignLayerObj', 'calcFloorAreaRatioByBuildings', 'TODO 빌딩의 바닥면적 필요(가이아가 제공해주는 값)');
-        totFloorAreas.push((d.getHeight()*HEIGHT_PER_FLOOR) * Pp.nvl(d['buildingArea'], 0.0));
+        //console.log('DesignLayerObj', 'calcFloorAreaRatioByBuildings', 'TODO 빌딩의 바닥면적 필요(가이아가 제공해주는 값)');
+        totFloorAreas.push((d.getHeight()*HEIGHT_PER_FLOOR) * _area(d));
     }
 
     //
@@ -2632,11 +2659,11 @@ DesignLayerObj.prototype.resizeModelessHeight = function(){
 
     let h = 270;
    
-    //
+    //필지
     if(Pp.isNotEmpty(this.selectedLand)){
         h += 220;
     }
-    //
+    //건물
     if(Pp.isNotEmpty(this.selectedBuilding)){
         h += 150;
     }
