@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 디자인 레이어 그룹 Ajax 통신 관리
+ * 디자인 레이어 그룹 관리
  */
 @Slf4j
 @RestController

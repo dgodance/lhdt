@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DesignLayerBuildingUnit {
+public class DesignLayerBuildingUnitDto {
 
     // 디자인 레이어 빌딩 유닛 고유번호
     private Long designLayerBuildingId;

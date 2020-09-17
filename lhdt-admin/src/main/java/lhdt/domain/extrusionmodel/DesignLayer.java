@@ -128,7 +128,9 @@ public class DesignLayer extends Search implements Serializable {
 	    // 토지
 	    LAND,
         // 빌딩
-        BUILDING
+        BUILDING,
+        // 건축물 높이
+        BUILDING_HEIGHT
     }
 
     public enum AttributeType {
