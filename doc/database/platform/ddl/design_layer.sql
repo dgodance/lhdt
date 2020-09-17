@@ -232,6 +232,48 @@ comment on column design_layer_building.update_date is '수정일';
 comment on column design_layer_building.insert_date is '등록일';
 
 
+create table design_layer_building_unit (
+	design_layer_building_unit_id               bigint,
+	urban_group_id                              integer,
+	build_id                                    bigint,
+	unit_type                                   varchar(30),
+	dedicated_area                              numeric(10,2),
+	dedicated_area_acreage                      numeric(10,2),
+    residential_common_area                     numeric(10,2),
+    residential_common_acreage                  numeric(10,2),
+    supply_area                                 numeric(10,2),
+    supply_acreage                              numeric(10,2),
+    other_common_area                           numeric(10,2),
+    other_common_acreage                        numeric(10,2),
+    contact_area                                numeric(10,2),
+    contact_acreage                             numeric(10,2),
+    balcony_extension_area                      numeric(10,2),
+    balcony_extension_acreage                   numeric(10,2),
+    update_date					                timestamp with time zone,
+	insert_date					                timestamp with time zone 		default now(),
+	constraint design_layer_building_unit_pk 	primary key (design_layer_building_unit_id)
+);
+
+comment on table design_layer_building_unit is '디자인 레이어 빌딩 유닛';
+comment on column design_layer_building_unit.design_layer_building_unit_id is '디자인 레이어 빌딩 유닛 고유번호';
+comment on column design_layer_building_unit.urban_group_id is '도시 그룹 고유번호';
+comment on column design_layer_building_unit.unit_type is '디자인 레이어 빌딩 유닛 타입(이름)';
+comment on column design_layer_building_unit.dedicated_area is '전용 면적';
+comment on column design_layer_building_unit.dedicated_area_acreage is '전용 면적 평수';
+comment on column design_layer_building_unit.residential_common_area is '주거 공용';
+comment on column design_layer_building_unit.residential_common_acreage is '주거 공용 평수';
+comment on column design_layer_building_unit.supply_area is '공급 면적';
+comment on column design_layer_building_unit.supply_acreage is '공급 면적 평수';
+comment on column design_layer_building_unit.other_common_area is '기타 공용';
+comment on column design_layer_building_unit.other_common_acreage is '기타 공용 평수';
+comment on column design_layer_building_unit.contact_area is '계약 면적';
+comment on column design_layer_building_unit.contact_acreage is '계약 면적 평수';
+comment on column design_layer_building_unit.balcony_extension_area is '발코니 확장';
+comment on column design_layer_building_unit.balcony_extension_acreage is '발코니 확장 평수';
+comment on column design_layer_building_unit.update_date is '수정일';
+comment on column design_layer_building_unit.insert_date is '등록일';
+
+
 -- design layer 속성
 create table design_layer_attribute (
 	design_layer_attribute_id			            bigint,
