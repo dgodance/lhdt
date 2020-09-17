@@ -30,6 +30,9 @@ const DesignLayerObj = function(){
     this.upanddown = null;
     //
     this.handler = null;
+
+    //단지가시화 모달리스
+    this.$dialog = null;
 };
 
 /**
@@ -121,12 +124,43 @@ DesignLayerObj.prototype.setEventHandler = function(){
      * 도시 그룹2 change
      */
     Ppui.change('#urban-group2', function(){
-        let urbanGroupId = this.value;
-        //디자인 레이어 목록 렌더링
-        _this.renderDesignLayersByUrbanGroupId(urbanGroupId);
+        //해당 지역으로 flyto
+        let _flyTo = function(urbanGroupId){
+            if(Pp.isEmpty(urbanGroupId)){
+                $('#mapCtrlHome').trigger('click');
+                return;
+            }
+
+            //
+            let urbanGroup = _this.getUrbanGroup(urbanGroupId);
+            Ppmap.getManager().flyTo(urbanGroup.longitude, urbanGroup.latitude, urbanGroup.altitude, 1);
+        };
 
         //
+        let _offLayer = function(urbanGroupId){
+            $('table.design-layers input[name=design-layer-id]:checked').each(function(i,item){
+                //
+                _this.showDesignLayer($(item).val(), false);
+            });
+        };
+
+        //
+        let urbanGroupId = this.value;
+
+        // 관련 레이어 모두 off
+        _offLayer(urbanGroupId);
+
+        // 툴
+        _this.setTool(DesignLayerObj.Tool.NONE);
+        
+        //
         _this.showUrbanInfo(urbanGroupId);
+        
+        //지도 이동
+        _flyTo(urbanGroupId);
+    
+        //디자인 레이어 목록 렌더링
+        _this.renderDesignLayersByUrbanGroupId(urbanGroupId);
     });
 
 
@@ -1444,6 +1478,24 @@ DesignLayerObj.prototype.getUrbanGroupsByParent = function(parent){
 
 
 /**
+ * 도시 그룹 조회
+ * @param {string|number} urbanGroupId 도시 그룹 아이디
+ */
+DesignLayerObj.prototype.getUrbanGroup = function(urbanGroupId){
+    for(let i=0; i<this.urbanGroups.length; i++){
+        let d = this.urbanGroups[i];
+
+        if(urbanGroupId == d.urbanGroupId){
+            return d;
+        }
+    }
+
+    //
+    return null;
+}
+
+
+/**
  * datas를 selector에 표시하기
  * @param {string} selector 셀렉터
  * @param {Array} datas 도시 그룹 데이터 목록
@@ -2072,46 +2124,58 @@ DesignLayerObj.prototype.calcFloorAreaRatio = function(landArea, totFloorAreas){
  * @param {string|number} urbanGroupId 도시 그룹 아이디
  */
 DesignLayerObj.prototype.showUrbanInfo = function(urbanGroupId){
-    //get 지역 정보
-    //calc 전체 세대수
-    //calc 전체 평균 평형
-    //show modeless
+  
+
+    $('div.design-layer-urban-wrapper').hide();
+    $('div.design-layer-land-wrapper').hide();
+    $('div.design-layer-building-wrapper').hide();
+
 
     //
     if(Pp.isEmpty(urbanGroupId)){
-        $('div.design-layer-urban-wrapper').hide();
         this.resizeModelessHeight(false, false, false);
         return;
     }
 
     //
-    if(0 == $('div.design-layer-modeless-wrapper').length){
+    if(null == this.$dialog){
         let source = $('#design-layer-modeless-template').html();
         let template = Handlebars.compile(source);
         let html = template({'data':{}});
     
         //
         $('body').append(html);
-
+        
+        //
+        let left = parseInt($('#mapCtrlWrap').css('left').replace(/px/gi, '')) - 500;
+        let top = $('#baseMapToggle').height() + 10;
+        
+        this.$dialog = $('div.design-layer-modeless-wrapper').dialog({
+            autoOpen: false,
+            width: 500,
+            height: 250,
+            position: {my:'center', at:'right top+' + top, of:'.cesium-viewer'},
+            resizable: false,
+            title : '정보',
+            buttons:{
+                '닫기':function(){
+                    $(this).dialog('close')
+                }
+            }
+        });
     }
 
     //
-    $('div.design-layer-modeless-wrapper').dialog({
-        autoOpen: false,
-        width: 500,
-        height: 250,
-        modal: false,
-        resizable: false,
-        title : '정보',
-        buttons:{
-            '닫기':function(){
-                $(this).dialog('close')
-            }
-        }
-    });
+      //get 지역 정보
+    //calc 전체 세대수
+    //calc 전체 평균 평형
+    let urbanGroup = this.getUrbanGroup(urbanGroupId);
+
+    let $wrapper = $('div.design-layer-urban-wrapper');
+    $wrapper.find('td.urban-group-name').text(urbanGroup.urbanGroupName);
 
     //
-    $('div.design-layer-urban-wrapper').show();
+    $wrapper.show();
     this.resizeModelessHeight(true);
 };
 
@@ -2559,6 +2623,8 @@ DesignLayerObj.prototype.calcFloorAreaRatioByBuildings = function(landArea, buil
  * @param {Boolean} buildingShow
  */
 DesignLayerObj.prototype.resizeModelessHeight = function(urbanShow, landShow, buildingShow){
+    console.log(urbanShow, landShow, buildingShow);
+
     let h = 0;
     
     if(urbanShow){
@@ -2574,7 +2640,12 @@ DesignLayerObj.prototype.resizeModelessHeight = function(urbanShow, landShow, bu
     }
 
     //
-    $('div.design-layer-modeless-wrapper').dialog('option', {'height':h})
+    if(null == this.$dialog){
+        return;
+    }
+
+    //
+    this.$dialog.dialog('option', {'height':h})
         .dialog((0==h?'close':'open'));
     
 };

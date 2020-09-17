@@ -8,7 +8,7 @@
 </ul> -->
        
 	<div class="ds-modeler" style="border: 1px solid #efefef;padding:5px;">
-		<h3 class="">디자인 레이어</h3>
+		<!-- <h3 class="">디자인 레이어</h3> -->
 		
 		<div class="form-group form-group-data">
 			<label for="urban-group1">신도시</label> 
@@ -35,11 +35,11 @@
 
 
 
-	<div>
-		<!-- Rectangular switch -->
+	<!-- Rectangular switch -->
+	<!-- <div>
 		<input type="checkbox" class="ds-toggle-land-updown">
 		전체 필지높이 조절		
-	</div>
+	</div> -->
 
 	<div class="ds-tool marT10" style="border: 1px solid #efefef;padding:5px;">
 		<h3 class="">도구</h3>
@@ -110,12 +110,18 @@
 		</tr>
 	</thead>
 	<tbody>
-		{{#each datas}}
-		<tr >
-			<td class="col-number"><input type="checkbox" name="design-layer-id" value="{{designLayerId}}"></td>
-			<td class="col-number text-left cursor-pointer">{{designLayerName}}</td>
-		</tr>
-		{{/each}}
+		{{#if datas}}
+			{{#each datas}}
+			<tr >
+				<td class="col-number"><input type="checkbox" name="design-layer-id" value="{{designLayerId}}"></td>
+				<td class="col-number text-left cursor-pointer">{{designLayerName}}</td>
+			</tr>
+			{{/each}}
+		{{else}}
+			<tr>
+				<td colspan="2">데이터가 없습니다.</td>
+			</tr>
+		{{/if}}
 	</tbody>
 </table>
 </script>
@@ -293,7 +299,7 @@
 				<tbody>
 					<tr>
 						<td>사업지구</td>
-						<td></td>
+						<td class="urban-group-name"></td>
 						<td></td>
 						<td></td>
 					</tr>
