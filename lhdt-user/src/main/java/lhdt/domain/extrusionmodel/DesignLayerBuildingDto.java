@@ -23,6 +23,8 @@ public class DesignLayerBuildingDto {
     private Integer designLayerGroupId;
     // shape 파일 고유 번호
     private Long buildId;
+    // 빌딩명
+    private String buildName;
     // 빌딩높이
     private String buildHeight;
     // 빌딩층수

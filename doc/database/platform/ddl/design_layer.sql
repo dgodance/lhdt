@@ -197,6 +197,7 @@ create table design_layer_building (
 	design_layer_id					            bigint,
 	design_layer_group_id			            integer,
 	build_id                                    bigint,
+	build_name                                  varchar(100),
     build_height                                varchar(100),
     build_floor                                 varchar(100),
     build_area                                  varchar(100),
@@ -218,6 +219,7 @@ comment on column design_layer_building.design_layer_building_id is 'design laye
 comment on column design_layer_building.design_layer_id is 'design layer 고유번호';
 comment on column design_layer_building.design_layer_group_id is 'design layer 그룹 고유번호';
 comment on column design_layer_building.build_id is 'shape 파일 고유번호';
+comment on column design_layer_building.build_name is '빌딩명';
 comment on column design_layer_building.build_height is '빌딩높이';
 comment on column design_layer_building.build_floor is '빌딩층수';
 comment on column design_layer_building.build_area is '빌딩면적';
