@@ -2647,10 +2647,11 @@ DesignLayerObj.prototype.resizeModelessHeight = function(){
     }
 
     //
-    this.$dialog.dialog('option', {'height':h})
+    this.$dialog
+        .dialog('option', {'height':h})
         .dialog((0==h?'close':'open'));
     
-    console.log(h, Pp.isNotEmpty(this.selectedLand), Pp.isNotEmpty(this.selectedBuilding));
+    // console.log(h, Pp.isNotEmpty(this.selectedLand), Pp.isNotEmpty(this.selectedBuilding));
 };
 
 
