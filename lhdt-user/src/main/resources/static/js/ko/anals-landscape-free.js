@@ -37,7 +37,7 @@ lsSavedAnalsWidget.prototype.reqeustDataBylsAnalsPg = function(lsAnalsPg) {
         param += '?lsDiffPage='+lsAnalsPg;
     }
     $.ajax({
-        url: 'http://localhost:9091/adminsvc/ls-point-rest' + param,
+        url: 'http://172.30.1.58:9091/adminsvc/ls-point-rest' + param,
         method: 'GET'
     }).done(function(data) {
         that.defaultRenderByData(data);
@@ -322,7 +322,7 @@ LsAnalsAutoObj.prototype.setEventHandler = function(){
 			//
 			toastr.info('지도상에서 두점을 클릭하시기 바랍니다.');
 			//
-			el.disabled = true;
+			// el.disabled = true;
 			
 			//
 			_this.createTwoPoints();
