@@ -140,7 +140,7 @@ function mapInit(magoInstance, baseLayers, policy) {
 	        }
 	    });
 		
-		var targetIndex = 1;
+		var targetIndex = 3;
 		for(var i=0; i < imageryLayers.length; i++) {
 			var layer = imageryLayers.get(i);
 			var currnetLayerId = layer.id;
@@ -152,7 +152,7 @@ function mapInit(magoInstance, baseLayers, policy) {
 			}
 		}
 		
-		var addedLyer = viewer.imageryLayers.addImageryProvider(provider, targetIndex);
+		var addedLayer = viewer.imageryLayers.addImageryProvider(provider, targetIndex);
 		addedLyer.id = layerKey;
 	};
 	
