@@ -999,15 +999,17 @@
    			geoCoordsListsArray.push(geoCoordList);
    		}
 
-	 		return new Mago3D.ExtrusionBuilding(geoCoordsListsArray, parseFloat(height), {
-	 			//color : new Mago3D.Color(0, 112 / 255, 192 / 255, 1), 연한 파랑
-	 			//color : new Mago3D.Color(148/255, 216 / 255, 246 / 255, 1), 진한 파랑
-	 			//color : new Mago3D.Color(1, 229 / 255, 212 / 255, 1),
-	 			//wireframeColor4 :  new Mago3D.Color(244/255, 115 / 255, 120 / 255, 1),
-	 			color : new Mago3D.Color(152/255, 224 / 255, 173 / 255, 1),
-	 			wireframeColor4 :  new Mago3D.Color(34/255, 177 / 255, 76 / 255, 1),
-	 			renderWireframe : true
-	 		});
+   		var building = new Mago3D.ExtrusionBuilding(geoCoordsListsArray, parseFloat(height), {
+ 			//color : new Mago3D.Color(0, 112 / 255, 192 / 255, 1), 연한 파랑
+ 			//color : new Mago3D.Color(148/255, 216 / 255, 246 / 255, 1), 진한 파랑
+ 			//color : new Mago3D.Color(1, 229 / 255, 212 / 255, 1),
+ 			//wireframeColor4 :  new Mago3D.Color(244/255, 115 / 255, 120 / 255, 1),
+ 			color : new Mago3D.Color(152/255, 224 / 255, 173 / 255, 1),
+ 			wireframeColor4 :  new Mago3D.Color(34/255, 177 / 255, 76 / 255, 1),
+ 			renderWireframe : true
+ 		});
+   		building.floorHeight = 3.3;
+	 		return building;
 	}
 </script>
 </body>
