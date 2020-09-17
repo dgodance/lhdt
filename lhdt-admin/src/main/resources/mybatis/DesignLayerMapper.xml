@@ -263,6 +263,7 @@
 			building_use_conditional = #{buildingUseConditional},
 			building_use_forbidden = #{buildingUseForbidden},
 			building_coverage_ratio = #{buildingCoverageRatio},
+			building_coverage_ratio_standard = #{buildingCoverageRatioStandard},
 			floor_area_ratio = #{floorAreaRatio},
 			floor_area_ratio_standard = #{floorAreaRatioStandard},
 			floor_area_ratio_allowed = #{floorAreaRatioAllowed},
