@@ -208,7 +208,6 @@ var extrusionTools = function (magoInstance){
 	function init()
 	{
 		setEventHandler();
-
 	}
 
 	function extrusionModelToggle(model, on) {
@@ -292,20 +291,8 @@ var extrusionTools = function (magoInstance){
 	   	 		for(var i in entities) {
 	   	 			var entity = entities[i];
 	   	 			var properties = entity.properties;
-	   	 			var height = properties.build_height.getValue();
-	   	 			height = (!height || height.length === 0) ? FLOOR_HEIGHT * 7 : height;
-		   	 		var polygonHierarchy  = entity.polygon.hierarchy.getValue().positions;
-		   	 		
-		   	 		/**
-		   	 		 * @class Mago3D.ExtrusionBuilding
-		   	 		 * Polygon geometry과 높이를 이용하여 건물을 생성
-		   	 		 * 
-		   	 		 * Mago3D.ExtrusionBuilding의 static method인 makeExtrusionBuildingByCartesian3Array 함수를 통해 빌딩을 생성,
-		   	 		 * Cesium의 Cartesian3 배열과 높이, 스타일관련 옵션으로 건물 객체 반환
-		   	 		 */
-		   	 		var building = Mago3D.ExtrusionBuilding.makeExtrusionBuildingByCartesian3Array(polygonHierarchy.reverse(), parseFloat(height), {
-		   	 			color : new Mago3D.Color(1,0,0,1)
-		   	 		})
+	   	 			
+	   	 			var building = entityToMagoExtrusionBuilding(entity);
 		   	 		building.layerId = model.id;
 		   	 		building.floorHeight = FLOOR_HEIGHT;
 		   	 		/**
