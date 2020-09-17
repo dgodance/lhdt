@@ -159,7 +159,6 @@ AnalsLandScapeDiff.prototype.renderDiffContent = function(groupId, pageNum) {
 	
 	//
     $.get(LS_DIFF_REST_URL + '/'+groupId+'?lsDiffPage='+pageNum).done(function(diffObj) {
-        debugger;
         $('#landscapeDiffDetDataDiv').empty();
         $('#landscapeDiffDetDataDiv').append(template(diffObj));
         $('#landscapeName').val("");
