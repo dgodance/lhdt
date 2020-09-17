@@ -102,6 +102,29 @@ include::{snippets}/geometry-intersection-design-layer-land-linestring/curl-requ
 include::{snippets}/geometry-intersection-design-layer-land-polygon/curl-request.adoc[]
 
 
+[[resources-geometry-intersection-design-layer-building-point]]
+=== Point 입력에 대한 건물 정보
+
+`POST` point 정보외에 추가적으로 buffer 를 설정하여 검색 반경을 설정할 수 있다.
+
+include::{snippets}/geometry-intersection-design-layer-building-point/curl-request.adoc[]
+include::{snippets}/geometry-intersection-design-layer-building-point/http-response.adoc[]
+
+[[resources-geometry-intersection-design-layer-building-linestring]]
+=== lineString 입력에 대한 건물 정보
+
+`POST` point 와 마찬가지로 추가적으로 buffer 설정이 가능하며, 시작 지점과 종료 지점이 같지 않을 경우 lineString 으로 판별한다.
+
+include::{snippets}/geometry-intersection-design-layer-building-linestring/curl-request.adoc[]
+
+[[resources-geometry-intersection-design-layer-building-polygon]]
+=== polygon 입력에 대한 건물 정보
+
+`POST` 시작 지점과 종료 지점이 같을 경우 polygon 으로 판별한다.
+
+include::{snippets}/geometry-intersection-design-layer-building-polygon/curl-request.adoc[]
+
+
 [[resources-geometry-intersection-data-list]]
 == 데이터(DataInfo) intersection
 - 입력 지오메트리와 데이터가 교차하는 영역에 대한 정보 리턴.
