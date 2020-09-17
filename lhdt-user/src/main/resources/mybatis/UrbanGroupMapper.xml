@@ -57,7 +57,7 @@
 	</select>
 
 	<select id="getListUrbanGroupByParent" parameterType="int" resultType="urbanGroup">
-		SELECT A.*, , ST_X(A.location) AS longitude, ST_Y(A.location) AS latitude
+		SELECT A.*, ST_X(A.location) AS longitude, ST_Y(A.location) AS latitude
 		FROM urban_group A
 		WHERE parent = #{urbanGroupId}
 	</select>
