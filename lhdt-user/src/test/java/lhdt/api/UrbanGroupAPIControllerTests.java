@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -103,6 +104,8 @@ class UrbanGroupAPIControllerTests extends BaseControllerTest {
                                 fieldWithPath("receivingHousehold").description("수용 세대"),
                                 fieldWithPath("projectOperator").description("사업 시행자"),
                                 fieldWithPath("transferLocalGovernment").description("지자체로 양도 시기"),
+                                fieldWithPath("latitude").description("위도"),
+                                fieldWithPath("longitude").description("경도"),
                                 fieldWithPath("description").description("설명"),
                                 fieldWithPath("updateDate").description("수정일"),
                                 fieldWithPath("insertDate").description("등록일")
@@ -156,6 +159,8 @@ class UrbanGroupAPIControllerTests extends BaseControllerTest {
                 .available(true)
                 .startDate(LocalDateTime.now())
                 .endDate(LocalDateTime.now())
+                .longitude(BigDecimal.valueOf(36.497006))
+                .latitude(BigDecimal.valueOf(127.262219))
                 .location("POINT(127.262219 36.497006)")
                 .area(0)
                 .receivingPopulation(0)

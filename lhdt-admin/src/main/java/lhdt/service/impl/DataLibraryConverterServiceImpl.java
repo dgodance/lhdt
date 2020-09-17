@@ -349,6 +349,7 @@ public class DataLibraryConverterServiceImpl implements DataLibraryConverterServ
         String adminDataLibraryServicePath = propertiesConfig.getAdminDataLibraryServicePath();
         DataLibraryGroup dataLibraryGroup = dataLibraryGroupService.getDataLibraryGroup(DataLibraryGroup.builder().dataLibraryGroupId(dataLibraryGroupId).build());
         String dataLibraryPath = adminDataLibraryServicePath + dataLibraryGroup.getDataLibraryGroupKey() + "/" + dataLibraryKey;
+        String dataLibraryThumbnail = adminDataLibraryServicePath + dataLibraryGroup.getDataLibraryGroupKey() + "/" + DataLibrary.F4D_PREFIX + dataLibraryKey + "/thumbnail.png";
 
         String dataType = dataLibraryUploadFile.getDataType();
         String sharing = dataLibraryUploadFile.getSharing();
@@ -370,6 +371,7 @@ public class DataLibraryConverterServiceImpl implements DataLibraryConverterServ
             dataLibrary.setDataLibraryKey(dataLibraryKey);
             dataLibrary.setDataLibraryName(dataLibraryName);
             dataLibrary.setDataLibraryPath(dataLibraryPath);
+            dataLibrary.setDataLibraryThumbnail(dataLibraryThumbnail);
             dataLibrary.setUserId(userId);
             //dataLibrary.setStatus(DataStatus.PROCESSING.name().toLowerCase());
             dataLibrary.setStatus(DataLibraryStatus.USE.name().toLowerCase());
@@ -382,6 +384,7 @@ public class DataLibraryConverterServiceImpl implements DataLibraryConverterServ
             dataLibrary.setDataType(dataType);
             dataLibrary.setDataLibraryName(dataLibraryName);
             dataLibrary.setDataLibraryPath(dataLibraryPath);
+            dataLibrary.setDataLibraryThumbnail(dataLibraryThumbnail);
             dataLibrary.setUserId(userId);
             //dataLibrary.setStatus(DataStatus.PROCESSING.name().toLowerCase());
             dataLibrary.setStatus(DataLibraryStatus.USE.name().toLowerCase());

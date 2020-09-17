@@ -4,6 +4,7 @@ import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.Size;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -25,6 +26,11 @@ public class UrbanGroup {
 	private String parentName;
 	// up : 위로, down : 아래로
 	private String updateType;
+
+	// 위도
+	private BigDecimal latitude;
+	// 경도
+	private BigDecimal longitude;
 
 	/****** validator ********/
 	private String methodMode;
@@ -51,6 +57,11 @@ public class UrbanGroup {
 	private LocalDateTime endDate;
 	// POINT(위도, 경도)
 	private String location;
+	// 높이
+	private BigDecimal altitude;
+	// Map 이동시간
+	private Integer duration;
+
 	// 면적
 	private Integer area;
 	// 수용 인구

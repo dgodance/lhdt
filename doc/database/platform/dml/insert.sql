@@ -231,19 +231,20 @@ values
 	(1, 'basic', '기본', 'infra/data-library/basic/', 'admin', 'common', 'admin', 1, 0, 1, 1, 0, true, true, 0);
 
 INSERT INTO public.urban_group(
-	urban_group_id, urban_group_key, urban_group_name, user_id, ancestor, parent, depth, view_order, children, available, basic)
+	urban_group_id, urban_group_key, urban_group_name, user_id, ancestor, parent, depth, view_order, children,
+	location, altitude, duration, available, basic)
 VALUES
-    (1, 'a', '3기 신도시', 'admin', 1, 0, 1, 1, 10, true, true),
-    (2, 'b', '남양주 왕숙 신도시', 'admin', 1, 1, 2, 2, 0, true, true),
-    (3, 'c', '하남 교산 신도시', 'admin', 1, 1, 2, 3, 0, true, true),
-    (4, 'd', '인천 계양 신도시', 'admin', 1, 1, 2, 4, 0, true, true),
-    (5, 'e', '고양 창릉 신도시', 'admin', 1, 1, 2, 5, 0, true, true),
-    (6, 'f', '부천 대장 신도시', 'admin', 1, 1, 2, 6, 0, true, true),
-    (7, 'g', '과천 과천 지구', 'admin', 1, 1, 2, 7, 0, true, true),
-    (8, 'h', '안산 장상지구', 'admin', 1, 1, 2, 8, 0, true, true),
-    (9, 'i', '용인 구성역', 'admin', 1, 1, 2, 9, 0, true, true),
-    (10, 'j', '안산 신길2지구', 'admin', 1, 1, 2, 10, 0, true, true),
-    (11, 'k', '수원 당수2지구', 'admin', 1, 1, 2, 11, 0, true, true)
+    (1, 'a', '3기 신도시', 'admin', 1, 0, 1, 1, 10, null, 0, 3, true, true),
+    (2, 'b', '남양주 왕숙 신도시', 'admin', 1, 1, 2, 2, 0, ST_GeomFromText('POINT(127.149141 37.603969)', 4326), 3000, 3, true, true),
+    (3, 'c', '하남 교산 신도시', 'admin', 1, 1, 2, 3, 0, ST_GeomFromText('POINT(127.202964 37.522975)', 4326), 3000, 3, true, true),
+    (4, 'd', '인천 계양 신도시', 'admin', 1, 1, 2, 4, 0, ST_GeomFromText('POINT(126.733414 37.576821)', 4326), 3000, 3, true, true),
+    (5, 'e', '고양 창릉 신도시', 'admin', 1, 1, 2, 5, 0, ST_GeomFromText('POINT(126.895170 37.635050)', 4326), 3000, 3, true, true),
+    (6, 'f', '부천 대장 신도시', 'admin', 1, 1, 2, 6, 0, ST_GeomFromText('POINT(126.775942 37.539951)', 4326), 3000, 3, true, true),
+    (7, 'g', '과천 과천 지구', 'admin', 1, 1, 2, 7, 0, ST_GeomFromText('POINT(127.005651 37.449707)', 4326), 3000, 3, true, true),
+    (8, 'h', '안산 장상지구', 'admin', 1, 1, 2, 8, 0, ST_GeomFromText('POINT(126.826119 37.314428)', 4326), 3000, 3, true, true),
+    (9, 'i', '용인 구성역', 'admin', 1, 1, 2, 9, 0, ST_GeomFromText('POINT(127.105299 37.298936)', 4326), 3000, 3, true, true),
+    (10, 'j', '안산 신길2지구', 'admin', 1, 1, 2, 10, 0, ST_GeomFromText('POINT(126.767990 37.337669)', 4326), 3000, 3, true, true),
+    (11, 'k', '수원 당수2지구', 'admin', 1, 1, 2, 11, 0, ST_GeomFromText('POINT(126.935322 37.289428)', 4326), 3000, 3, true, true)
 ;
 
 -- 건축한계선

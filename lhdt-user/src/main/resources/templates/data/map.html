@@ -23,6 +23,9 @@
 			height: 100%;
 			background-color: #eee;
 		}
+		#baseMapToggle div.on {
+			background-color : red;
+		}
     </style>
 </head>
 <body>
@@ -113,6 +116,10 @@
 		<!-- S: MAP SETTING WRAP -->
 		<div th:replace="~{/fragments/map-setting :: #mapSettingWrap}"></div>
 		<!-- E: MAP SETTING WRAP -->
+		
+		<!-- S: BASE MAP TOGGLE -->
+		<div th:replace="~{/fragments/base-map :: #baseMapToggle}"></div>
+		<!-- E: BASE MAP TOGGLE -->
 
 		<div class="sliderWrap" id="saRange">
 			<label for="timeInput" class="hiddenTag">saRange</label>
@@ -195,6 +202,7 @@
 <script type="text/javascript" th:src="@{/js/{lang}/drawer/line-drawer.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/drawer/polygon-drawer.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/extrusion.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/base-map-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 
 <script type="text/javascript">
 
@@ -261,6 +269,12 @@
 		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.MOUSEMOVE, function(result) {
 			//console.info(result);
 		});
+		
+		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.SELECTEDGENERALOBJECT, function(result) {
+			console.info(result.selected._guid);
+			
+			console.info(magoManager.selectionManager.getSelectedGeneralArray());
+		});
 
 		//우측 상단 지도 컨트롤러, 당분간 map-controll.js 파일 삭제하지 말아주세요 ㅠㅠ
 		//MapControll(viewer);
@@ -314,6 +328,8 @@
 		
 		//나침반 시작
 		var compass = new Compass(viewer, document.getElementById('mapCtrlCompassOut'));
+		
+		var baseMapController = new BaseMapController(viewer);
 	}
 
 	// smart tiling data flyTo

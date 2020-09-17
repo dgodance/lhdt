@@ -71,6 +71,7 @@ class DataLibraryAPIControllerTests extends BaseControllerTest {
                                 fieldWithPath("dataLibraryConverterJobId").description("converter job 고유번호"),
                                 fieldWithPath("dataLibraryKey").description("data library 고유키(API용)"),
                                 fieldWithPath("dataLibraryName").description("data library명"),
+                                fieldWithPath("dataLibraryThumbnail").description("data library 썸네일"),
                                 fieldWithPath("dataLibraryPath").description("data library 경로"),
                                 fieldWithPath("dataType").description("데이터 타입(중복). 3ds,obj,dae,collada,ifc,las,citygml,indoorgml,etc"),
                                 fieldWithPath("userId").description("사용자명"),
@@ -117,6 +118,7 @@ class DataLibraryAPIControllerTests extends BaseControllerTest {
                 .dataLibraryKey("test")
                 .dataLibraryName("test")
                 .dataLibraryPath("/")
+                .dataLibraryThumbnail("/path/thumbnail.png")
                 .dataType("3ds")
                 .userId("admin")
                 .serviceType("정적")

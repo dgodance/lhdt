@@ -994,11 +994,17 @@ $(document).ready(function() {
 			$('#mapCtrlWrap').css('right', '340px');
 			$('#mapCtrlCompassOut').css('right', '340px');
 			$('.mago3d-overlayContainer-defaultControl').css('right', '340px');
+			$('#baseMapToggle').css({
+				right : '392px'
+			});
 		} else {
 			$('#mapSettingWrap').css('width', '0');
 			$('#mapCtrlWrap').css('right', '0');
 			$('#mapCtrlCompassOut').css('right', '0');
 			$('.mago3d-overlayContainer-defaultControl').css('right', '0');
+			$('#baseMapToggle').css({
+				right : '50px'
+			});
 		}
 	});
 	

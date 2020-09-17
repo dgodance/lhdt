@@ -162,9 +162,11 @@
     		SELECT NEXTVAL('data_library_seq')
   		</selectKey>
 		INSERT INTO data_library(
-			data_library_id, data_library_group_id, data_library_converter_job_id, data_library_key, data_library_name, data_library_path, data_type, user_id, status, description
+			data_library_id, data_library_group_id, data_library_converter_job_id, data_library_key, data_library_name, data_library_path, data_library_thumbnail,
+			data_type, user_id, status, description
 		) VALUES (
-			#{dataLibraryId}, #{dataLibraryGroupId}, #{dataLibraryConverterJobId}, #{dataLibraryKey}, #{dataLibraryName}, #{dataLibraryPath}, #{dataType}, #{userId}, #{status}, #{description}
+			#{dataLibraryId}, #{dataLibraryGroupId}, #{dataLibraryConverterJobId}, #{dataLibraryKey}, #{dataLibraryName}, #{dataLibraryPath}, #{dataLibraryThumbnail},
+			#{dataType}, #{userId}, #{status}, #{description}
 		)
 	</insert>
 	
@@ -184,6 +186,9 @@
 			</if>
 			<if test="dataLibraryPath != null and dataLibraryPath != ''">
 				data_library_path = #{dataLibraryPath},
+			</if>
+			<if test="dataLibraryThumbnail != null and dataLibraryThumbnail != ''">
+				data_library_thumbnail = #{dataLibraryThumbnail},
 			</if>
 			<if test="dataType != null and dataType != ''">
 			data_type = #{dataType},
