@@ -228,7 +228,7 @@ public  class CmmnServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements CmmnServic
 
 					//데이터 존재하면 업무키로  update
 					if(null != domain2) {
-						var obj = updateByBizKey(domain1);
+						DOMAIN obj = updateByBizKey(domain1);
 						domains.add(obj);
 					}
 				} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
