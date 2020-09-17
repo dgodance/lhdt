@@ -187,9 +187,9 @@
 			SELECT NEXTVAL('design_layer_building_seq')
 		</selectKey>
 		INSERT INTO design_layer_building (
-			design_layer_building_id, design_layer_id, design_layer_group_id, build_id, the_geom
+			design_layer_building_id, design_layer_id, design_layer_group_id, build_id, build_name, the_geom
 		) VALUES (
-			#{designLayerBuildingId}, #{designLayerId}, #{designLayerGroupId}, #{buildId}, st_transform(ST_GeomFromText(#{theGeom},#{coordinate}),4326)
+			#{designLayerBuildingId}, #{designLayerId}, #{designLayerGroupId}, #{buildId}, #{buildName}, st_transform(ST_GeomFromText(#{theGeom},#{coordinate}),4326)
 		)
 	</insert>
 
@@ -255,7 +255,8 @@
 
 	<update id="updateDesignLayerBuildingAttributes" parameterType="designLayerBuilding">
 		UPDATE design_layer_building
-		SET build_height = #{buildHeight},
+		SET build_name = #{buildName},
+			build_height = #{buildHeight},
 			build_floor = #{buildFloor},
 			build_area = #{buildArea},
 			build_complex = #{buildComplex},

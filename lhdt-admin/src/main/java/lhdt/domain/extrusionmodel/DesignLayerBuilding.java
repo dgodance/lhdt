@@ -21,6 +21,8 @@ public class DesignLayerBuilding {
     private Integer designLayerGroupId;
     // shape 파일 고유 번호
     private Long buildId;
+    // 빌딩명
+    private String buildName;
     // 빌딩높이
     private String buildHeight;
     // 빌딩층수
@@ -35,9 +37,9 @@ public class DesignLayerBuilding {
     private String properties;
 
     // 유닛 타입
-    private String buildingUnitType;
+    private String buildUnitType;
     // 유닛 타입이 사용된 개수
-    private String buildingUnitCount;
+    private Integer buildUnitCount;
 
     // wkt
     private String theGeom;
