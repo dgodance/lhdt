@@ -139,7 +139,7 @@ AnalsLandScapeDiff.prototype.renderDiffDropdown = function() {
                 // the.captureScreenProc(blob); //drawing
             })
         })
-    })
+    });
 }
 
 

@@ -36,10 +36,10 @@
 
 
 	<!-- Rectangular switch -->
-	<!-- <div>
+	<div style="margin-top:8px; margin-left:8px;">
 		<input type="checkbox" class="ds-toggle-land-updown">
 		전체 필지높이 조절		
-	</div> -->
+	</div>
 
 	<div class="ds-tool marT10" style="border: 1px solid #efefef;padding:5px;">
 		<h3 class="">도구</h3>
@@ -298,21 +298,27 @@
 				<tbody>
 					<tr>
 						<td>사업지구</td>
-						<td class="urban-group-name"></td>
+						<td class="fw-bold">과천지구</td>
+						<td>위치</td>
+						<td class="fw-bold">경기도 과천시</td>
+					</tr>
+					<tr>
+						<td>면적</td>
+						<td class="fw-bold text-right">1,673,257</td>
 						<td></td>
 						<td></td>
 					</tr>
 					<tr>
-						<td>전체 세대수</td>
-						<td class="text-right"></td>
-						<td></td>
-						<td></td>
+						<td>계획 세대수</td>
+						<td class="fw-bold text-right">7,162</td>
+						<td>변경 세대수</td>
+						<td class="household-co text-right"></td>
 					</tr>
 					<tr>
-						<td>ㅇㅇㅇ</td>
-						<td></td>
-						<td></td>
-						<td></td>
+						<td>계획 인구수</td>
+						<td class="fw-bold text-right">1,5732</td>
+						<td>변경인구수</td>
+						<td class="population-co text-right"></td>
 					</tr>
 				</tbody>
 			</table>
@@ -333,28 +339,34 @@
 					<tr>
 						<th>구분</th>
 						<th>기준</th>
-						<th>계획</th>
-						<th>현재</th>
+						<th>허용</th>
+						<th>변경</th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr>
 						<td>건폐율(%)</td>
-						<td class="stnd-building-coverage-ratio text-right"></td>
-						<td class="plan-building-coverage-ratio text-right"></td>
-						<td class="now-building-coverage-ratio text-right"></td>
+						<td class="building-coverage-ratio text-right"></td>
+						<td class="building-coverage-ratio text-right"></td>
+						<td class="building-coverage-ratio text-right"></td>
 					</tr>
 					<tr>
 						<td>용적률(%)</td>
-						<td class="stnd-floor-area-ratio text-right"></td>
-						<td class="plan-floor-area-ratio text-right"></td>
-						<td class="now-floor-area-ratio text-right"></td>
+						<td class="floor-area-ratio text-right"></td>
+						<td class="floor-area-ratio text-right"></td>
+						<td class="floor-area-ratio text-right"></td>
 					</tr>
 					<tr>
-						<td>최고층수(층)</td>
-						<td class="stnd-maximum-building-floors text-right"></td>
-						<td class="plan-maximum-building-floors text-right"></td>
-						<td class="now-maximum-building-floors text-right"></td>
+						<td>단지명</td>
+						<td class="lot-code text-left" colspan="3"></td>
+					</tr>
+					<tr>
+						<td>용도지구</td>
+						<td class="landuse-zoning text-left" colspan="3"></td>
+					</tr>
+					<tr>
+						<td>세대수</td>
+						<td class="household-co text-right" colspan="3"></td>
 					</tr>
 				</tbody>
 			</table>
@@ -381,8 +393,8 @@
 				<thead>
 					<tr>
 						<th>구분</th>
+						<th>기준</th>
 						<th>계획</th>
-						<th>현재</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -397,8 +409,23 @@
 					</tr>					
 					<tr class="house-hold-co">
 						<td>세대수(세대)</td>
-						<td class="text-right"></td>
-						<td></td>
+						<td class="text-right household-co"></td>
+						<td class="text-right household-co"></td>
+					</tr>					
+					<tr>
+						<td>연면적</td>
+						<td class="text-right total-floor-area"></td>
+						<td class="text-right total-floor-area"></td>
+					</tr>					
+					<tr>
+						<td>평형</td>
+						<td class="text-right unit-type"></td>
+						<td class="text-right "></td>
+					</tr>					
+					<tr>
+						<td>주동조합</td>
+						<td class="text-right union-type">2호</td>
+						<td class="text-right "></td>
 					</tr>					
 				</tbody>
 			</table>
