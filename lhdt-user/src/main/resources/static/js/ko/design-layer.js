@@ -66,8 +66,8 @@ DesignLayerObj.prototype.init = function(){
     this.getDesignLayers();
 
     //
-    let datas = this.getUrbanGroupsByParent(0);
-    this.renderUrbanGroup('#urban-group1', datas);
+    let depth1Datas = this.getUrbanGroupsByParent(0);
+    this.renderUrbanGroup('#urban-group1', depth1Datas);
 
     //
     console.log('DesignLayerObj', '<<.init');
@@ -105,7 +105,14 @@ DesignLayerObj.prototype.setEventHandler = function(){
      */
     Ppui.change('#urban-group1', function(){
         //
-        let datas = _this.getUrbanGroupsByParent(this.value);
+        let urbanGroupId = this.value;
+        if(Pp.isEmpty(urbanGroupId)){
+            _this.renderUrbanGroup('#urban-group2', []);
+            return;
+        }
+
+        //
+        let datas = _this.getUrbanGroupsByParent(urbanGroupId);
         //도시 그룹2 렌더링
         _this.renderUrbanGroup('#urban-group2', datas);
     });
@@ -1445,7 +1452,9 @@ DesignLayerObj.prototype.renderUrbanGroup = function(selector, datas){
 	let option = {
 		'tkey': 'urbanGroupName',	
 		'vkey': 'urbanGroupId',	
-		'append': false,	
+        'append': false,	
+        'headerText': '선택하세요',
+        'headerValue': ''
     };
     
     //
@@ -2068,13 +2077,25 @@ DesignLayerObj.prototype.showUrbanInfo = function(urbanGroupId){
     //calc 전체 평균 평형
     //show modeless
 
-    let source = $('#design-layer-modeless-template').html();
-    let template = Handlebars.compile(source);
-    let html = template({'data':{}});
+    //
+    if(Pp.isEmpty(urbanGroupId)){
+        $('div.design-layer-urban-wrapper').hide();
+        this.resizeModelessHeight(false, false, false);
+        return;
+    }
 
     //
-    $('body').append(html);
+    if(0 == $('div.design-layer-modeless-wrapper').length){
+        let source = $('#design-layer-modeless-template').html();
+        let template = Handlebars.compile(source);
+        let html = template({'data':{}});
+    
+        //
+        $('body').append(html);
 
+    }
+
+    //
     $('div.design-layer-modeless-wrapper').dialog({
         autoOpen: false,
         width: 500,
@@ -2082,10 +2103,16 @@ DesignLayerObj.prototype.showUrbanInfo = function(urbanGroupId){
         modal: false,
         resizable: false,
         title : '정보',
-    }).dialog('open');
+        buttons:{
+            '닫기':function(){
+                $(this).dialog('close')
+            }
+        }
+    });
 
     //
     $('div.design-layer-urban-wrapper').show();
+    this.resizeModelessHeight(true);
 };
 
 
@@ -2174,7 +2201,7 @@ DesignLayerObj.prototype.showLandInfo = function(browserEvent){
     }else{
         $wrapper.show();
     }
-    this.resizeModelessHeight();
+    this.resizeModelessHeight(true, !isEmpty);
 
     //
     if(isEmpty){
@@ -2220,9 +2247,7 @@ DesignLayerObj.prototype.showBuildingInfo = function(extrusionBuilding){
                     let h =  parseInt($wrapper.find('select.floor-co').val()) * HEIGHT_PER_FLOOR;
                     _this.selectedBuilding.setHeight(h);
 
-                    //TODO 용적률 다시 계산
-                    //TODO 세대수 다시 계산
-                    //TODO 필지 > 용적률 다시 계산
+                    _this.buildingHeightChanged(_this.selectedLand, extrusionBuilding);
                 });
     
             //UP 이벤트 등록
@@ -2264,7 +2289,7 @@ DesignLayerObj.prototype.showBuildingInfo = function(extrusionBuilding){
     }else{
         $wrapper.show();
     }
-    this.resizeModelessHeight();
+    this.resizeModelessHeight(true, true, Pp.isNotNull(extrusionBuilding));
     
 
 
@@ -2294,49 +2319,132 @@ DesignLayerObj.prototype.showBuildingInfo = function(extrusionBuilding){
  * @param {number} floorCo 층수
  */
 DesignLayerObj.prototype.setBuldingHeightByTheGeom = function(theGeom, floorCo){
-    let _this = this;
-
-    /**
-     * 특정 영역내의 모든 건물 용적률 계산&표시
-     * @param {Array<LonLat>} lonLats 
-     */
-    let _renderFloorAreaRatio = function(lonLats){
-        //영역내 건물 목록
-        let buildings = _this.getBuildingsByPolygon(lonLats);
-        //영역의 면적
-        let landArea = Ppmap.calcArea(lonLats, Ppmap.PointType.LONLAT);
-        //영역의 용적률
-        let floorAreaRatio = _this.calcFloorAreaRatioByBuildings(landArea, buildings);
-
-        //표시
-        $('div.design-layer-land-wrapper td.now-floor-area-ratio').text(floorAreaRatio);
-    };
-
-    //
-    let _renderMaximumFloorCo = function(lonLats){
-        //영역내 건물 목록
-        let buildings = _this.getBuildingsByPolygon(lonLats);
-        //최고 층수
-        let max = _this.getMaximumFloorCo(buildings);
-
-        //표시
-        $('div.design-layer-land-wrapper td.now-maximum-building-floors').text(max);
-    };
-
 
     //
     let lonLats = Ppmap.Convert.multiPolygonToLonLats(theGeom);
 
-    //
+    //건물들 높이 변경
     this.setBuldingHeightByLonLats(lonLats, floorCo);
 
-    //현재 용적률 계산&표시
-    _renderFloorAreaRatio(lonLats);
-    //현재 최고층수 계산&표시
-    _renderMaximumFloorCo(lonLats);
+    //
+    this.buildingHeightChanged(this.selectedLand, null);
 };
 
 
+/**
+ * 빌딩 높이 변경 후 호출됨
+ * @param {object} selectedLand
+ * @param {Mago3D.ExtrusionBuilding|null} selectedBuilding
+ */
+DesignLayerObj.prototype.buildingHeightChanged = function(selectedLand, selectedBuilding){
+    //필지 > 현재 건폐율 계산&표시
+    let buildingCoverageRatio = this.calcBuildingCoverageRatioByLand(selectedLand);
+    $('div.design-layer-land-wrapper td.now-building-coverage-ratio').text(buildingCoverageRatio);
+    
+    //필지 > 현재 용적률 계산&표시
+    let floorAreaRatio = this.calcFloorAreaRatioByLand(selectedLand);
+    $('div.design-layer-land-wrapper td.now-floor-area-ratio').text(floorAreaRatio);
+    
+    //필지 > 현재 최고층수 계산&표시
+    let maxh = this.getMaximumFloorCoByLand(selectedLand);
+    $('div.design-layer-land-wrapper td.now-maximum-building-floors').text(maxh);
+    
+    //
+    if(null == selectedBuilding){
+        return;
+    }
+
+    console.log('TODO 건물 세대수 계산&표시. 가이아가 유닛정보 제공해 주어야 함');
+};
+
+
+
+/**
+ * 필지의 건폐율 계산
+ * @param {object} designLayerLand 필지
+ */
+DesignLayerObj.prototype.calcBuildingCoverageRatioByLand = function(designLayerLand){
+    //필지의 영역
+    let lonLats = Ppmap.Convert.theGeomStringToLonLats(designLayerLand.theGeom);
+    
+    //
+    return this.calcBuildingCoverageRatioByLonLats(lonLats);
+};
+
+
+/**
+ * 필지의 건폐율 계산
+ * @param {Array<LonLat>} lonLats 필지의 영역
+ */
+DesignLayerObj.prototype.calcBuildingCoverageRatioByLonLats = function(lonLats){
+    //필지의 면적
+    let landArea = Ppmap.calcArea(lonLats, Ppmap.PointType.LONLAT);
+    //필지내 건물 목록
+    let buildings = this.getBuildingsByLonLats(lonLats);
+
+    //
+    return this.calcBuildingCoverageRatioByBuildings(landArea, buildings);
+};
+
+
+/**
+ * 필지의 건폐율 계산. 견폐율=sum(건물바닥면적) / 필지면적 * 100
+ * @param {Number} 필지 면적
+ * @param {Array<Mago3D.ExtrusionBuilding>} buildings 필지내 건물 목록
+ */
+DesignLayerObj.prototype.calcBuildingCoverageRatioByBuildings = function(landArea, buildings){
+    let tot=0.0;
+
+    for(let i=0; i<buildings.length; i++){
+        let d = buildings[i];
+
+        //
+        console.log('TODO 건물 면적 필요(가이아에서 제공 예정)');
+        tot += Pp.nvl(d['buildingArea'], 0.0);
+    }
+
+    //
+    return tot / landArea * 100;
+};
+
+/**
+ * 필지의 용적률 계산
+ * @param {object} designLayerLand 필지
+ */
+DesignLayerObj.prototype.calcFloorAreaRatioByLand = function(designLayerLand){
+    //필지의 영역
+    let lonLats = Ppmap.Convert.theGeomStringToLonLats(designLayerLand.theGeom);
+    //필지의 면적
+    let landArea = Ppmap.calcArea(lonLats, Ppmap.PointType.LONLAT);
+    //필지내 건물 목록
+    let buildings = this.getBuildingsByLonLats(lonLats);
+    
+    //필지내 건물들의 용적률
+    return this.calcFloorAreaRatioByBuildings(landArea, buildings);
+};
+
+
+
+/**
+ * 필지내 건물 목록에서 최고 층수 추출
+ * @param {object} desingLayerLand (선택된) 필지
+ * @requires {Number}
+ */
+DesignLayerObj.prototype.getMaximumFloorCoByLand = function(designLayerLand){
+    //필지의 영역
+    let lonLats = Ppmap.Convert.theGeomStringToLonLats(designLayerLand.theGeom);
+    //필지내 건물 목록
+    let buildings = this.getBuildingsByLonLats(lonLats);
+
+    //
+    return this.getMaximumFloorCo(buildings);
+};
+
+/**
+ * 건물 목록에서 최고 층수 추출
+ * @param {Array<Mago3D.ExtrusionBuilding>} buildings 건물 목록
+ * @requires {Number}
+ */
 DesignLayerObj.prototype.getMaximumFloorCo = function(buildings){
     if(Pp.isEmpty(buildings)){
         return 0;
@@ -2362,7 +2470,7 @@ DesignLayerObj.prototype.getMaximumFloorCo = function(buildings){
  * @param {Array<LonLat>} lonLats 좌표 목록
  * @returns {Array<ExtrusionBuilding>}
  */
-DesignLayerObj.prototype.getBuildingsByPolygon = function(lonLats){
+DesignLayerObj.prototype.getBuildingsByLonLats = function(lonLats){
     //
     let arr = [];
     for(let i=0; i<lonLats.length; i++){
@@ -2386,7 +2494,7 @@ DesignLayerObj.prototype.getBuildingsByPolygon = function(lonLats){
 DesignLayerObj.prototype.setBuldingHeightByLonLats = function(lonLats, floorCo){
     
     //
-	let buildings = this.getBuildingsByPolygon(lonLats);
+	let buildings = this.getBuildingsByLonLats(lonLats);
 
     //
     this.setBuldingHeightByBuildings(buildings, floorCo);
@@ -2446,27 +2554,28 @@ DesignLayerObj.prototype.calcFloorAreaRatioByBuildings = function(landArea, buil
 
 /**
  * modeless창 height 자동 변경
+ * @param {Boolean} urbanShow
+ * @param {Boolean} landShow
+ * @param {Boolean} buildingShow
  */
-DesignLayerObj.prototype.resizeModelessHeight = function(){
-    let h = 250;
-    //
-    // if($('div.design-layer-urban-wrapper').is(':visible')){
-    //     console.log('on 지역');
-    //     h += 250;
-    // }
-    //
-    if($('div.design-layer-land-wrapper').is(':visible')){
-        h += 200;
+DesignLayerObj.prototype.resizeModelessHeight = function(urbanShow, landShow, buildingShow){
+    let h = 0;
+    
+    if(urbanShow){
+        h += 270;
+    }
+    
+    if(landShow){
+        h += 220;
     }
     //
-    if($('div.design-layer-building-wrapper').is(':visible')){
-        h += 200;
+    if(buildingShow){
+        h += 150;
     }
 
     //
     $('div.design-layer-modeless-wrapper').dialog('option', {'height':h})
-        .dialog('open');
-
+        .dialog((0==h?'close':'open'));
     
 };
 
