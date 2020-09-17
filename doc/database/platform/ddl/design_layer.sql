@@ -2,6 +2,7 @@ drop table if exists design_layer_group cascade;
 drop table if exists design_layer cascade;
 drop table if exists design_layer_land cascade;
 drop table if exists design_layer_building cascade;
+drop table if exists design_layer_building_unit cascade;
 drop table if exists design_layer_file_info cascade;
 drop table if exists design_layer_attribute cascade;
 
