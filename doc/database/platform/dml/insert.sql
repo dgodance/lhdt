@@ -85,7 +85,7 @@ values
     (1001, '1', '0', '지구설계', 'CITYPLAN', 1001, 0, 1, 1, '/cityplan', null, 'cityPlanMenu', 'cityPlanContent', 'cityplan', 'Y', 'Y', 'Y'),
     (1002, '1', '0', '경관분석', 'LANDSCAPE', 1002, 0, 1, 2, '/landscape', null, 'landScapePlanMenu', 'landScapeContent', 'landscape', 'Y', 'Y', 'Y'),
     (1003, '1', '0', '일조분석', 'SUNSHINE', 1003, 0, 1, 3, '/sunshine', null, 'sunShinePlanMenu', 'sunShineContent', 'sunshine', 'Y', 'Y', 'Y'),
-    (1004, '1', '0', '모델러', 'MODELER', 1004, 0, 1, 4, '/data-library', null, 'dataLibraryMenu', 'dataLibraryContent', 'modeler', 'Y', 'Y', 'Y'),
+    (1004, '1', '0', '모델러', 'MODELER', 1004, 0, 1, 4, '/data-library', null, 'dataLibraryMenu', 'dataLibraryContent', 'designlayer', 'Y', 'Y', 'Y'),
 
     (1101, '1', '0', '데이터', 'DATA', 1101, 0, 1, 5, '/data/map', null, 'dataMenu', 'dataContent', 'data', 'Y', 'Y', 'Y'),
     (1102, '1', '0', '변환', 'CONVERTER', 1102, 0, 1, 6, '/upload-data/list', null, 'converterMenu', 'converterContent', 'converter', 'Y', 'Y', 'Y'),
