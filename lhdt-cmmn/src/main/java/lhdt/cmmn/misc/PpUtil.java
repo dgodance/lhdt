@@ -183,11 +183,7 @@ public class PpUtil {
 	 * @param obj 오브젝트
 	 * @return 널이면 true
 	 */
-<<<<<<< HEAD
-	public static boolean isNull(Object obj){isNotEmpty(obj)
-=======
 	public static boolean isNull(Object obj){
->>>>>>> daumsoft
 		return (null == obj);
 	}
 	
