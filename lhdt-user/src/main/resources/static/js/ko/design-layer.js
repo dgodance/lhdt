@@ -84,6 +84,8 @@ DesignLayerObj.prototype.setEventHandler = function(){
     let _this = this;
 
 
+
+
     /**
      * 건물 높이 change
      */
