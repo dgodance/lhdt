@@ -12,9 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import dev.hyunlab.core.PpTransferObject;
 import lhdt.svc.common.SvcController;
-import lhdt.svc.common.SvcUtils;
 import lhdt.svc.hello.domain.Child;
 import lhdt.svc.hello.domain.Hello;
 import lhdt.svc.hello.domain.SubType0;
@@ -85,8 +83,8 @@ public class HelloRestController extends SvcController {
 		log.debug("bizHello:{}", bizHello);
 		
 		//
-		PpTransferObject trans = SvcUtils.doGet("http://www.daumsoft.com");
-		log.debug("{}", trans.getResultMessage());
+//		PpTransferObject trans = SvcUtils.doGet("http://www.daumsoft.com");
+//		log.debug("{}", trans.getResultMessage());
 		
 		return super.res(bizHello);
 		

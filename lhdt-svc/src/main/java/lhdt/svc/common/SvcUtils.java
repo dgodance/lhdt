@@ -9,7 +9,6 @@ import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Version;
 import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Date;
@@ -19,8 +18,6 @@ import java.util.Map;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 
-import dev.hyunlab.core.PpTransferObject;
-import dev.hyunlab.core.util.PpDateUtil;
 import lhdt.cmmn.misc.CmmnUtils;
 
 /**
@@ -63,9 +60,9 @@ public class SvcUtils extends CmmnUtils{
 	 * @return
 	 * @throws Exception
 	 */
-	public static PpTransferObject doGet(String url) throws Exception {
-		return doGet(url, null, null);
-	}
+//	public static PpTransferObject doGet(String url) throws Exception {
+//		return doGet(url, null, null);
+//	}
 	
 	
 	
@@ -76,9 +73,9 @@ public class SvcUtils extends CmmnUtils{
 	 * @return
 	 * @throws Exception
 	 */
-	public static PpTransferObject doGet(String url, Map<String,Object> param) throws Exception {
-		return doGet(url, param, null);
-	}
+//	public static PpTransferObject doGet(String url, Map<String,Object> param) throws Exception {
+//		return doGet(url, param, null);
+//	}
 	
 	/**
 	 * get 방식으로 요청
@@ -90,9 +87,9 @@ public class SvcUtils extends CmmnUtils{
 	 * @history
 	 * 	1002 add requestProperty
 	 */
-	public static PpTransferObject doGet(String url, Map<String,Object> param, Map<String, Object> requestProperty) throws Exception {
-		return doGetOrPost(HttpMethod.GET, url, param, requestProperty);
-	}
+//	public static PpTransferObject doGet(String url, Map<String,Object> param, Map<String, Object> requestProperty) throws Exception {
+//		return doGetOrPost(HttpMethod.GET, url, param, requestProperty);
+//	}
 	
 
 	/**
@@ -101,9 +98,9 @@ public class SvcUtils extends CmmnUtils{
 	 * @return
 	 * @throws Exception
 	 */
-	public static PpTransferObject doPost(String url) throws Exception {
-		return doPost(url, null, null);
-	}
+//	public static PpTransferObject doPost(String url) throws Exception {
+//		return doPost(url, null, null);
+//	}
 	
 	
 	/**
@@ -113,9 +110,9 @@ public class SvcUtils extends CmmnUtils{
 	 * @return
 	 * @throws Exception
 	 */
-	public static PpTransferObject doPost(String url, Map<String,Object> param) throws Exception {
-		return doPost(url, param, null);
-	}
+//	public static PpTransferObject doPost(String url, Map<String,Object> param) throws Exception {
+//		return doPost(url, param, null);
+//	}
 	
 	/**
 	 * post방식으로 요청
@@ -125,9 +122,9 @@ public class SvcUtils extends CmmnUtils{
 	 * @return
 	 * @throws Exception
 	 */
-	public static PpTransferObject doPost(String url, Map<String,Object> param, Map<String, Object> requestProperty) throws Exception {
-		return doGetOrPost(HttpMethod.POST, url, param, requestProperty);
-	}
+//	public static PpTransferObject doPost(String url, Map<String,Object> param, Map<String, Object> requestProperty) throws Exception {
+//		return doGetOrPost(HttpMethod.POST, url, param, requestProperty);
+//	}
 	/**
 	 * unique한  long값 생성 & 리턴
 	 * @return
@@ -200,23 +197,23 @@ public class SvcUtils extends CmmnUtils{
 	 * @return PpTransferObject	resultCode=상태코드, resultMessage=응답문자열
 	 * @throws Exception
 	 */
-	private static PpTransferObject doGetOrPost(HttpMethod httpMethod, String url, Map<String,Object> param, Map<String, Object> requestProperty) throws Exception {
-		//
-		HttpClient client = createHttpClient();
-		
-		//
-		HttpRequest request = createHttpRequest(httpMethod, url, param, requestProperty);
-		
-		//
-		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-		
-		PpTransferObject trans = new PpTransferObject();
-		trans.setResultCode(""+response.statusCode());
-		trans.setResultMessage(response.body());
-		
-		//
-		return trans;
-	}
+//	private static PpTransferObject doGetOrPost(HttpMethod httpMethod, String url, Map<String,Object> param, Map<String, Object> requestProperty) throws Exception {
+//		//
+//		HttpClient client = createHttpClient();
+//		
+//		//
+//		HttpRequest request = createHttpRequest(httpMethod, url, param, requestProperty);
+//		
+//		//
+//		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+//		
+//		PpTransferObject trans = new PpTransferObject();
+//		trans.setResultCode(""+response.statusCode());
+//		trans.setResultMessage(response.body());
+//		
+//		//
+//		return trans;
+//	}
 	
 	
 	/**

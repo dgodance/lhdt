@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import lhdt.cmmn.misc.CmmnUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -51,9 +50,9 @@ public class CmmnMiscInterceptor extends HandlerInterceptorAdapter {
 		Date endDt = new Date();
 		
 		//
-		log.debug("<< DURATION:{}ms	mem(MB):{}/{}"
-				, (endDt.getTime() - beginDt.getTime())
-				, CmmnUtils.getFreeMemory(), CmmnUtils.getTotalMemory());
+//		log.debug("<< DURATION:{}ms	mem(MB):{}/{}"
+//				, (endDt.getTime() - beginDt.getTime())
+//				, CmmnUtils.getFreeMemory(), CmmnUtils.getTotalMemory());
 		
 	}
 

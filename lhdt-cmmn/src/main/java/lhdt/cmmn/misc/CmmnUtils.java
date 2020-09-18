@@ -11,13 +11,16 @@ import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Version;
 import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
@@ -30,10 +33,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-
-import dev.hyunlab.core.PpTransferObject;
-import dev.hyunlab.core.util.PpDateUtil;
-import dev.hyunlab.core.util.PpUtil;
 
 /**
  * 이것저것 유틸리티
@@ -69,77 +68,7 @@ public class CmmnUtils extends PpUtil{
 		return map;
 	}
 	
-	/**
-	 * @see lhdt.anals.common.AnalsUtils.doGet(String, Map<String, Object>, Map<String, Object>)
-	 * @param url
-	 * @return
-	 * @throws Exception
-	 */
-	public static PpTransferObject doGet(String url) throws Exception {
-		return doGet(url, null, null);
-	}
 	
-	
-	
-	/**
-	 * @see lhdt.anals.common.AnalsUtils.doGet(String, Map<String, Object>, Map<String, Object>)
-	 * @param url
-	 * @param param
-	 * @return
-	 * @throws Exception
-	 */
-	public static PpTransferObject doGet(String url, Map<String,Object> param) throws Exception {
-		return doGet(url, param, null);
-	}
-	
-	/**
-	 * get 방식으로 요청
-	 * @param url
-	 * @param param key/value
-	 * @param requestProperty 헤더 key/value
-	 * @return 리턴받은 값
-	 * @throws Exception 
-	 * @history
-	 * 	1002 add requestProperty
-	 */
-	public static PpTransferObject doGet(String url, Map<String,Object> param, Map<String, Object> requestProperty) throws Exception {
-		return doGetOrPost(HttpMethod.GET, url, param, requestProperty);
-	}
-	
-
-	/**
-	 * @see lhdt.anals.common.AnalsUtils.doPost(String, Map<String, Object>, Map<String, Object>)
-	 * @param url
-	 * @return
-	 * @throws Exception
-	 */
-	public static PpTransferObject doPost(String url) throws Exception {
-		return doPost(url, null, null);
-	}
-	
-	
-	/**
-	 * @see lhdt.anals.common.AnalsUtils.doPost(String, Map<String, Object>, Map<String, Object>)
-	 * @param url
-	 * @param param
-	 * @return
-	 * @throws Exception
-	 */
-	public static PpTransferObject doPost(String url, Map<String,Object> param) throws Exception {
-		return doPost(url, param, null);
-	}
-	
-	/**
-	 * post방식으로 요청
-	 * @param url
-	 * @param param
-	 * @param requestProperty
-	 * @return
-	 * @throws Exception
-	 */
-	public static PpTransferObject doPost(String url, Map<String,Object> param, Map<String, Object> requestProperty) throws Exception {
-		return doGetOrPost(HttpMethod.POST, url, param, requestProperty);
-	}
 	/**
 	 * unique한  long값 생성 & 리턴
 	 * @return
@@ -337,33 +266,6 @@ public class CmmnUtils extends PpUtil{
 	
 	
 	
-	/**
-	 * 실제로  get/post 요청/응답하는 메소드
-	 * @param httpMethod
-	 * @param url
-	 * @param param
-	 * @param requestProperty
-	 * @return PpTransferObject	resultCode=상태코드, resultMessage=응답문자열
-	 * @throws Exception
-	 */
-	private static PpTransferObject doGetOrPost(HttpMethod httpMethod, String url, Map<String,Object> param, Map<String, Object> requestProperty) throws Exception {
-		//
-		HttpClient client = createHttpClient();
-		
-		//
-		HttpRequest request = createHttpRequest(httpMethod, url, param, requestProperty);
-		
-		//
-		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-		
-		PpTransferObject trans = new PpTransferObject();
-		trans.setResultCode(""+response.statusCode());
-		trans.setResultMessage(response.body());
-		
-		//
-		return trans;
-	}
-	
 	
 	/**
 	 * url뒤에 파라미터 추가하여 full url생성
@@ -453,4 +355,67 @@ public class CmmnUtils extends PpUtil{
 
 		return vals;
 	}
+	
+
+	/**
+	 * 널여부 검사
+	 * @param obj 오브젝트
+	 * @return 널이면 true
+	 */
+	public static boolean isNull(Object obj){
+		return (null == obj);
+	}
+
+
+	/**
+	 * 공백 여부
+	 * @param obj 오브젝트. String|Collection|Map|Set|List|배열
+	 * @return 공백이면 true
+	 * @since
+	 * 	20180322	배열, 리스트 처리 추가
+	 * 	20200221	Map관련 추가
+	 */
+	@SuppressWarnings("rawtypes")
+	public static boolean isEmpty(Object obj){
+		if(isNull(obj)){
+			return true;
+		}
+		
+		//문자열
+		if(String.class == obj.getClass() ) {
+			return (0 == obj.toString().trim().length());
+		}
+		
+		//
+		if(obj instanceof Collection) {
+			return (0 ==((Collection)obj).size());
+		}
+		
+		//
+		if(obj instanceof Map) {
+			return (0 == ((Map)obj).size());
+		}
+		
+		//
+		if(Set.class == obj.getClass()) {
+			return (0 == ((Set)obj).size());
+		}
+		
+		//리스트
+		if(List.class == obj.getClass() || (ArrayList.class == obj.getClass())) {
+			return (0 == ((List)obj).size());
+		}
+		
+		
+		//배열
+//		if(obj.getClass().toString().contains("[L")) {
+//			return (0 == Array.getLength(obj));
+//		}
+		
+		//
+		return (0 == obj.toString().length());
+	}
+
+	
+
 }

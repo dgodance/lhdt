@@ -4,11 +4,9 @@
 package lhdt.svc.lhdt.userinfo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import dev.hyunlab.core.PpMap;
 import lhdt.svc.lhdt.userinfo.service.UserInfoService;
 
 /**
@@ -23,8 +21,8 @@ public class UserInfoController {
 	private UserInfoService service;
 	
 	
-	@GetMapping("/")
-	public PpMap list() {
-		return new PpMap().add("datas", service.findAll()).add("totcnt", service.getTotcnt());
-	}
+//	@GetMapping("/")
+//	public PpMap list() {
+//		return new PpMap().add("datas", service.findAll()).add("totcnt", service.getTotcnt());
+//	}
 }

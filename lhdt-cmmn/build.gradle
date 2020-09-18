@@ -6,9 +6,14 @@ plugins {
 
 group = 'com.lhdt'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '11'
+//sourceCompatibility = '11'
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+compileJava {
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+}
 
 bootJar {
     enabled = false
@@ -51,11 +56,16 @@ dependencies {
     implementation 'org.apache.httpcomponents:httpmime:4.5.12'
 
 	//
-	compile(files('libs/pp-core-1.8.2004.jar'))
-	compile(files('libs/pp-liteweb-1.8.2004.jar'))
+	//compile fileTree(dir:'libs', include:['*.jar'])
 }
 
 test {
 	useJUnitPlatform()
 	ignoreFailures = true
+}
+
+task listJars  {
+	doLast{
+		configurations.compile.each { File file -> println file.name }
+	}
 }

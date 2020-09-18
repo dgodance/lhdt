@@ -3,8 +3,6 @@
  */
 package lhdt.cmmn.misc;
 
-import dev.hyunlab.core.PpConst;
-
 /**
  * 공통 상수
  * @author gravity@daumsoft.com

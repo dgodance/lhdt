@@ -17,11 +17,9 @@ import java.util.Optional;
 
 import javax.persistence.Column;
 import javax.persistence.EntityManager;
-import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -32,12 +30,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import lombok.Builder;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import lhdt.cmmn.domain.CmmnDomain;
+import lombok.Builder;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 모든 service impl 의 부모

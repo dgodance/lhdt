@@ -2,7 +2,6 @@ package lhdt.cmmn.domain;
 
 import javax.persistence.MappedSuperclass;
 
-import dev.hyunlab.core.vo.PpVO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,6 +15,6 @@ import lombok.Setter;
 @MappedSuperclass
 @Getter
 @Setter
-public abstract class LhdtDomain extends PpVO {
+public abstract class LhdtDomain  {
 
 }
