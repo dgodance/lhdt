@@ -23,6 +23,8 @@ public class CPCsvReportParserServiceImpl implements CPReportProc {
                     throw new NotSupportCsvFileException(fullPath, values.toString(), values.length);
                 records.add(Arrays.asList(values));
             }
+        }catch(Exception e){
+            //TODO
         }
         return records;
     }
