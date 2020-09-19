@@ -213,6 +213,7 @@
 <script type="text/javascript" th:src="@{/js/{lang}/extrusion.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/base-map-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/terrain-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/fake.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 
 <script type="text/javascript">
 
@@ -367,6 +368,14 @@
             headers: {"X-Requested-With": "XMLHttpRequest"},
             dataType: "json",
             success: function(json){
+            	/* var children = json.children;
+            	for(var i in children) {
+					var gara = gara_masterplan[children[i].data_key];
+					children[i].longitude = gara.longitude;
+					children[i].latitude = gara.latitude;
+					children[i].mapping_type = 'boundingboxcenter';
+            	} */
+            	console.info(json);
                 f4dController.addF4dGroup(json);
             },
             error:function(request,status,error){
@@ -379,10 +388,15 @@
         	var geoLocData = model.getCurrentGeoLocationData();
         	var geoCoord = geoLocData.geographicCoord;
         	
-        	var promise = Cesium.sampleTerrain(viewer.terrainProvider, 17, [Cesium.Cartographic.fromDegrees(geoCoord.longitude, geoCoord.latitude)]);
+        	model.setTerrainHeight(viewer.scene.globe.getHeight(Cesium.Cartographic.fromDegrees(geoCoord.longitude, geoCoord.latitude)));
+        	
+        	/* var promise = Cesium.sampleTerrain(viewer.terrainProvider, 17, [Cesium.Cartographic.fromDegrees(geoCoord.longitude, geoCoord.latitude)]);
         	promise.then(function(t){
         		model.setTerrainHeight(t[0].height);
-        	});
+        		
+        		console.info(t[0].height);
+        		console.info(viewer.scene.globe.getHeight(Cesium.Cartographic.fromDegrees(geoCoord.longitude, geoCoord.latitude)))
+        	}); */
         });
 	}
 
