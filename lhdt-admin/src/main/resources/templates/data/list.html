@@ -138,7 +138,7 @@
 												<label class="hiddenTag">선택 체크박스</label>
 												<input type="checkbox" th:id="|dataId_${dataInfo.dataId}|" name="dataId" value="${dataInfo.dataId}" />
 											</td>
-											<td class="col-number" th:text="${dataInfoStat.count + ((pagination.pageNo-1)*10)}"></td>
+											<td class="col-number" th:text="${pagination.rowNumber - dataInfoStat.index}"></td>
 											<td class="col-name ellipsis" style="max-width:200px;">
 												<a href="#" class="view-group-detail" th:text="${dataInfo.dataGroupName}" th:onclick="detailDataGroup([[${dataInfo.dataGroupId }]]); return false;"></a>
 											</td>
@@ -165,19 +165,20 @@
 											</td>
 
 											<td class="col-functions" >
-												<a href="#" th:if="${#bools.isTrue(dataInfo.attributeExist)}" th:text="|보기  |" th:onclick="detailDataAttribute([[${dataInfo.dataId}]], [[${dataInfo.dataName}]]); return false;"></a>
-												<a href="#" th:text="#{modified}" th:onclick="uploadDataAttribute([[${dataInfo.dataId}]], [[${dataInfo.dataName}]]); return false;">
+												<a href="#" th:if="${#bools.isTrue(dataInfo.attributeExist)}" th:text="|보기  |"
+												   th:onclick="detailDataAttribute([[${dataInfo.dataId}]], [[${dataInfo.dataName}]]); return false;"></a>
+												<a href="#" th:text="#{modified}" th:onclick="uploadDataAttribute([[${dataInfo.dataId}]], [[${dataInfo.dataName}]]); return false;"></a>
 											</td>
 											<td class="col-functions">
-													<a href="#" th:if="${#bools.isTrue(dataInfo.objectAttributeExist)}" th:text="보기" th:onclick="detailDataObjectAttribute([[${dataInfo.dataId}]], [[${dataInfo.dataName}]]); return false;"></a>
-													<a href="#" th:text="#{modified}" th:onclick="uploadDataObjectAttribute([[${dataInfo.dataId}]], [[${dataInfo.dataName}]]); return false;"></a>
+												<a href="#" th:if="${#bools.isTrue(dataInfo.objectAttributeExist)}" th:text="보기"
+												   th:onclick="detailDataObjectAttribute([[${dataInfo.dataId}]], [[${dataInfo.dataName}]]); return false;"></a>
+												<a href="#" th:text="#{modified}" th:onclick="uploadDataObjectAttribute([[${dataInfo.dataId}]], [[${dataInfo.dataName}]]); return false;"></a>
 											</td>
-
 											<td class="col-functions">
 												<a th:href="@{/data/delete(dataId=${dataInfo.dataId})}" class="image-button button-delete" th:value="#{delete}" onclick="return deleteWarning();"></a>
 											</td>
 											<td class="col-type">
-												<th:block th:text="${#temporals.format(dataInfo.insertDate,'yyyy-MM-dd HH:mm')}"></th:block>
+												<th:block th:text="${#temporals.format(dataInfo.insertDate, 'yyyy-MM-dd HH:mm')}"></th:block>
 											</td>
 										</tr>
 									</tbody>

@@ -132,7 +132,7 @@
 </th:block>
 <th:block th:unless="${converterJobList.empty}" th:each="converterJob: ${converterJobList}">
                         <tr>
-                            <td class="col-number" th:text="${converterJobStat.count + ((pagination.pageNo-1)*10)}"></td>
+                            <td class="col-number" th:text="${pagination.rowNumber - converterJobStat.index}"></td>
 
                             <td class="col-type">
                                 <th:block th:if="${#strings.equals(converterJob.converterTemplate, 'basic')}" th:text="#{converter.template.basic}"></th:block>

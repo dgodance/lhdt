@@ -196,9 +196,9 @@
 											</th:block>
 											<th:block th:if="${#bools.isFalse(dataLibraryUploadFile.converterTarget)}" style="list-style: none; margin-bottom: 20px;">
 												<li th:if="${#strings.equals(dataLibraryUploadFile.depth, '1')}" style="padding-left: 0px; height: 25px;" th:text="|[ ${dataLibraryUploadFile.fileType } ] ${dataLibraryUploadFile.fileName }(${dataLibraryUploadFile.viewFileSizeUnitKB})KB|"></li>
-												<li th:if="${#strings.equals(dataLibraryUploadFile.depth, '1')}" style="padding-left: 50px; height: 25px;" th:text="|[ ${dataLibraryUploadFile.fileType } ] ${dataLibraryUploadFile.fileName }(${dataLibraryUploadFile.viewFileSizeUnitKB})KB|"></li>
-												<li th:if="${#strings.equals(dataLibraryUploadFile.depth, '1')}" style="padding-left: 100px; height: 25px;" th:text="|[ ${dataLibraryUploadFile.fileType } ] ${dataLibraryUploadFile.fileName }(${dataLibraryUploadFile.viewFileSizeUnitKB})KB|"></li>
-												<li th:if="${#strings.equals(dataLibraryUploadFile.depth, '1')}" style="padding-left: 150px; height: 25px;" th:text="|[ ${dataLibraryUploadFile.fileType } ] ${dataLibraryUploadFile.fileName }(${dataLibraryUploadFile.viewFileSizeUnitKB})KB|"></li>
+												<li th:if="${#strings.equals(dataLibraryUploadFile.depth, '2')}" style="padding-left: 50px; height: 25px;" th:text="|[ ${dataLibraryUploadFile.fileType } ] ${dataLibraryUploadFile.fileName }(${dataLibraryUploadFile.viewFileSizeUnitKB})KB|"></li>
+												<li th:if="${#strings.equals(dataLibraryUploadFile.depth, '3')}" style="padding-left: 100px; height: 25px;" th:text="|[ ${dataLibraryUploadFile.fileType } ] ${dataLibraryUploadFile.fileName }(${dataLibraryUploadFile.viewFileSizeUnitKB})KB|"></li>
+												<li th:if="${#strings.equals(dataLibraryUploadFile.depth, '4')}" style="padding-left: 150px; height: 25px;" th:text="|[ ${dataLibraryUploadFile.fileType } ] ${dataLibraryUploadFile.fileName }(${dataLibraryUploadFile.viewFileSizeUnitKB})KB|"></li>
 											</th:block>
 										</th:block>
 									</ul>
@@ -208,7 +208,7 @@
 					</form>
 				</div>
 				<!-- 상위 그룹 선택 다이얼 로그 -->
-				<div th:replace="~{/data-library-group/parent-data-library-group-dialog :: #dataLibraryGroupDialog}"></div>
+				<div th:replace="~{/data-library-group/data-library-group-dialog :: #dataLibraryGroupDialog}"></div>
 			</div>
 		</div>
 	</div>

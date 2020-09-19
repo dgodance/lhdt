@@ -116,13 +116,13 @@
 </th:block>
 <th:block th:unless="${converterJobList.empty}" th:each="converterJob: ${converterJobList}">
                                         <tr>
-                                            <td class="col-number" th:text="${converterJobStat.count + ((pagination.pageNo-1)*10)}"></td>
+                                            <td class="col-number" th:text="${pagination.rowNumber - converterJobStat.index}"></td>
                                             <td class="col-type" th:if="${#strings.equals(converterJob.converterTemplate, 'basic')}" th:text="기본"></td>
                                             <td class="col-type" th:if="${#strings.equals(converterJob.converterTemplate, 'building')}" th:text="빌딩"></td>
                                             <td class="col-type" th:if="${#strings.equals(converterJob.converterTemplate, 'extra-big-building')}" th:text="초대형 빌딩"></td>
                                             <td class="col-type" th:if="${#strings.equals(converterJob.converterTemplate, 'point-cloud')}" th:text="point cloud"></td>
-                                            <td class="col-name ellipsis" style="min-width:200px;max-width:200px;">
-                                            <a th:text="${converterJob.title}"  th:href="@{/converter/converter-job-file-list(converterJobId=${converterJob.converterJobId})}"></a>
+                                            <td class="col-name ellipsis" style="min-width:200px; max-width:200px;">
+                                                <a th:text="${converterJob.title}" th:href="@{/converter/converter-job-file-list(converterJobId=${converterJob.converterJobId})}"></a>
                                             </td>
                                             
                                             <td class="col-count" th:if="${converterJob.usf >= 1 and converterJob.usf < 10}" th:text="|${converterJob.usf}m|">
@@ -145,7 +145,7 @@
                                                 <a href="#" th:onclick="detailErrorCode([[${converterJob.errorCode}]]); return false;">[보기]</a>
                                             </td>
                                             <td class="col-type">
-                                                <th:block th:text="${#temporals.format(converterJob.insertDate,'yyyy-MM-dd HH:mm')}"></th:block>
+                                                <th:block th:text="${#temporals.format(converterJob.insertDate, 'yyyy-MM-dd HH:mm')}"></th:block>
                                             </td>
                                         </tr>
 </th:block>

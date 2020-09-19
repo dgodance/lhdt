@@ -131,15 +131,15 @@
 											<td class="col-checkbox">
 												<input type="checkbox" th:id="|uploadDataId_${uploadData.uploadDataId}|" name="uploadDataId" th:value="${uploadData.uploadDataId}" />
 											</td>
-											<td class="col-number" th:text="${uploadDataStat.count + ((pagination.pageNo-1)*10)}"></td>
-											<td class="col-name ellipsis" th:text="${uploadData.dataGroupName}" style="min-width:120px;max-width:120px;"></td>
+											<td class="col-number" th:text="${pagination.rowNumber - uploadDataStat.index}"></td>
+											<td class="col-name ellipsis" th:text="${uploadData.dataGroupName}" style="min-width:120px; max-width:120px;"></td>
 											<td class="col-type" th:if="${#strings.equals(uploadData.sharing, 'common')}" th:text="공통"></td>
 											<td class="col-type" th:if="${#strings.equals(uploadData.sharing, 'public')}" th:text="공개"></td>
 											<td class="col-type" th:if="${#strings.equals(uploadData.sharing, 'private')}" th:text="개인"></td>
 											<td class="col-type" th:if="${#strings.equals(uploadData.sharing, 'group')}" th:text="그룹"></td>
 					
 											<td class="col-type" th:text="${uploadData.dataType}"></td>
-											<td class="col-name ellipsis" style="min-width:300px;max-width:300px;">
+											<td class="col-name ellipsis" style="min-width:300px; max-width:300px;">
 												<a th:text="${uploadData.dataName}" th:href="@{/upload-data/modify(uploadDataId=${uploadData.uploadDataId})}"></a>
 											</td>
 											<td class="col-count">
@@ -149,7 +149,8 @@
 											<td class="col-count" th:text="|${uploadData.converterCount}건|"></td>
 											<td class="col-functions">
 												<span class="button-group">
-													<a href="#" class="button" th:onclick="converterFile([[${uploadData.uploadDataId}]], [[${uploadData.dataName}]], [[${uploadData.dataType}]]); return false;" style="text-decoration: none;">F4D 변환</a>
+													<a href="#" class="button" th:onclick="converterFile([[${uploadData.uploadDataId}]], [[${uploadData.dataName}]], [[${uploadData.dataType}]]); return false;"
+														style="text-decoration: none;">F4D 변환</a>
 												</span>
 											</td>
 											<td class="col-functions">
@@ -158,7 +159,7 @@
 												</span>
 											</td>
 											<td class="col-type">
-												<th:block th:text="${#temporals.format(uploadData.insertDate,'yyyy-MM-dd HH:mm')}"></th:block>
+												<th:block th:text="${#temporals.format(uploadData.insertDate, 'yyyy-MM-dd HH:mm')}"></th:block>
 											</td>
 										</tr>
 </th:block>

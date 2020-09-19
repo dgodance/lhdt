@@ -95,6 +95,7 @@
 							</div>
 							<table class="list-table scope-col" summary="디자인 레이어 목록">
 							<caption class="hiddenTag">디자인 레이어 목록</caption>
+								<col class="col-number"></col>
 								<col class="col-name" />
 								<col class="col-id" />
 								<col class="col-toggle" />
@@ -104,6 +105,7 @@
 								<col class="col-date" />
 								<thead>
 									<tr>
+										<th scope="col" class="col-number" th:text="#{number}"></th>
 										<th scope="col">디자인 레이어명</th>
 					                    <th scope="col">디자인 레이어 Key</th>
 					                    <th scope="col">표시순서(Z-Index)</th>
@@ -116,11 +118,12 @@
 								<tbody>
 <th:block th:if="${designLayerList.empty}">
 									<tr>
-										<td colspan="7" class="col-none">디자인 레이어가 존재하지 않습니다.</td>
+										<td colspan="8" class="col-none">디자인 레이어가 존재하지 않습니다.</td>
 									</tr>
 </th:block>
 <th:block th:unless="${designLayerList.empty}" th:each="designLayer : ${designLayerList}">
 									<tr>
+										<td class="col-number" th:text="${pagination.rowNumber - designLayerStat.index}"></td>
 										<td class="col-key" th:text="${designLayer.designLayerName}"></td>
 					                    <td class="col-key" style="text-align: left;" nowrap="nowrap" th:text="${designLayer.designLayerKey}"></td>
                     					<td class="col-key" nowrap="nowrap" th:text="${designLayer.viewZIndex}"></td>
@@ -135,8 +138,8 @@
 											<a th:href="@{/design-layer/modify(designLayerId=${designLayer.designLayerId})}" class="image-button button-edit" th:text="#{modified}"></a>&nbsp;&nbsp;
 					                    	<a href="#" th:onclick="deleteLayer([[${designLayer.designLayerId}]]); return false;" class="image-button button-delete" th:text="#{delete}"></a>
 					                    </td>
-										<td class="col-date"
-											th:text="${#temporals.format(designLayer.updateDate, 'yyyy-MM-dd HH:mm:ss')}">
+										<td class="col-date">
+											<th:block th:text="${#temporals.format(designLayer.insertDate, 'yyyy-MM-dd HH:mm')}"></th:block>
 										</td>
 					                </tr>
 </th:block>
