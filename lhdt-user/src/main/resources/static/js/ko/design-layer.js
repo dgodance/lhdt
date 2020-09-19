@@ -2322,7 +2322,6 @@ DesignLayerObj.prototype.showLandInfo = function(browserEvent){
     $wrapper.find('td.plan-floor-area-ratio').text(this.selectedLand.floorAreaRatio);
     $wrapper.find('td.plan-maximum-building-floors').text(this.selectedLand.maximumBuildingFloors);
 
-    //
     this.buildingHeightChanged(this.selectedLand, null);
 };
 
@@ -2784,8 +2783,9 @@ DesignLayerObj.prototype.getBuildingsByLonLats = function(lonLats){
 
     //
     let polygon2ds = Mago3D.Polygon2D.makePolygonByGeographicCoordArray(arr);
+    
     //
-    return Ppmap.getManager().selectionManager.selectionByPolygon2D(polygon2ds, 'native');
+    return Ppmap.getManager().frustumVolumeControl.selectionByPolygon2D(polygon2ds, 'native');
 }
 
 
