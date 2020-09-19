@@ -334,12 +334,12 @@
 		var compass = new Compass(viewer, document.getElementById('mapCtrlCompassOut'));
 		
 		var baseMapController = new BaseMapController(viewer);
-		var terrainController = new TerrainController(viewer, 'http://172.30.1.23:8888/tilesets/terrain/');
+		var terrainController = new TerrainController(viewer, 'http://localhost:8888/tilesets/terrain/');
 		
         var promises = [];
         var garaJsonCnt = 28;
         for(var i=0;i<garaJsonCnt;i++) {
-            promises.push($.ajax({url: `http://172.30.1.58/sample/json/temp_json/${i}.geojson`, dataType: "json"}));
+            promises.push($.ajax({url: `http://localhost/sample/json/temp_json/${i}.geojson`, dataType: "json"}));
         }
         
         $.when.apply($,promises).then(function(){
@@ -362,7 +362,7 @@
         });
         
         $.ajax({
-            url: 'http://172.30.1.58/sample/json/masterplan.json',
+            url: 'http://localhost/sample/json/masterplan.json',
             type: "GET",
             headers: {"X-Requested-With": "XMLHttpRequest"},
             dataType: "json",
