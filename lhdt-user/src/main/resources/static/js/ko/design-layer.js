@@ -267,8 +267,10 @@ DesignLayerObj.prototype.setEventHandler = function(){
                     }
 
                     //필지 height 변경
+                    let color = new Mago3D.Color.fromHexCode(d.data.layerFillColor);
+                    color.a = 0.5;
                     var building = Mago3D.ExtrusionBuilding.makeExtrusionBuildingByCartesian3Array(polygonHierarchy.reverse(), h * 3.3, {
-                        color: new Mago3D.Color(0.2, 0.7, 0.8, 0.4)
+                        color: color /*new Mago3D.Color(color.r, color.b, color.b, 0.4)*/
                     });
 
                     building.type = 'land';
@@ -2550,7 +2552,7 @@ DesignLayerObj.prototype.renderUrbanInfo = function(landData){
 	data.householdCo0 = 7162;
     data.householdCo = landData.householdCo + 6800;
     //인구수
-	data.populationCo0 = 15732;
+	data.populationCo0 = 15232;
     data.populationCo = Math.round(data.householdCo * 2.3);
 
     //

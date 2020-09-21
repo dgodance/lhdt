@@ -83,7 +83,7 @@ function AnalsHeightLandScapeView(viewer, magoInstance) {
         _this._xyz2 = {};
 
         //
-        Ppmap.removeAll();
+        //Ppmap.removeAll();
 
 
         //
