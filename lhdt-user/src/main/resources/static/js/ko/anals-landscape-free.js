@@ -453,16 +453,15 @@ LsAnalsAutoObj.prototype.doAnals = function(){
 
 //
 let lsAnalsAutoObj = new LsAnalsAutoObj();
+$(function() {
+    let interval = setInterval(function(){
+        if(0 != Ppui.find('.ds-create-two-points').length){
+            //
+            clearInterval(interval);
+            lsAnalsAutoObj.init();
+        }
 
-window.addEventListener('load', function(){
-	let interval = setInterval(function(){
-		if(null != Ppui.find('.ds-create-two-points')){
-			//
-			clearInterval(interval);
-			lsAnalsAutoObj.init();
-		}
-
-	}, 500);
+    }, 500);
 })
 
 // $(function() {

@@ -267,8 +267,8 @@ DesignLayerObj.prototype.setEventHandler = function(){
                     }
 
                     //필지 height 변경
-                    let color = new Mago3D.Color.fromHexCode(d.data.layerFillColor);
-                    color.a = 0.5;
+					let color = new Mago3D.Color.fromHexCode(d.data.layerFillColor);
+					color.a = 0.5;
                     var building = Mago3D.ExtrusionBuilding.makeExtrusionBuildingByCartesian3Array(polygonHierarchy.reverse(), h * 3.3, {
                         color: color /*new Mago3D.Color(color.r, color.b, color.b, 0.4)*/
                     });
