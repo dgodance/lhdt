@@ -7,8 +7,8 @@ update geopolicy set
 
 
 update geopolicy
-set init_longitude = '127.01288139968887',
-	init_latitude = '37.44959387479118';
+set init_longitude = '127.00598139968887',
+	init_latitude = '37.44829387479118';
 commit;
 
 -- smart tiling 이후에 해 줘야 할 작업, 벌크 업로드 시 처리됨.
