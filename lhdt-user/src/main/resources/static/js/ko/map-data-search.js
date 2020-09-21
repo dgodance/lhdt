@@ -84,7 +84,11 @@ $(document).ready(function() {
    $('#searchDataSharing').change(function() {
       mapDataSearch(1);
    });
-
+   
+   //상단 라디오 클릭 시 해당 종류로 먼저 검색
+   $('#searchDataForm div.searchDataType input[type="radio"]').click(function() {
+	   tempMapDataSearch(1, $(this).val());
+   })
 });
 
 function initSearchForm() {
@@ -106,6 +110,21 @@ function getFormData($form){
    });
    return indexed_array;
 }
+
+function tempMapDataSearch(pageNo, type) {
+
+	   $('#dataInfoContent div').hide();
+
+	   var $form = $("#searchDataForm");
+	   var params = getFormData($form);
+	   if (type === 'data_group_name') {
+	      mapDataGroupList(pageNo, params);
+	   } else if (type === 'data_name') {
+	      mapDataInfoList(pageNo, params);
+	   } else if (params.searchWord === 'data_address_name') {
+	      alert('Not implemented yet!');
+	   }
+	}
 
 function mapDataSearch(pageNo) {
 

@@ -81,7 +81,7 @@ public class FileInfo extends CmmnDomain implements CmmnFile {
      */
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="district_id")
+    @JoinColumn(name="fileInfos")
     private CPDistricInfo cpDistricInfo;
 
     /**
