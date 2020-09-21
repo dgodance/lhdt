@@ -207,7 +207,11 @@ public class DataServiceImpl implements DataService {
 					dataInfo.setSharing(sharing);
 					dataInfo.setUserId(userId);
 					dataInfo.setStatus(status);
-					dataMapper.insertBulkData(dataInfo);
+					if(dataInfo.getDataId() == null || dataInfo.getDataId() == 0L) {
+						dataMapper.insertBulkDataWithDataId(dataInfo);
+					} else {
+						dataMapper.insertBulkData(dataInfo);
+					}
 					insertSuccessCount++;
 				} else {
 					dataInfo.setDataId(dbDataInfo.getDataId());

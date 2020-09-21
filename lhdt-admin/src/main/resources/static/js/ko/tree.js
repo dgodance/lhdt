@@ -105,7 +105,11 @@ function childrenDisplayToggle(id, depth, status, originDepth) {
 
     $(".rowParent-" + id).each(function() {
         var tempClass = $(this).attr("class");
-        var childId = tempClass.substr(6, 2);
+        console.log("----------- tempClass=" + tempClass);
+        var nextClassIndex = tempClass.indexOf("rowDepth");
+        var idLength = nextClassIndex - 6 - 1;
+
+        var childId = tempClass.substr(6, idLength);
         if(status === "open") {
             // 자식을 표시
             $(".rowId-" + childId).show();

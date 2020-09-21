@@ -106,7 +106,7 @@ JS_MESSAGE["data.group.key.enable"] = "사용 가능한 데이터 그룹 Key 입
 JS_MESSAGE["data.group.key.duplication.check"] = "데이터 그룹 Key 중복 확인이 필요 합니다.";
 JS_MESSAGE["data.group.select.parent"] = "상위 데이터 그룹을 선택해 주세요.";
 JS_MESSAGE["data.group.select"] = "데이터 그룹 선택";
-JS_MESSAGE["data.group.depth.constraint"] = "사용자 데이터 그룹은 3 Depth 이상 계층으로 입력할 수 없습니다.";
+JS_MESSAGE["data.group.depth.constraint"] = "사용자 데이터 그룹은 5 Depth 이상 계층으로 입력할 수 없습니다.";
 
 JS_MESSAGE["upload.guide"] = "업로딩 하려면 파일을 올리거나 클릭 하십시오.";
 JS_MESSAGE["upload.browser.guide"] = "죄송합니다. 최신의 브라우저로 Update 후 사용해 주십시오.";
