@@ -6,7 +6,8 @@ const IP = 'localhost';
 const	LS_DIFF_REST_URL = 'http://'+IP+':9091/adminsvc/ls-diff-rest';
 //경관 점
 const	LS_POINT_REST_URL = 'http://'+IP+':9091/adminsvc/ls-point-rest';
-
+//
+const TERRAIN_URL = 'http://172.30.1.23:8888/tilesets/terrain/';
 
 
 
