@@ -368,4 +368,6 @@ function locationValidation(longitude, latitude, altitude) {
 	}
 }
 
-
+function basicObjectClone (obj) {
+	return JSON.parse(JSON.stringify(obj));
+}

@@ -967,6 +967,87 @@ $(document).ready(function() {
 		$(this).toggleClass('on');
 		$('#controlMeasureWrap').toggle();
 	});
+	
+	// 화면분할
+	$('#mapCtrlDivide').click(function() {
+		$(this).toggleClass('on');
+		var observerTarget = document.getElementById('contentsWrap');
+		var display = observerTarget.style.display;
+		if($(this).hasClass('on')) {
+			$('.mapWrap2').show();
+			var width;
+			if(display === 'none') {
+				width = 'calc(50% - 30px)';
+			} else {
+				width = 'calc(50% - 215px)';
+			}
+			
+			$('.mapWrap,.mapWrap2').css({
+				width : width
+			});
+			
+			var clonePolicy = basicObjectClone(LHDT.policy);
+			
+			var option = {};
+			option.defaultControl = {};
+			option.defaultControl.zoom = false;
+			option.defaultControl.initCamera = false;
+			option.defaultControl.fullScreen = false;
+			option.defaultControl.measure = false;
+			option.defaultControl.tools = false;
+			option.defaultControl.attribution = false;
+			option.defaultControl.overviewMap = false;
+			
+			
+			var curresntPosition = MAGO3D_INSTANCE.getMagoManager().sceneState.camera.position;
+			var currentGeoCoord = Mago3D.ManagerUtils.pointToGeographicCoord(curresntPosition);
+			
+			clonePolicy.initLatitude = currentGeoCoord.latitude;
+			clonePolicy.initLongitude = currentGeoCoord.longitude;
+			clonePolicy.initDuration = 0;
+			clonePolicy.initAltitude = currentGeoCoord.altitude;
+			
+			if(!MAGO3D_DIVIDE_INSTANCE) {
+				MAGO3D_DIVIDE_INSTANCE = new Mago3D.Mago3d('magoDivideContainer', clonePolicy, {loadend : divideLoadEnd}, option);
+			}
+			
+			function divideLoadEnd(e) {
+				var originViewer = MAGO3D_INSTANCE.getViewer();
+				var viewer = e.getViewer();
+				var f4dController = e.getF4dController();
+				viewer.scene.camera = originViewer.scene.camera;
+				
+				/*f4dController.addSmartTileGroup({
+					dataGroupId : 10000,
+					dataGroupKey : 'sKorea_Gyeonggi_Gwacheon',
+					dataGroupName : '과천시 건물들',
+					dataGroupPath : 'infra/demo/sKorea_Gyeonggi_Gwacheon/',
+					smartTileIndexPath: "infra/_TILE"
+				});*/
+			}
+
+		} else {
+			var mm = MAGO3D_DIVIDE_INSTANCE.getMagoManager();
+			var vv = MAGO3D_DIVIDE_INSTANCE.getViewer();
+			
+			mm.deleteAll();
+			vv.destroy();
+			MAGO3D_DIVIDE_INSTANCE = null;
+			
+			$('.mapWrap2').hide();
+			
+			var width;
+			if(display === 'none') {
+				width = 'calc(100% - 60px)';
+			} else {
+				width = 'calc(100% - 430px)';
+			}
+			
+			$('.mapWrap').css({
+				width : width
+			});
+		}
+	});
 
 	// 거리 측정
 	$('#mapCtrlMeasureDistance').click(function() {
@@ -1063,6 +1144,8 @@ $(document).ready(function() {
 			scene.camera.zoomOut(alt * 0.1);
 		}
 	});
+	
+	
 });
 
 
