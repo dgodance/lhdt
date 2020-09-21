@@ -43,7 +43,7 @@ var extrusionTools = function (magoInstance){
 				instanceId : parseInt(Math.random() * 1000),
 				longitude : cartographic.longitude,
 				latitude : cartographic.latitude,
-				height : 0
+				height : 40
 			});
 		}
 	}); 
@@ -142,16 +142,23 @@ var extrusionTools = function (magoInstance){
 			var line2 = worldCoordToGeographic(linePosition[i+1]);
 			
 			var dataPositions = Mago3D.GeographicCoordSegment.getArcInterpolatedGeoCoords(line1, line2, 10);
-			for(var j in dataPositions) {
-				var dataPosition = dataPositions[j];
-				magoManager.instantiateStaticModel({
-					projectId : model.projectId,
-					instanceId : parseInt(Math.random() * 1000),
-					longitude : dataPosition.longitude,
-					latitude : dataPosition.latitude,
-					height : 0
-				});
-			}
+			var crt3s = dataPositions.map(function(e) {
+			    return Cesium.Cartographic.fromDegrees(e.longitude, e.latitude)
+			})
+			
+			var promise = Cesium.sampleTerrain(viewer.terrainProvider, 17, crt3s);
+        	promise.then(function(t){
+        		for(var j in t) {
+        			var bb = t[j];
+        			magoManager.instantiateStaticModel({
+    					projectId : model.projectId,
+    					instanceId : parseInt(Math.random() * 1000),
+    					longitude : Cesium.Math.toDegrees(bb.longitude),
+    					latitude : Cesium.Math.toDegrees(bb.latitude),
+    					height : bb.height
+    				});
+        		}
+        	});
 		}
 	}, {
 		// https://cesium.com/docs/cesiumjs-ref-doc/PolylineGraphics.html?classFilter=LINEGRA
@@ -228,13 +235,14 @@ var extrusionTools = function (magoInstance){
 	function extrusionModelWMSToggle(model, on) {
 		var imageryLayers = magoInstance.getViewer().imageryLayers;
 		if(on) {
+			var currentCqlFilter = `design_layer_id=${model.id} AND enable_yn='Y'`;
 			var prov = new Cesium.WebMapServiceImageryProvider({
 			    url : 'http://localhost:18080/geoserver/lhdt/wms',
 			    parameters : {
 			    	transparent : true,
 			    	srs:'EPSG:4326',
 			    	format: "image/png",
-			    	cql_filter : `design_layer_id=${model.id} AND enable_yn='Y'`
+			    	cql_filter : currentCqlFilter
 			    },
 			    layers : model.layername
 			});
@@ -242,12 +250,72 @@ var extrusionTools = function (magoInstance){
 			var imageryLayer = new Cesium.ImageryLayer(prov/*, {alpha : 0.7}*/);
 			imageryLayer.layerId = model.id;
 			imageryLayers.add(imageryLayer);
+			
+			var req = new Cesium.Resource({
+  				url : 'http://localhost:18080/geoserver/lhdt/wfs',
+  				queryParameters : {
+  					service : 'wfs',
+  					version : '1.0.0',
+  					request : 'GetFeature',
+  					typeNames : model.layername,
+  					srsName : 'EPSG:3857',
+  					outputFormat : 'application/json',
+  					cql_filter : currentCqlFilter
+  				}
+  			});
+  			
+  			new Cesium.GeoJsonDataSource().load(req).then(function(e) {
+  				var entities = e.entities.values;
+  				var viewer = magoInstance.getViewer();
+  				var labelCollection = new Cesium.LabelCollection({
+  					scene : viewer.scene
+  				});
+  				labelCollection.labelLayerId = model.id;
+  				viewer.scene.primitives.add(labelCollection);
+       	 		for(var i in entities) {
+       	 			var entity = entities[i];
+       	 			var properties = entity.properties;
+       	 			
+       	 			var cRatio = properties.building_coverage_ratio.getValue();
+       	 			var fRatio = properties.floor_area_ratio.getValue();
+       	 			var labelText;
+       	 			if(!fRatio || !cRatio) {
+       	 				labelText = `${properties.landuse_zoning.getValue()}`;
+       	 			} else {
+       	 				labelText = `${properties.lot_code.getValue()}\n건폐율 : ${cRatio}\n용적률 : ${fRatio}`;
+       	 			}
+   	 			
+       	 			var positions = entity.polygon.hierarchy.getValue().positions;
+       	 			var center = Cesium.BoundingSphere.fromPoints(positions).center;
+       	 			Cesium.Ellipsoid.WGS84.scaleToGeodeticSurface(center, center);
+       	 			
+       	 			var label = labelCollection.add({
+       	 				position : center,
+   	 					text: labelText,
+   	 					font: "normal normal bolder 11px Helvetica",
+   	 					fillColor: Cesium.Color.BLACK,
+   	 					outlineColor: Cesium.Color.WHITE,
+   	 					outlineWidth: 1,
+   	 					scaleByDistance  : new Cesium.NearFarScalar(500, 1.2, 2000, 0.0),
+   	 					heightReference : Cesium.HeightReference.CLAMP_TO_GROUND,
+   	 					style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+       	 			});
+       	 		}
+  			});
 		} else {
 			var target = imageryLayers._layers.filter(function(layer){return layer.layerId === model.id});
 			if(target.length === 1)
 			{
 				imageryLayers.remove(target[0]);
 			}
+			var viewer = magoInstance.getViewer();
+			
+			var primitives = viewer.scene.primitives;
+			var filter = primitives._primitives.filter(function(p) {
+				return p.labelLayerId  === model.id; 
+			})[0];
+			
+			primitives.remove(filter);
 		}
 	}
 	

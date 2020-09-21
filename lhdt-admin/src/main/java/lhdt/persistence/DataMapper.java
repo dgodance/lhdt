@@ -110,6 +110,13 @@ public interface DataMapper {
 	 * @return
 	 */
 	int insertBulkData(DataInfo dataInfo);
+
+	/**
+	 * Bulk 파일로 부터 데이터 등록(dataId 시퀀스 사용)
+	 * @param dataInfo
+	 * @return
+	 */
+	int insertBulkDataWithDataId(DataInfo dataInfo);
 	
 	/**
 	 * Data 파일 정보 등록

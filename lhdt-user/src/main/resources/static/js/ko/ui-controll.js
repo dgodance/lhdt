@@ -11,7 +11,7 @@ $(function() {
 			
 			var divided = document.getElementById('mapCtrlDivide').className.indexOf('on') > -1;
 			var offsetWidth = (display === 'none') ? navWidth : navWidth+contentWidth;
-			offsetWidth = divided ? offsetWidth / 2 : offsetWidth
+			offsetWidth = divided ? offsetWidth / 2 : offsetWidth;
 			
 			var widthPrct = !divided ? '100%':'50%';
 			var cssWidth = 'calc(' + widthPrct + ' - ' + offsetWidth + 'px)';

@@ -2829,6 +2829,9 @@ ul.listDefault li.on > ul li > button {
 .mapCtrl button.st {
 	background-position: -93px 5px ;
 }
+.mapCtrl button.ge {
+    background-position: -442px 5px ;
+}
 .mapCtrl button.zi {
 	width: 40px;
 	height: 40px;
@@ -2864,6 +2867,9 @@ ul.listDefault li.on > ul li > button {
 }
 .mapCtrl button.st:hover {
 	background-position: -93px -45px ;
+}
+.mapCtrl button.ge:hover {
+    background-position: -442px -45px ;
 }
 .mapCtrl button.zi:hover {
 	width: 40px;
@@ -2903,6 +2909,9 @@ ul.listDefault li.on > ul li > button {
 }
 .mapCtrl button.st.on {
 	background-position: -93px 105px ;
+}
+.mapCtrl button.ge.on {
+	background-position: -442px 105px ;
 }
 .mapCtrl button.zi.on {
 	width: 40px;
