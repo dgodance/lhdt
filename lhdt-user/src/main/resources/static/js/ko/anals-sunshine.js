@@ -1,3 +1,32 @@
+
+const solarTermDropDown = function() {
+    this._ele = "#solarTermDropDown";
+    this._date = undefined;
+}
+solarTermDropDown.prototype.init = function() {
+    this._date = moment().format('YYYY-MM-DD');
+    this.change();
+}
+
+solarTermDropDown.prototype.change = function () {
+    let that = this;
+    $(that._ele).change(function() {
+        const val = that._val = $(this).val();
+        if(val === "0") {
+            this._date = '';
+        } else if (val === "1") {
+            that._height = 1.5;
+        } else {
+            that._height = 15;
+        }
+        lsAnalsMoveInputBox.setText(that._height);
+    });
+}
+solarTermDropDown.prototype.getHeight = function() {
+    return this._height;
+}
+
+
 function AnalsSunshine(viewer, magoInstance) {
     const magoManager = magoInstance.getMagoManager();
     $('#solarAnalysis').click(function() {

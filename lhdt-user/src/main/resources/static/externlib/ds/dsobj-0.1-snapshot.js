@@ -2,9 +2,9 @@
 const HEIGHT_PER_FLOOR = 3.3;
 
 //경관 비교
-const	LS_DIFF_REST_URL = 'http://172.30.1.58:9091/adminsvc/ls-diff-rest';
+const	LS_DIFF_REST_URL = 'http://118.42.112.206:5891/adminsvc/ls-diff-rest';
 //경관 점
-const	LS_POINT_REST_URL = 'http://172.30.1.58:9091/adminsvc/ls-point-rest';
+const	LS_POINT_REST_URL = 'http://118.42.112.206:5891/adminsvc/ls-point-rest';
 
 
 

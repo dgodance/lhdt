@@ -37,7 +37,7 @@ lsSavedAnalsWidget.prototype.reqeustDataBylsAnalsPg = function(lsAnalsPg) {
         param += '?lsDiffPage='+lsAnalsPg;
     }
     $.ajax({
-        url: 'http://172.30.1.58:9091/adminsvc/ls-point-rest' + param,
+        url: 'http://118.42.112.206:5891/adminsvc/ls-point-rest' + param,
         method: 'GET'
     }).done(function(data) {
         that.defaultRenderByData(data);
