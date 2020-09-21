@@ -13,7 +13,7 @@ import lhdt.svc.hello.persistence.HelloRepository;
 import lhdt.svc.hello.service.HelloService;
 
 /**
- * @author gravity@daumsoft.com
+ * @author gravity
  * @since 2020. 8. 13.
  *
  */

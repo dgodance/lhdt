@@ -8,7 +8,7 @@ import lhdt.admin.svc.lowinfo.domain.LowInfoDet;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
- * @author gravity@daumsoft.com
+ * @author gravity
  * @since 2020. 8. 14.
  *
  */

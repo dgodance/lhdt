@@ -18,7 +18,7 @@ import lombok.Setter;
 
 /**
  * Parents Child Test
- * @author gravity@daumsoft.com
+ * @author gravity
  *
  */
 @Entity

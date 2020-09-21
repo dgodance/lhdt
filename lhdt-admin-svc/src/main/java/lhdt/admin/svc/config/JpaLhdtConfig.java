@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
  * lhdt접속 for jpa
- * @author gravity@daumsoft.com
+ * @author gravity
  * @since 2020. 8. 13.
  *
  */

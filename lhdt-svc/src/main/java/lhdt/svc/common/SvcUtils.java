@@ -22,7 +22,7 @@ import lhdt.cmmn.misc.CmmnUtils;
 
 /**
  * 이것저것 유틸리티
- * @author gravity@daumsoft.com
+ * @author gravity
  *
  */
 public class SvcUtils extends CmmnUtils{

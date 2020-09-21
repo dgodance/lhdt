@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * @author gravity@daumsoft.com
+ * @author gravity
  * @since 2020. 8. 13.
  *
  */

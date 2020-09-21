@@ -22,7 +22,7 @@ import lombok.Setter;
 
 /**
  * 안녕
- * @author gravity@daumsoft.com
+ * @author gravity
  *
  */
 @SuppressWarnings("serial")

@@ -38,7 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 모든 service impl 의 부모
- * @author gravity@daumsoft.com
+ * @author gravity
  *
  */
 @Slf4j
@@ -694,7 +694,7 @@ class FieldAndOrder{
 
 /**
  * FieldAndOrder를 order순으로 정렬
- * @author gravity@daumsoft.com
+ * @author gravity
  * @since 2020. 8. 10.
  *
  */

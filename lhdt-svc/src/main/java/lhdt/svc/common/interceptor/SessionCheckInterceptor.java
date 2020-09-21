@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 세션 검사 interceptor
- * @author gravity@daumsoft.com
+ * @author gravity
  *
  */
 @Slf4j

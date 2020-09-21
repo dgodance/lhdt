@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * csrf 검사 interceptor
- * @author gravity@daumsoft.com
+ * @author gravity
  * @since	20200821	init
  */
 @Slf4j

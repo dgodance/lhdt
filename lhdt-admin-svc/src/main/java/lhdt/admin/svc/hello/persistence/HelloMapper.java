@@ -8,7 +8,7 @@ import lhdt.admin.svc.hello.domain.Hello;
 import lhdt.cmmn.config.AnalsConnMapper;
 
 /**
- * @author gravity@daumsoft.com
+ * @author gravity
  * @since 2020. 8. 14.
  *
  */

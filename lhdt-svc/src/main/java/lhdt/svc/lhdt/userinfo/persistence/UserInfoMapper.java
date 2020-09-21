@@ -6,7 +6,7 @@ package lhdt.svc.lhdt.userinfo.persistence;
 import lhdt.cmmn.config.LhdtConnMapper;
 
 /**
- * @author gravity@daumsoft.com
+ * @author gravity
  * @since 2020. 8. 13.
  *
  */

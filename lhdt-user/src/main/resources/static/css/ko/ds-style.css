@@ -29,6 +29,10 @@
 
 .fw-bold {font-weight: bold !important;}
 
+.color-red {color:red !important;}
+.color-normal { color: #3f48cc !important}
+.color-exceed { color: #cc3f3f !important}
+
 button.textBtnSub.active {background-color:#258FFF; color:white; font-weight:bold;background-image: url('../../images/ico_checked.png') !important; background-repeat: no-repeat; background-size: 32px;}
 button[class*=ds-tool], button[class*=design-layer-tool] {width:49% !important; margin-bottom:2px;}
 button[class*=ds-tool][class=active] {background-image: '../../images/ico_checked.png'; background-repeat: no-repeat;}
@@ -212,7 +216,7 @@ table[class*=design-layer] > tbody > tr > td:last-child {
     font-weight: bold !important;
     margin: 0;
     outline: 0;
-    color: #444;
+    color: #3f48cc;
     font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
     line-height: 1.5em;
     /* text-align: left  !important; */

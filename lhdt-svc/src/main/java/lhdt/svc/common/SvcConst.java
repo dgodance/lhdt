@@ -7,7 +7,7 @@ import lhdt.cmmn.misc.CmmnConst;
 
 /**
  * 공통 상수
- * @author gravity@daumsoft.com
+ * @author gravity
  *
  */
 public class SvcConst extends CmmnConst{

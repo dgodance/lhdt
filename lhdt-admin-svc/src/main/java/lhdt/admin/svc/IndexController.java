@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import lhdt.admin.svc.common.AdminSvcController;
 
 /**
- * @author gravity@daumsoft.com
+ * @author gravity
  * @since 2020. 8. 20.
  *
  */

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import lhdt.svc.lhdt.userinfo.service.UserInfoService;
 
 /**
- * @author gravity@daumsoft.com
+ * @author gravity
  * @since 2020. 8. 13.
  *
  */

@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 기타등등 interceptor
- * @author gravity@daumsoft.com
+ * @author gravity
  *
  */
 @Slf4j
