@@ -203,7 +203,7 @@ function AnalsHeightLandScapeView(viewer, magoInstance) {
         return this.cameraHeight;
     }
     LSHeightAnals.prototype.analsHeightView = function(idx) {
-        this.cameraHeight[idx]();
+        this.cameraHeight[idx-1]();
     }
     /**
      * 높이 층수에 따른 높이 정보를 가진 카메라 뷰를 생성합니다
