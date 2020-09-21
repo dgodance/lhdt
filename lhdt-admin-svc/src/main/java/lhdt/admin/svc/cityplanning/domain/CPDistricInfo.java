@@ -44,6 +44,7 @@ public class CPDistricInfo extends CmmnDomain {
     @CmmnField(bizKey = true, order = 1)
     private CPLocalInfo cpLocalInfo;
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "cpDistricInfo", fetch= FetchType.LAZY,
             cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FileInfo> fileInfos = new ArrayList<>();
