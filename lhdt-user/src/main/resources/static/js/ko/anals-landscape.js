@@ -106,7 +106,7 @@ const ViewPoint = {'A':0, 'B':1, 'C':2};
 const xyz1 = {'lon':127.2827, 'lat':36.4780};	//시작점
 const xyz2 = {'lon':127.2925, 'lat':36.4824};	//종료점
 
-const PREDICT_SERVER_URL = 'http://172.30.1.58:8090/svc/landscape_anals/uploadFileAndGetSkylineImage';
+const PREDICT_SERVER_URL = 'http://'+IP+':8090/svc/landscape_anals/uploadFileAndGetSkylineImage';
 
 const lsPredictType = {
 	0: "스카이라인",
@@ -956,7 +956,7 @@ SkylineObj.prototype.saveAllImages = function(){
 	}
 
 	//
-	let url = 'http://172.30.1.58:8090/svc/landscape_anals/saveCaptureAndSkylineImages';
+	let url = 'http://'+IP+':8090/svc/landscape_anals/saveCaptureAndSkylineImages';
 	let fd = new FormData();
 
 	for(let i=0; i<this.getViewPointCo(); i++){
