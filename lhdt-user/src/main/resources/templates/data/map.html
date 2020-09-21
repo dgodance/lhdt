@@ -193,7 +193,7 @@
 <script type="text/javascript" th:src="@{/externlib/ds/pp-0.9-legacy.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>
 <script type="text/javascript" th:src="@{/externlib/ds/ppui-0.9-legacy.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>
 <script type="text/javascript" th:src="@{/externlib/ds/ppmap-0.9-legacy.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>
-<script type="text/javascript" th:src="@{/externlib/ds/dsobj-0.1-snapshot.js(lang=${lang},cacheVersion=${contentCacheVersion})}"  defer></script>
+<script type="text/javascript" th:src="@{/externlib/ds/dsobj-0.1-snapshot.js(lang=${lang},cacheVersion=${contentCacheVersion})}"  ></script>
 
 <script type="text/javascript" th:src="@{/js/{lang}/design-layer.js(lang=${lang},cacheVersion=${contentCacheVersion})}" defer></script>
 <script type="text/javascript" th:src="@{/js/{lang}/data-library.js(lang=${lang},cacheVersion=${contentCacheVersion})}" defer></script>
@@ -346,12 +346,12 @@
 		var compass = new Compass(viewer, document.getElementById('mapCtrlCompassOut'));
 		
 		var baseMapController = new BaseMapController(viewer);
-		var terrainController = new TerrainController(viewer, 'http://118.42.112.206:9997/tilesets/terrain/');
+		var terrainController = new TerrainController(viewer, TERRAIN_URL);
 		
         var promises = [];
         var garaJsonCnt = 28;
         for(var i=0;i<garaJsonCnt;i++) {
-            promises.push($.ajax({url: `http://118.42.112.206:5880/sample/json/temp_json/${i}.geojson`, dataType: "json"}));
+			promises.push($.ajax({url: `http://118.42.112.206:5880/sample/json/temp_json/${i}.geojson`, dataType: "json"}));
         }
         
         $.when.apply($,promises).then(function(){

@@ -14,7 +14,7 @@ const DesignLayerObj = function(){
     this.tool = DesignLayerObj.Tool.NONE;
     //intersection한 필지 정보 목록
     this.lands=[];
-    //체크된 필지 레이어 정보
+    //체크(show)된 필지 레이어 정보
     this.landLayer = {};
     //선택된 extrusion 건물
     this.selectedExtrusionBuilding={};
@@ -52,9 +52,32 @@ DesignLayerObj.Tool = {
     CHKDISTANCE : 10,
 };
 
+/**
+ * 
+ */
 DesignLayerObj.GeometryType = {
     LAND: {value:0, text:'land'},
-    BUILDING: {value:0, text:'building'},
+    BUILDING: {value:1, text:'building'},
+}
+
+
+/**
+ * 디자인 레이어 그룹 타입
+ */
+DesignLayerObj.GroupType = {
+	NONE: {text:'none', value:-1},
+	LAND: {text:'land', value:0},
+	BUILDING: {text:'building', value:1},
+	BUILDING_HEIGHT: {text:'building_height', value:2},
+};
+
+
+/**
+ * 
+ */
+DesignLayerObj.OgcType = {
+    WMS: {value:0, text:'wms'},
+    WFS: {value:1, text:'wfs'},
 }
 
 /**
@@ -209,7 +232,7 @@ DesignLayerObj.prototype.setEventHandler = function(){
                 }
 
                 //
-                if('land' !== data.designLayerGroupType){
+                if(DesignLayerObj.GroupType.LAND['text']  !== data.designLayerGroupType){
                     //continue;
                 }
 
@@ -220,7 +243,7 @@ DesignLayerObj.prototype.setEventHandler = function(){
                 //
                 json[designLayerId] = {
                     'data': data,
-                    'layer': _this.landLayer[designLayerId],
+                    'layer': _this.landLayer[designLayerId] /*imageryLayer */,
                 }
             }
 
@@ -681,6 +704,79 @@ DesignLayerObj.prototype.setSelectionInteraction = function(onOff){
 
 
 /**
+ * toggle extrusion model(building)
+ * @param {Object} d {'data':object, 'layer':ImageryLayer}
+ * @param {Boolean} isShow
+ */
+DesignLayerObj.prototype.toggleExtrusionBuilding = function(d, isShow){
+    
+    //높이 값 구하기
+    //designLayerGroupType에 따라 property 속성이 다름
+    let _height = function(data, entity){
+        let h = null;
+
+        //필지
+        if(DesignLayerObj.GroupType.LAND['text'] == data.designLayerGroupType){
+            h = Pp.nvl(entity.properties._maximum_building_floors.getValue(), null);
+        }
+        //건축물 높이
+        if(DesignLayerObj.GroupType.BUILDING_HEIGHT['text'] == data.designLayerGroupType){
+            h = Pp.nvl(entity.properties.build_maximum_floors.getValue(), null);
+        }
+
+        //
+        return Pp.isEmpty(h) ? null : (h * HEIGHT_PER_FLOOR);
+    };
+
+
+    //
+    if(!isShow){
+        this.offExtrusionModel(d.data.designLayerId);       
+        //
+        return;
+    }
+
+	//
+    let imageryProvider = d.layer.imageryProvider;
+    let layerName = imageryProvider.layers;
+    let currentCqlFilter = imageryProvider._resource.queryParameters.cql_filter;
+
+    //feature 정보 요청
+    this.getFeatures({ 'typeNames': layerName, 'cql_filter': currentCqlFilter }, function (e) {
+        let entities = e.entities.values;
+
+        //
+        for (let i = 0; i < entities.length; i++) {
+            let entity = entities[i];
+            var polygonHierarchy = entity.polygon.hierarchy.getValue().positions;
+
+            let h = _height(d.data, entity);
+            if(null == h){
+                continue;
+            }
+            
+            
+            let color = new Mago3D.Color.fromHexCode(d.data.layerFillColor);
+            color.a = 0.5;
+            var building = Mago3D.ExtrusionBuilding.makeExtrusionBuildingByCartesian3Array(polygonHierarchy.reverse(), h, {	
+                color: color, /*new Mago3D.Color(color.r, color.b, color.b, 0.4)*/
+                wireframeColor4 : color
+            });
+
+            building.type = d.data.designLayerGroupType;
+            building.layerId = entity.id;
+            building.designLayerId = d.data.designLayerId;
+            
+            /**
+             * magoManager에 속한 modeler 인스턴스의 addObject 메소드를 통해 모델 등록, 뒤의 숫자는 데이터가 표출되는 최소 레벨을 의미. 숫자가 낮을수록 멀리서 보임
+             */
+            Ppmap.getManager().modeler.addObject(building, 12);
+        }
+    });
+};
+
+
+/**
  * selecteImageryLayer로 필지 높이조절하기
  * @param {ImageryLayer} selectedImageryLayer 
  * @param {LonLat} geoCoord 
@@ -712,6 +808,7 @@ DesignLayerObj.prototype.extrudeLandByImageryLayer = function(selectedImageryLay
 
             //
             let h = Pp.nvl(entity.properties._maximum_building_floors._value, null);
+            
             if(Pp.isEmpty(h)){
                 //높이값 없음
                 //console.log('empty height', entity);
@@ -1585,21 +1682,53 @@ DesignLayerObj.prototype.renderDesignLayersByUrbanGroupId = function(urbanGroupI
     let html = template({'datas': datas});
     Ppui.find('div.design-layers').innerHTML = html;
 
-    
-    //tr클릭 이벤트 등록
-    Ppui.click('table.design-layers > tbody > tr', function(){
-        Ppui.toggleClass(this, 'on');
 
-        //
-        Ppui.child(this, '[name=design-layer-id]').checked = Ppui.hasClass(this, 'on') ? true : false;
-        //
-        let designLayerId = Ppui.child(this, '[name=design-layer-id]').value;
+	//레이어 td 클릭 이벤트
+	$('td.toggle-design-layer').unbind('click')
+		.click(function(){
+			let $tr = $(this).parent();
+			$tr.toggleClass('on');
+			let b = $tr.hasClass('on');
+			$tr.find('[name=design-layer-id]').prop('checked', b);
+			let designLayerId = $tr.find('[name=design-layer-id]').val();
+			//
+        	_this.showDesignLayer(designLayerId, b);
 
-        //
-        _this.showDesignLayer(designLayerId, Ppui.hasClass(this, 'on'));
-    });
+			//높이 checkbox 처리
+			if(b){
+                $tr.find('input.toggle-extrusion-model-height')
+                    .prop('disabled', false);
+				
+			}else{
+                $tr.find('input.toggle-extrusion-model-height')
+                    .prop('disabled', true)
+					.prop('checked', false);				
+			}
+        });
+        
+		
+	//높이 checkbox 클릭 이벤트
+	$('input.toggle-extrusion-model-height').unbind('click')
+		.click(function(){
+            let designLayerId = $(this).val();
+            let imageryLayer = _this.getImageryLayer(designLayerId);
+            let data = _this.getDataById(designLayerId);
+
+			let b = $(this).prop('checked');
+            _this.toggleExtrusionBuilding({'data':data, 'layer':imageryLayer}, b);			
+		});
+
 };
 
+
+/**
+ * 화면 표시 레이어의 imageryLayer값 구하기
+ * @param {number|string} designLayerId
+ * @returns {ImageryLayer}
+ */
+DesignLayerObj.prototype.getImageryLayer = function(designLayerId){
+	return this.landLayer[designLayerId];
+};
 
 /**
  * 해당 디자인 레이어 on/off
@@ -1616,10 +1745,11 @@ DesignLayerObj.prototype.showDesignLayer = function(designLayerId, isShow){
     };
 
     //
-    if('wms' === model.ogctype){
+    if(DesignLayerObj.OgcType.WMS['text'] === model.ogctype){
         this.extrusionModelWMSToggle(model, isShow);
     }
-    if('wfs' === model.ogctype){
+
+    if(DesignLayerObj.OgcType.WFS['text'] === model.ogctype){
         this.extrusionModelBuildingToggle(model, isShow);
     }
 };
@@ -1651,7 +1781,7 @@ DesignLayerObj.prototype.extrusionModelWMSToggle = function(model, isShow){
         imageryLayer.layerId = model.id;
         imageryLayers.add(imageryLayer);
 
-        //
+        //show된 레이어 목록
         this.landLayer[model.id] = imageryLayer;
     } else {
         var target = imageryLayers._layers.filter(function(layer){return layer.layerId === model.id});
@@ -3207,6 +3337,15 @@ const LandObj = function(){
 	this.householdCo = 0;
 	
 	this.land = null;	
+};
+
+
+const DesignLayerVo = function(){
+	this.data = null;
+	this.designLayerId = '';
+	this.designLayerName = '';
+	this.designLayerGroupType = DesignLayerObj.GroupType.NONE;
+	this.imageryLayer = null;
 };
 
 /*

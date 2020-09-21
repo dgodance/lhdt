@@ -21,7 +21,7 @@ var AnalsCityPlanning = function(viewer, magoInstance) {
     });
 
     $('#cityPlanAreaTestBtn').click(function(e) {
-        const url = "http://172.30.1.58:8090/anals/cityplanning/area";
+        const url = "http://'+IP+':8090/anals/cityplanning/area";
         const obj = {
             width : 5,
             leadTime : 0,

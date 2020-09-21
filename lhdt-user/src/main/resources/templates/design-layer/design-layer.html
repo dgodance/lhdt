@@ -102,19 +102,30 @@
 	<colgroup>
 		<col class="col-width-15">
 		<col class="col-number" width="*">
+		<col class="col-width-15">
 	</colgroup>
 	<thead>
 		<tr>
 			<th scope="col" class="col-number">선택</th>
 			<th scope="col" class="col-number"><!--디자인-->레이어명</th>
+			<th scope="col" class="col-number">높이</th>
 		</tr>
 	</thead>
 	<tbody>
 		{{#if datas}}
 			{{#each datas}}
-			<tr >
-				<td class="col-number"><input type="checkbox" name="design-layer-id" value="{{designLayerId}}"></td>
-				<td class="col-number text-left cursor-pointer">{{designLayerName}}</td>
+			<tr data-design-layer-group-type="{{designLayerGroupType}}">
+				<td class="toggle-design-layer"><input type="checkbox" name="design-layer-id" value="{{designLayerId}}"></td>
+				<td class="toggle-design-layer text-left cursor-pointer">{{designLayerName}}</td>
+				<td >
+					{{#ifMatch designLayerGroupType 'land'}}
+						<input type="checkbox" class="toggle-extrusion-model-height" value="{{designLayerId}}" disabled="disabled"/>
+					{{/ifMatch}}
+					{{#ifMatch designLayerGroupType 'building_height'}}
+						<input type="checkbox" class="toggle-extrusion-model-height" value="{{designLayerId}}" disabled="disabled"/>
+					{{/ifMatch}}
+					<!-- building은 checkbox 없음 -->
+				</td>
 			</tr>
 			{{/each}}
 		{{else}}
