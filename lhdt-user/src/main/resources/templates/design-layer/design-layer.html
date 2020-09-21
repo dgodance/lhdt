@@ -36,9 +36,12 @@
 
 
 	<!-- Rectangular switch -->
-	<div style="margin-top:8px; margin-left:8px;">
+	<!-- <div style="margin-top:8px; margin-left:8px;">
 		<input type="checkbox" class="ds-toggle-land-updown">
 		전체 필지높이 조절		
+	</div> -->
+	<div style="margin-top:8px; margin-left:8px;">
+		<button type="button" class="textBtnSub reset-xxx">전체 초기화</button>		
 	</div>
 
 	<div class="ds-tool marT10" style="border: 1px solid #efefef;padding:5px;">
@@ -51,7 +54,7 @@
 			<button class="textBtnSub  design-layer-tool-rotate">회전</button>
 			<!-- <button class="textBtnSub  design-layer-tool-updown">건물높이조절</button> -->
 			<!-- <button class="textBtnSub  design-layer-tool-intersection">필지정보조회</button> -->
-			<button class="textBtnSub  design-layer-tool-landupdown">필지높이조절</button>
+			<!-- <button class="textBtnSub  design-layer-tool-landupdown">필지높이조절</button> -->
 		</div>
 	</div>
 
@@ -130,7 +133,7 @@
 			{{/each}}
 		{{else}}
 			<tr>
-				<td colspan="2">데이터가 없습니다.</td>
+				<td colspan="3">데이터가 없습니다.</td>
 			</tr>
 		{{/if}}
 	</tbody>

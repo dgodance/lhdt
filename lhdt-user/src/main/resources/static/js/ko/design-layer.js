@@ -33,6 +33,9 @@ const DesignLayerObj = function(){
 
     //단지가시화 모달리스
     this.$dialog = null;
+
+    //레이어 on/off 이력
+    this.toggleLayerHists = [];
 };
 
 /**
@@ -106,6 +109,132 @@ DesignLayerObj.prototype.init = function(){
 DesignLayerObj.prototype.setEventHandler = function(){
     let _this = this;
 
+
+    /**
+     * 전체 초기화 클릭
+     */
+    $('button.reset-xxx').click(function(){
+
+        //on만 filter
+        let _getOnLayers = function(){
+            let arr=[];
+            for(let i=0; i<_this.toggleLayerHists.length; i++){
+                let d = _this.toggleLayerHists[i];
+                // console.log(d);
+                if(d.isShow){
+                    arr.push(d);
+                }
+            }
+    
+            //
+            // console.log(arr);
+            return arr;
+        };
+
+
+        /**
+         * last -> first 중복제거
+         * @param {Array<Object>}
+         * @returns {Array<Object>}
+         */ 
+        let _deDupl = function(arr){
+            for(let i=arr.length-1; i>=1; i--){
+                let d1 = arr[i];
+    
+                for(let j=i-1; j>=0; j--){
+                    let d2 = arr[j];
+    
+                    //
+                    if(null === d2.designLayerId){
+                        continue;
+                    }
+    
+                    //
+                    if(d1.designLayerId == d2.designLayerId){
+                        d2.designLayerId = null;
+                    }
+                }
+            }
+            // console.log(arr);
+            //
+            return arr;
+        };
+
+        /**
+         * 현재 체크된 레이어 목록 조회    
+         * @returns {Array<String>} 현재 on중인 레이어 아이디 목록
+         */ 
+        let _getCheckedLayers = function(){
+            let designLayerIds = [];
+            $('input[name=design-layer-id]:checked').each(function(i,item){
+                designLayerIds.push(item.value);
+            });
+            // console.log('designLayerIds', designLayerIds);
+            //
+            return designLayerIds;
+        }; 
+
+
+        /**
+         * 모든 레이어 off
+         * @param {Array<String>} designLayerIds 현재 on중인 레이어 아이디 목록
+         * @param {void}
+         */ 
+        let _offLayers = function(designLayerIds){
+            for(let i=0; i<designLayerIds.length; i++){
+                let designLayerId = designLayerIds[i];
+    
+                
+                $('input[name=design-layer-id][value='+designLayerId+']').closest('td')
+                    .trigger('click');
+            }
+        };
+
+        /**
+         * 순서대로 레이어 on
+         * @param {Array<Object>} arr 이력 목록
+         * @param {Array<String>} designLayerIds 현재 on중인 레이어 아이디 목록
+         * @param {void}
+         */
+        let _onLayers = function(arr, designLayerIds){
+            for(let i=0; i<arr.length; i++){
+                let d = arr[i];
+    
+                if(null == d.designLayerId){
+                    continue;
+                }
+    
+                let b = false;
+                for(let j=0; j<designLayerIds.length; j++){
+                    let designLayerId = designLayerIds[j];
+    
+                    //
+                    if(d.designLayerId == designLayerId){
+                        b=true;
+                        break;
+                    }
+                }
+    
+                //
+                if(b){
+                    //해당 레이어 체크박스 클릭 이벤트 트리거 실행
+                    $('input[name=design-layer-id][value='+d.designLayerId+']').closest('td')
+                        .trigger('click');
+                }    
+            }
+        };
+
+        //
+        let arr = _getOnLayers();
+        //
+        arr = _deDupl(arr);
+        //
+        let designLayerIds = _getCheckedLayers();
+        //
+        _offLayers(designLayerIds);
+        //
+        _onLayers(arr, designLayerIds);
+    });
 
 
 
@@ -1703,7 +1832,17 @@ DesignLayerObj.prototype.renderDesignLayersByUrbanGroupId = function(urbanGroupI
                 $tr.find('input.toggle-extrusion-model-height')
                     .prop('disabled', true)
 					.prop('checked', false);				
-			}
+            }
+            
+            //
+            _this.toggleLayerHists.push({'designLayerId': designLayerId, 
+                                        'designLayerGroupType': $tr.data('design-layer-group-type'), 
+                                        'imageryLayer': _this.landLayer[designLayerId],
+                                        'isShow': b});
+            //building만 이력에 저장
+            // if(DesignLayerObj.GroupType.BUILDING['text'] == $tr.data('design-layer-group-type')){
+            //     _this.toggleLayerHists.push({'designLayerId':designLayerId, 'isShow':b});
+            // }
         });
         
 		
@@ -1873,7 +2012,7 @@ DesignLayerObj.prototype.extrusionModelBuildingToggle = function(model, isShow) 
                     //unit type
                     if(Pp.isNotEmpty(entity.properties['build_unit_type'])){
                         building.unitType = entity.properties['build_unit_type'].getValue();
-                        console.log('unittype', building);
+                        //console.log('unittype', building);
                     }else{
                         building.unitType = '0';
                     }
