@@ -171,7 +171,7 @@ AnalsLandScapeDiff.prototype.renderDiffContent = function(groupId, pageNum) {
  * @param {string} id
  */
 AnalsLandScapeDiff.prototype.flyToByCameraStatus = function(id){
-	Ppmap.removeAll();
+	//Ppmap.removeAll();
 	
 	//
     $.get(LS_DIFF_REST_URL + '/scene/' + id).done(function(res) {

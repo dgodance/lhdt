@@ -23,6 +23,13 @@
 			height: 100%;
 			background-color: #eee;
 		}
+		.mapWrap2 {
+			float:right;
+			width: calc(50% - 60px);
+			height: 100%;
+			background-color: #eee;
+			display:none;
+		}
 		#baseMapToggle div.on {
 			border-color : #0475F4 !important;
 			border-width : 2px !important;
@@ -134,6 +141,9 @@
 			<input id="timeInput"/>
 		</div>
 	</div>
+	
+	<div id="magoDivideContainer" class="mapWrap2">
+	</div>
 
 	<!-- E: MAP -->
 	</div>
@@ -230,6 +240,7 @@
 	}
 
 	var MAGO3D_INSTANCE;
+	var MAGO3D_DIVIDE_INSTANCE;
 	var LHDT = LHDT || {
 		policy : {},
 		dataGroup : {},

@@ -15,8 +15,10 @@ lsAnalsMoveTypeDropDownList.prototype.change = function (lsAnalsMoveInputBox) {
 		const val = that._val = $(this).val();
 		if(val === "0") {
 			that._height = 1.8;
-		} else {
+		} else if (val === "1") {
 			that._height = 1.5;
+		} else {
+			that._height = 15;
 		}
 		lsAnalsMoveInputBox.setText(that._height);
 	});

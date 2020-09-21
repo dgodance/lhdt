@@ -234,14 +234,15 @@ function AnalsHeightLandScapeView(viewer, magoInstance) {
         const lat = this._xyz1.lat;
         const alt = this._xyz1.alt;
         const pos = new Cesium.Cartesian3.fromDegrees(long, lat, alt + (height * 3.5));
+        const dirCart3 = new Cesium.Cartesian3(direction.x, direction.y, direction.z);
         return function wrap() {
             viewer.camera.setView({
                 destination  : pos,
                 orientation : {
-                    direction : new Cesium.Cartesian3(direction.x, direction.y, direction.z),
+                    direction : dirCart3,
                     up : new Cesium.Cartesian3()
                 }
-            })
+            });
         }
     }
     const lsHeightDropDown = new LSHeightDropDownList();

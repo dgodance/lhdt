@@ -1,13 +1,29 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
 <div id="sunShineContent" class="contents yScroll fullHeight" style="display:none;">
     <ul class="listDrop">
-
         <li class="on">
             <p>경관 분석(일조분석)<span class="collapse-icon">icon</span></p>
             <div class="listContents">
                 <ul class="analysisGroup">
                     <li>
-                        <label for="">날짜</label>
+                        <label for="solarTermDropDown">절기</label>
+                        <select id="solarTermDropDown" name="solarTermDropDown" style="width: 90px;">
+                            <option value="0">
+                                춘분
+                            </option>
+                            <option value="1">
+                                하지
+                            </option>
+                            <option value="3">
+                                추분
+                            </option>
+                            <option value="4">
+                                동지
+                            </option>
+                        </select>
+                    </li>
+                    <li>
+                        <label>날짜</label>
                         <!-- <input class="" type="text" id="solayDatePicker" placeholder="" value=""/> -->
                         <div class="tui-datepicker-input tui-datetime-input tui-has-focus">
                             <input type="text" id="sunshine-datepicker-input" aria-label="Date-Time">
