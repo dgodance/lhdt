@@ -144,22 +144,35 @@ function AnalsSunshine(viewer, magoInstance) {
 
                 //데이터 생성
                 let _createData = function(){
-                    let labels=[], datas=[];
+                    let json={};
                     for(let i=0; i<24; i++){
-                        labels.push(10>i ? '0'+i : i);
-                        datas.push(i);
+                        let k = 10>i ? '0' + i : ''+i;
+                        json[k] = 0;
                     }
 
+                    json['12'] = 95;
+                    json['13'] = 85;
+                    json['14'] = 60;
+                    json['15'] = 40;
+                    json['16'] = 10;
+
                     //
-                    return {'labels': labels, 'datas': datas};
+                    return json;
                 };
 
                 //차트 표시
-                let _showChart = function(labels, datas){
+                let _showChart = function(data){
+                    let datas=[];
+                    for(let i=0; i<24;i++){
+                        let k = 10>i ? '0'+i : ''+i;
+                        datas.push(data[k]);
+                    }
+
+                    //
                     let config = {
                         type: 'line',
                         data: {
-                            labels: labels,
+                            labels: Object.keys(data),
                             datasets: [{
                                 label: '일조량',
                                 data: datas,
@@ -182,11 +195,12 @@ function AnalsSunshine(viewer, magoInstance) {
                 }
 
                 //표 표시
-                let _showTable = function(labels, datas){
+                let _showTable = function(data){
                     let s1='<th style="width:55px;">시간</th>', s2='<td>일조량</td>';
-                    for(let i=0; i<labels.length; i++){
-                        s1 += '<th>'+labels[i]+'</th>';
-                        s2 += '<td>'+datas[i]+'</td>';
+                    for(let i=0; i<24; i++){
+                        let k = 10>i ? '0'+i : ''+i;
+                        s1 += '<th>'+k+'</th>';
+                        s2 += '<td>'+data[k]+'</td>';
                     }
                     $('.sunshine-result-report-modal table > thead').html('<tr>'+s1+'</tr>');
                     $('.sunshine-result-report-modal table > tbody').html('<tr>'+s2+'</tr>');
@@ -195,8 +209,8 @@ function AnalsSunshine(viewer, magoInstance) {
                 //
                 _showModal();
                 let json = _createData();
-                _showChart(json.labels, json.datas);
-                _showTable(json.labels, json.datas);
+                _showChart(json);
+                _showTable(json);
             });
         },
         getDate: function(data) {
