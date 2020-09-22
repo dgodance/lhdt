@@ -119,6 +119,84 @@ function AnalsSunshine(viewer, magoInstance) {
             this.obj.on('change', function() {
                 timeSlider.changeSunShineByDate();
             });
+
+
+            //분석결과 모달 표시
+            $('button.show-result').click(function(){
+
+                //모달 표시
+                let _showModal = function(){
+                    var dataGroupDialog = $( "div.sunshine-result-report-modal" ).dialog({
+                        autoOpen: false,
+                        height: 550,
+                        width: 1000,
+                        modal: true,
+                        overflow : "auto",
+                        resizable: false,
+                        buttons:{
+                            '닫기':function(){
+                                $(this).dialog('close')
+                            }
+                        }
+                    }).dialog('open');
+                };
+
+                //데이터 생성
+                let _createData = function(){
+                    let labels=[], datas=[];
+                    for(let i=0; i<24; i++){
+                        labels.push(10>i ? '0'+i : i);
+                        datas.push(i);
+                    }
+
+                    //
+                    return {'labels': labels, 'datas': datas};
+                };
+
+                //차트 표시
+                let _showChart = function(labels, datas){
+                    let config = {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: '일조량',
+                                data: datas,
+                                borderColor: 'red',
+                                fill: false,
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            title: {
+                                display: true,
+                            }
+                        },
+    
+                    };
+    
+                    //
+                    new Chart($('.sunshine-result-report-modal canvas.chart'), config);
+                    $('.sunshine-result-report-modal canvas.chart').css('height', 350);
+                }
+
+                //표 표시
+                let _showTable = function(labels, datas){
+                    let s1='<th style="width:55px;">시간</th>', s2='<td>일조량</td>';
+                    for(let i=0; i<labels.length; i++){
+                        s1 += '<th>'+labels[i]+'</th>';
+                        s2 += '<td>'+datas[i]+'</td>';
+                    }
+                    $('.sunshine-result-report-modal table > thead').html('<tr>'+s1+'</tr>');
+                    $('.sunshine-result-report-modal table > tbody').html('<tr>'+s2+'</tr>');
+                }
+
+                //
+                _showModal();
+                let json = _createData();
+                _showChart(json.labels, json.datas);
+                _showTable(json.labels, json.datas);
+            });
         },
         getDate: function(data) {
 
@@ -134,3 +212,8 @@ function AnalsSunshine(viewer, magoInstance) {
         changeDateTimePicker.init();
     });
 }
+
+// DEPRECATED
+window.randomScalingFactor = function() {
+    return Math.round(Samples.utils.rand(-100, 100));
+};

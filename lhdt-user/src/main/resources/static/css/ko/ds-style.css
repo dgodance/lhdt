@@ -70,7 +70,8 @@ div.design-layer-modeless-wrapper button[class*=floor-co] {
 
 
 
-table[class*=design-layer] {
+table[class*=design-layer],
+table[class=sunshine-result-report-table] {
     color: #444;
     font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
     font-size: 13px;
@@ -87,7 +88,8 @@ table[class*=design-layer] {
     width: calc(100% - 1px);
 }
 
-table[class*=design-layer] > thead {
+table[class*=design-layer] > thead,
+table[class=sunshine-result-report-table] > thead {
     color: #444;
     font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
     font-size: 13px;
@@ -102,7 +104,8 @@ table[class*=design-layer] > thead {
     vertical-align: top;
 }
 
-table[class*=design-layer] > thead > tr {
+table[class*=design-layer] > thead > tr,
+table[class=sunshine-result-report-table] > thead > tr {
     color: #444;
     font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
     font-size: 13px;
@@ -117,7 +120,8 @@ table[class*=design-layer] > thead > tr {
     vertical-align: top;
 }
 
-table[class*=design-layer] > thead > tr > th {
+table[class*=design-layer] > thead > tr > th,
+table[class=sunshine-result-report-table] > thead > tr > th {
     list-style: none;
     border-collapse: collapse;
     border-spacing: 0;
@@ -157,7 +161,8 @@ table[class*=design-layer] > thead > tr > th:last-child {
     border-right: none;
 }
 
-table[class*=design-layer] > tbody {
+table[class*=design-layer] > tbody,
+table[class=sunshine-result-report-table] > tbody {
     color: #444;
     font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
     font-size: 13px;
@@ -172,7 +177,8 @@ table[class*=design-layer] > tbody {
     vertical-align: top;
 }
 
-table[class*=design-layer] > tbody > tr{
+table[class*=design-layer] > tbody > tr,
+table[class=sunshine-result-report-table] > tbody > tr {
     color: #444;
     font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
     font-size: 13px;
@@ -189,7 +195,8 @@ table[class*=design-layer] > tbody > tr{
     background-color: white;
 }
 
-table[class*=design-layer] > tbody > tr > td{
+table[class*=design-layer] > tbody > tr > td,
+table[class=sunshine-result-report-table] > tbody > tr > td {
     list-style: none;
     border-collapse: collapse;
     border-spacing: 0;
