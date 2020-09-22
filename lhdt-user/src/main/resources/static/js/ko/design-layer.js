@@ -3045,6 +3045,10 @@ DesignLayerObj.prototype.getLandVoByLand = function(land){
         for(let i=0; i<buildings.length; i++){
             let d = buildings[i];
 
+            if(Pp.isEmpty(d.area)){
+                continue;
+            }
+
             totBuildingArea += d.area;
         }
 
@@ -3085,6 +3089,10 @@ DesignLayerObj.prototype.getLandVoByLand = function(land){
          let tot=0;
          for(let i=0; i<buildings.length; i++){
              let d = buildings[i];
+
+             if(Pp.isEmpty(d.area)){
+                 continue;
+             }
  
              //
              tot += (d.area * _this.toFloorCo(d.getHeight()));
