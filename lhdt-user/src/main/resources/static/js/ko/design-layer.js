@@ -877,68 +877,75 @@ DesignLayerObj.prototype.toggleExtrusionBuilding = function(d, isShow){
         }
         
         let color={};
-        color['단독주택'] = '#ffff81';
-        color['공동주택(연립)'] = '#fee07e';
-        color['공동주택(아파트)'] = '#febd00';
-        color['상업용지'] = '#fd0002';
-        color['준주거용지'] = '#fefa03';
-        color['근린생활시설용지'] = '#fefa03';
-        color['공장용지'] = '#de7fff';
-        color['업무시설'] = '#0080ff';
-        color['공공청사'] = '#0080ff';
-        color['학교'] = '#01fffd';
-        color['종교용지'] = '#ff80ff';
-        color['종합의료시설'] = '#7fbffd';
-        color['사회복지시설'] = '#7e9fff';
-        color['문화시설'] = '#7e9fff';
-        color['도서관'] = '#7e9fff';
-        color['체육시설용지'] = '#6fdca3';
-        color['주유소'] = '#dda46f';
-        color['시장'] = '#fe0002';
-        color['유통업무설비'] = '#ff00be';
-        color['자동차정류장'] = '#de6d89';
-        color['주차장'] = '#c8c8c8';
-        color['공영차고지'] = '#e3e3e3';
-        color['도시지원용지'] = '#00a5db';
-        color['근린공원'] = '#00de01';
-        color['주제공원'] = '#00de01';
-        color['체육공원'] = '#00de01';
-        color['어린이공원'] = '#00de01';
-        color['완충녹지'] = '#81fe02';
-        color['경관녹지'] = '#81fe02';
-        color['연결녹지'] = '#81fe02';
-        color['공공녹지'] = '#a5dd00';
-        color['광장'] = '#dec171';
-        color['유원지'] = '#baff10';
-        color['운동장'] = '#00ba89';
-        color['하천'] = '#00c0fe';
-        color['저류지'] = '#7fe0ff';
-        color['수도용지'] = '#01dddd';
-        color['하수도시설'] = '#01dddd';
-        color['전기공급설비'] = '#df6fc3';
         color['가스공급설비'] = '#df6fc3';
-        color['열공급설비'] = '#df6fc3';
-        color['폐기물처리시설'] = '#df6fc3';
+        color['경관녹지'] = '#81fe02';
+        color['공공녹지'] = '#a5dd00';
+        color['공공청사'] = '#0080ff';
+        color['공동주택(아파트)'] = '#febd00';
+        color['공동주택(연립)'] = '#fee07e';
+        color['공영차고지'] = '#e3e3e3';
+        color['공장용지'] = '#de7fff';
+        color['광장'] = '#dec171';
+        color['근린공원'] = '#00de01';
+        color['근린생활시설용지'] = '#fefa03';
+        color['농업관련용지'] = '#bdfe7c';
+        color['단독주택'] = '#ffff81';
         color['도로'] = '#ffffff';
+        color['도서관'] = '#7e9fff';
+        color['도시지원용지'] = '#00a5db';
+        color['문화시설'] = '#7e9fff';
         color['보행자전용도로'] = '#d4a617';
         color['복합용지'] = '#ff809e';
-        color['농업관련용지'] = '#bdfe7c';
+        color['사회복지시설'] = '#7e9fff';
+        color['상업용지'] = '#fd0002';
+        color['수도용지'] = '#01dddd';
+        color['시장'] = '#fe0002';
+        color['어린이공원'] = '#00de01';
+        color['업무시설'] = '#0080ff';
+        color['연결녹지'] = '#81fe02';
+        color['열공급설비'] = '#df6fc3';
+        color['완충녹지'] = '#81fe02';
+        color['운동장'] = '#00ba89';
+        color['유원지'] = '#baff10';
+        color['유통업무설비'] = '#ff00be';
+        color['자동차정류장'] = '#de6d89';
         color['재활용회수시설'] = '#c1dd6f';
+        color['저류지'] = '#7fe0ff';
+        color['전기공급설비'] = '#df6fc3';
+        color['종교용지'] = '#ff80ff';
+        color['종합의료시설'] = '#7fbffd';
+        color['주유소'] = '#dda46f';
+        color['주제공원'] = '#00de01';
+        color['주차장'] = '#c8c8c8';
+        color['준주거용지'] = '#fefa03';
+        color['체육공원'] = '#00de01';
+        color['체육시설용지'] = '#6fdca3';
+        color['폐기물처리시설'] = '#df6fc3';
+        color['하수도시설'] = '#01dddd';
+        color['하천'] = '#00c0fe';
+        color['학교'] = '#01fffd';
 
         let landuseZoning = entity._properties._landuse_zoning._value;
 
         if(Pp.isNotEmpty(landuseZoning)){
-            return color[landuseZoning];
+            let c = color[landuseZoning];
+            if(Pp.isEmpty(c)){
+                console.log(landuseZoning);
+                return '#efefef';
+            }else{
+                return c;
+            }
         }
 
         //
-        return '#ffffff';
+        return '#efefef';
     };
 
 
     //
     if(!isShow){
-        this.offExtrusionModel(d.data.designLayerId);       
+        this.offExtrusionModel(d.data.designLayerId);
+        this.offLimitInfo();
         //
         return;
     }
@@ -948,10 +955,12 @@ DesignLayerObj.prototype.toggleExtrusionBuilding = function(d, isShow){
     let layerName = imageryProvider.layers;
     let currentCqlFilter = imageryProvider._resource.queryParameters.cql_filter;
 
+    let _this = this;
+    startLoading();
     //feature 정보 요청
     this.getFeatures({ 'typeNames': layerName, 'cql_filter': currentCqlFilter }, function (e) {
         let entities = e.entities.values;
-
+        
         //
         for (let i = 0; i < entities.length; i++) {
             let entity = entities[i];
@@ -979,10 +988,48 @@ DesignLayerObj.prototype.toggleExtrusionBuilding = function(d, isShow){
              * magoManager에 속한 modeler 인스턴스의 addObject 메소드를 통해 모델 등록, 뒤의 숫자는 데이터가 표출되는 최소 레벨을 의미. 숫자가 낮을수록 멀리서 보임
              */
             Ppmap.getManager().modeler.addObject(building, 12);
+            
+            /**
+             * 필지 폴리곤 정보로 건물에 제한 정보 설정
+             */ 
+            if(entity.properties.landuse_zoning.getValue() === '공동주택(아파트)') {
+            	polygonHierarchy.pop();
+                _this.setLimitInfoByPolygon(polygonHierarchy, h);
+            }
         }
+        stopLoading();
     });
 };
+/**
+ * 필지 폴리곤 정보로 건물에 제한 정보 설정
+ * @param {Array<Cesium.Cartesin3>} polygonHierarchy 영역제한 정보 및 건물 찾기 용도
+ * @param {number} h 높이 제한 값
+ */
+DesignLayerObj.prototype.setLimitInfoByPolygon = function(polygonHierarchy, h) {
+	
+	let geographicCoordsList = Mago3D.GeographicCoordsList.fromCartesians(polygonHierarchy); 
+    let polygon2ds = Mago3D.Polygon2D.makePolygonByGeographicCoordArray(geographicCoordsList.geographicCoordsArray);
+    
+    let buildings = this.getBuildingsByPolygon2D(polygon2ds);
+    
+    if(buildings.length === 0) return;
+    
+    for(let i in buildings) {
+    	let building = buildings[i];
+    	building.setLimitationGeographicCoords(geographicCoordsList.geographicCoordsArray);
+    	building.setLimitationHeight(h+building.terrainHeight);
+    }
+}
 
+/**
+ * 건물 제한 정보 해제, 임시로 건물 전체 해제
+ */
+DesignLayerObj.prototype.offLimitInfo = function() {
+	Ppmap.getManager().modeler.objectsArray.forEach(function(building) {
+		building.setLimitationGeographicCoords(undefined);
+		building.setLimitationHeight(0);
+	});
+}
 
 /**
  * selecteImageryLayer로 필지 높이조절하기
@@ -2027,6 +2074,7 @@ DesignLayerObj.prototype.extrusionModelWMSToggle = function(model, isShow){
             	
             	var viewer = Ppmap.getViewer();
             	var designLayerGroupType = json.designLayerGroupType;
+            	startLoading();
             	new Cesium.GeoJsonDataSource().load(req).then(function(e) {
       				var entities = e.entities.values;
       				var ds = new Cesium.CustomDataSource();
@@ -3430,7 +3478,17 @@ DesignLayerObj.prototype.getBuildingsByLonLats = function(lonLats){
     let polygon2ds = Mago3D.Polygon2D.makePolygonByGeographicCoordArray(arr);
     
     //
-    return Ppmap.getManager().frustumVolumeControl.selectionByPolygon2D(polygon2ds, 'native');
+    return this.getBuildingsByPolygon2D(polygon2ds);
+}
+
+/**
+ * Mago3D Polygon2D으로 ExtrusionBuilding 목록 구하기
+ * @param {Mago3D.Polygon2D} polygon2d 좌표 목록
+ * @returns {Array<ExtrusionBuilding>}
+ */
+DesignLayerObj.prototype.getBuildingsByPolygon2D = function(polygon2d){
+    //
+    return Ppmap.getManager().frustumVolumeControl.selectionByPolygon2D(polygon2d, 'native');
 }
 
 
