@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * 경관 분석
- * @author gravity@daumsoft.com
+ * @author gravity
  * @since 2020. 8. 20.
  *
  */

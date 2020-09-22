@@ -5,7 +5,7 @@ package lhdt.cmmn.misc;
 
 /**
  * mybatis용 mapper의 부모
- * @author gravity@daumsoft.com
+ * @author gravity
  * @since 2020. 8. 10.
  *
  */

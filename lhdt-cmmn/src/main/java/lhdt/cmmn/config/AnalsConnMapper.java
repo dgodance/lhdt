@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * lhdt-anals접속 for mybatis 
- * @author gravity@daumsoft.com
+ * @author gravity
  *
  */
 @Target({ElementType.TYPE})

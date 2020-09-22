@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 유틸리티
- * @author gravity@daumsoft.com
+ * @author gravity
  * @since 2020. 8. 18.
  *
  */

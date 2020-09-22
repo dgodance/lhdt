@@ -37,7 +37,7 @@ lsSavedAnalsWidget.prototype.reqeustDataBylsAnalsPg = function(lsAnalsPg) {
         param += '?lsDiffPage='+lsAnalsPg;
     }
     $.ajax({
-        url: 'http://172.30.1.58:9091/adminsvc/ls-point-rest' + param,
+		url: 'http://118.42.112.206:5891/adminsvc/ls-point-rest' + param,
         method: 'GET'
     }).done(function(data) {
         that.defaultRenderByData(data);
@@ -391,7 +391,8 @@ LsAnalsAutoObj.prototype.createTwoPoints = function(){
 
 			//분석. 0.5초 지연
 			setTimeout(function(){
-				_this.doAnals();				
+				_this.doAnals();
+                Ppmap.removeAll();
 			}, 500);
 		}
 			
@@ -453,16 +454,15 @@ LsAnalsAutoObj.prototype.doAnals = function(){
 
 //
 let lsAnalsAutoObj = new LsAnalsAutoObj();
+$(function() {
+    let interval = setInterval(function(){
+        if(0 != Ppui.find('.ds-create-two-points').length){
+            //
+            clearInterval(interval);
+            lsAnalsAutoObj.init();
+        }
 
-window.addEventListener('load', function(){
-	let interval = setInterval(function(){
-		if(null != Ppui.find('.ds-create-two-points')){
-			//
-			clearInterval(interval);
-			lsAnalsAutoObj.init();
-		}
-
-	}, 500);
+    }, 500);
 })
 
 // $(function() {

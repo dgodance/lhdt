@@ -36,7 +36,7 @@ import org.springframework.http.HttpStatus;
 
 /**
  * 이것저것 유틸리티
- * @author gravity@daumsoft.com
+ * @author gravity
  *
  */
 public class CmmnUtils extends PpUtil{

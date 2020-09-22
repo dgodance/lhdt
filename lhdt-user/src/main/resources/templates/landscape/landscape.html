@@ -28,8 +28,31 @@
 <!--                </ul>-->
 <!--            </div>-->
 <!--        </li>-->
+        <!-- 경관보기는 필요없을꺼같음.. 경관 분석에 옵션을 주면 해결될 것으로 보임. -->
         <li class="on">
-            <p th:text="경관분석"><span class="collapse-icon">icon</span></p>
+            <p th:text="경관보기"><span class="collapse-icon">icon</span></p>
+            <div style="display: block;
+                padding: 10px;
+                border: 1px solid #e0e0e0;
+                background-color: #fff;">
+                <div id="lsHeightViewContent">
+                </div>
+            </div>
+        </li>
+        <li class="on">
+            <p th:text="조망점비교"><span class="collapse-icon">icon</span></p>
+            <div style="display: block;
+                padding: 10px;
+                border: 1px solid #e0e0e0;
+                background-color: #fff;">
+                <div id="landscapeDiffDataDiv">
+                </div>
+                <div id="landscapeDiffDetDataDiv">
+                </div>
+            </div>
+        </li>
+        <li class="on">
+            <p th:text="경관시뮬레이션"><span class="collapse-icon">icon</span></p>
             <div id="landScapeAnalsProcess"
                  style="display: block;
                 padding: 10px;
@@ -44,10 +67,13 @@
                         <option value="1">
                             자동차
                         </option>
+                        <option value="2">
+                            사용자
+                        </option>
                     </select>
                     <input type="number" id="landscapeMoveTypeName" name="landscapeMoveTypeName"
                            style="width: 95px;"
-                           placeholder="분석높이" size="5" step="0.1">
+                           placeholder="분석높이" size="5" step="0.5">
                     <label for="lsAnalsActionGroup">작업 방식</label>
                     <select id="lsAnalsActionGroup" name="lsAnalsActionGroup">
                         <option value="0">
@@ -63,40 +89,17 @@
                 </div>
             </div>
         </li>
-        <li class="on">
-            <p th:text="경관비교"><span class="collapse-icon">icon</span></p>
-            <div style="display: block;
-                padding: 10px;
-                border: 1px solid #e0e0e0;
-                background-color: #fff;">
-                <div id="landscapeDiffDataDiv">
-                </div>
-                <div id="landscapeDiffDetDataDiv">
-                </div>
-            </div>
-        </li>
         <!-- 경관보기는 필요없을꺼같음.. 경관 분석에 옵션을 주면 해결될 것으로 보임. -->
-        <li class="on">
-            <p th:text="경관높이분석"><span class="collapse-icon">icon</span></p>
-            <div style="display: block;
-                padding: 10px;
-                border: 1px solid #e0e0e0;
-                background-color: #fff;">
-                <div id="lsHeightViewContent">
-                </div>
-            </div>
-        </li>
-        <!-- 경관보기는 필요없을꺼같음.. 경관 분석에 옵션을 주면 해결될 것으로 보임. -->
-        <li class="on" style="display: none">
-            <p th:text="경관보기"><span class="collapse-icon">icon</span></p>
-            <div style="display: block;
-                padding: 10px;
-                border: 1px solid #e0e0e0;
-                background-color: #fff;">
-                <div id="lsViewContent">
-                </div>
-            </div>
-        </li>
+<!--        <li class="on" style="display: none">-->
+<!--            <p th:text="경관보기"><span class="collapse-icon">icon</span></p>-->
+<!--            <div style="display: block;-->
+<!--                padding: 10px;-->
+<!--                border: 1px solid #e0e0e0;-->
+<!--                background-color: #fff;">-->
+<!--                <div id="lsViewContent">-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </li>-->
     </ul>
 
 

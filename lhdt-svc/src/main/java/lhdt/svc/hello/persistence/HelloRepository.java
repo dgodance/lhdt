@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import lhdt.svc.hello.domain.Hello;
 
 /**
- * @author gravity@daumsoft.com
+ * @author gravity
  * @since 2020. 8. 13.
  *
  */

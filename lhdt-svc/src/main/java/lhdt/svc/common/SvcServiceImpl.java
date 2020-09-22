@@ -7,7 +7,7 @@ import lhdt.cmmn.misc.CmmnServiceImpl;
 
 /**
  * 모든 service impl 의 부모
- * @author gravity@daumsoft.com
+ * @author gravity
  *
  */
 public  class SvcServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> extends CmmnServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> implements SvcService<DOMAIN, IDTYPE> {
@@ -376,7 +376,7 @@ public  class SvcServiceImpl<JPA, MAPPER, DOMAIN, IDTYPE> extends CmmnServiceImp
 //
 ///**
 // * FieldAndOrder를 order순으로 정렬
-// * @author gravity@daumsoft.com
+// * @author gravity
 // * @since 2020. 8. 10.
 // *
 // */

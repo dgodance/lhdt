@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * sample controller
- * @author gravity@daumsoft.com
+ * @author gravity
  *
  */
 @Slf4j

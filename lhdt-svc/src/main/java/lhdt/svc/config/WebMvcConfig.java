@@ -28,7 +28,7 @@ import org.thymeleaf.templateresolver.ITemplateResolver;
 import lhdt.cmmn.interceptor.CmmnMiscInterceptor;
 
 /**
- * @author gravity@daumsoft.com
+ * @author gravity
  *
  */
 @Slf4j

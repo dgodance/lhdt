@@ -11,7 +11,7 @@ var KTDatatableRemoteAjaxDemo = function() {
                 type: 'remote',
                 source: {
                     read: {
-                        url: 'http://localhost:9091/adminsvc/ls-diff-group-rest',
+                        url: 'http://118.42.112.206:5891/adminsvc/ls-diff-group-rest',
                         map: function(raw) {
                             // sample data mapping
                             var dataSet = raw;

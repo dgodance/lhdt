@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * 지구 계획
- * @author gravity@daumsoft.com
+ * @author gravity
  * @since 2020. 8. 20.
  *
  */

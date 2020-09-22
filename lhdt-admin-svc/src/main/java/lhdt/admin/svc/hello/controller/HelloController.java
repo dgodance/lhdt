@@ -17,7 +17,7 @@ import lhdt.admin.svc.hello.service.HelloService;
 import lhdt.cmmn.misc.CmmnConst;
 
 /**
- * @author gravity@daumsoft.com
+ * @author gravity
  * @since 2020. 8. 14.
  *
  */

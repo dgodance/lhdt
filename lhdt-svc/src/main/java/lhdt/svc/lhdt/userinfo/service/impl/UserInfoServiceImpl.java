@@ -14,7 +14,7 @@ import lhdt.svc.lhdt.userinfo.persistence.UserInfoRepository;
 import lhdt.svc.lhdt.userinfo.service.UserInfoService;
 
 /**
- * @author gravity@daumsoft.com
+ * @author gravity
  * @since 2020. 8. 13.
  *
  */

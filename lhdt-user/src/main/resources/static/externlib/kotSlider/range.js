@@ -1,4 +1,4 @@
-var KotSlider = function (inputId) {
+var KotSlider = function (inputId, callbackFn) {
     if (!document.getElementById(inputId) || !document.getElementById(inputId).tagName == 'INPUT') throw '"' + inputId + '" 라는 id의 input이 없습니다.';
 
     var defaultOptions = {
@@ -14,6 +14,9 @@ var KotSlider = function (inputId) {
     this.step = defaultOptions.step;
     this.duration = defaultOptions.duration;
     this.t = defaultOptions.min;
+
+	//자동실행 완료 후 호출할 콜백함수 gravity 0922
+    this.callbackFn = callbackFn;
 
     this.init();
 }
@@ -192,6 +195,8 @@ KotSlider.prototype.setSlider = function (id) {
             if (t + step > max) {
                 clearInterval(timer);
                 startButton.onclick = start;
+                //
+                that.callbackFn();
                 return;
             }
             t = t + step;

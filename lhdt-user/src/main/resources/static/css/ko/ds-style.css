@@ -23,14 +23,20 @@
 .cursor-pointer {cursor:pointer !important;}
 .cursor-default {cursor:default !important;}
 
+.display-none {display:none !important;}
+
 .w-30 {width:30% !important;}
 
 .ui-dialog { z-index: 1000 !important ;}
 
 .fw-bold {font-weight: bold !important;}
 
+.color-red {color:red !important;}
+.color-normal { color: #3f48cc !important}
+.color-exceed { color: #cc3f3f !important}
+
 button.textBtnSub.active {background-color:#258FFF; color:white; font-weight:bold;background-image: url('../../images/ico_checked.png') !important; background-repeat: no-repeat; background-size: 32px;}
-button[class*=ds-tool], button[class*=design-layer-tool] {width:49% !important; margin-bottom:2px;}
+button[class*=ds-tool], button[class*=design-layer-tool] {width:23% !important; margin-bottom:2px;}
 button[class*=ds-tool][class=active] {background-image: '../../images/ico_checked.png'; background-repeat: no-repeat;}
 
 table.ds-data-library-list > tbody > tr {font-weight:normal; background-color:white;}
@@ -66,7 +72,8 @@ div.design-layer-modeless-wrapper button[class*=floor-co] {
 
 
 
-table[class*=design-layer] {
+table[class*=design-layer],
+table[class=sunshine-result-report-table] {
     color: #444;
     font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
     font-size: 13px;
@@ -83,7 +90,8 @@ table[class*=design-layer] {
     width: calc(100% - 1px);
 }
 
-table[class*=design-layer] > thead {
+table[class*=design-layer] > thead,
+table[class=sunshine-result-report-table] > thead {
     color: #444;
     font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
     font-size: 13px;
@@ -98,7 +106,8 @@ table[class*=design-layer] > thead {
     vertical-align: top;
 }
 
-table[class*=design-layer] > thead > tr {
+table[class*=design-layer] > thead > tr,
+table[class=sunshine-result-report-table] > thead > tr {
     color: #444;
     font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
     font-size: 13px;
@@ -113,7 +122,8 @@ table[class*=design-layer] > thead > tr {
     vertical-align: top;
 }
 
-table[class*=design-layer] > thead > tr > th {
+table[class*=design-layer] > thead > tr > th,
+table[class=sunshine-result-report-table] > thead > tr > th {
     list-style: none;
     border-collapse: collapse;
     border-spacing: 0;
@@ -153,7 +163,8 @@ table[class*=design-layer] > thead > tr > th:last-child {
     border-right: none;
 }
 
-table[class*=design-layer] > tbody {
+table[class*=design-layer] > tbody,
+table[class=sunshine-result-report-table] > tbody {
     color: #444;
     font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
     font-size: 13px;
@@ -168,7 +179,8 @@ table[class*=design-layer] > tbody {
     vertical-align: top;
 }
 
-table[class*=design-layer] > tbody > tr{
+table[class*=design-layer] > tbody > tr,
+table[class=sunshine-result-report-table] > tbody > tr {
     color: #444;
     font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
     font-size: 13px;
@@ -185,7 +197,8 @@ table[class*=design-layer] > tbody > tr{
     background-color: white;
 }
 
-table[class*=design-layer] > tbody > tr > td{
+table[class*=design-layer] > tbody > tr > td,
+table[class=sunshine-result-report-table] > tbody > tr > td {
     list-style: none;
     border-collapse: collapse;
     border-spacing: 0;
@@ -212,7 +225,7 @@ table[class*=design-layer] > tbody > tr > td:last-child {
     font-weight: bold !important;
     margin: 0;
     outline: 0;
-    color: #444;
+    color: #3f48cc;
     font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
     line-height: 1.5em;
     /* text-align: left  !important; */

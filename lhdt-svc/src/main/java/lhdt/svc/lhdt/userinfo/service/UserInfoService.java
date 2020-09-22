@@ -8,7 +8,7 @@ import java.util.List;
 import lhdt.svc.lhdt.userinfo.domain.UserInfo;
 
 /**
- * @author gravity@daumsoft.com
+ * @author gravity
  * @since 2020. 8. 13.
  *
  */

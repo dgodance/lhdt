@@ -140,6 +140,9 @@ dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
     implementation 'com.vladmihalcea:hibernate-types-52:2.9.7'
+
+    //
+    compile fileTree(dir:'libs', include:['*.jar'])
 }
 
 test {
