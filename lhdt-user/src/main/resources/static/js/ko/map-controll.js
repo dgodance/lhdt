@@ -1124,30 +1124,62 @@ $(document).ready(function() {
 			});
 		}
 	});
-	
+
+	// BBOX
 	$('#mapSettingBboxToggle').click(function() {
 		$(this).toggleClass('on');
 		
 		var magoManager = MAGO3D_INSTANCE.getMagoManager();
 		magoManager.magoPolicy.setShowBoundingBox($(this).hasClass('on'));
 	});
-	
+
+	// LABEL
 	$('#mapSettingLabelToggle').click(function() {
 		$(this).toggleClass('on');
 		var magoManager = MAGO3D_INSTANCE.getMagoManager();
 		magoManager.magoPolicy.setShowLabelInfo($(this).hasClass('on'));
 	});
-	
+
+	// ORIGIN
 	$('#mapSettingOriginToggle').click(function() {
 		$(this).toggleClass('on');
 		var magoManager = MAGO3D_INSTANCE.getMagoManager();
 		magoManager.magoPolicy.setShowOrigin($(this).hasClass('on'));
 	});
-	
+
+	// SHADOW
 	$('#mapSettingShadowToggle').click(function() {
 		$(this).toggleClass('on');
 		var magoManager = MAGO3D_INSTANCE.getMagoManager();
 		magoManager.sceneState.setApplySunShadows($(this).hasClass('on'));
+	});
+
+	// SELECT, MOVE MODE
+	$('#selectModeF4d').click(function() {
+		$(this).siblings('button').removeClass('on');
+		$(this).toggleClass('on');
+	});
+	$('#moveModeF4d').click(function() {
+		$(this).siblings('button').removeClass('on');
+		$(this).toggleClass('on');
+	});
+
+	$('#selectModeObject').click(function() {
+		$(this).siblings('button').removeClass('on');
+		$(this).toggleClass('on');
+	});
+	$('#moveModeObject').click(function() {
+		$(this).siblings('button').removeClass('on');
+		$(this).toggleClass('on');
+	});
+
+	$('#selectModeNative').click(function() {
+		$(this).siblings('button').removeClass('on');
+		$(this).toggleClass('on');
+	});
+	$('#moveModeNative').click(function() {
+		$(this).siblings('button').removeClass('on');
+		$(this).toggleClass('on');
 	});
 
 	// 확대
