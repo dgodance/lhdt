@@ -666,9 +666,13 @@ DesignLayerObj.prototype.setSelectionInteraction = function(onOff){
         //
         Ppmap.getManager().defaultSelectInteraction.setTargetType('native');
         Ppmap.getManager().defaultSelectInteraction.setActive(onOff);
+        Ppmap.getManager().defaultSelectInteraction.setFilter(function(m) {
+        	return !m.hasOwnProperty('designLayerId');
+        });
         Ppmap.getManager().isCameraMoved = true;
     }else{
         Ppmap.getManager().defaultSelectInteraction.setActive(onOff);
+        Ppmap.getManager().defaultSelectInteraction.setFilter(undefined);
         Ppmap.getManager().off(Mago3D.MagoManager.EVENT_TYPE.SELECTEDF4D, this.selectedf4dCallback);
         Ppmap.getManager().off(Mago3D.MagoManager.EVENT_TYPE.LEFTUP, this.leftupCallback);
         Ppmap.getManager().off(Mago3D.MagoManager.EVENT_TYPE.CHANGEHEIGHT, this.changeHeightCallback);
@@ -1702,8 +1706,18 @@ DesignLayerObj.prototype.extrusionModelWMSToggle = function(model, isShow){
 	          				});
                	 		}
                	 		ds.clustering.enabled = true;
-               	 		ds.clustering.pixelRange = 5;
-               	 		ds.clustering.minimumClusterSize = 3;
+               	 		ds.clustering.pixelRange = 40;
+               	 		ds.clustering.minimumClusterSize = 5;
+               	 		ds.clustering.clusterPoints = false;
+               	 		ds.clustering.clusterBillboards = false; 
+               	 		
+               	 		ds.clustering.clusterEvent.addEventListener(function (clusteredEntities, cluster, e) {
+               	 			if(cluster.label.id.length > 5) {
+               	 				cluster.label.show = false;
+               	 			} else {
+               	 				cluster.label.show = true;
+               	 			}
+               	        });
       				} else if(designLayerGroupType === 'building_height') {
       					var designLayerName = json.designLayerName;
                	 		for(var i in entities) {
@@ -1838,7 +1852,7 @@ DesignLayerObj.prototype.extrusionModelBuildingToggle = function(model, isShow) 
                     
                     // let h = parseFloat(entity.properties.build_height._value);
                     // var building = Mago3D.ExtrusionBuilding.makeExtrusionBuildingByCartesian3Array(polygonHierarchy.reverse(), _this.toFloorCo(h))
-                    let building = entityToMagoExtrusionBuilding(entity);
+                    let building = entityToMagoExtrusionBuilding(entity, model.layername);
                     
                     building.layerId = model.id; 
                     building['__originHeight'] = Pp.nvl(building.getHeight(), 0.0);

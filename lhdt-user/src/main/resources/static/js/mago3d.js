@@ -14829,9 +14829,17 @@ MagoRenderable.prototype.render = function(magoManager, shader, renderType, glPr
 	{
 		if(this.options.limitationGeographicCoords)
 		{
-			gl.uniform1i(shader.clippingType_loc, 2); // 2= clipping locally by polygon2d.***
+			if(this.options.limitationHeights)
+			{
+				gl.uniform2fv(shader.limitationHeights_loc, this.options.limitationHeights);
+				gl.uniform1i(shader.clippingType_loc, 4); // 2= clipping locally by polygon2d.***
+			}
+			else{
+				gl.uniform1i(shader.clippingType_loc, 2); // 2= clipping locally by polygon2d.***
+			}
+			
 			gl.uniform2fv(shader.clippingPolygon2dPoints_loc, this.uniformPoints2dArray);
-			gl.uniform1i(shader.clippingConvexPolygon2dPointsIndices_loc, this.uniformPolygonPointsIdx);
+			gl.uniform1iv(shader.clippingConvexPolygon2dPointsIndices_loc, this.uniformPolygonPointsIdx);
 
 			var dynCol4 = this.options.limitationInfringingDynamicColor4;
 			if(dynCol4)
@@ -14843,8 +14851,25 @@ MagoRenderable.prototype.render = function(magoManager, shader, renderType, glPr
 				gl.uniform4fv(shader.limitationInfringedColor4_loc, new Float32Array([1.0, 0.5, 0.2, 1.0]));
 			}
 		}
-		else{
-			gl.uniform1i(shader.clippingType_loc, 0); // 0= no clipping.***
+		else
+		{
+			if(this.options.limitationHeights)
+			{
+				gl.uniform2fv(shader.limitationHeights_loc, this.options.limitationHeights);
+				gl.uniform1i(shader.clippingType_loc, 3); // 3= clipping locally by heights.***
+				var dynCol4 = this.options.limitationInfringingDynamicColor4;
+				if(dynCol4)
+				{
+					dynCol4.updateColorAlarm(magoManager.getCurrentTime());
+					gl.uniform4fv(shader.limitationInfringedColor4_loc, new Float32Array([dynCol4.r, dynCol4.g,dynCol4.b, dynCol4.a]));
+				}
+				else{
+					gl.uniform4fv(shader.limitationInfringedColor4_loc, new Float32Array([1.0, 0.5, 0.2, 1.0]));
+				}
+			}
+			else{
+				gl.uniform1i(shader.clippingType_loc, 0); // 0= no clipping.***
+			}
 		}
 	}
 	
@@ -15583,1939 +15608,6 @@ LodAPI.changeLod = function(api, magoManager)
 	if (api.getLod4DistInMeters() !== null && api.getLod4DistInMeters() !== "") { magoManager.magoPolicy.setLod4DistInMeters(api.getLod4DistInMeters()); }
 	if (api.getLod5DistInMeters() !== null && api.getLod5DistInMeters() !== "") { magoManager.magoPolicy.setLod5DistInMeters(api.getLod5DistInMeters()); }
 };
-'use strict';
-
-/**
- * 
- * @exception {Error} Messages.CONSTRUCT_ERROR
- * 
- * @class AbsControl. abstract class
- * @constructor
- * @abstract
- * 
- * @param {object} options
- */
-var AbsControl = function(options) 
-{
-	if (!(this instanceof AbsControl)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-    
-	var element = options.element;
-	if (element && !options.target && !element.style.pointerEvents) 
-	{
-		element.style.pointerEvents = 'auto';
-	}
-
-	this.element = element ? element : undefined;
-	this.target = options.target ? options.target : undefined;
-	this.magoManager;
-};
-
-AbsControl.prototype.setControl = function(magoManager)
-{
-	this.magoManager = magoManager;
-
-	var target = this.target ? this.target : this.magoManager.defaultControlContainer;
-	target.appendChild(this.element);
-	this.target = target;
-};
-
-/**
- * button element set basic style 
- * @param {HTMLElement} element 
- */
-AbsControl.prototype.setBtnStyle = function(element)
-{
-	element.style.display = 'block';
-	element.style.margin = '1px';
-	element.style.padding = 0;
-	element.style.color = 'white';
-	element.style.fontSize = '1.14em';
-	element.style.fontWeight = 'bold';
-	element.style.textDecoration = 'none';
-	element.style.textAlign = 'center';
-	element.style.height = '42px';
-	element.style.width = '42px';
-	element.style.lineHeight = '.4em';
-	element.style.border = 'none';
-	element.style.backgroundColor = 'rgba(148,216,246, 0.8)';
-    
-	element.addEventListener(
-		'mouseenter',
-		function()
-		{
-			element.style.filter = 'invert(30%)';
-		},
-		false
-	);
-    
-	element.addEventListener(
-		'mouseleave',
-		function()
-		{
-			element.style.filter = 'none';
-		},
-		false
-	);
-};
-
-/**
- * button element set basic style 
- * @param {HTMLElement} element 
- */
-AbsControl.prototype.setTextBtn = function(element)
-{
-	element.style.display = 'inline-block';
-	element.style.margin = '1px';
-	element.style.padding = 0;
-	element.style.color = 'white';
-	element.style.fontSize = '.84em';
-	element.style.fontWeight = 'bold';
-	element.style.textDecoration = 'none';
-	element.style.textAlign = 'center';
-	element.style.height = '1.75em';
-	element.style.width = '4.575em';
-	element.style.lineHeight = '.4em';
-	element.style.border = 'none';
-	element.style.backgroundColor = 'rgba(148,216,246, 0.8)';
-};
-'use strict';
-/**
- * 줌 컨트롤
- * @exception {Error} Messages.CONSTRUCT_ERROR
- * 
- * @constructor
- * @class Attribution
- * @param {Attribution~Options} options position info. coordinate. required.
- *  
- * @extends AbsControl
- * 
- */
-var Attribution = function(options) 
-{
-	if (!(this instanceof Attribution)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	var element = document.createElement('div');
-	options = options ? options : {};
-	options.element = element;
-    
-	AbsControl.call(this, options);
-};
-
-Attribution.prototype = Object.create(AbsControl.prototype);
-Attribution.prototype.constructor = Attribution;
-
-
-Attribution.prototype.setControl = function(magoManager)
-{
-	this.magoManager = magoManager;
-
-	if (this.magoManager.isCesiumGlobe())
-	{
-		var creditDisplay = this.magoManager.scene.frameState.creditDisplay;
-		var mago3d_credit = new Cesium.Credit('<a href="http://www.mago3d.com/" target="_blank"><img class="mago3d_logo" src="/images/logo_mago3d.png" title="Mago3D" alt="Mago3D" /></a>', true);
-		creditDisplay.addDefaultCredit(mago3d_credit);
-	}
-	else 
-	{
-		var target = this.target ? this.target : this.magoManager.overlayContainer;
-	    target.appendChild(this.element);
-	}
-};
-'use strict';
-/**
- * 줌 컨트롤
- * @exception {Error} Messages.CONSTRUCT_ERROR
- * 
- * @constructor
- * @class Compass
- * @param {Compass~Options} options position info. coordinate. required.
- *  
- * @extends AbsControl
- * 
- */
-var Compass = function(options) 
-{
-	if (!(this instanceof Compass)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	var element = document.createElement('div');
-	options = options ? options : {};
-	options.element = element;
-    
-	AbsControl.call(this, options);
-    
-	element.style.position = 'absolute';
-	element.style.pointerEvents = 'auto';
-	element.style.backgroundColor = 'rgba(255,255,255,0.4)';
-	element.style.borderRadius = '4px';
-	element.style.padding = '2px';
-	element.style.top = '24.0em';
-	element.style.right = '.5em';
-
-	var that = this;
-	var homeButton = document.createElement('button');
-	homeButton.setAttribute('type', 'button');
-	homeButton.title = 'init position';
-	homeButton.appendChild(document.createTextNode('\uD83E\uDDED'));
-
-	this.setBtnStyle(homeButton);
-	homeButton.style.backgroundColor = 'rgba(217, 217, 217, 0.8)';
-
-	this.element.appendChild(homeButton);
-};
-
-Compass.prototype = Object.create(AbsControl.prototype);
-Compass.prototype.constructor = Compass;
-'use strict';
-/**
- * 줌 컨트롤
- * @exception {Error} Messages.CONSTRUCT_ERROR
- * 
- * @constructor
- * @class FullScreen
- * @param {FullScreen~Options} options position info. coordinate. required.
- *  
- * @extends AbsControl
- * 
- */
-var FullScreen = function(options) 
-{
-	if (!(this instanceof FullScreen)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	var element = document.createElement('div');
-	options = options ? options : {};
-	options.element = element;
-    
-	AbsControl.call(this, options);
-    
-	var that = this;
-	this.full = false;
-
-	element.style.position = 'absolute';
-	element.style.pointerEvents = 'auto';
-	element.style.backgroundColor = 'rgba(255,255,255,0.4)';
-	element.style.borderRadius = '4px';
-	element.style.padding = '2px';
-	element.style.top = '4.5em';
-	element.style.right = '.5em';
-
-	var fullButton = document.createElement('button');
-	fullButton.setAttribute('type', 'button');
-	fullButton.title = 'Full Screen';
-    
-	var imageSpan = document.createElement('span');
-	imageSpan.appendChild(document.createTextNode('\u21C5'));
-	imageSpan.style.transform = 'rotate(0.1turn)';
-	imageSpan.style.display = 'inline-block';
-	imageSpan.style.verticalAlign = 'super';
-	imageSpan.style.lineHeight = '0.6em';
-	fullButton.appendChild(imageSpan);
-
-	fullButton.appendChild(document.createElement('br'));
-
-	var textSpan = document.createElement('span');
-	textSpan.appendChild(document.createTextNode('전체화면'));
-	textSpan.style.fontSize = '10px';
-	textSpan.style.verticalAlign = 'baseline';
-	textSpan.style.lineHeight = '0.6em';
-	fullButton.appendChild(textSpan);
-
-	this.setBtnStyle(fullButton);
-
-	fullButton.addEventListener(
-		'click',
-		that.handleClick.bind(that),
-		false
-	);
-    
-	this.fullButtonElement = fullButton;
-    
-	var cancleButton = document.createElement('button');
-	cancleButton.setAttribute('type', 'button');
-	cancleButton.title = 'Cancle Full Screen';
-
-	var cancleImageSpan = document.createElement('span');
-	cancleImageSpan.appendChild(document.createTextNode('\u2716'));
-	cancleImageSpan.style.verticalAlign = 'super';
-	cancleImageSpan.style.lineHeight = '0.6em';
-	cancleButton.appendChild(cancleImageSpan);
-
-	cancleButton.appendChild(document.createElement('br'));
-
-	var cancleTextSpan = document.createElement('span');
-	cancleTextSpan.appendChild(document.createTextNode('취소'));
-	cancleTextSpan.style.fontSize = '10px';
-	cancleTextSpan.style.verticalAlign = 'baseline';
-	cancleTextSpan.style.lineHeight = '0.6em';
-	cancleButton.appendChild(cancleTextSpan);
-
-	this.setBtnStyle(cancleButton);
-	cancleButton.style.display = 'none';
-    
-	cancleButton.addEventListener(
-		'click',
-		that.handleClick.bind(that),
-		false
-	);
-    
-	this.cancleButtonElement = cancleButton;
-
-	this.element.appendChild(fullButton);
-	this.element.appendChild(cancleButton);
-};
-
-FullScreen.prototype = Object.create(AbsControl.prototype);
-FullScreen.prototype.constructor = FullScreen;
-
-FullScreen.prototype.handleClick = function()
-{
-	var target = document.getElementById(this.magoManager.config.getContainerId());
-	if (this.full)
-	{
-		if (isFullScreen())
-		{
-			this.fullButtonElement.style.display = 'block';
-			this.cancleButtonElement.style.display = 'none';
-			exitFullScreen();
-
-			this.full = false;
-		}
-	}
-	else 
-	{
-		if (isFullScreenSupported())
-		{
-			this.fullButtonElement.style.display = 'none';
-			this.cancleButtonElement.style.display = 'block';
-			requestFullScreen(target);
-
-			this.full = true;
-		}
-	}
-    
-	function isFullScreenSupported() 
-	{
-		var body = document.body;
-		return !!(
-			body.webkitRequestFullscreen ||
-          (body.msRequestFullscreen && document.msFullscreenEnabled) ||
-          (body.requestFullscreen && document.fullscreenEnabled)
-		);
-	}
-    
-	function isFullScreen() 
-	{
-		return !!(
-			document.webkitIsFullScreen ||
-          document.msFullscreenElement ||
-          document.fullscreenElement
-		);
-	}
-
-	function requestFullScreen(element) 
-	{
-		if (element.requestFullscreen) 
-		{
-			element.requestFullscreen();
-		}
-		else if (element.msRequestFullscreen) 
-		{
-			element.msRequestFullscreen();
-		}
-		else if (element.webkitRequestFullscreen) 
-		{
-			element.webkitRequestFullscreen();
-		}
-	}
-
-	function exitFullScreen() 
-	{
-		if (document.exitFullscreen) 
-		{
-			document.exitFullscreen();
-		}
-		else if (document.msExitFullscreen) 
-		{
-			document.msExitFullscreen();
-		}
-		else if (document.webkitExitFullscreen) 
-		{
-			document.webkitExitFullscreen();
-		}
-	}
-};
-'use strict';
-/**
- * 줌 컨트롤
- * @exception {Error} Messages.CONSTRUCT_ERROR
- * 
- * @constructor
- * @class InitCamera
- * @param {InitCamera~Options} options position info. coordinate. required.
- *  
- * @extends AbsControl
- * 
- */
-var InitCamera = function(options) 
-{
-	if (!(this instanceof InitCamera)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	var element = document.createElement('div');
-	options = options ? options : {};
-	options.element = element;
-    
-	AbsControl.call(this, options);
-    
-	element.style.position = 'absolute';
-	element.style.pointerEvents = 'auto';
-	element.style.backgroundColor = 'rgba(255,255,255,0.4)';
-	element.style.borderRadius = '4px';
-	element.style.padding = '2px';
-	element.style.top = '1.0em';
-	element.style.right = '.5em';
-
-	var that = this;
-	var homeButton = document.createElement('button');
-	homeButton.setAttribute('type', 'button');
-	homeButton.title = 'init position';
-
-	var imageSpan = document.createElement('span');
-	imageSpan.appendChild(document.createTextNode('\uD83C\uDFE0'));
-	imageSpan.style.verticalAlign = 'text-top';
-	imageSpan.style.lineHeight = '0.6em';
-	homeButton.appendChild(imageSpan);
-
-	homeButton.appendChild(document.createElement('br'));
-
-	var textSpan = document.createElement('span');
-	textSpan.appendChild(document.createTextNode('처음으로'));
-	textSpan.style.fontSize = '10px';
-	textSpan.style.verticalAlign = 'baseline';
-	textSpan.style.lineHeight = '0.6em';
-	homeButton.appendChild(textSpan);
-	
-	this.setBtnStyle(homeButton);
-	homeButton.style.backgroundColor = 'rgba(217, 217, 217, 0.8)';
-    
-	homeButton.addEventListener(
-		'click',
-		that.handleClick.bind(that),
-		false
-	);
-
-	this.element.appendChild(homeButton);
-};
-
-InitCamera.prototype = Object.create(AbsControl.prototype);
-InitCamera.prototype.constructor = InitCamera;
-
-InitCamera.prototype.handleClick = function()
-{
-	if (this.magoManager.isCesiumGlobe())
-	{
-		var config = this.magoManager.configInformation;
-		if (config.initCameraEnable)
-		{
-			var lon = parseFloat(config.initLongitude);
-			var lat = parseFloat(config.initLatitude);
-			var height = parseFloat(config.initAltitude);
-			var duration = parseInt(config.initDuration);
-
-			if (isNaN(lon) || isNaN(lat) || isNaN(height)) 
-			{
-				throw new Error('Longitude, Latitude, Height must number type.');
-			}
-
-			if (isNaN(duration)) { duration = 3; }
-			this.magoManager.flyTo(lon, lat, height, duration);
-		}
-	}
-};
-'use strict';
-/**
- * 줌 컨트롤
- * @exception {Error} Messages.CONSTRUCT_ERROR
- * 
- * @constructor
- * @class Measure
- * @param {Measure~Options} options position info. coordinate. required.
- *  
- * @extends AbsControl
- * 
- */
-var Measure = function(options) 
-{
-	if (!(this instanceof Measure)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	var element = document.createElement('div');
-	options = options ? options : {};
-	options.element = element;
-    
-	AbsControl.call(this, options);
-
-	this.buttons = {};
-
-	element.style.position = 'absolute';
-	element.style.pointerEvents = 'auto';
-	element.style.backgroundColor = 'rgba(255,255,255,0.4)';
-	element.style.borderRadius = '4px';
-	element.style.padding = '2px';
-	element.style.bottom = '9.5em';
-	element.style.right = '.5em';
-
-
-	setButton(this, 'length', '\uD83D\uDCCF', 'Measure Length', '거리측정');
-	setButton(this, 'area', '\u26F6', 'Measure Area', '면적측정');
-	setButton(this, 'height', '\u2BB8', 'Measure Height', '높이측정');
-
-	function setButton(thisArg, type, text, title, description)
-	{
-		var button = document.createElement('button');
-		button.setAttribute('type', 'button');
-		button.title = title;
-
-		var imageSpan = document.createElement('span');
-		imageSpan.appendChild(document.createTextNode(text));
-		imageSpan.style.verticalAlign = 'super';
-		imageSpan.style.lineHeight = '0.6em';
-		button.appendChild(imageSpan);
-
-		button.appendChild(document.createElement('br'));
-
-		var textSpan = document.createElement('span');
-		textSpan.appendChild(document.createTextNode(description));
-		textSpan.style.fontSize = '10px';
-		textSpan.style.verticalAlign = 'baseline';
-		textSpan.style.lineHeight = '0.6em';
-		button.appendChild(textSpan);
-
-		thisArg.setBtnStyle(button);
-		button.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
-		button.style.display = 'inline-block';
-		thisArg.buttons[type] = {
-			status  : false,
-			element : button
-		};
-		thisArg.element.appendChild(button);
-        
-		button.addEventListener(
-			'click',
-			thisArg.handleClick.bind(thisArg, type),
-			false
-		);
-	}
-};
-
-Measure.prototype = Object.create(AbsControl.prototype);
-Measure.prototype.constructor = Measure;
-
-Measure.prototype.handleClick = function(e)
-{
-	if (this.buttons[e].status)
-	{
-		var button = this.buttons[e];
-		button.status = false;
-		button.element.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
-	}
-	else 
-	{
-		for (var buttonName in this.buttons)
-		{
-			if (this.buttons.hasOwnProperty(buttonName))
-			{
-				var button = this.buttons[buttonName];
-				if (buttonName === e)
-				{
-					button.element.style.backgroundColor = 'rgba(148,216,246, 0.8)';
-					button.status = true;
-				}
-				else 
-				{
-					button.element.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
-					button.status = false;
-				}
-			}
-		}
-		alert('기능 준비중');
-	}
-};
-'use strict';
-/**
- * 줌 컨트롤
- * @exception {Error} Messages.CONSTRUCT_ERROR
- * 
- * @constructor
- * @class Zoom
- * @param {Zoom~Options} options position info. coordinate. required.
- *  
- * @extends AbsControl
- * 
- */
-var OverviewMap = function(options) 
-{
-	if (!(this instanceof OverviewMap)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	var element = document.createElement('div');
-	options = options ? options : {};
-	options.element = element;
-	
-	AbsControl.call(this, options);
-    
-	var id = 'mago3dOlMap';
-	element.id = id;
-	element.style.position = 'absolute';
-	element.style.pointerEvents = 'auto';
-	element.style.borderRadius = '4px';
-	element.style.padding = '2px';
-	element.style.bottom = '.5em';
-	element.style.right = '.5em';
-	element.style.width = '135px';
-	element.style.height = '135px';
-	element.style.borderRadius = '4px';
-	element.style.border = '2px solid #CCE5EC';
-};
-
-OverviewMap.prototype = Object.create(AbsControl.prototype);
-OverviewMap.prototype.constructor = OverviewMap;
-
-OverviewMap.prototype.setControl = function(magoManager)
-{
-	this.magoManager = magoManager;
-
-	var target = this.target ? this.target : this.magoManager.defaultControlContainer;
-	target.appendChild(this.element);
-    
-
-	var vectorlayer = new OlMago3d.layer.VectorLayer({
-		source: new OlMago3d.source.VectorSource()
-	});
-    
-	var tilelayer = new OlMago3d.layer.TileLayer({
-		source: new OlMago3d.source.XYZ({
-			url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.png'
-		})
-	});
-    
-	this.overviewMap = new OlMago3d.Map({
-		target : 'mago3dOlMap',
-		view   : new OlMago3d.View({
-			zoom       : 3,
-			center     : [0, 0],
-			projection : 'EPSG:4326'
-		}),
-		layers   : [tilelayer, vectorlayer],
-		controls : OlMago3d.control.defaults({
-			attribution : true,
-			zoom        : false,
-			rotate      : false,
-		}),
-		interactions: OlMago3d.interaction.defaults({
-			altShiftDragRotate : false,
-			onFocusOnly        : false,
-			doubleClickZoom    : false,
-			keyboard           : false,
-			mouseWheelZoom     : false,
-			shiftDragZoom      : false,
-			dragPan            : false,
-			pinchRotate        : false,
-			pinchZoom          : false
-		})
-	});
-    
-	this.overviewMap.overlayContainerStopEvent_.style.pointerEvents = 'none';
-
-	if (this.magoManager.isCesiumGlobe())
-	{
-		var scene = this.magoManager.scene;
-		var feature = null;
-
-		var map = this.overviewMap;
-		var view = map.getView();
-		var toLonLat = OlMago3d.proj.getTransform(view.getProjection(), 'EPSG:4326');
-		var fromLonLat = OlMago3d.proj.getTransform('EPSG:4326', view.getProjection());
-        
-		syncByMago();
-		view.on('change:resolution', function()
-		{
-			//syncByOl();
-		});
-		view.on('change:center', function()
-		{
-			//syncByOl();
-		});
-    
-		view.on('change:rotation', function()
-		{
-			//syncByOl();
-		});
-    
-		this.magoManager.on('isCameraMoved', function()
-		{
-			syncByMago();
-		});
-
-		function syncByMago()
-		{
-			var viewRectangle = scene.camera.computeViewRectangle(scene.globe.ellipsoid);
-            
-			var minx = (viewRectangle.west < viewRectangle.east) ? viewRectangle.west : viewRectangle.east;
-			var miny = (viewRectangle.south < viewRectangle.north) ? viewRectangle.south : viewRectangle.north;
-			var maxx = (viewRectangle.west > viewRectangle.east) ? viewRectangle.west : viewRectangle.east;
-			var maxy = (viewRectangle.south > viewRectangle.north) ? viewRectangle.south : viewRectangle.north;
-
-			var extent = [Cesium.Math.toDegrees(minx), Cesium.Math.toDegrees(miny), Cesium.Math.toDegrees(maxx), Cesium.Math.toDegrees(maxy)];
-			var geomPolygon = OlMago3d.geom.Polygon.fromExtent(extent);
-			
-			if (!feature)
-			{
-				feature = new OlMago3d.Feature({
-					geometry: geomPolygon
-				});
-				vectorlayer.getSource().addFeature(feature);
-			}
-			else 
-			{
-				feature.setGeometry(geomPolygon);
-			}
-            
-			var ellipsoid = Cesium.Ellipsoid.WGS84;
-			var canvas = scene.canvas;
-			var canvasCenter = new Cesium.Cartesian2(canvas.clientWidth / 2, canvas.clientHeight / 2);
-			var ray = scene.camera.getPickRay(canvasCenter);
-			var targetCenter = scene.globe.pick(ray, scene) || scene.camera.pickEllipsoid(canvasCenter);
-
-			var bestTarget = targetCenter;
-			if (!bestTarget) 
-			{
-				//TODO: how to handle this properly ?
-				var globe = scene.globe;
-				var carto = scene.camera.positionCartographic.clone();
-				var height = globe.getHeight(carto);
-				carto.height = height || 0;
-				bestTarget = Cesium.Ellipsoid.WGS84.cartographicToCartesian(carto);
-			}
-
-			var distance = Cesium.Cartesian3.distance(bestTarget, scene.camera.position);
-			view.fit(extent, {size: getSizeByDistance(distance)});
-			return;
-			var ellipsoid = Cesium.Ellipsoid.WGS84;
-			var canvas = scene.canvas;
-			var canvasCenter = new Cesium.Cartesian2(canvas.clientWidth / 2, canvas.clientHeight / 2);
-			var ray = scene.camera.getPickRay(canvasCenter);
-			var targetCenter = scene.globe.pick(ray, scene) || scene.camera.pickEllipsoid(canvasCenter);
-
-			var bestTarget = targetCenter;
-			if (!bestTarget) 
-			{
-				//TODO: how to handle this properly ?
-				var globe = scene.globe;
-				var carto = scene.camera.positionCartographic.clone();
-				var height = globe.getHeight(carto);
-				carto.height = height || 0;
-				bestTarget = Cesium.Ellipsoid.WGS84.cartographicToCartesian(carto);
-			}
-
-			var distance = Cesium.Cartesian3.distance(bestTarget, scene.camera.position);
-			var bestTargetCartographic = ellipsoid.cartesianToCartographic(bestTarget);
-            
-			var properties = {};
-			//var c = fromLonLat(toDegree(bestTargetCartographic.longitude), toDegree(bestTargetCartographic.latitude));
-			properties.center = [toDegree(bestTargetCartographic.longitude), toDegree(bestTargetCartographic.latitude)];
-			properties.resolution = calcResolutionForDistance(canvas, distance, bestTargetCartographic ? bestTargetCartographic.latitude : 0);
-
-			view.setProperties(properties, true);
-			view.changed();
-
-			function calcResolutionForDistance(cv, dis, lat)
-			{
-				var fovy = scene.camera.frustum.fovy;
-				var metersPerUnit = view.getProjection().getMetersPerUnit();
-
-				var visibleMeters = 2 * dis * Math.tan(fovy / 2);
-				var relativeCircumference = Math.cos(Math.abs(lat));
-				var visibleMapUnits = visibleMeters / metersPerUnit / relativeCircumference;
-				var resolution = visibleMapUnits / cv.clientHeight;
-
-				return resolution;
-			}
-		}
-
-		function syncByOl()
-		{     
-			var center = view.getCenter();
-			if (!center)
-			{
-				return;
-			}
-
-			var ll = toLonLat(center);
-			var carto = new Cesium.Cartographic(toRadian(ll[0]), toRadian(ll[1]));
-			if (scene.globe)
-			{
-				carto.height = scene.globe.getHeight(carto) || 0;
-			}
-
-			var destination = Cesium.Ellipsoid.WGS84.cartographicToCartesian(carto);
-			var oritentation = {
-				pitch   : 0 - Cesium.Math.PI_OVER_TWO,
-				heading : -view.getRotation(),
-				roll    : undefined
-			};
-
-			scene.camera.setView({
-				destination,
-				oritentation
-			});
-
-			scene.camera.moveBackward(calcDistanceForResolution(view.getResolution(), toRadian(ll[1])));
-            
-			function calcDistanceForResolution(res, lat)
-			{
-				var canvas = scene.canvas;
-				var fovy = scene.camera.frustum.fovy;
-
-				var metersPerUnit = view.getProjection().getMetersPerUnit();
-				var visibleMapUnits = res * canvas.clientHeight;
-				var relativeCircumference = Math.cos(Math.abs(lat));
-
-				var visibleMeters = visibleMapUnits * metersPerUnit * relativeCircumference;
-				var requiredDistance = (visibleMeters / 2) / Math.tan(fovy / 2);
-
-				return requiredDistance;
-			}
-		}
-		function getSizeByDistance(d)
-		{
-			var num = 0;
-			if (d < 5000)
-			{
-				num = 90;
-			}
-			else if (d < 20000)
-			{
-				num = 70;
-			}
-			else if (d < 70000)
-			{
-				num = 50;
-			}
-			else 
-			{
-				num = 30;
-			}
-
-			return [num, num];
-		}
-
-		function toRadian(deg)
-		{
-			return deg * Math.PI / 180;
-		}
-
-		function toDegree(rad)
-		{
-			return rad * 180 /Math.PI;
-		}
-	}
-};
-'use strict';
-/**
- * 줌 컨트롤
- * @exception {Error} Messages.CONSTRUCT_ERROR
- * 
- * @constructor
- * @class Tools
- * @param {Tools~Options} options position info. coordinate. required.
- *  
- * @extends AbsControl
- * 
- */
-var Tools = function(options) 
-{
-	if (!(this instanceof Tools)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	var element = document.createElement('div');
-	options = options ? options : {};
-	options.element = element;
-    
-	AbsControl.call(this, options);
-
-	this.tools = {};
-
-	element.style.position = 'absolute';
-	element.style.pointerEvents = 'auto';
-	element.style.backgroundColor = 'rgba(255,255,255,0.4)';
-	element.style.borderRadius = '4px';
-	element.style.padding = '2px';
-	element.style.top = '7.5em';
-	element.style.right = '.5em';
-    
-	element.addEventListener(
-		'mouseover',
-		this.handleMouseOver.bind(this),
-		false
-	);
-
-	element.addEventListener(
-		'mouseout',
-		this.handleMouseOut.bind(this),
-		false
-	);
-
-	var that = this;
-	element.addEventListener('click',
-		function() 
-		{
-			var mainContainer = document.getElementById(that.magoManager.config.getContainerId()).getElementsByClassName('mago3d-overlayContainer-defaultContent').item(0);
-			var thisContainer = mainContainer.getElementsByClassName('mago3d-tools-advance').item(0);
-			var on = element.className.indexOf('on') >= 0;
-			if (!on)
-			{
-				that.target.style.right = '320px';
-				mainContainer.style.display = 'block';
-				mainContainer.style.right = '0px';
-				var toolsDivs = mainContainer.getElementsByClassName('mago3d-tools-div');
-				for (var i =0, len=toolsDivs.length;i<len;i++)
-				{
-					var toolDiv = toolsDivs.item(i);
-					toolDiv.style.display = 'none';
-				}
-				thisContainer.style.display = 'block';
-				element.className = 'on';
-				element.getElementsByTagName('button')[0].style.backgroundColor = 'rgba(148,216,246, 0.8)';
-			}
-			else 
-			{
-				thisContainer.style.display = 'none';
-				that.target.style.right = '0px';
-				mainContainer.style.display = 'none';
-				mainContainer.style.right = '0px';
-				element.className = '';
-				element.getElementsByTagName('button')[0].style.backgroundColor = 'rgba(70, 70, 70, 0.8)';
-			}
-		}
-		, false);
-    
-	var button = document.createElement('button');
-	button.setAttribute('type', 'button');
-	button.title = 'Tool Box';
-
-	var imageSpan = document.createElement('span');
-	imageSpan.appendChild(document.createTextNode('\u2699'));
-	imageSpan.style.verticalAlign = 'super';
-	imageSpan.style.lineHeight = '0.6em';
-	button.appendChild(imageSpan);
-
-	button.appendChild(document.createElement('br'));
-
-	var textSpan = document.createElement('span');
-	textSpan.appendChild(document.createTextNode('설정'));
-	textSpan.style.fontSize = '10px';
-	textSpan.style.verticalAlign = 'baseline';
-	textSpan.style.lineHeight = '0.6em';
-	button.appendChild(textSpan);
-
-	this.setBtnStyle(button);
-	button.style.backgroundColor = 'rgba(217, 217, 217, 0.8)';
-	element.appendChild(button);
-};
-
-Tools.prototype = Object.create(AbsControl.prototype);
-Tools.prototype.constructor = Tools;
-
-Tools.prototype.setControl = function(magoManager)
-{
-	this.magoManager = magoManager;
-
-	var target = this.target ? this.target : magoManager.defaultControlContainer;
-	target.appendChild(this.element);
-	this.target = target;
-
-	var advanceToolDiv = document.createElement('div');
-	advanceToolDiv.style.position = 'absolute';
-	advanceToolDiv.style.float = 'right';
-	advanceToolDiv.style.width = '100%';
-	advanceToolDiv.style.backgroundColor = '#FFFFFF';
-	advanceToolDiv.style.pointerEvents = 'auto';
-	advanceToolDiv.style.display = 'none';
-	advanceToolDiv.className = 'mago3d-tools-div mago3d-tools-advance';
-
-	magoManager.defaultContentContainer.appendChild(advanceToolDiv);
-
-	var basicSettingsDiv = getGroupDiv('기본 설정');
-	advanceToolDiv.appendChild(basicSettingsDiv);
-
-	var basicSettingBtnDiv = document.createElement('div');
-	basicSettingBtnDiv.style.marginTop = '5px';
-	basicSettingsDiv.appendChild(basicSettingBtnDiv);
-
-	var that = this;
-	var basicBtns = [];
-	var bboxBtnObj = getBasicButtonObject('bbox', 'BoundingBox Toggle', 'BBOX', 'toggle', function(value) 
-	{
-		that.magoManager.magoPolicy.setShowBoundingBox(value);
-	});
-	var labelBtnObj = getBasicButtonObject('label', 'Label Toggle', 'LABEL', 'toggle', function(value) 
-	{
-		that.magoManager.magoPolicy.setShowLabelInfo(value);
-		
-		// clear the text canvas.
-		var canvas = that.magoManager.getObjectLabel();
-		var ctx = canvas.getContext("2d");
-		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-	});
-	var originBtnObj = getBasicButtonObject('orgin', 'Origin Toggle', 'ORIGIN', 'toggle', function(value) 
-	{
-		that.magoManager.magoPolicy.setShowOrigin(value);
-	});
-	var shadowBtnObj = getBasicButtonObject('shadow', 'Shadow Toggle', 'SHADOW', 'toggle', function(value) 
-	{
-		that.magoManager.sceneState.setApplySunShadows(value);
-	});
-
-	basicBtns.push(bboxBtnObj);
-	basicBtns.push(labelBtnObj);
-	basicBtns.push(originBtnObj);
-	basicBtns.push(shadowBtnObj);
-
-	for (var i=0, btnLength=basicBtns.length;i<btnLength;i++)
-	{
-		var basicBtn = basicBtns[i];
-		var elem = basicBtn.element;
-		basicSettingBtnDiv.appendChild(elem);
-
-		elem.addEventListener(
-			'click',
-			that.handleToolClick.bind(this, basicBtn),
-			false
-		);
-	}
-
-	var basicSettingInputDiv = document.createElement('div');
-	basicSettingInputDiv.style.padding = '0 5px 0 0';
-	basicSettingInputDiv.style.margin = '5px 5px 0 5px';
-	basicSettingsDiv.appendChild(basicSettingInputDiv);
-
-	var ssaoDiv = document.createElement('div'); 
-	ssaoDiv.style.padding = '4px';
-	ssaoDiv.style.margin = '10px 0px 4px';
-	ssaoDiv.style.outline = '0px 0px 4px';
-	ssaoDiv.style.verticalAlign = 'top';
-	ssaoDiv.style.backgroundColor = 'rgb(243,243,243)';
-	ssaoDiv.style.borderRadius = '12px';
-	ssaoDiv.style.borderStyle = 'none';
-	ssaoDiv.className = 'mago3d-tools-ssao-div';
-	basicSettingInputDiv.appendChild(ssaoDiv);
-
-	var ssaoLabel = document.createElement('label');
-	ssaoLabel.style.width = '25%';
-	ssaoLabel.style.padding = '2px';
-	ssaoLabel.style.verticalAlign = 'middle';
-	ssaoLabel.style.display = 'inline-block';
-	ssaoLabel.style.textAlign = 'justify';
-	ssaoLabel.style.fontSize = '13.33333px';
-	ssaoLabel.setAttribute('for', 'ssaoRadius');
-	ssaoLabel.appendChild(document.createTextNode('SSAO'));
-	ssaoDiv.appendChild(ssaoLabel);
-
-	var ssaoInput = document.createElement('input');
-	ssaoInput.style.width = '45%';
-	ssaoInput.style.marginRight = '5px';
-	ssaoInput.style.padding = '5px';
-	ssaoInput.style.fontSize = 'small';
-	ssaoInput.style.verticalAlign = 'middle';
-	ssaoInput.style.lineHeight = '1.5em';
-	ssaoInput.style.color = '#444';
-	ssaoInput.setAttribute('id', 'ssaoRadius');
-	ssaoInput.setAttribute('name', 'ssaoRadius');
-	ssaoInput.setAttribute('type', 'text');
-	ssaoInput.setAttribute('value', magoManager.configInformation.ssaoRadius);
-	ssaoDiv.appendChild(ssaoInput);
-
-	var ssaoBtn = document.createElement('button');
-	ssaoBtn.setAttribute('type', 'button');
-	ssaoBtn.style.display = 'inline-block';
-	ssaoBtn.style.verticalAlign = 'middle';
-	ssaoBtn.style.padding = '2px 10px';
-	ssaoBtn.style.fontSize = '12px';
-	ssaoBtn.style.color = '#FFFFFF';
-	ssaoBtn.style.borderRadius = '12px';
-	ssaoBtn.style.borderStyle = 'none';
-	ssaoBtn.style.backgroundColor = '#636363';
-	ssaoBtn.appendChild(document.createTextNode('적용'));
-	ssaoBtn.addEventListener(
-		'click',
-		function() 
-		{
-			var ssao = ssaoInput.value;
-			if (isNaN(ssao)) 
-			{
-				alert('숫자만 입력 가능합니다.');
-				return;
-			} 
-			magoManager.magoPolicy.setSsaoRadius(ssao);
-			magoManager.sceneState.ssaoRadius[0] = Number(ssao);
-		},
-		false
-	);
-	ssaoDiv.appendChild(ssaoBtn); 
-	
-	var lodDiv = document.createElement('div'); 
-	lodDiv.style.padding = '4px';
-	lodDiv.style.margin = '10px 0px 4px';
-	lodDiv.style.outline = '0px 0px 4px';
-	lodDiv.style.verticalAlign = 'top';
-	lodDiv.style.backgroundColor = 'rgb(243,243,243)';
-	lodDiv.style.borderRadius = '12px';
-	lodDiv.style.borderStyle = 'none';
-	lodDiv.className = 'mago3d-tools-lod-div';
-	basicSettingInputDiv.appendChild(lodDiv);
-
-	var lodh3 = document.createElement('h3');
-	lodh3.style.fontSize = '15px';
-	lodh3.appendChild(document.createTextNode('Level of Detail'));
-	lodDiv.appendChild(lodh3);
-	
-	for (var i=0;i<6;i++)
-	{
-		var id = 'geoLod' + i;
-		var name = 'lod' + i;
-
-		var lodLabel = document.createElement('label');
-		lodLabel.style.width = '25%';
-		lodLabel.style.padding = '2px';
-		lodLabel.style.verticalAlign = 'middle';
-		lodLabel.style.display = 'inline-block';
-		lodLabel.style.textAlign = 'justify';
-		lodLabel.style.fontSize = '13.33333px';
-		lodLabel.setAttribute('for', id);
-		lodLabel.appendChild(document.createTextNode(name.toUpperCase()));
-		lodDiv.appendChild(lodLabel);
-
-		var lodInput = document.createElement('input');
-		lodInput.style.width = '45%';
-		lodInput.style.marginRight = '5px';
-		lodInput.style.padding = '5px';
-		lodInput.style.fontSize = 'small';
-		lodInput.style.verticalAlign = 'middle';
-		lodInput.style.lineHeight = '1.5em';
-		lodInput.style.color = '#444';
-		lodInput.setAttribute('id', id);
-		lodInput.setAttribute('name', name);
-		lodInput.setAttribute('type', 'text');
-		lodInput.setAttribute('value', magoManager.configInformation[name]);
-		lodDiv.appendChild(lodInput);
-	}
-
-	var lodBtn = document.createElement('button');
-	lodBtn.setAttribute('type', 'button');
-	lodBtn.style.display = 'inline-block';
-	lodBtn.style.verticalAlign = 'middle';
-	lodBtn.style.padding = '2px 10px';
-	lodBtn.style.fontSize = '12px';
-	lodBtn.style.color = '#FFFFFF';
-	lodBtn.style.borderRadius = '12px';
-	lodBtn.style.borderStyle = 'none';
-	lodBtn.style.backgroundColor = '#636363';
-	lodBtn.appendChild(document.createTextNode('적용'));
-	lodBtn.addEventListener(
-		'click',
-		function() 
-		{
-			var lod0 = document.getElementById('geoLod0').value;
-			var lod1 = document.getElementById('geoLod1').value;
-			var lod2 = document.getElementById('geoLod2').value;
-			var lod3 = document.getElementById('geoLod3').value;
-			var lod4 = document.getElementById('geoLod4').value;
-			var lod5 = document.getElementById('geoLod5').value;
-			if (isNaN(lod0) || isNaN(lod1) || isNaN(lod2)|| isNaN(lod3) || isNaN(lod4) || isNaN(lod5)) 
-			{
-				alert('숫자만 입력 가능합니다.');
-				return;
-			}
-
-			if (lod0 !== null && lod0 !== "") { magoManager.magoPolicy.setLod0DistInMeters(lod0); }
-			if (lod1 !== null && lod1 !== "") { magoManager.magoPolicy.setLod1DistInMeters(lod1); }
-			if (lod2 !== null && lod2 !== "") { magoManager.magoPolicy.setLod2DistInMeters(lod2); }
-			if (lod3 !== null && lod3 !== "") { magoManager.magoPolicy.setLod3DistInMeters(lod3); }
-			if (lod4 !== null && lod4 !== "") { magoManager.magoPolicy.setLod4DistInMeters(lod4); }
-			if (lod5 !== null && lod5 !== "") { magoManager.magoPolicy.setLod5DistInMeters(lod5); }
-		},
-		false
-	);
-	lodDiv.appendChild(lodBtn); 
-
-	var dataDiv = getGroupDiv('데이터 선택');
-	advanceToolDiv.appendChild(dataDiv);
-
-	var dataControlDiv = document.createElement('div'); 
-	dataControlDiv.style.padding = '4px';
-	dataControlDiv.style.margin = '10px 0px 4px';
-	dataControlDiv.style.outline = '0px 0px 4px';
-	dataControlDiv.style.verticalAlign = 'top';
-	dataControlDiv.style.backgroundColor = 'rgb(243,243,243)';
-	dataControlDiv.style.borderRadius = '12px';
-	dataControlDiv.style.borderStyle = 'none';
-	dataControlDiv.className = 'mago3d-tools-data-div';
-	dataDiv.appendChild(dataControlDiv);
-
-	var allText = document.createElement('strong');
-	allText.style.width = '35%';
-	allText.style.padding = '2px';
-	allText.style.verticalAlign = 'middle';
-	allText.style.display = 'inline-block';
-	allText.style.textAlign = 'justify';
-	allText.style.fontSize = '13.33333px';
-	allText.appendChild(document.createTextNode('F4D 모델'));
-	dataControlDiv.appendChild(allText);
-
-	var allSelectBtn = document.createElement('button');
-	allSelectBtn.setAttribute('type', 'button');
-	allSelectBtn.dataset.type = DataType.F4D;
-	allSelectBtn.dataset.function = 'select';
-	allSelectBtn.dataset.active = 'off';
-	allSelectBtn.className = 'mago3d-tools-select';
-	allSelectBtn.name = 'btn-' + DataType.F4D;
-	allSelectBtn.style.display = 'inline-block';
-	allSelectBtn.style.verticalAlign = 'middle';
-	allSelectBtn.style.padding = '2px 10px';
-	allSelectBtn.style.fontSize = '12px';
-	allSelectBtn.style.color = 'rgb(20, 20, 20)';
-	allSelectBtn.style.borderRadius = '12px';
-	allSelectBtn.style.borderStyle = 'none';
-	allSelectBtn.style.backgroundColor = 'rgb(255, 255, 255)';
-	allSelectBtn.appendChild(document.createTextNode('선택'));
-	dataControlDiv.appendChild(allSelectBtn);
-
-	var allMoveBtn = document.createElement('button');
-	allMoveBtn.setAttribute('type', 'button');
-	allMoveBtn.dataset.type = DataType.F4D;
-	allMoveBtn.dataset.function = 'translate';
-	allMoveBtn.dataset.active = 'off';
-	allMoveBtn.className = 'mago3d-tools-translate';
-	allMoveBtn.name = 'btn-' + DataType.F4D;
-	allMoveBtn.style.display = 'inline-block';
-	allMoveBtn.style.verticalAlign = 'middle';
-	allMoveBtn.style.marginLeft = '5px';
-	allMoveBtn.style.padding = '2px 10px';
-	allMoveBtn.style.fontSize = '12px';
-	allMoveBtn.style.color = 'rgb(20, 20, 20)';
-	allMoveBtn.style.borderRadius = '12px';
-	allMoveBtn.style.borderStyle = 'none';
-	allMoveBtn.style.backgroundColor = 'rgb(255, 255, 255)';
-	allMoveBtn.appendChild(document.createTextNode('이동'));
-	dataControlDiv.appendChild(allMoveBtn);
-
-	dataControlDiv.appendChild(document.createElement('br'));
-
-	var partText = document.createElement('strong');
-	partText.style.width = '35%';
-	partText.style.padding = '2px';
-	partText.style.verticalAlign = 'middle';
-	partText.style.display = 'inline-block';
-	partText.style.textAlign = 'justify';
-	partText.style.fontSize = '13.33333px';
-	partText.appendChild(document.createTextNode('F4D 모델 부분'));
-	dataControlDiv.appendChild(partText);
-
-	var partSelectBtn = document.createElement('button');
-	partSelectBtn.setAttribute('type', 'button');
-	partSelectBtn.dataset.type = DataType.OBJECT;
-	partSelectBtn.dataset.function = 'select';
-	partSelectBtn.dataset.active = 'off';
-	partSelectBtn.className = 'mago3d-tools-select';
-	partSelectBtn.name = 'btn-' + DataType.OBJECT;
-	partSelectBtn.style.display = 'inline-block';
-	partSelectBtn.style.verticalAlign = 'middle';
-	partSelectBtn.style.padding = '2px 10px';
-	partSelectBtn.style.fontSize = '12px';
-	partSelectBtn.style.color = 'rgb(20, 20, 20)';
-	partSelectBtn.style.borderRadius = '12px';
-	partSelectBtn.style.borderStyle = 'none';
-	partSelectBtn.style.backgroundColor = 'rgb(255, 255, 255)';
-	partSelectBtn.appendChild(document.createTextNode('선택'));
-	dataControlDiv.appendChild(partSelectBtn);
-
-	var partMoveBtn = document.createElement('button');
-	partMoveBtn.setAttribute('type', 'button');
-	partMoveBtn.dataset.type = DataType.OBJECT;
-	partMoveBtn.dataset.function = 'translate';
-	partMoveBtn.dataset.active = 'off';
-	partMoveBtn.className = 'mago3d-tools-translate';
-	partMoveBtn.name = 'btn-' + DataType.OBJECT;
-	partMoveBtn.style.display = 'inline-block';
-	partMoveBtn.style.verticalAlign = 'middle';
-	partMoveBtn.style.marginLeft = '5px';
-	partMoveBtn.style.padding = '2px 10px';
-	partMoveBtn.style.fontSize = '12px';
-	partMoveBtn.style.color = 'rgb(20, 20, 20)';
-	partMoveBtn.style.borderRadius = '12px';
-	partMoveBtn.style.borderStyle = 'none';
-	partMoveBtn.style.backgroundColor = 'rgb(255, 255, 255)';
-	partMoveBtn.appendChild(document.createTextNode('이동'));
-	dataControlDiv.appendChild(partMoveBtn);
-
-	dataControlDiv.appendChild(document.createElement('br'));
-
-	var nativeText = document.createElement('strong');
-	nativeText.style.width = '35%';
-	nativeText.style.padding = '2px';
-	nativeText.style.verticalAlign = 'middle';
-	nativeText.style.display = 'inline-block';
-	nativeText.style.textAlign = 'justify';
-	nativeText.style.fontSize = '13.33333px';
-	nativeText.appendChild(document.createTextNode('원시 모델 부분'));
-	dataControlDiv.appendChild(nativeText);
-
-	var nativeSelectBtn = document.createElement('button');
-	nativeSelectBtn.setAttribute('type', 'button');
-	nativeSelectBtn.dataset.type = DataType.NATIVE;
-	nativeSelectBtn.dataset.function = 'select';
-	nativeSelectBtn.dataset.active = 'off';
-	nativeSelectBtn.className = 'mago3d-tools-select';
-	nativeSelectBtn.name = 'btn-' + DataType.NATIVE;
-	nativeSelectBtn.style.display = 'inline-block';
-	nativeSelectBtn.style.verticalAlign = 'middle';
-	nativeSelectBtn.style.padding = '2px 10px';
-	nativeSelectBtn.style.fontSize = '12px';
-	nativeSelectBtn.style.color = 'rgb(20, 20, 20)';
-	nativeSelectBtn.style.borderRadius = '12px';
-	nativeSelectBtn.style.borderStyle = 'none';
-	nativeSelectBtn.style.backgroundColor = 'rgb(255, 255, 255)';
-	nativeSelectBtn.appendChild(document.createTextNode('선택'));
-	dataControlDiv.appendChild(nativeSelectBtn);
-
-	var nativeMoveBtn = document.createElement('button');
-	nativeMoveBtn.setAttribute('type', 'button');
-	nativeMoveBtn.dataset.type = DataType.NATIVE;
-	nativeMoveBtn.dataset.function = 'translate';
-	nativeMoveBtn.dataset.active = 'off';
-	nativeMoveBtn.className = 'mago3d-tools-translate';
-	nativeMoveBtn.name = 'btn-' + DataType.NATIVE;
-	nativeMoveBtn.style.display = 'inline-block';
-	nativeMoveBtn.style.verticalAlign = 'middle';
-	nativeMoveBtn.style.marginLeft = '5px';
-	nativeMoveBtn.style.padding = '2px 10px';
-	nativeMoveBtn.style.fontSize = '12px';
-	nativeMoveBtn.style.color = 'rgb(20, 20, 20)';
-	nativeMoveBtn.style.borderRadius = '12px';
-	nativeMoveBtn.style.borderStyle = 'none';
-	nativeMoveBtn.style.backgroundColor = 'rgb(255, 255, 255)';
-	nativeMoveBtn.appendChild(document.createTextNode('이동'));
-	dataControlDiv.appendChild(nativeMoveBtn);
-
-	var selectBtns = magoManager.defaultContentContainer.getElementsByClassName('mago3d-tools-select');
-	var selectInteraction = magoManager.defaultSelectInteraction;
-	var translateBtns = magoManager.defaultContentContainer.getElementsByClassName('mago3d-tools-translate');
-	var translateInteraction = magoManager.defaultTranslateInteraction;
-	var names = [DataType.NATIVE, DataType.OBJECT, DataType.F4D];
-	
-
-	for (var i=0, sLength=selectBtns.length;i<sLength;i++)
-	{
-		(function (idx)
-		{
-			var sBtn = selectBtns.item(idx);
-			sBtn.addEventListener('click', function()
-			{
-				var type = sBtn.dataset.type;
-				
-				if (!selectInteraction.getActive())
-				{
-					selectInteraction.setTargetType(type);
-					selectInteraction.setActive(true);
-					sBtn.dataset.active = 'on';
-					
-				}
-				else 
-				{
-					var nowTargetType = selectInteraction.getTargetType();
-					if (type === nowTargetType)
-					{
-						selectInteraction.setActive(false);
-						sBtn.dataset.active = 'off';
-					}
-					else
-					{
-						var nowBtn = selectBtns.namedItem('btn-'+nowTargetType);
-						nowBtn.dataset.active = 'off';
-						btnActiveStyle(nowBtn);
-						selectInteraction.setTargetType(type);
-						sBtn.dataset.active = 'on';
-					}
-				}
-				btnActiveStyle(sBtn);
-			}, false);
-		})(i);
-	}
-
-	for (var i=0, tLength=translateBtns.length;i<tLength;i++)
-	{
-		(function (idx)
-		{
-			var tBtn = translateBtns.item(idx);
-			tBtn.addEventListener('click', function()
-			{
-				var type = tBtn.dataset.type;
-
-				if (!translateInteraction.getActive())
-				{
-					translateInteraction.setTargetType(type);
-					translateInteraction.setActive(true);
-					tBtn.dataset.active = 'on';
-				}
-				else 
-				{
-					var nowTargetType = translateInteraction.getTargetType();
-					if (type === nowTargetType)
-					{
-						translateInteraction.setActive(false);
-						tBtn.dataset.active = 'off';
-					}
-					else
-					{
-						var nowBtn = translateBtns.namedItem('btn-'+nowTargetType);
-						nowBtn.dataset.active = 'off';
-						btnActiveStyle(nowBtn);
-						translateInteraction.setTargetType(type);
-						tBtn.dataset.active = 'on';
-					}
-				}
-				btnActiveStyle(tBtn);
-			}, false);
-		})(i);
-	}
-
-	function btnActiveStyle (b)
-	{
-		if (b.dataset.active === 'on')
-		{
-			b.style.backgroundColor = 'rgb(160, 160, 160)';
-			b.style.color = 'rgb(230, 230, 230)';
-		}
-		else 
-		{
-			b.style.backgroundColor = 'rgb(255, 255, 255)';
-			b.style.color = 'rgb(20, 20, 20)';
-		}
-	}
-
-	function getBasicButtonObject (type, title, text, runtype, action)
-	{
-		var btn = document.createElement('button');
-		btn.setAttribute('type', 'button');
-		btn.dataset.type=  type;
-		btn.dataset.status= 'off';
-		btn.title = title;
-		btn.appendChild(document.createTextNode(text));
-		
-		btn.style.display = 'inline-block';
-		btn.style.margin = '1px 1px 1px 5px';
-		btn.style.padding = '0';
-		btn.style.color = 'rgb(136, 136, 136)';
-		btn.style.fontWeight = 'bold';
-		btn.style.height = '33px';
-		btn.style.width = '66px';
-		btn.style.backgroundColor = '#f3f3f3';
-		btn.style.borderRadius = '12px';
-		btn.style.borderStyle = 'none';
-		
-		return {
-			runType : runtype,
-			element : btn,
-			action  : action
-		};
-	}
-
-	function getGroupDiv(category)
-	{
-		var div = document.createElement('div');
-		div.style.padding = '5px 10px';
-		div.style.margin = '0 0 20px 0';
-		div.style.outline = '0px';
-		div.style.verticalAlign = 'top';
-		div.style.fontSize = '16PX';
-		div.style.fontWeight = 'bold';
-		div.style.color = '#888';
-
-		var strong = document.createElement('strong');
-		strong.style.display = 'block';
-		strong.style.padding = '10px 6px';
-		strong.style.borderBottom = '1px solid #e2e2e2';
-		strong.appendChild(document.createTextNode(category));
-		div.appendChild(strong);
-
-		return div;
-	}
-};
-
-Tools.prototype.handleMouseOver = function()
-{
-	this.element.getElementsByTagName('button')[0].style.backgroundColor = 'rgba(148,216,246, 0.8)';
-};
-
-Tools.prototype.handleMouseOut = function()
-{
-	if (this.element.className !== 'on')
-	{
-		this.element.getElementsByTagName('button')[0].style.backgroundColor = 'rgba(217, 217, 217, 0.8)';
-	}
-};
-
-Tools.prototype.handleToolClick = function(tool)
-{
-	if (tool.runType === 'toggle')
-	{
-		var element = tool.element;
-		element.dataset.status = (element.dataset.status === 'on') ? 'off' : 'on';
-
-		var status = element.dataset.status;
-		var boolStatus = (status === 'on') ? true : false;
-        
-		tool.action.call(this, boolStatus);
-		if (boolStatus)
-		{
-			tool.element.style.backgroundColor = 'rgba(148,216,246, 0.8)';
-		}
-		else 
-		{
-			tool.element.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
-		}
-	}
-};
-
-'use strict';
-/**
- * 줌 컨트롤
- * @exception {Error} Messages.CONSTRUCT_ERROR
- * 
- * @constructor
- * @class Zoom
- * @param {Zoom~Options} options position info. coordinate. required.
- *  
- * @extends AbsControl
- * 
- */
-var Zoom = function(options) 
-{
-	if (!(this instanceof Zoom)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	var element = document.createElement('div');
-	options = options ? options : {};
-	options.element = element;
-    
-	AbsControl.call(this, options);
-    
-	element.style.position = 'absolute';
-	element.style.pointerEvents = 'auto';
-	element.style.backgroundColor = 'rgba(255,255,255,0.4)';
-	element.style.borderRadius = '4px';
-	element.style.padding = '2px';
-	element.style.bottom = '0.5em';
-	element.style.right = '9.5em';
-
-	var that = this;
-	var upButton = document.createElement('button');
-	upButton.setAttribute('type', 'button');
-	upButton.title = 'zoom in';
-	
-	var imageSpan = document.createElement('span');
-	imageSpan.appendChild(document.createTextNode('+'));
-	imageSpan.style.verticalAlign = 'super';
-	imageSpan.style.lineHeight = '0.6em';
-	upButton.appendChild(imageSpan);
-
-	/*upButton.appendChild(document.createElement('br'));
-
-	var textSpan = document.createElement('span');
-	textSpan.appendChild(document.createTextNode('줌인'));
-	textSpan.style.fontSize = '10px';
-	textSpan.style.verticalAlign = 'baseline';
-	textSpan.style.lineHeight = '0.6em';
-	upButton.appendChild(textSpan);*/
-    
-	this.setBtnStyle(upButton);
-	upButton.style.width='25px';
-	upButton.style.height='25px';
-	upButton.style.display='inline-block';
-	upButton.addEventListener(
-		'click',
-		that.handleClick.bind(that, 1),
-		false
-	);
-
-	var downButton = document.createElement('button');
-	downButton.setAttribute('type', 'button');
-	downButton.title = 'zoom out';
-
-	var downImageSpan = document.createElement('span');
-	downImageSpan.appendChild(document.createTextNode('\u2212'));
-	downImageSpan.style.verticalAlign = 'super';
-	downImageSpan.style.lineHeight = '0.6em';
-	downButton.appendChild(downImageSpan);
-
-	/*downButton.appendChild(document.createElement('br'));
-
-	var downTextSpan = document.createElement('span');
-	downTextSpan.appendChild(document.createTextNode('줌아웃'));
-	downTextSpan.style.fontSize = '10px';
-	downTextSpan.style.verticalAlign = 'baseline';
-	downTextSpan.style.lineHeight = '0.6em';
-	downButton.appendChild(downTextSpan);*/
-
-	this.setBtnStyle(downButton);
-	downButton.style.width='25px';
-	downButton.style.height='25px';
-	downButton.style.display='inline-block';
-	downButton.addEventListener(
-		'click',
-		that.handleClick.bind(that, 0),
-		false
-	);
-
-	this.element.appendChild(upButton);
-	this.element.appendChild(downButton);
-};
-
-Zoom.prototype = Object.create(AbsControl.prototype);
-Zoom.prototype.constructor = Zoom;
-
-Zoom.prototype.handleClick = function(type)
-{
-	if (this.magoManager.isCesiumGlobe())
-	{
-		var scene = this.magoManager.scene;
-		var camera = scene.camera;
-        
-		var cartographicPosition = Cesium.Cartographic.fromCartesian(camera.position);
-		var alt = cartographicPosition.height;
-		if (type)
-		{
-			scene.camera.zoomIn(alt * 0.1);
-		}
-		else
-		{
-			scene.camera.zoomOut(alt * 0.1);
-		}
-	}
-};
-'use strict';
-
-/**
- * @alias Effect
- * @class Effect
- */
-var Effect = function(options) 
-{
-	if (!(this instanceof Effect)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	
-	// Test class to do effects.
-	this.effectsManager;
-	this.birthData;
-	this.durationSeconds;
-	this.effectType = "unknown";
-	
-	if (options)
-	{
-		if (options.effectType)
-		{ this.effectType = options.effectType; }
-		
-		if (options.durationSeconds)
-		{ this.durationSeconds = options.durationSeconds; }
-	
-		if (options.zVelocity)
-		{ this.zVelocity = options.zVelocity; }
-	
-		if (options.zMax)
-		{ this.zMax = options.zMax; }
-		
-		if (options.zMin)
-		{ this.zMin = options.zMin; }
-	
-	}
-	
-	// available effectType:
-	// 1: zBounceLinear
-	// 2: zBounceSpring
-	// 3: borningLight
-	// 4: zMovement
-};
-
-/**
- *
- */
-Effect.prototype.execute = function(currTimeSec)
-{
-	var effectFinished = false;
-	if (this.birthData === undefined)
-	{
-		this.birthData = currTimeSec;
-		return effectFinished;
-	}
-	
-	var timeDiffSeconds = (currTimeSec - this.birthData);
-	var gl = this.effectsManager.gl;
-	
-	if (this.effectType === "zBounceSpring")
-	{
-		var zScale = 1.0;
-		if (timeDiffSeconds >= this.durationSeconds)
-		{
-			zScale = 1.0;
-			effectFinished = true; // if return true, then this effect is finished, so this effect will be deleted.
-		}
-		else
-		{
-			//https://en.wikipedia.org/wiki/Damped_sine_wave
-			var amp = 1.0;
-			var lambda = 0.1; // is the decay constant, in the reciprocal of the time units of the X axis.
-			var w = 5/this.durationSeconds; // angular frequency.
-			var t = timeDiffSeconds;
-			var fita = 0.0; // initial angle in t=0.
-			zScale = amp*Math.pow(Math.E, -lambda*t)*(Math.cos(w*t+fita) + Math.sin(w*t+fita));
-			zScale = (1.0-zScale)*Math.log(t/this.durationSeconds+1.1);
-		}
-		gl.uniform3fv(this.effectsManager.currShader.scaleLC_loc, [1.0, 1.0, zScale]); // init referencesMatrix.
-		return effectFinished;
-	}
-	else if (this.effectType === "zBounceLinear")
-	{
-		var zScale = 1.0;
-		if (timeDiffSeconds >= this.durationSeconds)
-		{
-			zScale = 1.0;
-			effectFinished = true; // if return true, then this effect is finished, so this effect will be deleted.
-		}
-		else
-		{
-			zScale = timeDiffSeconds/this.durationSeconds;
-		}
-		gl.uniform3fv(this.effectsManager.currShader.scaleLC_loc, [1.0, 1.0, zScale]); // init referencesMatrix.
-		return effectFinished;
-	}
-	else if (this.effectType === "borningLight")
-	{
-		var colorMultiplier = 1.0;
-		if (timeDiffSeconds >= this.durationSeconds)
-		{
-			colorMultiplier = 1.0;
-			effectFinished = true; // if return true, then this effect is finished, so this effect will be deleted.
-		}
-		else
-		{
-			var timeRatio = timeDiffSeconds/this.durationSeconds;
-			colorMultiplier = 1/(timeRatio*timeRatio);
-		}
-		gl.uniform4fv(this.effectsManager.currShader.colorMultiplier_loc, [colorMultiplier, colorMultiplier, colorMultiplier, 1.0]);
-		return effectFinished;
-	}
-	else if (this.effectType === "zMovement")
-	{
-		if (this.zVelocity === undefined)
-		{ this.zVelocity = 1.0; }
-
-		if (this.zMax === undefined)
-		{ this.zMax = 1.0; }
-
-		if (this.zMin === undefined)
-		{ this.zMin = -1.0; }
-
-		if (this.zOffset === undefined)
-		{ this.zOffset = 0.0; }
-
-		if (this.lastTime === undefined)
-		{ this.lastTime = currTimeSec; }
-
-
-		if (timeDiffSeconds >= this.durationSeconds)
-		{
-			this.zOffset = 0.0;
-			effectFinished = true; // if return true, then this effect is finished, so this effect will be deleted.
-		}
-		else
-		{
-			var diffTime = currTimeSec - this.lastTime;
-			this.zOffset += this.zVelocity * diffTime;
-
-			if (this.zVelocity > 0.0)
-			{
-				if (this.zOffset > this.zMax)
-				{
-					var diff = (this.zOffset - this.zMax);
-					this.zOffset = this.zMax - diff;
-					this.zVelocity *= -1.0;
-				}
-			}
-			else
-			{
-				if (this.zOffset < this.zMin)
-				{
-					var diff = (this.zOffset - this.zMin);
-					this.zOffset = this.zMin - diff;
-					this.zVelocity *= -1.0;
-				}
-			}
-		}
-		gl.uniform3fv(this.effectsManager.currShader.aditionalOffset_loc, [0.0, this.zOffset, 0.0 ]); // init referencesMatrix.
-		this.lastTime = currTimeSec;
-		return effectFinished;
-	}
-};
-'use strict';
-
-/**
- * @alias EffectsManager
- * @class EffectsManager
- */
-var EffectsManager = function(options) 
-{
-	if (!(this instanceof EffectsManager)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	
-	this.effectsObjectsMap = {};
-	this.gl;
-	this.currShader;
-};
-
-/**
- *
- */
-EffectsManager.prototype.setCurrentShader = function(shader)
-{
-	this.currShader = shader;
-};
-
-/**
- *
- */
-EffectsManager.prototype.getEffectsObject = function(id)
-{
-	return this.effectsObjectsMap[id];
-};
-
-EffectsManager.prototype.hasEffects = function(id) 
-{
-	
-	if (!this.effectsObjectsMap[id]) 
-	{
-		return false;
-	}
-
-	if (!this.effectsObjectsMap[id].effectsArray || this.effectsObjectsMap[id].effectsArray.length === 0)
-	{
-		return false;
-	}
-
-	return true;
-};
-
-
-/**
- *
- */
-EffectsManager.prototype.addEffect = function(id, effect)
-{
-	var effectsObject = this.getEffectsObject(id);
-	
-	if (effectsObject === undefined)
-	{
-		effectsObject = {};
-		this.effectsObjectsMap[id] = effectsObject;
-	}
-	
-	if (effectsObject.effectsArray === undefined)
-	{ effectsObject.effectsArray = []; }
-	
-	effect.effectsManager = this;
-	effectsObject.effectsArray.push(effect);
-};
-
-EffectsManager.prototype.executeEffects = function(id, currTime)
-{
-	var effectsObject = this.getEffectsObject(id);
-	var effectExecuted = false;
-	if (effectsObject === undefined)
-	{ return false; }
-	
-	var effectsCount = effectsObject.effectsArray.length;
-	for (var i=0; i<effectsCount; i++)
-	{
-		var effect = effectsObject.effectsArray[i];
-		if (effect.execute(currTime/1000))
-		{
-			effectsObject.effectsArray.splice(i, 1);
-			effectsCount = effectsObject.effectsArray.length;
-		}
-		effectExecuted = true;
-		
-		if (effectsObject.effectsArray.length === 0)
-		{ 
-			this.effectsObjectsMap[id] = undefined;
-			delete this.effectsObjectsMap[id];
-		}
-	}
-	
-	return effectExecuted;
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 'use strict';
 
 /**
@@ -19504,6 +17596,1939 @@ Policy.prototype.setModelMovable = function(movable)
 Policy.prototype.isModelMovable = function()
 {
 	return this.modelMovable;
+};
+'use strict';
+
+/**
+ * @alias Effect
+ * @class Effect
+ */
+var Effect = function(options) 
+{
+	if (!(this instanceof Effect)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	
+	// Test class to do effects.
+	this.effectsManager;
+	this.birthData;
+	this.durationSeconds;
+	this.effectType = "unknown";
+	
+	if (options)
+	{
+		if (options.effectType)
+		{ this.effectType = options.effectType; }
+		
+		if (options.durationSeconds)
+		{ this.durationSeconds = options.durationSeconds; }
+	
+		if (options.zVelocity)
+		{ this.zVelocity = options.zVelocity; }
+	
+		if (options.zMax)
+		{ this.zMax = options.zMax; }
+		
+		if (options.zMin)
+		{ this.zMin = options.zMin; }
+	
+	}
+	
+	// available effectType:
+	// 1: zBounceLinear
+	// 2: zBounceSpring
+	// 3: borningLight
+	// 4: zMovement
+};
+
+/**
+ *
+ */
+Effect.prototype.execute = function(currTimeSec)
+{
+	var effectFinished = false;
+	if (this.birthData === undefined)
+	{
+		this.birthData = currTimeSec;
+		return effectFinished;
+	}
+	
+	var timeDiffSeconds = (currTimeSec - this.birthData);
+	var gl = this.effectsManager.gl;
+	
+	if (this.effectType === "zBounceSpring")
+	{
+		var zScale = 1.0;
+		if (timeDiffSeconds >= this.durationSeconds)
+		{
+			zScale = 1.0;
+			effectFinished = true; // if return true, then this effect is finished, so this effect will be deleted.
+		}
+		else
+		{
+			//https://en.wikipedia.org/wiki/Damped_sine_wave
+			var amp = 1.0;
+			var lambda = 0.1; // is the decay constant, in the reciprocal of the time units of the X axis.
+			var w = 5/this.durationSeconds; // angular frequency.
+			var t = timeDiffSeconds;
+			var fita = 0.0; // initial angle in t=0.
+			zScale = amp*Math.pow(Math.E, -lambda*t)*(Math.cos(w*t+fita) + Math.sin(w*t+fita));
+			zScale = (1.0-zScale)*Math.log(t/this.durationSeconds+1.1);
+		}
+		gl.uniform3fv(this.effectsManager.currShader.scaleLC_loc, [1.0, 1.0, zScale]); // init referencesMatrix.
+		return effectFinished;
+	}
+	else if (this.effectType === "zBounceLinear")
+	{
+		var zScale = 1.0;
+		if (timeDiffSeconds >= this.durationSeconds)
+		{
+			zScale = 1.0;
+			effectFinished = true; // if return true, then this effect is finished, so this effect will be deleted.
+		}
+		else
+		{
+			zScale = timeDiffSeconds/this.durationSeconds;
+		}
+		gl.uniform3fv(this.effectsManager.currShader.scaleLC_loc, [1.0, 1.0, zScale]); // init referencesMatrix.
+		return effectFinished;
+	}
+	else if (this.effectType === "borningLight")
+	{
+		var colorMultiplier = 1.0;
+		if (timeDiffSeconds >= this.durationSeconds)
+		{
+			colorMultiplier = 1.0;
+			effectFinished = true; // if return true, then this effect is finished, so this effect will be deleted.
+		}
+		else
+		{
+			var timeRatio = timeDiffSeconds/this.durationSeconds;
+			colorMultiplier = 1/(timeRatio*timeRatio);
+		}
+		gl.uniform4fv(this.effectsManager.currShader.colorMultiplier_loc, [colorMultiplier, colorMultiplier, colorMultiplier, 1.0]);
+		return effectFinished;
+	}
+	else if (this.effectType === "zMovement")
+	{
+		if (this.zVelocity === undefined)
+		{ this.zVelocity = 1.0; }
+
+		if (this.zMax === undefined)
+		{ this.zMax = 1.0; }
+
+		if (this.zMin === undefined)
+		{ this.zMin = -1.0; }
+
+		if (this.zOffset === undefined)
+		{ this.zOffset = 0.0; }
+
+		if (this.lastTime === undefined)
+		{ this.lastTime = currTimeSec; }
+
+
+		if (timeDiffSeconds >= this.durationSeconds)
+		{
+			this.zOffset = 0.0;
+			effectFinished = true; // if return true, then this effect is finished, so this effect will be deleted.
+		}
+		else
+		{
+			var diffTime = currTimeSec - this.lastTime;
+			this.zOffset += this.zVelocity * diffTime;
+
+			if (this.zVelocity > 0.0)
+			{
+				if (this.zOffset > this.zMax)
+				{
+					var diff = (this.zOffset - this.zMax);
+					this.zOffset = this.zMax - diff;
+					this.zVelocity *= -1.0;
+				}
+			}
+			else
+			{
+				if (this.zOffset < this.zMin)
+				{
+					var diff = (this.zOffset - this.zMin);
+					this.zOffset = this.zMin - diff;
+					this.zVelocity *= -1.0;
+				}
+			}
+		}
+		gl.uniform3fv(this.effectsManager.currShader.aditionalOffset_loc, [0.0, this.zOffset, 0.0 ]); // init referencesMatrix.
+		this.lastTime = currTimeSec;
+		return effectFinished;
+	}
+};
+'use strict';
+
+/**
+ * @alias EffectsManager
+ * @class EffectsManager
+ */
+var EffectsManager = function(options) 
+{
+	if (!(this instanceof EffectsManager)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	
+	this.effectsObjectsMap = {};
+	this.gl;
+	this.currShader;
+};
+
+/**
+ *
+ */
+EffectsManager.prototype.setCurrentShader = function(shader)
+{
+	this.currShader = shader;
+};
+
+/**
+ *
+ */
+EffectsManager.prototype.getEffectsObject = function(id)
+{
+	return this.effectsObjectsMap[id];
+};
+
+EffectsManager.prototype.hasEffects = function(id) 
+{
+	
+	if (!this.effectsObjectsMap[id]) 
+	{
+		return false;
+	}
+
+	if (!this.effectsObjectsMap[id].effectsArray || this.effectsObjectsMap[id].effectsArray.length === 0)
+	{
+		return false;
+	}
+
+	return true;
+};
+
+
+/**
+ *
+ */
+EffectsManager.prototype.addEffect = function(id, effect)
+{
+	var effectsObject = this.getEffectsObject(id);
+	
+	if (effectsObject === undefined)
+	{
+		effectsObject = {};
+		this.effectsObjectsMap[id] = effectsObject;
+	}
+	
+	if (effectsObject.effectsArray === undefined)
+	{ effectsObject.effectsArray = []; }
+	
+	effect.effectsManager = this;
+	effectsObject.effectsArray.push(effect);
+};
+
+EffectsManager.prototype.executeEffects = function(id, currTime)
+{
+	var effectsObject = this.getEffectsObject(id);
+	var effectExecuted = false;
+	if (effectsObject === undefined)
+	{ return false; }
+	
+	var effectsCount = effectsObject.effectsArray.length;
+	for (var i=0; i<effectsCount; i++)
+	{
+		var effect = effectsObject.effectsArray[i];
+		if (effect.execute(currTime/1000))
+		{
+			effectsObject.effectsArray.splice(i, 1);
+			effectsCount = effectsObject.effectsArray.length;
+		}
+		effectExecuted = true;
+		
+		if (effectsObject.effectsArray.length === 0)
+		{ 
+			this.effectsObjectsMap[id] = undefined;
+			delete this.effectsObjectsMap[id];
+		}
+	}
+	
+	return effectExecuted;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+'use strict';
+
+/**
+ * 
+ * @exception {Error} Messages.CONSTRUCT_ERROR
+ * 
+ * @class AbsControl. abstract class
+ * @constructor
+ * @abstract
+ * 
+ * @param {object} options
+ */
+var AbsControl = function(options) 
+{
+	if (!(this instanceof AbsControl)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+    
+	var element = options.element;
+	if (element && !options.target && !element.style.pointerEvents) 
+	{
+		element.style.pointerEvents = 'auto';
+	}
+
+	this.element = element ? element : undefined;
+	this.target = options.target ? options.target : undefined;
+	this.magoManager;
+};
+
+AbsControl.prototype.setControl = function(magoManager)
+{
+	this.magoManager = magoManager;
+
+	var target = this.target ? this.target : this.magoManager.defaultControlContainer;
+	target.appendChild(this.element);
+	this.target = target;
+};
+
+/**
+ * button element set basic style 
+ * @param {HTMLElement} element 
+ */
+AbsControl.prototype.setBtnStyle = function(element)
+{
+	element.style.display = 'block';
+	element.style.margin = '1px';
+	element.style.padding = 0;
+	element.style.color = 'white';
+	element.style.fontSize = '1.14em';
+	element.style.fontWeight = 'bold';
+	element.style.textDecoration = 'none';
+	element.style.textAlign = 'center';
+	element.style.height = '42px';
+	element.style.width = '42px';
+	element.style.lineHeight = '.4em';
+	element.style.border = 'none';
+	element.style.backgroundColor = 'rgba(148,216,246, 0.8)';
+    
+	element.addEventListener(
+		'mouseenter',
+		function()
+		{
+			element.style.filter = 'invert(30%)';
+		},
+		false
+	);
+    
+	element.addEventListener(
+		'mouseleave',
+		function()
+		{
+			element.style.filter = 'none';
+		},
+		false
+	);
+};
+
+/**
+ * button element set basic style 
+ * @param {HTMLElement} element 
+ */
+AbsControl.prototype.setTextBtn = function(element)
+{
+	element.style.display = 'inline-block';
+	element.style.margin = '1px';
+	element.style.padding = 0;
+	element.style.color = 'white';
+	element.style.fontSize = '.84em';
+	element.style.fontWeight = 'bold';
+	element.style.textDecoration = 'none';
+	element.style.textAlign = 'center';
+	element.style.height = '1.75em';
+	element.style.width = '4.575em';
+	element.style.lineHeight = '.4em';
+	element.style.border = 'none';
+	element.style.backgroundColor = 'rgba(148,216,246, 0.8)';
+};
+'use strict';
+/**
+ * 줌 컨트롤
+ * @exception {Error} Messages.CONSTRUCT_ERROR
+ * 
+ * @constructor
+ * @class Attribution
+ * @param {Attribution~Options} options position info. coordinate. required.
+ *  
+ * @extends AbsControl
+ * 
+ */
+var Attribution = function(options) 
+{
+	if (!(this instanceof Attribution)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	var element = document.createElement('div');
+	options = options ? options : {};
+	options.element = element;
+    
+	AbsControl.call(this, options);
+};
+
+Attribution.prototype = Object.create(AbsControl.prototype);
+Attribution.prototype.constructor = Attribution;
+
+
+Attribution.prototype.setControl = function(magoManager)
+{
+	this.magoManager = magoManager;
+
+	if (this.magoManager.isCesiumGlobe())
+	{
+		var creditDisplay = this.magoManager.scene.frameState.creditDisplay;
+		var mago3d_credit = new Cesium.Credit('<a href="http://www.mago3d.com/" target="_blank"><img class="mago3d_logo" src="/images/logo_mago3d.png" title="Mago3D" alt="Mago3D" /></a>', true);
+		creditDisplay.addDefaultCredit(mago3d_credit);
+	}
+	else 
+	{
+		var target = this.target ? this.target : this.magoManager.overlayContainer;
+	    target.appendChild(this.element);
+	}
+};
+'use strict';
+/**
+ * 줌 컨트롤
+ * @exception {Error} Messages.CONSTRUCT_ERROR
+ * 
+ * @constructor
+ * @class Compass
+ * @param {Compass~Options} options position info. coordinate. required.
+ *  
+ * @extends AbsControl
+ * 
+ */
+var Compass = function(options) 
+{
+	if (!(this instanceof Compass)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	var element = document.createElement('div');
+	options = options ? options : {};
+	options.element = element;
+    
+	AbsControl.call(this, options);
+    
+	element.style.position = 'absolute';
+	element.style.pointerEvents = 'auto';
+	element.style.backgroundColor = 'rgba(255,255,255,0.4)';
+	element.style.borderRadius = '4px';
+	element.style.padding = '2px';
+	element.style.top = '24.0em';
+	element.style.right = '.5em';
+
+	var that = this;
+	var homeButton = document.createElement('button');
+	homeButton.setAttribute('type', 'button');
+	homeButton.title = 'init position';
+	homeButton.appendChild(document.createTextNode('\uD83E\uDDED'));
+
+	this.setBtnStyle(homeButton);
+	homeButton.style.backgroundColor = 'rgba(217, 217, 217, 0.8)';
+
+	this.element.appendChild(homeButton);
+};
+
+Compass.prototype = Object.create(AbsControl.prototype);
+Compass.prototype.constructor = Compass;
+'use strict';
+/**
+ * 줌 컨트롤
+ * @exception {Error} Messages.CONSTRUCT_ERROR
+ * 
+ * @constructor
+ * @class FullScreen
+ * @param {FullScreen~Options} options position info. coordinate. required.
+ *  
+ * @extends AbsControl
+ * 
+ */
+var FullScreen = function(options) 
+{
+	if (!(this instanceof FullScreen)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	var element = document.createElement('div');
+	options = options ? options : {};
+	options.element = element;
+    
+	AbsControl.call(this, options);
+    
+	var that = this;
+	this.full = false;
+
+	element.style.position = 'absolute';
+	element.style.pointerEvents = 'auto';
+	element.style.backgroundColor = 'rgba(255,255,255,0.4)';
+	element.style.borderRadius = '4px';
+	element.style.padding = '2px';
+	element.style.top = '4.5em';
+	element.style.right = '.5em';
+
+	var fullButton = document.createElement('button');
+	fullButton.setAttribute('type', 'button');
+	fullButton.title = 'Full Screen';
+    
+	var imageSpan = document.createElement('span');
+	imageSpan.appendChild(document.createTextNode('\u21C5'));
+	imageSpan.style.transform = 'rotate(0.1turn)';
+	imageSpan.style.display = 'inline-block';
+	imageSpan.style.verticalAlign = 'super';
+	imageSpan.style.lineHeight = '0.6em';
+	fullButton.appendChild(imageSpan);
+
+	fullButton.appendChild(document.createElement('br'));
+
+	var textSpan = document.createElement('span');
+	textSpan.appendChild(document.createTextNode('전체화면'));
+	textSpan.style.fontSize = '10px';
+	textSpan.style.verticalAlign = 'baseline';
+	textSpan.style.lineHeight = '0.6em';
+	fullButton.appendChild(textSpan);
+
+	this.setBtnStyle(fullButton);
+
+	fullButton.addEventListener(
+		'click',
+		that.handleClick.bind(that),
+		false
+	);
+    
+	this.fullButtonElement = fullButton;
+    
+	var cancleButton = document.createElement('button');
+	cancleButton.setAttribute('type', 'button');
+	cancleButton.title = 'Cancle Full Screen';
+
+	var cancleImageSpan = document.createElement('span');
+	cancleImageSpan.appendChild(document.createTextNode('\u2716'));
+	cancleImageSpan.style.verticalAlign = 'super';
+	cancleImageSpan.style.lineHeight = '0.6em';
+	cancleButton.appendChild(cancleImageSpan);
+
+	cancleButton.appendChild(document.createElement('br'));
+
+	var cancleTextSpan = document.createElement('span');
+	cancleTextSpan.appendChild(document.createTextNode('취소'));
+	cancleTextSpan.style.fontSize = '10px';
+	cancleTextSpan.style.verticalAlign = 'baseline';
+	cancleTextSpan.style.lineHeight = '0.6em';
+	cancleButton.appendChild(cancleTextSpan);
+
+	this.setBtnStyle(cancleButton);
+	cancleButton.style.display = 'none';
+    
+	cancleButton.addEventListener(
+		'click',
+		that.handleClick.bind(that),
+		false
+	);
+    
+	this.cancleButtonElement = cancleButton;
+
+	this.element.appendChild(fullButton);
+	this.element.appendChild(cancleButton);
+};
+
+FullScreen.prototype = Object.create(AbsControl.prototype);
+FullScreen.prototype.constructor = FullScreen;
+
+FullScreen.prototype.handleClick = function()
+{
+	var target = document.getElementById(this.magoManager.config.getContainerId());
+	if (this.full)
+	{
+		if (isFullScreen())
+		{
+			this.fullButtonElement.style.display = 'block';
+			this.cancleButtonElement.style.display = 'none';
+			exitFullScreen();
+
+			this.full = false;
+		}
+	}
+	else 
+	{
+		if (isFullScreenSupported())
+		{
+			this.fullButtonElement.style.display = 'none';
+			this.cancleButtonElement.style.display = 'block';
+			requestFullScreen(target);
+
+			this.full = true;
+		}
+	}
+    
+	function isFullScreenSupported() 
+	{
+		var body = document.body;
+		return !!(
+			body.webkitRequestFullscreen ||
+          (body.msRequestFullscreen && document.msFullscreenEnabled) ||
+          (body.requestFullscreen && document.fullscreenEnabled)
+		);
+	}
+    
+	function isFullScreen() 
+	{
+		return !!(
+			document.webkitIsFullScreen ||
+          document.msFullscreenElement ||
+          document.fullscreenElement
+		);
+	}
+
+	function requestFullScreen(element) 
+	{
+		if (element.requestFullscreen) 
+		{
+			element.requestFullscreen();
+		}
+		else if (element.msRequestFullscreen) 
+		{
+			element.msRequestFullscreen();
+		}
+		else if (element.webkitRequestFullscreen) 
+		{
+			element.webkitRequestFullscreen();
+		}
+	}
+
+	function exitFullScreen() 
+	{
+		if (document.exitFullscreen) 
+		{
+			document.exitFullscreen();
+		}
+		else if (document.msExitFullscreen) 
+		{
+			document.msExitFullscreen();
+		}
+		else if (document.webkitExitFullscreen) 
+		{
+			document.webkitExitFullscreen();
+		}
+	}
+};
+'use strict';
+/**
+ * 줌 컨트롤
+ * @exception {Error} Messages.CONSTRUCT_ERROR
+ * 
+ * @constructor
+ * @class InitCamera
+ * @param {InitCamera~Options} options position info. coordinate. required.
+ *  
+ * @extends AbsControl
+ * 
+ */
+var InitCamera = function(options) 
+{
+	if (!(this instanceof InitCamera)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	var element = document.createElement('div');
+	options = options ? options : {};
+	options.element = element;
+    
+	AbsControl.call(this, options);
+    
+	element.style.position = 'absolute';
+	element.style.pointerEvents = 'auto';
+	element.style.backgroundColor = 'rgba(255,255,255,0.4)';
+	element.style.borderRadius = '4px';
+	element.style.padding = '2px';
+	element.style.top = '1.0em';
+	element.style.right = '.5em';
+
+	var that = this;
+	var homeButton = document.createElement('button');
+	homeButton.setAttribute('type', 'button');
+	homeButton.title = 'init position';
+
+	var imageSpan = document.createElement('span');
+	imageSpan.appendChild(document.createTextNode('\uD83C\uDFE0'));
+	imageSpan.style.verticalAlign = 'text-top';
+	imageSpan.style.lineHeight = '0.6em';
+	homeButton.appendChild(imageSpan);
+
+	homeButton.appendChild(document.createElement('br'));
+
+	var textSpan = document.createElement('span');
+	textSpan.appendChild(document.createTextNode('처음으로'));
+	textSpan.style.fontSize = '10px';
+	textSpan.style.verticalAlign = 'baseline';
+	textSpan.style.lineHeight = '0.6em';
+	homeButton.appendChild(textSpan);
+	
+	this.setBtnStyle(homeButton);
+	homeButton.style.backgroundColor = 'rgba(217, 217, 217, 0.8)';
+    
+	homeButton.addEventListener(
+		'click',
+		that.handleClick.bind(that),
+		false
+	);
+
+	this.element.appendChild(homeButton);
+};
+
+InitCamera.prototype = Object.create(AbsControl.prototype);
+InitCamera.prototype.constructor = InitCamera;
+
+InitCamera.prototype.handleClick = function()
+{
+	if (this.magoManager.isCesiumGlobe())
+	{
+		var config = this.magoManager.configInformation;
+		if (config.initCameraEnable)
+		{
+			var lon = parseFloat(config.initLongitude);
+			var lat = parseFloat(config.initLatitude);
+			var height = parseFloat(config.initAltitude);
+			var duration = parseInt(config.initDuration);
+
+			if (isNaN(lon) || isNaN(lat) || isNaN(height)) 
+			{
+				throw new Error('Longitude, Latitude, Height must number type.');
+			}
+
+			if (isNaN(duration)) { duration = 3; }
+			this.magoManager.flyTo(lon, lat, height, duration);
+		}
+	}
+};
+'use strict';
+/**
+ * 줌 컨트롤
+ * @exception {Error} Messages.CONSTRUCT_ERROR
+ * 
+ * @constructor
+ * @class Measure
+ * @param {Measure~Options} options position info. coordinate. required.
+ *  
+ * @extends AbsControl
+ * 
+ */
+var Measure = function(options) 
+{
+	if (!(this instanceof Measure)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	var element = document.createElement('div');
+	options = options ? options : {};
+	options.element = element;
+    
+	AbsControl.call(this, options);
+
+	this.buttons = {};
+
+	element.style.position = 'absolute';
+	element.style.pointerEvents = 'auto';
+	element.style.backgroundColor = 'rgba(255,255,255,0.4)';
+	element.style.borderRadius = '4px';
+	element.style.padding = '2px';
+	element.style.bottom = '9.5em';
+	element.style.right = '.5em';
+
+
+	setButton(this, 'length', '\uD83D\uDCCF', 'Measure Length', '거리측정');
+	setButton(this, 'area', '\u26F6', 'Measure Area', '면적측정');
+	setButton(this, 'height', '\u2BB8', 'Measure Height', '높이측정');
+
+	function setButton(thisArg, type, text, title, description)
+	{
+		var button = document.createElement('button');
+		button.setAttribute('type', 'button');
+		button.title = title;
+
+		var imageSpan = document.createElement('span');
+		imageSpan.appendChild(document.createTextNode(text));
+		imageSpan.style.verticalAlign = 'super';
+		imageSpan.style.lineHeight = '0.6em';
+		button.appendChild(imageSpan);
+
+		button.appendChild(document.createElement('br'));
+
+		var textSpan = document.createElement('span');
+		textSpan.appendChild(document.createTextNode(description));
+		textSpan.style.fontSize = '10px';
+		textSpan.style.verticalAlign = 'baseline';
+		textSpan.style.lineHeight = '0.6em';
+		button.appendChild(textSpan);
+
+		thisArg.setBtnStyle(button);
+		button.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
+		button.style.display = 'inline-block';
+		thisArg.buttons[type] = {
+			status  : false,
+			element : button
+		};
+		thisArg.element.appendChild(button);
+        
+		button.addEventListener(
+			'click',
+			thisArg.handleClick.bind(thisArg, type),
+			false
+		);
+	}
+};
+
+Measure.prototype = Object.create(AbsControl.prototype);
+Measure.prototype.constructor = Measure;
+
+Measure.prototype.handleClick = function(e)
+{
+	if (this.buttons[e].status)
+	{
+		var button = this.buttons[e];
+		button.status = false;
+		button.element.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
+	}
+	else 
+	{
+		for (var buttonName in this.buttons)
+		{
+			if (this.buttons.hasOwnProperty(buttonName))
+			{
+				var button = this.buttons[buttonName];
+				if (buttonName === e)
+				{
+					button.element.style.backgroundColor = 'rgba(148,216,246, 0.8)';
+					button.status = true;
+				}
+				else 
+				{
+					button.element.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
+					button.status = false;
+				}
+			}
+		}
+		alert('기능 준비중');
+	}
+};
+'use strict';
+/**
+ * 줌 컨트롤
+ * @exception {Error} Messages.CONSTRUCT_ERROR
+ * 
+ * @constructor
+ * @class Zoom
+ * @param {Zoom~Options} options position info. coordinate. required.
+ *  
+ * @extends AbsControl
+ * 
+ */
+var OverviewMap = function(options) 
+{
+	if (!(this instanceof OverviewMap)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	var element = document.createElement('div');
+	options = options ? options : {};
+	options.element = element;
+	
+	AbsControl.call(this, options);
+    
+	var id = 'mago3dOlMap';
+	element.id = id;
+	element.style.position = 'absolute';
+	element.style.pointerEvents = 'auto';
+	element.style.borderRadius = '4px';
+	element.style.padding = '2px';
+	element.style.bottom = '.5em';
+	element.style.right = '.5em';
+	element.style.width = '135px';
+	element.style.height = '135px';
+	element.style.borderRadius = '4px';
+	element.style.border = '2px solid #CCE5EC';
+};
+
+OverviewMap.prototype = Object.create(AbsControl.prototype);
+OverviewMap.prototype.constructor = OverviewMap;
+
+OverviewMap.prototype.setControl = function(magoManager)
+{
+	this.magoManager = magoManager;
+
+	var target = this.target ? this.target : this.magoManager.defaultControlContainer;
+	target.appendChild(this.element);
+    
+
+	var vectorlayer = new OlMago3d.layer.VectorLayer({
+		source: new OlMago3d.source.VectorSource()
+	});
+    
+	var tilelayer = new OlMago3d.layer.TileLayer({
+		source: new OlMago3d.source.XYZ({
+			url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.png'
+		})
+	});
+    
+	this.overviewMap = new OlMago3d.Map({
+		target : 'mago3dOlMap',
+		view   : new OlMago3d.View({
+			zoom       : 3,
+			center     : [0, 0],
+			projection : 'EPSG:4326'
+		}),
+		layers   : [tilelayer, vectorlayer],
+		controls : OlMago3d.control.defaults({
+			attribution : true,
+			zoom        : false,
+			rotate      : false,
+		}),
+		interactions: OlMago3d.interaction.defaults({
+			altShiftDragRotate : false,
+			onFocusOnly        : false,
+			doubleClickZoom    : false,
+			keyboard           : false,
+			mouseWheelZoom     : false,
+			shiftDragZoom      : false,
+			dragPan            : false,
+			pinchRotate        : false,
+			pinchZoom          : false
+		})
+	});
+    
+	this.overviewMap.overlayContainerStopEvent_.style.pointerEvents = 'none';
+
+	if (this.magoManager.isCesiumGlobe())
+	{
+		var scene = this.magoManager.scene;
+		var feature = null;
+
+		var map = this.overviewMap;
+		var view = map.getView();
+		var toLonLat = OlMago3d.proj.getTransform(view.getProjection(), 'EPSG:4326');
+		var fromLonLat = OlMago3d.proj.getTransform('EPSG:4326', view.getProjection());
+        
+		syncByMago();
+		view.on('change:resolution', function()
+		{
+			//syncByOl();
+		});
+		view.on('change:center', function()
+		{
+			//syncByOl();
+		});
+    
+		view.on('change:rotation', function()
+		{
+			//syncByOl();
+		});
+    
+		this.magoManager.on('isCameraMoved', function()
+		{
+			syncByMago();
+		});
+
+		function syncByMago()
+		{
+			var viewRectangle = scene.camera.computeViewRectangle(scene.globe.ellipsoid);
+            
+			var minx = (viewRectangle.west < viewRectangle.east) ? viewRectangle.west : viewRectangle.east;
+			var miny = (viewRectangle.south < viewRectangle.north) ? viewRectangle.south : viewRectangle.north;
+			var maxx = (viewRectangle.west > viewRectangle.east) ? viewRectangle.west : viewRectangle.east;
+			var maxy = (viewRectangle.south > viewRectangle.north) ? viewRectangle.south : viewRectangle.north;
+
+			var extent = [Cesium.Math.toDegrees(minx), Cesium.Math.toDegrees(miny), Cesium.Math.toDegrees(maxx), Cesium.Math.toDegrees(maxy)];
+			var geomPolygon = OlMago3d.geom.Polygon.fromExtent(extent);
+			
+			if (!feature)
+			{
+				feature = new OlMago3d.Feature({
+					geometry: geomPolygon
+				});
+				vectorlayer.getSource().addFeature(feature);
+			}
+			else 
+			{
+				feature.setGeometry(geomPolygon);
+			}
+            
+			var ellipsoid = Cesium.Ellipsoid.WGS84;
+			var canvas = scene.canvas;
+			var canvasCenter = new Cesium.Cartesian2(canvas.clientWidth / 2, canvas.clientHeight / 2);
+			var ray = scene.camera.getPickRay(canvasCenter);
+			var targetCenter = scene.globe.pick(ray, scene) || scene.camera.pickEllipsoid(canvasCenter);
+
+			var bestTarget = targetCenter;
+			if (!bestTarget) 
+			{
+				//TODO: how to handle this properly ?
+				var globe = scene.globe;
+				var carto = scene.camera.positionCartographic.clone();
+				var height = globe.getHeight(carto);
+				carto.height = height || 0;
+				bestTarget = Cesium.Ellipsoid.WGS84.cartographicToCartesian(carto);
+			}
+
+			var distance = Cesium.Cartesian3.distance(bestTarget, scene.camera.position);
+			view.fit(extent, {size: getSizeByDistance(distance)});
+			return;
+			var ellipsoid = Cesium.Ellipsoid.WGS84;
+			var canvas = scene.canvas;
+			var canvasCenter = new Cesium.Cartesian2(canvas.clientWidth / 2, canvas.clientHeight / 2);
+			var ray = scene.camera.getPickRay(canvasCenter);
+			var targetCenter = scene.globe.pick(ray, scene) || scene.camera.pickEllipsoid(canvasCenter);
+
+			var bestTarget = targetCenter;
+			if (!bestTarget) 
+			{
+				//TODO: how to handle this properly ?
+				var globe = scene.globe;
+				var carto = scene.camera.positionCartographic.clone();
+				var height = globe.getHeight(carto);
+				carto.height = height || 0;
+				bestTarget = Cesium.Ellipsoid.WGS84.cartographicToCartesian(carto);
+			}
+
+			var distance = Cesium.Cartesian3.distance(bestTarget, scene.camera.position);
+			var bestTargetCartographic = ellipsoid.cartesianToCartographic(bestTarget);
+            
+			var properties = {};
+			//var c = fromLonLat(toDegree(bestTargetCartographic.longitude), toDegree(bestTargetCartographic.latitude));
+			properties.center = [toDegree(bestTargetCartographic.longitude), toDegree(bestTargetCartographic.latitude)];
+			properties.resolution = calcResolutionForDistance(canvas, distance, bestTargetCartographic ? bestTargetCartographic.latitude : 0);
+
+			view.setProperties(properties, true);
+			view.changed();
+
+			function calcResolutionForDistance(cv, dis, lat)
+			{
+				var fovy = scene.camera.frustum.fovy;
+				var metersPerUnit = view.getProjection().getMetersPerUnit();
+
+				var visibleMeters = 2 * dis * Math.tan(fovy / 2);
+				var relativeCircumference = Math.cos(Math.abs(lat));
+				var visibleMapUnits = visibleMeters / metersPerUnit / relativeCircumference;
+				var resolution = visibleMapUnits / cv.clientHeight;
+
+				return resolution;
+			}
+		}
+
+		function syncByOl()
+		{     
+			var center = view.getCenter();
+			if (!center)
+			{
+				return;
+			}
+
+			var ll = toLonLat(center);
+			var carto = new Cesium.Cartographic(toRadian(ll[0]), toRadian(ll[1]));
+			if (scene.globe)
+			{
+				carto.height = scene.globe.getHeight(carto) || 0;
+			}
+
+			var destination = Cesium.Ellipsoid.WGS84.cartographicToCartesian(carto);
+			var oritentation = {
+				pitch   : 0 - Cesium.Math.PI_OVER_TWO,
+				heading : -view.getRotation(),
+				roll    : undefined
+			};
+
+			scene.camera.setView({
+				destination,
+				oritentation
+			});
+
+			scene.camera.moveBackward(calcDistanceForResolution(view.getResolution(), toRadian(ll[1])));
+            
+			function calcDistanceForResolution(res, lat)
+			{
+				var canvas = scene.canvas;
+				var fovy = scene.camera.frustum.fovy;
+
+				var metersPerUnit = view.getProjection().getMetersPerUnit();
+				var visibleMapUnits = res * canvas.clientHeight;
+				var relativeCircumference = Math.cos(Math.abs(lat));
+
+				var visibleMeters = visibleMapUnits * metersPerUnit * relativeCircumference;
+				var requiredDistance = (visibleMeters / 2) / Math.tan(fovy / 2);
+
+				return requiredDistance;
+			}
+		}
+		function getSizeByDistance(d)
+		{
+			var num = 0;
+			if (d < 5000)
+			{
+				num = 90;
+			}
+			else if (d < 20000)
+			{
+				num = 70;
+			}
+			else if (d < 70000)
+			{
+				num = 50;
+			}
+			else 
+			{
+				num = 30;
+			}
+
+			return [num, num];
+		}
+
+		function toRadian(deg)
+		{
+			return deg * Math.PI / 180;
+		}
+
+		function toDegree(rad)
+		{
+			return rad * 180 /Math.PI;
+		}
+	}
+};
+'use strict';
+/**
+ * 줌 컨트롤
+ * @exception {Error} Messages.CONSTRUCT_ERROR
+ * 
+ * @constructor
+ * @class Tools
+ * @param {Tools~Options} options position info. coordinate. required.
+ *  
+ * @extends AbsControl
+ * 
+ */
+var Tools = function(options) 
+{
+	if (!(this instanceof Tools)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	var element = document.createElement('div');
+	options = options ? options : {};
+	options.element = element;
+    
+	AbsControl.call(this, options);
+
+	this.tools = {};
+
+	element.style.position = 'absolute';
+	element.style.pointerEvents = 'auto';
+	element.style.backgroundColor = 'rgba(255,255,255,0.4)';
+	element.style.borderRadius = '4px';
+	element.style.padding = '2px';
+	element.style.top = '7.5em';
+	element.style.right = '.5em';
+    
+	element.addEventListener(
+		'mouseover',
+		this.handleMouseOver.bind(this),
+		false
+	);
+
+	element.addEventListener(
+		'mouseout',
+		this.handleMouseOut.bind(this),
+		false
+	);
+
+	var that = this;
+	element.addEventListener('click',
+		function() 
+		{
+			var mainContainer = document.getElementById(that.magoManager.config.getContainerId()).getElementsByClassName('mago3d-overlayContainer-defaultContent').item(0);
+			var thisContainer = mainContainer.getElementsByClassName('mago3d-tools-advance').item(0);
+			var on = element.className.indexOf('on') >= 0;
+			if (!on)
+			{
+				that.target.style.right = '320px';
+				mainContainer.style.display = 'block';
+				mainContainer.style.right = '0px';
+				var toolsDivs = mainContainer.getElementsByClassName('mago3d-tools-div');
+				for (var i =0, len=toolsDivs.length;i<len;i++)
+				{
+					var toolDiv = toolsDivs.item(i);
+					toolDiv.style.display = 'none';
+				}
+				thisContainer.style.display = 'block';
+				element.className = 'on';
+				element.getElementsByTagName('button')[0].style.backgroundColor = 'rgba(148,216,246, 0.8)';
+			}
+			else 
+			{
+				thisContainer.style.display = 'none';
+				that.target.style.right = '0px';
+				mainContainer.style.display = 'none';
+				mainContainer.style.right = '0px';
+				element.className = '';
+				element.getElementsByTagName('button')[0].style.backgroundColor = 'rgba(70, 70, 70, 0.8)';
+			}
+		}
+		, false);
+    
+	var button = document.createElement('button');
+	button.setAttribute('type', 'button');
+	button.title = 'Tool Box';
+
+	var imageSpan = document.createElement('span');
+	imageSpan.appendChild(document.createTextNode('\u2699'));
+	imageSpan.style.verticalAlign = 'super';
+	imageSpan.style.lineHeight = '0.6em';
+	button.appendChild(imageSpan);
+
+	button.appendChild(document.createElement('br'));
+
+	var textSpan = document.createElement('span');
+	textSpan.appendChild(document.createTextNode('설정'));
+	textSpan.style.fontSize = '10px';
+	textSpan.style.verticalAlign = 'baseline';
+	textSpan.style.lineHeight = '0.6em';
+	button.appendChild(textSpan);
+
+	this.setBtnStyle(button);
+	button.style.backgroundColor = 'rgba(217, 217, 217, 0.8)';
+	element.appendChild(button);
+};
+
+Tools.prototype = Object.create(AbsControl.prototype);
+Tools.prototype.constructor = Tools;
+
+Tools.prototype.setControl = function(magoManager)
+{
+	this.magoManager = magoManager;
+
+	var target = this.target ? this.target : magoManager.defaultControlContainer;
+	target.appendChild(this.element);
+	this.target = target;
+
+	var advanceToolDiv = document.createElement('div');
+	advanceToolDiv.style.position = 'absolute';
+	advanceToolDiv.style.float = 'right';
+	advanceToolDiv.style.width = '100%';
+	advanceToolDiv.style.backgroundColor = '#FFFFFF';
+	advanceToolDiv.style.pointerEvents = 'auto';
+	advanceToolDiv.style.display = 'none';
+	advanceToolDiv.className = 'mago3d-tools-div mago3d-tools-advance';
+
+	magoManager.defaultContentContainer.appendChild(advanceToolDiv);
+
+	var basicSettingsDiv = getGroupDiv('기본 설정');
+	advanceToolDiv.appendChild(basicSettingsDiv);
+
+	var basicSettingBtnDiv = document.createElement('div');
+	basicSettingBtnDiv.style.marginTop = '5px';
+	basicSettingsDiv.appendChild(basicSettingBtnDiv);
+
+	var that = this;
+	var basicBtns = [];
+	var bboxBtnObj = getBasicButtonObject('bbox', 'BoundingBox Toggle', 'BBOX', 'toggle', function(value) 
+	{
+		that.magoManager.magoPolicy.setShowBoundingBox(value);
+	});
+	var labelBtnObj = getBasicButtonObject('label', 'Label Toggle', 'LABEL', 'toggle', function(value) 
+	{
+		that.magoManager.magoPolicy.setShowLabelInfo(value);
+		
+		// clear the text canvas.
+		var canvas = that.magoManager.getObjectLabel();
+		var ctx = canvas.getContext("2d");
+		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+	});
+	var originBtnObj = getBasicButtonObject('orgin', 'Origin Toggle', 'ORIGIN', 'toggle', function(value) 
+	{
+		that.magoManager.magoPolicy.setShowOrigin(value);
+	});
+	var shadowBtnObj = getBasicButtonObject('shadow', 'Shadow Toggle', 'SHADOW', 'toggle', function(value) 
+	{
+		that.magoManager.sceneState.setApplySunShadows(value);
+	});
+
+	basicBtns.push(bboxBtnObj);
+	basicBtns.push(labelBtnObj);
+	basicBtns.push(originBtnObj);
+	basicBtns.push(shadowBtnObj);
+
+	for (var i=0, btnLength=basicBtns.length;i<btnLength;i++)
+	{
+		var basicBtn = basicBtns[i];
+		var elem = basicBtn.element;
+		basicSettingBtnDiv.appendChild(elem);
+
+		elem.addEventListener(
+			'click',
+			that.handleToolClick.bind(this, basicBtn),
+			false
+		);
+	}
+
+	var basicSettingInputDiv = document.createElement('div');
+	basicSettingInputDiv.style.padding = '0 5px 0 0';
+	basicSettingInputDiv.style.margin = '5px 5px 0 5px';
+	basicSettingsDiv.appendChild(basicSettingInputDiv);
+
+	var ssaoDiv = document.createElement('div'); 
+	ssaoDiv.style.padding = '4px';
+	ssaoDiv.style.margin = '10px 0px 4px';
+	ssaoDiv.style.outline = '0px 0px 4px';
+	ssaoDiv.style.verticalAlign = 'top';
+	ssaoDiv.style.backgroundColor = 'rgb(243,243,243)';
+	ssaoDiv.style.borderRadius = '12px';
+	ssaoDiv.style.borderStyle = 'none';
+	ssaoDiv.className = 'mago3d-tools-ssao-div';
+	basicSettingInputDiv.appendChild(ssaoDiv);
+
+	var ssaoLabel = document.createElement('label');
+	ssaoLabel.style.width = '25%';
+	ssaoLabel.style.padding = '2px';
+	ssaoLabel.style.verticalAlign = 'middle';
+	ssaoLabel.style.display = 'inline-block';
+	ssaoLabel.style.textAlign = 'justify';
+	ssaoLabel.style.fontSize = '13.33333px';
+	ssaoLabel.setAttribute('for', 'ssaoRadius');
+	ssaoLabel.appendChild(document.createTextNode('SSAO'));
+	ssaoDiv.appendChild(ssaoLabel);
+
+	var ssaoInput = document.createElement('input');
+	ssaoInput.style.width = '45%';
+	ssaoInput.style.marginRight = '5px';
+	ssaoInput.style.padding = '5px';
+	ssaoInput.style.fontSize = 'small';
+	ssaoInput.style.verticalAlign = 'middle';
+	ssaoInput.style.lineHeight = '1.5em';
+	ssaoInput.style.color = '#444';
+	ssaoInput.setAttribute('id', 'ssaoRadius');
+	ssaoInput.setAttribute('name', 'ssaoRadius');
+	ssaoInput.setAttribute('type', 'text');
+	ssaoInput.setAttribute('value', magoManager.configInformation.ssaoRadius);
+	ssaoDiv.appendChild(ssaoInput);
+
+	var ssaoBtn = document.createElement('button');
+	ssaoBtn.setAttribute('type', 'button');
+	ssaoBtn.style.display = 'inline-block';
+	ssaoBtn.style.verticalAlign = 'middle';
+	ssaoBtn.style.padding = '2px 10px';
+	ssaoBtn.style.fontSize = '12px';
+	ssaoBtn.style.color = '#FFFFFF';
+	ssaoBtn.style.borderRadius = '12px';
+	ssaoBtn.style.borderStyle = 'none';
+	ssaoBtn.style.backgroundColor = '#636363';
+	ssaoBtn.appendChild(document.createTextNode('적용'));
+	ssaoBtn.addEventListener(
+		'click',
+		function() 
+		{
+			var ssao = ssaoInput.value;
+			if (isNaN(ssao)) 
+			{
+				alert('숫자만 입력 가능합니다.');
+				return;
+			} 
+			magoManager.magoPolicy.setSsaoRadius(ssao);
+			magoManager.sceneState.ssaoRadius[0] = Number(ssao);
+		},
+		false
+	);
+	ssaoDiv.appendChild(ssaoBtn); 
+	
+	var lodDiv = document.createElement('div'); 
+	lodDiv.style.padding = '4px';
+	lodDiv.style.margin = '10px 0px 4px';
+	lodDiv.style.outline = '0px 0px 4px';
+	lodDiv.style.verticalAlign = 'top';
+	lodDiv.style.backgroundColor = 'rgb(243,243,243)';
+	lodDiv.style.borderRadius = '12px';
+	lodDiv.style.borderStyle = 'none';
+	lodDiv.className = 'mago3d-tools-lod-div';
+	basicSettingInputDiv.appendChild(lodDiv);
+
+	var lodh3 = document.createElement('h3');
+	lodh3.style.fontSize = '15px';
+	lodh3.appendChild(document.createTextNode('Level of Detail'));
+	lodDiv.appendChild(lodh3);
+	
+	for (var i=0;i<6;i++)
+	{
+		var id = 'geoLod' + i;
+		var name = 'lod' + i;
+
+		var lodLabel = document.createElement('label');
+		lodLabel.style.width = '25%';
+		lodLabel.style.padding = '2px';
+		lodLabel.style.verticalAlign = 'middle';
+		lodLabel.style.display = 'inline-block';
+		lodLabel.style.textAlign = 'justify';
+		lodLabel.style.fontSize = '13.33333px';
+		lodLabel.setAttribute('for', id);
+		lodLabel.appendChild(document.createTextNode(name.toUpperCase()));
+		lodDiv.appendChild(lodLabel);
+
+		var lodInput = document.createElement('input');
+		lodInput.style.width = '45%';
+		lodInput.style.marginRight = '5px';
+		lodInput.style.padding = '5px';
+		lodInput.style.fontSize = 'small';
+		lodInput.style.verticalAlign = 'middle';
+		lodInput.style.lineHeight = '1.5em';
+		lodInput.style.color = '#444';
+		lodInput.setAttribute('id', id);
+		lodInput.setAttribute('name', name);
+		lodInput.setAttribute('type', 'text');
+		lodInput.setAttribute('value', magoManager.configInformation[name]);
+		lodDiv.appendChild(lodInput);
+	}
+
+	var lodBtn = document.createElement('button');
+	lodBtn.setAttribute('type', 'button');
+	lodBtn.style.display = 'inline-block';
+	lodBtn.style.verticalAlign = 'middle';
+	lodBtn.style.padding = '2px 10px';
+	lodBtn.style.fontSize = '12px';
+	lodBtn.style.color = '#FFFFFF';
+	lodBtn.style.borderRadius = '12px';
+	lodBtn.style.borderStyle = 'none';
+	lodBtn.style.backgroundColor = '#636363';
+	lodBtn.appendChild(document.createTextNode('적용'));
+	lodBtn.addEventListener(
+		'click',
+		function() 
+		{
+			var lod0 = document.getElementById('geoLod0').value;
+			var lod1 = document.getElementById('geoLod1').value;
+			var lod2 = document.getElementById('geoLod2').value;
+			var lod3 = document.getElementById('geoLod3').value;
+			var lod4 = document.getElementById('geoLod4').value;
+			var lod5 = document.getElementById('geoLod5').value;
+			if (isNaN(lod0) || isNaN(lod1) || isNaN(lod2)|| isNaN(lod3) || isNaN(lod4) || isNaN(lod5)) 
+			{
+				alert('숫자만 입력 가능합니다.');
+				return;
+			}
+
+			if (lod0 !== null && lod0 !== "") { magoManager.magoPolicy.setLod0DistInMeters(lod0); }
+			if (lod1 !== null && lod1 !== "") { magoManager.magoPolicy.setLod1DistInMeters(lod1); }
+			if (lod2 !== null && lod2 !== "") { magoManager.magoPolicy.setLod2DistInMeters(lod2); }
+			if (lod3 !== null && lod3 !== "") { magoManager.magoPolicy.setLod3DistInMeters(lod3); }
+			if (lod4 !== null && lod4 !== "") { magoManager.magoPolicy.setLod4DistInMeters(lod4); }
+			if (lod5 !== null && lod5 !== "") { magoManager.magoPolicy.setLod5DistInMeters(lod5); }
+		},
+		false
+	);
+	lodDiv.appendChild(lodBtn); 
+
+	var dataDiv = getGroupDiv('데이터 선택');
+	advanceToolDiv.appendChild(dataDiv);
+
+	var dataControlDiv = document.createElement('div'); 
+	dataControlDiv.style.padding = '4px';
+	dataControlDiv.style.margin = '10px 0px 4px';
+	dataControlDiv.style.outline = '0px 0px 4px';
+	dataControlDiv.style.verticalAlign = 'top';
+	dataControlDiv.style.backgroundColor = 'rgb(243,243,243)';
+	dataControlDiv.style.borderRadius = '12px';
+	dataControlDiv.style.borderStyle = 'none';
+	dataControlDiv.className = 'mago3d-tools-data-div';
+	dataDiv.appendChild(dataControlDiv);
+
+	var allText = document.createElement('strong');
+	allText.style.width = '35%';
+	allText.style.padding = '2px';
+	allText.style.verticalAlign = 'middle';
+	allText.style.display = 'inline-block';
+	allText.style.textAlign = 'justify';
+	allText.style.fontSize = '13.33333px';
+	allText.appendChild(document.createTextNode('F4D 모델'));
+	dataControlDiv.appendChild(allText);
+
+	var allSelectBtn = document.createElement('button');
+	allSelectBtn.setAttribute('type', 'button');
+	allSelectBtn.dataset.type = DataType.F4D;
+	allSelectBtn.dataset.function = 'select';
+	allSelectBtn.dataset.active = 'off';
+	allSelectBtn.className = 'mago3d-tools-select';
+	allSelectBtn.name = 'btn-' + DataType.F4D;
+	allSelectBtn.style.display = 'inline-block';
+	allSelectBtn.style.verticalAlign = 'middle';
+	allSelectBtn.style.padding = '2px 10px';
+	allSelectBtn.style.fontSize = '12px';
+	allSelectBtn.style.color = 'rgb(20, 20, 20)';
+	allSelectBtn.style.borderRadius = '12px';
+	allSelectBtn.style.borderStyle = 'none';
+	allSelectBtn.style.backgroundColor = 'rgb(255, 255, 255)';
+	allSelectBtn.appendChild(document.createTextNode('선택'));
+	dataControlDiv.appendChild(allSelectBtn);
+
+	var allMoveBtn = document.createElement('button');
+	allMoveBtn.setAttribute('type', 'button');
+	allMoveBtn.dataset.type = DataType.F4D;
+	allMoveBtn.dataset.function = 'translate';
+	allMoveBtn.dataset.active = 'off';
+	allMoveBtn.className = 'mago3d-tools-translate';
+	allMoveBtn.name = 'btn-' + DataType.F4D;
+	allMoveBtn.style.display = 'inline-block';
+	allMoveBtn.style.verticalAlign = 'middle';
+	allMoveBtn.style.marginLeft = '5px';
+	allMoveBtn.style.padding = '2px 10px';
+	allMoveBtn.style.fontSize = '12px';
+	allMoveBtn.style.color = 'rgb(20, 20, 20)';
+	allMoveBtn.style.borderRadius = '12px';
+	allMoveBtn.style.borderStyle = 'none';
+	allMoveBtn.style.backgroundColor = 'rgb(255, 255, 255)';
+	allMoveBtn.appendChild(document.createTextNode('이동'));
+	dataControlDiv.appendChild(allMoveBtn);
+
+	dataControlDiv.appendChild(document.createElement('br'));
+
+	var partText = document.createElement('strong');
+	partText.style.width = '35%';
+	partText.style.padding = '2px';
+	partText.style.verticalAlign = 'middle';
+	partText.style.display = 'inline-block';
+	partText.style.textAlign = 'justify';
+	partText.style.fontSize = '13.33333px';
+	partText.appendChild(document.createTextNode('F4D 모델 부분'));
+	dataControlDiv.appendChild(partText);
+
+	var partSelectBtn = document.createElement('button');
+	partSelectBtn.setAttribute('type', 'button');
+	partSelectBtn.dataset.type = DataType.OBJECT;
+	partSelectBtn.dataset.function = 'select';
+	partSelectBtn.dataset.active = 'off';
+	partSelectBtn.className = 'mago3d-tools-select';
+	partSelectBtn.name = 'btn-' + DataType.OBJECT;
+	partSelectBtn.style.display = 'inline-block';
+	partSelectBtn.style.verticalAlign = 'middle';
+	partSelectBtn.style.padding = '2px 10px';
+	partSelectBtn.style.fontSize = '12px';
+	partSelectBtn.style.color = 'rgb(20, 20, 20)';
+	partSelectBtn.style.borderRadius = '12px';
+	partSelectBtn.style.borderStyle = 'none';
+	partSelectBtn.style.backgroundColor = 'rgb(255, 255, 255)';
+	partSelectBtn.appendChild(document.createTextNode('선택'));
+	dataControlDiv.appendChild(partSelectBtn);
+
+	var partMoveBtn = document.createElement('button');
+	partMoveBtn.setAttribute('type', 'button');
+	partMoveBtn.dataset.type = DataType.OBJECT;
+	partMoveBtn.dataset.function = 'translate';
+	partMoveBtn.dataset.active = 'off';
+	partMoveBtn.className = 'mago3d-tools-translate';
+	partMoveBtn.name = 'btn-' + DataType.OBJECT;
+	partMoveBtn.style.display = 'inline-block';
+	partMoveBtn.style.verticalAlign = 'middle';
+	partMoveBtn.style.marginLeft = '5px';
+	partMoveBtn.style.padding = '2px 10px';
+	partMoveBtn.style.fontSize = '12px';
+	partMoveBtn.style.color = 'rgb(20, 20, 20)';
+	partMoveBtn.style.borderRadius = '12px';
+	partMoveBtn.style.borderStyle = 'none';
+	partMoveBtn.style.backgroundColor = 'rgb(255, 255, 255)';
+	partMoveBtn.appendChild(document.createTextNode('이동'));
+	dataControlDiv.appendChild(partMoveBtn);
+
+	dataControlDiv.appendChild(document.createElement('br'));
+
+	var nativeText = document.createElement('strong');
+	nativeText.style.width = '35%';
+	nativeText.style.padding = '2px';
+	nativeText.style.verticalAlign = 'middle';
+	nativeText.style.display = 'inline-block';
+	nativeText.style.textAlign = 'justify';
+	nativeText.style.fontSize = '13.33333px';
+	nativeText.appendChild(document.createTextNode('원시 모델 부분'));
+	dataControlDiv.appendChild(nativeText);
+
+	var nativeSelectBtn = document.createElement('button');
+	nativeSelectBtn.setAttribute('type', 'button');
+	nativeSelectBtn.dataset.type = DataType.NATIVE;
+	nativeSelectBtn.dataset.function = 'select';
+	nativeSelectBtn.dataset.active = 'off';
+	nativeSelectBtn.className = 'mago3d-tools-select';
+	nativeSelectBtn.name = 'btn-' + DataType.NATIVE;
+	nativeSelectBtn.style.display = 'inline-block';
+	nativeSelectBtn.style.verticalAlign = 'middle';
+	nativeSelectBtn.style.padding = '2px 10px';
+	nativeSelectBtn.style.fontSize = '12px';
+	nativeSelectBtn.style.color = 'rgb(20, 20, 20)';
+	nativeSelectBtn.style.borderRadius = '12px';
+	nativeSelectBtn.style.borderStyle = 'none';
+	nativeSelectBtn.style.backgroundColor = 'rgb(255, 255, 255)';
+	nativeSelectBtn.appendChild(document.createTextNode('선택'));
+	dataControlDiv.appendChild(nativeSelectBtn);
+
+	var nativeMoveBtn = document.createElement('button');
+	nativeMoveBtn.setAttribute('type', 'button');
+	nativeMoveBtn.dataset.type = DataType.NATIVE;
+	nativeMoveBtn.dataset.function = 'translate';
+	nativeMoveBtn.dataset.active = 'off';
+	nativeMoveBtn.className = 'mago3d-tools-translate';
+	nativeMoveBtn.name = 'btn-' + DataType.NATIVE;
+	nativeMoveBtn.style.display = 'inline-block';
+	nativeMoveBtn.style.verticalAlign = 'middle';
+	nativeMoveBtn.style.marginLeft = '5px';
+	nativeMoveBtn.style.padding = '2px 10px';
+	nativeMoveBtn.style.fontSize = '12px';
+	nativeMoveBtn.style.color = 'rgb(20, 20, 20)';
+	nativeMoveBtn.style.borderRadius = '12px';
+	nativeMoveBtn.style.borderStyle = 'none';
+	nativeMoveBtn.style.backgroundColor = 'rgb(255, 255, 255)';
+	nativeMoveBtn.appendChild(document.createTextNode('이동'));
+	dataControlDiv.appendChild(nativeMoveBtn);
+
+	var selectBtns = magoManager.defaultContentContainer.getElementsByClassName('mago3d-tools-select');
+	var selectInteraction = magoManager.defaultSelectInteraction;
+	var translateBtns = magoManager.defaultContentContainer.getElementsByClassName('mago3d-tools-translate');
+	var translateInteraction = magoManager.defaultTranslateInteraction;
+	var names = [DataType.NATIVE, DataType.OBJECT, DataType.F4D];
+	
+
+	for (var i=0, sLength=selectBtns.length;i<sLength;i++)
+	{
+		(function (idx)
+		{
+			var sBtn = selectBtns.item(idx);
+			sBtn.addEventListener('click', function()
+			{
+				var type = sBtn.dataset.type;
+				
+				if (!selectInteraction.getActive())
+				{
+					selectInteraction.setTargetType(type);
+					selectInteraction.setActive(true);
+					sBtn.dataset.active = 'on';
+					
+				}
+				else 
+				{
+					var nowTargetType = selectInteraction.getTargetType();
+					if (type === nowTargetType)
+					{
+						selectInteraction.setActive(false);
+						sBtn.dataset.active = 'off';
+					}
+					else
+					{
+						var nowBtn = selectBtns.namedItem('btn-'+nowTargetType);
+						nowBtn.dataset.active = 'off';
+						btnActiveStyle(nowBtn);
+						selectInteraction.setTargetType(type);
+						sBtn.dataset.active = 'on';
+					}
+				}
+				btnActiveStyle(sBtn);
+			}, false);
+		})(i);
+	}
+
+	for (var i=0, tLength=translateBtns.length;i<tLength;i++)
+	{
+		(function (idx)
+		{
+			var tBtn = translateBtns.item(idx);
+			tBtn.addEventListener('click', function()
+			{
+				var type = tBtn.dataset.type;
+
+				if (!translateInteraction.getActive())
+				{
+					translateInteraction.setTargetType(type);
+					translateInteraction.setActive(true);
+					tBtn.dataset.active = 'on';
+				}
+				else 
+				{
+					var nowTargetType = translateInteraction.getTargetType();
+					if (type === nowTargetType)
+					{
+						translateInteraction.setActive(false);
+						tBtn.dataset.active = 'off';
+					}
+					else
+					{
+						var nowBtn = translateBtns.namedItem('btn-'+nowTargetType);
+						nowBtn.dataset.active = 'off';
+						btnActiveStyle(nowBtn);
+						translateInteraction.setTargetType(type);
+						tBtn.dataset.active = 'on';
+					}
+				}
+				btnActiveStyle(tBtn);
+			}, false);
+		})(i);
+	}
+
+	function btnActiveStyle (b)
+	{
+		if (b.dataset.active === 'on')
+		{
+			b.style.backgroundColor = 'rgb(160, 160, 160)';
+			b.style.color = 'rgb(230, 230, 230)';
+		}
+		else 
+		{
+			b.style.backgroundColor = 'rgb(255, 255, 255)';
+			b.style.color = 'rgb(20, 20, 20)';
+		}
+	}
+
+	function getBasicButtonObject (type, title, text, runtype, action)
+	{
+		var btn = document.createElement('button');
+		btn.setAttribute('type', 'button');
+		btn.dataset.type=  type;
+		btn.dataset.status= 'off';
+		btn.title = title;
+		btn.appendChild(document.createTextNode(text));
+		
+		btn.style.display = 'inline-block';
+		btn.style.margin = '1px 1px 1px 5px';
+		btn.style.padding = '0';
+		btn.style.color = 'rgb(136, 136, 136)';
+		btn.style.fontWeight = 'bold';
+		btn.style.height = '33px';
+		btn.style.width = '66px';
+		btn.style.backgroundColor = '#f3f3f3';
+		btn.style.borderRadius = '12px';
+		btn.style.borderStyle = 'none';
+		
+		return {
+			runType : runtype,
+			element : btn,
+			action  : action
+		};
+	}
+
+	function getGroupDiv(category)
+	{
+		var div = document.createElement('div');
+		div.style.padding = '5px 10px';
+		div.style.margin = '0 0 20px 0';
+		div.style.outline = '0px';
+		div.style.verticalAlign = 'top';
+		div.style.fontSize = '16PX';
+		div.style.fontWeight = 'bold';
+		div.style.color = '#888';
+
+		var strong = document.createElement('strong');
+		strong.style.display = 'block';
+		strong.style.padding = '10px 6px';
+		strong.style.borderBottom = '1px solid #e2e2e2';
+		strong.appendChild(document.createTextNode(category));
+		div.appendChild(strong);
+
+		return div;
+	}
+};
+
+Tools.prototype.handleMouseOver = function()
+{
+	this.element.getElementsByTagName('button')[0].style.backgroundColor = 'rgba(148,216,246, 0.8)';
+};
+
+Tools.prototype.handleMouseOut = function()
+{
+	if (this.element.className !== 'on')
+	{
+		this.element.getElementsByTagName('button')[0].style.backgroundColor = 'rgba(217, 217, 217, 0.8)';
+	}
+};
+
+Tools.prototype.handleToolClick = function(tool)
+{
+	if (tool.runType === 'toggle')
+	{
+		var element = tool.element;
+		element.dataset.status = (element.dataset.status === 'on') ? 'off' : 'on';
+
+		var status = element.dataset.status;
+		var boolStatus = (status === 'on') ? true : false;
+        
+		tool.action.call(this, boolStatus);
+		if (boolStatus)
+		{
+			tool.element.style.backgroundColor = 'rgba(148,216,246, 0.8)';
+		}
+		else 
+		{
+			tool.element.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
+		}
+	}
+};
+
+'use strict';
+/**
+ * 줌 컨트롤
+ * @exception {Error} Messages.CONSTRUCT_ERROR
+ * 
+ * @constructor
+ * @class Zoom
+ * @param {Zoom~Options} options position info. coordinate. required.
+ *  
+ * @extends AbsControl
+ * 
+ */
+var Zoom = function(options) 
+{
+	if (!(this instanceof Zoom)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	var element = document.createElement('div');
+	options = options ? options : {};
+	options.element = element;
+    
+	AbsControl.call(this, options);
+    
+	element.style.position = 'absolute';
+	element.style.pointerEvents = 'auto';
+	element.style.backgroundColor = 'rgba(255,255,255,0.4)';
+	element.style.borderRadius = '4px';
+	element.style.padding = '2px';
+	element.style.bottom = '0.5em';
+	element.style.right = '9.5em';
+
+	var that = this;
+	var upButton = document.createElement('button');
+	upButton.setAttribute('type', 'button');
+	upButton.title = 'zoom in';
+	
+	var imageSpan = document.createElement('span');
+	imageSpan.appendChild(document.createTextNode('+'));
+	imageSpan.style.verticalAlign = 'super';
+	imageSpan.style.lineHeight = '0.6em';
+	upButton.appendChild(imageSpan);
+
+	/*upButton.appendChild(document.createElement('br'));
+
+	var textSpan = document.createElement('span');
+	textSpan.appendChild(document.createTextNode('줌인'));
+	textSpan.style.fontSize = '10px';
+	textSpan.style.verticalAlign = 'baseline';
+	textSpan.style.lineHeight = '0.6em';
+	upButton.appendChild(textSpan);*/
+    
+	this.setBtnStyle(upButton);
+	upButton.style.width='25px';
+	upButton.style.height='25px';
+	upButton.style.display='inline-block';
+	upButton.addEventListener(
+		'click',
+		that.handleClick.bind(that, 1),
+		false
+	);
+
+	var downButton = document.createElement('button');
+	downButton.setAttribute('type', 'button');
+	downButton.title = 'zoom out';
+
+	var downImageSpan = document.createElement('span');
+	downImageSpan.appendChild(document.createTextNode('\u2212'));
+	downImageSpan.style.verticalAlign = 'super';
+	downImageSpan.style.lineHeight = '0.6em';
+	downButton.appendChild(downImageSpan);
+
+	/*downButton.appendChild(document.createElement('br'));
+
+	var downTextSpan = document.createElement('span');
+	downTextSpan.appendChild(document.createTextNode('줌아웃'));
+	downTextSpan.style.fontSize = '10px';
+	downTextSpan.style.verticalAlign = 'baseline';
+	downTextSpan.style.lineHeight = '0.6em';
+	downButton.appendChild(downTextSpan);*/
+
+	this.setBtnStyle(downButton);
+	downButton.style.width='25px';
+	downButton.style.height='25px';
+	downButton.style.display='inline-block';
+	downButton.addEventListener(
+		'click',
+		that.handleClick.bind(that, 0),
+		false
+	);
+
+	this.element.appendChild(upButton);
+	this.element.appendChild(downButton);
+};
+
+Zoom.prototype = Object.create(AbsControl.prototype);
+Zoom.prototype.constructor = Zoom;
+
+Zoom.prototype.handleClick = function(type)
+{
+	if (this.magoManager.isCesiumGlobe())
+	{
+		var scene = this.magoManager.scene;
+		var camera = scene.camera;
+        
+		var cartographicPosition = Cesium.Cartographic.fromCartesian(camera.position);
+		var alt = cartographicPosition.height;
+		if (type)
+		{
+			scene.camera.zoomIn(alt * 0.1);
+		}
+		else
+		{
+			scene.camera.zoomOut(alt * 0.1);
+		}
+	}
 };
 'use strict';
 
@@ -31766,17 +31791,26 @@ MagoManager.prototype.TEST__splittedExtrudedBuilding = function()
 	var limiGeoCoord6 = new GeographicCoord(127.0068275878695, 37.4507608835301, 0.0);
 	var limiGeoCoord7 = new GeographicCoord(127.00753105267508, 37.45075685056917, 0.0);
 	var limiGeoCoord8 = new GeographicCoord(127.00746746612433, 37.45159376615369, 0.0);
-	options.limitationGeographicCoords = [limiGeoCoord1, limiGeoCoord2, limiGeoCoord3, limiGeoCoord4, limiGeoCoord5, limiGeoCoord6, limiGeoCoord7, limiGeoCoord8];
+	//options.limitationGeographicCoords = [limiGeoCoord1, limiGeoCoord2, limiGeoCoord3, limiGeoCoord4, limiGeoCoord5, limiGeoCoord6, limiGeoCoord7, limiGeoCoord8];
 	
-	/*
-	var limiGeoCoord0 = new GeographicCoord(127.00707561793477, 37.45181817281961, 0.0);
-	var limiGeoCoord1 = new GeographicCoord(127.00711848788578, 37.45045648607603, 0.0);
-	var limiGeoCoord2 = new GeographicCoord(127.00838475802502, 37.45048859811164, 0.0);
-	var limiGeoCoord3 = new GeographicCoord(127.00826935498984, 37.45181503770476, 0.0);
-	options.limitationGeographicCoords = [limiGeoCoord0, limiGeoCoord1, limiGeoCoord2, limiGeoCoord3];
-	*/
+	
+	var limiGeoCoord9 = new GeographicCoord(127.00707561793477, 37.45181817281961, 0.0);
+	var limiGeoCoord10 = new GeographicCoord(127.00711848788578, 37.45045648607603, 0.0);
+	var limiGeoCoord11 = new GeographicCoord(127.00838475802502, 37.45048859811164, 0.0);
+	var limiGeoCoord12 = new GeographicCoord(127.00826935498984, 37.45181503770476, 0.0);
+	//options.limitationGeographicCoords = [limiGeoCoord9, limiGeoCoord10,  limiGeoCoord11, limiGeoCoord12];
+	//options.limitationGeographicCoords = [limiGeoCoord11, limiGeoCoord12, limiGeoCoord9, limiGeoCoord10];
+
+	var limiGeoCoord13 = new GeographicCoord(127.00705650749205, 37.451801378084006, 0.0);
+	var limiGeoCoord14 = new GeographicCoord(127.00704836209083, 37.45114871921257, 0.0);
+	var limiGeoCoord15 = new GeographicCoord(127.00791679734688, 37.451123869212154, 0.0);
+	var limiGeoCoord16 = new GeographicCoord(127.00790742409, 37.451849349156944, 0.0);
+	//options.limitationGeographicCoords = [limiGeoCoord13, limiGeoCoord14, limiGeoCoord15, limiGeoCoord16];
 
 	// End making limitation polygon2d.------------------------------------
+	var minHeight = 0.0;
+	var maxHeight = 60.0;
+	options.limitationHeights = new Float32Array([minHeight, maxHeight]);
 
 	options.color = new Color(Math.random(),Math.random(),Math.random(),1);
 	options.renderWireframe = true;
@@ -66125,6 +66159,147 @@ TinTerrainManager.prototype.clearMap = function(id)
 'use strict';
 
 /**
+ * 메세지
+ * 
+ * @class
+ */
+var Message = function(i18next, message) 
+{
+	this.handle  = i18next;
+	this.message = message || MessageSource;
+};
+
+/**
+ * 메세지 클래스 초기화
+ *
+ * @param {Function} callback
+ */
+Message.prototype.init = function (callback)
+{
+	var h = this.handle;
+	this.handle.use(i18nextXHRBackend)
+		.use(i18nextBrowserLanguageDetector)
+		.init({
+			// Useful for debuging, displays which key is missing
+			debug: false,
+
+			detection: {
+				// keys or params to lookup language from
+				lookupQuerystring  : 'lang',
+				lookupCookie       : 'i18nextLang',
+				lookupLocalStorage : 'i18nextLang',
+			},
+    
+			// If translation key is missing, which lang use instead
+			fallbackLng: 'en',
+
+			resources: this.message,
+
+			// all, languageOnly
+			load: "languageOnly",
+
+			ns        : ['common'],
+			// Namespace to use by default, when not indicated
+			defaultNS : 'common',
+    
+			keySeparator     : ".",
+			nsSeparator      : ":",
+			pluralSeparator  : "_",
+			contextSeparator : "_"
+
+		}, function(err, t)
+		{
+			console.log("detected user language: " + h.language);
+			console.log("loaded languages: " + h.languages.join(', '));
+			h.changeLanguage(h.languages[0]);
+			callback(err, t);
+		});
+};
+
+/**
+ * 메세지 핸들러를 가져온다.
+ *
+ * @returns {i18next} message handler
+ */
+Message.prototype.getHandle = function ()
+{
+	return this.handle;
+};
+
+/**
+ * 메세지를 가져온다.
+ *
+ * @returns {Object} message
+ */
+Message.prototype.getMessage = function ()
+{
+	return this.message;
+};
+
+'use strict';
+var MessageSource = {};
+MessageSource.en = {
+  "common": {
+    "welcome" : "Welcome",
+    "error": {
+        "title" : "Error",
+        "construct" : {
+            "create" : "This object should be created using new."
+        }
+    }
+  }
+};
+MessageSource.ko = {
+    "common": {
+      "welcome" : "환영합니다.",
+      "error": {
+          "title" : "오류",
+          "construct" : {
+              "create" : "이 객체는 new 를 사용하여 생성해야 합니다."
+          }
+      }
+    }
+  };
+
+'use strict';
+
+/**
+ * Geoserver for mago3Djs object.
+ * @class Geoserver
+ */
+var GeoServer = function() 
+{
+
+	this.serverInfo = {};
+}; 
+
+GeoServer.prototype.setServerInfo = function(info) 
+{
+	this.serverInfo = info;
+};
+
+GeoServer.prototype.getDataUrl = function() 
+{
+	return this.serverInfo.dataUrl;
+};
+
+GeoServer.prototype.getDataWorkspace = function() 
+{
+	return this.serverInfo.dataWorkspace;
+};
+
+GeoServer.prototype.getDataRequestUrl = function() 
+{
+	return this.getDataUrl() + '/' + this.getDataWorkspace();
+};
+
+GeoServer.prototype.getWmsVersion = function() 
+{
+	return this.serverInfo.wmsVersion;
+};
+'use strict';
+
+/**
  * This is the interaction for draw geometry.
  * @constructor
  * @class AbsClickInteraction
@@ -67206,6 +67381,7 @@ var PointSelectInteraction = function(option)
 
 	this.targetType = defaultValue(option.targetType, DataType.F4D);
 	this.targetHighlight = defaultValue(option.targetHighlight, true);
+	this.filter = undefined;
 
 	var that = this;
 	this.on(PointSelectInteraction.EVENT_TYPE.DEACTIVE, function()
@@ -67244,6 +67420,7 @@ PointSelectInteraction.prototype.setTargetType = function(type)
 		this.selected = undefined;
 		this.manager.isCameraMoved = true;
 		this.manager.selectionManager.clearCurrents();
+		this.filter = undefined;
 	}
 	this.targetType = type;
 };
@@ -67255,6 +67432,26 @@ PointSelectInteraction.prototype.setTargetType = function(type)
 PointSelectInteraction.prototype.getTargetType = function()
 {
 	return this.targetType;
+};
+
+/**
+ * set filter function
+ * @param {function} filterFunction
+ */
+PointSelectInteraction.prototype.setFilter = function(filterFunction)
+{
+	if(filterFunction && typeof filterFunction === 'function') {
+		this.filter = filterFunction;
+	}
+};
+
+/**
+ * set filter function
+ * @param {function} filterFunction
+ */
+PointSelectInteraction.prototype.getFilter = function(filterFunction)
+{
+	return this.filter;
 };
 
 /**
@@ -67388,7 +67585,7 @@ PointSelectInteraction.prototype.select = function(screenCoordinate)
 
 	var gl = manager.getGl();
 	selectManager.selectProvisionalObjectByPixel(gl, screenCoordinate.x, screenCoordinate.y);
-	selectManager.provisionalToCurrent(this.targetType);
+	selectManager.provisionalToCurrent(this.targetType, this.filter);
 	
 	//selectManager.selectObjectByPixel(gl, screenCoordinate.x, screenCoordinate.y, bObject);
 };
@@ -91024,147 +91221,6 @@ VtxSegment.prototype.intersectionWithPoint = function(point, error)
 'use strict';
 
 /**
- * 메세지
- * 
- * @class
- */
-var Message = function(i18next, message) 
-{
-	this.handle  = i18next;
-	this.message = message || MessageSource;
-};
-
-/**
- * 메세지 클래스 초기화
- *
- * @param {Function} callback
- */
-Message.prototype.init = function (callback)
-{
-	var h = this.handle;
-	this.handle.use(i18nextXHRBackend)
-		.use(i18nextBrowserLanguageDetector)
-		.init({
-			// Useful for debuging, displays which key is missing
-			debug: false,
-
-			detection: {
-				// keys or params to lookup language from
-				lookupQuerystring  : 'lang',
-				lookupCookie       : 'i18nextLang',
-				lookupLocalStorage : 'i18nextLang',
-			},
-    
-			// If translation key is missing, which lang use instead
-			fallbackLng: 'en',
-
-			resources: this.message,
-
-			// all, languageOnly
-			load: "languageOnly",
-
-			ns        : ['common'],
-			// Namespace to use by default, when not indicated
-			defaultNS : 'common',
-    
-			keySeparator     : ".",
-			nsSeparator      : ":",
-			pluralSeparator  : "_",
-			contextSeparator : "_"
-
-		}, function(err, t)
-		{
-			console.log("detected user language: " + h.language);
-			console.log("loaded languages: " + h.languages.join(', '));
-			h.changeLanguage(h.languages[0]);
-			callback(err, t);
-		});
-};
-
-/**
- * 메세지 핸들러를 가져온다.
- *
- * @returns {i18next} message handler
- */
-Message.prototype.getHandle = function ()
-{
-	return this.handle;
-};
-
-/**
- * 메세지를 가져온다.
- *
- * @returns {Object} message
- */
-Message.prototype.getMessage = function ()
-{
-	return this.message;
-};
-
-'use strict';
-var MessageSource = {};
-MessageSource.en = {
-  "common": {
-    "welcome" : "Welcome",
-    "error": {
-        "title" : "Error",
-        "construct" : {
-            "create" : "This object should be created using new."
-        }
-    }
-  }
-};
-MessageSource.ko = {
-    "common": {
-      "welcome" : "환영합니다.",
-      "error": {
-          "title" : "오류",
-          "construct" : {
-              "create" : "이 객체는 new 를 사용하여 생성해야 합니다."
-          }
-      }
-    }
-  };
-
-'use strict';
-
-/**
- * Geoserver for mago3Djs object.
- * @class Geoserver
- */
-var GeoServer = function() 
-{
-
-	this.serverInfo = {};
-}; 
-
-GeoServer.prototype.setServerInfo = function(info) 
-{
-	this.serverInfo = info;
-};
-
-GeoServer.prototype.getDataUrl = function() 
-{
-	return this.serverInfo.dataUrl;
-};
-
-GeoServer.prototype.getDataWorkspace = function() 
-{
-	return this.serverInfo.dataWorkspace;
-};
-
-GeoServer.prototype.getDataRequestUrl = function() 
-{
-	return this.getDataUrl() + '/' + this.getDataWorkspace();
-};
-
-GeoServer.prototype.getWmsVersion = function() 
-{
-	return this.serverInfo.wmsVersion;
-};
-'use strict';
-
-/**
  * AnimatedPerson is a class object.
  * 
  * @class AnimatedPerson
@@ -93550,11 +93606,11 @@ ExtrusionBuilding.prototype.makeUniformPoints2dArray = function()
 		for(var j=0; j<pointsCount; j++)
 		{
 			var point2d = convexPolygon2d.point2dList.getPoint(j);
-			//uniformPoints2dArray.push(point2d.x, point2d.y);
 			uniformPoints2dArray[2*currentIdx] = point2d.x;
 			uniformPoints2dArray[2*currentIdx+1] = point2d.y;
 			currentIdx += 1;
 		}
+
 		uniformPolygonPointsIdx[i*2+1] = currentIdx-1;
 	}
 
@@ -93593,6 +93649,12 @@ ExtrusionBuilding.prototype.setLimitationGeographicCoords = function(limitationG
 	this.setDirty(true);
 }
 
+/**
+ * @param {number>} limitationHeight
+ */
+ExtrusionBuilding.prototype.setLimitationHeight = function(limitationHeight) {
+	this.options.limitationHeights = limitationHeight ? new Float32Array([0, limitationHeight]) : undefined;
+}
 
 /**
  * @return {number}
@@ -100728,609 +100790,6 @@ SelectionManager.prototype.removeNative = function(native)
 'use strict';
 
 /**
- * Network.
- * IndoorGML의 네트워크를 파싱하고 그리는 데 사용합니다.
- * @alias Network
- * @class Network
- */
-var Network = function(owner) 
-{
-	if (!(this instanceof Network)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	
-	this.nodeOwner;
-	if (owner)
-	{ this.nodeOwner = owner; }
-	
-	this.id; // network id.
-	this.nodesArray;
-	this.edgesArray;
-	this.spacesArray;
-	
-	this.attributes;
-	this.edgesVboKeysContainer; // to draw edges with an unique vbo.
-	this.nodesVboKeysContainer; // to draw nodes with an unique vbo.
-	
-	this.renderSpaces = true;
-	this.spacesAlpha = 0.2;
-};
-
-/**
- * 
- */
-Network.prototype.newNode = function()
-{
-	if (this.nodesArray === undefined)
-	{ this.nodesArray = []; }
-	
-	var networkNode = new NetworkNode(this);
-	this.nodesArray.push(networkNode);
-	return networkNode;
-};
-
-/**
- * 
- */
-Network.prototype.newEdge = function()
-{
-	if (this.edgesArray === undefined)
-	{ this.edgesArray = []; }
-	
-	var networkEdge = new NetworkEdge(this);
-	this.edgesArray.push(networkEdge);
-	return networkEdge;
-};
-
-/**
- * 
- */
-Network.prototype.newSpace = function()
-{
-	if (this.spacesArray === undefined)
-	{ this.spacesArray = []; }
-	
-	var networkSpace = new NetworkSpace(this);
-	this.spacesArray.push(networkSpace);
-	return networkSpace;
-};
-
-/**
- * 
- */
-Network.prototype.test__makeVbos = function(magoManager)
-{
-	// Here makes meshes and vbos.
-	// For edges, make an unique vbo for faster rendering.
-	var edgesCount = 0;
-	if (this.edgesArray)
-	{ edgesCount = this.edgesArray.length; }
-	
-	var pointsArray = [];
-	
-	for (var i=0; i<edgesCount; i++)
-	{
-		var edge = this.edgesArray[i];
-		var vtxSegment = edge.vtxSegment;
-		var point1 = vtxSegment.startVertex.point3d;
-		var point2 = vtxSegment.endVertex.point3d;
-		pointsArray.push(point1.x);
-		pointsArray.push(point1.y);
-		pointsArray.push(point1.z);
-		
-		pointsArray.push(point2.x);
-		pointsArray.push(point2.y);
-		pointsArray.push(point2.z);
-	}
-	
-	if (this.edgesVboKeysContainer === undefined)
-	{
-		this.edgesVboKeysContainer = new VBOVertexIdxCacheKeysContainer();
-	}
-	
-	var vboKey = this.edgesVboKeysContainer.newVBOVertexIdxCacheKey();
-	
-	var vboMemManager = magoManager.vboMemoryManager;
-	var pointsCount = edgesCount * 2;
-	var posByteSize = pointsCount * 3;
-	var classifiedPosByteSize = vboMemManager.getClassifiedBufferSize(posByteSize);
-	vboKey.posVboDataArray = new Float32Array(classifiedPosByteSize);
-	vboKey.posVboDataArray.set(pointsArray);
-	vboKey.posArrayByteSize = pointsArray.length;
-	vboKey.segmentsCount = edgesCount;
-	
-};
-
-/**
- * Make triangle from IndoorGML data
- * @param magoManager
- * @param gmlDataContainer 
- * 
- */
-Network.prototype.parseTopologyData = function(magoManager, gmlDataContainer) 
-{
-	// gmlDataContainer.cellSpaceMembers
-	// gmlDataContainer.edges
-	// gmlDataContainer.nodes
-	// cityGML Lower point (78.02094, -82.801873, 18).
-	// cityGML Upper point (152.17466, 19.03087, 39).
-	// cityGML Center point {x=115.09780549999999 y=-31.885501999999999 z=28.500000000000000 ...}
-	
-	var bbox = new BoundingBox();
-	bbox.minX = gmlDataContainer.min_X;
-	bbox.minY = gmlDataContainer.min_Y;
-	bbox.minZ = gmlDataContainer.min_Z;
-	bbox.maxX = gmlDataContainer.max_X;
-	bbox.maxY = gmlDataContainer.max_Y;
-	bbox.maxZ = gmlDataContainer.max_Z;
-	
-	//bbox.maxX = 56.19070816040039;
-	//bbox.maxY = 71.51078033447266;
-	//bbox.maxZ = 10.5;
-	//bbox.minX = -379.18280029296875;
-	//bbox.minY = -142.4878387451172;
-	//bbox.minZ = -46.5;
-	
-	var offsetVector = new Point3D();
-	var zOffset = 0.1;
-	offsetVector.set(-115.0978055, 31.885502, -28.5); // cityGML ORIGINAL Center point inversed.
-	
-	var nodesMap = {};
-	var nodesCount = gmlDataContainer.nodes.length;
-	for (var i=0; i<nodesCount; i++)
-	{
-		var node = gmlDataContainer.nodes[i];
-		var networkNode = this.newNode();
-		networkNode.id = "#" + node.id;
-		
-		networkNode.position = new Point3D(node.coordinates[0], node.coordinates[1], node.coordinates[2]);
-		networkNode.position.addPoint(offsetVector); // rest bbox centerPoint.
-		networkNode.position.add(0.0, 0.0, zOffset); // aditional pos.
-		networkNode.box = new Box(0.6, 0.6, 0.6);
-		
-		nodesMap[networkNode.id] = networkNode;
-	}
-	
-	
-	var cellSpaceMap = {};
-	var cellSpacesCount = gmlDataContainer.cellSpaceMembers.length;
-	for (var i=0; i<cellSpacesCount; i++)
-	{
-		var cellSpace = gmlDataContainer.cellSpaceMembers[i];
-		var id = cellSpace.href;
-		var networkSpace = this.newSpace();
-		var mesh = new Mesh();
-		networkSpace.mesh = mesh; // assign mesh to networkSpace provisionally.
-		var vertexList = mesh.getVertexList();
-		
-		var surfacesMembersCount = cellSpace.surfaceMember.length;
-		for (var j=0; j<surfacesMembersCount; j++)
-		{
-			var surface = mesh.newSurface();
-			var face = surface.newFace();
-			
-			var coordinates = cellSpace.surfaceMember[j].coordinates;
-			var coordinatedCount = coordinates.length;
-			var pointsCount = coordinatedCount/3;
-			
-			for (var k=0; k<pointsCount; k++)
-			{
-				var x = coordinates[k * 3];
-				var y = coordinates[k * 3 + 1];
-				var z = coordinates[k * 3 + 2];
-				
-				var vertex = vertexList.newVertex();
-				vertex.setPosition(x, y, z);
-				vertex.point3d.addPoint(offsetVector); // rest bbox centerPoint.
-				face.addVertex(vertex);
-				
-			}
-			face.solveUroborus(); // Check & solve if the last point is coincident with the 1rst point.
-			face.calculateVerticesNormals();
-		}
-		
-		cellSpaceMap[cellSpace.href] = cellSpace;
-	}
-	
-	var edgesCount = gmlDataContainer.edges.length;
-	for (var i=0; i<edgesCount; i++)
-	{
-		var edge = gmlDataContainer.edges[i];
-		var networkEdge = this.newEdge();
-		
-		var point1 = edge.stateMembers[0].coordinates;
-		var point2 = edge.stateMembers[1].coordinates;
-		var vertex1 = new Vertex();
-		var vertex2 = new Vertex();
-		vertex1.setPosition(point1[0], point1[1], point1[2]);
-		vertex2.setPosition(point2[0], point2[1], point2[2]);
-		vertex1.point3d.addPoint(offsetVector); // rest bbox centerPoint.
-		vertex1.point3d.add(0.0, 0.0, zOffset); // aditional pos.
-		vertex2.point3d.addPoint(offsetVector); // rest bbox centerPoint.
-		vertex2.point3d.add(0.0, 0.0, zOffset); // aditional pos.
-		var vtxSegment = new VtxSegment(vertex1, vertex2);
-		networkEdge.vtxSegment = vtxSegment; // assign vtxSegment to networkEdge provisionally.
-		
-		var connect_1_id = edge.connects[0];
-		var connect_2_id = edge.connects[1];
-		
-		networkEdge.strNodeId = connect_1_id;
-		networkEdge.endNodeId = connect_2_id;
-	}
-	
-	this.test__makeVbos(magoManager);
-};
-
-/**
- * 
- */
-Network.prototype.renderColorCoding = function(magoManager, shader, renderType)
-{
-	// Provisional function.
-	// render nodes & edges.
-	var selectionColor = magoManager.selectionColor;
-	//selectionColor.init(); 
-	
-	// Check if exist selectionFamilies.
-	var selFamilyNameNodes = "networkNodes";
-	var selManager = magoManager.selectionManager;
-	var selCandidateNodes = selManager.getSelectionCandidatesFamily(selFamilyNameNodes);
-	if (selCandidateNodes === undefined)
-	{
-		selCandidateNodes = selManager.newCandidatesFamily(selFamilyNameNodes);
-	}
-	
-	var selFamilyNameEdges = "networkEdges";
-	var selManager = magoManager.selectionManager;
-	var selCandidateEdges = selManager.getSelectionCandidatesFamily(selFamilyNameEdges);
-	if (selCandidateEdges === undefined)
-	{
-		selCandidateEdges = selManager.newCandidatesFamily(selFamilyNameEdges);
-	}
-	
-	var vboMemManager = magoManager.vboMemoryManager;
-	var gl = magoManager.sceneState.gl;
-	var vboKey;
-	
-	shader.disableVertexAttribArray(shader.texCoord2_loc); 
-	shader.enableVertexAttribArray(shader.normal3_loc); 
-	gl.uniform1i(shader.hasTexture_loc, false); //.
-	gl.uniform4fv(shader.oneColor4_loc, [0.8, 0.8, 0.8, 1.0]);
-	
-	if (!shader.last_isAditionalMovedZero)
-	{
-		gl.uniform1i(shader.hasAditionalMov_loc, false);
-		gl.uniform3fv(shader.aditionalMov_loc, [0.0, 0.0, 0.0]); //.
-		shader.last_isAditionalMovedZero = true;
-	}
-	
-	// Nodes.**
-	var nodesCount = 0;
-	if (this.nodesArray)
-	{ nodesCount = this.nodesArray.length; }
-	
-	if (nodesCount > 0 )//&& !magoManager.isCameraMoving)
-	{
-		var refMatrixType = 1; // translation-type.
-		gl.uniform1i(shader.refMatrixType_loc, refMatrixType);
-		//gl.uniform4fv(shader.oneColor4_loc, [0.3, 0.3, 0.9, 1.0]);
-		var nodeMaster = this.nodesArray[0]; // render all with an unique box.
-		for (var i=0; i<nodesCount; i++)
-		{
-			var node = this.nodesArray[i];
-			
-			// nodes has a position, so render a point or a box.
-			gl.uniform3fv(shader.refTranslationVec_loc, [node.position.x, node.position.y, node.position.z]); 
-			
-			var selColor4 = selectionColor.getAvailableColor(undefined); // new.
-			var idxKey = selectionColor.decodeColor3(selColor4.r, selColor4.g, selColor4.b);
-			selManager.setCandidateCustom(idxKey, selFamilyNameNodes, node);
-			gl.uniform4fv(shader.oneColor4_loc, [selColor4.r/255.0, selColor4.g/255.0, selColor4.b/255.0, 1.0]);
-
-			nodeMaster.box.render(magoManager, shader, renderType);
-			
-		}
-	}
-	
-	// Edges.**
-	// Render with a unique vbo.
-	if (this.edgesVboKeysContainer)
-	{
-		var vboKey = this.edgesVboKeysContainer.vboCacheKeysArray[0];
-		if (vboKey.isReadyPositions(gl, vboMemManager))
-		{ 
-			shader.disableVertexAttribArray(shader.texCoord2_loc); 
-			shader.disableVertexAttribArray(shader.normal3_loc); 
-			refMatrixType = 0;
-			gl.uniform1i(shader.refMatrixType_loc, refMatrixType);
-			
-			// Positions.
-			if (vboKey.meshVertexCacheKey !== shader.lastVboKeyBindedMap[shader.position3_loc])
-			{
-				gl.bindBuffer(gl.ARRAY_BUFFER, vboKey.meshVertexCacheKey);
-				gl.vertexAttribPointer(shader.position3_loc, 3, gl.FLOAT, false, 0, 0);
-				shader.lastVboKeyBindedMap[shader.position3_loc] = vboKey.meshVertexCacheKey;
-			}
-				
-			var edgesCount = this.edgesArray.length;
-			for (var i=0; i<edgesCount; i++)
-			{
-				var edge = this.edgesArray[i];
-				var selColor4 = selectionColor.getAvailableColor(undefined); // new.
-				var idxKey = selectionColor.decodeColor3(selColor4.r, selColor4.g, selColor4.b);
-				selManager.setCandidateCustom(idxKey, selFamilyNameEdges, edge);
-				gl.uniform4fv(shader.oneColor4_loc, [selColor4.r/255.0, selColor4.g/255.0, selColor4.b/255.0, 1.0]);
-				gl.drawArrays(gl.LINES, i*2, 2);
-			}
-		}
-	}
-	
-};
-
-/**
- * 
- */
-Network.prototype.render = function(magoManager, shader, renderType)
-{
-	if (renderType === 2)
-	{
-		this.renderColorCoding(magoManager, shader, renderType);
-		return;
-	}
-	
-	// Check if ready smallBox and bigBox.
-	var selectionColor = magoManager.selectionColor;
-	selectionColor.init(); 
-	
-	// Check if exist selectionFamilies.
-	var selFamilyNameNodes = "networkNodes";
-	var selManager = magoManager.selectionManager;
-	var selCandidateNodes = selManager.getSelectionCandidatesFamily(selFamilyNameNodes);
-	if (selCandidateNodes === undefined)
-	{
-		selCandidateNodes = selManager.newCandidatesFamily(selFamilyNameNodes);
-	}
-	
-	var selFamilyNameEdges = "networkEdges";
-	var selManager = magoManager.selectionManager;
-	var selCandidateEdges = selManager.getSelectionCandidatesFamily(selFamilyNameEdges);
-	if (selCandidateEdges === undefined)
-	{
-		selCandidateEdges = selManager.newCandidatesFamily(selFamilyNameEdges);
-	}
-	
-	// Provisional function.
-	// render nodes & edges.
-	var vboMemManager = magoManager.vboMemoryManager;
-	var gl = magoManager.sceneState.gl;
-	var vboKey;
-	
-	shader.disableVertexAttribArray(shader.texCoord2_loc); 
-	shader.enableVertexAttribArray(shader.normal3_loc); 
-	
-	gl.uniform1i(shader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
-	gl.uniform4fv(shader.oneColor4_loc, [0.8, 0.8, 0.8, 1.0]);
-	
-	if (!shader.last_isAditionalMovedZero)
-	{
-		gl.uniform1i(shader.hasAditionalMov_loc, false);
-		gl.uniform3fv(shader.aditionalMov_loc, [0.0, 0.0, 0.0]); //.
-		shader.last_isAditionalMovedZero = true;
-	}
-	
-	// Nodes.**
-	var nodesCount = 0;
-	if (this.nodesArray)
-	{ nodesCount = this.nodesArray.length; }
-	
-	if (nodesCount > 0 )//&& !magoManager.isCameraMoving)
-	{
-		gl.uniform1i(shader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
-		var refMatrixType = 1; // translation-type.
-		gl.uniform1i(shader.refMatrixType_loc, refMatrixType);
-		gl.uniform4fv(shader.oneColor4_loc, [0.3, 0.3, 0.9, 1.0]);
-		var nodeMaster = this.nodesArray[0]; // render all with an unique box.
-		for (var i=0; i<nodesCount; i++)
-		{
-			var node = this.nodesArray[i];
-			
-			// check if is selected.
-			if (node === selCandidateNodes.currentSelected)
-			{
-				gl.uniform4fv(shader.oneColor4_loc, [0.9, 0.5, 0.1, 1.0]);
-			}
-			
-			// nodes has a position, so render a point or a box.
-			gl.uniform3fv(shader.refTranslationVec_loc, [node.position.x, node.position.y, node.position.z]); 
-			nodeMaster.box.render(magoManager, shader, renderType);
-			
-			// restore defaultColor.
-			if (node === selCandidateNodes.currentSelected)
-			{
-				gl.uniform4fv(shader.oneColor4_loc, [0.3, 0.3, 0.9, 1.0]);
-			}
-		}
-	}
-	
-	// Edges.**
-	// Render with a unique vbo.
-	if (this.edgesVboKeysContainer)
-	{
-		var vboKey = this.edgesVboKeysContainer.vboCacheKeysArray[0];
-		if (vboKey.isReadyPositions(gl, vboMemManager))
-		{ 
-			shader.disableVertexAttribArray(shader.texCoord2_loc); 
-			shader.disableVertexAttribArray(shader.normal3_loc); 
-			gl.uniform1i(shader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
-			refMatrixType = 0;
-			gl.uniform1i(shader.refMatrixType_loc, refMatrixType);
-			gl.uniform4fv(shader.oneColor4_loc, [0.1, 0.1, 0.6, 1.0]);
-	
-			// Positions.
-			if (vboKey.meshVertexCacheKey !== shader.lastVboKeyBindedMap[shader.position3_loc])
-			{
-				gl.bindBuffer(gl.ARRAY_BUFFER, vboKey.meshVertexCacheKey);
-				gl.vertexAttribPointer(shader.position3_loc, 3, gl.FLOAT, false, 0, 0);
-				shader.lastVboKeyBindedMap[shader.position3_loc] = vboKey.meshVertexCacheKey;
-			}
-			
-			//gl.drawArrays(gl.LINES, 0, vboKey.segmentsCount*2);
-			
-			var edgesCount = this.edgesArray.length;
-			for (var i=0; i<edgesCount; i++)
-			{
-				var edge = this.edgesArray[i];
-				if (edge === selCandidateEdges.currentSelected)
-				{
-					gl.uniform4fv(shader.oneColor4_loc, [0.0, 1.0, 0.0, 1.0]);
-				}
-				gl.drawArrays(gl.LINES, i*2, 2);
-				
-				// restore default color.
-				if (edge === selCandidateEdges.currentSelected)
-				{
-					gl.uniform4fv(shader.oneColor4_loc, [0.1, 0.1, 0.6, 1.0]);
-				}
-			}
-		}
-	}
-	
-	// Spaces.
-	this.renderSpaces = magoManager.tempSettings.renderSpaces;
-	this.spacesAlpha = magoManager.tempSettings.spacesAlpha;
-	
-	if (renderType === 1)
-	{ shader.enableVertexAttribArray(shader.normal3_loc); } 
-	
-	if (this.renderSpaces)
-	{
-		gl.uniform1i(shader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
-		refMatrixType = 0;
-		gl.uniform1i(shader.refMatrixType_loc, refMatrixType);
-		gl.uniform4fv(shader.oneColor4_loc, [0.8, 0.8, 0.8, this.spacesAlpha]);
-		gl.enable(gl.BLEND);
-		var spacesCount = 0;
-		if (this.spacesArray)
-		{ spacesCount = this.spacesArray.length; }
-		
-		for (var i=0; i<spacesCount; i++)
-		{
-			var space = this.spacesArray[i];
-			space.mesh.render(magoManager, shader);
-		}
-		
-		gl.disable(gl.BLEND);
-	}
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-'use strict';
-
-/**
- * NetworkEdge.
- * 
- * @alias NetworkEdge
- * @class NetworkEdge
- */
-var NetworkEdge = function(owner) 
-{
-	if (!(this instanceof NetworkEdge)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	this.networkOwner = owner;
-	this.id;
-	this.strNode;
-	this.endNode;
-	this.sense;
-	this.attributes;
-	
-	// provisionally:
-	this.strNodeId;
-	this.endNodeId;
-};
-'use strict';
-
-/**
- * NetworkNode.
- * 
- * @alias NetworkNode
- * @class NetworkNode
- */
-var NetworkNode = function(owner) 
-{
-	if (!(this instanceof NetworkNode)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	this.networkOwner = owner;
-	this.id;
-	this.edgesArray;
-	this.attributes;
-	this.box;
-	//this.mesh; // if display as a box, cilinder, etc.
-};
-'use strict';
-
-/**
- * NetworkSpace.
- * 
- * @alias NetworkSpace
- * @class NetworkSpace
- */
-var NetworkSpace = function(owner) 
-{
-	if (!(this instanceof NetworkSpace)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	this.networkOwner = owner;
-	this.id;
-	this.mesh;
-	this.attributes;
-	
-};
-'use strict';
-
-/**
  * 어떤 일을 하고 있습니까?
  * @class AttribLocationState
  */
@@ -102078,6 +101537,7 @@ PostFxShader.prototype.createUniformLocals = function(gl, shader, sceneState)
 	shader.clippingConvexPolygon2dPointsIndices_loc = gl.getUniformLocation(shader.program, "clippingConvexPolygon2dPointsIndices");
 	shader.clippingType_loc = gl.getUniformLocation(shader.program, "clippingType");
 	shader.limitationInfringedColor4_loc = gl.getUniformLocation(shader.program, "limitationInfringedColor4");
+	shader.limitationHeights_loc = gl.getUniformLocation(shader.program, "limitationHeights");
 };
 
 'use strict';
@@ -104154,12 +103614,13 @@ uniform mat4 clippingPlanesRotMatrix; \n\
 uniform vec3 clippingPlanesPosHIGH;\n\
 uniform vec3 clippingPlanesPosLOW;\n\
 uniform bool bApplyClippingPlanes; // old. deprecated.***\n\
-uniform int clippingType; // 0= no clipping. 1= clipping by planes. 2= clipping by localCoord polyline.\n\
+uniform int clippingType; // 0= no clipping. 1= clipping by planes. 2= clipping by localCoord polyline. 3= clip by heights, 4= clip by (2, 3)\n\
 uniform int clippingPlanesCount;\n\
 uniform vec4 clippingPlanes[6];\n\
 uniform vec2 clippingPolygon2dPoints[512];\n\
 uniform int clippingConvexPolygon2dPointsIndices[256];\n\
 uniform vec4 limitationInfringedColor4;\n\
+uniform vec2 limitationHeights;\n\
 \n\
 varying vec3 vNormal;\n\
 varying vec4 vColor4; // color from attributes\n\
@@ -104260,10 +103721,10 @@ bool clipVertexByPlane(in vec4 plane, in vec3 point)\n\
 \n\
 vec2 getDirection2d(in vec2 startPoint, in vec2 endPoint)\n\
 {\n\
-	vec2 vector = endPoint - startPoint;\n\
-	float length = length( vector);\n\
-	vec2 dir = vec2(vector.x/length, vector.y/length);\n\
-\n\
+	//vec2 vector = endPoint - startPoint;\n\
+	//float length = length( vector);\n\
+	//vec2 dir = vec2(vector.x/length, vector.y/length);\n\
+	vec2 dir = normalize(endPoint - startPoint);\n\
 	return dir;\n\
 }\n\
 \n\
@@ -104271,18 +103732,25 @@ bool intersectionLineToLine(in vec2 line_1_pos, in vec2 line_1_dir,in vec2 line_
 {\n\
 	bool bIntersection = false;\n\
 \n\
-	float zero = 10E-10;\n\
+	float zero = 10E-8;\n\
 	float intersectX;\n\
 	float intersectY;\n\
 \n\
 	// check if 2 lines are parallel.***\n\
 	float dotProd = abs(dot(line_1_dir, line_2_dir));\n\
-	if(dotProd < zero || dotProd-1.0 < zero)\n\
+	if(abs(dotProd-1.0) < zero)\n\
 	return false;\n\
 \n\
 	if (abs(line_1_dir.x) < zero)\n\
 	{\n\
 		// this is a vertical line.\n\
+		/*\n\
+		var slope = line.direction.y / line.direction.x;\n\
+		var b = line.point.y - slope * line.point.x;\n\
+		\n\
+		intersectX = this.point.x;\n\
+		intersectY = slope * this.point.x + b;*/\n\
+\n\
 		float slope = line_2_dir.y / line_2_dir.x;\n\
 		float b = line_2_pos.y - slope * line_2_pos.x;\n\
 		\n\
@@ -104294,11 +103762,26 @@ bool intersectionLineToLine(in vec2 line_1_pos, in vec2 line_1_dir,in vec2 line_
 	{\n\
 		// this is a horizontal line.\n\
 		// must check if the \"line\" is vertical.\n\
+		/*\n\
+		if (Math.abs(line.direction.x) < zero)\n\
+		{\n\
+			// \"line\" is vertical.\n\
+			intersectX = line.point.x;\n\
+			intersectY = this.point.y;\n\
+		}\n\
+		else \n\
+		{\n\
+			var slope = line.direction.y / line.direction.x;\n\
+			var b = line.point.y - slope * line.point.x;\n\
+			\n\
+			intersectX = (this.point.y - b)/slope;\n\
+			intersectY = this.point.y;\n\
+		}*/\n\
 		if (abs(line_2_dir.x) < zero)\n\
 		{\n\
 			// \"line\" is vertical.\n\
-			intersectX = line_1_pos.x;\n\
-			intersectY = line_2_pos.y;\n\
+			intersectX = line_2_pos.x;\n\
+			intersectY = line_1_pos.y;\n\
 			bIntersection = true;\n\
 		}\n\
 		else \n\
@@ -104314,12 +103797,32 @@ bool intersectionLineToLine(in vec2 line_1_pos, in vec2 line_1_dir,in vec2 line_
 	else \n\
 	{\n\
 		// this is oblique.\n\
+		/*\n\
+		if (Math.abs(line.direction.x) < zero)\n\
+		{\n\
+			// \"line\" is vertical.\n\
+			var mySlope = this.direction.y / this.direction.x;\n\
+			var myB = this.point.y - mySlope * this.point.x;\n\
+			intersectX = line.point.x;\n\
+			intersectY = intersectX * mySlope + myB;\n\
+		}\n\
+		else \n\
+		{\n\
+			var mySlope = this.direction.y / this.direction.x;\n\
+			var myB = this.point.y - mySlope * this.point.x;\n\
+			\n\
+			var slope = line.direction.y / line.direction.x;\n\
+			var b = line.point.y - slope * line.point.x;\n\
+			\n\
+			intersectX = (myB - b)/ (slope - mySlope);\n\
+			intersectY = slope * intersectX + b;\n\
+		}*/\n\
 		if (abs(line_2_dir.x) < zero)\n\
 		{\n\
 			// \"line\" is vertical.\n\
 			float mySlope = line_1_dir.y / line_1_dir.x;\n\
 			float myB = line_1_pos.y - mySlope * line_1_pos.x;\n\
-			intersectX = line_2_dir.x;\n\
+			intersectX = line_2_pos.x;\n\
 			intersectY = intersectX * mySlope + myB;\n\
 			bIntersection = true;\n\
 		}\n\
@@ -104329,7 +103832,7 @@ bool intersectionLineToLine(in vec2 line_1_pos, in vec2 line_1_dir,in vec2 line_
 			float myB = line_1_pos.y - mySlope * line_1_pos.x;\n\
 			\n\
 			float slope = line_2_dir.y / line_2_dir.x;\n\
-			float b = line_2_dir.y - slope * line_2_dir.x;\n\
+			float b = line_2_pos.y - slope * line_2_pos.x;\n\
 			\n\
 			intersectX = (myB - b)/ (slope - mySlope);\n\
 			intersectY = slope * intersectX + b;\n\
@@ -104375,7 +103878,7 @@ int getRelativePositionOfPointToLine(in vec2 line_pos, in vec2 line_dir, vec2 po
 \n\
 	float dotProd = dot(lineLeft_dir, myVector);\n\
 \n\
-	if(dotProd < 0.0)\n\
+	if(dotProd > 0.0)\n\
 	{\n\
 		relPos = 1; // is in left side of the line.***\n\
 	}\n\
@@ -104394,34 +103897,37 @@ bool isPointInsideLimitationConvexPolygon(in vec2 point2d)\n\
 	// Check polygons.***\n\
 	int startIdx = -1;\n\
 	int endIdx = -1;\n\
-	for(int i=0; i<128; i+=2)\n\
+	for(int i=0; i<128; i++)\n\
 	{\n\
-		startIdx = clippingConvexPolygon2dPointsIndices[i];  // 0\n\
-		endIdx = clippingConvexPolygon2dPointsIndices[i+1];	 // 3\n\
+		startIdx = clippingConvexPolygon2dPointsIndices[2*i];  // 0\n\
+		endIdx = clippingConvexPolygon2dPointsIndices[2*i+1];	 // 3\n\
 \n\
-		if(startIdx < 0)\n\
+		if(startIdx < 0 || endIdx < 0)\n\
 		break;\n\
 \n\
-		startIdx *= 2;\n\
-		endIdx *= 2;\n\
-\n\
+		isInside  = true;\n\
+		\n\
 		isInside = true;\n\
-		vec2 pointStart;\n\
+		vec2 pointStart = clippingPolygon2dPoints[0];\n\
 		for(int j=0; j<128; j++)\n\
 		{\n\
-			if(j >= startIdx && j<=endIdx)\n\
+			if(j > endIdx)\n\
+			break;\n\
+\n\
+			if(j == startIdx)\n\
+				pointStart = clippingPolygon2dPoints[j];\n\
+\n\
+			if(j >= startIdx && j<endIdx)\n\
 			{\n\
 				vec2 point0;\n\
 				vec2 point1;\n\
-				if(j == startIdx)\n\
-				pointStart = clippingPolygon2dPoints[j];\n\
-\n\
-				//if(j == endIdx)\n\
-				//{\n\
-				//	point0 = clippingPolygon2dPoints[j];\n\
-				//	point1 = pointStart;\n\
-				//}\n\
-				//else\n\
+				\n\
+				if(j == endIdx)\n\
+				{\n\
+					point0 = clippingPolygon2dPoints[j];\n\
+					point1 = pointStart;\n\
+				}\n\
+				else\n\
 				{\n\
 					point0 = clippingPolygon2dPoints[j];\n\
 					point1 = clippingPolygon2dPoints[j+1];\n\
@@ -104438,9 +103944,10 @@ bool isPointInsideLimitationConvexPolygon(in vec2 point2d)\n\
 					isInside = false;\n\
 					break;\n\
 				}\n\
-				\n\
 			}\n\
+\n\
 		}\n\
+		\n\
 \n\
 		if(isInside)\n\
 		return true;\n\
@@ -104573,8 +104080,33 @@ void main()\n\
 \n\
 	if(clippingType == 2)\n\
 	{\n\
+		// clip by limitationPolygon.***\n\
 		vec2 pointLC = vec2(vertexPosLC.x, vertexPosLC.y);\n\
 		if(!isPointInsideLimitationConvexPolygon(pointLC))\n\
+		{\n\
+			gl_FragColor = limitationInfringedColor4; \n\
+			return;\n\
+		}\n\
+	}\n\
+	else if(clippingType == 3)\n\
+	{\n\
+		// check limitation heights.***\n\
+		if(vertexPosLC.z < limitationHeights.x || vertexPosLC.z > limitationHeights.y)\n\
+		{\n\
+			gl_FragColor = limitationInfringedColor4; \n\
+			return;\n\
+		}\n\
+	}\n\
+	else if(clippingType == 4)\n\
+	{\n\
+		// clip by limitationPolygon & heights.***\n\
+		vec2 pointLC = vec2(vertexPosLC.x, vertexPosLC.y);\n\
+		if(!isPointInsideLimitationConvexPolygon(pointLC))\n\
+		{\n\
+			gl_FragColor = limitationInfringedColor4; \n\
+			return;\n\
+		}\n\
+		if(vertexPosLC.z < limitationHeights.x || vertexPosLC.z > limitationHeights.y)\n\
 		{\n\
 			gl_FragColor = limitationInfringedColor4; \n\
 			return;\n\
@@ -110691,6 +110223,609 @@ UniformVec4fvDataPair.prototype.bindUniform = function()
 	this.gl.uniform4fv(this.uniformLocation, this.vec4fv);
 };
 
+'use strict';
+
+/**
+ * Network.
+ * IndoorGML의 네트워크를 파싱하고 그리는 데 사용합니다.
+ * @alias Network
+ * @class Network
+ */
+var Network = function(owner) 
+{
+	if (!(this instanceof Network)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	
+	this.nodeOwner;
+	if (owner)
+	{ this.nodeOwner = owner; }
+	
+	this.id; // network id.
+	this.nodesArray;
+	this.edgesArray;
+	this.spacesArray;
+	
+	this.attributes;
+	this.edgesVboKeysContainer; // to draw edges with an unique vbo.
+	this.nodesVboKeysContainer; // to draw nodes with an unique vbo.
+	
+	this.renderSpaces = true;
+	this.spacesAlpha = 0.2;
+};
+
+/**
+ * 
+ */
+Network.prototype.newNode = function()
+{
+	if (this.nodesArray === undefined)
+	{ this.nodesArray = []; }
+	
+	var networkNode = new NetworkNode(this);
+	this.nodesArray.push(networkNode);
+	return networkNode;
+};
+
+/**
+ * 
+ */
+Network.prototype.newEdge = function()
+{
+	if (this.edgesArray === undefined)
+	{ this.edgesArray = []; }
+	
+	var networkEdge = new NetworkEdge(this);
+	this.edgesArray.push(networkEdge);
+	return networkEdge;
+};
+
+/**
+ * 
+ */
+Network.prototype.newSpace = function()
+{
+	if (this.spacesArray === undefined)
+	{ this.spacesArray = []; }
+	
+	var networkSpace = new NetworkSpace(this);
+	this.spacesArray.push(networkSpace);
+	return networkSpace;
+};
+
+/**
+ * 
+ */
+Network.prototype.test__makeVbos = function(magoManager)
+{
+	// Here makes meshes and vbos.
+	// For edges, make an unique vbo for faster rendering.
+	var edgesCount = 0;
+	if (this.edgesArray)
+	{ edgesCount = this.edgesArray.length; }
+	
+	var pointsArray = [];
+	
+	for (var i=0; i<edgesCount; i++)
+	{
+		var edge = this.edgesArray[i];
+		var vtxSegment = edge.vtxSegment;
+		var point1 = vtxSegment.startVertex.point3d;
+		var point2 = vtxSegment.endVertex.point3d;
+		pointsArray.push(point1.x);
+		pointsArray.push(point1.y);
+		pointsArray.push(point1.z);
+		
+		pointsArray.push(point2.x);
+		pointsArray.push(point2.y);
+		pointsArray.push(point2.z);
+	}
+	
+	if (this.edgesVboKeysContainer === undefined)
+	{
+		this.edgesVboKeysContainer = new VBOVertexIdxCacheKeysContainer();
+	}
+	
+	var vboKey = this.edgesVboKeysContainer.newVBOVertexIdxCacheKey();
+	
+	var vboMemManager = magoManager.vboMemoryManager;
+	var pointsCount = edgesCount * 2;
+	var posByteSize = pointsCount * 3;
+	var classifiedPosByteSize = vboMemManager.getClassifiedBufferSize(posByteSize);
+	vboKey.posVboDataArray = new Float32Array(classifiedPosByteSize);
+	vboKey.posVboDataArray.set(pointsArray);
+	vboKey.posArrayByteSize = pointsArray.length;
+	vboKey.segmentsCount = edgesCount;
+	
+};
+
+/**
+ * Make triangle from IndoorGML data
+ * @param magoManager
+ * @param gmlDataContainer 
+ * 
+ */
+Network.prototype.parseTopologyData = function(magoManager, gmlDataContainer) 
+{
+	// gmlDataContainer.cellSpaceMembers
+	// gmlDataContainer.edges
+	// gmlDataContainer.nodes
+	// cityGML Lower point (78.02094, -82.801873, 18).
+	// cityGML Upper point (152.17466, 19.03087, 39).
+	// cityGML Center point {x=115.09780549999999 y=-31.885501999999999 z=28.500000000000000 ...}
+	
+	var bbox = new BoundingBox();
+	bbox.minX = gmlDataContainer.min_X;
+	bbox.minY = gmlDataContainer.min_Y;
+	bbox.minZ = gmlDataContainer.min_Z;
+	bbox.maxX = gmlDataContainer.max_X;
+	bbox.maxY = gmlDataContainer.max_Y;
+	bbox.maxZ = gmlDataContainer.max_Z;
+	
+	//bbox.maxX = 56.19070816040039;
+	//bbox.maxY = 71.51078033447266;
+	//bbox.maxZ = 10.5;
+	//bbox.minX = -379.18280029296875;
+	//bbox.minY = -142.4878387451172;
+	//bbox.minZ = -46.5;
+	
+	var offsetVector = new Point3D();
+	var zOffset = 0.1;
+	offsetVector.set(-115.0978055, 31.885502, -28.5); // cityGML ORIGINAL Center point inversed.
+	
+	var nodesMap = {};
+	var nodesCount = gmlDataContainer.nodes.length;
+	for (var i=0; i<nodesCount; i++)
+	{
+		var node = gmlDataContainer.nodes[i];
+		var networkNode = this.newNode();
+		networkNode.id = "#" + node.id;
+		
+		networkNode.position = new Point3D(node.coordinates[0], node.coordinates[1], node.coordinates[2]);
+		networkNode.position.addPoint(offsetVector); // rest bbox centerPoint.
+		networkNode.position.add(0.0, 0.0, zOffset); // aditional pos.
+		networkNode.box = new Box(0.6, 0.6, 0.6);
+		
+		nodesMap[networkNode.id] = networkNode;
+	}
+	
+	
+	var cellSpaceMap = {};
+	var cellSpacesCount = gmlDataContainer.cellSpaceMembers.length;
+	for (var i=0; i<cellSpacesCount; i++)
+	{
+		var cellSpace = gmlDataContainer.cellSpaceMembers[i];
+		var id = cellSpace.href;
+		var networkSpace = this.newSpace();
+		var mesh = new Mesh();
+		networkSpace.mesh = mesh; // assign mesh to networkSpace provisionally.
+		var vertexList = mesh.getVertexList();
+		
+		var surfacesMembersCount = cellSpace.surfaceMember.length;
+		for (var j=0; j<surfacesMembersCount; j++)
+		{
+			var surface = mesh.newSurface();
+			var face = surface.newFace();
+			
+			var coordinates = cellSpace.surfaceMember[j].coordinates;
+			var coordinatedCount = coordinates.length;
+			var pointsCount = coordinatedCount/3;
+			
+			for (var k=0; k<pointsCount; k++)
+			{
+				var x = coordinates[k * 3];
+				var y = coordinates[k * 3 + 1];
+				var z = coordinates[k * 3 + 2];
+				
+				var vertex = vertexList.newVertex();
+				vertex.setPosition(x, y, z);
+				vertex.point3d.addPoint(offsetVector); // rest bbox centerPoint.
+				face.addVertex(vertex);
+				
+			}
+			face.solveUroborus(); // Check & solve if the last point is coincident with the 1rst point.
+			face.calculateVerticesNormals();
+		}
+		
+		cellSpaceMap[cellSpace.href] = cellSpace;
+	}
+	
+	var edgesCount = gmlDataContainer.edges.length;
+	for (var i=0; i<edgesCount; i++)
+	{
+		var edge = gmlDataContainer.edges[i];
+		var networkEdge = this.newEdge();
+		
+		var point1 = edge.stateMembers[0].coordinates;
+		var point2 = edge.stateMembers[1].coordinates;
+		var vertex1 = new Vertex();
+		var vertex2 = new Vertex();
+		vertex1.setPosition(point1[0], point1[1], point1[2]);
+		vertex2.setPosition(point2[0], point2[1], point2[2]);
+		vertex1.point3d.addPoint(offsetVector); // rest bbox centerPoint.
+		vertex1.point3d.add(0.0, 0.0, zOffset); // aditional pos.
+		vertex2.point3d.addPoint(offsetVector); // rest bbox centerPoint.
+		vertex2.point3d.add(0.0, 0.0, zOffset); // aditional pos.
+		var vtxSegment = new VtxSegment(vertex1, vertex2);
+		networkEdge.vtxSegment = vtxSegment; // assign vtxSegment to networkEdge provisionally.
+		
+		var connect_1_id = edge.connects[0];
+		var connect_2_id = edge.connects[1];
+		
+		networkEdge.strNodeId = connect_1_id;
+		networkEdge.endNodeId = connect_2_id;
+	}
+	
+	this.test__makeVbos(magoManager);
+};
+
+/**
+ * 
+ */
+Network.prototype.renderColorCoding = function(magoManager, shader, renderType)
+{
+	// Provisional function.
+	// render nodes & edges.
+	var selectionColor = magoManager.selectionColor;
+	//selectionColor.init(); 
+	
+	// Check if exist selectionFamilies.
+	var selFamilyNameNodes = "networkNodes";
+	var selManager = magoManager.selectionManager;
+	var selCandidateNodes = selManager.getSelectionCandidatesFamily(selFamilyNameNodes);
+	if (selCandidateNodes === undefined)
+	{
+		selCandidateNodes = selManager.newCandidatesFamily(selFamilyNameNodes);
+	}
+	
+	var selFamilyNameEdges = "networkEdges";
+	var selManager = magoManager.selectionManager;
+	var selCandidateEdges = selManager.getSelectionCandidatesFamily(selFamilyNameEdges);
+	if (selCandidateEdges === undefined)
+	{
+		selCandidateEdges = selManager.newCandidatesFamily(selFamilyNameEdges);
+	}
+	
+	var vboMemManager = magoManager.vboMemoryManager;
+	var gl = magoManager.sceneState.gl;
+	var vboKey;
+	
+	shader.disableVertexAttribArray(shader.texCoord2_loc); 
+	shader.enableVertexAttribArray(shader.normal3_loc); 
+	gl.uniform1i(shader.hasTexture_loc, false); //.
+	gl.uniform4fv(shader.oneColor4_loc, [0.8, 0.8, 0.8, 1.0]);
+	
+	if (!shader.last_isAditionalMovedZero)
+	{
+		gl.uniform1i(shader.hasAditionalMov_loc, false);
+		gl.uniform3fv(shader.aditionalMov_loc, [0.0, 0.0, 0.0]); //.
+		shader.last_isAditionalMovedZero = true;
+	}
+	
+	// Nodes.**
+	var nodesCount = 0;
+	if (this.nodesArray)
+	{ nodesCount = this.nodesArray.length; }
+	
+	if (nodesCount > 0 )//&& !magoManager.isCameraMoving)
+	{
+		var refMatrixType = 1; // translation-type.
+		gl.uniform1i(shader.refMatrixType_loc, refMatrixType);
+		//gl.uniform4fv(shader.oneColor4_loc, [0.3, 0.3, 0.9, 1.0]);
+		var nodeMaster = this.nodesArray[0]; // render all with an unique box.
+		for (var i=0; i<nodesCount; i++)
+		{
+			var node = this.nodesArray[i];
+			
+			// nodes has a position, so render a point or a box.
+			gl.uniform3fv(shader.refTranslationVec_loc, [node.position.x, node.position.y, node.position.z]); 
+			
+			var selColor4 = selectionColor.getAvailableColor(undefined); // new.
+			var idxKey = selectionColor.decodeColor3(selColor4.r, selColor4.g, selColor4.b);
+			selManager.setCandidateCustom(idxKey, selFamilyNameNodes, node);
+			gl.uniform4fv(shader.oneColor4_loc, [selColor4.r/255.0, selColor4.g/255.0, selColor4.b/255.0, 1.0]);
+
+			nodeMaster.box.render(magoManager, shader, renderType);
+			
+		}
+	}
+	
+	// Edges.**
+	// Render with a unique vbo.
+	if (this.edgesVboKeysContainer)
+	{
+		var vboKey = this.edgesVboKeysContainer.vboCacheKeysArray[0];
+		if (vboKey.isReadyPositions(gl, vboMemManager))
+		{ 
+			shader.disableVertexAttribArray(shader.texCoord2_loc); 
+			shader.disableVertexAttribArray(shader.normal3_loc); 
+			refMatrixType = 0;
+			gl.uniform1i(shader.refMatrixType_loc, refMatrixType);
+			
+			// Positions.
+			if (vboKey.meshVertexCacheKey !== shader.lastVboKeyBindedMap[shader.position3_loc])
+			{
+				gl.bindBuffer(gl.ARRAY_BUFFER, vboKey.meshVertexCacheKey);
+				gl.vertexAttribPointer(shader.position3_loc, 3, gl.FLOAT, false, 0, 0);
+				shader.lastVboKeyBindedMap[shader.position3_loc] = vboKey.meshVertexCacheKey;
+			}
+				
+			var edgesCount = this.edgesArray.length;
+			for (var i=0; i<edgesCount; i++)
+			{
+				var edge = this.edgesArray[i];
+				var selColor4 = selectionColor.getAvailableColor(undefined); // new.
+				var idxKey = selectionColor.decodeColor3(selColor4.r, selColor4.g, selColor4.b);
+				selManager.setCandidateCustom(idxKey, selFamilyNameEdges, edge);
+				gl.uniform4fv(shader.oneColor4_loc, [selColor4.r/255.0, selColor4.g/255.0, selColor4.b/255.0, 1.0]);
+				gl.drawArrays(gl.LINES, i*2, 2);
+			}
+		}
+	}
+	
+};
+
+/**
+ * 
+ */
+Network.prototype.render = function(magoManager, shader, renderType)
+{
+	if (renderType === 2)
+	{
+		this.renderColorCoding(magoManager, shader, renderType);
+		return;
+	}
+	
+	// Check if ready smallBox and bigBox.
+	var selectionColor = magoManager.selectionColor;
+	selectionColor.init(); 
+	
+	// Check if exist selectionFamilies.
+	var selFamilyNameNodes = "networkNodes";
+	var selManager = magoManager.selectionManager;
+	var selCandidateNodes = selManager.getSelectionCandidatesFamily(selFamilyNameNodes);
+	if (selCandidateNodes === undefined)
+	{
+		selCandidateNodes = selManager.newCandidatesFamily(selFamilyNameNodes);
+	}
+	
+	var selFamilyNameEdges = "networkEdges";
+	var selManager = magoManager.selectionManager;
+	var selCandidateEdges = selManager.getSelectionCandidatesFamily(selFamilyNameEdges);
+	if (selCandidateEdges === undefined)
+	{
+		selCandidateEdges = selManager.newCandidatesFamily(selFamilyNameEdges);
+	}
+	
+	// Provisional function.
+	// render nodes & edges.
+	var vboMemManager = magoManager.vboMemoryManager;
+	var gl = magoManager.sceneState.gl;
+	var vboKey;
+	
+	shader.disableVertexAttribArray(shader.texCoord2_loc); 
+	shader.enableVertexAttribArray(shader.normal3_loc); 
+	
+	gl.uniform1i(shader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
+	gl.uniform4fv(shader.oneColor4_loc, [0.8, 0.8, 0.8, 1.0]);
+	
+	if (!shader.last_isAditionalMovedZero)
+	{
+		gl.uniform1i(shader.hasAditionalMov_loc, false);
+		gl.uniform3fv(shader.aditionalMov_loc, [0.0, 0.0, 0.0]); //.
+		shader.last_isAditionalMovedZero = true;
+	}
+	
+	// Nodes.**
+	var nodesCount = 0;
+	if (this.nodesArray)
+	{ nodesCount = this.nodesArray.length; }
+	
+	if (nodesCount > 0 )//&& !magoManager.isCameraMoving)
+	{
+		gl.uniform1i(shader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
+		var refMatrixType = 1; // translation-type.
+		gl.uniform1i(shader.refMatrixType_loc, refMatrixType);
+		gl.uniform4fv(shader.oneColor4_loc, [0.3, 0.3, 0.9, 1.0]);
+		var nodeMaster = this.nodesArray[0]; // render all with an unique box.
+		for (var i=0; i<nodesCount; i++)
+		{
+			var node = this.nodesArray[i];
+			
+			// check if is selected.
+			if (node === selCandidateNodes.currentSelected)
+			{
+				gl.uniform4fv(shader.oneColor4_loc, [0.9, 0.5, 0.1, 1.0]);
+			}
+			
+			// nodes has a position, so render a point or a box.
+			gl.uniform3fv(shader.refTranslationVec_loc, [node.position.x, node.position.y, node.position.z]); 
+			nodeMaster.box.render(magoManager, shader, renderType);
+			
+			// restore defaultColor.
+			if (node === selCandidateNodes.currentSelected)
+			{
+				gl.uniform4fv(shader.oneColor4_loc, [0.3, 0.3, 0.9, 1.0]);
+			}
+		}
+	}
+	
+	// Edges.**
+	// Render with a unique vbo.
+	if (this.edgesVboKeysContainer)
+	{
+		var vboKey = this.edgesVboKeysContainer.vboCacheKeysArray[0];
+		if (vboKey.isReadyPositions(gl, vboMemManager))
+		{ 
+			shader.disableVertexAttribArray(shader.texCoord2_loc); 
+			shader.disableVertexAttribArray(shader.normal3_loc); 
+			gl.uniform1i(shader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
+			refMatrixType = 0;
+			gl.uniform1i(shader.refMatrixType_loc, refMatrixType);
+			gl.uniform4fv(shader.oneColor4_loc, [0.1, 0.1, 0.6, 1.0]);
+	
+			// Positions.
+			if (vboKey.meshVertexCacheKey !== shader.lastVboKeyBindedMap[shader.position3_loc])
+			{
+				gl.bindBuffer(gl.ARRAY_BUFFER, vboKey.meshVertexCacheKey);
+				gl.vertexAttribPointer(shader.position3_loc, 3, gl.FLOAT, false, 0, 0);
+				shader.lastVboKeyBindedMap[shader.position3_loc] = vboKey.meshVertexCacheKey;
+			}
+			
+			//gl.drawArrays(gl.LINES, 0, vboKey.segmentsCount*2);
+			
+			var edgesCount = this.edgesArray.length;
+			for (var i=0; i<edgesCount; i++)
+			{
+				var edge = this.edgesArray[i];
+				if (edge === selCandidateEdges.currentSelected)
+				{
+					gl.uniform4fv(shader.oneColor4_loc, [0.0, 1.0, 0.0, 1.0]);
+				}
+				gl.drawArrays(gl.LINES, i*2, 2);
+				
+				// restore default color.
+				if (edge === selCandidateEdges.currentSelected)
+				{
+					gl.uniform4fv(shader.oneColor4_loc, [0.1, 0.1, 0.6, 1.0]);
+				}
+			}
+		}
+	}
+	
+	// Spaces.
+	this.renderSpaces = magoManager.tempSettings.renderSpaces;
+	this.spacesAlpha = magoManager.tempSettings.spacesAlpha;
+	
+	if (renderType === 1)
+	{ shader.enableVertexAttribArray(shader.normal3_loc); } 
+	
+	if (this.renderSpaces)
+	{
+		gl.uniform1i(shader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
+		refMatrixType = 0;
+		gl.uniform1i(shader.refMatrixType_loc, refMatrixType);
+		gl.uniform4fv(shader.oneColor4_loc, [0.8, 0.8, 0.8, this.spacesAlpha]);
+		gl.enable(gl.BLEND);
+		var spacesCount = 0;
+		if (this.spacesArray)
+		{ spacesCount = this.spacesArray.length; }
+		
+		for (var i=0; i<spacesCount; i++)
+		{
+			var space = this.spacesArray[i];
+			space.mesh.render(magoManager, shader);
+		}
+		
+		gl.disable(gl.BLEND);
+	}
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+'use strict';
+
+/**
+ * NetworkEdge.
+ * 
+ * @alias NetworkEdge
+ * @class NetworkEdge
+ */
+var NetworkEdge = function(owner) 
+{
+	if (!(this instanceof NetworkEdge)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	this.networkOwner = owner;
+	this.id;
+	this.strNode;
+	this.endNode;
+	this.sense;
+	this.attributes;
+	
+	// provisionally:
+	this.strNodeId;
+	this.endNodeId;
+};
+'use strict';
+
+/**
+ * NetworkNode.
+ * 
+ * @alias NetworkNode
+ * @class NetworkNode
+ */
+var NetworkNode = function(owner) 
+{
+	if (!(this instanceof NetworkNode)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	this.networkOwner = owner;
+	this.id;
+	this.edgesArray;
+	this.attributes;
+	this.box;
+	//this.mesh; // if display as a box, cilinder, etc.
+};
+'use strict';
+
+/**
+ * NetworkSpace.
+ * 
+ * @alias NetworkSpace
+ * @class NetworkSpace
+ */
+var NetworkSpace = function(owner) 
+{
+	if (!(this instanceof NetworkSpace)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	this.networkOwner = owner;
+	this.id;
+	this.mesh;
+	this.attributes;
+	
+};
 'use strict';
 
 function abstract() 
