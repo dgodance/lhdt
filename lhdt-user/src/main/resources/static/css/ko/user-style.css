@@ -2293,6 +2293,32 @@ button.box:hover {
 	color: #258fff;
 	border: 1px solid #258fff;
 }
+.buttonModeWrap {
+	height: 60px;
+	display: flex;
+	justify-content: space-between;
+	align-content: center;
+	align-items: center;
+}
+button.mode {
+	width: 70px;
+	font-size: 18px;
+	border: 1px solid #d3d3d3;
+	background-color: #fff;
+	color: #000;
+	padding: 8px 5px;
+}
+button.mode.on {
+	background-color: #0c74c1;
+	color: #fff;
+	border: 1px solid #0067b4;
+}
+button.mode:hover {
+	background-color: #eee;
+}
+button.mode.on:hover {
+	background-color: #0c74c1;
+}
 .buttonLable {
 	font-size: 13px;
 	margin-top: 5px;
