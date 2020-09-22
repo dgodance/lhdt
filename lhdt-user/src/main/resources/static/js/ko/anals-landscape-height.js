@@ -127,6 +127,8 @@ function AnalsHeightLandScapeView(viewer, magoInstance) {
                     //분석. 0.5초 지연
                     setTimeout(function(){
                         _this.doAnals();
+                        Ppmap.removeAll();
+                        toastr.info('높이 데이터를 생성완료 했습니다');
                     }, 500);
                 }
 
