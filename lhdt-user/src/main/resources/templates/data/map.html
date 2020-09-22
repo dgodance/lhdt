@@ -247,7 +247,6 @@
 <script type="text/javascript" th:src="@{/js/{lang}/extrusion.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/base-map-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/terrain-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/fake.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 
 <script type="text/javascript">
 
@@ -304,6 +303,10 @@
 		var magoInstance = e;
 		var geoPolicyJson = LHDT.policy;
 		var viewer = magoInstance.getViewer();
+		
+		viewer.dataSources.dataSourceAdded.addEventListener(function(){
+			stopLoading();
+		});
 		var magoManager = magoInstance.getMagoManager();
 		var f4dController = magoInstance.getF4dController();
 
