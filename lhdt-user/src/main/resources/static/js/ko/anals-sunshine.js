@@ -42,7 +42,10 @@ function AnalsSunshine(viewer, magoInstance) {
         init: function(viewer) {
             const that = this;
             if(!that.obj) {
-                that.obj = new KotSlider('timeInput');
+                that.obj = new KotSlider('timeInput', function(){
+					//자동실행 완료 후 호출됨 gravity 0922
+                    $('button.show-result').trigger('click');
+                });
                 that.obj.setMin(1);
                 that.obj.setMax(24);
                 that.obj.setDuration(200);
@@ -150,8 +153,14 @@ function AnalsSunshine(viewer, magoInstance) {
                         json[k] = 0;
                     }
 
-                    json['12'] = 95;
-                    json['13'] = 85;
+                    json['06'] = 85;
+                    json['07'] = 85;
+                    json['08'] = 90;
+                    json['09'] = 95;
+                    json['10'] = 95;
+                    json['11'] = 100;
+                    json['12'] = 85;
+                    json['13'] = 75;
                     json['14'] = 60;
                     json['15'] = 40;
                     json['16'] = 10;
@@ -162,9 +171,10 @@ function AnalsSunshine(viewer, magoInstance) {
 
                 //차트 표시
                 let _showChart = function(data){
-                    let datas=[];
+                    let labels=[], datas=[];
                     for(let i=0; i<24;i++){
                         let k = 10>i ? '0'+i : ''+i;
+                        labels.push(k);
                         datas.push(data[k]);
                     }
 
@@ -172,9 +182,9 @@ function AnalsSunshine(viewer, magoInstance) {
                     let config = {
                         type: 'line',
                         data: {
-                            labels: Object.keys(data),
+                            labels: labels,
                             datasets: [{
-                                label: '일조량',
+                                label: '일조량(%)',
                                 data: datas,
                                 borderColor: 'red',
                                 fill: false,
@@ -227,8 +237,3 @@ function AnalsSunshine(viewer, magoInstance) {
         changeDateTimePicker.init();
     });
 }
-
-// DEPRECATED
-window.randomScalingFactor = function() {
-    return Math.round(Samples.utils.rand(-100, 100));
-};

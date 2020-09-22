@@ -23,6 +23,8 @@
 .cursor-pointer {cursor:pointer !important;}
 .cursor-default {cursor:default !important;}
 
+.display-none {display:none !important;}
+
 .w-30 {width:30% !important;}
 
 .ui-dialog { z-index: 1000 !important ;}
