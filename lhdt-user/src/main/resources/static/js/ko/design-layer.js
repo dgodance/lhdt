@@ -859,9 +859,18 @@ DesignLayerObj.prototype.toggleExtrusionBuilding = function(d, isShow){
         return Pp.isEmpty(h) ? null : (h * HEIGHT_PER_FLOOR);
     };
 
-    //get 색
-    //용도지역에 따른 색 리턴
-    let _color = function(entity){
+    
+    /**
+     * get 색
+     * 용도지역에 따른 색 리턴
+     * @param {Object} data
+     * @param {Entity} entity
+     */ 
+    let _color = function(data, entity){
+
+        if(DesignLayerObj.GroupType.BUILDING_HEIGHT['text'] == data.designLayerGroupType){
+            return data.layerFillColor;
+        }
         
         let color={};
         color['단독주택'] = '#ffff81';
@@ -951,7 +960,7 @@ DesignLayerObj.prototype.toggleExtrusionBuilding = function(d, isShow){
             
             
             // let color = new Mago3D.Color.fromHexCode(d.data.layerFillColor);
-            let color = new Mago3D.Color.fromHexCode(_color(entity));
+            let color = new Mago3D.Color.fromHexCode(_color(d.data, entity));
             color.a = 0.5;
             var building = Mago3D.ExtrusionBuilding.makeExtrusionBuildingByCartesian3Array(polygonHierarchy.reverse(), h, {	
                 color: color, /*new Mago3D.Color(color.r, color.b, color.b, 0.4)*/
