@@ -391,7 +391,8 @@ LsAnalsAutoObj.prototype.createTwoPoints = function(){
 
 			//분석. 0.5초 지연
 			setTimeout(function(){
-				_this.doAnals();				
+				_this.doAnals();
+                Ppmap.removeAll();
 			}, 500);
 		}
 			
