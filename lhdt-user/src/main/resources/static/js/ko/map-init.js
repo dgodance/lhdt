@@ -33,6 +33,11 @@ function mapInit(magoInstance, baseLayers, policy) {
 	sortedLayer.sort(function(a, b) { 
 	    return a.zindex- b.zindex
 	});
+
+	// basemap 이 n개 이므로 basemap length 확인해서 레이어 추가/삭제 시 target index로 사용
+	var baseMapLength = imageryLayers._layers.filter(function(f){
+		return f.baseMapName;
+	}).length;
 	
 	/**
 	 * wms layer init
@@ -140,7 +145,7 @@ function mapInit(magoInstance, baseLayers, policy) {
 	        }
 	    });
 		
-		var targetIndex = 3;
+		var targetIndex = baseMapLength;
 		for(var i=0; i < imageryLayers.length; i++) {
 			var layer = imageryLayers.get(i);
 			var currnetLayerId = layer.id;
@@ -361,8 +366,8 @@ function mapInit(magoInstance, baseLayers, policy) {
 		removeAllLayers : function() {
 			if(imageryLayers.length > 0) {
 				// 기본 provider를 제외하고 모두 삭제
-				while(imageryLayers.length > 1) {
-					imageryLayers.remove(imageryLayers.get(1));
+				while(imageryLayers.length > baseMapLength) {
+					imageryLayers.remove(imageryLayers.get(baseMapLength));
 				}
 			}
 			// wfs 삭제 
