@@ -127,6 +127,7 @@ function AnalsSunshine(viewer, magoInstance) {
                 //모달 표시
                 let _showModal = function(){
                     var dataGroupDialog = $( "div.sunshine-result-report-modal" ).dialog({
+                        title: '일조량 분석 결과',
                         autoOpen: false,
                         height: 550,
                         width: 1000,
