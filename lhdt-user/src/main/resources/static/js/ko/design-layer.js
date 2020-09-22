@@ -877,62 +877,68 @@ DesignLayerObj.prototype.toggleExtrusionBuilding = function(d, isShow){
         }
         
         let color={};
-        color['단독주택'] = '#ffff81';
-        color['공동주택(연립)'] = '#fee07e';
-        color['공동주택(아파트)'] = '#febd00';
-        color['상업용지'] = '#fd0002';
-        color['준주거용지'] = '#fefa03';
-        color['근린생활시설용지'] = '#fefa03';
-        color['공장용지'] = '#de7fff';
-        color['업무시설'] = '#0080ff';
-        color['공공청사'] = '#0080ff';
-        color['학교'] = '#01fffd';
-        color['종교용지'] = '#ff80ff';
-        color['종합의료시설'] = '#7fbffd';
-        color['사회복지시설'] = '#7e9fff';
-        color['문화시설'] = '#7e9fff';
-        color['도서관'] = '#7e9fff';
-        color['체육시설용지'] = '#6fdca3';
-        color['주유소'] = '#dda46f';
-        color['시장'] = '#fe0002';
-        color['유통업무설비'] = '#ff00be';
-        color['자동차정류장'] = '#de6d89';
-        color['주차장'] = '#c8c8c8';
-        color['공영차고지'] = '#e3e3e3';
-        color['도시지원용지'] = '#00a5db';
-        color['근린공원'] = '#00de01';
-        color['주제공원'] = '#00de01';
-        color['체육공원'] = '#00de01';
-        color['어린이공원'] = '#00de01';
-        color['완충녹지'] = '#81fe02';
-        color['경관녹지'] = '#81fe02';
-        color['연결녹지'] = '#81fe02';
-        color['공공녹지'] = '#a5dd00';
-        color['광장'] = '#dec171';
-        color['유원지'] = '#baff10';
-        color['운동장'] = '#00ba89';
-        color['하천'] = '#00c0fe';
-        color['저류지'] = '#7fe0ff';
-        color['수도용지'] = '#01dddd';
-        color['하수도시설'] = '#01dddd';
-        color['전기공급설비'] = '#df6fc3';
         color['가스공급설비'] = '#df6fc3';
-        color['열공급설비'] = '#df6fc3';
-        color['폐기물처리시설'] = '#df6fc3';
+        color['경관녹지'] = '#81fe02';
+        color['공공녹지'] = '#a5dd00';
+        color['공공청사'] = '#0080ff';
+        color['공동주택(아파트)'] = '#febd00';
+        color['공동주택(연립)'] = '#fee07e';
+        color['공영차고지'] = '#e3e3e3';
+        color['공장용지'] = '#de7fff';
+        color['광장'] = '#dec171';
+        color['근린공원'] = '#00de01';
+        color['근린생활시설용지'] = '#fefa03';
+        color['농업관련용지'] = '#bdfe7c';
+        color['단독주택'] = '#ffff81';
         color['도로'] = '#ffffff';
+        color['도서관'] = '#7e9fff';
+        color['도시지원용지'] = '#00a5db';
+        color['문화시설'] = '#7e9fff';
         color['보행자전용도로'] = '#d4a617';
         color['복합용지'] = '#ff809e';
-        color['농업관련용지'] = '#bdfe7c';
+        color['사회복지시설'] = '#7e9fff';
+        color['상업용지'] = '#fd0002';
+        color['수도용지'] = '#01dddd';
+        color['시장'] = '#fe0002';
+        color['어린이공원'] = '#00de01';
+        color['업무시설'] = '#0080ff';
+        color['연결녹지'] = '#81fe02';
+        color['열공급설비'] = '#df6fc3';
+        color['완충녹지'] = '#81fe02';
+        color['운동장'] = '#00ba89';
+        color['유원지'] = '#baff10';
+        color['유통업무설비'] = '#ff00be';
+        color['자동차정류장'] = '#de6d89';
         color['재활용회수시설'] = '#c1dd6f';
+        color['저류지'] = '#7fe0ff';
+        color['전기공급설비'] = '#df6fc3';
+        color['종교용지'] = '#ff80ff';
+        color['종합의료시설'] = '#7fbffd';
+        color['주유소'] = '#dda46f';
+        color['주제공원'] = '#00de01';
+        color['주차장'] = '#c8c8c8';
+        color['준주거용지'] = '#fefa03';
+        color['체육공원'] = '#00de01';
+        color['체육시설용지'] = '#6fdca3';
+        color['폐기물처리시설'] = '#df6fc3';
+        color['하수도시설'] = '#01dddd';
+        color['하천'] = '#00c0fe';
+        color['학교'] = '#01fffd';
 
         let landuseZoning = entity._properties._landuse_zoning._value;
 
         if(Pp.isNotEmpty(landuseZoning)){
-            return color[landuseZoning];
+            let c = color[landuseZoning];
+            if(Pp.isEmpty(c)){
+                console.log(landuseZoning);
+                return '#efefef';
+            }else{
+                return c;
+            }
         }
 
         //
-        return '#ffffff';
+        return '#efefef';
     };
 
 
