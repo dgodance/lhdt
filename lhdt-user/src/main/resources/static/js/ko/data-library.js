@@ -15,6 +15,8 @@ let ModelerObj = function(){
 	this.tool = ModelerObj.Tool.NONE;
 	//
 	this.handler = null;
+
+	this.rotate = null;
 	
 }
 
@@ -28,6 +30,7 @@ ModelerObj.Tool = {
 		'LINE':3,
 		'DELETE':4,
 		'MOVE':5,
+		'ROTATE':6,
 };
 
 
@@ -72,16 +75,26 @@ ModelerObj.prototype.setEventHandler = function(){
 	/**
 	 * 토글 버튼 클릭
 	 */ 
-	Ppui.click('button[class*=ds-tool]', function () {
-		//
-		let afterTool = Ppui.hasClass(this, 'active') ? ModelerObj.Tool.NONE : _this.getToolByEl(this);
-		//
+	$('button[class*=ds-tool]').click(function(){
 		_this.setTool(ModelerObj.Tool.NONE);
-		_this.setTool(afterTool);
+
+		//
+		let b = $(this).hasClass('active')
+
+		//모든 active off
+		$('button[class*=ds-tool]').removeClass('active');
+
+		if(b){
+			return;
+		}
+
+		$(this).addClass('active');
+		let tool = _this.getToolByEl(this);
+
+		//
+		_this.setTool(tool);
 	});
 
-
-		
 };
 
 
@@ -264,6 +277,8 @@ ModelerObj.prototype.selectedf4dCallback = function (e) {
 		return;
 	}
 
+	//회전이면
+
 	//
 };
 
@@ -281,16 +296,20 @@ ModelerObj.prototype.toolChanged = function (beforeTool, afterTool) {
 		Ppmap.getManager().defaultSelectInteraction.setActive(false);
 		Ppmap.getManager().defaultTranslateInteraction.setActive(false);
 		Ppmap.getManager().off(Mago3D.MagoManager.EVENT_TYPE.SELECTEDF4D, this.selectedf4dCallback);
-
+		
 		//
 		if (Pp.isNotNull(this.handler) && !this.handler.isDestroyed()) {
 			this.handler.destroy();
-        }
+		}
+		
+		if(Pp.isNotNull(this.rotate)){
+			this.rotate.setActive(false);
+		}
 	}
 
 	//
-	Ppui.removeClass(this.getElByTool(beforeTool), 'active');
-	Ppui.addClass(this.getElByTool(afterTool), 'active');
+	// Ppui.removeClass(this.getElByTool(beforeTool), 'active');
+	// Ppui.addClass(this.getElByTool(afterTool), 'active');
 
 	//
 	if (this.toolIs(ModelerObj.Tool.DELETE)) {
@@ -332,6 +351,11 @@ ModelerObj.prototype.toolChanged = function (beforeTool, afterTool) {
 	//
 	if (this.toolIs(ModelerObj.Tool.MOVE)) {
 		this.processToolMove();
+	}
+
+	//
+	if(this.toolIs(ModelerObj.Tool.ROTATE)){
+		this.processToolRotate();
 	}
 };
 
@@ -457,7 +481,7 @@ ModelerObj.prototype.processToolSelect = function(){
 	_this.handler.setInputAction(function(){
 		if (_this.toolIs(ModelerObj.Tool.SELECT)) {
 			//
-			_this.setTool(ModelerObj.Tool.NONE);
+			$('button[class*=ds-tool-select]').trigger('click');
 		}
 		//console.log('select right clicked');
 	}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
@@ -493,7 +517,7 @@ ModelerObj.prototype.processToolPoint = function(){
 	_this.handler.setInputAction(function(event){
 		if (_this.toolIs(ModelerObj.Tool.POINT)) {
 			//
-			_this.setTool(ModelerObj.Tool.NONE);
+			$('button[class*=ds-tool-point]').trigger('click');
 		}
 		//console.log('point right clicked');
 	}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
@@ -577,7 +601,7 @@ ModelerObj.prototype.processToolLine = function(){
 				}
 		
 				//
-				_this.setTool(ModelerObj.Tool.NONE);
+				$('button[class*=ds-tool-line]').trigger('click');
 			}
 		//console.log('line right clicked');
 	}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
@@ -659,6 +683,46 @@ ModelerObj.prototype.processToolDelete = function(){
 		}
 		//console.log('delete right clicked');
 	}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+};
+
+
+ModelerObj.prototype.processToolRotate = function(){
+	let _this = this;
+
+
+	if(!this.toolIs(ModelerObj.Tool.ROTATE)){
+		return;
+	}
+
+	/**
+	 * 선택된 객체를 마우스로 회전시키는 기능
+	 */
+	if(Pp.isNull(this.rotate)){
+		this.rotate = new Mago3D.RotateInteraction();
+		Ppmap.getManager().interactionCollection.add(this.rotate);
+		this.rotate.setTargetType('f4d');
+	}
+
+	this.rotate.setActive(true);
+
+	Ppmap.getManager().defaultSelectInteraction.setTargetType('f4d');
+	Ppmap.getManager().defaultSelectInteraction.setActive(true);
+	Ppmap.getManager().isCameraMoved = true;
+	Ppmap.getManager().on(Mago3D.MagoManager.EVENT_TYPE.SELECTEDF4D, _this.selectedf4dCallback);
+	
+
+
+	//
+	_this.handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
+	//오른쪽 클릭
+	_this.handler.setInputAction(function(){
+		if (_this.toolIs(ModelerObj.Tool.ROTATE)) {
+			//
+			$('button[class*=ds-tool-rotate]').trigger('click');
+		}
+		//console.log('delete right clicked');
+	}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+	
 };
 
 

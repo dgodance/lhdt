@@ -33,6 +33,9 @@ const DesignLayerObj = function(){
 
     //단지가시화 모달리스
     this.$dialog = null;
+
+    //레이어 on/off 이력
+    this.toggleLayerHists = [];
 };
 
 /**
@@ -106,6 +109,134 @@ DesignLayerObj.prototype.init = function(){
 DesignLayerObj.prototype.setEventHandler = function(){
     let _this = this;
 
+
+    /**
+     * 전체 초기화 클릭
+     */
+    $('button.reset-xxx').click(function(){
+
+        //on만 filter
+        let _getOnLayers = function(){
+            let arr=[];
+            for(let i=0; i<_this.toggleLayerHists.length; i++){
+                let d = _this.toggleLayerHists[i];
+                // console.log(d);
+                if(d.isShow){
+                    arr.push(d);
+                }
+            }
+    
+            //
+            // console.log(arr);
+            return arr;
+        };
+
+
+        /**
+         * last -> first 중복제거
+         * @param {Array<Object>}
+         * @returns {Array<Object>}
+         */ 
+        let _deDupl = function(arr){
+            for(let i=arr.length-1; i>=1; i--){
+                let d1 = arr[i];
+    
+                for(let j=i-1; j>=0; j--){
+                    let d2 = arr[j];
+    
+                    //
+                    if(null === d2.designLayerId){
+                        continue;
+                    }
+    
+                    //
+                    if(d1.designLayerId == d2.designLayerId){
+                        d2.designLayerId = null;
+                    }
+                }
+            }
+            // console.log(arr);
+            //
+            return arr;
+        };
+
+        /**
+         * 현재 체크된 레이어 목록 조회    
+         * @returns {Array<String>} 현재 on중인 레이어 아이디 목록
+         */ 
+        let _getCheckedLayers = function(){
+            let designLayerIds = [];
+            $('input[name=design-layer-id]:checked').each(function(i,item){
+                designLayerIds.push(item.value);
+            });
+            // console.log('designLayerIds', designLayerIds);
+            //
+            return designLayerIds;
+        }; 
+
+
+        /**
+         * 모든 레이어 off
+         * @param {Array<String>} designLayerIds 현재 on중인 레이어 아이디 목록
+         * @param {void}
+         */ 
+        let _offLayers = function(designLayerIds){
+            for(let i=0; i<designLayerIds.length; i++){
+                let designLayerId = designLayerIds[i];
+    
+                
+                $('input[name=design-layer-id][value='+designLayerId+']').closest('td')
+                    .trigger('click');
+            }
+        };
+
+        /**
+         * 순서대로 레이어 on
+         * @param {Array<Object>} arr 이력 목록
+         * @param {Array<String>} designLayerIds 현재 on중인 레이어 아이디 목록
+         * @param {void}
+         */
+        let _onLayers = function(arr, designLayerIds){
+            for(let i=0; i<arr.length; i++){
+                let d = arr[i];
+    
+                if(null == d.designLayerId){
+                    continue;
+                }
+    
+                let b = false;
+                for(let j=0; j<designLayerIds.length; j++){
+                    let designLayerId = designLayerIds[j];
+    
+                    //
+                    if(d.designLayerId == designLayerId){
+                        b=true;
+                        break;
+                    }
+                }
+    
+                //
+                if(b){
+                    //해당 레이어 체크박스 클릭 이벤트 트리거 실행
+                    $('input[name=design-layer-id][value='+d.designLayerId+']').closest('td')
+                        .trigger('click');
+                }    
+            }
+        };
+
+        //
+        let arr = _getOnLayers();
+        //
+        arr = _deDupl(arr);
+        //
+        let designLayerIds = _getCheckedLayers();
+        //
+        _offLayers(designLayerIds);
+        //
+        _onLayers(arr, designLayerIds);
+
+        _this.setTool(DesignLayerObj.Tool.NONE);
+    });
 
 
 
@@ -728,6 +859,69 @@ DesignLayerObj.prototype.toggleExtrusionBuilding = function(d, isShow){
         return Pp.isEmpty(h) ? null : (h * HEIGHT_PER_FLOOR);
     };
 
+    //get 색
+    //용도지역에 따른 색 리턴
+    let _color = function(entity){
+        
+        let color={};
+        color['단독주택'] = '#ffff81';
+        color['공동주택(연립)'] = '#fee07e';
+        color['공동주택(아파트)'] = '#febd00';
+        color['상업용지'] = '#fd0002';
+        color['준주거용지'] = '#fefa03';
+        color['근린생활시설용지'] = '#fefa03';
+        color['공장용지'] = '#de7fff';
+        color['업무시설'] = '#0080ff';
+        color['공공청사'] = '#0080ff';
+        color['학교'] = '#01fffd';
+        color['종교용지'] = '#ff80ff';
+        color['종합의료시설'] = '#7fbffd';
+        color['사회복지시설'] = '#7e9fff';
+        color['문화시설'] = '#7e9fff';
+        color['도서관'] = '#7e9fff';
+        color['체육시설용지'] = '#6fdca3';
+        color['주유소'] = '#dda46f';
+        color['시장'] = '#fe0002';
+        color['유통업무설비'] = '#ff00be';
+        color['자동차정류장'] = '#de6d89';
+        color['주차장'] = '#c8c8c8';
+        color['공영차고지'] = '#e3e3e3';
+        color['도시지원용지'] = '#00a5db';
+        color['근린공원'] = '#00de01';
+        color['주제공원'] = '#00de01';
+        color['체육공원'] = '#00de01';
+        color['어린이공원'] = '#00de01';
+        color['완충녹지'] = '#81fe02';
+        color['경관녹지'] = '#81fe02';
+        color['연결녹지'] = '#81fe02';
+        color['공공녹지'] = '#a5dd00';
+        color['광장'] = '#dec171';
+        color['유원지'] = '#baff10';
+        color['운동장'] = '#00ba89';
+        color['하천'] = '#00c0fe';
+        color['저류지'] = '#7fe0ff';
+        color['수도용지'] = '#01dddd';
+        color['하수도시설'] = '#01dddd';
+        color['전기공급설비'] = '#df6fc3';
+        color['가스공급설비'] = '#df6fc3';
+        color['열공급설비'] = '#df6fc3';
+        color['폐기물처리시설'] = '#df6fc3';
+        color['도로'] = '#ffffff';
+        color['보행자전용도로'] = '#d4a617';
+        color['복합용지'] = '#ff809e';
+        color['농업관련용지'] = '#bdfe7c';
+        color['재활용회수시설'] = '#c1dd6f';
+
+        let landuseZoning = entity._properties._landuse_zoning._value;
+
+        if(Pp.isNotEmpty(landuseZoning)){
+            return color[landuseZoning];
+        }
+
+        //
+        return '#ffffff';
+    };
+
 
     //
     if(!isShow){
@@ -756,7 +950,8 @@ DesignLayerObj.prototype.toggleExtrusionBuilding = function(d, isShow){
             }
             
             
-            let color = new Mago3D.Color.fromHexCode(d.data.layerFillColor);
+            // let color = new Mago3D.Color.fromHexCode(d.data.layerFillColor);
+            let color = new Mago3D.Color.fromHexCode(_color(entity));
             color.a = 0.5;
             var building = Mago3D.ExtrusionBuilding.makeExtrusionBuildingByCartesian3Array(polygonHierarchy.reverse(), h, {	
                 color: color, /*new Mago3D.Color(color.r, color.b, color.b, 0.4)*/
@@ -1703,7 +1898,17 @@ DesignLayerObj.prototype.renderDesignLayersByUrbanGroupId = function(urbanGroupI
                 $tr.find('input.toggle-extrusion-model-height')
                     .prop('disabled', true)
 					.prop('checked', false);				
-			}
+            }
+            
+            //
+            _this.toggleLayerHists.push({'designLayerId': designLayerId, 
+                                        'designLayerGroupType': $tr.data('design-layer-group-type'), 
+                                        'imageryLayer': _this.landLayer[designLayerId],
+                                        'isShow': b});
+            //building만 이력에 저장
+            // if(DesignLayerObj.GroupType.BUILDING['text'] == $tr.data('design-layer-group-type')){
+            //     _this.toggleLayerHists.push({'designLayerId':designLayerId, 'isShow':b});
+            // }
         });
         
 		
@@ -1766,13 +1971,14 @@ DesignLayerObj.prototype.extrusionModelWMSToggle = function(model, isShow){
     //
     var imageryLayers = Ppmap.getViewer().imageryLayers;
     if(isShow) {
+    	var currentCqlFilter = `design_layer_id=${model.id} AND enable_yn='Y'`;
         var prov = new Cesium.WebMapServiceImageryProvider({
             url : url,
             parameters : {
                 transparent : true,
                 srs:'EPSG:4326',
                 format: "image/png",
-                cql_filter : 'design_layer_id=' + model.id,
+                cql_filter : currentCqlFilter,
             },
             layers : model.layername
         });
@@ -1783,6 +1989,107 @@ DesignLayerObj.prototype.extrusionModelWMSToggle = function(model, isShow){
 
         //show된 레이어 목록
         this.landLayer[model.id] = imageryLayer;
+        
+        /**
+         * wms labeling 
+         */
+        $.ajax({
+			url : `/api/design-layers/${model.id}`,
+			type: "GET",
+            headers: {"X-Requested-With": "XMLHttpRequest"},
+            dataType: "json",
+            success: function(json){
+            	var req = new Cesium.Resource({
+      				url : [LHDT.policy.geoserverDataUrl, LHDT.policy.geoserverDataStore, 'wfs'].join('/'),
+      				queryParameters : {
+      					service : 'wfs',
+      					version : '1.0.0',
+      					request : 'GetFeature',
+      					typeNames : model.layername,
+      					srsName : 'EPSG:3857',
+      					outputFormat : 'application/json',
+      					cql_filter : currentCqlFilter
+      				}
+      			});
+            	
+            	var viewer = Ppmap.getViewer();
+            	var designLayerGroupType = json.designLayerGroupType;
+            	new Cesium.GeoJsonDataSource().load(req).then(function(e) {
+      				var entities = e.entities.values;
+      				var ds = new Cesium.CustomDataSource();
+      				ds.labelLayerId = model.id;
+      				
+      				if(designLayerGroupType === 'land') {
+      					for(var i in entities) {
+               	 			var entity = entities[i];
+               	 			var properties = entity.properties;
+               	 			
+               	 			var cRatio = properties.building_coverage_ratio.getValue();
+               	 			var fRatio = properties.floor_area_ratio.getValue();
+               	 			var labelText;
+               	 			if(!fRatio || !cRatio) {
+               	 				labelText = `${properties.landuse_zoning.getValue()}`;
+               	 			} else {
+               	 				labelText = `${properties.lot_code.getValue()}\n건폐율 : ${cRatio}\n용적률 : ${fRatio}`;
+               	 			}
+           	 			
+               	 			ds.entities.add({
+	               	 			position :  _getPolygonEntityBoundingSphereCenter(entity),
+	               	 			label :  _defaultLabelOption(labelText)
+	          				});
+               	 		}
+               	 		ds.clustering.enabled = true;
+               	 		ds.clustering.pixelRange = 5;
+               	 		ds.clustering.minimumClusterSize = 3;
+      				} else if(designLayerGroupType === 'building_height') {
+      					var designLayerName = json.designLayerName;
+               	 		for(var i in entities) {
+               	 			var entity = entities[i];
+               	 			var properties = entity.properties;
+               	 			
+               	 			var labelText = designLayerName;
+               	 			var maxFloor = properties.build_maximum_floors.getValue();
+               	 			if(maxFloor) labelText += `\n층수 제한 : ${maxFloor}`;  
+               	 			
+	               	 		ds.entities.add({
+	               	 			position : _getPolygonEntityBoundingSphereCenter(entity),
+	               	 			label : _defaultLabelOption(labelText)
+	          				});
+               	 		}
+      				}
+      				
+      				viewer.dataSources.add(ds);
+      			});
+            }
+		});
+        
+        function _getPolygonEntityBoundingSphereCenter(cEntity) {
+        	if(!cEntity || !(cEntity instanceof Cesium.Entity)) {
+        		return;
+        	}
+        	
+        	var positions = cEntity.polygon.hierarchy.getValue().positions;
+ 			var center = Cesium.BoundingSphere.fromPoints(positions).center;
+ 			Cesium.Ellipsoid.WGS84.scaleToGeodeticSurface(center, center);
+ 			
+ 			return center
+        }
+        
+        function _defaultLabelOption(lText) {
+        	return {
+   	 			text: lText,
+				scale :0.5,
+				font: "normal normal bolder 22px Helvetica",
+				fillColor: Cesium.Color.BLACK,
+				outlineColor: Cesium.Color.WHITE,
+				outlineWidth: 1,
+				//scaleByDistance : new Cesium.NearFarScalar(500, 1.2, 1200, 0.0),
+				heightReference : Cesium.HeightReference.CLAMP_TO_GROUND,
+				style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+				//translucencyByDistance : new Cesium.NearFarScalar(1200, 1.0, 2000, 0.0),
+				distanceDisplayCondition : new Cesium.DistanceDisplayCondition(0.0, 2000)
+ 			}
+        }
     } else {
         var target = imageryLayers._layers.filter(function(layer){return layer.layerId === model.id});
         if(target.length === 1)
@@ -1795,6 +2102,14 @@ DesignLayerObj.prototype.extrusionModelWMSToggle = function(model, isShow){
 
         //
         this.offExtrusionModel(model.id);
+        
+        //라벨 제거
+        var dataSources = Ppmap.getViewer().dataSources;
+		var filter = dataSources._dataSources.filter(function(ds) {
+			return ds.labelLayerId  === model.id; 
+		})[0];
+		
+		dataSources.remove(filter, true);
     }
 };
 
@@ -1873,7 +2188,7 @@ DesignLayerObj.prototype.extrusionModelBuildingToggle = function(model, isShow) 
                     //unit type
                     if(Pp.isNotEmpty(entity.properties['build_unit_type'])){
                         building.unitType = entity.properties['build_unit_type'].getValue();
-                        console.log('unittype', building);
+                        //console.log('unittype', building);
                     }else{
                         building.unitType = '0';
                     }
@@ -2037,35 +2352,7 @@ DesignLayerObj.prototype.xxx = function(){
     let _getCenterLonLat = function(){
         let lonLats = _this.selectedExtrusionBuilding.geographicCoordList.geographicCoordsArray;
 
-        //
-        let minLon = 999.0, maxLon = -999.0;
-        let minLat = 999.0, maxLat = -999.0;
-        //
-        for(let i=0; i<lonLats.length; i++){
-            let lonLat = lonLats[i];
-
-            //
-            if(minLon > lonLat.longitude){
-                minLon = lonLat.longitude;
-            }
-            if(maxLon < lonLat.longitude){
-                maxLon = lonLat.longitude;
-            }
-            //
-            if(minLat > lonLat.latitude){
-                minLat = lonLat.latitude;
-            }
-            if(maxLat < lonLat.latitude){
-                maxLat = lonLat.latitude;
-            }
-        }
-
-        //
-        // console.log(minLon, maxLon, minLat, maxLat);
-        return {
-            'longitude': ((maxLon-minLon)/2) + minLon,
-            'latitude': ((maxLat-minLat)/2) + minLat,
-        }
+        return Ppmap.getCenterLonLatByLonLats(lonLats);
     }
 
 
@@ -2387,6 +2674,8 @@ DesignLayerObj.prototype.showLandInfo = function(browserEvent){
 
                     //필지 정보 
                     _this.renderLandInfo(_this.selectedLand);
+
+                    _this.resizeModelessHeight();
                 });
             
             //up 이벤트 등록
@@ -2888,14 +3177,55 @@ DesignLayerObj.prototype.showLandVo = function(vo){
  * @param {ExtrusionBuilding} building 건물
  */
 DesignLayerObj.prototype.renderBuildingInfo = function(building){
+    if(Pp.isEmpty(building)){
+        return;
+    }
 
+    
     let vo= this.getBuildingVo(building);
 
     //
     this.showBuildingVo(vo);
 
-    //
+    //get 선택된 건물이 속한 필지 정보
+    let centerLonLat = building.getCenter();
+    let res = this.getGeometryByIntersection(DesignLayerObj.GeometryType.LAND, [centerLonLat], null, {'async':false});
+
+
+    this.selectedLand = this.getLandObjectFromApiResponse(res);
+
+
     this.renderLandInfo(this.selectedLand);
+};
+
+
+/**
+ * api 호출 결과에서 land정보 리턴
+ * @param {Object} res 
+ * @returns {Object}
+ */
+DesignLayerObj.prototype.getLandObjectFromApiResponse = function(res){
+    if(Pp.isEmpty(res)){
+        return null;
+    }
+
+    if(Pp.isEmpty(res._embedded)){
+        return null;
+    }
+
+    if(Pp.isEmpty(res._embedded.designLayerLands)){
+        return null;
+    }
+
+    for(let i=0; i<res._embedded.designLayerLands.length; i++){
+        let d = res._embedded.designLayerLands[i];
+        if(Pp.isNotEmpty(d.lotCode)){
+            return d;
+        }
+    }
+
+    //
+    return res._embedded.designLayerLands[0];
 };
 
 
@@ -3151,12 +3481,12 @@ DesignLayerObj.prototype.resizeModelessHeight = function(){
 	setTimeout(function(){
 	    let h = 330;
 	   
-	    //필지
-	    if(Pp.isNotEmpty(self.selectedLand)){
-	        h += 300;
-	    }
-	    //건물
-	    if(Pp.isNotEmpty(self.selectedBuilding)){
+        //필지
+        if($('div.design-layer-land-wrapper').is(':visible')){
+            h += 300;
+        }
+        //건물
+        if($('div.design-layer-building-wrapper').is(':visible')){
 	        h += 250;
 	    }
 	

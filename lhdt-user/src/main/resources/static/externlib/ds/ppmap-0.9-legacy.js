@@ -756,6 +756,48 @@ Ppmap.zoomTo = function(entity){
 
 
 /**
+ * lonLats의 중심 좌표 구하기
+ * @param {Array<LonLat>} lonLats lonlat 목록
+ * @returns {LonLat}
+ */
+Ppmap.getCenterLonLatByLonLats = function(lonLats){
+    //
+    let minLon = 999.0, maxLon = -999.0;
+    let minLat = 999.0, maxLat = -999.0;
+    //
+    for(let i=0; i<lonLats.length; i++){
+        let lonLat = lonLats[i];
+
+        //
+        if(minLon > lonLat.longitude){
+            minLon = lonLat.longitude;
+        }
+        if(maxLon < lonLat.longitude){
+            maxLon = lonLat.longitude;
+        }
+        //
+        if(minLat > lonLat.latitude){
+            minLat = lonLat.latitude;
+        }
+        if(maxLat < lonLat.latitude){
+            maxLat = lonLat.latitude;
+        }
+    }
+
+    //
+    // console.log(minLon, maxLon, minLat, maxLat);
+    let lonLat = {
+        'longitude': ((maxLon-minLon)/2) + minLon,
+        'latitude': ((maxLat-minLat)/2) + minLat,
+    }
+    lonLat.lon = lonLat.longitude;
+    lonLat.lat = lonLat.latitude;
+
+    return lonLat;
+};
+
+
+/**
  * 변환 전문
  */
 Ppmap.Convert = {
