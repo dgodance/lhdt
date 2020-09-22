@@ -883,10 +883,10 @@ Compass.prototype.setSvgRotate = function() {
 	
 }
 
-$(document).ready(function() {
+var mapControllEvent = function(magoInstance) {
 	// 처음
 	$('#mapCtrlHome').click(function() {
-		var magoManager = MAGO3D_INSTANCE.getMagoManager();
+		var magoManager = magoInstance.getMagoManager();
 		if (magoManager.isCesiumGlobe()) {
 			var config = magoManager.configInformation;
 			if (config.initCameraEnable) {
@@ -909,7 +909,7 @@ $(document).ready(function() {
 	$('#mapCtrlFullScreen').click(function() {
 		$(this).toggleClass('on');
 
-		var magoManager = MAGO3D_INSTANCE.getMagoManager();
+		var magoManager = magoInstance.getMagoManager();
 		var target = document.getElementById(magoManager.config.getContainerId());
 		if (this.full) {
 			if (isFullScreen()) {
@@ -971,10 +971,19 @@ $(document).ready(function() {
 	//카메라 고정, 임시
 	$('#mapCameraFix').click(function() {
 		$(this).toggleClass('on');
-		var viewer = MAGO3D_INSTANCE.getViewer();
+		var viewer = magoInstance.getViewer();
 		if($(this).hasClass('on')) {
-			viewer.camera.lookAt(viewer.camera.position, new Cesium.HeadingPitchRange(viewer.camera.heading, viewer.camera.pitch, 0.1));
-			viewer.camera.zoomOut(1);
+			var scene = viewer.scene;
+			var globe = scene.globe;
+			var camera = scene.camera;
+			
+			/*var canvas = scene.canvas;
+			var ray = camera.getPickRay(new Cesium.Cartesian2(canvas.offsetHeight/2, canvas.offsetWidth/2));
+			var intersection = globe.pick(ray, scene);
+			
+			
+			var range = Cesium.Cartesian3.distance(camera.positionWC, intersection);*/
+			viewer.camera.lookAt(camera.position, new Cesium.HeadingPitchRange(camera.heading, camera.pitch, 0.1));
 		} else {
 			viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
 		}
@@ -988,15 +997,23 @@ $(document).ready(function() {
 		if($(this).hasClass('on')) {
 			$('.mapWrap2').show();
 			var width;
+			var divideWidth;
 			if(display === 'none') {
 				width = 'calc(50% - 30px)';
+				divideWidth = 'calc(50% - 33px)';
 			} else {
 				width = 'calc(50% - 215px)';
+				divideWidth = 'calc(50% - 218px)';
 			}
 			
-			$('.mapWrap,.mapWrap2').css({
+			$('.mapWrap').css({
 				width : width
 			});
+			$('.mapWrap2').css({
+				width : divideWidth
+			});
+			
+			$('#magoContainer .totalSearch').hide();
 			
 			var clonePolicy = basicObjectClone(LHDT.policy);
 			
@@ -1011,7 +1028,7 @@ $(document).ready(function() {
 			option.defaultControl.overviewMap = false;
 			
 			
-			var curresntPosition = MAGO3D_INSTANCE.getMagoManager().sceneState.camera.position;
+			var curresntPosition = magoInstance.getMagoManager().sceneState.camera.position;
 			var currentGeoCoord = Mago3D.ManagerUtils.pointToGeographicCoord(curresntPosition);
 			
 			clonePolicy.initLatitude = currentGeoCoord.latitude;
@@ -1024,7 +1041,7 @@ $(document).ready(function() {
 			}
 			
 			function divideLoadEnd(e) {
-				var originViewer = MAGO3D_INSTANCE.getViewer();
+				var originViewer = magoInstance.getViewer();
 				var viewer = e.getViewer();
 				var f4dController = e.getF4dController();
 				viewer.scene.camera = originViewer.scene.camera;
@@ -1047,6 +1064,7 @@ $(document).ready(function() {
 			MAGO3D_DIVIDE_INSTANCE = null;
 			
 			$('.mapWrap2').hide();
+			$('#magoContainer .totalSearch').show();
 			
 			var width;
 			if(display === 'none') {
@@ -1106,35 +1124,135 @@ $(document).ready(function() {
 			});
 		}
 	});
-	
+
+	// BBOX
 	$('#mapSettingBboxToggle').click(function() {
 		$(this).toggleClass('on');
 		
-		var magoManager = MAGO3D_INSTANCE.getMagoManager();
+		var magoManager = magoInstance.getMagoManager();
 		magoManager.magoPolicy.setShowBoundingBox($(this).hasClass('on'));
 	});
-	
+
+	// LABEL
 	$('#mapSettingLabelToggle').click(function() {
 		$(this).toggleClass('on');
-		var magoManager = MAGO3D_INSTANCE.getMagoManager();
+		var magoManager = magoInstance.getMagoManager();
 		magoManager.magoPolicy.setShowLabelInfo($(this).hasClass('on'));
 	});
-	
+
+	// ORIGIN
 	$('#mapSettingOriginToggle').click(function() {
 		$(this).toggleClass('on');
-		var magoManager = MAGO3D_INSTANCE.getMagoManager();
+		var magoManager = magoInstance.getMagoManager();
 		magoManager.magoPolicy.setShowOrigin($(this).hasClass('on'));
 	});
-	
+
+	// SHADOW
 	$('#mapSettingShadowToggle').click(function() {
 		$(this).toggleClass('on');
-		var magoManager = MAGO3D_INSTANCE.getMagoManager();
+		var magoManager = magoInstance.getMagoManager();
 		magoManager.sceneState.setApplySunShadows($(this).hasClass('on'));
 	});
+	
+	var defaultSelectInteraction = magoInstance.getMagoManager().defaultSelectInteraction;
+	defaultSelectInteraction.on('active', function(e) {
+		var targetType = defaultSelectInteraction.getTargetType();
+		
+		if(targetType === 'f4d') {
+			$('#selectModeF4d').addClass('on');
+		} else if(targetType === 'native') {
+			$('#selectModeNative').addClass('on');
+		} else {
+			$('#selectModeObject').addClass('on');
+		}
+	});
+	
+	defaultSelectInteraction.on('deactive', function(e) {
+		var targetType = defaultSelectInteraction.getTargetType();
+		
+		if(targetType === 'f4d') {
+			$('#selectModeF4d').removeClass('on');
+		} else if(targetType === 'native') {
+			$('#selectModeNative').removeClass('on');
+		} else {
+			$('#selectModeObject').removeClass('on');
+		}
+	});
+
+	// SELECT, MOVE MODE
+	$('#selectModeF4d').click(function() {
+		$(this).siblings('button').removeClass('on');
+		
+		defaultSelectInteraction.setActive(!defaultSelectInteraction.getActive());
+		defaultSelectInteraction.setTargetType('f4d');
+	});
+	$('#moveModeF4d').click(function() {
+		$(this).siblings('button').removeClass('on');
+		$(this).toggleClass('on');
+	});
+
+	$('#selectModeObject').click(function() {
+		$(this).siblings('button').removeClass('on');
+		
+		defaultSelectInteraction.setActive(!defaultSelectInteraction.getActive());
+		defaultSelectInteraction.setTargetType('object');
+	});
+	$('#moveModeObject').click(function() {
+		$(this).siblings('button').removeClass('on');
+		$(this).toggleClass('on');
+	});
+
+	$('#selectModeNative').click(function() {
+		$(this).siblings('button').removeClass('on');
+		
+		defaultSelectInteraction.setActive(!defaultSelectInteraction.getActive());
+		defaultSelectInteraction.setTargetType('native');
+	});
+	$('#moveModeNative').click(function() {
+		$(this).siblings('button').removeClass('on');
+		$(this).toggleClass('on');
+	});
+	
+	var handler = new Cesium.ScreenSpaceEventHandler(magoInstance.getViewer().scene.canvas);
+	$('#mapRenderPosition').click(function() {
+		$(this).toggleClass('on');
+		
+		if($(this).hasClass('on')) {
+			handler.setInputAction(getPosition, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK)
+		} else {
+			$('#positionBox').hide();
+			handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
+		}
+	});
+	
+	$('#positionBox button').click(function(){
+		$('#positionBox').hide();
+	});
+	
+	var getPosition = function(e) {
+		$('#positionBox').show();
+		
+		var viewer = magoInstance.getViewer();
+		var cesiumScene = viewer.scene; 
+		var cesiumGlobe = cesiumScene.globe;
+		var cesiumCamera = cesiumScene.camera;
+		var windowCoordinates = new Cesium.Cartesian2(e.position.x, e.position.y);
+		var ray = cesiumCamera.getPickRay(windowCoordinates);
+		var intersection = cesiumGlobe.pick(ray, cesiumScene);
+		
+		var promise = Cesium.sampleTerrain(viewer.terrainProvider, 17, [Cesium.Cartographic.fromCartesian(intersection)]);
+    	promise.then(function(t){
+    		var p = t[0];
+    		
+    		$('#positionBoxLongitude').text(Cesium.Math.toDegrees(p.longitude).toFixed(4) + ' 도');
+    		$('#positionBoxLatitude').text(Cesium.Math.toDegrees(p.latitude).toFixed(4) + ' 도');
+    		$('#positionBoxHeight').text(p.height.toFixed(4) + ' m');
+    	});
+	}
 
 	// 확대
 	$('#mapCtrlZoomIn').click(function() {
-		var magoManager = MAGO3D_INSTANCE.getMagoManager();
+		var magoManager = magoInstance.getMagoManager();
 		if (magoManager.isCesiumGlobe()) {
 			var scene = magoManager.scene;
 			var camera = scene.camera;
@@ -1147,7 +1265,7 @@ $(document).ready(function() {
 
 	// 축소
 	$('#mapCtrlZoomOut').click(function() {
-		var magoManager = MAGO3D_INSTANCE.getMagoManager();
+		var magoManager = magoInstance.getMagoManager();
 		if (magoManager.isCesiumGlobe()) {
 			var scene = magoManager.scene;
 			var camera = scene.camera;
@@ -1156,9 +1274,4 @@ $(document).ready(function() {
 			scene.camera.zoomOut(alt * 0.1);
 		}
 	});
-	
-	
-});
-
-
-
+}

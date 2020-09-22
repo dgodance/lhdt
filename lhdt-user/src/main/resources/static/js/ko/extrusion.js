@@ -88,7 +88,16 @@ var extrusionTools = function (magoInstance){
 	       	 		for(var i in entities) {
 	       	 			var entity = entities[i];
 	       	 			var polygonHierarchy  = entity.polygon.hierarchy.getValue().positions;
+	       	 			polygonHierarchy.pop();
 	       	 			
+	       	 			var abc = Mago3D.GeographicCoordsList.fromCartesians(polygonHierarchy.reverse());
+	       	 			var objectsArray = MAGO3D_INSTANCE.getMagoManager().modeler.objectsArray;
+	       	 			for(var i in objectsArray) {
+	       	 				var ob = objectsArray[i];
+	       	 				//ob.setLimitationGeographicCoords(abc.geographicCoordsArray);
+	       	 				ob.setLimitationHeight(60);
+	       	 			}
+	       	 			return;
 	       	 			/**
 			   	 		 * @class Mago3D.ExtrusionBuilding
 			   	 		 * Polygon geometry과 높이를 이용하여 건물을 생성
@@ -251,57 +260,117 @@ var extrusionTools = function (magoInstance){
 			imageryLayer.layerId = model.id;
 			imageryLayers.add(imageryLayer);
 			
-			var req = new Cesium.Resource({
-  				url : 'http://localhost:18080/geoserver/lhdt/wfs',
-  				queryParameters : {
-  					service : 'wfs',
-  					version : '1.0.0',
-  					request : 'GetFeature',
-  					typeNames : model.layername,
-  					srsName : 'EPSG:3857',
-  					outputFormat : 'application/json',
-  					cql_filter : currentCqlFilter
-  				}
-  			});
-  			
-  			new Cesium.GeoJsonDataSource().load(req).then(function(e) {
-  				var entities = e.entities.values;
-  				var viewer = magoInstance.getViewer();
-  				var labelCollection = new Cesium.LabelCollection({
-  					scene : viewer.scene
-  				});
-  				labelCollection.labelLayerId = model.id;
-  				viewer.scene.primitives.add(labelCollection);
-       	 		for(var i in entities) {
-       	 			var entity = entities[i];
-       	 			var properties = entity.properties;
-       	 			
-       	 			var cRatio = properties.building_coverage_ratio.getValue();
-       	 			var fRatio = properties.floor_area_ratio.getValue();
-       	 			var labelText;
-       	 			if(!fRatio || !cRatio) {
-       	 				labelText = `${properties.landuse_zoning.getValue()}`;
-       	 			} else {
-       	 				labelText = `${properties.lot_code.getValue()}\n건폐율 : ${cRatio}\n용적률 : ${fRatio}`;
-       	 			}
-   	 			
-       	 			var positions = entity.polygon.hierarchy.getValue().positions;
-       	 			var center = Cesium.BoundingSphere.fromPoints(positions).center;
-       	 			Cesium.Ellipsoid.WGS84.scaleToGeodeticSurface(center, center);
-       	 			
-       	 			var label = labelCollection.add({
-       	 				position : center,
-   	 					text: labelText,
-   	 					font: "normal normal bolder 11px Helvetica",
-   	 					fillColor: Cesium.Color.BLACK,
-   	 					outlineColor: Cesium.Color.WHITE,
-   	 					outlineWidth: 1,
-   	 					scaleByDistance  : new Cesium.NearFarScalar(500, 1.2, 2000, 0.0),
-   	 					heightReference : Cesium.HeightReference.CLAMP_TO_GROUND,
-   	 					style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-       	 			});
-       	 		}
-  			});
+			$.ajax({
+				url : `/api/design-layers/${model.id}`,
+				type: "GET",
+	            headers: {"X-Requested-With": "XMLHttpRequest"},
+	            dataType: "json",
+	            success: function(json){
+	            	var req = new Cesium.Resource({
+	      				url : 'http://localhost:18080/geoserver/lhdt/wfs',
+	      				queryParameters : {
+	      					service : 'wfs',
+	      					version : '1.0.0',
+	      					request : 'GetFeature',
+	      					typeNames : model.layername,
+	      					srsName : 'EPSG:3857',
+	      					outputFormat : 'application/json',
+	      					cql_filter : currentCqlFilter
+	      				}
+	      			});
+	            	var wfsReq = new Cesium.GeoJsonDataSource().load(req);
+	            	
+	            	var designLayerGroupType = json.designLayerGroupType;
+	            	var viewer = magoInstance.getViewer();
+	            	if(designLayerGroupType === 'land') {
+	            		wfsReq.then(function(e) {
+	          				var entities = e.entities.values;
+	          				var ds = new Cesium.CustomDataSource();
+	          				ds.labelLayerId = model.id;
+	          				
+	               	 		for(var i in entities) {
+	               	 			var entity = entities[i];
+	               	 			var properties = entity.properties;
+	               	 			
+	               	 			var cRatio = properties.building_coverage_ratio.getValue();
+	               	 			var fRatio = properties.floor_area_ratio.getValue();
+	               	 			var labelText;
+	               	 			if(!fRatio || !cRatio) {
+	               	 				labelText = `${properties.landuse_zoning.getValue()}`;
+	               	 			} else {
+	               	 				labelText = `${properties.lot_code.getValue()}\n건폐율 : ${cRatio}\n용적률 : ${fRatio}`;
+	               	 			}
+	           	 			
+	               	 			var positions = entity.polygon.hierarchy.getValue().positions;
+	               	 			
+	               	 			var center = Cesium.BoundingSphere.fromPoints(positions).center;
+	               	 			Cesium.Ellipsoid.WGS84.scaleToGeodeticSurface(center, center);
+	               	 		
+	               	 			ds.entities.add({
+		               	 			position : center,
+		               	 			label : {
+			               	 			text: labelText,
+		           	 					scale :0.5,
+		           	 					font: "normal normal bolder 22px Helvetica",
+		           	 					fillColor: Cesium.Color.BLACK,
+		           	 					outlineColor: Cesium.Color.WHITE,
+		           	 					outlineWidth: 1,
+		           	 					//scaleByDistance : new Cesium.NearFarScalar(500, 1.2, 1200, 0.0),
+		           	 					heightReference : Cesium.HeightReference.CLAMP_TO_GROUND,
+		           	 					style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+		           	 					//translucencyByDistance : new Cesium.NearFarScalar(1200, 1.0, 2000, 0.0),
+		           	 					distanceDisplayCondition : new Cesium.DistanceDisplayCondition(0.0, 2000)
+		               	 			}
+		          				});
+	               	 		}
+	               	 		viewer.dataSources.add(ds);
+	               	 		ds.clustering.enabled = true;
+	               	 		
+	               	 		ds.clustering.pixelRange = 2;
+	               	 		ds.clustering.minimumClusterSize = 3;
+	               	 		ds.clustering.clusterPoints = false;
+	               	 		ds.clustering.clusterBillboards = false;
+	          			});
+	            	} else if (designLayerGroupType === 'building_height') {
+	            		var designLayerName = json.designLayerName;
+	            		wfsReq.then(function(e) {
+	          				var entities = e.entities.values;
+	          				var ds = new Cesium.CustomDataSource();
+	          				ds.labelLayerId = model.id;
+	               	 		for(var i in entities) {
+	               	 			var entity = entities[i];
+	               	 			var properties = entity.properties;
+	               	 			
+	               	 			var labelText = designLayerName;
+	               	 			var maxFloor = properties.build_maximum_floors.getValue();
+	               	 			if(maxFloor) labelText += `\n층수 제한 : ${maxFloor}`;  
+	               	 			
+	               	 			var positions = entity.polygon.hierarchy.getValue().positions;
+	               	 			var center = Cesium.BoundingSphere.fromPoints(positions).center;
+	               	 			Cesium.Ellipsoid.WGS84.scaleToGeodeticSurface(center, center);
+	               	 			
+		               	 		ds.entities.add({
+		               	 			position : center,
+		               	 			label : {
+			               	 			text: labelText,
+		           	 					scale :0.5,
+		           	 					font: "normal normal bolder 22px Helvetica",
+		           	 					fillColor: Cesium.Color.BLACK,
+		           	 					outlineColor: Cesium.Color.WHITE,
+		           	 					outlineWidth: 1,
+		           	 					//scaleByDistance : new Cesium.NearFarScalar(500, 1.2, 1200, 0.0),
+		           	 					heightReference : Cesium.HeightReference.CLAMP_TO_GROUND,
+		           	 					style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+		           	 					//translucencyByDistance : new Cesium.NearFarScalar(1200, 1.0, 2000, 0.0),
+		           	 					distanceDisplayCondition : new Cesium.DistanceDisplayCondition(0.0, 2000)
+		               	 			}
+		          				});
+	               	 		}
+	               	 		viewer.dataSources.add(ds);
+	          			});
+	            	}
+	            }
+			});
 		} else {
 			var target = imageryLayers._layers.filter(function(layer){return layer.layerId === model.id});
 			if(target.length === 1)
@@ -310,12 +379,12 @@ var extrusionTools = function (magoInstance){
 			}
 			var viewer = magoInstance.getViewer();
 			
-			var primitives = viewer.scene.primitives;
-			var filter = primitives._primitives.filter(function(p) {
-				return p.labelLayerId  === model.id; 
+			var dataSources = viewer.dataSources;
+			var filter = dataSources._dataSources.filter(function(ds) {
+				return ds.labelLayerId  === model.id; 
 			})[0];
 			
-			primitives.remove(filter);
+			dataSources.remove(filter, true);
 		}
 	}
 	
@@ -360,7 +429,7 @@ var extrusionTools = function (magoInstance){
 	   	 			var entity = entities[i];
 	   	 			var properties = entity.properties;
 	   	 			
-	   	 			var building = entityToMagoExtrusionBuilding(entity);
+	   	 			var building = entityToMagoExtrusionBuilding(entity, model.layername);
 		   	 		building.layerId = model.id;
 		   	 		building.floorHeight = FLOOR_HEIGHT;
 		   	 		/**

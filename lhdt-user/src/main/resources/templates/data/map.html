@@ -29,6 +29,7 @@
 			height: 100%;
 			background-color: #eee;
 			display:none;
+			border-right: 3px solid #ccc;
 		}
 		#baseMapToggle div.on,#terrainToggle div.on {
 			border-color : #0475F4 !important;
@@ -36,6 +37,19 @@
 		}
 		#baseMapToggle div.on img,#terrainToggle div.on img {
 			border-color : #0475F4 !important;
+		}
+		.positionBox {
+			display : none;
+		    width: 120px;
+		    height: 100px;
+		    position: absolute;
+		    bottom: 40px;
+		    left: 439px;
+		    background: #283651;
+		    z-index: 200;
+		    border-radius: 10px;
+		    border: 2px solid #B4BBE7;
+		    opacity: 0.7;
 		}
     </style>
 </head>
@@ -140,6 +154,15 @@
 			<label for="timeInput" class="hiddenTag">saRange</label>
 			<input id="timeInput"/>
 		</div>
+		
+		<div class="positionBox" id="positionBox">
+			<button type="button" style="float: right;width: 20px;">X</button>
+			<div style="color: #D2D4E1; margin: 20px 0 0 10px;">
+				<span id="positionBoxLongitude" style="display: block;">D2D4E1</span>
+				<span id="positionBoxLatitude" style="display: block;">D2D4E1</span>
+				<span id="positionBoxHeight" style="display: block;">D2D4E1</span>
+			</div>
+		</div>
 	</div>
 	
 	<div id="magoDivideContainer" class="mapWrap2">
@@ -194,7 +217,7 @@
 <script type="text/javascript" th:src="@{/externlib/ds/pp-0.9-legacy.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>
 <script type="text/javascript" th:src="@{/externlib/ds/ppui-0.9-legacy.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>
 <script type="text/javascript" th:src="@{/externlib/ds/ppmap-0.9-legacy.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>
-<script type="text/javascript" th:src="@{/externlib/ds/dsobj-0.1-snapshot.js(lang=${lang},cacheVersion=${contentCacheVersion})}"  ></script>
+<script type="text/javascript" th:src="@{/externlib/ds/dsobj-0.1-snapshot.js(lang=${lang},cacheVersion=${contentCacheVersion})}"  defer></script>
 
 <script type="text/javascript" th:src="@{/js/{lang}/design-layer.js(lang=${lang},cacheVersion=${contentCacheVersion})}" defer></script>
 <script type="text/javascript" th:src="@{/js/{lang}/data-library.js(lang=${lang},cacheVersion=${contentCacheVersion})}" defer></script>
@@ -345,14 +368,15 @@
 		
 		//나침반 시작
 		var compass = new Compass(viewer, document.getElementById('mapCtrlCompassOut'));
+		mapControllEvent(e);
 		
 		var baseMapController = new BaseMapController(viewer);
-		var terrainController = new TerrainController(viewer, TERRAIN_URL);
+		var terrainController = new TerrainController(viewer, 'http://localhost:8888/tilesets/terrain/');
 		
         var promises = [];
         var garaJsonCnt = 28;
         for(var i=0;i<garaJsonCnt;i++) {
-			promises.push($.ajax({url: `http://118.42.112.206:5880/sample/json/temp_json/${i}.geojson`, dataType: "json"}));
+            promises.push($.ajax({url: `http://localhost/sample/json/temp_json/${i}.geojson`, dataType: "json"}));
         }
         
         $.when.apply($,promises).then(function(){
@@ -373,40 +397,40 @@
                 segments2dObj[i] = segments2dArray;
             }
         });
-
-		/*  $.ajax({
-             url: 'http://localhost/sample/json/masterplan.json',
-             type: "GET",
-             headers: {"X-Requested-With": "XMLHttpRequest"},
-             dataType: "json",
-             success: function(json){
-                  var children = json.children;
-                 for(var i in children) {
-                     var gara = gara_masterplan[children[i].data_key];
-                     children[i].longitude = gara.longitude;
-                     children[i].latitude = gara.latitude;
-                     children[i].mapping_type = 'boundingboxcenter';
-                 }
-                 f4dController.addF4dGroup(json);
-             },
-             error:function(request,status,error){
-                 alert(JS_MESSAGE["ajax.error.message"]);
-             }
-         }); */
-
-		/* magoManager.modeler.on(Mago3D.Modeler.EVENT_TYPE.ADD, function(e){
-            var model = e.add;
-            var geoLocData = model.getCurrentGeoLocationData();
-            var geoCoord = geoLocData.geographicCoord;
-
-            //model.setTerrainHeight(viewer.scene.globe.getHeight(Cesium.Cartographic.fromDegrees(geoCoord.longitude, geoCoord.latitude)));
-            var promise = Cesium.sampleTerrain(viewer.terrainProvider, 17, [Cesium.Cartographic.fromDegrees(geoCoord.longitude, geoCoord.latitude)]);
-            promise.then(function(t){
-                model.setTerrainHeight(t[0].height);
-
-                //console.info(t[0].height);
-                //console.info(viewer.scene.globe.getHeight(Cesium.Cartographic.fromDegrees(geoCoord.longitude, geoCoord.latitude)))
-            });
+        
+       /*  $.ajax({
+            url: 'http://localhost/sample/json/masterplan.json',
+            type: "GET",
+            headers: {"X-Requested-With": "XMLHttpRequest"},
+            dataType: "json",
+            success: function(json){
+            	 var children = json.children;
+            	for(var i in children) {
+					var gara = gara_masterplan[children[i].data_key];
+					children[i].longitude = gara.longitude;
+					children[i].latitude = gara.latitude;
+					children[i].mapping_type = 'boundingboxcenter';
+            	} 
+                f4dController.addF4dGroup(json);
+            },
+            error:function(request,status,error){
+                alert(JS_MESSAGE["ajax.error.message"]);
+            }
+        }); */
+        
+        /* magoManager.modeler.on(Mago3D.Modeler.EVENT_TYPE.ADD, function(e){
+        	var model = e.add;
+        	var geoLocData = model.getCurrentGeoLocationData();
+        	var geoCoord = geoLocData.geographicCoord;
+        	
+        	//model.setTerrainHeight(viewer.scene.globe.getHeight(Cesium.Cartographic.fromDegrees(geoCoord.longitude, geoCoord.latitude)));
+        	var promise = Cesium.sampleTerrain(viewer.terrainProvider, 17, [Cesium.Cartographic.fromDegrees(geoCoord.longitude, geoCoord.latitude)]);
+        	promise.then(function(t){
+        		model.setTerrainHeight(t[0].height);
+        		
+        		//console.info(t[0].height);
+        		//console.info(viewer.scene.globe.getHeight(Cesium.Cartographic.fromDegrees(geoCoord.longitude, geoCoord.latitude)))
+        	});
         }); */
         
        
@@ -990,44 +1014,50 @@
 	});
 	
 	// 시연용 임시 코드
-	function entityToMagoExtrusionBuilding(entity) {
+	function entityToMagoExtrusionBuilding(entity, layername) {
 		var properties = entity.properties;
- 			
-			var id = properties.build_id.getValue();
-			var height = properties.build_height.getValue();
-			var buildFloor = properties.build_floor.getValue();
-			buildFloor = buildFloor ? buildFloor : 1;
-			height = (!height || height.length === 0) ? 3.3 * buildFloor : height;
- 			
-	 		var polygonHierarchy  = entity.polygon.hierarchy.getValue().positions;
-	 		
-	 		var polygon2d = Mago3D.Polygon2D.makePolygonByCartesian3Array(polygonHierarchy.reverse());
+		var id = properties.build_id.getValue();
+		var height = properties.build_height.getValue();
+		var floorHeight = properties.build_floor.getValue();
+		floorHeight = floorHeight ? floorHeight : 1;
+		
+		height = (!height || height.length === 0) ? 3.3 * floorHeight : height;
+			
+ 		var polygonHierarchy  = entity.polygon.hierarchy.getValue().positions;
+ 		polygonHierarchy.pop();
+ 		
+   	 	var targetArray = Mago3D.GeographicCoordsList.fromCartesians(polygonHierarchy.reverse());
+   	 	if(layername.indexOf('test') > -1) {
+	   	 	var polygon2d = Mago3D.Polygon2D.makePolygonByCartesian3Array(polygonHierarchy.reverse());
 	 		polygon2d.calculateNormal();
-   	 	if(polygon2d.normal < 0)
-   		{
-   			polygon2d.reverseSense();
-   		}
-	 		var segments2dArray = segments2dObj[id]; 
+	   	 	if(polygon2d.normal < 0)
+	   		{
+	   			polygon2d.reverseSense();
+	   		}
+			var segments2dArray = segments2dObj[id]; 
 	 		
 	 		var resultSplittedPolygons = Mago3D.Polygon2D.splitPolygonByMultipleSegments(polygon2d, segments2dArray, undefined, 1E-2);
-   	 	var splittedPolygonsCount = resultSplittedPolygons.length;
-   		var geoCoordsListsArray = [];
-   		for(var k=0; k<splittedPolygonsCount; k++)
-   		{
-   			var splittedPolygon2d = resultSplittedPolygons[k];
-   			var geographicCoordsArray = [];
-   			var coordsCount = splittedPolygon2d.point2dList.getPointsCount();
-   			for(var j=0; j<coordsCount; j++)
-   			{
-   				var point2d = splittedPolygon2d.point2dList.getPoint(j);
-   				var geoCoord = new Mago3D.GeographicCoord(point2d.x, point2d.y, 0.0);
-   				geographicCoordsArray.push(geoCoord);
-   			}
-   			var geoCoordList = new Mago3D.GeographicCoordsList(geographicCoordsArray);
-   			geoCoordsListsArray.push(geoCoordList);
-   		}
+	   	 	var splittedPolygonsCount = resultSplittedPolygons.length;
+	   		var geoCoordsListsArray = [];
+	   		for(var k=0; k<splittedPolygonsCount; k++)
+	   		{
+	   			var splittedPolygon2d = resultSplittedPolygons[k];
+	   			var geographicCoordsArray = [];
+	   			var coordsCount = splittedPolygon2d.point2dList.getPointsCount();
+	   			for(var j=0; j<coordsCount; j++)
+	   			{
+	   				var point2d = splittedPolygon2d.point2dList.getPoint(j);
+	   				var geoCoord = new Mago3D.GeographicCoord(point2d.x, point2d.y, 0.0);
+	   				geographicCoordsArray.push(geoCoord);
+	   			}
+	   			var geoCoordList = new Mago3D.GeographicCoordsList(geographicCoordsArray);
+	   			geoCoordsListsArray.push(geoCoordList);
+	   		}
+	   		
+	   		targetArray = geoCoordsListsArray;
+   	 	}
 
-   		var building = new Mago3D.ExtrusionBuilding(geoCoordsListsArray, parseFloat(height), {
+   		var building = new Mago3D.ExtrusionBuilding(targetArray, parseFloat(height), {
  			//color : new Mago3D.Color(0, 112 / 255, 192 / 255, 1), 연한 파랑
  			//color : new Mago3D.Color(148/255, 216 / 255, 246 / 255, 1), 진한 파랑
  			//color : new Mago3D.Color(1, 229 / 255, 212 / 255, 1),
@@ -1040,8 +1070,10 @@
  			//wireframeColor4 :  new Mago3D.Color(217/255, 217 / 255, 217 / 255, 1),
  			renderWireframe : true
  		});
+   		building.options.limitationInfringingDynamicColor4 = new Mago3D.DynamicColor(1.0, 0.5, 1.0, 1.0);
    		building.floorHeight = 3.3;
-	 		return building;
+	 	
+   		return building;
 	}
 </script>
 </body>
