@@ -234,6 +234,8 @@ DesignLayerObj.prototype.setEventHandler = function(){
         _offLayers(designLayerIds);
         //
         _onLayers(arr, designLayerIds);
+
+        _this.setTool(DesignLayerObj.Tool.NONE);
     });
 
 
@@ -2176,35 +2178,7 @@ DesignLayerObj.prototype.xxx = function(){
     let _getCenterLonLat = function(){
         let lonLats = _this.selectedExtrusionBuilding.geographicCoordList.geographicCoordsArray;
 
-        //
-        let minLon = 999.0, maxLon = -999.0;
-        let minLat = 999.0, maxLat = -999.0;
-        //
-        for(let i=0; i<lonLats.length; i++){
-            let lonLat = lonLats[i];
-
-            //
-            if(minLon > lonLat.longitude){
-                minLon = lonLat.longitude;
-            }
-            if(maxLon < lonLat.longitude){
-                maxLon = lonLat.longitude;
-            }
-            //
-            if(minLat > lonLat.latitude){
-                minLat = lonLat.latitude;
-            }
-            if(maxLat < lonLat.latitude){
-                maxLat = lonLat.latitude;
-            }
-        }
-
-        //
-        // console.log(minLon, maxLon, minLat, maxLat);
-        return {
-            'longitude': ((maxLon-minLon)/2) + minLon,
-            'latitude': ((maxLat-minLat)/2) + minLat,
-        }
+        return Ppmap.getCenterLonLatByLonLats(lonLats);
     }
 
 
@@ -2526,6 +2500,8 @@ DesignLayerObj.prototype.showLandInfo = function(browserEvent){
 
                     //필지 정보 
                     _this.renderLandInfo(_this.selectedLand);
+
+                    _this.resizeModelessHeight();
                 });
             
             //up 이벤트 등록
@@ -3027,14 +3003,55 @@ DesignLayerObj.prototype.showLandVo = function(vo){
  * @param {ExtrusionBuilding} building 건물
  */
 DesignLayerObj.prototype.renderBuildingInfo = function(building){
+    if(Pp.isEmpty(building)){
+        return;
+    }
 
+    
     let vo= this.getBuildingVo(building);
 
     //
     this.showBuildingVo(vo);
 
-    //
+    //get 선택된 건물이 속한 필지 정보
+    let centerLonLat = building.getCenter();
+    let res = this.getGeometryByIntersection(DesignLayerObj.GeometryType.LAND, [centerLonLat], null, {'async':false});
+
+
+    this.selectedLand = this.getLandObjectFromApiResponse(res);
+
+
     this.renderLandInfo(this.selectedLand);
+};
+
+
+/**
+ * api 호출 결과에서 land정보 리턴
+ * @param {Object} res 
+ * @returns {Object}
+ */
+DesignLayerObj.prototype.getLandObjectFromApiResponse = function(res){
+    if(Pp.isEmpty(res)){
+        return null;
+    }
+
+    if(Pp.isEmpty(res._embedded)){
+        return null;
+    }
+
+    if(Pp.isEmpty(res._embedded.designLayerLands)){
+        return null;
+    }
+
+    for(let i=0; i<res._embedded.designLayerLands.length; i++){
+        let d = res._embedded.designLayerLands[i];
+        if(Pp.isNotEmpty(d.lotCode)){
+            return d;
+        }
+    }
+
+    //
+    return res._embedded.designLayerLands[0];
 };
 
 
@@ -3290,12 +3307,12 @@ DesignLayerObj.prototype.resizeModelessHeight = function(){
 	setTimeout(function(){
 	    let h = 330;
 	   
-	    //필지
-	    if(Pp.isNotEmpty(self.selectedLand)){
-	        h += 300;
-	    }
-	    //건물
-	    if(Pp.isNotEmpty(self.selectedBuilding)){
+        //필지
+        if($('div.design-layer-land-wrapper').is(':visible')){
+            h += 300;
+        }
+        //건물
+        if($('div.design-layer-building-wrapper').is(':visible')){
 	        h += 250;
 	    }
 	
