@@ -42,7 +42,10 @@ function AnalsSunshine(viewer, magoInstance) {
         init: function(viewer) {
             const that = this;
             if(!that.obj) {
-                that.obj = new KotSlider('timeInput');
+                that.obj = new KotSlider('timeInput', function(){
+					//자동실행 완료 후 호출됨 gravity 0922
+                    $('button.show-result').trigger('click');
+                });
                 that.obj.setMin(1);
                 that.obj.setMax(24);
                 that.obj.setDuration(200);
@@ -234,8 +237,3 @@ function AnalsSunshine(viewer, magoInstance) {
         changeDateTimePicker.init();
     });
 }
-
-// DEPRECATED
-window.randomScalingFactor = function() {
-    return Math.round(Samples.utils.rand(-100, 100));
-};
