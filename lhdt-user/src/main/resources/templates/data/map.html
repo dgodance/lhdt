@@ -376,7 +376,7 @@
         var promises = [];
         var garaJsonCnt = 28;
         for(var i=0;i<garaJsonCnt;i++) {
-            promises.push($.ajax({url: `http://localhost/sample/json/temp_json/${i}.geojson`, dataType: "json"}));
+			promises.push($.ajax({url: `http://localhost/sample/json/temp_json/${i}.geojson`, dataType: "json"}));
         }
         
         $.when.apply($,promises).then(function(){
