@@ -973,7 +973,17 @@ $(document).ready(function() {
 		$(this).toggleClass('on');
 		var viewer = MAGO3D_INSTANCE.getViewer();
 		if($(this).hasClass('on')) {
-			viewer.camera.lookAt(viewer.camera.position, new Cesium.HeadingPitchRange(viewer.camera.heading, viewer.camera.pitch, 0.1));
+			var scene = viewer.scene;
+			var globe = scene.globe;
+			var camera = scene.camera;
+			
+			/*var canvas = scene.canvas;
+			var ray = camera.getPickRay(new Cesium.Cartesian2(canvas.offsetHeight/2, canvas.offsetWidth/2));
+			var intersection = globe.pick(ray, scene);
+			
+			
+			var range = Cesium.Cartesian3.distance(camera.positionWC, intersection);*/
+			viewer.camera.lookAt(camera.position, new Cesium.HeadingPitchRange(camera.heading, camera.pitch, 0.1));
 		} else {
 			viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
 		}
@@ -987,15 +997,23 @@ $(document).ready(function() {
 		if($(this).hasClass('on')) {
 			$('.mapWrap2').show();
 			var width;
+			var divideWidth;
 			if(display === 'none') {
 				width = 'calc(50% - 30px)';
+				divideWidth = 'calc(50% - 33px)';
 			} else {
 				width = 'calc(50% - 215px)';
+				divideWidth = 'calc(50% - 218px)';
 			}
 			
-			$('.mapWrap,.mapWrap2').css({
+			$('.mapWrap').css({
 				width : width
 			});
+			$('.mapWrap2').css({
+				width : divideWidth
+			});
+			
+			$('#magoContainer .totalSearch').hide();
 			
 			var clonePolicy = basicObjectClone(LHDT.policy);
 			
@@ -1046,6 +1064,7 @@ $(document).ready(function() {
 			MAGO3D_DIVIDE_INSTANCE = null;
 			
 			$('.mapWrap2').hide();
+			$('#magoContainer .totalSearch').show();
 			
 			var width;
 			if(display === 'none') {
@@ -1155,9 +1174,4 @@ $(document).ready(function() {
 			scene.camera.zoomOut(alt * 0.1);
 		}
 	});
-	
-	
 });
-
-
-

@@ -123,5 +123,24 @@ Mago3D.MagoManager.prototype.validTerrainHeight = function() {
 			});
 		}
 	}
+}
+
+Mago3D.MagoManager.prototype.setReadyToValid = function() {
+	if(this.modeler) {
+		this.modeler.objectsArray.forEach(function(o) {
+			o.valid = false;
+		});
+	}
 	
+	var hierarchyManager = this.hierarchyManager;
+	var projects = hierarchyManager.projectsMap;
+	for(var j in projects) {
+		var project = projects[j];
+		for(var k in project) {
+			var node = project[k];
+			if(node instanceof Mago3D.Node && node.data.attributes.isPhysical === true) {
+				node.data.valid = false;
+			}
+		}
+	}
 }
