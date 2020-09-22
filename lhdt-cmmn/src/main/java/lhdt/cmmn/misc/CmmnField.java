@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 
 /**
  * 필드에 사용되는 어노테이션
- * @author gravity@daumsoft.com
+ * @author gravity
  * @since 2020. 8. 10.
  *
  */

@@ -11,7 +11,7 @@ var KTDatatableRemoteAjaxDemo = function() {
                 type: 'remote',
                 source: {
                     read: {
-                        url: 'http://localhost:9091/adminsvc/ls-point-rest',
+                        url: 'http://172.30.1.58:9091/adminsvc/ls-point-rest',
                         map: function(raw) {
                             // sample data mapping
                             var dataSet = raw;

@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * lhdt-anals접속 for jpa
  * persistence추가되면 basePackages추가하삼. TODO 나중에 일반화 예정
- * @author gravity@daumsoft.com
+ * @author gravity
  * @since 2020. 8. 13.
  *
  */

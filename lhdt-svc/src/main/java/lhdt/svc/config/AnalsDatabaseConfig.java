@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * lhdt-anals접속관련 for mybatis
- * @author gravity@daumsoft.com
+ * @author gravity
  *
  */
 @Slf4j

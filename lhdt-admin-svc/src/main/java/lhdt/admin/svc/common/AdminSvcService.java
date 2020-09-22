@@ -7,7 +7,7 @@ import lhdt.cmmn.misc.CmmnService;
 
 /**
  * 모든 service의 부모
- * @author gravity@daumsoft.com
+ * @author gravity
  * @since 2020. 8. 18.
  *
  */

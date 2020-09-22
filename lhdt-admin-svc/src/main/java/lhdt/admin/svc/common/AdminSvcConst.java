@@ -7,7 +7,7 @@ import lhdt.cmmn.misc.CmmnConst;
 
 /**
  * 상수 정의
- * @author gravity@daumsoft.com
+ * @author gravity
  * @since 2020. 8. 18.
  *
  */

@@ -4,7 +4,7 @@
 package lhdt.cmmn.misc;
 
 /**
- * @author gravity@daumsoft.com
+ * @author gravity
  * @since 2020. 8. 17.
  *
  */

@@ -47,10 +47,6 @@ TerrainController.prototype.on = function(elem) {
 	elem.className += addtext;
 }
 
-TerrainController.prototype.hasClass = function(elem, className) {
-	return elem.className.indexOf(className) > -1;
-}
-
 TerrainController.prototype.setEventListener = function() {
 	var viewer = this.viewer;
 	var terrains = this.terrains;
@@ -59,14 +55,27 @@ TerrainController.prototype.setEventListener = function() {
 	for(var i=0,len=terrainElementList.length;i<len;i++) {
 		var terrainElement = terrainElementList.item(i);
 		terrainElement.addEventListener('click', function() {
-			if(that.hasClass(this, 'on')) return;
-			
-			viewer.terrainProvider = terrains[this.dataset.type];
-			
+			var thisType = this.dataset.type;
+			viewer.terrainProvider = terrains[thisType];
 			that.on(this);
-			that.off(this.previousElementSibling || this.nextElementSibling);
+			var siblings = this.previousElementSibling || this.nextElementSibling;
+			that.off(siblings);
 			
-			MAGO3D_INSTANCE.getMagoManager().setReadyToValid();
+			MAGO3D_INSTANCE.getMagoManager().modeler.objectsArray.forEach(function(o) {
+				o.valid = false;
+			});
+			
+			var hierarchyManager = MAGO3D_INSTANCE.getMagoManager().hierarchyManager;
+			var projects = hierarchyManager.projectsMap;
+			for(var j in projects) {
+				var project = projects[j];
+				for(var k in project) {
+					var node = project[k];
+					if(node instanceof Mago3D.Node && node.data.attributes.isPhysical === true) {
+						node.data.valid = false;
+					}
+				}
+			}
 		}, false);
 	}
 }

@@ -18,7 +18,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * @since
  *  2020-07-xx 바닐라js
  *  2020-07-16  pp와 ppui 분리
- * @author gravity@daumsoft.com
+ * @author gravity
  */
 
 /**

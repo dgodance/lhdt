@@ -7,7 +7,7 @@ import java.util.List;
 
 /**
  * 기본 CRUD 인터페이스
- * @author break8524@daumsoft.com
+ * @author break8524
  * @param <T>
  */
 public interface CRUDInterface<T> {

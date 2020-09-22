@@ -18,7 +18,7 @@
 			</select>
 		</div>
 		<div class="form-group form-group-data">
-			<label for="urban-group2">지역</label> 
+			<label for="urban-group2">사업지구</label>
 			<select id="urban-group2" >
 				<option value="">전체</option>
 				<!-- by js -->
@@ -36,9 +36,12 @@
 
 
 	<!-- Rectangular switch -->
-	<div style="margin-top:8px; margin-left:8px;">
+	<!-- <div style="margin-top:8px; margin-left:8px;">
 		<input type="checkbox" class="ds-toggle-land-updown">
 		전체 필지높이 조절		
+	</div> -->
+	<div style="margin-top:8px; margin-left:8px;">
+		<button type="button" class="textBtnSub reset-xxx">전체 초기화</button>		
 	</div>
 
 	<div class="ds-tool marT10" style="border: 1px solid #efefef;padding:5px;">
@@ -51,7 +54,7 @@
 			<button class="textBtnSub  design-layer-tool-rotate">회전</button>
 			<!-- <button class="textBtnSub  design-layer-tool-updown">건물높이조절</button> -->
 			<!-- <button class="textBtnSub  design-layer-tool-intersection">필지정보조회</button> -->
-			<button class="textBtnSub  design-layer-tool-landupdown">필지높이조절</button>
+			<!-- <button class="textBtnSub  design-layer-tool-landupdown">필지높이조절</button> -->
 		</div>
 	</div>
 
@@ -102,24 +105,35 @@
 	<colgroup>
 		<col class="col-width-15">
 		<col class="col-number" width="*">
+		<col class="col-width-15">
 	</colgroup>
 	<thead>
 		<tr>
 			<th scope="col" class="col-number">선택</th>
 			<th scope="col" class="col-number"><!--디자인-->레이어명</th>
+			<th scope="col" class="col-number">높이</th>
 		</tr>
 	</thead>
 	<tbody>
 		{{#if datas}}
 			{{#each datas}}
-			<tr >
-				<td class="col-number"><input type="checkbox" name="design-layer-id" value="{{designLayerId}}"></td>
-				<td class="col-number text-left cursor-pointer">{{designLayerName}}</td>
+			<tr data-design-layer-group-type="{{designLayerGroupType}}">
+				<td class="toggle-design-layer"><input type="checkbox" name="design-layer-id" value="{{designLayerId}}"></td>
+				<td class="toggle-design-layer text-left cursor-pointer">{{designLayerName}}</td>
+				<td >
+					{{#ifMatch designLayerGroupType 'land'}}
+						<input type="checkbox" class="toggle-extrusion-model-height" value="{{designLayerId}}" disabled="disabled"/>
+					{{/ifMatch}}
+					{{#ifMatch designLayerGroupType 'building_height'}}
+						<input type="checkbox" class="toggle-extrusion-model-height" value="{{designLayerId}}" disabled="disabled"/>
+					{{/ifMatch}}
+					<!-- building은 checkbox 없음 -->
+				</td>
 			</tr>
 			{{/each}}
 		{{else}}
 			<tr>
-				<td colspan="2">데이터가 없습니다.</td>
+				<td colspan="3">데이터가 없습니다.</td>
 			</tr>
 		{{/if}}
 	</tbody>
@@ -278,7 +292,7 @@
 	<div class="design-layer-modeless-wrapper" style="display: none;">
 		<!--지역-->
 		<div class="design-layer-urban-wrapper" style="display: none;">
-			<h3>지역</h3>
+			<h3>사업지구</h3>
 			<table class="table-word-break design-layer-urban" summary="지역 정보">
 				<caption class="hiddenTag">지역 정보</caption>
 				<colgroup>
@@ -326,7 +340,7 @@
 	
 		<!--필지-->
 		<div class="design-layer-land-wrapper mt-20" style="display: none;">
-			<h3>필지</h3>
+			<h3>단지</h3>
 			<table class="table-word-break design-layer-land" summary="필지 정보">
 				<caption class="hiddenTag">필지 정보</caption>
 				<colgroup>

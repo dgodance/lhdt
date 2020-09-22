@@ -127,6 +127,8 @@ function AnalsHeightLandScapeView(viewer, magoInstance) {
                     //분석. 0.5초 지연
                     setTimeout(function(){
                         _this.doAnals();
+                        Ppmap.removeAll();
+                        toastr.info('높이 데이터를 생성완료 했습니다');
                     }, 500);
                 }
 
@@ -203,7 +205,7 @@ function AnalsHeightLandScapeView(viewer, magoInstance) {
         return this.cameraHeight;
     }
     LSHeightAnals.prototype.analsHeightView = function(idx) {
-        this.cameraHeight[idx]();
+        this.cameraHeight[idx-1]();
     }
     /**
      * 높이 층수에 따른 높이 정보를 가진 카메라 뷰를 생성합니다
@@ -234,14 +236,15 @@ function AnalsHeightLandScapeView(viewer, magoInstance) {
         const lat = this._xyz1.lat;
         const alt = this._xyz1.alt;
         const pos = new Cesium.Cartesian3.fromDegrees(long, lat, alt + (height * 3.5));
+        const dirCart3 = new Cesium.Cartesian3(direction.x, direction.y, direction.z);
         return function wrap() {
             viewer.camera.setView({
                 destination  : pos,
                 orientation : {
-                    direction : new Cesium.Cartesian3(direction.x, direction.y, direction.z),
+                    direction : dirCart3,
                     up : new Cesium.Cartesian3()
                 }
-            })
+            });
         }
     }
     const lsHeightDropDown = new LSHeightDropDownList();

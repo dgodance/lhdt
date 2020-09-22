@@ -74,7 +74,6 @@ LsAnalsSavedObj.prototype.doAnals = function(data){
  */
 LsAnalsSavedObj.prototype._doAnals = function(){
 	let _this = this;
-	
 	//0.5초 지연
 	setTimeout(function(){
 		//
@@ -172,7 +171,7 @@ LsAnalsSavedObj.prototype._point = function(data){
 			Ppmap.createPoint('ls-anals-saved-xyz2', _this._xyz2.lon, _this._xyz2.lat);
 			//2점간 선 표시
 			Ppmap.createPolyline('ls-anals-saved-line', [_this._xyz1, _this._xyz2]);
-			
+
 			//분석
 			_this._doAnals();
         },

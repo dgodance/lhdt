@@ -15,7 +15,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * 주의! 직접 ppui-version-lagacy.js파일 변경 불허
  * @since   
  *  2020-07-16  init
- * @author gravity@daumsoft.com
+ * @author gravity
  */
 var Ppui = function () {
     function Ppui() {
