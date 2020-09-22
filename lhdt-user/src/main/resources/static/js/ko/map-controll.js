@@ -968,6 +968,18 @@ $(document).ready(function() {
 		$('#controlMeasureWrap').toggle();
 	});
 	
+	//카메라 고정, 임시
+	$('#mapCameraFix').click(function() {
+		$(this).toggleClass('on');
+		var viewer = MAGO3D_INSTANCE.getViewer();
+		if($(this).hasClass('on')) {
+			viewer.camera.lookAt(viewer.camera.position, new Cesium.HeadingPitchRange(viewer.camera.heading, viewer.camera.pitch, 0.1));
+			viewer.camera.zoomOut(1);
+		} else {
+			viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+		}
+	});
+	
 	// 화면분할
 	$('#mapCtrlDivide').click(function() {
 		$(this).toggleClass('on');
@@ -1066,7 +1078,7 @@ $(document).ready(function() {
 		$(this).siblings().removeClass('on');
 		$(this).toggleClass('on');
 	});
-
+	
 	// 설정
 	$('#mapCtrlSetting').click(function() {
 		$(this).toggleClass('on');

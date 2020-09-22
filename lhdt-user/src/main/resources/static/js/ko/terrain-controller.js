@@ -57,6 +57,25 @@ TerrainController.prototype.setEventListener = function() {
 		terrainElement.addEventListener('click', function() {
 			var thisType = this.dataset.type;
 			viewer.terrainProvider = terrains[thisType];
+			that.on(this);
+			var siblings = this.previousElementSibling || this.nextElementSibling;
+			that.off(siblings);
+			
+			MAGO3D_INSTANCE.getMagoManager().modeler.objectsArray.forEach(function(o) {
+				o.valid = false;
+			});
+			
+			var hierarchyManager = MAGO3D_INSTANCE.getMagoManager().hierarchyManager;
+			var projects = hierarchyManager.projectsMap;
+			for(var j in projects) {
+				var project = projects[j];
+				for(var k in project) {
+					var node = project[k];
+					if(node instanceof Mago3D.Node && node.data.attributes.isPhysical === true) {
+						node.data.valid = false;
+					}
+				}
+			}
 		}, false);
 	}
 }

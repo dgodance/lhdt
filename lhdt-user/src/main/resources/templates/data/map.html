@@ -30,11 +30,11 @@
 			background-color: #eee;
 			display:none;
 		}
-		#baseMapToggle div.on {
+		#baseMapToggle div.on,#terrainToggle div.on {
 			border-color : #0475F4 !important;
 			border-width : 2px !important;
 		}
-		#baseMapToggle div.on img {
+		#baseMapToggle div.on img,#terrainToggle div.on img {
 			border-color : #0475F4 !important;
 		}
     </style>
@@ -175,6 +175,7 @@
 <script type="text/javascript" th:src="@{/externlib/moment-2.22.2/moment-with-locales.min.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/externlib/tuidatepicker-4.0.3/tui-date-picker.min.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/mago3d.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/mago3d_lx.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/common.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/message.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/map-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
@@ -393,20 +394,20 @@
              }
          }); */
 
-        magoManager.modeler.on(Mago3D.Modeler.EVENT_TYPE.ADD, function(e){
-        	var model = e.add;
-        	var geoLocData = model.getCurrentGeoLocationData();
-        	var geoCoord = geoLocData.geographicCoord;
-        	
-        	//model.setTerrainHeight(viewer.scene.globe.getHeight(Cesium.Cartographic.fromDegrees(geoCoord.longitude, geoCoord.latitude)));
-        	var promise = Cesium.sampleTerrain(viewer.terrainProvider, 17, [Cesium.Cartographic.fromDegrees(geoCoord.longitude, geoCoord.latitude)]);
-        	promise.then(function(t){
-        		model.setTerrainHeight(t[0].height);
-        		
-        		//console.info(t[0].height);
-        		//console.info(viewer.scene.globe.getHeight(Cesium.Cartographic.fromDegrees(geoCoord.longitude, geoCoord.latitude)))
-        	});
-        });
+		/* magoManager.modeler.on(Mago3D.Modeler.EVENT_TYPE.ADD, function(e){
+            var model = e.add;
+            var geoLocData = model.getCurrentGeoLocationData();
+            var geoCoord = geoLocData.geographicCoord;
+
+            //model.setTerrainHeight(viewer.scene.globe.getHeight(Cesium.Cartographic.fromDegrees(geoCoord.longitude, geoCoord.latitude)));
+            var promise = Cesium.sampleTerrain(viewer.terrainProvider, 17, [Cesium.Cartographic.fromDegrees(geoCoord.longitude, geoCoord.latitude)]);
+            promise.then(function(t){
+                model.setTerrainHeight(t[0].height);
+
+                //console.info(t[0].height);
+                //console.info(viewer.scene.globe.getHeight(Cesium.Cartographic.fromDegrees(geoCoord.longitude, geoCoord.latitude)))
+            });
+        }); */
         
        
 	}
@@ -994,7 +995,9 @@
  			
 			var id = properties.build_id.getValue();
 			var height = properties.build_height.getValue();
-			height = (!height || height.length === 0) ? FLOOR_HEIGHT * 7 : height;
+			var buildFloor = properties.build_floor.getValue();
+			buildFloor = buildFloor ? buildFloor : 1;
+			height = (!height || height.length === 0) ? 3.3 * buildFloor : height;
  			
 	 		var polygonHierarchy  = entity.polygon.hierarchy.getValue().positions;
 	 		
@@ -1030,11 +1033,11 @@
  			//color : new Mago3D.Color(1, 229 / 255, 212 / 255, 1),
  			//wireframeColor4 :  new Mago3D.Color(244/255, 115 / 255, 120 / 255, 1),
  			
- 			//color : new Mago3D.Color(152/255, 224 / 255, 173 / 255, 1),
- 			//wireframeColor4 :  new Mago3D.Color(34/255, 177 / 255, 76 / 255, 1),
+ 			color : new Mago3D.Color(152/255, 224 / 255, 173 / 255, 1),
+ 			wireframeColor4 :  new Mago3D.Color(34/255, 177 / 255, 76 / 255, 1),
  			
- 			color : new Mago3D.Color(248/255, 248/ 255, 248/ 255, 1),
- 			wireframeColor4 :  new Mago3D.Color(217/255, 217 / 255, 217 / 255, 1),
+ 			//color : new Mago3D.Color(248/255, 248/ 255, 248/ 255, 1),
+ 			//wireframeColor4 :  new Mago3D.Color(217/255, 217 / 255, 217 / 255, 1),
  			renderWireframe : true
  		});
    		building.floorHeight = 3.3;
