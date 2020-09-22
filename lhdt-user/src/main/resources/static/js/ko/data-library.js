@@ -72,13 +72,36 @@ ModelerObj.prototype.setEventHandler = function(){
 	/**
 	 * 토글 버튼 클릭
 	 */ 
-	Ppui.click('button[class*=ds-tool]', function () {
-		//
-		let afterTool = Ppui.hasClass(this, 'active') ? ModelerObj.Tool.NONE : _this.getToolByEl(this);
-		//
+	$('button[class*=ds-tool]').click(function(){
 		_this.setTool(ModelerObj.Tool.NONE);
-		_this.setTool(afterTool);
+
+		//
+		let b = $(this).hasClass('active')
+
+		//모든 active off
+		$('button[class*=ds-tool]').removeClass('active');
+
+		if(b){
+			return;
+		}
+
+		$(this).addClass('active');
+		let tool = _this.getToolByEl(this);
+
+		//
+		_this.setTool(tool);
 	});
+
+
+	// Ppui.click('button[class*=ds-tool]', function () {
+
+
+	// 	//
+	// 	let afterTool = Ppui.hasClass(this, 'active') ? ModelerObj.Tool.NONE : _this.getToolByEl(this);
+	// 	//
+	// 	_this.setTool(ModelerObj.Tool.NONE);
+	// 	_this.setTool(afterTool);
+	// });
 
 
 		
@@ -289,8 +312,8 @@ ModelerObj.prototype.toolChanged = function (beforeTool, afterTool) {
 	}
 
 	//
-	Ppui.removeClass(this.getElByTool(beforeTool), 'active');
-	Ppui.addClass(this.getElByTool(afterTool), 'active');
+	// Ppui.removeClass(this.getElByTool(beforeTool), 'active');
+	// Ppui.addClass(this.getElByTool(afterTool), 'active');
 
 	//
 	if (this.toolIs(ModelerObj.Tool.DELETE)) {
@@ -457,7 +480,7 @@ ModelerObj.prototype.processToolSelect = function(){
 	_this.handler.setInputAction(function(){
 		if (_this.toolIs(ModelerObj.Tool.SELECT)) {
 			//
-			_this.setTool(ModelerObj.Tool.NONE);
+			$('button[class*=ds-tool-select]').trigger('click');
 		}
 		//console.log('select right clicked');
 	}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
@@ -493,7 +516,7 @@ ModelerObj.prototype.processToolPoint = function(){
 	_this.handler.setInputAction(function(event){
 		if (_this.toolIs(ModelerObj.Tool.POINT)) {
 			//
-			_this.setTool(ModelerObj.Tool.NONE);
+			$('button[class*=ds-tool-point]').trigger('click');
 		}
 		//console.log('point right clicked');
 	}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
@@ -577,7 +600,7 @@ ModelerObj.prototype.processToolLine = function(){
 				}
 		
 				//
-				_this.setTool(ModelerObj.Tool.NONE);
+				$('button[class*=ds-tool-line]').trigger('click');
 			}
 		//console.log('line right clicked');
 	}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
