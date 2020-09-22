@@ -15224,6 +15224,30 @@ MagoRenderable.prototype.getCurrentGeoLocationData = function()
 	return geoLoDataManager.getCurrentGeoLocationData();
 };
 
+MagoRenderable.prototype.getBoundingSphereWC = function(resultBSphereWC)
+{
+	if(!this.boundingSphereWC)
+	{
+		this.boundingSphereWC = new BoundingSphere();
+
+		// provisionally return an aproximate bsphere.***
+		var geoLocationData = this.getCurrentGeoLocationData();
+		var positionWC = geoLocationData.position;
+
+		var radiusAprox = 200.0;
+		this.boundingSphereWC.setCenterPoint(positionWC.x, positionWC.y, positionWC.z);
+		this.boundingSphereWC.setRadius(radiusAprox);
+	}
+
+	if(!resultBSphereWC)
+		resultBSphereWC = new BoundingSphere();
+
+	var centerPoint = this.boundingSphereWC.centerPoint;
+	resultBSphereWC.setCenterPoint(centerPoint.x, centerPoint.y, centerPoint.z);
+	resultBSphereWC.setRadius(this.boundingSphereWC.r);
+	return resultBSphereWC;
+};
+
 MagoRenderable.prototype.changeLocationAndRotation = function(latitude, longitude, elevation, heading, pitch, roll, magoManager)
 {
 	var geoLocationData = this.getCurrentGeoLocationData();
@@ -15608,2294 +15632,6 @@ LodAPI.changeLod = function(api, magoManager)
 	if (api.getLod4DistInMeters() !== null && api.getLod4DistInMeters() !== "") { magoManager.magoPolicy.setLod4DistInMeters(api.getLod4DistInMeters()); }
 	if (api.getLod5DistInMeters() !== null && api.getLod5DistInMeters() !== "") { magoManager.magoPolicy.setLod5DistInMeters(api.getLod5DistInMeters()); }
 };
-'use strict';
-
-/**
- * mago3djs API
- * 
- * @alias API
- * @class API
- * @constructor
- * 
- * @param {any} apiName api이름
- */
-function API(apiName)
-{
-	if (!(this instanceof API)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-
-	// mago3d 활성화/비활성화 여부
-	this.magoEnable = true;
-	// return
-	this.returnable = false;
-
-	// api 이름
-	this.apiName = apiName;
-	
-	// project id
-	this.projectId = null;
-	this.projectDataFolder = null;
-	// objectIds
-	this.objectIds = null;
-	// data_key
-	this.dataKey = null;
-	// issueId
-	this.issueId = null;
-	// issueType
-	this.issueType = null;
-	// drawType 이미지를 그리는 유형 0 : DB, 1 : 이슈등록
-	this.drawType = 0;
-
-	// 위도
-	this.latitude = 0;
-	// 경도
-	this.longitude = 0;
-	// 높이
-	this.elevation = 0;
-	// heading
-	this.heading = 0;
-	// pitch
-	this.pitch = 0;
-	// roll
-	this.roll = 0;
-	// duration
-	this.duration = 0;
-
-	// 속성
-	this.property = null;
-	// 색깔
-	this.color = 0;
-	// structs = MSP, outfitting = MOP
-	this.blockType = null;
-	// outfitting 표시/비표시
-	this.showOutFitting = false;
-	// label 표시/비표시
-	this.showLabelInfo = true;
-	// origin 표시/비표시
-	this.showOrigin = false;
-	// boundingBox 표시/비표시
-	this.showBoundingBox = false;
-	// 그림자 표시/비표시
-	this.showShadow = false;
-	// frustum culling 가시 거리(M단위)
-	this.frustumFarDistance = 0;
-	// move mode 
-	this.objectMoveMode = CODE.moveMode.NONE;
-	// 이슈 등록 표시
-	this.issueInsertEnable = false;
-	// object 정보 표시
-	this.objectInfoViewEnable = false;
-	// 이슈 목록 표시
-	this.nearGeoIssueListEnable = false;
-	// occlusion culling
-	this.occlusionCullingEnable = false;
-	//
-	this.insertIssueState = 0;
-	
-	// LOD1
-	this.lod0DistInMeters = null;
-	this.lod1DistInMeters = null;
-	this.lod2DistInMeters = null;
-	this.lod3DistInMeters = null;
-	this.lod4DistInMeters = null;
-	this.lod5DistInMeters = null;
-	
-	// Lighting
-	this.ambientReflectionCoef = null;
-	this.diffuseReflectionCoef = null;
-	this.specularReflectionCoef = null;
-	this.ambientColor = null;
-	this.specularColor = null;
-	
-	this.ssaoRadius = null;
-	//
-	this.FPVMode = false;
-
-	// input x, y, z
-	this.inputPoint = null;
-	// result x, y, z
-	this.resultPoint = null;
-	
-	// General magoMode.
-	this.magoMode = CODE.magoMode.NORMAL;
-
-	//position unit
-	this.unit = CODE.units.DEGREE;
-
-	//for staticModel instantiate
-	this.instantiateObj = null;
-
-	//for staticModel add
-	this.staticModelAttributeObj = null;
-
-	//animation option. 
-	this.animationOption = null;
-
-	/**
-	 * @type {trackOption}
-	 */
-	this.trackOption = null;
-
-	/**
-	 * @type {nodeAttribute}
-	 */
-	this.nodeAttribute = null;
-};
-
-API.prototype.getMagoEnable = function() 
-{
-	return this.magoEnable;
-};
-API.prototype.setMagoEnable = function(magoEnable) 
-{
-	this.magoEnable = magoEnable;
-};
-
-API.prototype.getReturnable = function()
-{
-	return this.returnable;
-};
-API.prototype.setReturnable = function(returnable)
-{
-	this.returnable = returnable;
-};
-
-API.prototype.getAPIName = function() 
-{
-	return this.apiName;
-};
-
-API.prototype.getProjectId = function() 
-{
-	return this.projectId;
-};
-API.prototype.setProjectId = function(projectId) 
-{
-	this.projectId = projectId;
-};
-
-API.prototype.getProjectDataFolder = function() 
-{
-	return this.projectDataFolder;
-};
-API.prototype.setProjectDataFolder = function(projectDataFolder) 
-{
-	this.projectDataFolder = projectDataFolder;
-};
-
-API.prototype.getObjectIds = function() 
-{
-	return this.objectIds;
-};
-API.prototype.setObjectIds = function(objectIds) 
-{
-	this.objectIds = objectIds;
-};
-
-API.prototype.getIssueId = function() 
-{
-	return this.issueId;
-};
-API.prototype.setIssueId = function(issueId) 
-{
-	this.issueId = issueId;
-};
-API.prototype.getIssueType = function() 
-{
-	return this.issueType;
-};
-API.prototype.setIssueType = function(issueType) 
-{
-	this.issueId = issueType;
-};
-
-API.prototype.getDataKey = function() 
-{
-	return this.dataKey;
-};
-API.prototype.setDataKey = function(dataKey) 
-{
-	this.dataKey = dataKey;
-};
-
-API.prototype.getLatitude = function() 
-{
-	return this.latitude;
-};
-API.prototype.setLatitude = function(latitude) 
-{
-	this.latitude = latitude;
-};
-
-API.prototype.getLongitude = function() 
-{
-	return this.longitude;
-};
-API.prototype.setLongitude = function(longitude) 
-{
-	this.longitude = longitude;
-};
-
-API.prototype.getElevation = function() 
-{
-	return this.elevation;
-};
-API.prototype.setElevation = function(elevation) 
-{
-	this.elevation = elevation;
-};
-
-API.prototype.getHeading = function() 
-{
-	return this.heading;
-};
-API.prototype.setHeading = function(heading) 
-{
-	this.heading = heading;
-};
-
-API.prototype.getPitch = function() 
-{
-	return this.pitch;
-};
-API.prototype.setPitch = function(pitch) 
-{
-	this.pitch = pitch;
-};
-
-API.prototype.getRoll = function() 
-{
-	return this.roll;
-};
-API.prototype.setRoll = function(roll) 
-{
-	this.roll = roll;
-};
-
-API.prototype.getProperty = function() 
-{
-	return this.property;
-};
-API.prototype.setProperty = function(property) 
-{
-	this.property = property;
-};
-
-API.prototype.getColor = function() 
-{
-	return this.color;
-};
-API.prototype.setColor = function(color) 
-{
-	this.color = color;
-};
-
-API.prototype.getBlockType = function() 
-{
-	return this.blockType;
-};
-API.prototype.setBlockType = function(blockType) 
-{
-	this.blockType = blockType;
-};
-
-API.prototype.getShowOutFitting = function() 
-{
-	return this.showOutFitting;
-};
-API.prototype.setShowOutFitting = function(showOutFitting) 
-{
-	this.showOutFitting = showOutFitting;
-};
-
-
-API.prototype.getShowLabelInfo = function() 
-{
-	return this.showLabelInfo;
-};
-API.prototype.setShowLabelInfo = function(showLabelInfo) 
-{
-	this.showLabelInfo = showLabelInfo;
-};
-
-API.prototype.getShowOrigin = function()
-{
-	return this.showOrigin;
-};
-API.prototype.setShowOrigin = function(showOrigin)
-{
-	this.showOrigin = showOrigin;
-};
-
-API.prototype.getShowBoundingBox = function() 
-{
-	return this.showBoundingBox;
-};
-API.prototype.setShowBoundingBox = function(showBoundingBox) 
-{
-	this.showBoundingBox = showBoundingBox;
-};
-
-API.prototype.getShowShadow = function() 
-{
-	return this.showShadow;
-};
-API.prototype.setShowShadow = function(showShadow) 
-{
-	this.showShadow = showShadow;
-};
-
-API.prototype.getFrustumFarDistance = function() 
-{
-	return this.frustumFarDistance;
-};
-API.prototype.setFrustumFarDistance = function(frustumFarDistance) 
-{
-	this.frustumFarDistance = frustumFarDistance;
-};
-
-API.prototype.getObjectMoveMode = function() 
-{
-	return this.objectMoveMode;
-};
-API.prototype.setObjectMoveMode = function(objectMoveMode) 
-{
-	this.objectMoveMode = objectMoveMode;
-};
-
-API.prototype.getIssueInsertEnable = function() 
-{
-	return this.issueInsertEnable;
-};
-API.prototype.setIssueInsertEnable = function(issueInsertEnable) 
-{
-	this.issueInsertEnable = issueInsertEnable;
-};
-API.prototype.getObjectInfoViewEnable = function() 
-{
-	return this.objectInfoViewEnable;
-};
-API.prototype.setObjectInfoViewEnable = function(objectInfoViewEnable) 
-{
-	this.objectInfoViewEnable = objectInfoViewEnable;
-};
-API.prototype.getOcclusionCullingEnable = function() 
-{
-	return this.occlusionCullingEnable;
-};
-API.prototype.setOcclusionCullingEnable = function(occlusionCullingEnable) 
-{
-	this.occlusionCullingEnable = occlusionCullingEnable;
-};
-API.prototype.getNearGeoIssueListEnable = function() 
-{
-	return this.nearGeoIssueListEnable;
-};
-API.prototype.setNearGeoIssueListEnable = function(nearGeoIssueListEnable) 
-{
-	this.nearGeoIssueListEnable = nearGeoIssueListEnable;
-};
-
-API.prototype.getInsertIssueState = function() 
-{
-	return this.insertIssueState;
-};
-API.prototype.setInsertIssueState = function(insertIssueState) 
-{
-	this.insertIssueState = insertIssueState;
-};
-
-API.prototype.getDrawType = function() 
-{
-	return this.drawType;
-};
-API.prototype.setDrawType = function(drawType) 
-{
-	this.drawType = drawType;
-};
-
-API.prototype.getLod0DistInMeters = function() 
-{
-	return this.lod0DistInMeters;
-};
-API.prototype.setLod0DistInMeters = function(lod0DistInMeters) 
-{
-	this.lod0DistInMeters = lod0DistInMeters;
-};
-API.prototype.getLod1DistInMeters = function() 
-{
-	return this.lod1DistInMeters;
-};
-API.prototype.setLod1DistInMeters = function(lod1DistInMeters) 
-{
-	this.lod1DistInMeters = lod1DistInMeters;
-};
-API.prototype.getLod2DistInMeters = function() 
-{
-	return this.lod2DistInMeters;
-};
-API.prototype.setLod2DistInMeters = function(lod2DistInMeters) 
-{
-	this.lod2DistInMeters = lod2DistInMeters;
-};
-API.prototype.getLod3DistInMeters = function() 
-{
-	return this.lod3DistInMeters;
-};
-API.prototype.setLod3DistInMeters = function(lod3DistInMeters) 
-{
-	this.lod3DistInMeters = lod3DistInMeters;
-};
-API.prototype.getLod4DistInMeters = function() 
-{
-	return this.lod4DistInMeters;
-};
-API.prototype.setLod4DistInMeters = function(lod4DistInMeters) 
-{
-	this.lod4DistInMeters = lod4DistInMeters;
-};
-API.prototype.getLod5DistInMeters = function() 
-{
-	return this.lod5DistInMeters;
-};
-API.prototype.setLod5DistInMeters = function(lod5DistInMeters) 
-{
-	this.lod5DistInMeters = lod5DistInMeters;
-};
-
-API.prototype.getAmbientReflectionCoef = function() 
-{
-	return this.ambientReflectionCoef;
-};
-API.prototype.setAmbientReflectionCoef = function(ambientReflectionCoef) 
-{
-	this.ambientReflectionCoef = ambientReflectionCoef;
-};
-API.prototype.getDiffuseReflectionCoef = function() 
-{
-	return this.diffuseReflectionCoef;
-};
-API.prototype.setDiffuseReflectionCoef = function(diffuseReflectionCoef) 
-{
-	this.diffuseReflectionCoef = diffuseReflectionCoef;
-};
-API.prototype.getSpecularReflectionCoef = function() 
-{
-	return this.specularReflectionCoef;
-};
-API.prototype.setSpecularReflectionCoef = function(specularReflectionCoef) 
-{
-	this.specularReflectionCoef = specularReflectionCoef;
-};
-API.prototype.getAmbientColor = function() 
-{
-	return this.ambientColor;
-};
-API.prototype.setAmbientColor = function(ambientColor) 
-{
-	this.ambientColor = ambientColor;
-};
-API.prototype.getSpecularColor = function() 
-{
-	return this.specularColor;
-};
-API.prototype.setSpecularColor = function(specularColor) 
-{
-	this.specularColor = specularColor;
-};
-API.prototype.getSsaoRadius = function() 
-{
-	return this.ssaoRadius;
-};
-API.prototype.setSsaoRadius = function(ssaoRadius) 
-{
-	this.ssaoRadius = ssaoRadius;
-};
-API.prototype.getFPVMode = function()
-{
-	return this.FPVMode;
-};
-API.prototype.setFPVMode = function(value)
-{
-	this.FPVMode = value;
-};
-API.prototype.getMagoMode = function()
-{
-	return this.magoMode;
-};
-API.prototype.setMagoMode = function(value)
-{
-	this.magoMode = value;
-};
-API.prototype.getDuration = function()
-{
-	return this.duration;
-};
-API.prototype.setDuration = function(duration)
-{
-	this.duration = duration;
-};
-
-API.prototype.getInputPoint = function()
-{
-	return this.inputPoint;
-};
-API.prototype.setInputPoint = function(inputPoint)
-{
-	this.inputPoint = inputPoint;
-};
-
-API.prototype.getResultPoint = function()
-{
-	return this.resultPoint;
-};
-API.prototype.setResultPoint = function(resultPoint)
-{
-	this.resultPoint = resultPoint;
-};
-
-API.prototype.getUnit = function()
-{
-	return this.unit;
-};
-API.prototype.setUnit = function(unit)
-{
-	if (unit !== undefined)
-	{
-		if (isNaN(unit) || unit > CODE.units.RADIAN)
-		{
-			throw new Error('unit parameter needs CODE.units');
-		}
-		this.unit = unit;
-	}
-};
-
-API.prototype.getInstantiateObj = function()
-{
-	return this.instantiateObj;
-};
-API.prototype.setInstantiateObj = function(instantiateObj)
-{
-	this.instantiateObj = instantiateObj;
-};
-
-API.prototype.getStaticModelAttributeObj = function()
-{
-	return this.staticModelAttributeObj;
-};
-API.prototype.setStaticModelAttributeObj = function(staticModelAttributeObj)
-{
-	this.staticModelAttributeObj = staticModelAttributeObj;
-};
-
-API.prototype.getAnimationOption = function()
-{
-	return this.animationOption;
-};
-API.prototype.setAnimationOption = function(animationOption)
-{
-	this.animationOption = animationOption;
-};
-
-API.prototype.getTrackOption = function()
-{
-	return this.trackOption;
-};
-API.prototype.setTrackOption = function(trackOption)
-{
-	this.trackOption = trackOption;
-};
-
-API.prototype.getNodeAttribute = function()
-{
-	return this.nodeAttribute;
-};
-API.prototype.setNodeAttribute = function(nodeAttribute)
-{
-	this.nodeAttribute = nodeAttribute;
-};
-
-'use strict';
-
-/**
- * 사용자가 변경한 moving, color, rotation 등 이력 정보를 위한 domain
- * @class Policy
- */
-var ChangeHistory = function() 
-{
-	if (!(this instanceof ChangeHistory)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-
-	this.moveHistory = false;
-	this.colorHistory = false;
-	this.rotationHistory = false;
-	
-	// move mode. ALL : 0 , OBJECT : 1, NONE : 2
-	this.objectMoveMode = null;
-	
-	// project id
-	this.projectId = null;
-	// project data folder
-	this.projectDataFolder = null;
-	// data_key
-	this.dataKey = null;	
-	// objectId
-	this.objectId = null;
-	// objectIndexOrder
-	this.objectIndexOrder = 0;
-	
-	// referenceObject aditional movement.
-	this.refObjectAditionalMove;
-	this.refObjectAditionalMoveRelToBuilding;
-	
-	// 위도
-	this.latitude = 0.0;
-	// 경도
-	this.longitude = 0.0;
-	// 높이
-	this.elevation = 0.0;
-	// heading
-	this.heading = 0.0;
-	// pitch
-	this.pitch = 0.0;
-	// roll
-	this.roll = 0.0;
-	// duration
-	this.duration = 0;
-	// 색깔
-	this.color = 0;
-	// color rgb
-	this.rgbColor = [];
-	// 속성
-	this.property = null;
-	this.propertyKey = null;
-	this.propertyValue = null;
-};
-
-ChangeHistory.prototype.getReferenceObjectAditionalMovement = function() 
-{
-	if (this.refObjectAditionalMove === undefined)
-	{ this.refObjectAditionalMove = new Point3D(); }
-	
-	return this.refObjectAditionalMove;
-};
-
-ChangeHistory.prototype.getReferenceObjectAditionalMovementRelToBuilding = function() 
-{
-	if (this.refObjectAditionalMoveRelToBuilding === undefined)
-	{ this.refObjectAditionalMoveRelToBuilding = new Point3D(); }
-	
-	return this.refObjectAditionalMoveRelToBuilding;
-};
-
-ChangeHistory.prototype.getProjectId = function() 
-{
-	return this.projectId;
-};
-ChangeHistory.prototype.setProjectId = function(projectId) 
-{
-	this.projectId = projectId;
-};
-
-ChangeHistory.prototype.getProjectDataFolder = function() 
-{
-	return this.projectDataFolder;
-};
-ChangeHistory.prototype.setProjectDataFolder = function(projectDataFolder) 
-{
-	this.projectDataFolder = projectDataFolder;
-};
-
-ChangeHistory.prototype.getDataKey = function() 
-{
-	return this.dataKey;
-};
-ChangeHistory.prototype.setDataKey = function(dataKey) 
-{
-	this.dataKey = dataKey;
-};
-
-ChangeHistory.prototype.getObjectId = function() 
-{
-	return this.objectId;
-};
-ChangeHistory.prototype.setObjectId = function(objectId) 
-{
-	this.objectId = objectId;
-};
-
-ChangeHistory.prototype.getObjectIndexOrder = function() 
-{
-	return this.objectIndexOrder;
-};
-ChangeHistory.prototype.setObjectIndexOrder = function(objectIndexOrder) 
-{
-	this.objectIndexOrder = objectIndexOrder;
-};
-
-ChangeHistory.prototype.getLatitude = function() 
-{
-	return this.latitude;
-};
-ChangeHistory.prototype.setLatitude = function(latitude) 
-{
-	this.latitude = latitude;
-};
-
-ChangeHistory.prototype.getLongitude = function() 
-{
-	return this.longitude;
-};
-ChangeHistory.prototype.setLongitude = function(longitude) 
-{
-	this.longitude = longitude;
-};
-
-ChangeHistory.prototype.getElevation = function() 
-{
-	return this.elevation;
-};
-ChangeHistory.prototype.setElevation = function(elevation) 
-{
-	this.elevation = elevation;
-};
-
-ChangeHistory.prototype.getHeading = function() 
-{
-	return this.heading;
-};
-ChangeHistory.prototype.setHeading = function(heading) 
-{
-	this.heading = heading;
-};
-
-ChangeHistory.prototype.getPitch = function() 
-{
-	return this.pitch;
-};
-ChangeHistory.prototype.setPitch = function(pitch) 
-{
-	this.pitch = pitch;
-};
-
-ChangeHistory.prototype.getRoll = function() 
-{
-	return this.roll;
-};
-ChangeHistory.prototype.setRoll = function(roll) 
-{
-	this.roll = roll;
-};
-
-ChangeHistory.prototype.getColor = function() 
-{
-	return this.color;
-};
-ChangeHistory.prototype.setColor = function(color) 
-{
-	this.color = color;
-};
-ChangeHistory.prototype.getRgbColor = function() 
-{
-	return this.rgbColor;
-};
-ChangeHistory.prototype.setRgbColor = function(rgbColor) 
-{
-	this.rgbColor = rgbColor;
-};
-
-ChangeHistory.prototype.getProperty = function() 
-{
-	return this.property;
-};
-ChangeHistory.prototype.setProperty = function(property) 
-{
-	this.property = property;
-};
-ChangeHistory.prototype.getPropertyKey = function() 
-{
-	return this.propertyKey;
-};
-ChangeHistory.prototype.setPropertyKey = function(propertyKey) 
-{
-	this.propertyKey = propertyKey;
-};
-ChangeHistory.prototype.getPropertyValue = function() 
-{
-	return this.propertyValue;
-};
-ChangeHistory.prototype.setPropertyValue = function(propertyValue) 
-{
-	this.propertyValue = propertyValue;
-};
-
-ChangeHistory.prototype.getDuration = function()
-{
-	return this.duration;
-};
-ChangeHistory.prototype.setDuration = function(duration)
-{
-	this.duration = duration;
-};
-
-ChangeHistory.prototype.getObjectMoveMode = function() 
-{
-	return this.objectMoveMode;
-};
-ChangeHistory.prototype.setObjectMoveMode = function(objectMoveMode) 
-{
-	this.objectMoveMode = objectMoveMode;
-};
-"use strict";
-
-var CODE = {};
-
-// magoManager가 다 로딩 되지 않은 상태에서 화면으로 부터 호출 되는 것을 막기 위해
-CODE.magoManagerState = {
-	"INIT"   	: 0,
-	"STARTED"	: 1,
-	"READY"   : 2
-};
-
-//0 = no started to load. 1 = started loading. 2 = finished loading. 3 = parse started. 4 = parse finished.
-CODE.fileLoadState = {
-	"READY"            : 0,
-	"LOADING_STARTED"  : 1,
-	"LOADING_FINISHED" : 2,
-	"PARSE_STARTED"    : 3,
-	"PARSE_FINISHED"   : 4,
-	"IN_QUEUE"         : 5,
-	"IN_PARSE_QUEUE"   : 6,
-	"BINDING_STARTED"  : 7,
-	"BINDING_FINISHED" : 8,
-	"LOAD_FAILED"      : 9
-};
-
-CODE.moveMode = {
-	"ALL"              : "0",
-	"OBJECT"           : "1",
-	"GEOGRAPHICPOINTS" : "2",
-	"NONE"             : "3"
-};
-
-CODE.magoMode = {
-	"NORMAL"  : 0,
-	"DRAWING" : 1
-};
-
-CODE.magoCurrentProcess = {
-	"Unknown"                    : 0,
-	"DepthRendering"             : 1,
-	"ColorRendering"             : 2,
-	"ColorCodeRendering"         : 3,
-	"DepthShadowRendering"       : 4,
-	"SilhouetteDepthRendering"   : 5,
-	"StencilSilhouetteRendering" : 6
-};
-
-CODE.modelerMode = {
-	"INACTIVE"                 : 0,
-	"DRAWING_POLYLINE"         : 1,
-	"DRAWING_PLANEGRID"        : 2,
-	"DRAWING_GEOGRAPHICPOINTS" : 3,
-	"DRAWING_EXCAVATIONPOINTS" : 4,
-	"DRAWING_TUNNELPOINTS"     : 5,
-	"DRAWING_BSPLINE"          : 6,
-	"DRAWING_BASICFACTORY"     : 7,
-	"DRAWING_STATICGEOMETRY"   : 8,
-	"DRAWING_PIPE"             : 9,
-	"DRAWING_SPHERE"           : 10,
-	"DRAWING_BOX"              : 11,
-	"DRAWING_CUTTINGPLANE"     : 12,
-	"DRAWING_CLIPPINGBOX"      : 13,
-	"DRAWING_CONCENTRICTUBES"  : 14,
-	"DRAWING_TUBE"             : 15,
-	"DRAWING_FREECONTOURWALL"  : 16,
-	"DRAWING_CYLYNDER"         : 17
-};
-
-CODE.boxFace = {
-	"UNKNOWN" : 0,
-	"LEFT"    : 1,
-	"RIGHT"   : 2,
-	"FRONT"   : 3,
-	"REAR"    : 4,
-	"TOP"     : 5,
-	"BOTTOM"  : 6
-};
-
-CODE.modelerDrawingState = {
-	"NO_STARTED" : 0,
-	"STARTED"    : 1
-};
-
-CODE.modelerDrawingElement = {
-	"NOTHING"          : 0,
-	"POINTS"           : 1,
-	"LINES"            : 2,
-	"POLYLINES"        : 3,
-	"GEOGRAPHICPOINTS" : 4,
-};
-
-CODE.units = {
-	"METRE"  : 0,
-	"DEGREE" : 1,
-	"RADIAN" : 2
-};
-
-
-CODE.trackMode = {
-	"TRACKING" : 0,
-	"DRIVER"   : 1
-};
-
-CODE.movementType = {
-	"NO_MOVEMENT" : 0,
-	"TRANSLATION" : 1,
-	"ROTATION"    : 2,
-	"ROTATION_ZX" : 3
-};
-
-CODE.imageryType = {
-	"UNKNOWN"      : 0,
-	"CRS84"        : 1,
-	"WEB_MERCATOR" : 2
-};
-
-CODE.animationType = {
-	"UNKNOWN"         : 0,
-	"REALTIME_POINTS" : 1,
-	"PATH"            : 2
-};
-
-CODE.relativePosition2D = {
-	"UNKNOWN"    : 0,
-	"LEFT"       : 1,
-	"RIGHT"      : 2,
-	"COINCIDENT" : 3
-};
-CODE.imageFilter = {
-	"UNKNOWN"    : 0,
-	"BATHYMETRY" : 1
-};
-CODE.cesiumTerrainType = {
-	GEOSERVER          : 'geoserver',
-	CESIUM_DEFAULT     : 'cesium-default',
-	CESIUM_ION_DEFAULT : 'cesium-ion-default',
-	CESIUM_ION_CDN     : 'cesium-ion-cdn',
-	CESIUM_CUSTOMER    : 'cesium-customer'
-};
-CODE.magoEarthTerrainType = {
-	PLAIN     : 'plain',
-	ELEVATION : 'elevation',
-	REALTIME  : 'realtime'
-};
-
-CODE.drawGeometryType = {
-	POINT     : 'point',
-	LINE    	 : 'line',
-	POLYGON   : 'polygon',
-	RECTANGLE : 'rectangle'
-};
-
-CODE.PROJECT_ID_PREFIX = "projectId_";
-CODE.PROJECT_DATA_FOLDER_PREFIX = "projectDataFolder_";
-
-CODE.parametricCurveState = {
-	"NORMAL" : 0,
-	"EDITED" : 1
-};
-
-'use strict';
-
-/**
- * 상수 설정
- * @class Constant
- */
-var Constant = {};
-
-Constant.CESIUM = "cesium";
-Constant.WORLDWIND = "worldwind";
-Constant.MAGOWORLD = "magoworld";
-Constant.OBJECT_INDEX_FILE = "/objectIndexFile.ihe";
-Constant.TILE_INDEX_FILE = "/smartTile_f4d_indexFile.sii";
-Constant.CACHE_VERSION = "?cache_version=";
-Constant.SIMPLE_BUILDING_TEXTURE3x3_BMP = "/SimpleBuildingTexture3x3.bmp";
-Constant.RESULT_XDO2F4D = "/Result_xdo2f4d/Images/";
-Constant.RESULT_XDO2F4D_TERRAINTILES = "/Result_xdo2f4d/F4D_TerrainTiles/";
-Constant.RESULT_XDO2F4D_TERRAINTILEFILE_TXT = "/Result_xdo2f4d/f4dTerranTileFile.txt";
-
-Constant.INTERSECTION_OUTSIDE = 0;
-Constant.INTERSECTION_INTERSECT= 1;
-Constant.INTERSECTION_INSIDE = 2;
-Constant.INTERSECTION_POINT_A = 3;
-Constant.INTERSECTION_POINT_B = 4;
-
-'use strict';
-
-/**
- * mago3D 전체 환경 설정을 관리
- * @class MagoConfig
- */
-var MagoConfig = function()
-{
-	this.containerId = undefined;
-	this.serverPolicy = undefined;
-	this.geoserver = undefined;
-	this.dataObject = {};
-	this.selectHistoryObject = {};
-	this.movingHistoryObject = {};
-	this.colorHistoryObject = {};
-	this.locationAndRotationHistoryObject = {};
-	this.scriptRootPath = undefined;
-	this.twoDimension = false;
-};
-
-MagoConfig.prototype.setContainerId = function(containerId) 
-{
-	this.containerId = containerId;
-};
-
-MagoConfig.prototype.getContainerId = function() 
-{
-	return this.containerId;
-};
-
-MagoConfig.prototype.getPolicy = function() 
-{
-	return this.serverPolicy;
-};
-
-MagoConfig.prototype.getGeoserver = function() 
-{
-	return this.geoserver;
-};
-
-MagoConfig.prototype.getData = function(key) 
-{
-	return this.dataObject[key];
-};
-
-MagoConfig.prototype.isDataExist = function(key) 
-{
-	return this.dataObject.hasOwnProperty(key);
-};
-
-MagoConfig.prototype.deleteData = function(key) 
-{
-	return delete this.dataObject[key];
-};
-
-/**
- * data 를 map에 저장
- * @param key map에 저장될 key
- * @param value map에 저장될 value
- */
-MagoConfig.prototype.setData = function(key, value) 
-{
-	if (!this.isDataExist(key)) 
-	{
-		this.dataObject[key] = value;
-	}
-};
-
-/**
- * F4D Converter 실행 결과물이 저장된 project data folder 명을 획득
- * @param projectDataFolder data folder
- */
-MagoConfig.prototype.getProjectDataFolder = function(projectDataFolder) 
-{
-	var key = CODE.PROJECT_DATA_FOLDER_PREFIX + projectDataFolder;
-	return this.dataObject[key];
-};
-
-/**
- * project map에 data folder명의 존재 유무를 검사
- * @param projectDataFolder
- */
-MagoConfig.prototype.isProjectDataFolderExist = function(projectDataFolder) 
-{
-	var key = CODE.PROJECT_DATA_FOLDER_PREFIX + projectDataFolder;
-	return this.dataObject.hasOwnProperty(key);
-};
-
-/**
- * project data folder명을 map에서 삭제
- * @param projectDataFolder
- */
-MagoConfig.prototype.deleteProjectDataFolder = function(projectDataFolder) 
-{
-	var key = CODE.PROJECT_DATA_FOLDER_PREFIX + projectDataFolder;
-	return delete this.dataObject[key];
-};
-
-/**
- * project data folder명을 Object에서 삭제
- * @param projectDataFolder Object에 저장될 key
- * @param value Object에 저장될 value
- */
-MagoConfig.prototype.setProjectDataFolder = function(projectDataFolder, value) 
-{
-	var key = CODE.PROJECT_DATA_FOLDER_PREFIX + projectDataFolder;
-	if (!this.isProjectDataFolderExist(key))
-	{
-		this.dataObject[key] = value;
-	}
-};
-
-/**
- * 환경설정 초기화
- * @param serverPolicy mago3d policy(json)
- * @param projectIdArray data 정보를 map 저장할 key name
- * @param projectDataArray data 정보(json)
- */
-MagoConfig.prototype.init = function(serverPolicy, projectIdArray, projectDataArray) 
-{
-	if (!serverPolicy || !serverPolicy instanceof Object) 
-	{
-		throw new Error('geopolicy is required object.');
-	}
-	this.dataObject = {};
-	
-	this.selectHistoryObject = {};
-	this.movingHistoryObject = {};
-	this.colorHistoryObject = {};
-	this.locationAndRotationHistoryObject = {};
-
-	this.serverPolicy = serverPolicy;
-	this.scriptRootPath = getScriptRootPath();
-	this.twoDimension = false;
-
-	if (this.serverPolicy.geoserverEnable) 
-	{
-		this.geoserver = new GeoServer();
-
-		var info = {
-			"wmsVersion"    : this.serverPolicy.geoserverWmsVersion,
-			"dataUrl"       : this.serverPolicy.geoserverDataUrl,
-			"dataWorkspace" : this.serverPolicy.geoserverDataWorkspace,
-			"dataStore"     : this.serverPolicy.geoserverDataStore,
-			"user"          : this.serverPolicy.geoserverUser,
-			"password"      : this.serverPolicy.geoserverPassword
-		};
-		this.geoserver.setServerInfo(info);
-	}
-
-
-	if (projectIdArray && projectIdArray.length > 0) 
-	{
-		for (var i=0; i<projectIdArray.length; i++) 
-		{
-			if (!this.isDataExist(CODE.PROJECT_ID_PREFIX + projectIdArray[i])) 
-			{
-				this.setData(CODE.PROJECT_ID_PREFIX + projectIdArray[i], projectDataArray[i]);
-				this.setProjectDataFolder(CODE.PROJECT_DATA_FOLDER_PREFIX + projectDataArray[i].data_key, projectDataArray[i].data_key);
-			}
-		}
-	}
-
-	function getScriptRootPath() 
-	{
-		var magoScriptQueryStrRegex = /((?:.*\/)|^)(mago3d|mago3d.min)\.js\?(?:&?[^=&]*=[^=&]*)*/;
-		var magoScriptRegex = /((?:.*\/)|^)(mago3d|mago3d.min)\.js$/;
-		var magoScriptPath;
-		var scripts = document.getElementsByTagName('script');
-		for ( var j = 0, len = scripts.length; j < len; ++j) 
-		{
-			var src = scripts[j].getAttribute('src');
-			var nomalResult = magoScriptRegex.exec(src);
-			var queryStrResult = magoScriptQueryStrRegex.exec(src);
-
-			var result = nomalResult||queryStrResult;
-			if (result !== null) 
-			{
-				magoScriptPath = result[1];
-			}
-		}
-		return magoScriptPath;
-	}
-};
-
-/**
- * 모든 데이터를 삭제함
- */
-MagoConfig.prototype.clearAllData = function() 
-{
-	this.dataObject = {};
-};
-
-/**
- * 모든 선택 히스토리 삭제
- */
-MagoConfig.prototype.clearSelectHistory = function() 
-{
-	this.selectHistoryObject = {};
-};
-
-/**
- * 모든 object 선택 내용 이력을 취득
- */
-MagoConfig.prototype.getAllSelectHistory = function()
-{
-	return this.selectHistoryObject;
-};
-
-/**
- * project 별 해당 키에 해당하는 모든 object 선택 내용 이력을 취득
- */
-MagoConfig.prototype.getSelectHistoryObjects = function(projectId, dataKey)
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.selectHistoryObject[projectId];
-	if (projectIdObject === undefined) { return undefined; }
-	// dataKey 별 Object을 검사
-	var dataKeyObject = projectIdObject[dataKey];
-	return dataKeyObject;
-};
-
-/**
- * object 선택 내용 이력을 취득
- */
-MagoConfig.prototype.getSelectHistoryObject = function(projectId, dataKey, objectIndexOrder)
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.selectHistoryObject[projectId];
-	if (projectIdObject === undefined) { return undefined; }
-	// dataKey 별 Object을 검사
-	var dataKeyObject = projectIdObject[dataKey];
-	if (dataKeyObject === undefined) { return undefined; }
-	// objectIndexOrder 를 저장
-	return dataKeyObject[objectIndexOrder];
-};
-
-/**
- * object 선택 내용을 저장
- */
-MagoConfig.prototype.saveSelectHistory = function(projectId, dataKey, objectIndexOrder, changeHistory) 
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.selectHistoryObject.get(projectId);
-	if (projectIdObject === undefined)
-	{
-		projectIdObject = {};
-		this.selectHistoryObject[projectId] = projectIdObject;
-	}
-	
-	// dataKey 별 Object을 검사
-	var dataKeyObject = projectIdObject[dataKey];
-	if (dataKeyObject === undefined)
-	{
-		dataKeyObject = {};
-		projectIdObject[dataKey] = dataKeyObject;
-	}
-	
-	// objectIndexOrder 를 저장
-	dataKeyObject[objectIndexOrder] = changeHistory;
-};
-
-/**
- * object 선택 내용을 삭제
- */
-MagoConfig.prototype.deleteSelectHistoryObject = function(projectId, dataKey, objectIndexOrder)
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.selectHistoryObject[projectId];
-	if (projectIdObject === undefined) { return undefined; }
-	// dataKey 별 Object을 검사
-	var dataKeyObject = projectIdObject[dataKey];
-	if (dataKeyObject === undefined) { return undefined; }
-	// objectIndexOrder 를 저장
-	return delete dataKeyObject[objectIndexOrder];
-};
-
-/**
- * 모든 이동 히스토리 삭제
- */
-MagoConfig.prototype.clearMovingHistory = function() 
-{
-	this.movingHistoryObject = {};
-};
-
-/**
- * 모든 object 선택 내용 이력을 취득
- */
-MagoConfig.prototype.getAllMovingHistory = function()
-{
-	return this.movingHistoryObject;
-};
-
-/**
- * project별 입력키 값과 일치하는 object 이동 내용 이력을 취득
- */
-MagoConfig.prototype.getMovingHistoryObjects = function(projectId, dataKey)
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.movingHistoryObject[projectId];
-	if (projectIdObject === undefined) { return undefined; }
-	// dataKey 별 Object을 검사
-	var dataKeyObject = projectIdObject[dataKey];
-	return dataKeyObject;
-};
-
-/**
- * object 이동 내용 이력을 취득
- */
-MagoConfig.prototype.getMovingHistoryObject = function(projectId, dataKey, objectIndexOrder)
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.movingHistoryObject[projectId];
-	if (projectIdObject === undefined) { return undefined; }
-	// dataKey 별 Object을 검사
-	var dataKeyObject = projectIdObject[dataKey];
-	if (dataKeyObject === undefined) { return undefined; }
-	// objectIndexOrder 를 저장
-	return dataKeyObject[objectIndexOrder];
-};
-
-/**
- * object 이동 내용을 저장
- */
-MagoConfig.prototype.saveMovingHistory = function(projectId, dataKey, objectIndexOrder, changeHistory) 
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.movingHistoryObject[projectId];
-	if (projectIdObject === undefined)
-	{
-		projectIdObject = {};
-		this.movingHistoryObject[projectId] = projectIdObject;
-	}
-	
-	// dataKey 별 Object을 검사
-	var dataKeyObject = projectIdObject[dataKey];
-	if (dataKeyObject === undefined)
-	{
-		dataKeyObject = {};
-		projectIdObject[dataKey] = dataKeyObject;
-	}
-	
-	// objectIndexOrder 를 저장
-	dataKeyObject[objectIndexOrder] = changeHistory;
-};
-
-/**
- * object 이동 내용을 삭제
- */
-MagoConfig.prototype.deleteMovingHistoryObject = function(projectId, dataKey, objectIndexOrder)
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.movingHistoryObject[projectId];
-	if (projectIdObject === undefined) { return undefined; }
-	// dataKey 별 Object을 검사
-	var dataKeyObject = projectIdObject[dataKey];
-	if (dataKeyObject === undefined) { return undefined; }
-	// objectIndexOrder 를 저장
-	return delete dataKeyObject[objectIndexOrder];
-};
-
-/**
- * 모든 색깔 변경 이력을 획득
- */
-MagoConfig.prototype.getAllColorHistory = function() 
-{
-	return this.colorHistoryObject;
-};
-
-/**
- * 모든 색깔변경 히스토리 삭제
- */
-MagoConfig.prototype.clearColorHistory = function() 
-{
-	this.colorHistoryObject = {};
-};
-
-/**
- * project별 키에 해당하는 모든 색깔 변경 이력을 획득
- */
-MagoConfig.prototype.getColorHistorys = function(projectId, dataKey)
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.colorHistoryObject[projectId];
-	if (projectIdObject === undefined) { return undefined; }
-	// dataKey 별 Object을 검사
-	var dataKeyObject = projectIdObject[dataKey];
-	return dataKeyObject;
-};
-
-/**
- * 색깝 변경 이력을 획득
- */
-MagoConfig.prototype.getColorHistory = function(projectId, dataKey, objectId)
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.colorHistoryObject[projectId];
-	if (projectIdObject === undefined) { return undefined; }
-	// dataKey 별 Object을 검사
-	var dataKeyObject = projectIdObject[dataKey];
-	if (dataKeyObject === undefined) { return undefined; }
-	// objectId 를 저장
-	return dataKeyObject[objectId];
-};
-
-/**
- * 색깝 변경 내용을 저장
- */
-MagoConfig.prototype.saveColorHistory = function(projectId, dataKey, objectId, changeHistory) 
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.colorHistoryObject[projectId];
-	if (projectIdObject === undefined)
-	{
-		projectIdObject = {};
-		this.colorHistoryObject[projectId] = projectIdObject;
-	}
-	
-	// dataKey 별 Object을 검사
-	var dataKeyObject = projectIdObject[dataKey];
-	if (dataKeyObject === undefined)
-	{
-		dataKeyObject = {};
-		projectIdObject[dataKey] = dataKeyObject;
-	}
-
-	if (objectId === null || objectId === "") 
-	{
-		dataKeyObject[dataKey] = changeHistory;
-	}
-	else 
-	{
-		dataKeyObject[objectId] = changeHistory;
-	}
-};
-
-/**
- * 색깔 변경 이력을 삭제
- */
-MagoConfig.prototype.deleteColorHistory = function(projectId, dataKey, objectId)
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.colorHistoryObject[projectId];
-	if (projectIdObject === undefined) { return undefined; }
-	// dataKey 별 Object을 검사
-	var dataKeyObject = projectIdObject[dataKey];
-	if (dataKeyObject === undefined) { return undefined; }
-	// objectIndexOrder 를 저장
-	return delete dataKeyObject[objectId];
-};
-
-/**
- * 모든 색깔변경 히스토리 삭제
- */
-MagoConfig.prototype.clearColorHistory = function() 
-{
-	this.colorHistoryObject = {};
-};
-
-/**
- * 모든 location and rotation 변경 이력을 획득
- */
-MagoConfig.prototype.getAllLocationAndRotationHistory = function() 
-{
-	return this.locationAndRotationHistoryObject;
-};
-
-/**
- * 프로젝트별 해당 키 값을 갖는 모든 location and rotation 이력을 획득
- */
-MagoConfig.prototype.getLocationAndRotationHistorys = function(projectId, dataKey)
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.locationAndRotationHistoryObject[projectId];
-	if (projectIdObject === undefined) { return undefined; }
-	// dataKey 별 Object을 검사
-	var dataKeyObject = projectIdObject[dataKey];
-	return dataKeyObject;
-};
-
-/**
- * location and rotation 이력을 획득
- */
-MagoConfig.prototype.getLocationAndRotationHistory = function(projectId, dataKey)
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.locationAndRotationHistoryObject[projectId];
-	if (projectIdObject === undefined) { return undefined; }
-	// dataKey 별 Object을 검사
-	var dataKeyObject = projectIdObject[dataKey];
-	
-	return dataKeyObject;
-};
-
-/**
- * location and rotation 내용을 저장
- */
-MagoConfig.prototype.saveLocationAndRotationHistory = function(projectId, dataKey, changeHistory) 
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.locationAndRotationHistoryObject[projectId];
-	if (projectIdObject === undefined)
-	{
-		projectIdObject = {};
-		this.locationAndRotationHistoryObject[projectId] = projectIdObject;
-	}
-	
-	// dataKey 별 Object을 검사
-	var dataKeyObject = projectIdObject[dataKey];
-	if (dataKeyObject === undefined)
-	{
-		dataKeyObject = {};
-	}
-
-	dataKeyObject[dataKey] = changeHistory;
-};
-
-/**
- * location and rotation 이력을 삭제
- */
-MagoConfig.prototype.deleteLocationAndRotationHistory = function(projectId, dataKey)
-{
-	// projectId 별 Object을 검사
-	var projectIdObject = this.locationAndRotationHistoryObject[projectId];
-	if (projectIdObject === undefined) { return undefined; }
-	// dataKey 별 Object을 검사
-	var dataKeyObject = delete projectIdObject[dataKey];
-};
-
-/**
- * 모든 location and rotation 히스토리 삭제
- */
-MagoConfig.prototype.clearLocationAndRotationHistory = function() 
-{
-	this.locationAndRotationHistoryObject = {};
-};
-	
-MagoConfig.prototype.setTwoDimension = function(twoDimension) 
-{
-	this.twoDimension = twoDimension;
-};
-MagoConfig.prototype.isTwoDimension = function()
-{
-	return this.twoDimension;
-};
-'use strict';
-
-/**
- * Policy
- * @class Policy
- */
-var Policy = function(policy) 
-{
-	if (!(this instanceof Policy)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-
-	// mago3d 활성화/비활성화 여부
-	this.magoEnable = true;
-
-	// outfitting 표시 여부
-	this.showOutFitting = false;
-	// label 표시/비표시
-	this.showLabelInfo = false;
-	// boundingBox 표시/비표시
-	this.showBoundingBox = false;
-	// 그림자 표시/비표시
-	this.showShadow = false;
-	// squared far frustum 거리
-	this.frustumFarSquaredDistance = 5000000;
-	// far frustum
-	this.frustumFarDistance = 20000;
-
-	// highlighting
-	this.highLightedBuildings = [];
-	// color
-	this.colorBuildings = [];
-	// color
-	this.color = [];
-	// show/hide
-	this.hideBuildings = [];
-	// move mode
-	this.objectMoveMode = CODE.moveMode.NONE;
-	// 이슈 등록 표시
-	this.issueInsertEnable = false;
-	// object 정보 표시
-	this.objectInfoViewEnable = false;
-	// 이슈 목록 표시
-	this.nearGeoIssueListEnable = false;
-	// occlusion culling
-	this.occlusionCullingEnable = false;
-	// origin axis XYZ
-	this.showOrigin = false;
-	// mago generalMode
-	this.magoMode = CODE.magoMode.NORMAL;
-	
-	// 이미지 경로
-	this.imagePath = "";
-	
-	// provisional.
-	this.colorChangedObjectId;
-	
-	// LOD1
-	//this.lod0DistInMeters = 15;
-	//this.lod1DistInMeters = 50;
-	//this.lod2DistInMeters = 90;
-	//this.lod3DistInMeters = 200;
-	//this.lod4DistInMeters = 1000;
-	//this.lod5DistInMeters = 50000;
-
-	this.lod0DistInMeters = 50;
-	this.lod1DistInMeters = 200;
-	this.lod2DistInMeters = 600;
-	this.lod3DistInMeters = 1200;
-	this.lod4DistInMeters = 3000;
-	this.lod5DistInMeters = 50000;
-	
-	// Lighting
-	this.ambientReflectionCoef = 0.45; // 0.2.
-	this.diffuseReflectionCoef = 0.75; // 1.0
-	this.specularReflectionCoef = 0.6; // 0.7
-	this.ambientColor = null;
-	this.specularColor = new Float32Array([0.6, 0.6, 0.6]);
-	
-	this.ssaoRadius = 0.15;
-
-	this.modelMovable = true;
-	
-	// PointsCloud.
-	this.pointsCloudSettings = {};
-	if (defined(policy)) 
-	{
-		this.pointsCloudSettings.maxPartitionsLod0 = defaultValueCheckLength(policy.maxPartitionsLod0, 4);
-		this.pointsCloudSettings.maxPartitionsLod1 = defaultValueCheckLength(policy.maxPartitionsLod1, 2);
-		this.pointsCloudSettings.maxPartitionsLod2orLess = defaultValueCheckLength(policy.maxPartitionsLod2OrLess, 1);
-		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam0m = 1.0/defaultValueCheckLength(policy.maxRatioPointsDist0m, 10.0);
-		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam100m = 1.0/defaultValueCheckLength(policy.maxRatioPointsDist100m, 120.0);
-		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam200m = 1.0/defaultValueCheckLength(policy.maxRatioPointsDist200m, 240.0);
-		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam400m = 1.0/defaultValueCheckLength(policy.maxRatioPointsDist400m, 480.0);
-		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam800m = 1.0/defaultValueCheckLength(policy.maxRatioPointsDist800m, 960.0);
-		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam1600m = 1.0/defaultValueCheckLength(policy.maxRatioPointsDist1600m, 1920.0);
-		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCamMoreThan1600m = 1.0/defaultValueCheckLength(policy.maxRatioPointsDistOver1600m, 3840.0);
-		this.pointsCloudSettings.maxPointSize = defaultValueCheckLength(policy.maxPointSizeForPc, 40.0);
-		this.pointsCloudSettings.minPointSize = defaultValueCheckLength(policy.minPointSizeForPc, 3.0);
-		this.pointsCloudSettings.pendentPointSize = defaultValueCheckLength(policy.pendentPointSizeForPc, 60.0);
-		this.pointsCloudSettings.minHeightRainbow = defaultValueCheckLength(policy.minHeight_rainbow_loc, 0.0);
-		this.pointsCloudSettings.maxHeightRainbow = defaultValueCheckLength(policy.maxHeight_rainbow_loc, 100.0);
-	}
-	else 
-	{
-		this.pointsCloudSettings.maxPartitionsLod0 = 4;
-		this.pointsCloudSettings.maxPartitionsLod1 = 2;
-		this.pointsCloudSettings.maxPartitionsLod2orLess = 1;
-		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam0m = 1.0/10.0;
-		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam100m = 1.0/120.0;
-		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam200m = 1.0/240.0;
-		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam400m = 1.0/480.0;
-		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam800m = 1.0/960.0;
-		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam1600m = 1.0/1920.0;
-		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCamMoreThan1600m = 1.0/3840.0;
-		this.pointsCloudSettings.maxPointSize = 40.0;
-		this.pointsCloudSettings.minPointSize = 3.0;
-		this.pointsCloudSettings.pendentPointSize = 60.0;
-		this.pointsCloudSettings.minHeightRainbow = 0.0;
-		this.pointsCloudSettings.maxHeightRainbow = 100.0;
-	}
-};
-
-Policy.prototype.getPointsCloudSettings = function() 
-{
-	return this.pointsCloudSettings;
-};
-
-Policy.prototype.getShowOrigin = function() 
-{
-	return this.showOrigin;
-};
-Policy.prototype.setShowOrigin = function(showOrigin) 
-{
-	this.showOrigin = showOrigin;
-};
-
-Policy.prototype.getMagoEnable = function() 
-{
-	return this.magoEnable;
-};
-Policy.prototype.setMagoEnable = function(magoEnable) 
-{
-	this.magoEnable = magoEnable;
-};
-
-Policy.prototype.getShowOutFitting = function() 
-{
-	return this.showOutFitting;
-};
-Policy.prototype.setShowOutFitting = function(showOutFitting) 
-{
-	this.showOutFitting = showOutFitting;
-};
-Policy.prototype.getShowLabelInfo = function() 
-{
-	return this.showLabelInfo;
-};
-Policy.prototype.setShowLabelInfo = function(showLabelInfo) 
-{
-	this.showLabelInfo = showLabelInfo;
-};
-Policy.prototype.getShowBoundingBox = function() 
-{
-	return this.showBoundingBox;
-};
-Policy.prototype.setShowBoundingBox = function(showBoundingBox) 
-{
-	this.showBoundingBox = showBoundingBox;
-};
-
-Policy.prototype.getShowShadow = function() 
-{
-	return this.showShadow;
-};
-Policy.prototype.setShowShadow = function(showShadow) 
-{
-	this.showShadow = showShadow;
-};
-
-Policy.prototype.getFrustumFarSquaredDistance = function() 
-{
-	return this.frustumFarSquaredDistance;
-};
-Policy.prototype.setFrustumFarSquaredDistance = function(frustumFarSquaredDistance) 
-{
-	this.frustumFarSquaredDistance = frustumFarSquaredDistance;
-};
-
-Policy.prototype.getFrustumFarDistance = function() 
-{
-	return this.frustumFarDistance;
-};
-Policy.prototype.setFrustumFarDistance = function(frustumFarDistance) 
-{
-	this.frustumFarDistance = frustumFarDistance;
-};
-
-Policy.prototype.getHighLightedBuildings = function() 
-{
-	return this.highLightedBuildings;
-};
-Policy.prototype.setHighLightedBuildings = function(highLightedBuildings) 
-{
-	this.highLightedBuildings = highLightedBuildings;
-};
-
-Policy.prototype.getColorBuildings = function() 
-{
-	return this.colorBuildings;
-};
-Policy.prototype.setColorBuildings = function(colorBuildings) 
-{
-	this.colorBuildings = colorBuildings;
-};
-
-Policy.prototype.getColor = function() 
-{
-	return this.color;
-};
-Policy.prototype.setColor = function(color) 
-{
-	this.color = color;
-};
-
-Policy.prototype.getHideBuildings = function() 
-{
-	return this.hideBuildings;
-};
-Policy.prototype.setHideBuildings = function(hideBuildings) 
-{
-	this.hideBuildings = hideBuildings;
-};
-
-Policy.prototype.getObjectMoveMode = function() 
-{
-	return this.objectMoveMode;
-};
-Policy.prototype.setObjectMoveMode = function(objectMoveMode) 
-{
-	this.objectMoveMode = objectMoveMode;
-};
-
-Policy.prototype.getMagoMode = function() 
-{
-	return this.magoMode;
-};
-Policy.prototype.setMagoMode = function(magoMode) 
-{
-	this.magoMode = magoMode;
-};
-
-Policy.prototype.getIssueInsertEnable = function() 
-{
-	return this.issueInsertEnable;
-};
-Policy.prototype.setIssueInsertEnable = function(issueInsertEnable) 
-{
-	this.issueInsertEnable = issueInsertEnable;
-};
-Policy.prototype.getObjectInfoViewEnable = function() 
-{
-	return this.objectInfoViewEnable;
-};
-Policy.prototype.setObjectInfoViewEnable = function(objectInfoViewEnable) 
-{
-	this.objectInfoViewEnable = objectInfoViewEnable;
-};
-Policy.prototype.getOcclusionCullingEnable = function() 
-{
-	return this.occlusionCullingEnable;
-};
-Policy.prototype.setOcclusionCullingEnable = function(occlusionCullingEnable) 
-{
-	this.occlusionCullingEnable = occlusionCullingEnable;
-};
-Policy.prototype.getNearGeoIssueListEnable = function() 
-{
-	return this.nearGeoIssueListEnable;
-};
-Policy.prototype.setNearGeoIssueListEnable = function(nearGeoIssueListEnable) 
-{
-	this.nearGeoIssueListEnable = nearGeoIssueListEnable;
-};
-
-Policy.prototype.getImagePath = function() 
-{
-	return this.imagePath;
-};
-Policy.prototype.setImagePath = function(imagePath) 
-{
-	this.imagePath = imagePath;
-};
-
-Policy.prototype.getLod = function(distInMeters) 
-{
-	var lod = -1;
-	if (distInMeters < this.lod0DistInMeters)
-	{ lod = 0; }
-	else if (distInMeters < this.lod1DistInMeters)
-	{ lod = 1; }
-	else if (distInMeters < this.lod2DistInMeters)
-	{ lod = 2; }
-	else if (distInMeters < this.lod3DistInMeters)
-	{ lod = 3; }
-	else if (distInMeters < this.lod4DistInMeters)
-	{ lod = 4; }
-	else 
-	{ lod = 5; }
-	
-	return lod;	
-};
-Policy.prototype.getLod0DistInMeters = function() 
-{
-	return this.lod0DistInMeters;
-};
-Policy.prototype.setLod0DistInMeters = function(lod0DistInMeters) 
-{
-	this.lod0DistInMeters = lod0DistInMeters;
-};
-Policy.prototype.getLod1DistInMeters = function() 
-{
-	return this.lod1DistInMeters;
-};
-Policy.prototype.setLod1DistInMeters = function(lod1DistInMeters) 
-{
-	this.lod1DistInMeters = lod1DistInMeters;
-};
-Policy.prototype.getLod2DistInMeters = function() 
-{
-	return this.lod2DistInMeters;
-};
-Policy.prototype.setLod2DistInMeters = function(lod2DistInMeters) 
-{
-	this.lod2DistInMeters = lod2DistInMeters;
-};
-Policy.prototype.getLod3DistInMeters = function() 
-{
-	return this.lod3DistInMeters;
-};
-Policy.prototype.setLod3DistInMeters = function(lod3DistInMeters) 
-{
-	this.lod3DistInMeters = lod3DistInMeters;
-};
-Policy.prototype.getLod4DistInMeters = function() 
-{
-	return this.lod4DistInMeters;
-};
-Policy.prototype.setLod4DistInMeters = function(lod4DistInMeters) 
-{
-	this.lod4DistInMeters = lod4DistInMeters;
-};
-Policy.prototype.getLod5DistInMeters = function() 
-{
-	return this.lod5DistInMeters;
-};
-Policy.prototype.setLod5DistInMeters = function(lod5DistInMeters) 
-{
-	this.lod5DistInMeters = lod5DistInMeters;
-};
-Policy.prototype.getAmbientReflectionCoef = function() 
-{
-	return this.ambientReflectionCoef;
-};
-Policy.prototype.setAmbientReflectionCoef = function(ambientReflectionCoef) 
-{
-	this.ambientReflectionCoef = ambientReflectionCoef;
-};
-Policy.prototype.getDiffuseReflectionCoef = function() 
-{
-	return this.diffuseReflectionCoef;
-};
-Policy.prototype.setDiffuseReflectionCoef = function(diffuseReflectionCoef) 
-{
-	this.diffuseReflectionCoef = diffuseReflectionCoef;
-};
-Policy.prototype.getSpecularReflectionCoef = function() 
-{
-	return this.specularReflectionCoef;
-};
-Policy.prototype.setSpecularReflectionCoef = function(specularReflectionCoef) 
-{
-	this.specularReflectionCoef = specularReflectionCoef;
-};
-Policy.prototype.getAmbientColor = function() 
-{
-	return this.ambientColor;
-};
-Policy.prototype.setAmbientColor = function(ambientColor) 
-{
-	this.ambientColor = ambientColor;
-};
-Policy.prototype.getSpecularColor = function() 
-{
-	return this.specularColor;
-};
-Policy.prototype.setSpecularColor = function(specularColor) 
-{
-	this.specularColor = specularColor;
-};
-Policy.prototype.getSsaoRadius = function() 
-{
-	return this.ssaoRadius;
-};
-Policy.prototype.setSsaoRadius = function(ssaoRadius) 
-{
-	this.ssaoRadius = ssaoRadius;
-};
-Policy.prototype.setModelMovable = function(movable)
-{
-	this.modelMovable = movable;
-};
-Policy.prototype.isModelMovable = function()
-{
-	return this.modelMovable;
-};
-'use strict';
-
-/**
- * @alias Effect
- * @class Effect
- */
-var Effect = function(options) 
-{
-	if (!(this instanceof Effect)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	
-	// Test class to do effects.
-	this.effectsManager;
-	this.birthData;
-	this.durationSeconds;
-	this.effectType = "unknown";
-	
-	if (options)
-	{
-		if (options.effectType)
-		{ this.effectType = options.effectType; }
-		
-		if (options.durationSeconds)
-		{ this.durationSeconds = options.durationSeconds; }
-	
-		if (options.zVelocity)
-		{ this.zVelocity = options.zVelocity; }
-	
-		if (options.zMax)
-		{ this.zMax = options.zMax; }
-		
-		if (options.zMin)
-		{ this.zMin = options.zMin; }
-	
-	}
-	
-	// available effectType:
-	// 1: zBounceLinear
-	// 2: zBounceSpring
-	// 3: borningLight
-	// 4: zMovement
-};
-
-/**
- *
- */
-Effect.prototype.execute = function(currTimeSec)
-{
-	var effectFinished = false;
-	if (this.birthData === undefined)
-	{
-		this.birthData = currTimeSec;
-		return effectFinished;
-	}
-	
-	var timeDiffSeconds = (currTimeSec - this.birthData);
-	var gl = this.effectsManager.gl;
-	
-	if (this.effectType === "zBounceSpring")
-	{
-		var zScale = 1.0;
-		if (timeDiffSeconds >= this.durationSeconds)
-		{
-			zScale = 1.0;
-			effectFinished = true; // if return true, then this effect is finished, so this effect will be deleted.
-		}
-		else
-		{
-			//https://en.wikipedia.org/wiki/Damped_sine_wave
-			var amp = 1.0;
-			var lambda = 0.1; // is the decay constant, in the reciprocal of the time units of the X axis.
-			var w = 5/this.durationSeconds; // angular frequency.
-			var t = timeDiffSeconds;
-			var fita = 0.0; // initial angle in t=0.
-			zScale = amp*Math.pow(Math.E, -lambda*t)*(Math.cos(w*t+fita) + Math.sin(w*t+fita));
-			zScale = (1.0-zScale)*Math.log(t/this.durationSeconds+1.1);
-		}
-		gl.uniform3fv(this.effectsManager.currShader.scaleLC_loc, [1.0, 1.0, zScale]); // init referencesMatrix.
-		return effectFinished;
-	}
-	else if (this.effectType === "zBounceLinear")
-	{
-		var zScale = 1.0;
-		if (timeDiffSeconds >= this.durationSeconds)
-		{
-			zScale = 1.0;
-			effectFinished = true; // if return true, then this effect is finished, so this effect will be deleted.
-		}
-		else
-		{
-			zScale = timeDiffSeconds/this.durationSeconds;
-		}
-		gl.uniform3fv(this.effectsManager.currShader.scaleLC_loc, [1.0, 1.0, zScale]); // init referencesMatrix.
-		return effectFinished;
-	}
-	else if (this.effectType === "borningLight")
-	{
-		var colorMultiplier = 1.0;
-		if (timeDiffSeconds >= this.durationSeconds)
-		{
-			colorMultiplier = 1.0;
-			effectFinished = true; // if return true, then this effect is finished, so this effect will be deleted.
-		}
-		else
-		{
-			var timeRatio = timeDiffSeconds/this.durationSeconds;
-			colorMultiplier = 1/(timeRatio*timeRatio);
-		}
-		gl.uniform4fv(this.effectsManager.currShader.colorMultiplier_loc, [colorMultiplier, colorMultiplier, colorMultiplier, 1.0]);
-		return effectFinished;
-	}
-	else if (this.effectType === "zMovement")
-	{
-		if (this.zVelocity === undefined)
-		{ this.zVelocity = 1.0; }
-
-		if (this.zMax === undefined)
-		{ this.zMax = 1.0; }
-
-		if (this.zMin === undefined)
-		{ this.zMin = -1.0; }
-
-		if (this.zOffset === undefined)
-		{ this.zOffset = 0.0; }
-
-		if (this.lastTime === undefined)
-		{ this.lastTime = currTimeSec; }
-
-
-		if (timeDiffSeconds >= this.durationSeconds)
-		{
-			this.zOffset = 0.0;
-			effectFinished = true; // if return true, then this effect is finished, so this effect will be deleted.
-		}
-		else
-		{
-			var diffTime = currTimeSec - this.lastTime;
-			this.zOffset += this.zVelocity * diffTime;
-
-			if (this.zVelocity > 0.0)
-			{
-				if (this.zOffset > this.zMax)
-				{
-					var diff = (this.zOffset - this.zMax);
-					this.zOffset = this.zMax - diff;
-					this.zVelocity *= -1.0;
-				}
-			}
-			else
-			{
-				if (this.zOffset < this.zMin)
-				{
-					var diff = (this.zOffset - this.zMin);
-					this.zOffset = this.zMin - diff;
-					this.zVelocity *= -1.0;
-				}
-			}
-		}
-		gl.uniform3fv(this.effectsManager.currShader.aditionalOffset_loc, [0.0, this.zOffset, 0.0 ]); // init referencesMatrix.
-		this.lastTime = currTimeSec;
-		return effectFinished;
-	}
-};
-'use strict';
-
-/**
- * @alias EffectsManager
- * @class EffectsManager
- */
-var EffectsManager = function(options) 
-{
-	if (!(this instanceof EffectsManager)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	
-	this.effectsObjectsMap = {};
-	this.gl;
-	this.currShader;
-};
-
-/**
- *
- */
-EffectsManager.prototype.setCurrentShader = function(shader)
-{
-	this.currShader = shader;
-};
-
-/**
- *
- */
-EffectsManager.prototype.getEffectsObject = function(id)
-{
-	return this.effectsObjectsMap[id];
-};
-
-EffectsManager.prototype.hasEffects = function(id) 
-{
-	
-	if (!this.effectsObjectsMap[id]) 
-	{
-		return false;
-	}
-
-	if (!this.effectsObjectsMap[id].effectsArray || this.effectsObjectsMap[id].effectsArray.length === 0)
-	{
-		return false;
-	}
-
-	return true;
-};
-
-
-/**
- *
- */
-EffectsManager.prototype.addEffect = function(id, effect)
-{
-	var effectsObject = this.getEffectsObject(id);
-	
-	if (effectsObject === undefined)
-	{
-		effectsObject = {};
-		this.effectsObjectsMap[id] = effectsObject;
-	}
-	
-	if (effectsObject.effectsArray === undefined)
-	{ effectsObject.effectsArray = []; }
-	
-	effect.effectsManager = this;
-	effectsObject.effectsArray.push(effect);
-};
-
-EffectsManager.prototype.executeEffects = function(id, currTime)
-{
-	var effectsObject = this.getEffectsObject(id);
-	var effectExecuted = false;
-	if (effectsObject === undefined)
-	{ return false; }
-	
-	var effectsCount = effectsObject.effectsArray.length;
-	for (var i=0; i<effectsCount; i++)
-	{
-		var effect = effectsObject.effectsArray[i];
-		if (effect.execute(currTime/1000))
-		{
-			effectsObject.effectsArray.splice(i, 1);
-			effectsCount = effectsObject.effectsArray.length;
-		}
-		effectExecuted = true;
-		
-		if (effectsObject.effectsArray.length === 0)
-		{ 
-			this.effectsObjectsMap[id] = undefined;
-			delete this.effectsObjectsMap[id];
-		}
-	}
-	
-	return effectExecuted;
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 'use strict';
 
 /**
@@ -35357,12 +33093,65 @@ MagoManager.prototype.tilesMultiFrustumCullingFinished = function(intersectedLow
 		}
 		
 		// Check native objects.
-		var nativeObjects = lowestTile.nativeObjects;
 		var currVisibleNativeObjects = visibleNodes.currentVisibleNativeObjects;
-		Array.prototype.push.apply(currVisibleNativeObjects.opaquesArray, nativeObjects.opaquesArray);
-		Array.prototype.push.apply(currVisibleNativeObjects.transparentsArray, nativeObjects.transparentsArray);
-		Array.prototype.push.apply(currVisibleNativeObjects.excavationsArray, nativeObjects.excavationsArray);
-		Array.prototype.push.apply(currVisibleNativeObjects.vectorTypeArray, nativeObjects.vectorTypeArray);
+		var nativeObjects = lowestTile.nativeObjects;
+		var nativeObjectsCount = nativeObjects.opaquesArray.length;
+		for(var j=0; j<nativeObjectsCount; j++)
+		{
+			var native = nativeObjects.opaquesArray[j];
+			this.boundingSphere_Aux = native.getBoundingSphereWC(this.boundingSphere_Aux);
+
+			var frustumCull = frustumVolume.intersectionSphere(this.boundingSphere_Aux); // cesium.***
+			// intersect with Frustum
+			if (frustumCull !== Constant.INTERSECTION_OUTSIDE) 
+			{
+				currVisibleNativeObjects.opaquesArray.push(native);
+			}
+		}
+		nativeObjectsCount = nativeObjects.transparentsArray.length;
+		for(var j=0; j<nativeObjectsCount; j++)
+		{
+			var native = nativeObjects.transparentsArray[j];
+			this.boundingSphere_Aux = native.getBoundingSphereWC(this.boundingSphere_Aux);
+
+			var frustumCull = frustumVolume.intersectionSphere(this.boundingSphere_Aux); // cesium.***
+			// intersect with Frustum
+			if (frustumCull !== Constant.INTERSECTION_OUTSIDE) 
+			{
+				currVisibleNativeObjects.transparentsArray.push(native);
+			}
+		}
+		nativeObjectsCount = nativeObjects.excavationsArray.length;
+		for(var j=0; j<nativeObjectsCount; j++)
+		{
+			var native = nativeObjects.excavationsArray[j];
+			this.boundingSphere_Aux = native.getBoundingSphereWC(this.boundingSphere_Aux);
+
+			var frustumCull = frustumVolume.intersectionSphere(this.boundingSphere_Aux); // cesium.***
+			// intersect with Frustum
+			if (frustumCull !== Constant.INTERSECTION_OUTSIDE) 
+			{
+				currVisibleNativeObjects.excavationsArray.push(native);
+			}
+		}
+		nativeObjectsCount = nativeObjects.vectorTypeArray.length;
+		for(var j=0; j<nativeObjectsCount; j++)
+		{
+			var native = nativeObjects.vectorTypeArray[j];
+			this.boundingSphere_Aux = native.getBoundingSphereWC(this.boundingSphere_Aux);
+
+			var frustumCull = frustumVolume.intersectionSphere(this.boundingSphere_Aux); // cesium.***
+			// intersect with Frustum
+			if (frustumCull !== Constant.INTERSECTION_OUTSIDE) 
+			{
+				currVisibleNativeObjects.vectorTypeArray.push(native);
+			}
+		}
+		
+		//Array.prototype.push.apply(currVisibleNativeObjects.opaquesArray, nativeObjects.opaquesArray);
+		//Array.prototype.push.apply(currVisibleNativeObjects.transparentsArray, nativeObjects.transparentsArray);
+		//Array.prototype.push.apply(currVisibleNativeObjects.excavationsArray, nativeObjects.excavationsArray);
+		//Array.prototype.push.apply(currVisibleNativeObjects.vectorTypeArray, nativeObjects.vectorTypeArray);
 		if (nativeObjects.pointTypeArray)
 		{ Array.prototype.push.apply(currVisibleNativeObjects.pointTypeArray, nativeObjects.pointTypeArray); }
 
@@ -47146,48 +44935,51 @@ VisibleObjectsController.getBoundaryNodes = function(visiblesArray, resultBounda
 	for (var i=0; i<visiblesCount; i++)
 	{
 		var visible = visiblesArray[i];
+		var geoCoord;
 		if(visible instanceof Node)
 		{
-			var geoCoord = visible.data.geographicCoord;
-			if (i===0)
-			{
-				minLonCandidate = geoCoord.longitude;
-				minLatCandidate = geoCoord.latitude;
-				maxLonCandidate = geoCoord.longitude;
-				maxLatCandidate = geoCoord.latitudes;
-				minLonVisible = visible;
-				maxLonVisible = visible;
-				minLatVisible = visible;
-				maxLatVisible = visible;
-			}
-			else
-			{
-				if (geoCoord.longitude < minLonCandidate)
-				{ 
-					minLonCandidate = geoCoord.longitude; 
-					minLonVisible = visible;
-				}
-				else if (geoCoord.longitude > maxLonCandidate)
-				{ 
-					maxLonCandidate = geoCoord.longitude; 
-					maxLonVisible = visible;
-				}
-				
-				if (geoCoord.latitude < minLatCandidate)
-				{ 
-					minLatCandidate = geoCoord.latitude; 
-					minLatVisible = visible;
-				}
-				else if (geoCoord.latitude > maxLatCandidate)
-				{ 
-					maxLatCandidate = geoCoord.latitude; 
-					maxLatVisible = visible;
-				}
-			}
+			geoCoord = visible.data.geographicCoord;
 		}
 		else if(visible instanceof MagoRenderable)
 		{
-			var hola = 0;
+			var geoLocationData = visible.getCurrentGeoLocationData();
+			geoCoord = geoLocationData.geographicCoord;
+		}
+
+		if (i===0)
+		{
+			minLonCandidate = geoCoord.longitude;
+			minLatCandidate = geoCoord.latitude;
+			maxLonCandidate = geoCoord.longitude;
+			maxLatCandidate = geoCoord.latitudes;
+			minLonVisible = visible;
+			maxLonVisible = visible;
+			minLatVisible = visible;
+			maxLatVisible = visible;
+		}
+		else
+		{
+			if (geoCoord.longitude < minLonCandidate)
+			{ 
+				minLonCandidate = geoCoord.longitude; 
+				minLonVisible = visible;
+			}
+			else if (geoCoord.longitude > maxLonCandidate)
+			{ 
+				maxLonCandidate = geoCoord.longitude; 
+				maxLonVisible = visible;
+			}
+			
+			if (geoCoord.latitude < minLatCandidate)
+			{ 
+				minLatCandidate = geoCoord.latitude; 
+				minLatVisible = visible;
+			}
+			else if (geoCoord.latitude > maxLatCandidate)
+			{ 
+				maxLatCandidate = geoCoord.latitude; 
+				maxLatVisible = visible;
+			}
 		}
 	}
 	
@@ -47200,7 +44992,10 @@ VisibleObjectsController.getBoundaryNodes = function(visiblesArray, resultBounda
  */
 VisibleObjectsController.prototype.calculateBoundingFrustum = function(camera) 
 {
-	var visiblesArray = this.currentVisibles0.concat(this.currentVisibles1, this.currentVisibles2, this.currentVisibles3)//, this.currentVisibleNativeObjects);
+	var visiblesArray = this.currentVisibles0.concat(this.currentVisibles1, this.currentVisibles2, this.currentVisibles3);//, this.currentVisibleNativeObjects);
+	var visibleNativesArray = this.getAllNatives();
+
+	[].push.apply(visiblesArray, visibleNativesArray);
 	
 	if (visiblesArray.length === 0)
 	{ return; }
@@ -47631,6 +45426,2294 @@ XYZLayer.prototype._setDefaultUrlFunction = function()
 		return auxUrl;
 	};
 	that.urlFunction = urlFunction;
+};
+'use strict';
+
+/**
+ * @alias Effect
+ * @class Effect
+ */
+var Effect = function(options) 
+{
+	if (!(this instanceof Effect)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	
+	// Test class to do effects.
+	this.effectsManager;
+	this.birthData;
+	this.durationSeconds;
+	this.effectType = "unknown";
+	
+	if (options)
+	{
+		if (options.effectType)
+		{ this.effectType = options.effectType; }
+		
+		if (options.durationSeconds)
+		{ this.durationSeconds = options.durationSeconds; }
+	
+		if (options.zVelocity)
+		{ this.zVelocity = options.zVelocity; }
+	
+		if (options.zMax)
+		{ this.zMax = options.zMax; }
+		
+		if (options.zMin)
+		{ this.zMin = options.zMin; }
+	
+	}
+	
+	// available effectType:
+	// 1: zBounceLinear
+	// 2: zBounceSpring
+	// 3: borningLight
+	// 4: zMovement
+};
+
+/**
+ *
+ */
+Effect.prototype.execute = function(currTimeSec)
+{
+	var effectFinished = false;
+	if (this.birthData === undefined)
+	{
+		this.birthData = currTimeSec;
+		return effectFinished;
+	}
+	
+	var timeDiffSeconds = (currTimeSec - this.birthData);
+	var gl = this.effectsManager.gl;
+	
+	if (this.effectType === "zBounceSpring")
+	{
+		var zScale = 1.0;
+		if (timeDiffSeconds >= this.durationSeconds)
+		{
+			zScale = 1.0;
+			effectFinished = true; // if return true, then this effect is finished, so this effect will be deleted.
+		}
+		else
+		{
+			//https://en.wikipedia.org/wiki/Damped_sine_wave
+			var amp = 1.0;
+			var lambda = 0.1; // is the decay constant, in the reciprocal of the time units of the X axis.
+			var w = 5/this.durationSeconds; // angular frequency.
+			var t = timeDiffSeconds;
+			var fita = 0.0; // initial angle in t=0.
+			zScale = amp*Math.pow(Math.E, -lambda*t)*(Math.cos(w*t+fita) + Math.sin(w*t+fita));
+			zScale = (1.0-zScale)*Math.log(t/this.durationSeconds+1.1);
+		}
+		gl.uniform3fv(this.effectsManager.currShader.scaleLC_loc, [1.0, 1.0, zScale]); // init referencesMatrix.
+		return effectFinished;
+	}
+	else if (this.effectType === "zBounceLinear")
+	{
+		var zScale = 1.0;
+		if (timeDiffSeconds >= this.durationSeconds)
+		{
+			zScale = 1.0;
+			effectFinished = true; // if return true, then this effect is finished, so this effect will be deleted.
+		}
+		else
+		{
+			zScale = timeDiffSeconds/this.durationSeconds;
+		}
+		gl.uniform3fv(this.effectsManager.currShader.scaleLC_loc, [1.0, 1.0, zScale]); // init referencesMatrix.
+		return effectFinished;
+	}
+	else if (this.effectType === "borningLight")
+	{
+		var colorMultiplier = 1.0;
+		if (timeDiffSeconds >= this.durationSeconds)
+		{
+			colorMultiplier = 1.0;
+			effectFinished = true; // if return true, then this effect is finished, so this effect will be deleted.
+		}
+		else
+		{
+			var timeRatio = timeDiffSeconds/this.durationSeconds;
+			colorMultiplier = 1/(timeRatio*timeRatio);
+		}
+		gl.uniform4fv(this.effectsManager.currShader.colorMultiplier_loc, [colorMultiplier, colorMultiplier, colorMultiplier, 1.0]);
+		return effectFinished;
+	}
+	else if (this.effectType === "zMovement")
+	{
+		if (this.zVelocity === undefined)
+		{ this.zVelocity = 1.0; }
+
+		if (this.zMax === undefined)
+		{ this.zMax = 1.0; }
+
+		if (this.zMin === undefined)
+		{ this.zMin = -1.0; }
+
+		if (this.zOffset === undefined)
+		{ this.zOffset = 0.0; }
+
+		if (this.lastTime === undefined)
+		{ this.lastTime = currTimeSec; }
+
+
+		if (timeDiffSeconds >= this.durationSeconds)
+		{
+			this.zOffset = 0.0;
+			effectFinished = true; // if return true, then this effect is finished, so this effect will be deleted.
+		}
+		else
+		{
+			var diffTime = currTimeSec - this.lastTime;
+			this.zOffset += this.zVelocity * diffTime;
+
+			if (this.zVelocity > 0.0)
+			{
+				if (this.zOffset > this.zMax)
+				{
+					var diff = (this.zOffset - this.zMax);
+					this.zOffset = this.zMax - diff;
+					this.zVelocity *= -1.0;
+				}
+			}
+			else
+			{
+				if (this.zOffset < this.zMin)
+				{
+					var diff = (this.zOffset - this.zMin);
+					this.zOffset = this.zMin - diff;
+					this.zVelocity *= -1.0;
+				}
+			}
+		}
+		gl.uniform3fv(this.effectsManager.currShader.aditionalOffset_loc, [0.0, this.zOffset, 0.0 ]); // init referencesMatrix.
+		this.lastTime = currTimeSec;
+		return effectFinished;
+	}
+};
+'use strict';
+
+/**
+ * @alias EffectsManager
+ * @class EffectsManager
+ */
+var EffectsManager = function(options) 
+{
+	if (!(this instanceof EffectsManager)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	
+	this.effectsObjectsMap = {};
+	this.gl;
+	this.currShader;
+};
+
+/**
+ *
+ */
+EffectsManager.prototype.setCurrentShader = function(shader)
+{
+	this.currShader = shader;
+};
+
+/**
+ *
+ */
+EffectsManager.prototype.getEffectsObject = function(id)
+{
+	return this.effectsObjectsMap[id];
+};
+
+EffectsManager.prototype.hasEffects = function(id) 
+{
+	
+	if (!this.effectsObjectsMap[id]) 
+	{
+		return false;
+	}
+
+	if (!this.effectsObjectsMap[id].effectsArray || this.effectsObjectsMap[id].effectsArray.length === 0)
+	{
+		return false;
+	}
+
+	return true;
+};
+
+
+/**
+ *
+ */
+EffectsManager.prototype.addEffect = function(id, effect)
+{
+	var effectsObject = this.getEffectsObject(id);
+	
+	if (effectsObject === undefined)
+	{
+		effectsObject = {};
+		this.effectsObjectsMap[id] = effectsObject;
+	}
+	
+	if (effectsObject.effectsArray === undefined)
+	{ effectsObject.effectsArray = []; }
+	
+	effect.effectsManager = this;
+	effectsObject.effectsArray.push(effect);
+};
+
+EffectsManager.prototype.executeEffects = function(id, currTime)
+{
+	var effectsObject = this.getEffectsObject(id);
+	var effectExecuted = false;
+	if (effectsObject === undefined)
+	{ return false; }
+	
+	var effectsCount = effectsObject.effectsArray.length;
+	for (var i=0; i<effectsCount; i++)
+	{
+		var effect = effectsObject.effectsArray[i];
+		if (effect.execute(currTime/1000))
+		{
+			effectsObject.effectsArray.splice(i, 1);
+			effectsCount = effectsObject.effectsArray.length;
+		}
+		effectExecuted = true;
+		
+		if (effectsObject.effectsArray.length === 0)
+		{ 
+			this.effectsObjectsMap[id] = undefined;
+			delete this.effectsObjectsMap[id];
+		}
+	}
+	
+	return effectExecuted;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+'use strict';
+
+/**
+ * mago3djs API
+ * 
+ * @alias API
+ * @class API
+ * @constructor
+ * 
+ * @param {any} apiName api이름
+ */
+function API(apiName)
+{
+	if (!(this instanceof API)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+
+	// mago3d 활성화/비활성화 여부
+	this.magoEnable = true;
+	// return
+	this.returnable = false;
+
+	// api 이름
+	this.apiName = apiName;
+	
+	// project id
+	this.projectId = null;
+	this.projectDataFolder = null;
+	// objectIds
+	this.objectIds = null;
+	// data_key
+	this.dataKey = null;
+	// issueId
+	this.issueId = null;
+	// issueType
+	this.issueType = null;
+	// drawType 이미지를 그리는 유형 0 : DB, 1 : 이슈등록
+	this.drawType = 0;
+
+	// 위도
+	this.latitude = 0;
+	// 경도
+	this.longitude = 0;
+	// 높이
+	this.elevation = 0;
+	// heading
+	this.heading = 0;
+	// pitch
+	this.pitch = 0;
+	// roll
+	this.roll = 0;
+	// duration
+	this.duration = 0;
+
+	// 속성
+	this.property = null;
+	// 색깔
+	this.color = 0;
+	// structs = MSP, outfitting = MOP
+	this.blockType = null;
+	// outfitting 표시/비표시
+	this.showOutFitting = false;
+	// label 표시/비표시
+	this.showLabelInfo = true;
+	// origin 표시/비표시
+	this.showOrigin = false;
+	// boundingBox 표시/비표시
+	this.showBoundingBox = false;
+	// 그림자 표시/비표시
+	this.showShadow = false;
+	// frustum culling 가시 거리(M단위)
+	this.frustumFarDistance = 0;
+	// move mode 
+	this.objectMoveMode = CODE.moveMode.NONE;
+	// 이슈 등록 표시
+	this.issueInsertEnable = false;
+	// object 정보 표시
+	this.objectInfoViewEnable = false;
+	// 이슈 목록 표시
+	this.nearGeoIssueListEnable = false;
+	// occlusion culling
+	this.occlusionCullingEnable = false;
+	//
+	this.insertIssueState = 0;
+	
+	// LOD1
+	this.lod0DistInMeters = null;
+	this.lod1DistInMeters = null;
+	this.lod2DistInMeters = null;
+	this.lod3DistInMeters = null;
+	this.lod4DistInMeters = null;
+	this.lod5DistInMeters = null;
+	
+	// Lighting
+	this.ambientReflectionCoef = null;
+	this.diffuseReflectionCoef = null;
+	this.specularReflectionCoef = null;
+	this.ambientColor = null;
+	this.specularColor = null;
+	
+	this.ssaoRadius = null;
+	//
+	this.FPVMode = false;
+
+	// input x, y, z
+	this.inputPoint = null;
+	// result x, y, z
+	this.resultPoint = null;
+	
+	// General magoMode.
+	this.magoMode = CODE.magoMode.NORMAL;
+
+	//position unit
+	this.unit = CODE.units.DEGREE;
+
+	//for staticModel instantiate
+	this.instantiateObj = null;
+
+	//for staticModel add
+	this.staticModelAttributeObj = null;
+
+	//animation option. 
+	this.animationOption = null;
+
+	/**
+	 * @type {trackOption}
+	 */
+	this.trackOption = null;
+
+	/**
+	 * @type {nodeAttribute}
+	 */
+	this.nodeAttribute = null;
+};
+
+API.prototype.getMagoEnable = function() 
+{
+	return this.magoEnable;
+};
+API.prototype.setMagoEnable = function(magoEnable) 
+{
+	this.magoEnable = magoEnable;
+};
+
+API.prototype.getReturnable = function()
+{
+	return this.returnable;
+};
+API.prototype.setReturnable = function(returnable)
+{
+	this.returnable = returnable;
+};
+
+API.prototype.getAPIName = function() 
+{
+	return this.apiName;
+};
+
+API.prototype.getProjectId = function() 
+{
+	return this.projectId;
+};
+API.prototype.setProjectId = function(projectId) 
+{
+	this.projectId = projectId;
+};
+
+API.prototype.getProjectDataFolder = function() 
+{
+	return this.projectDataFolder;
+};
+API.prototype.setProjectDataFolder = function(projectDataFolder) 
+{
+	this.projectDataFolder = projectDataFolder;
+};
+
+API.prototype.getObjectIds = function() 
+{
+	return this.objectIds;
+};
+API.prototype.setObjectIds = function(objectIds) 
+{
+	this.objectIds = objectIds;
+};
+
+API.prototype.getIssueId = function() 
+{
+	return this.issueId;
+};
+API.prototype.setIssueId = function(issueId) 
+{
+	this.issueId = issueId;
+};
+API.prototype.getIssueType = function() 
+{
+	return this.issueType;
+};
+API.prototype.setIssueType = function(issueType) 
+{
+	this.issueId = issueType;
+};
+
+API.prototype.getDataKey = function() 
+{
+	return this.dataKey;
+};
+API.prototype.setDataKey = function(dataKey) 
+{
+	this.dataKey = dataKey;
+};
+
+API.prototype.getLatitude = function() 
+{
+	return this.latitude;
+};
+API.prototype.setLatitude = function(latitude) 
+{
+	this.latitude = latitude;
+};
+
+API.prototype.getLongitude = function() 
+{
+	return this.longitude;
+};
+API.prototype.setLongitude = function(longitude) 
+{
+	this.longitude = longitude;
+};
+
+API.prototype.getElevation = function() 
+{
+	return this.elevation;
+};
+API.prototype.setElevation = function(elevation) 
+{
+	this.elevation = elevation;
+};
+
+API.prototype.getHeading = function() 
+{
+	return this.heading;
+};
+API.prototype.setHeading = function(heading) 
+{
+	this.heading = heading;
+};
+
+API.prototype.getPitch = function() 
+{
+	return this.pitch;
+};
+API.prototype.setPitch = function(pitch) 
+{
+	this.pitch = pitch;
+};
+
+API.prototype.getRoll = function() 
+{
+	return this.roll;
+};
+API.prototype.setRoll = function(roll) 
+{
+	this.roll = roll;
+};
+
+API.prototype.getProperty = function() 
+{
+	return this.property;
+};
+API.prototype.setProperty = function(property) 
+{
+	this.property = property;
+};
+
+API.prototype.getColor = function() 
+{
+	return this.color;
+};
+API.prototype.setColor = function(color) 
+{
+	this.color = color;
+};
+
+API.prototype.getBlockType = function() 
+{
+	return this.blockType;
+};
+API.prototype.setBlockType = function(blockType) 
+{
+	this.blockType = blockType;
+};
+
+API.prototype.getShowOutFitting = function() 
+{
+	return this.showOutFitting;
+};
+API.prototype.setShowOutFitting = function(showOutFitting) 
+{
+	this.showOutFitting = showOutFitting;
+};
+
+
+API.prototype.getShowLabelInfo = function() 
+{
+	return this.showLabelInfo;
+};
+API.prototype.setShowLabelInfo = function(showLabelInfo) 
+{
+	this.showLabelInfo = showLabelInfo;
+};
+
+API.prototype.getShowOrigin = function()
+{
+	return this.showOrigin;
+};
+API.prototype.setShowOrigin = function(showOrigin)
+{
+	this.showOrigin = showOrigin;
+};
+
+API.prototype.getShowBoundingBox = function() 
+{
+	return this.showBoundingBox;
+};
+API.prototype.setShowBoundingBox = function(showBoundingBox) 
+{
+	this.showBoundingBox = showBoundingBox;
+};
+
+API.prototype.getShowShadow = function() 
+{
+	return this.showShadow;
+};
+API.prototype.setShowShadow = function(showShadow) 
+{
+	this.showShadow = showShadow;
+};
+
+API.prototype.getFrustumFarDistance = function() 
+{
+	return this.frustumFarDistance;
+};
+API.prototype.setFrustumFarDistance = function(frustumFarDistance) 
+{
+	this.frustumFarDistance = frustumFarDistance;
+};
+
+API.prototype.getObjectMoveMode = function() 
+{
+	return this.objectMoveMode;
+};
+API.prototype.setObjectMoveMode = function(objectMoveMode) 
+{
+	this.objectMoveMode = objectMoveMode;
+};
+
+API.prototype.getIssueInsertEnable = function() 
+{
+	return this.issueInsertEnable;
+};
+API.prototype.setIssueInsertEnable = function(issueInsertEnable) 
+{
+	this.issueInsertEnable = issueInsertEnable;
+};
+API.prototype.getObjectInfoViewEnable = function() 
+{
+	return this.objectInfoViewEnable;
+};
+API.prototype.setObjectInfoViewEnable = function(objectInfoViewEnable) 
+{
+	this.objectInfoViewEnable = objectInfoViewEnable;
+};
+API.prototype.getOcclusionCullingEnable = function() 
+{
+	return this.occlusionCullingEnable;
+};
+API.prototype.setOcclusionCullingEnable = function(occlusionCullingEnable) 
+{
+	this.occlusionCullingEnable = occlusionCullingEnable;
+};
+API.prototype.getNearGeoIssueListEnable = function() 
+{
+	return this.nearGeoIssueListEnable;
+};
+API.prototype.setNearGeoIssueListEnable = function(nearGeoIssueListEnable) 
+{
+	this.nearGeoIssueListEnable = nearGeoIssueListEnable;
+};
+
+API.prototype.getInsertIssueState = function() 
+{
+	return this.insertIssueState;
+};
+API.prototype.setInsertIssueState = function(insertIssueState) 
+{
+	this.insertIssueState = insertIssueState;
+};
+
+API.prototype.getDrawType = function() 
+{
+	return this.drawType;
+};
+API.prototype.setDrawType = function(drawType) 
+{
+	this.drawType = drawType;
+};
+
+API.prototype.getLod0DistInMeters = function() 
+{
+	return this.lod0DistInMeters;
+};
+API.prototype.setLod0DistInMeters = function(lod0DistInMeters) 
+{
+	this.lod0DistInMeters = lod0DistInMeters;
+};
+API.prototype.getLod1DistInMeters = function() 
+{
+	return this.lod1DistInMeters;
+};
+API.prototype.setLod1DistInMeters = function(lod1DistInMeters) 
+{
+	this.lod1DistInMeters = lod1DistInMeters;
+};
+API.prototype.getLod2DistInMeters = function() 
+{
+	return this.lod2DistInMeters;
+};
+API.prototype.setLod2DistInMeters = function(lod2DistInMeters) 
+{
+	this.lod2DistInMeters = lod2DistInMeters;
+};
+API.prototype.getLod3DistInMeters = function() 
+{
+	return this.lod3DistInMeters;
+};
+API.prototype.setLod3DistInMeters = function(lod3DistInMeters) 
+{
+	this.lod3DistInMeters = lod3DistInMeters;
+};
+API.prototype.getLod4DistInMeters = function() 
+{
+	return this.lod4DistInMeters;
+};
+API.prototype.setLod4DistInMeters = function(lod4DistInMeters) 
+{
+	this.lod4DistInMeters = lod4DistInMeters;
+};
+API.prototype.getLod5DistInMeters = function() 
+{
+	return this.lod5DistInMeters;
+};
+API.prototype.setLod5DistInMeters = function(lod5DistInMeters) 
+{
+	this.lod5DistInMeters = lod5DistInMeters;
+};
+
+API.prototype.getAmbientReflectionCoef = function() 
+{
+	return this.ambientReflectionCoef;
+};
+API.prototype.setAmbientReflectionCoef = function(ambientReflectionCoef) 
+{
+	this.ambientReflectionCoef = ambientReflectionCoef;
+};
+API.prototype.getDiffuseReflectionCoef = function() 
+{
+	return this.diffuseReflectionCoef;
+};
+API.prototype.setDiffuseReflectionCoef = function(diffuseReflectionCoef) 
+{
+	this.diffuseReflectionCoef = diffuseReflectionCoef;
+};
+API.prototype.getSpecularReflectionCoef = function() 
+{
+	return this.specularReflectionCoef;
+};
+API.prototype.setSpecularReflectionCoef = function(specularReflectionCoef) 
+{
+	this.specularReflectionCoef = specularReflectionCoef;
+};
+API.prototype.getAmbientColor = function() 
+{
+	return this.ambientColor;
+};
+API.prototype.setAmbientColor = function(ambientColor) 
+{
+	this.ambientColor = ambientColor;
+};
+API.prototype.getSpecularColor = function() 
+{
+	return this.specularColor;
+};
+API.prototype.setSpecularColor = function(specularColor) 
+{
+	this.specularColor = specularColor;
+};
+API.prototype.getSsaoRadius = function() 
+{
+	return this.ssaoRadius;
+};
+API.prototype.setSsaoRadius = function(ssaoRadius) 
+{
+	this.ssaoRadius = ssaoRadius;
+};
+API.prototype.getFPVMode = function()
+{
+	return this.FPVMode;
+};
+API.prototype.setFPVMode = function(value)
+{
+	this.FPVMode = value;
+};
+API.prototype.getMagoMode = function()
+{
+	return this.magoMode;
+};
+API.prototype.setMagoMode = function(value)
+{
+	this.magoMode = value;
+};
+API.prototype.getDuration = function()
+{
+	return this.duration;
+};
+API.prototype.setDuration = function(duration)
+{
+	this.duration = duration;
+};
+
+API.prototype.getInputPoint = function()
+{
+	return this.inputPoint;
+};
+API.prototype.setInputPoint = function(inputPoint)
+{
+	this.inputPoint = inputPoint;
+};
+
+API.prototype.getResultPoint = function()
+{
+	return this.resultPoint;
+};
+API.prototype.setResultPoint = function(resultPoint)
+{
+	this.resultPoint = resultPoint;
+};
+
+API.prototype.getUnit = function()
+{
+	return this.unit;
+};
+API.prototype.setUnit = function(unit)
+{
+	if (unit !== undefined)
+	{
+		if (isNaN(unit) || unit > CODE.units.RADIAN)
+		{
+			throw new Error('unit parameter needs CODE.units');
+		}
+		this.unit = unit;
+	}
+};
+
+API.prototype.getInstantiateObj = function()
+{
+	return this.instantiateObj;
+};
+API.prototype.setInstantiateObj = function(instantiateObj)
+{
+	this.instantiateObj = instantiateObj;
+};
+
+API.prototype.getStaticModelAttributeObj = function()
+{
+	return this.staticModelAttributeObj;
+};
+API.prototype.setStaticModelAttributeObj = function(staticModelAttributeObj)
+{
+	this.staticModelAttributeObj = staticModelAttributeObj;
+};
+
+API.prototype.getAnimationOption = function()
+{
+	return this.animationOption;
+};
+API.prototype.setAnimationOption = function(animationOption)
+{
+	this.animationOption = animationOption;
+};
+
+API.prototype.getTrackOption = function()
+{
+	return this.trackOption;
+};
+API.prototype.setTrackOption = function(trackOption)
+{
+	this.trackOption = trackOption;
+};
+
+API.prototype.getNodeAttribute = function()
+{
+	return this.nodeAttribute;
+};
+API.prototype.setNodeAttribute = function(nodeAttribute)
+{
+	this.nodeAttribute = nodeAttribute;
+};
+
+'use strict';
+
+/**
+ * 사용자가 변경한 moving, color, rotation 등 이력 정보를 위한 domain
+ * @class Policy
+ */
+var ChangeHistory = function() 
+{
+	if (!(this instanceof ChangeHistory)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+
+	this.moveHistory = false;
+	this.colorHistory = false;
+	this.rotationHistory = false;
+	
+	// move mode. ALL : 0 , OBJECT : 1, NONE : 2
+	this.objectMoveMode = null;
+	
+	// project id
+	this.projectId = null;
+	// project data folder
+	this.projectDataFolder = null;
+	// data_key
+	this.dataKey = null;	
+	// objectId
+	this.objectId = null;
+	// objectIndexOrder
+	this.objectIndexOrder = 0;
+	
+	// referenceObject aditional movement.
+	this.refObjectAditionalMove;
+	this.refObjectAditionalMoveRelToBuilding;
+	
+	// 위도
+	this.latitude = 0.0;
+	// 경도
+	this.longitude = 0.0;
+	// 높이
+	this.elevation = 0.0;
+	// heading
+	this.heading = 0.0;
+	// pitch
+	this.pitch = 0.0;
+	// roll
+	this.roll = 0.0;
+	// duration
+	this.duration = 0;
+	// 색깔
+	this.color = 0;
+	// color rgb
+	this.rgbColor = [];
+	// 속성
+	this.property = null;
+	this.propertyKey = null;
+	this.propertyValue = null;
+};
+
+ChangeHistory.prototype.getReferenceObjectAditionalMovement = function() 
+{
+	if (this.refObjectAditionalMove === undefined)
+	{ this.refObjectAditionalMove = new Point3D(); }
+	
+	return this.refObjectAditionalMove;
+};
+
+ChangeHistory.prototype.getReferenceObjectAditionalMovementRelToBuilding = function() 
+{
+	if (this.refObjectAditionalMoveRelToBuilding === undefined)
+	{ this.refObjectAditionalMoveRelToBuilding = new Point3D(); }
+	
+	return this.refObjectAditionalMoveRelToBuilding;
+};
+
+ChangeHistory.prototype.getProjectId = function() 
+{
+	return this.projectId;
+};
+ChangeHistory.prototype.setProjectId = function(projectId) 
+{
+	this.projectId = projectId;
+};
+
+ChangeHistory.prototype.getProjectDataFolder = function() 
+{
+	return this.projectDataFolder;
+};
+ChangeHistory.prototype.setProjectDataFolder = function(projectDataFolder) 
+{
+	this.projectDataFolder = projectDataFolder;
+};
+
+ChangeHistory.prototype.getDataKey = function() 
+{
+	return this.dataKey;
+};
+ChangeHistory.prototype.setDataKey = function(dataKey) 
+{
+	this.dataKey = dataKey;
+};
+
+ChangeHistory.prototype.getObjectId = function() 
+{
+	return this.objectId;
+};
+ChangeHistory.prototype.setObjectId = function(objectId) 
+{
+	this.objectId = objectId;
+};
+
+ChangeHistory.prototype.getObjectIndexOrder = function() 
+{
+	return this.objectIndexOrder;
+};
+ChangeHistory.prototype.setObjectIndexOrder = function(objectIndexOrder) 
+{
+	this.objectIndexOrder = objectIndexOrder;
+};
+
+ChangeHistory.prototype.getLatitude = function() 
+{
+	return this.latitude;
+};
+ChangeHistory.prototype.setLatitude = function(latitude) 
+{
+	this.latitude = latitude;
+};
+
+ChangeHistory.prototype.getLongitude = function() 
+{
+	return this.longitude;
+};
+ChangeHistory.prototype.setLongitude = function(longitude) 
+{
+	this.longitude = longitude;
+};
+
+ChangeHistory.prototype.getElevation = function() 
+{
+	return this.elevation;
+};
+ChangeHistory.prototype.setElevation = function(elevation) 
+{
+	this.elevation = elevation;
+};
+
+ChangeHistory.prototype.getHeading = function() 
+{
+	return this.heading;
+};
+ChangeHistory.prototype.setHeading = function(heading) 
+{
+	this.heading = heading;
+};
+
+ChangeHistory.prototype.getPitch = function() 
+{
+	return this.pitch;
+};
+ChangeHistory.prototype.setPitch = function(pitch) 
+{
+	this.pitch = pitch;
+};
+
+ChangeHistory.prototype.getRoll = function() 
+{
+	return this.roll;
+};
+ChangeHistory.prototype.setRoll = function(roll) 
+{
+	this.roll = roll;
+};
+
+ChangeHistory.prototype.getColor = function() 
+{
+	return this.color;
+};
+ChangeHistory.prototype.setColor = function(color) 
+{
+	this.color = color;
+};
+ChangeHistory.prototype.getRgbColor = function() 
+{
+	return this.rgbColor;
+};
+ChangeHistory.prototype.setRgbColor = function(rgbColor) 
+{
+	this.rgbColor = rgbColor;
+};
+
+ChangeHistory.prototype.getProperty = function() 
+{
+	return this.property;
+};
+ChangeHistory.prototype.setProperty = function(property) 
+{
+	this.property = property;
+};
+ChangeHistory.prototype.getPropertyKey = function() 
+{
+	return this.propertyKey;
+};
+ChangeHistory.prototype.setPropertyKey = function(propertyKey) 
+{
+	this.propertyKey = propertyKey;
+};
+ChangeHistory.prototype.getPropertyValue = function() 
+{
+	return this.propertyValue;
+};
+ChangeHistory.prototype.setPropertyValue = function(propertyValue) 
+{
+	this.propertyValue = propertyValue;
+};
+
+ChangeHistory.prototype.getDuration = function()
+{
+	return this.duration;
+};
+ChangeHistory.prototype.setDuration = function(duration)
+{
+	this.duration = duration;
+};
+
+ChangeHistory.prototype.getObjectMoveMode = function() 
+{
+	return this.objectMoveMode;
+};
+ChangeHistory.prototype.setObjectMoveMode = function(objectMoveMode) 
+{
+	this.objectMoveMode = objectMoveMode;
+};
+"use strict";
+
+var CODE = {};
+
+// magoManager가 다 로딩 되지 않은 상태에서 화면으로 부터 호출 되는 것을 막기 위해
+CODE.magoManagerState = {
+	"INIT"   	: 0,
+	"STARTED"	: 1,
+	"READY"   : 2
+};
+
+//0 = no started to load. 1 = started loading. 2 = finished loading. 3 = parse started. 4 = parse finished.
+CODE.fileLoadState = {
+	"READY"            : 0,
+	"LOADING_STARTED"  : 1,
+	"LOADING_FINISHED" : 2,
+	"PARSE_STARTED"    : 3,
+	"PARSE_FINISHED"   : 4,
+	"IN_QUEUE"         : 5,
+	"IN_PARSE_QUEUE"   : 6,
+	"BINDING_STARTED"  : 7,
+	"BINDING_FINISHED" : 8,
+	"LOAD_FAILED"      : 9
+};
+
+CODE.moveMode = {
+	"ALL"              : "0",
+	"OBJECT"           : "1",
+	"GEOGRAPHICPOINTS" : "2",
+	"NONE"             : "3"
+};
+
+CODE.magoMode = {
+	"NORMAL"  : 0,
+	"DRAWING" : 1
+};
+
+CODE.magoCurrentProcess = {
+	"Unknown"                    : 0,
+	"DepthRendering"             : 1,
+	"ColorRendering"             : 2,
+	"ColorCodeRendering"         : 3,
+	"DepthShadowRendering"       : 4,
+	"SilhouetteDepthRendering"   : 5,
+	"StencilSilhouetteRendering" : 6
+};
+
+CODE.modelerMode = {
+	"INACTIVE"                 : 0,
+	"DRAWING_POLYLINE"         : 1,
+	"DRAWING_PLANEGRID"        : 2,
+	"DRAWING_GEOGRAPHICPOINTS" : 3,
+	"DRAWING_EXCAVATIONPOINTS" : 4,
+	"DRAWING_TUNNELPOINTS"     : 5,
+	"DRAWING_BSPLINE"          : 6,
+	"DRAWING_BASICFACTORY"     : 7,
+	"DRAWING_STATICGEOMETRY"   : 8,
+	"DRAWING_PIPE"             : 9,
+	"DRAWING_SPHERE"           : 10,
+	"DRAWING_BOX"              : 11,
+	"DRAWING_CUTTINGPLANE"     : 12,
+	"DRAWING_CLIPPINGBOX"      : 13,
+	"DRAWING_CONCENTRICTUBES"  : 14,
+	"DRAWING_TUBE"             : 15,
+	"DRAWING_FREECONTOURWALL"  : 16,
+	"DRAWING_CYLYNDER"         : 17
+};
+
+CODE.boxFace = {
+	"UNKNOWN" : 0,
+	"LEFT"    : 1,
+	"RIGHT"   : 2,
+	"FRONT"   : 3,
+	"REAR"    : 4,
+	"TOP"     : 5,
+	"BOTTOM"  : 6
+};
+
+CODE.modelerDrawingState = {
+	"NO_STARTED" : 0,
+	"STARTED"    : 1
+};
+
+CODE.modelerDrawingElement = {
+	"NOTHING"          : 0,
+	"POINTS"           : 1,
+	"LINES"            : 2,
+	"POLYLINES"        : 3,
+	"GEOGRAPHICPOINTS" : 4,
+};
+
+CODE.units = {
+	"METRE"  : 0,
+	"DEGREE" : 1,
+	"RADIAN" : 2
+};
+
+
+CODE.trackMode = {
+	"TRACKING" : 0,
+	"DRIVER"   : 1
+};
+
+CODE.movementType = {
+	"NO_MOVEMENT" : 0,
+	"TRANSLATION" : 1,
+	"ROTATION"    : 2,
+	"ROTATION_ZX" : 3
+};
+
+CODE.imageryType = {
+	"UNKNOWN"      : 0,
+	"CRS84"        : 1,
+	"WEB_MERCATOR" : 2
+};
+
+CODE.animationType = {
+	"UNKNOWN"         : 0,
+	"REALTIME_POINTS" : 1,
+	"PATH"            : 2
+};
+
+CODE.relativePosition2D = {
+	"UNKNOWN"    : 0,
+	"LEFT"       : 1,
+	"RIGHT"      : 2,
+	"COINCIDENT" : 3
+};
+CODE.imageFilter = {
+	"UNKNOWN"    : 0,
+	"BATHYMETRY" : 1
+};
+CODE.cesiumTerrainType = {
+	GEOSERVER          : 'geoserver',
+	CESIUM_DEFAULT     : 'cesium-default',
+	CESIUM_ION_DEFAULT : 'cesium-ion-default',
+	CESIUM_ION_CDN     : 'cesium-ion-cdn',
+	CESIUM_CUSTOMER    : 'cesium-customer'
+};
+CODE.magoEarthTerrainType = {
+	PLAIN     : 'plain',
+	ELEVATION : 'elevation',
+	REALTIME  : 'realtime'
+};
+
+CODE.drawGeometryType = {
+	POINT     : 'point',
+	LINE    	 : 'line',
+	POLYGON   : 'polygon',
+	RECTANGLE : 'rectangle'
+};
+
+CODE.PROJECT_ID_PREFIX = "projectId_";
+CODE.PROJECT_DATA_FOLDER_PREFIX = "projectDataFolder_";
+
+CODE.parametricCurveState = {
+	"NORMAL" : 0,
+	"EDITED" : 1
+};
+
+'use strict';
+
+/**
+ * 상수 설정
+ * @class Constant
+ */
+var Constant = {};
+
+Constant.CESIUM = "cesium";
+Constant.WORLDWIND = "worldwind";
+Constant.MAGOWORLD = "magoworld";
+Constant.OBJECT_INDEX_FILE = "/objectIndexFile.ihe";
+Constant.TILE_INDEX_FILE = "/smartTile_f4d_indexFile.sii";
+Constant.CACHE_VERSION = "?cache_version=";
+Constant.SIMPLE_BUILDING_TEXTURE3x3_BMP = "/SimpleBuildingTexture3x3.bmp";
+Constant.RESULT_XDO2F4D = "/Result_xdo2f4d/Images/";
+Constant.RESULT_XDO2F4D_TERRAINTILES = "/Result_xdo2f4d/F4D_TerrainTiles/";
+Constant.RESULT_XDO2F4D_TERRAINTILEFILE_TXT = "/Result_xdo2f4d/f4dTerranTileFile.txt";
+
+Constant.INTERSECTION_OUTSIDE = 0;
+Constant.INTERSECTION_INTERSECT= 1;
+Constant.INTERSECTION_INSIDE = 2;
+Constant.INTERSECTION_POINT_A = 3;
+Constant.INTERSECTION_POINT_B = 4;
+
+'use strict';
+
+/**
+ * mago3D 전체 환경 설정을 관리
+ * @class MagoConfig
+ */
+var MagoConfig = function()
+{
+	this.containerId = undefined;
+	this.serverPolicy = undefined;
+	this.geoserver = undefined;
+	this.dataObject = {};
+	this.selectHistoryObject = {};
+	this.movingHistoryObject = {};
+	this.colorHistoryObject = {};
+	this.locationAndRotationHistoryObject = {};
+	this.scriptRootPath = undefined;
+	this.twoDimension = false;
+};
+
+MagoConfig.prototype.setContainerId = function(containerId) 
+{
+	this.containerId = containerId;
+};
+
+MagoConfig.prototype.getContainerId = function() 
+{
+	return this.containerId;
+};
+
+MagoConfig.prototype.getPolicy = function() 
+{
+	return this.serverPolicy;
+};
+
+MagoConfig.prototype.getGeoserver = function() 
+{
+	return this.geoserver;
+};
+
+MagoConfig.prototype.getData = function(key) 
+{
+	return this.dataObject[key];
+};
+
+MagoConfig.prototype.isDataExist = function(key) 
+{
+	return this.dataObject.hasOwnProperty(key);
+};
+
+MagoConfig.prototype.deleteData = function(key) 
+{
+	return delete this.dataObject[key];
+};
+
+/**
+ * data 를 map에 저장
+ * @param key map에 저장될 key
+ * @param value map에 저장될 value
+ */
+MagoConfig.prototype.setData = function(key, value) 
+{
+	if (!this.isDataExist(key)) 
+	{
+		this.dataObject[key] = value;
+	}
+};
+
+/**
+ * F4D Converter 실행 결과물이 저장된 project data folder 명을 획득
+ * @param projectDataFolder data folder
+ */
+MagoConfig.prototype.getProjectDataFolder = function(projectDataFolder) 
+{
+	var key = CODE.PROJECT_DATA_FOLDER_PREFIX + projectDataFolder;
+	return this.dataObject[key];
+};
+
+/**
+ * project map에 data folder명의 존재 유무를 검사
+ * @param projectDataFolder
+ */
+MagoConfig.prototype.isProjectDataFolderExist = function(projectDataFolder) 
+{
+	var key = CODE.PROJECT_DATA_FOLDER_PREFIX + projectDataFolder;
+	return this.dataObject.hasOwnProperty(key);
+};
+
+/**
+ * project data folder명을 map에서 삭제
+ * @param projectDataFolder
+ */
+MagoConfig.prototype.deleteProjectDataFolder = function(projectDataFolder) 
+{
+	var key = CODE.PROJECT_DATA_FOLDER_PREFIX + projectDataFolder;
+	return delete this.dataObject[key];
+};
+
+/**
+ * project data folder명을 Object에서 삭제
+ * @param projectDataFolder Object에 저장될 key
+ * @param value Object에 저장될 value
+ */
+MagoConfig.prototype.setProjectDataFolder = function(projectDataFolder, value) 
+{
+	var key = CODE.PROJECT_DATA_FOLDER_PREFIX + projectDataFolder;
+	if (!this.isProjectDataFolderExist(key))
+	{
+		this.dataObject[key] = value;
+	}
+};
+
+/**
+ * 환경설정 초기화
+ * @param serverPolicy mago3d policy(json)
+ * @param projectIdArray data 정보를 map 저장할 key name
+ * @param projectDataArray data 정보(json)
+ */
+MagoConfig.prototype.init = function(serverPolicy, projectIdArray, projectDataArray) 
+{
+	if (!serverPolicy || !serverPolicy instanceof Object) 
+	{
+		throw new Error('geopolicy is required object.');
+	}
+	this.dataObject = {};
+	
+	this.selectHistoryObject = {};
+	this.movingHistoryObject = {};
+	this.colorHistoryObject = {};
+	this.locationAndRotationHistoryObject = {};
+
+	this.serverPolicy = serverPolicy;
+	this.scriptRootPath = getScriptRootPath();
+	this.twoDimension = false;
+
+	if (this.serverPolicy.geoserverEnable) 
+	{
+		this.geoserver = new GeoServer();
+
+		var info = {
+			"wmsVersion"    : this.serverPolicy.geoserverWmsVersion,
+			"dataUrl"       : this.serverPolicy.geoserverDataUrl,
+			"dataWorkspace" : this.serverPolicy.geoserverDataWorkspace,
+			"dataStore"     : this.serverPolicy.geoserverDataStore,
+			"user"          : this.serverPolicy.geoserverUser,
+			"password"      : this.serverPolicy.geoserverPassword
+		};
+		this.geoserver.setServerInfo(info);
+	}
+
+
+	if (projectIdArray && projectIdArray.length > 0) 
+	{
+		for (var i=0; i<projectIdArray.length; i++) 
+		{
+			if (!this.isDataExist(CODE.PROJECT_ID_PREFIX + projectIdArray[i])) 
+			{
+				this.setData(CODE.PROJECT_ID_PREFIX + projectIdArray[i], projectDataArray[i]);
+				this.setProjectDataFolder(CODE.PROJECT_DATA_FOLDER_PREFIX + projectDataArray[i].data_key, projectDataArray[i].data_key);
+			}
+		}
+	}
+
+	function getScriptRootPath() 
+	{
+		var magoScriptQueryStrRegex = /((?:.*\/)|^)(mago3d|mago3d.min)\.js\?(?:&?[^=&]*=[^=&]*)*/;
+		var magoScriptRegex = /((?:.*\/)|^)(mago3d|mago3d.min)\.js$/;
+		var magoScriptPath;
+		var scripts = document.getElementsByTagName('script');
+		for ( var j = 0, len = scripts.length; j < len; ++j) 
+		{
+			var src = scripts[j].getAttribute('src');
+			var nomalResult = magoScriptRegex.exec(src);
+			var queryStrResult = magoScriptQueryStrRegex.exec(src);
+
+			var result = nomalResult||queryStrResult;
+			if (result !== null) 
+			{
+				magoScriptPath = result[1];
+			}
+		}
+		return magoScriptPath;
+	}
+};
+
+/**
+ * 모든 데이터를 삭제함
+ */
+MagoConfig.prototype.clearAllData = function() 
+{
+	this.dataObject = {};
+};
+
+/**
+ * 모든 선택 히스토리 삭제
+ */
+MagoConfig.prototype.clearSelectHistory = function() 
+{
+	this.selectHistoryObject = {};
+};
+
+/**
+ * 모든 object 선택 내용 이력을 취득
+ */
+MagoConfig.prototype.getAllSelectHistory = function()
+{
+	return this.selectHistoryObject;
+};
+
+/**
+ * project 별 해당 키에 해당하는 모든 object 선택 내용 이력을 취득
+ */
+MagoConfig.prototype.getSelectHistoryObjects = function(projectId, dataKey)
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.selectHistoryObject[projectId];
+	if (projectIdObject === undefined) { return undefined; }
+	// dataKey 별 Object을 검사
+	var dataKeyObject = projectIdObject[dataKey];
+	return dataKeyObject;
+};
+
+/**
+ * object 선택 내용 이력을 취득
+ */
+MagoConfig.prototype.getSelectHistoryObject = function(projectId, dataKey, objectIndexOrder)
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.selectHistoryObject[projectId];
+	if (projectIdObject === undefined) { return undefined; }
+	// dataKey 별 Object을 검사
+	var dataKeyObject = projectIdObject[dataKey];
+	if (dataKeyObject === undefined) { return undefined; }
+	// objectIndexOrder 를 저장
+	return dataKeyObject[objectIndexOrder];
+};
+
+/**
+ * object 선택 내용을 저장
+ */
+MagoConfig.prototype.saveSelectHistory = function(projectId, dataKey, objectIndexOrder, changeHistory) 
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.selectHistoryObject.get(projectId);
+	if (projectIdObject === undefined)
+	{
+		projectIdObject = {};
+		this.selectHistoryObject[projectId] = projectIdObject;
+	}
+	
+	// dataKey 별 Object을 검사
+	var dataKeyObject = projectIdObject[dataKey];
+	if (dataKeyObject === undefined)
+	{
+		dataKeyObject = {};
+		projectIdObject[dataKey] = dataKeyObject;
+	}
+	
+	// objectIndexOrder 를 저장
+	dataKeyObject[objectIndexOrder] = changeHistory;
+};
+
+/**
+ * object 선택 내용을 삭제
+ */
+MagoConfig.prototype.deleteSelectHistoryObject = function(projectId, dataKey, objectIndexOrder)
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.selectHistoryObject[projectId];
+	if (projectIdObject === undefined) { return undefined; }
+	// dataKey 별 Object을 검사
+	var dataKeyObject = projectIdObject[dataKey];
+	if (dataKeyObject === undefined) { return undefined; }
+	// objectIndexOrder 를 저장
+	return delete dataKeyObject[objectIndexOrder];
+};
+
+/**
+ * 모든 이동 히스토리 삭제
+ */
+MagoConfig.prototype.clearMovingHistory = function() 
+{
+	this.movingHistoryObject = {};
+};
+
+/**
+ * 모든 object 선택 내용 이력을 취득
+ */
+MagoConfig.prototype.getAllMovingHistory = function()
+{
+	return this.movingHistoryObject;
+};
+
+/**
+ * project별 입력키 값과 일치하는 object 이동 내용 이력을 취득
+ */
+MagoConfig.prototype.getMovingHistoryObjects = function(projectId, dataKey)
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.movingHistoryObject[projectId];
+	if (projectIdObject === undefined) { return undefined; }
+	// dataKey 별 Object을 검사
+	var dataKeyObject = projectIdObject[dataKey];
+	return dataKeyObject;
+};
+
+/**
+ * object 이동 내용 이력을 취득
+ */
+MagoConfig.prototype.getMovingHistoryObject = function(projectId, dataKey, objectIndexOrder)
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.movingHistoryObject[projectId];
+	if (projectIdObject === undefined) { return undefined; }
+	// dataKey 별 Object을 검사
+	var dataKeyObject = projectIdObject[dataKey];
+	if (dataKeyObject === undefined) { return undefined; }
+	// objectIndexOrder 를 저장
+	return dataKeyObject[objectIndexOrder];
+};
+
+/**
+ * object 이동 내용을 저장
+ */
+MagoConfig.prototype.saveMovingHistory = function(projectId, dataKey, objectIndexOrder, changeHistory) 
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.movingHistoryObject[projectId];
+	if (projectIdObject === undefined)
+	{
+		projectIdObject = {};
+		this.movingHistoryObject[projectId] = projectIdObject;
+	}
+	
+	// dataKey 별 Object을 검사
+	var dataKeyObject = projectIdObject[dataKey];
+	if (dataKeyObject === undefined)
+	{
+		dataKeyObject = {};
+		projectIdObject[dataKey] = dataKeyObject;
+	}
+	
+	// objectIndexOrder 를 저장
+	dataKeyObject[objectIndexOrder] = changeHistory;
+};
+
+/**
+ * object 이동 내용을 삭제
+ */
+MagoConfig.prototype.deleteMovingHistoryObject = function(projectId, dataKey, objectIndexOrder)
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.movingHistoryObject[projectId];
+	if (projectIdObject === undefined) { return undefined; }
+	// dataKey 별 Object을 검사
+	var dataKeyObject = projectIdObject[dataKey];
+	if (dataKeyObject === undefined) { return undefined; }
+	// objectIndexOrder 를 저장
+	return delete dataKeyObject[objectIndexOrder];
+};
+
+/**
+ * 모든 색깔 변경 이력을 획득
+ */
+MagoConfig.prototype.getAllColorHistory = function() 
+{
+	return this.colorHistoryObject;
+};
+
+/**
+ * 모든 색깔변경 히스토리 삭제
+ */
+MagoConfig.prototype.clearColorHistory = function() 
+{
+	this.colorHistoryObject = {};
+};
+
+/**
+ * project별 키에 해당하는 모든 색깔 변경 이력을 획득
+ */
+MagoConfig.prototype.getColorHistorys = function(projectId, dataKey)
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.colorHistoryObject[projectId];
+	if (projectIdObject === undefined) { return undefined; }
+	// dataKey 별 Object을 검사
+	var dataKeyObject = projectIdObject[dataKey];
+	return dataKeyObject;
+};
+
+/**
+ * 색깝 변경 이력을 획득
+ */
+MagoConfig.prototype.getColorHistory = function(projectId, dataKey, objectId)
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.colorHistoryObject[projectId];
+	if (projectIdObject === undefined) { return undefined; }
+	// dataKey 별 Object을 검사
+	var dataKeyObject = projectIdObject[dataKey];
+	if (dataKeyObject === undefined) { return undefined; }
+	// objectId 를 저장
+	return dataKeyObject[objectId];
+};
+
+/**
+ * 색깝 변경 내용을 저장
+ */
+MagoConfig.prototype.saveColorHistory = function(projectId, dataKey, objectId, changeHistory) 
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.colorHistoryObject[projectId];
+	if (projectIdObject === undefined)
+	{
+		projectIdObject = {};
+		this.colorHistoryObject[projectId] = projectIdObject;
+	}
+	
+	// dataKey 별 Object을 검사
+	var dataKeyObject = projectIdObject[dataKey];
+	if (dataKeyObject === undefined)
+	{
+		dataKeyObject = {};
+		projectIdObject[dataKey] = dataKeyObject;
+	}
+
+	if (objectId === null || objectId === "") 
+	{
+		dataKeyObject[dataKey] = changeHistory;
+	}
+	else 
+	{
+		dataKeyObject[objectId] = changeHistory;
+	}
+};
+
+/**
+ * 색깔 변경 이력을 삭제
+ */
+MagoConfig.prototype.deleteColorHistory = function(projectId, dataKey, objectId)
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.colorHistoryObject[projectId];
+	if (projectIdObject === undefined) { return undefined; }
+	// dataKey 별 Object을 검사
+	var dataKeyObject = projectIdObject[dataKey];
+	if (dataKeyObject === undefined) { return undefined; }
+	// objectIndexOrder 를 저장
+	return delete dataKeyObject[objectId];
+};
+
+/**
+ * 모든 색깔변경 히스토리 삭제
+ */
+MagoConfig.prototype.clearColorHistory = function() 
+{
+	this.colorHistoryObject = {};
+};
+
+/**
+ * 모든 location and rotation 변경 이력을 획득
+ */
+MagoConfig.prototype.getAllLocationAndRotationHistory = function() 
+{
+	return this.locationAndRotationHistoryObject;
+};
+
+/**
+ * 프로젝트별 해당 키 값을 갖는 모든 location and rotation 이력을 획득
+ */
+MagoConfig.prototype.getLocationAndRotationHistorys = function(projectId, dataKey)
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.locationAndRotationHistoryObject[projectId];
+	if (projectIdObject === undefined) { return undefined; }
+	// dataKey 별 Object을 검사
+	var dataKeyObject = projectIdObject[dataKey];
+	return dataKeyObject;
+};
+
+/**
+ * location and rotation 이력을 획득
+ */
+MagoConfig.prototype.getLocationAndRotationHistory = function(projectId, dataKey)
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.locationAndRotationHistoryObject[projectId];
+	if (projectIdObject === undefined) { return undefined; }
+	// dataKey 별 Object을 검사
+	var dataKeyObject = projectIdObject[dataKey];
+	
+	return dataKeyObject;
+};
+
+/**
+ * location and rotation 내용을 저장
+ */
+MagoConfig.prototype.saveLocationAndRotationHistory = function(projectId, dataKey, changeHistory) 
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.locationAndRotationHistoryObject[projectId];
+	if (projectIdObject === undefined)
+	{
+		projectIdObject = {};
+		this.locationAndRotationHistoryObject[projectId] = projectIdObject;
+	}
+	
+	// dataKey 별 Object을 검사
+	var dataKeyObject = projectIdObject[dataKey];
+	if (dataKeyObject === undefined)
+	{
+		dataKeyObject = {};
+	}
+
+	dataKeyObject[dataKey] = changeHistory;
+};
+
+/**
+ * location and rotation 이력을 삭제
+ */
+MagoConfig.prototype.deleteLocationAndRotationHistory = function(projectId, dataKey)
+{
+	// projectId 별 Object을 검사
+	var projectIdObject = this.locationAndRotationHistoryObject[projectId];
+	if (projectIdObject === undefined) { return undefined; }
+	// dataKey 별 Object을 검사
+	var dataKeyObject = delete projectIdObject[dataKey];
+};
+
+/**
+ * 모든 location and rotation 히스토리 삭제
+ */
+MagoConfig.prototype.clearLocationAndRotationHistory = function() 
+{
+	this.locationAndRotationHistoryObject = {};
+};
+	
+MagoConfig.prototype.setTwoDimension = function(twoDimension) 
+{
+	this.twoDimension = twoDimension;
+};
+MagoConfig.prototype.isTwoDimension = function()
+{
+	return this.twoDimension;
+};
+'use strict';
+
+/**
+ * Policy
+ * @class Policy
+ */
+var Policy = function(policy) 
+{
+	if (!(this instanceof Policy)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+
+	// mago3d 활성화/비활성화 여부
+	this.magoEnable = true;
+
+	// outfitting 표시 여부
+	this.showOutFitting = false;
+	// label 표시/비표시
+	this.showLabelInfo = false;
+	// boundingBox 표시/비표시
+	this.showBoundingBox = false;
+	// 그림자 표시/비표시
+	this.showShadow = false;
+	// squared far frustum 거리
+	this.frustumFarSquaredDistance = 5000000;
+	// far frustum
+	this.frustumFarDistance = 20000;
+
+	// highlighting
+	this.highLightedBuildings = [];
+	// color
+	this.colorBuildings = [];
+	// color
+	this.color = [];
+	// show/hide
+	this.hideBuildings = [];
+	// move mode
+	this.objectMoveMode = CODE.moveMode.NONE;
+	// 이슈 등록 표시
+	this.issueInsertEnable = false;
+	// object 정보 표시
+	this.objectInfoViewEnable = false;
+	// 이슈 목록 표시
+	this.nearGeoIssueListEnable = false;
+	// occlusion culling
+	this.occlusionCullingEnable = false;
+	// origin axis XYZ
+	this.showOrigin = false;
+	// mago generalMode
+	this.magoMode = CODE.magoMode.NORMAL;
+	
+	// 이미지 경로
+	this.imagePath = "";
+	
+	// provisional.
+	this.colorChangedObjectId;
+	
+	// LOD1
+	//this.lod0DistInMeters = 15;
+	//this.lod1DistInMeters = 50;
+	//this.lod2DistInMeters = 90;
+	//this.lod3DistInMeters = 200;
+	//this.lod4DistInMeters = 1000;
+	//this.lod5DistInMeters = 50000;
+
+	this.lod0DistInMeters = 50;
+	this.lod1DistInMeters = 200;
+	this.lod2DistInMeters = 600;
+	this.lod3DistInMeters = 1200;
+	this.lod4DistInMeters = 3000;
+	this.lod5DistInMeters = 50000;
+	
+	// Lighting
+	this.ambientReflectionCoef = 0.45; // 0.2.
+	this.diffuseReflectionCoef = 0.75; // 1.0
+	this.specularReflectionCoef = 0.6; // 0.7
+	this.ambientColor = null;
+	this.specularColor = new Float32Array([0.6, 0.6, 0.6]);
+	
+	this.ssaoRadius = 0.15;
+
+	this.modelMovable = true;
+	
+	// PointsCloud.
+	this.pointsCloudSettings = {};
+	if (defined(policy)) 
+	{
+		this.pointsCloudSettings.maxPartitionsLod0 = defaultValueCheckLength(policy.maxPartitionsLod0, 4);
+		this.pointsCloudSettings.maxPartitionsLod1 = defaultValueCheckLength(policy.maxPartitionsLod1, 2);
+		this.pointsCloudSettings.maxPartitionsLod2orLess = defaultValueCheckLength(policy.maxPartitionsLod2OrLess, 1);
+		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam0m = 1.0/defaultValueCheckLength(policy.maxRatioPointsDist0m, 10.0);
+		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam100m = 1.0/defaultValueCheckLength(policy.maxRatioPointsDist100m, 120.0);
+		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam200m = 1.0/defaultValueCheckLength(policy.maxRatioPointsDist200m, 240.0);
+		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam400m = 1.0/defaultValueCheckLength(policy.maxRatioPointsDist400m, 480.0);
+		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam800m = 1.0/defaultValueCheckLength(policy.maxRatioPointsDist800m, 960.0);
+		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam1600m = 1.0/defaultValueCheckLength(policy.maxRatioPointsDist1600m, 1920.0);
+		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCamMoreThan1600m = 1.0/defaultValueCheckLength(policy.maxRatioPointsDistOver1600m, 3840.0);
+		this.pointsCloudSettings.maxPointSize = defaultValueCheckLength(policy.maxPointSizeForPc, 40.0);
+		this.pointsCloudSettings.minPointSize = defaultValueCheckLength(policy.minPointSizeForPc, 3.0);
+		this.pointsCloudSettings.pendentPointSize = defaultValueCheckLength(policy.pendentPointSizeForPc, 60.0);
+		this.pointsCloudSettings.minHeightRainbow = defaultValueCheckLength(policy.minHeight_rainbow_loc, 0.0);
+		this.pointsCloudSettings.maxHeightRainbow = defaultValueCheckLength(policy.maxHeight_rainbow_loc, 100.0);
+	}
+	else 
+	{
+		this.pointsCloudSettings.maxPartitionsLod0 = 4;
+		this.pointsCloudSettings.maxPartitionsLod1 = 2;
+		this.pointsCloudSettings.maxPartitionsLod2orLess = 1;
+		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam0m = 1.0/10.0;
+		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam100m = 1.0/120.0;
+		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam200m = 1.0/240.0;
+		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam400m = 1.0/480.0;
+		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam800m = 1.0/960.0;
+		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCam1600m = 1.0/1920.0;
+		this.pointsCloudSettings.MaxPerUnitPointsRenderDistToCamMoreThan1600m = 1.0/3840.0;
+		this.pointsCloudSettings.maxPointSize = 40.0;
+		this.pointsCloudSettings.minPointSize = 3.0;
+		this.pointsCloudSettings.pendentPointSize = 60.0;
+		this.pointsCloudSettings.minHeightRainbow = 0.0;
+		this.pointsCloudSettings.maxHeightRainbow = 100.0;
+	}
+};
+
+Policy.prototype.getPointsCloudSettings = function() 
+{
+	return this.pointsCloudSettings;
+};
+
+Policy.prototype.getShowOrigin = function() 
+{
+	return this.showOrigin;
+};
+Policy.prototype.setShowOrigin = function(showOrigin) 
+{
+	this.showOrigin = showOrigin;
+};
+
+Policy.prototype.getMagoEnable = function() 
+{
+	return this.magoEnable;
+};
+Policy.prototype.setMagoEnable = function(magoEnable) 
+{
+	this.magoEnable = magoEnable;
+};
+
+Policy.prototype.getShowOutFitting = function() 
+{
+	return this.showOutFitting;
+};
+Policy.prototype.setShowOutFitting = function(showOutFitting) 
+{
+	this.showOutFitting = showOutFitting;
+};
+Policy.prototype.getShowLabelInfo = function() 
+{
+	return this.showLabelInfo;
+};
+Policy.prototype.setShowLabelInfo = function(showLabelInfo) 
+{
+	this.showLabelInfo = showLabelInfo;
+};
+Policy.prototype.getShowBoundingBox = function() 
+{
+	return this.showBoundingBox;
+};
+Policy.prototype.setShowBoundingBox = function(showBoundingBox) 
+{
+	this.showBoundingBox = showBoundingBox;
+};
+
+Policy.prototype.getShowShadow = function() 
+{
+	return this.showShadow;
+};
+Policy.prototype.setShowShadow = function(showShadow) 
+{
+	this.showShadow = showShadow;
+};
+
+Policy.prototype.getFrustumFarSquaredDistance = function() 
+{
+	return this.frustumFarSquaredDistance;
+};
+Policy.prototype.setFrustumFarSquaredDistance = function(frustumFarSquaredDistance) 
+{
+	this.frustumFarSquaredDistance = frustumFarSquaredDistance;
+};
+
+Policy.prototype.getFrustumFarDistance = function() 
+{
+	return this.frustumFarDistance;
+};
+Policy.prototype.setFrustumFarDistance = function(frustumFarDistance) 
+{
+	this.frustumFarDistance = frustumFarDistance;
+};
+
+Policy.prototype.getHighLightedBuildings = function() 
+{
+	return this.highLightedBuildings;
+};
+Policy.prototype.setHighLightedBuildings = function(highLightedBuildings) 
+{
+	this.highLightedBuildings = highLightedBuildings;
+};
+
+Policy.prototype.getColorBuildings = function() 
+{
+	return this.colorBuildings;
+};
+Policy.prototype.setColorBuildings = function(colorBuildings) 
+{
+	this.colorBuildings = colorBuildings;
+};
+
+Policy.prototype.getColor = function() 
+{
+	return this.color;
+};
+Policy.prototype.setColor = function(color) 
+{
+	this.color = color;
+};
+
+Policy.prototype.getHideBuildings = function() 
+{
+	return this.hideBuildings;
+};
+Policy.prototype.setHideBuildings = function(hideBuildings) 
+{
+	this.hideBuildings = hideBuildings;
+};
+
+Policy.prototype.getObjectMoveMode = function() 
+{
+	return this.objectMoveMode;
+};
+Policy.prototype.setObjectMoveMode = function(objectMoveMode) 
+{
+	this.objectMoveMode = objectMoveMode;
+};
+
+Policy.prototype.getMagoMode = function() 
+{
+	return this.magoMode;
+};
+Policy.prototype.setMagoMode = function(magoMode) 
+{
+	this.magoMode = magoMode;
+};
+
+Policy.prototype.getIssueInsertEnable = function() 
+{
+	return this.issueInsertEnable;
+};
+Policy.prototype.setIssueInsertEnable = function(issueInsertEnable) 
+{
+	this.issueInsertEnable = issueInsertEnable;
+};
+Policy.prototype.getObjectInfoViewEnable = function() 
+{
+	return this.objectInfoViewEnable;
+};
+Policy.prototype.setObjectInfoViewEnable = function(objectInfoViewEnable) 
+{
+	this.objectInfoViewEnable = objectInfoViewEnable;
+};
+Policy.prototype.getOcclusionCullingEnable = function() 
+{
+	return this.occlusionCullingEnable;
+};
+Policy.prototype.setOcclusionCullingEnable = function(occlusionCullingEnable) 
+{
+	this.occlusionCullingEnable = occlusionCullingEnable;
+};
+Policy.prototype.getNearGeoIssueListEnable = function() 
+{
+	return this.nearGeoIssueListEnable;
+};
+Policy.prototype.setNearGeoIssueListEnable = function(nearGeoIssueListEnable) 
+{
+	this.nearGeoIssueListEnable = nearGeoIssueListEnable;
+};
+
+Policy.prototype.getImagePath = function() 
+{
+	return this.imagePath;
+};
+Policy.prototype.setImagePath = function(imagePath) 
+{
+	this.imagePath = imagePath;
+};
+
+Policy.prototype.getLod = function(distInMeters) 
+{
+	var lod = -1;
+	if (distInMeters < this.lod0DistInMeters)
+	{ lod = 0; }
+	else if (distInMeters < this.lod1DistInMeters)
+	{ lod = 1; }
+	else if (distInMeters < this.lod2DistInMeters)
+	{ lod = 2; }
+	else if (distInMeters < this.lod3DistInMeters)
+	{ lod = 3; }
+	else if (distInMeters < this.lod4DistInMeters)
+	{ lod = 4; }
+	else 
+	{ lod = 5; }
+	
+	return lod;	
+};
+Policy.prototype.getLod0DistInMeters = function() 
+{
+	return this.lod0DistInMeters;
+};
+Policy.prototype.setLod0DistInMeters = function(lod0DistInMeters) 
+{
+	this.lod0DistInMeters = lod0DistInMeters;
+};
+Policy.prototype.getLod1DistInMeters = function() 
+{
+	return this.lod1DistInMeters;
+};
+Policy.prototype.setLod1DistInMeters = function(lod1DistInMeters) 
+{
+	this.lod1DistInMeters = lod1DistInMeters;
+};
+Policy.prototype.getLod2DistInMeters = function() 
+{
+	return this.lod2DistInMeters;
+};
+Policy.prototype.setLod2DistInMeters = function(lod2DistInMeters) 
+{
+	this.lod2DistInMeters = lod2DistInMeters;
+};
+Policy.prototype.getLod3DistInMeters = function() 
+{
+	return this.lod3DistInMeters;
+};
+Policy.prototype.setLod3DistInMeters = function(lod3DistInMeters) 
+{
+	this.lod3DistInMeters = lod3DistInMeters;
+};
+Policy.prototype.getLod4DistInMeters = function() 
+{
+	return this.lod4DistInMeters;
+};
+Policy.prototype.setLod4DistInMeters = function(lod4DistInMeters) 
+{
+	this.lod4DistInMeters = lod4DistInMeters;
+};
+Policy.prototype.getLod5DistInMeters = function() 
+{
+	return this.lod5DistInMeters;
+};
+Policy.prototype.setLod5DistInMeters = function(lod5DistInMeters) 
+{
+	this.lod5DistInMeters = lod5DistInMeters;
+};
+Policy.prototype.getAmbientReflectionCoef = function() 
+{
+	return this.ambientReflectionCoef;
+};
+Policy.prototype.setAmbientReflectionCoef = function(ambientReflectionCoef) 
+{
+	this.ambientReflectionCoef = ambientReflectionCoef;
+};
+Policy.prototype.getDiffuseReflectionCoef = function() 
+{
+	return this.diffuseReflectionCoef;
+};
+Policy.prototype.setDiffuseReflectionCoef = function(diffuseReflectionCoef) 
+{
+	this.diffuseReflectionCoef = diffuseReflectionCoef;
+};
+Policy.prototype.getSpecularReflectionCoef = function() 
+{
+	return this.specularReflectionCoef;
+};
+Policy.prototype.setSpecularReflectionCoef = function(specularReflectionCoef) 
+{
+	this.specularReflectionCoef = specularReflectionCoef;
+};
+Policy.prototype.getAmbientColor = function() 
+{
+	return this.ambientColor;
+};
+Policy.prototype.setAmbientColor = function(ambientColor) 
+{
+	this.ambientColor = ambientColor;
+};
+Policy.prototype.getSpecularColor = function() 
+{
+	return this.specularColor;
+};
+Policy.prototype.setSpecularColor = function(specularColor) 
+{
+	this.specularColor = specularColor;
+};
+Policy.prototype.getSsaoRadius = function() 
+{
+	return this.ssaoRadius;
+};
+Policy.prototype.setSsaoRadius = function(ssaoRadius) 
+{
+	this.ssaoRadius = ssaoRadius;
+};
+Policy.prototype.setModelMovable = function(movable)
+{
+	this.modelMovable = movable;
+};
+Policy.prototype.isModelMovable = function()
+{
+	return this.modelMovable;
 };
 'use strict';
 
@@ -66264,2194 +66347,6 @@ MessageSource.ko = {
 'use strict';
 
 /**
- * Geoserver for mago3Djs object.
- * @class Geoserver
- */
-var GeoServer = function() 
-{
-
-	this.serverInfo = {};
-}; 
-
-GeoServer.prototype.setServerInfo = function(info) 
-{
-	this.serverInfo = info;
-};
-
-GeoServer.prototype.getDataUrl = function() 
-{
-	return this.serverInfo.dataUrl;
-};
-
-GeoServer.prototype.getDataWorkspace = function() 
-{
-	return this.serverInfo.dataWorkspace;
-};
-
-GeoServer.prototype.getDataRequestUrl = function() 
-{
-	return this.getDataUrl() + '/' + this.getDataWorkspace();
-};
-
-GeoServer.prototype.getWmsVersion = function() 
-{
-	return this.serverInfo.wmsVersion;
-};
-'use strict';
-
-/**
- * This is the interaction for draw geometry.
- * @constructor
- * @class AbsClickInteraction
- * 
- * @abstract
- * @param {object} option layer object.
- */
-var AbsClickInteraction = function(option) 
-{
-	if (!(this instanceof AbsClickInteraction)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	option = option ? option : {};
-	Interaction.call(this);
-	
-	if (option.handleDownEvent)
-	{
-		this.handleDownEvent = option.handleDownEvent;
-	}
-
-	if (option.handleUpEvent)
-	{
-		this.handleUpEvent = option.handleUpEvent;
-	}
-    
-	if (option.handleMoveEvent)
-	{
-		this.handleMoveEvent = option.handleMoveEvent;
-	}
-
-	this.begin = false;
-	this.startPoint = undefined;
-	this.startTime;
-	this.endPoint = undefined;
-
-	this.tolerance = 0;
-};
-AbsClickInteraction.prototype = Object.create(Interaction.prototype);
-AbsClickInteraction.prototype.constructor = AbsClickInteraction;
-
-/**
- * interaction init
- */
-AbsClickInteraction.prototype.init = function() 
-{
-	this.begin = false;
-	this.startPoint = undefined;
-	this.endPoint = undefined;
-};
-/**
- * set active. set true, this interaction active, another interaction deactive.
- * @param {boolean} active
- * @fires AbsClickInteraction#ACTIVE
- * @fires AbsClickInteraction#DEACTIVE
- */
-AbsClickInteraction.prototype.setActive = function(active) 
-{
-	if (!this.manager || !(this.manager instanceof MagoManager)) 
-	{
-		throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
-	}
-
-	if (this.active === active) { return; }
-    
-	this.active = active;
-	if (active) 
-	{
-		//this.manager.interactionCollection.emit(InteractionCollection.EVENT_TYPE.ACTIVE, that);
-		this.emit(InteractionActiveType.ACTIVE, this);
-	}
-	else 
-	{
-		//this.manager.interactionCollection.emit(InteractionCollection.EVENT_TYPE.DEACTIVE);
-		this.emit(InteractionActiveType.DEACTIVE);
-	}
-};
-
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-AbsClickInteraction.prototype.handle = function(browserEvent) 
-{
-	var type = browserEvent.type;
-	if (!(type === MagoManager.EVENT_TYPE.MOUSEMOVE || type === MagoManager.EVENT_TYPE.LEFTDOWN || type === MagoManager.EVENT_TYPE.RIGHTDOWN || type === MagoManager.EVENT_TYPE.MIDDLEDOWN || type === MagoManager.EVENT_TYPE.LEFTUP || type === MagoManager.EVENT_TYPE.RIGHTUP || type === MagoManager.EVENT_TYPE.MIDDLEUP))
-	{
-		return false;
-	}
-	if (this.begin && type !== MagoManager.EVENT_TYPE.MOUSEMOVE)
-	{
-		this.begin = false;
-		this.dragtype = undefined;
-		this.endPoint = browserEvent.point;
-
-		if ((browserEvent.timestamp - this.startTime) < 1500)
-		{
-			var startScreenCoordinate = this.startPoint.screenCoordinate;
-			var endScreenCoordinate = this.endPoint.screenCoordinate;
-
-			var diffX = Math.abs(startScreenCoordinate.x - endScreenCoordinate.x);
-			var diffY = Math.abs(startScreenCoordinate.y - endScreenCoordinate.y);
-
-			if (diffX <= this.tolerance && diffY  <= this.tolerance)
-			{
-				var that = this;
-				this.manager.once('lastFrustum', function() 
-				{
-					that.handleUpEvent.call(that, browserEvent);
-				});
-			}
-		}
-	}
-	else 
-	{
-		if (type === MagoManager.EVENT_TYPE.MOUSEMOVE)
-		{
-			this.handleMoveEvent.call(this, browserEvent);
-		}
-		else
-		{
-			this.begin = true;
-			this.startPoint = browserEvent.point;
-			this.startTime = browserEvent.timestamp;
-
-			this.handleDownEvent.call(this, browserEvent);
-		}
-	}
-};
-
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-AbsClickInteraction.prototype.handleDownEvent = function(browserEvent)
-{
-	return abstract();
-};
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-AbsClickInteraction.prototype.handleUpEvent = function(browserEvent)
-{
-	return abstract();
-};
-
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-AbsClickInteraction.prototype.handleMoveEvent = function(browserEvent)
-{
-	return abstract();
-};
-'use strict';
-
-/**
- * This is the interaction for draw geometry.
- * @constructor
- * @class AbsPointerInteraction
- * 
- * @abstract
- * @param {object} option layer object.
- */
-var AbsPointerInteraction = function(option) 
-{
-	if (!(this instanceof AbsPointerInteraction)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-
-	option = option ? option : {};
-	Interaction.call(this);
-	
-	if (option.handleDownEvent)
-	{
-		this.handleDownEvent = option.handleDownEvent;
-	}
-
-	if (option.handleDragEvent)
-	{
-		this.handleDragEvent = option.handleDragEvent;
-	}
-
-	if (option.handleMoveEvent)
-	{
-		this.handleMoveEvent = option.handleMoveEvent;
-	}
-
-	if (option.handleUpEvent)
-	{
-		this.handleUpEvent = option.handleUpEvent;
-	}
-
-	this.begin = false;
-	this.dragging = false;
-	this.mouseBtn = undefined;
-	this.startPoint = undefined;
-	this.endPoint = undefined;
-};
-AbsPointerInteraction.prototype = Object.create(Interaction.prototype);
-AbsPointerInteraction.prototype.constructor = AbsPointerInteraction;
-
-/**
- * interaction init
- */
-AbsPointerInteraction.prototype.init = function() 
-{
-	this.begin = false;
-	this.dragging = false;
-	this.mouseBtn = undefined;
-	this.startPoint = undefined;
-	this.endPoint = undefined;
-};
-/**
- * set active. set true, this interaction active, another interaction deactive.
- * @param {boolean} active
- * @fires AbsPointInteraction#ACTIVE
- * @fires AbsPointInteraction#DEACTIVE
- */
-AbsPointerInteraction.prototype.setActive = function(active) 
-{
-	if (!this.manager || !(this.manager instanceof MagoManager)) 
-	{
-		throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
-	}
-
-	if (this.active === active) { return; }
-    
-	var that = this;
-	this.active = active;
-	if (active) 
-	{
-		//this.manager.interactionCollection.emit(InteractionCollection.EVENT_TYPE.ACTIVE, that);
-		this.emit(InteractionActiveType.ACTIVE, this);
-	}
-	else 
-	{
-		//this.manager.interactionCollection.emit(InteractionCollection.EVENT_TYPE.DEACTIVE);
-		this.emit(InteractionActiveType.DEACTIVE);
-	}
-};
-
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-AbsPointerInteraction.prototype.handle = function(browserEvent) 
-{
-	var type = browserEvent.type;
-
-	if (this.dragging)
-	{
-		if (type === MagoManager.EVENT_TYPE.LEFTUP || type === MagoManager.EVENT_TYPE.RIGHTUP || type === MagoManager.EVENT_TYPE.MIDDLEUP)
-		{
-			this.dragging = false;
-			this.mouseBtn = undefined;
-			this.endPoint = browserEvent.point;
-			this.handleUpEvent.call(this, browserEvent);
-		} 
-		else if (type === MagoManager.EVENT_TYPE.MOUSEMOVE)
-		{
-			this.handleDragEvent.call(this, browserEvent);
-		}
-	}
-	else 
-	{
-		if (type === MagoManager.EVENT_TYPE.LEFTDOWN || type === MagoManager.EVENT_TYPE.RIGHTDOWN || type === MagoManager.EVENT_TYPE.MIDDLEDOWN)
-		{
-			this.dragging = true;
-			this.mouseBtn = type;
-			this.endPoint = undefined;
-			this.startPoint = browserEvent.point;
-			this.handleDownEvent.call(this, browserEvent);
-		} 
-		else if (type === MagoManager.EVENT_TYPE.MOUSEMOVE)
-		{
-			this.handleMoveEvent.call(this, browserEvent);
-		}
-	}
-};
-
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-AbsPointerInteraction.prototype.handleDownEvent = function(browserEvent)
-{
-	return abstract();
-};
-
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-AbsPointerInteraction.prototype.handleDragEvent = function(browserEvent)
-{
-	return abstract();
-};
-
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-AbsPointerInteraction.prototype.handleMoveEvent = function(browserEvent)
-{
-	return abstract();
-};
-
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-AbsPointerInteraction.prototype.handleUpEvent = function(browserEvent)
-{
-	return abstract();
-};
-'use strict';
-
-/**
- * This is the interaction for draw geometry.
- * @constructor
- * @class ClickInteraction
- * 
- * @abstract
- * @param {object} option layer object.
- */
-var ClickInteraction = function(option) 
-{
-	if (!(this instanceof ClickInteraction)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	option = option ? option : {};
-	AbsClickInteraction.call(this, option);
-};
-ClickInteraction.prototype = Object.create(AbsClickInteraction.prototype);
-ClickInteraction.prototype.constructor = ClickInteraction;
-
-/**
- * interaction init
- */
-ClickInteraction.prototype.init = function() 
-{
-	this.begin = false;
-	this.startPoint = undefined;
-	this.endPoint = undefined;
-};
-
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-ClickInteraction.prototype.handleDownEvent = function(browserEvent)
-{
-	return;
-};
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-ClickInteraction.prototype.handleUpEvent = function(browserEvent)
-{
-	return;
-};
-
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-ClickInteraction.prototype.handleMoveEvent = function(browserEvent)
-{
-	return;
-};
-'use strict';
-
-/**
- * This is the interaction for draw geometry.
- * @constructor
- * @class DrawGeometryInteraction
- * 
- * @abstract
- * @param {object} layer layer object.
- */
-var DrawGeometryInteraction = function(style) 
-{
-	if (!(this instanceof DrawGeometryInteraction)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	Interaction.call(this);
-
-	/**
-	 * geometry style
-	 * @type {Object}
-	 * @default {}
-	 */
-	this.style;
-
-	if (style) 
-	{
-		this.setStyle(style);
-	}
-	else 
-	{
-		this.style = {};
-	}
-	this.collection;
-	this.result = [];
-};
-DrawGeometryInteraction.prototype = Object.create(Interaction.prototype);
-DrawGeometryInteraction.prototype.constructor = DrawGeometryInteraction;
-
-/**
- * get style
- * @return {object}
- */
-DrawGeometryInteraction.prototype.getStyle = function() 
-{
-	return this.style;
-};
-
-/**
- * set style
- * @param {object} style
- */
-DrawGeometryInteraction.prototype.setStyle = function(style) 
-{
-	this.style = style;
-};
-
-/**
- * set active. set true, this interaction active, another interaction deactive.
- * @param {boolean} active
- * @fires DrawGeometryInteraction#ACTIVE
- * @fires DrawGeometryInteraction#DEACTIVE
- */
-DrawGeometryInteraction.prototype.setActive = function(active) 
-{
-	if (!this.manager || !(this.manager instanceof MagoManager)) 
-	{
-		throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
-	}
-
-	if (this.active === active) { return; }
-    
-	if (!this.collection) 
-	{
-		this.collection = this.manager.interactionCollection;
-	}
-
-	var that = this;
-	if (active) 
-	{
-		this.collection.emit(InteractionActiveType.ACTIVE, that);
-		this.emit(this.constructor.EVENT_TYPE.ACTIVE, this);
-	}
-	else 
-	{
-		this.collection.emit(InteractionActiveType.DEACTIVE);
-		this.emit(this.constructor.EVENT_TYPE.DEACTIVE);
-	}
-};
-
-/**
- * make DrawGeometryInteraction. PointDrawer, LineDrawer, RectangleDrawer
- * @static
- * @param {string} type point, line, polygon, rectangle. polygon is not  ready.
- * @return {DrawGeometryInteraction}
- */
-DrawGeometryInteraction.createDrawGeometryInteraction = function(type) 
-{
-	if (!type) 
-	{
-		throw new Error(Messages.REQUIRED_EMPTY_ERROR('geometry type'));
-	}
-
-	var interaction;
-	switch (type)
-	{
-	case CODE.drawGeometryType.POINT : {
-		interaction = new PointDrawer();
-		break;
-	}
-	case CODE.drawGeometryType.LINE : {
-		interaction = new LineDrawer();
-		break;
-	}
-	case CODE.drawGeometryType.POLYGON : {
-		interaction = new PolygonDrawer();
-		break;
-	}
-	case CODE.drawGeometryType.RECTANGLE : {
-		interaction = new RectangleDrawer();
-		break;
-	}
-	}
-
-	return interaction;
-};
-'use strict';
-/**
- * @enum
- * Interaction target type enum
- */
-var InteractionActiveType = {
-	'ACTIVE'    : 'active',
-	'DEACTIVE' : 'deactive'
-};
-'use strict';
-/**
- * @enum
- * Interaction event type enum
- */
-var InteractionEventType = {
-	'LEFTMOUSEUP'    : 'leftmouseup',
-    'LEFTMOUSEDOWN' : 'leftmousedown',
-    'MOUSEMOVE' : 'mousemove',
-	'DRAG' : 'drag'
-};
-'use strict';
-
-/**
- * This is the interaction for draw polyline.
- * Last point use 'right click'
- * @class LineDrawer
- * 
- * @param {MagoPolyline~MagoPolylineStyle} style line style object.
- * 
- * @extends {DrawGeometryInteraction}
- */
-var LineDrawer = function(style) 
-{
-	if (!(this instanceof LineDrawer)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	DrawGeometryInteraction.call(this, style);
-    
-	this.points = [];
-	this.height = 200;
-
-	this.tempLine;
-	this.result = [];
-};
-LineDrawer.prototype = Object.create(DrawGeometryInteraction.prototype);
-LineDrawer.prototype.constructor = LineDrawer;
-
-LineDrawer.EVENT_TYPE = {
-	'DRAWEND': 'drawend'
-};
-/**
- * @private
- */
-LineDrawer.prototype.setHeight = function(height) 
-{
-	this.height = height;
-};
-/**
- * @private
- */
-LineDrawer.prototype.getHeight = function() 
-{
-	return this.height;
-};
-/**
- * @private
- */
-LineDrawer.prototype.init = function() 
-{
-	this.points = [];
-	this.tempLine = undefined;
-	clearTimeout(this.timeout);
-};
-/**
- * @private
- */
-LineDrawer.prototype.clear = function() 
-{
-	this.init();
-	var modeler = this.manager.modeler;
-	var result = this.result;
-	for (var i=0, len=result.length;i < len; i++) 
-	{
-		var rec = result[i];
-		modeler.removeObject(rec);
-	}
-	this.result.length = 0;
-};
-/**
- * @private
- */
-LineDrawer.prototype.start = function() 
-{
-	if (!this.manager || !(this.manager instanceof MagoManager)) 
-	{
-		throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
-	}
-	
-	var that = this;
-	var manager = that.manager;
-    
-	manager.on(MagoManager.EVENT_TYPE.LEFTUP, function(e)
-	{
-		if (!that.getActive()) { return; }
-
-		that.points.push(e.point.geographicCoordinate);
-	});
-
-	manager.on(MagoManager.EVENT_TYPE.MOUSEMOVE, function(e)
-	{
-		if (!that.getActive()) { return; }
-		if (that.points.length > 0) 
-		{   
-			var clonePoints = that.points.slice();
-			var auxPoint = e.endEvent.geographicCoordinate;
-			clonePoints.push(auxPoint);
-            
-			var position = {coordinates: clonePoints};
-			if (!that.tempLine)
-			{
-				if (Object.keys(that.style).length < 1) 
-				{
-					that.style = {
-						color     : '#ff0000',
-						thickness : 2.0
-					};
-				}
-				
-				that.tempLine = new MagoPolyline(position, that.style);
-				manager.modeler.magoRectangle = that.tempLine;
-			}
-			else 
-			{
-				that.tempLine.init(manager);
-				that.tempLine.setPosition(position);
-			}
-		}
-	});
-    
-	manager.on(MagoManager.EVENT_TYPE.RIGHTCLICK, function(e)
-	{
-		if (!that.getActive() || !that.tempLine) { return; }
-		that.points.push(e.clickCoordinate.geographicCoordinate);
-
-		var position = {coordinates: that.points};
-		that.tempLine.init(manager);
-		that.tempLine.setPosition(position);
-        
-		that.end();
-	});
-};
-/**
- * @private
- */
-LineDrawer.prototype.end = function()
-{
-	this.result.push(this.tempLine);
-
-	this.manager.modeler.addObject(this.tempLine, 1);
-
-	this.emit(LineDrawer.EVENT_TYPE.DRAWEND, this.tempLine);
-	this.init();
-};
-'use strict';
-
-/**
- * This is the interaction for draw geometry.
- * @constructor
- * @class NativeUpDownInteraction
- * 
- * 
- * @param {object} option layer object.
- */
-var NativeUpDownInteraction = function(option) 
-{
-	if (!(this instanceof NativeUpDownInteraction)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	option = option ? option : {};
-	AbsPointerInteraction.call(this, option);
-    
-	this.targetType = DataType.NATIVE;
-	this.filter = defaultValue(option.filter, 'selected');
-	this.filter_;
-	this.offset = defaultValue(option.filter, 3.3);
-    
-
-	this.target = undefined;
-	this.selObjMovePlaneCC = undefined;
-	this.lineCC = new Line();
-	this.startPixel = undefined;
-
-};
-NativeUpDownInteraction.prototype = Object.create(AbsPointerInteraction.prototype);
-NativeUpDownInteraction.prototype.constructor = NativeUpDownInteraction;
-
-NativeUpDownInteraction.EVENT_TYPE = {
-	'ACTIVE'  	: 'active',
-	'DEACTIVE'	: 'deactive',
-	'CHANGEHEIGHT' : 'changeheight'
-};
-/**
- * interaction init
- * @override
- */
-NativeUpDownInteraction.prototype.init = function() 
-{
-	this.dragging = false;
-	this.mouseBtn = undefined;
-	this.startPoint = undefined;
-	this.endPoint = undefined;
-	this.selObjMovePlaneCC = undefined;
-	this.startPixel = undefined;
-	this.target = undefined;
-};
-
-/**
- * set TargetType
- * @param {string} filter 
- */
-NativeUpDownInteraction.prototype.setFilter = function(filter)
-{
-	var oldFilter = this.filter;
-	this.filter = filter;
-	if (oldFilter !== filter)
-	{
-		this.setFilterFunction();
-	}
-};
-
-/**
- * get TargetType
- * @return {boolean}
- */
-NativeUpDownInteraction.prototype.getFilter = function()
-{
-	return this.filter;
-};
-
-NativeUpDownInteraction.prototype.handleDownEvent = function(browserEvent)
-{
-	var manager = this.manager;
-	if (browserEvent.type !== "leftdown") { return; }
-
-	var selectManager = manager.selectionManager;
-
-	if (manager.selectionFbo === undefined) 
-	{ manager.selectionFbo = new FBO(gl, manager.sceneState.drawingBufferWidth, manager.sceneState.drawingBufferHeight, {matchCanvasSize: true}); }
-
-	var gl = manager.getGl();
-	selectManager.selectProvisionalObjectByPixel(gl, browserEvent.point.screenCoordinate.x, browserEvent.point.screenCoordinate.y);
-
-	if (!this.filter_)
-	{
-		this.setFilterFunction();
-	}
-
-	var filterProvisional = selectManager.filterProvisional(this.targetType, this.filter_);
-
-	if (!isEmpty(filterProvisional))
-	{
-		this.target = filterProvisional[this.targetType][0];
-	}
-	else 
-	{
-		this.init();
-	}
-};
-
-NativeUpDownInteraction.prototype.handleDragEvent = function(browserEvent)
-{
-	if (this.target && this.dragging)
-	{
-		this.manager.setCameraMotion(false);
-		var object = this.target;
-		if (object instanceof ObjectMarker)
-		{ return; }
-		object = object.getRootOwner();
-
-		var attributes = object.attributes;
-		if (attributes === undefined)
-		{ return; }
-        
-		var geoLocDataManager = object.getGeoLocDataManager();
-		if (geoLocDataManager === undefined)
-		{ return; }
-        
-		var geoLocationData = geoLocDataManager.getCurrentGeoLocationData();
-		var manager = this.manager;
-		var gl = manager.getGl();
-		var sceneState = manager.sceneState;
-		if (this.selObjMovePlaneCC === undefined) 
-		{
-			this.selObjMovePlaneCC = new Plane();
-			// calculate the pixelPos in camCoord.
-			var geoLocMatrix = geoLocationData.geoLocMatrix;
-			var mvMat = sceneState.modelViewMatrix;
-			var mvMatRelToEye = sceneState.modelViewRelToEyeMatrix;
-            
-			var sc = this.startPoint.screenCoordinate;
-			var magoWC = ManagerUtils.calculatePixelPositionWorldCoord(gl, sc.x, sc.y, magoWC, undefined, undefined, undefined, manager);
-			//var pixelPosCC = mvMat.transformPoint3D(magoWC, undefined);
-			var pixelPosCC = mvMat.transformPoint3D(this.startPoint.worldCoordinate, undefined);
-
-			// movement in plane XZ.
-			//var globeYaxisWC = new Point3D(geoLocMatrix._floatArrays[4], geoLocMatrix._floatArrays[5], geoLocMatrix._floatArrays[6]);
-			var globeZaxisWC = new Point3D(geoLocMatrix._floatArrays[8], geoLocMatrix._floatArrays[9], geoLocMatrix._floatArrays[10]);
-			var camDirection = sceneState.camera.direction;
-
-			var dot = globeZaxisWC.scalarProduct(camDirection);
-			if (Math.abs(dot) > 0.9)
-			{
-               
-				var right = sceneState.camera.right;
-				var mat = new Matrix4();
-				mat.rotationAxisAngDeg(45, right.x, right.y, right.z);
-				var newPosition = mat.transformPoint3D(sceneState.camera.position);
-				/*
-                var cesiumCam = manager.scene.camera;
-                cesiumCam.flyTo({
-                    destination: new Cesium.Cartesian3(newPosition.x,newPosition.y,newPosition.z),
-                    orientation : {
-                        heading : Cesium.Math.toRadians(-45),
-                        pitch : 0,
-                        roll : 0.0
-                    },
-                    duration: 2
-                });
-                */
-				//this.handleUpEvent();
-				// alert('카메라를 스리디로 바꿉니다(문구 추천좀)');
-				//return;
-			}
-
-			var globeRightWC = globeZaxisWC.crossProduct(camDirection);
-			var globeP = globeRightWC.crossProduct(globeZaxisWC);
-			globeP.unitary();
-			var globeYaxisCC = mvMatRelToEye.transformPoint3D(globeP, undefined);
-			this.selObjMovePlaneCC.setPointAndNormal(pixelPosCC.x, pixelPosCC.y, pixelPosCC.z,    globeYaxisCC.x, globeYaxisCC.y, globeYaxisCC.z); 
-		}
-        
-		var screenCoordinate = browserEvent.endEvent.screenCoordinate;
-		var camRay = ManagerUtils.getRayCamSpace(screenCoordinate.x, screenCoordinate.y, camRay, manager);
-		this.lineCC.setPointAndDir(0, 0, 0,  camRay[0], camRay[1], camRay[2]);
-
-		// Calculate intersection cameraRay with planeCC.
-		var intersectionPointCC = new Point3D();
-		intersectionPointCC = this.selObjMovePlaneCC.intersectionLine(this.lineCC, intersectionPointCC);
-        
-		var mvMat = sceneState.getModelViewMatrixInv();
-		var intersectionWC = mvMat.transformPoint3D(intersectionPointCC, intersectionWC);
-        
-		var intersectionScreenCoord = ManagerUtils.calculateWorldPositionToScreenCoord(undefined, intersectionWC.x, intersectionWC.y, intersectionWC.z, intersectionScreenCoord, manager);
-        
-		if (!this.startPixel)
-		{
-			var geoCoord = geoLocationData.geographicCoord;
-			var wc = ManagerUtils.geographicCoordToWorldPoint(geoCoord.longitude, geoCoord.latitude, geoCoord.altitude);
-			this.startPixel = ManagerUtils.calculateWorldPositionToScreenCoord(undefined, wc.x, wc.y, wc.z, this.startPixel, manager);
-		}
-
-		var diff = intersectionScreenCoord.y - this.startPixel.y;
-		var up = diff < 0 ? true : false;
-		var gijun = Math.abs(diff);
-        
-		if (gijun > this.offset)
-		{
-			var currentbuilding = this.target;
-			var height = currentbuilding.height;
-            var prevHeight = height;
-			if (up) 
-			{
-				height = height+this.offset;
-			}
-			else 
-			{
-				height = height-this.offset;			
-			}
-
-			/*var model = currentbuilding.geographicCoordList.getExtrudedMeshRenderableObject(height, undefined, undefined, undefined, undefined, {color: currentbuilding.color4.getHexCode(), height: this.offset});
-            
-			currentbuilding.height = height;
-			currentbuilding.objectsArray = model.objectsArray;*/
-
-			currentbuilding.setHeight(height);
-
-			this.emit(NativeUpDownInteraction.EVENT_TYPE.CHANGEHEIGHT, {
-				type : NativeUpDownInteraction.EVENT_TYPE.CHANGEHEIGHT,
-				timestamp : new Date().getTime(),
-				prevHeight : prevHeight,
-				changedHeight : height
-			});
-            
-			this.startPixel.set(screenCoordinate.x, screenCoordinate.y, screenCoordinate.z);
-		}
-        
-		//geoLocationData = ManagerUtils.calculateGeoLocationData(undefined, undefined, difZ, undefined, undefined, undefined, geoLocationData, this);
-	}
-};
-
-NativeUpDownInteraction.prototype.handleMoveEvent = function()
-{
-	return;
-};
-
-NativeUpDownInteraction.prototype.handleUpEvent = function()
-{
-	this.init();
-	this.manager.setCameraMotion(true);
-	this.manager.isCameraMoved = true;
-	return;
-};
-
-
-NativeUpDownInteraction.prototype.setFilterFunction = function()
-{
-	var manager = this.manager;
-	if (this.filter === 'selected')
-	{
-		this.filter_ = function(prov)
-		{
-			return prov === manager.defaultSelectInteraction.getSelected();
-		};
-	}
-	else 
-	{
-		this.filter_ = function(){ return true; };
-	}
-};
-'use strict';
-
-/**
- * This is the interaction for draw point.
- * @class PointDrawer
- * 
- * @param {MagoPoint~MagoPointStyle} style layer object.
- * 
- * @extends {DrawGeometryInteraction}
- */
-var PointDrawer = function(style) 
-{
-	if (!(this instanceof PointDrawer)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	DrawGeometryInteraction.call(this, style);
-
-	this.startDraw = false;
-	this.startTime = undefined;
-	this.startPoint = undefined;
-	this.result = [];
-};
-PointDrawer.prototype = Object.create(DrawGeometryInteraction.prototype);
-PointDrawer.prototype.constructor = PointDrawer;
-
-PointDrawer.EVENT_TYPE = {
-	'DRAWEND': 'drawend'
-};
-/**
- * @private
- */
-PointDrawer.prototype.init = function() 
-{
-	this.startDraw = false;
-	this.startTime = undefined;
-	this.startPoint = undefined;
-};
-/**
- * @private
- */
-PointDrawer.prototype.clear = function() 
-{
-	this.init();
-	var modeler = this.manager.modeler;
-	var result = this.result;
-	for (var i=0, len=result.length;i < len; i++) 
-	{
-		var rec = result[i];
-		modeler.removeObject(rec);
-	}
-	this.result.length = 0;
-};
-/**
- * @private
- */
-PointDrawer.prototype.start = function() 
-{
-	if (!this.manager || !(this.manager instanceof MagoManager)) 
-	{
-		throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
-	}
-	
-	var that = this;
-	var manager = that.manager;
-
-	manager.on(MagoManager.EVENT_TYPE.LEFTDOWN, function(e)
-	{
-		if (!that.getActive()) { return; }
-		if (!that.startDraw) 
-		{
-			that.startDraw = true;
-			that.startTime = e.timestamp;
-			that.startPoint = e.point.screenCoordinate;
-		}
-	});
-	manager.on(MagoManager.EVENT_TYPE.LEFTUP, function(e)
-	{
-		if (!that.getActive()) { return; }
-		if (that.startDraw) 
-		{
-			var moveless = false;
-			if ((e.timestamp - that.startTime) < 1500)
-			{
-				var startScreenCoordinate = that.startPoint;
-				var endScreenCoordinate = e.point.screenCoordinate;
-
-				var diffX = Math.abs(startScreenCoordinate.x - endScreenCoordinate.x);
-				var diffY = Math.abs(startScreenCoordinate.y - endScreenCoordinate.y);
-
-				if (diffX <= 0 && diffY  <= 0)
-				{
-					moveless = true;
-				}
-			}
-			if (!moveless)
-			{
-				that.init();
-				return;
-			} 
-
-			var position = e.point.geographicCoordinate;
-
-			if (Object.keys(that.style).length < 1) 
-			{
-				that.style = {
-					size  : 10,
-					color : '#00FF00'
-				};
-			}
-
-			that.end(new MagoPoint(position, that.style));
-		}
-	});
-};
-/**
- * @private
- */
-PointDrawer.prototype.end = function(point)
-{
-	this.result.push(point);
-	this.manager.modeler.addObject(point, 1);
-    
-	this.emit(PointDrawer.EVENT_TYPE.DRAWEND, point);
-	this.init();
-};
-'use strict';
-
-/**
- * This is the interaction for draw geometry.
- * @constructor
- * @class GeometrySelectInteraction
- * 
- * 
- * @param {object} option layer object.
- */
-var PointSelectInteraction = function(option) 
-{
-	if (!(this instanceof PointSelectInteraction)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	option = option ? option : {};
-	AbsClickInteraction.call(this, option);
-	
-	this.selected = undefined;
-
-	this.targetType = defaultValue(option.targetType, DataType.F4D);
-	this.targetHighlight = defaultValue(option.targetHighlight, true);
-	this.filter = undefined;
-
-	var that = this;
-	this.on(PointSelectInteraction.EVENT_TYPE.DEACTIVE, function()
-	{
-		that.init();
-		that.selected = undefined;
-		that.manager.selectionManager.clearCurrents();
-	});
-};
-PointSelectInteraction.prototype = Object.create(AbsClickInteraction.prototype);
-PointSelectInteraction.prototype.constructor = PointSelectInteraction;
-
-PointSelectInteraction.EVENT_TYPE = {
-	'ACTIVE'  	: 'active',
-	'DEACTIVE'	: 'deactive'
-};
-/**
- * interaction init
- */
-PointSelectInteraction.prototype.init = function() 
-{
-	this.begin = false;
-	this.startPoint = undefined;
-	this.endPoint = undefined;
-};
-/**
- * set TargetType
- * @param {boolean} type 
- */
-PointSelectInteraction.prototype.setTargetType = function(type)
-{
-	var oldType = this.targetType;
-	if (oldType !== type)
-	{
-		this.init();
-		this.selected = undefined;
-		this.manager.isCameraMoved = true;
-		this.manager.selectionManager.clearCurrents();
-		this.filter = undefined;
-	}
-	this.targetType = type;
-};
-
-/**
- * get TargetType
- * @return {boolean}
- */
-PointSelectInteraction.prototype.getTargetType = function()
-{
-	return this.targetType;
-};
-
-/**
- * set filter function
- * @param {function} filterFunction
- */
-PointSelectInteraction.prototype.setFilter = function(filterFunction)
-{
-	if(filterFunction && typeof filterFunction === 'function') {
-		this.filter = filterFunction;
-	}
-};
-
-/**
- * set filter function
- * @param {function} filterFunction
- */
-PointSelectInteraction.prototype.getFilter = function(filterFunction)
-{
-	return this.filter;
-};
-
-/**
- * set TargetHighlight
- * @param {boolean} highlight 
- */
-PointSelectInteraction.prototype.setTargetHighlight = function(highlight)
-{
-	if (!highlight)
-	{
-		this.init();
-		this.manager.selectionManager.clearCurrents();
-	}
-	this.targetHighlight = highlight;
-};
-
-/**
- * get selected object
- * @return {Object}
- */
-PointSelectInteraction.prototype.getSelected = function()
-{
-	return this.selected;
-};
-
-/**
- * get TargetHighlight
- * @return {boolean}
- */
-PointSelectInteraction.prototype.getTargetHighlight = function()
-{
-	return this.targetHighlight;
-};
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-PointSelectInteraction.prototype.handleDownEvent = function(browserEvent)
-{
-	return;
-};
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-PointSelectInteraction.prototype.handleUpEvent = function(browserEvent)
-{
-	var selectionManager = this.manager.selectionManager;
-	selectionManager.clearCurrents();
-	this.select(browserEvent.point.screenCoordinate);
-	var oldSelected = this.selected;
-	switch (this.targetType)
-	{
-	case DataType.F4D : {
-		this.selected = selectionManager.getSelectedF4dNode();
-		break;
-	}
-	case DataType.OBJECT : {
-		this.selected = selectionManager.getSelectedF4dObject();
-		break;
-	}
-	case DataType.NATIVE : {
-		this.selected = selectionManager.getSelectedGeneral();
-		break;
-	}
-	}
-	if (oldSelected)
-	{
-		this.emitEvent(oldSelected, false);
-	}
-	this.emitEvent(this.selected, true);
-};
-PointSelectInteraction.prototype.emitEvent = function(selectedObj, selected)
-{
-	if (selectedObj)
-	{
-		var type = PointSelectInteraction.getEventType(this.targetType, selected);
-		var eventObj = {
-			type      : type,
-			timestamp : new Date()
-		};
-		selected ? eventObj.selected = selectedObj : eventObj.deselected = selectedObj;
-		this.manager.emit(type, eventObj);
-	}
-};
-PointSelectInteraction.getEventType = function(target, selected)
-{
-	var eventType;
-	switch (target)
-	{
-	case DataType.F4D : {
-		eventType = selected ? MagoManager.EVENT_TYPE.SELECTEDF4D : MagoManager.EVENT_TYPE.DESELECTEDF4D;
-		break;
-	}
-	case DataType.OBJECT : {
-		eventType = selected ? MagoManager.EVENT_TYPE.SELECTEDF4DOBJECT : MagoManager.EVENT_TYPE.DESELECTEDF4DOBJECT;
-		break;
-	}
-	case DataType.NATIVE : {
-		eventType = selected ? MagoManager.EVENT_TYPE.SELECTEDGENERALOBJECT : MagoManager.EVENT_TYPE.DESELECTEDGENERALOBJECT;
-		break;
-	}
-	}
-	return eventType;
-};
-
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-PointSelectInteraction.prototype.handleMoveEvent = function(browserEvent)
-{
-	if (this.targetHighlight && !this.selected)
-	{
-		this.select(browserEvent.endEvent.screenCoordinate);
-	}
-};
-
-/**
- * select 
- * @param {Point2D} screenCoordinate
- * @param {boolean} bObject
- */
-PointSelectInteraction.prototype.select = function(screenCoordinate)
-{
-	var manager = this.manager;
-	var selectManager = manager.selectionManager;
-
-	if (manager.selectionFbo === undefined) 
-	{ manager.selectionFbo = new FBO(gl, manager.sceneState.drawingBufferWidth, manager.sceneState.drawingBufferHeight, {matchCanvasSize: true}); }
-
-	var gl = manager.getGl();
-	selectManager.selectProvisionalObjectByPixel(gl, screenCoordinate.x, screenCoordinate.y);
-	selectManager.provisionalToCurrent(this.targetType, this.filter);
-	
-	//selectManager.selectObjectByPixel(gl, screenCoordinate.x, screenCoordinate.y, bObject);
-};
-
-/**
- * clear 
- */
-PointSelectInteraction.prototype.clear = function()
-{
-	this.emitEvent(this.selected, false);
-	this.manager.selectionManager.clearCurrents();
-	this.init();
-	this.selected = undefined;
-};
-'use strict';
-
-/**
- * This is the interaction for draw rectangle.
- * @class RectangleDrawer
- * 
- * @param {MagoRectangle~MagoRectangleStyle} style style object.
- * @extends {DrawGeometryInteraction}
- */
-var RectangleDrawer = function(style) 
-{
-	if (!(this instanceof RectangleDrawer)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	DrawGeometryInteraction.call(this, style);
-    
-	this.startDraw = false;
-	this.dragging = false;
-	this.startPoint;
-	this.endPoint;
-	this.height = 200;
-
-	this.tempRectangle;
-	this.result = [];
-};
-RectangleDrawer.prototype = Object.create(DrawGeometryInteraction.prototype);
-RectangleDrawer.prototype.constructor = RectangleDrawer;
-
-RectangleDrawer.EVENT_TYPE = {
-	'DRAWEND'  : 'drawend',
-	'ACTIVE'   : 'active',
-	'DEACTIVE' : 'deactive'
-};
-/**
- * @private
- */
-RectangleDrawer.prototype.setHeight = function(height) 
-{
-	this.height = height;
-};
-/**
- * @private
- */
-RectangleDrawer.prototype.getHeight = function() 
-{
-	return this.height;
-};
-/**
- * @private
- */
-RectangleDrawer.prototype.init = function() 
-{
-	this.startDraw = false;
-	this.dragging = false;
-	this.startPoint = undefined;
-	this.endPoint = undefined;
-	this.tempRectangle = undefined;
-	this.manager.magoWorld.cameraMovable = true;
-
-	if (this.manager.modeler.magoRectangle) 
-	{
-		this.manager.modeler.magoRectangle.deleteObjects(this.manager.vboMemoryManager);
-		this.manager.modeler.magoRectangle = undefined;
-	}
-};
-/**
- * @private
- */
-RectangleDrawer.prototype.clear = function() 
-{
-	this.init();
-	var modeler = this.manager.modeler;
-	var result = this.result;
-	for (var i=0, len=result.length;i < len; i++) 
-	{
-		var rec = result[i];
-		modeler.removeObject(rec);
-	}
-	this.result.length = 0;
-};
-/**
- * @private
- */
-RectangleDrawer.prototype.start = function() 
-{
-	if (!this.manager || !(this.manager instanceof MagoManager)) 
-	{
-		throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
-	}
-	
-	var that = this;
-	var manager = that.manager;
-
-	manager.on(MagoManager.EVENT_TYPE.LEFTDOWN, function(e)
-	{
-		if (!that.getActive()) { return; }
-		if (!that.startDraw) 
-		{
-			manager.magoWorld.cameraMovable = false;
-			that.startDraw = true;
-			that.startPoint = e.point.geographicCoordinate;
-		}
-	});
-    
-	manager.on(MagoManager.EVENT_TYPE.MOUSEMOVE, function(e)
-	{
-		if (!that.getActive()) { return; }
-		if (that.startDraw && that.startPoint) 
-		{
-			that.dragging = true;
-            
-			var auxPoint = e.endEvent.geographicCoordinate;
-			var minLon = (that.startPoint.longitude < auxPoint.longitude) ? that.startPoint.longitude : auxPoint.longitude;
-			var minLat = (that.startPoint.latitude < auxPoint.latitude) ? that.startPoint.latitude : auxPoint.latitude;
-			var maxLon = (that.startPoint.longitude < auxPoint.longitude) ? auxPoint.longitude : that.startPoint.longitude;
-			var maxLat = (that.startPoint.latitude < auxPoint.latitude) ? auxPoint.latitude : that.startPoint.latitude;
-
-			var position = {
-				minLongitude : minLon,
-				minLatitude  : minLat,
-				maxLongitude : maxLon,
-				maxLatitude  : maxLat,
-				altitude     : -3000
-			};
-
-			if (!that.tempRectangle)
-			{
-				if (Object.keys(that.style).length < 1) 
-				{
-					that.style = {
-						fillColor: '#ff0000'
-					};
-				}
-				that.tempRectangle = new MagoRectangleGround(position, that.style);
-				manager.modeler.magoRectangle = that.tempRectangle;
-			}
-			else 
-			{
-				that.tempRectangle.init(manager);
-				that.tempRectangle.setPosition(position);
-			}
-		}
-	});
-    
-	manager.on(MagoManager.EVENT_TYPE.LEFTUP, function(e)
-	{
-		if (!that.getActive()) { return; }
-		if (that.dragging) 
-		{
-			that.endPoint = e.point;
-			that.end();
-		}
-	});
-};
-/**
- * @private
- */
-RectangleDrawer.prototype.end = function()
-{
-	this.manager.magoWorld.cameraMovable = true;
-
-	this.result.push(this.tempRectangle);
-
-	this.manager.modeler.addObject(this.tempRectangle, 1);
-
-	this.emit(RectangleDrawer.EVENT_TYPE.DRAWEND, this.tempRectangle);
-	this.init();
-};
-
-/**
- * remove last drawed rectangle
- */
-RectangleDrawer.prototype.cancle = function()
-{
-	var idx = this.result.length - 1;
-	var removalRectangle = this.result[idx];
-	this.manager.modeler.removeObject(removalRectangle);
-	this.result = this.result.slice(0, idx);
-};
-'use strict';
-
-/**
- * This is the interaction for draw geometry.
- * @constructor
- * @class RotateInteraction
- * 
- * 
- * @param {object} option layer object.
- */
-var RotateInteraction = function(option) 
-{
-	if (!(this instanceof RotateInteraction)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	option = option ? option : {};
-	AbsPointerInteraction.call(this, option);
-    
-	this.targetType = defaultValue(option.targetType, DataType.F4D);
-	this.filter = defaultValue(option.filter, 'selected');
-	this.filter_;
-    
-
-	this.target = undefined;
-	this.parentNode = undefined;
-	this.centerScreenCoord = undefined;
-	this.clickDeg = undefined;
-};
-RotateInteraction.prototype = Object.create(AbsPointerInteraction.prototype);
-RotateInteraction.prototype.constructor = RotateInteraction;
-
-RotateInteraction.EVENT_TYPE = {
-	'ACTIVE'  	: 'active',
-	'DEACTIVE'	: 'deactive'
-};
-/**
- * interaction init
- * @override
- */
-RotateInteraction.prototype.init = function() 
-{
-	this.dragging = false;
-	this.mouseBtn = undefined;
-	this.startPoint = undefined;
-	this.endPoint = undefined;
-	this.target = undefined;
-	this.parentNode = undefined;
-	this.centerScreenCoord = undefined;
-	this.clickDeg = undefined;
-};
-
-/**
- * set TargetType
- * @param {boolean} type 
- */
-RotateInteraction.prototype.setTargetType = function(type)
-{
-	this.targetType = type;
-};
-
-/**
- * get TargetType
- * @return {boolean}
- */
-RotateInteraction.prototype.getTargetType = function()
-{
-	return this.targetType;
-};
-
-/**
- * set TargetType
- * @param {string} filter 
- */
-RotateInteraction.prototype.setFilter = function(filter)
-{
-	var oldFilter = this.filter;
-	this.filter = filter;
-	if (oldFilter !== filter)
-	{
-		this.setFilterFunction();
-	}
-};
-
-/**
- * get TargetType
- * @return {boolean}
- */
-RotateInteraction.prototype.getFilter = function()
-{
-	return this.filter;
-};
-
-RotateInteraction.prototype.handleDownEvent = function(browserEvent)
-{
-	var manager = this.manager;
-	if (browserEvent.type !== "leftdown") { return; }
-
-	var selectManager = manager.selectionManager;
-
-	if (manager.selectionFbo === undefined) 
-	{ manager.selectionFbo = new FBO(gl, manager.sceneState.drawingBufferWidth, manager.sceneState.drawingBufferHeight, {matchCanvasSize: true}); }
-
-	var gl = manager.getGl();
-	var clickScreenCoord = browserEvent.point.screenCoordinate;
-	selectManager.selectProvisionalObjectByPixel(gl, clickScreenCoord.x, clickScreenCoord.y);
-
-	if (!this.filter_)
-	{
-		this.setFilterFunction();
-	}
-
-	var filterProvisional = selectManager.filterProvisional(this.targetType, this.filter_);
-
-	if (!isEmpty(filterProvisional))
-	{
-		this.target = filterProvisional[this.targetType][0];
-		if (this.targetType === DataType.OBJECT)
-		{
-			this.parentNode = filterProvisional[DataType.F4D][0];
-		}
-		var currentGeoLocData = this.target.getCurrentGeoLocationData();
-		var currentGeoCoord = currentGeoLocData.geographicCoord;
-		var wc = ManagerUtils.geographicCoordToWorldPoint(currentGeoCoord.longitude, currentGeoCoord.latitude, currentGeoCoord.altitude);
-        
-		this.centerScreenCoord = ManagerUtils.calculateWorldPositionToScreenCoord(undefined, wc.x, wc.y, wc.z, this.centerScreenCoord, manager);
-		var rad = Math.atan2(clickScreenCoord.x - this.centerScreenCoord.x, clickScreenCoord.y - this.centerScreenCoord.y);
-		this.clickDeg = Math.round((rad * (180/Math.PI) * -1) + 100);
-
-		this.manager.setCameraMotion(false);
-	}
-	else 
-	{
-		this.init();
-	}
-};
-
-RotateInteraction.prototype.handleDragEvent = function(browserEvent)
-{
-	if (this.target && this.dragging)
-	{
-		var screenCoordinate = browserEvent.endEvent.screenCoordinate;
-		var rad = Math.atan2(screenCoordinate.x - this.centerScreenCoord.x, screenCoordinate.y - this.centerScreenCoord.y);
-		var deg = Math.round((rad * (180/Math.PI) * -1) + 100);
-		var rdeg = deg - this.clickDeg;
-
-		var currentGeoLocData = this.target.getCurrentGeoLocationData();
-		var currentGeoCoord = currentGeoLocData.geographicCoord;
-		var currentLon = currentGeoCoord.longtitude;
-		var currentLat = currentGeoCoord.longtitude;
-		var currentAlt = currentGeoCoord.altitude;
-		var currentRoll = currentGeoLocData.roll;
-		var currentPitch = currentGeoLocData.pitch;
-
-		this.target.changeLocationAndRotation(currentLon, currentLat, currentAlt, -rdeg, currentRoll, currentPitch);
-	}
-};
-
-RotateInteraction.prototype.handleUpEvent = function()
-{
-	this.init();
-	this.manager.setCameraMotion(true);
-	this.manager.isCameraMoved = true;
-	return;
-};
-
-RotateInteraction.prototype.handleMoveEvent = function() 
-{
-	return;
-};
-
-RotateInteraction.prototype.setFilterFunction = function()
-{
-	var manager = this.manager;
-	if (this.filter === 'selected')
-	{
-		this.filter_ = function(prov)
-		{
-			return prov === manager.defaultSelectInteraction.getSelected();
-		};
-	}
-	else 
-	{
-		this.filter_ = function(){ return true; };
-	}
-};
-'use strict';
-
-/**
- * This is the interaction for draw geometry.
- * @constructor
- * @class TranslateInteraction
- * 
- * 
- * @param {object} option layer object.
- */
-var TranslateInteraction = function(option) 
-{
-	if (!(this instanceof TranslateInteraction)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	option = option ? option : {};
-	AbsPointerInteraction.call(this, option);
-    
-	this.targetType = defaultValue(option.targetType, DataType.F4D);
-	this.filter = defaultValue(option.filter, 'selected');
-	this.filter_;
-    
-
-	this.target = undefined;
-	this.parentNode = undefined;
-	this.selObjMovePlaneCC = undefined;
-	this.selObjMovePlane = undefined;
-	this.lineCC = new Line();
-	this.lineSC = new Line();
-	this.startGeoCoordDif = undefined;
-	this.startMovPoint = undefined;
-};
-TranslateInteraction.prototype = Object.create(AbsPointerInteraction.prototype);
-TranslateInteraction.prototype.constructor = TranslateInteraction;
-
-TranslateInteraction.EVENT_TYPE = {
-	'ACTIVE'  	: 'active',
-	'DEACTIVE'	: 'deactive'
-};
-/**
- * interaction init
- * @override
- */
-TranslateInteraction.prototype.init = function() 
-{
-	this.begin = false;
-	this.dragging = false;
-	this.mouseBtn = undefined;
-	this.startPoint = undefined;
-	this.endPoint = undefined;
-	this.selObjMovePlaneCC = undefined;
-	this.selObjMovePlane = undefined;
-	this.startGeoCoordDif = undefined;
-	this.startMovPoint = undefined;
-	this.target = undefined;
-	this.parentNode = undefined;
-};
-
-/**
- * set TargetType
- * @param {boolean} type 
- */
-TranslateInteraction.prototype.setTargetType = function(type)
-{
-	this.targetType = type;
-};
-
-/**
- * get TargetType
- * @return {boolean}
- */
-TranslateInteraction.prototype.getTargetType = function()
-{
-	return this.targetType;
-};
-
-/**
- * set TargetType
- * @param {string} filter 
- */
-TranslateInteraction.prototype.setFilter = function(filter)
-{
-	var oldFilter = this.filter;
-	this.filter = filter;
-	if (oldFilter !== filter)
-	{
-		this.setFilterFunction();
-	}
-};
-
-/**
- * get TargetType
- * @return {boolean}
- */
-TranslateInteraction.prototype.getFilter = function()
-{
-	return this.filter;
-};
-
-TranslateInteraction.prototype.handleDownEvent = function(browserEvent)
-{
-	var manager = this.manager;
-	if (browserEvent.type !== "leftdown") { return; }
-
-	var selectManager = manager.selectionManager;
-
-	if (manager.selectionFbo === undefined) 
-	{ manager.selectionFbo = new FBO(gl, manager.sceneState.drawingBufferWidth, manager.sceneState.drawingBufferHeight, {matchCanvasSize: true}); }
-
-	var gl = manager.getGl();
-	selectManager.selectProvisionalObjectByPixel(gl, browserEvent.point.screenCoordinate.x, browserEvent.point.screenCoordinate.y);
-
-	if (!this.filter_)
-	{
-		this.setFilterFunction();
-	}
-
-	var filterProvisional = selectManager.filterProvisional(this.targetType, this.filter_);
-
-	if (!isEmpty(filterProvisional))
-	{
-		this.target = filterProvisional[this.targetType][0];
-		if (this.targetType === DataType.OBJECT)
-		{
-			this.parentNode = filterProvisional[DataType.F4D][0];
-		}
-	}
-	else 
-	{
-		this.init();
-	}
-};
-
-TranslateInteraction.prototype.handleDragEvent = function(browserEvent)
-{
-	if (this.target && this.dragging)
-	{
-		this.manager.setCameraMotion(false);
-		switch (this.targetType)
-		{
-		case DataType.F4D : {
-			this.handleF4dDrag(browserEvent);
-			break;
-		}
-		case DataType.OBJECT : {
-			this.handleObjectDrag(browserEvent);
-			break;
-		}
-		case DataType.NATIVE : {
-			this.handleNativeDrag(browserEvent);
-			break;
-		}
-		}
-	}
-};
-
-TranslateInteraction.prototype.handleF4dDrag = function(browserEvent)
-{
-	var manager = this.manager;
-	var geoLocDataManager = this.target.getNodeGeoLocDataManager();
-	var geoLocationData = geoLocDataManager.getCurrentGeoLocationData();
-	var attributes = this.target.data.attributes;
-	if (!this.selObjMovePlaneCC)
-	{
-		this.selObjMovePlaneCC = new Plane();
-
-		var geoLocMatrix = geoLocationData.geoLocMatrix;
-		var mvMat = manager.sceneState.modelViewMatrix;
-		var mvMatRelToEye = manager.sceneState.modelViewRelToEyeMatrix;
-
-		var sc = this.startPoint.screenCoordinate;
-		var magoWC = ManagerUtils.calculatePixelPositionWorldCoord(manager.getGl(), sc.x, sc.y, magoWC, undefined, undefined, undefined, manager);
-		var pixelPosCC = mvMat.transformPoint3D(this.startPoint.worldCoordinate, pixelPosCC);
-        
-		if (attributes.movementInAxisZ)
-		{
-			// movement in plane XZ.
-			var globeYaxisWC = new Point3D(geoLocMatrix._floatArrays[4], geoLocMatrix._floatArrays[5], geoLocMatrix._floatArrays[6]);
-			var globeYaxisCC = mvMatRelToEye.transformPoint3D(globeYaxisWC, undefined);
-			this.selObjMovePlaneCC.setPointAndNormal(pixelPosCC.x, pixelPosCC.y, pixelPosCC.z,    globeYaxisCC.x, globeYaxisCC.y, globeYaxisCC.z); 
-		}
-		else 
-		{
-			// movement in plane XY.
-			var globeZaxisWC = new Point3D(geoLocMatrix._floatArrays[8], geoLocMatrix._floatArrays[9], geoLocMatrix._floatArrays[10]);
-			var globeZaxisCC = mvMatRelToEye.transformPoint3D(globeZaxisWC, undefined);
-			this.selObjMovePlaneCC.setPointAndNormal(pixelPosCC.x, pixelPosCC.y, pixelPosCC.z,    globeZaxisCC.x, globeZaxisCC.y, globeZaxisCC.z); 
-		}
-	}
-
-	var screenCoordinate = browserEvent.endEvent.screenCoordinate;
-	var camRay = ManagerUtils.getRayCamSpace(screenCoordinate.x, screenCoordinate.y, camRay, manager);
-	this.lineCC.setPointAndDir(0, 0, 0,  camRay[0], camRay[1], camRay[2]);
-    
-	var intersectionPointCC = new Point3D();
-	intersectionPointCC = this.selObjMovePlaneCC.intersectionLine(this.lineCC, intersectionPointCC);
-    
-	var mvMat = manager.sceneState.getModelViewMatrixInv();
-	var intersectionPointWC = mvMat.transformPoint3D(intersectionPointCC, intersectionPointWC);
-    
-	var cartographic = ManagerUtils.pointToGeographicCoord(intersectionPointWC, cartographic, this);
-	if (!this.startGeoCoordDif)
-	{
-		var buildingGeoCoord = geoLocationData.geographicCoord;
-		this.startGeoCoordDif = new GeographicCoord(cartographic.longitude-buildingGeoCoord.longitude, cartographic.latitude-buildingGeoCoord.latitude, cartographic.altitude-buildingGeoCoord.altitude);
-	}
-    
-	var difX = cartographic.longitude - this.startGeoCoordDif.longitude;
-	var difY = cartographic.latitude - this.startGeoCoordDif.latitude;
-	var difZ = cartographic.altitude - this.startGeoCoordDif.altitude;
-    
-	if (attributes.movementInAxisZ)
-	{
-		//geoLocationData = ManagerUtils.calculateGeoLocationData(undefined, undefined, newAltitude, undefined, undefined, undefined, geoLocationData, this);
-		manager.changeLocationAndRotationNode(this.target, undefined, undefined, difZ, undefined, undefined, undefined);
-	}
-	else 
-	{
-		//geoLocationData = ManagerUtils.calculateGeoLocationData(newLongitude, newlatitude, undefined, undefined, undefined, undefined, geoLocationData, this);
-		manager.changeLocationAndRotationNode(this.target, difY, difX, undefined, undefined, undefined, undefined);
-	}
-};
-
-TranslateInteraction.prototype.handleObjectDrag = function(browserEvent)
-{
-	var selectedObjtect= this.target;
-	var geoLocDataManager = this.parentNode.getNodeGeoLocDataManager();
-	var buildingGeoLocation = geoLocDataManager.getCurrentGeoLocationData();
-	var tMatrixInv = buildingGeoLocation.getTMatrixInv();
-	var gl = this.manager.getGl();
-	if (this.selObjMovePlane === undefined)
-	{
-		this.selObjMovePlane = new Plane();
-		var sc = this.startPoint.screenCoordinate;
-		var magoWC = ManagerUtils.calculatePixelPositionWorldCoord(gl, sc.x, sc.y, magoWC, undefined, undefined, undefined, this.manager);
-		//var lc = tMatrixInv.transformPoint3D(magoWC, lc);
-		var lc = tMatrixInv.transformPoint3D(this.startPoint.worldCoordinate, lc);
-
-		// the plane is in local coord.***
-		this.selObjMovePlane.setPointAndNormal(lc.x, lc.y, lc.z, 0.0, 0.0, 1.0);
-	}
-
-	var screenCoordinate = browserEvent.endEvent.screenCoordinate;
-	this.lineSC = ManagerUtils.getRayWorldSpace(gl, screenCoordinate.x, screenCoordinate.y, this.lineSC, this.manager); // rayWorldSpace.***
-	var camPosBuilding = new Point3D();
-	var camDirBuilding = new Point3D();
-
-	camPosBuilding = tMatrixInv.transformPoint3D(this.lineSC.point, camPosBuilding);
-	camDirBuilding = tMatrixInv.rotatePoint3D(this.lineSC.direction, camDirBuilding);
-
-	// now, intersect building_ray with the selObjMovePlane.***
-	var line = new Line();
-	line.setPointAndDir(camPosBuilding.x, camPosBuilding.y, camPosBuilding.z, camDirBuilding.x, camDirBuilding.y, camDirBuilding.z);// original.***
-
-	var intersectionPoint = new Point3D();
-	intersectionPoint = this.selObjMovePlane.intersectionLine(line, intersectionPoint);
-
-	//the movement of an object must multiply by buildingRotMatrix.***
-    
-	if (selectedObjtect.moveVectorRelToBuilding === undefined)
-	{ selectedObjtect.moveVectorRelToBuilding = new Point3D(); }
-
-	if (!this.startMovPoint)
-	{
-		this.startMovPoint = intersectionPoint;
-		this.startMovPoint.add(-selectedObjtect.moveVectorRelToBuilding.x, -selectedObjtect.moveVectorRelToBuilding.y, -selectedObjtect.moveVectorRelToBuilding.z);
-	}
-
-	var difX = intersectionPoint.x - this.startMovPoint.x;
-	var difY = intersectionPoint.y - this.startMovPoint.y;
-	var difZ = intersectionPoint.z - this.startMovPoint.z;
-
-	selectedObjtect.moveVectorRelToBuilding.set(difX, difY, difZ);
-	selectedObjtect.moveVector = buildingGeoLocation.tMatrix.rotatePoint3D(selectedObjtect.moveVectorRelToBuilding, selectedObjtect.moveVector); 
-    
-	var projectId = this.parentNode.data.projectId;
-	var data_key = this.parentNode.data.nodeId;
-	var objectIndexOrder = selectedObjtect._id;
-    
-	this.manager.config.deleteMovingHistoryObject(projectId, data_key, objectIndexOrder);
-	this.manager.objectMoved = true; // this provoques that on leftMouseUp -> saveHistoryObjectMovement
-};
-
-TranslateInteraction.prototype.handleNativeDrag = function(browserEvent)
-{
-	var object = this.target;
-	if (object instanceof ObjectMarker)
-	{ return; }
-	object = object.getRootOwner();
-
-	var attributes = object.attributes;
-	if (attributes === undefined)
-	{ return; }
-    
-	var isMovable = attributes.isMovable;
-	if (isMovable === undefined || isMovable === false)
-	{ return; }
-    
-	var geoLocDataManager = object.getGeoLocDataManager();
-	if (geoLocDataManager === undefined)
-	{ return; }
-    
-	var geoLocationData = geoLocDataManager.getCurrentGeoLocationData();
-	var manager = this.manager;
-	var gl = manager.getGl();
-	var sceneState = manager.sceneState;
-	if (this.selObjMovePlaneCC === undefined) 
-	{
-		this.selObjMovePlaneCC = new Plane();
-		// calculate the pixelPos in camCoord.
-		var geoLocMatrix = geoLocationData.geoLocMatrix;
-		var mvMat = sceneState.modelViewMatrix;
-		var mvMatRelToEye = sceneState.modelViewRelToEyeMatrix;
-        
-		var sc = this.startPoint.screenCoordinate;
-		var magoWC = ManagerUtils.calculatePixelPositionWorldCoord(gl, sc.x, sc.y, magoWC, undefined, undefined, undefined, manager);
-		//var pixelPosCC = mvMat.transformPoint3D(magoWC, undefined);
-		var pixelPosCC = mvMat.transformPoint3D(this.startPoint.worldCoordinate, undefined);
-
-		if (attributes.movementInAxisZ)
-		{
-			// movement in plane XZ.
-			var globeYaxisWC = new Point3D(geoLocMatrix._floatArrays[4], geoLocMatrix._floatArrays[5], geoLocMatrix._floatArrays[6]);
-			var globeYaxisCC = mvMatRelToEye.transformPoint3D(globeYaxisWC, undefined);
-			this.selObjMovePlaneCC.setPointAndNormal(pixelPosCC.x, pixelPosCC.y, pixelPosCC.z,    globeYaxisCC.x, globeYaxisCC.y, globeYaxisCC.z); 
-		}
-		else 
-		{
-			// movement in plane XY.
-			var globeZaxisWC = new Point3D(geoLocMatrix._floatArrays[8], geoLocMatrix._floatArrays[9], geoLocMatrix._floatArrays[10]);
-			var globeZaxisCC = mvMatRelToEye.transformPoint3D(globeZaxisWC, undefined);
-			this.selObjMovePlaneCC.setPointAndNormal(pixelPosCC.x, pixelPosCC.y, pixelPosCC.z,    globeZaxisCC.x, globeZaxisCC.y, globeZaxisCC.z); 
-		}
-	}
-    
-	var screenCoordinate = browserEvent.endEvent.screenCoordinate;
-	var camRay = ManagerUtils.getRayCamSpace(screenCoordinate.x, screenCoordinate.y, camRay, manager);
-	this.lineCC.setPointAndDir(0, 0, 0,  camRay[0], camRay[1], camRay[2]);
-
-	// Calculate intersection cameraRay with planeCC.
-	var intersectionPointCC = new Point3D();
-	intersectionPointCC = this.selObjMovePlaneCC.intersectionLine(this.lineCC, intersectionPointCC);
-    
-	var mvMat = sceneState.getModelViewMatrixInv();
-	var intersectionPointWC = mvMat.transformPoint3D(intersectionPointCC, intersectionPointWC);
-    
-	var cartographic = ManagerUtils.pointToGeographicCoord(intersectionPointWC, cartographic, manager);
-	if (!this.startGeoCoordDif)
-	{
-		var buildingGeoCoord = geoLocationData.geographicCoord;
-		this.startGeoCoordDif = new GeographicCoord(cartographic.longitude - buildingGeoCoord.longitude, cartographic.latitude-buildingGeoCoord.latitude, cartographic.altitude-buildingGeoCoord.altitude);
-	}
-
-	var difX = cartographic.longitude - this.startGeoCoordDif.longitude;
-	var difY = cartographic.latitude - this.startGeoCoordDif.latitude;
-	var difZ = cartographic.altitude - this.startGeoCoordDif.altitude;
-
-	var attributes = object.attributes;
-		
-	if (attributes.minAltitude !== undefined)
-	{
-		if (difZ < attributes.minAltitude)
-		{ difZ = attributes.minAltitude; }
-	}
-    
-	if (attributes.maxAltitude !== undefined)
-	{
-		if (difZ > attributes.maxAltitude)
-		{ difZ = attributes.maxAltitude; }
-	}
-
-	if (attributes && attributes.movementRestriction)
-	{
-		var movementRestriction = attributes.movementRestriction;
-		if (movementRestriction)
-		{
-			var movementRestrictionType = movementRestriction.restrictionType;
-			var movRestrictionElem = movementRestriction.element;
-			if (movRestrictionElem && movRestrictionElem.constructor.name === "GeographicCoordSegment")
-			{
-				// restriction.***
-				var geoCoordSegment = movRestrictionElem;
-				var newGeoCoord = new GeographicCoord(difX, difY, 0.0);
-				var projectedCoord = GeographicCoordSegment.getProjectedCoordToLine(geoCoordSegment, newGeoCoord, undefined);
-                
-				// check if is inside.***
-				if (!GeographicCoordSegment.intersectionWithGeoCoord(geoCoordSegment, projectedCoord))
-				{
-					var nearestGeoCoord = GeographicCoordSegment.getNearestGeoCoord(geoCoordSegment, projectedCoord);
-					difX = nearestGeoCoord.longitude;
-					difY = nearestGeoCoord.latitude;
-				}
-				else 
-				{
-					difX = projectedCoord.longitude;
-					difY = projectedCoord.latitude;
-				}
-			}
-		}
-	}
-	if (attributes && attributes.hasStaticModel)
-	{
-		var projectId = attributes.projectId;
-		var dataKey = attributes.instanceId;
-		if (!defined(projectId))
-		{
-			return false;
-		}
-		if (!defined(dataKey))
-		{
-			return false;
-		}
-		var node = manager.hierarchyManager.getNodeByDataKey(projectId, dataKey);
-		if (node !== undefined)
-		{
-			node.changeLocationAndRotation(difY, difX, 0, attributes.f4dHeading, 0, 0, this);
-		}
-	}
-
-	if (attributes.movementInAxisZ)
-	{
-		geoLocationData = ManagerUtils.calculateGeoLocationData(undefined, undefined, difZ, undefined, undefined, undefined, geoLocationData, this);
-	}
-	else 
-	{
-		geoLocationData = ManagerUtils.calculateGeoLocationData(difX, difY, undefined, undefined, undefined, undefined, geoLocationData, this);
-
-		if(object.localCoordListArray && object.geographicCoordListsArray) {
-			var geographicCoordListsArray = [];
-			var tmat = geoLocationData.tMatrix;
-			for(var i=0,len=object.localCoordListArray.length; i<len; i++)
-			{
-				var localCoordList = object.localCoordListArray[i];
-				var geographicCoordArray = [];
-				for(var j=0,localCoordListLen=localCoordList.length; j<localCoordListLen;j++) {
-					var lc = localCoordList[j];
-					var wc = tmat.transformPoint3D(lc);
-					var gc = ManagerUtils.pointToGeographicCoord(wc);
-					geographicCoordArray.push(gc);
-				}
-				geographicCoordListsArray.push(new GeographicCoordsList(geographicCoordArray));
-			}
-			object.geographicCoordListsArray = geographicCoordListsArray;
-		}
-		if(object.options.limitationGeographicCoords)
-		{
-			object.makeUniformPoints2dArray();
-		}
-	}
-
-	object.moved();
-};
-
-TranslateInteraction.prototype.handleMoveEvent = function()
-{
-	return;
-};
-
-TranslateInteraction.prototype.handleUpEvent = function()
-{
-	this.init();
-	this.manager.setCameraMotion(true);
-	this.manager.isCameraMoved = true;
-	return;
-};
-
-
-TranslateInteraction.prototype.setFilterFunction = function()
-{
-	var manager = this.manager;
-	if (this.filter === 'selected')
-	{
-		this.filter_ = function(prov)
-		{
-			return prov === manager.defaultSelectInteraction.getSelected();
-		};
-	}
-	else 
-	{
-		this.filter_ = function(){ return true; };
-	}
-};
-'use strict';
-
-/**
  * This represent Arc feature in 2D
  * @class Arc2D
  */
@@ -72494,11 +70389,12 @@ Line2D.prototype.isCoincidentPoint = function(point, error)
 	{ error = 10E-8; }
 	
 	var projectedPoint = this.getProjectedPoint(point, projectedPoint);
-	var squaredDist = point.squareDistToPoint(projectedPoint);
 	
+	var squaredDist = point.squareDistToPoint(projectedPoint);
+
 	if (squaredDist < error*error)
 	{ return true; }
-
+	
 	return false;
 };
 
@@ -72513,20 +70409,20 @@ Line2D.prototype.isParallelToLine = function(line)
 	{ return false; }
 	
 	var zero = 10E-10;
-	/*
+	
 	// Method 1.***
 	var angRad = this.direction.angleRadToVector(line.direction);
 	// if angle is zero or 180 degree, then this is parallel to "line".
 	if (angRad < zero || Math.abs(angRad - Math.PI) < zero)
 	{ return true; }
-	*/
-
+	
+/*
 	// Method 2.***
 	// Another way is using the dot product.***
 	var dotProd = this.direction.scalarProduct(line.direction);
 	if (Math.abs(dotProd) < zero || Math.abs(dotProd - 1.0) < zero)
 	{ return true; }
-	
+	*/
 	return false;
 };
 
@@ -78450,6 +76346,7 @@ Point2D.prototype.isParallelToPoint = function(point, err)
  */
 Point2D.prototype.squareDistToPoint = function(point) 
 {
+	if(!point) return;
 	var dx = this.x - point.x;
 	var dy = this.y - point.y;
 
@@ -91221,6 +89118,2158 @@ VtxSegment.prototype.intersectionWithPoint = function(point, error)
 'use strict';
 
 /**
+ * This is the interaction for draw geometry.
+ * @constructor
+ * @class AbsClickInteraction
+ * 
+ * @abstract
+ * @param {object} option layer object.
+ */
+var AbsClickInteraction = function(option) 
+{
+	if (!(this instanceof AbsClickInteraction)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	option = option ? option : {};
+	Interaction.call(this);
+	
+	if (option.handleDownEvent)
+	{
+		this.handleDownEvent = option.handleDownEvent;
+	}
+
+	if (option.handleUpEvent)
+	{
+		this.handleUpEvent = option.handleUpEvent;
+	}
+    
+	if (option.handleMoveEvent)
+	{
+		this.handleMoveEvent = option.handleMoveEvent;
+	}
+
+	this.begin = false;
+	this.startPoint = undefined;
+	this.startTime;
+	this.endPoint = undefined;
+
+	this.tolerance = 0;
+};
+AbsClickInteraction.prototype = Object.create(Interaction.prototype);
+AbsClickInteraction.prototype.constructor = AbsClickInteraction;
+
+/**
+ * interaction init
+ */
+AbsClickInteraction.prototype.init = function() 
+{
+	this.begin = false;
+	this.startPoint = undefined;
+	this.endPoint = undefined;
+};
+/**
+ * set active. set true, this interaction active, another interaction deactive.
+ * @param {boolean} active
+ * @fires AbsClickInteraction#ACTIVE
+ * @fires AbsClickInteraction#DEACTIVE
+ */
+AbsClickInteraction.prototype.setActive = function(active) 
+{
+	if (!this.manager || !(this.manager instanceof MagoManager)) 
+	{
+		throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
+	}
+
+	if (this.active === active) { return; }
+    
+	this.active = active;
+	if (active) 
+	{
+		//this.manager.interactionCollection.emit(InteractionCollection.EVENT_TYPE.ACTIVE, that);
+		this.emit(InteractionActiveType.ACTIVE, this);
+	}
+	else 
+	{
+		//this.manager.interactionCollection.emit(InteractionCollection.EVENT_TYPE.DEACTIVE);
+		this.emit(InteractionActiveType.DEACTIVE);
+	}
+};
+
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+AbsClickInteraction.prototype.handle = function(browserEvent) 
+{
+	var type = browserEvent.type;
+	if (!(type === MagoManager.EVENT_TYPE.MOUSEMOVE || type === MagoManager.EVENT_TYPE.LEFTDOWN || type === MagoManager.EVENT_TYPE.RIGHTDOWN || type === MagoManager.EVENT_TYPE.MIDDLEDOWN || type === MagoManager.EVENT_TYPE.LEFTUP || type === MagoManager.EVENT_TYPE.RIGHTUP || type === MagoManager.EVENT_TYPE.MIDDLEUP))
+	{
+		return false;
+	}
+	if (this.begin && type !== MagoManager.EVENT_TYPE.MOUSEMOVE)
+	{
+		this.begin = false;
+		this.dragtype = undefined;
+		this.endPoint = browserEvent.point;
+
+		if ((browserEvent.timestamp - this.startTime) < 1500)
+		{
+			var startScreenCoordinate = this.startPoint.screenCoordinate;
+			var endScreenCoordinate = this.endPoint.screenCoordinate;
+
+			var diffX = Math.abs(startScreenCoordinate.x - endScreenCoordinate.x);
+			var diffY = Math.abs(startScreenCoordinate.y - endScreenCoordinate.y);
+
+			if (diffX <= this.tolerance && diffY  <= this.tolerance)
+			{
+				var that = this;
+				this.manager.once('lastFrustum', function() 
+				{
+					that.handleUpEvent.call(that, browserEvent);
+				});
+			}
+		}
+	}
+	else 
+	{
+		if (type === MagoManager.EVENT_TYPE.MOUSEMOVE)
+		{
+			this.handleMoveEvent.call(this, browserEvent);
+		}
+		else
+		{
+			this.begin = true;
+			this.startPoint = browserEvent.point;
+			this.startTime = browserEvent.timestamp;
+
+			this.handleDownEvent.call(this, browserEvent);
+		}
+	}
+};
+
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+AbsClickInteraction.prototype.handleDownEvent = function(browserEvent)
+{
+	return abstract();
+};
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+AbsClickInteraction.prototype.handleUpEvent = function(browserEvent)
+{
+	return abstract();
+};
+
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+AbsClickInteraction.prototype.handleMoveEvent = function(browserEvent)
+{
+	return abstract();
+};
+'use strict';
+
+/**
+ * This is the interaction for draw geometry.
+ * @constructor
+ * @class AbsPointerInteraction
+ * 
+ * @abstract
+ * @param {object} option layer object.
+ */
+var AbsPointerInteraction = function(option) 
+{
+	if (!(this instanceof AbsPointerInteraction)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+
+	option = option ? option : {};
+	Interaction.call(this);
+	
+	if (option.handleDownEvent)
+	{
+		this.handleDownEvent = option.handleDownEvent;
+	}
+
+	if (option.handleDragEvent)
+	{
+		this.handleDragEvent = option.handleDragEvent;
+	}
+
+	if (option.handleMoveEvent)
+	{
+		this.handleMoveEvent = option.handleMoveEvent;
+	}
+
+	if (option.handleUpEvent)
+	{
+		this.handleUpEvent = option.handleUpEvent;
+	}
+
+	this.begin = false;
+	this.dragging = false;
+	this.mouseBtn = undefined;
+	this.startPoint = undefined;
+	this.endPoint = undefined;
+};
+AbsPointerInteraction.prototype = Object.create(Interaction.prototype);
+AbsPointerInteraction.prototype.constructor = AbsPointerInteraction;
+
+/**
+ * interaction init
+ */
+AbsPointerInteraction.prototype.init = function() 
+{
+	this.begin = false;
+	this.dragging = false;
+	this.mouseBtn = undefined;
+	this.startPoint = undefined;
+	this.endPoint = undefined;
+};
+/**
+ * set active. set true, this interaction active, another interaction deactive.
+ * @param {boolean} active
+ * @fires AbsPointInteraction#ACTIVE
+ * @fires AbsPointInteraction#DEACTIVE
+ */
+AbsPointerInteraction.prototype.setActive = function(active) 
+{
+	if (!this.manager || !(this.manager instanceof MagoManager)) 
+	{
+		throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
+	}
+
+	if (this.active === active) { return; }
+    
+	var that = this;
+	this.active = active;
+	if (active) 
+	{
+		//this.manager.interactionCollection.emit(InteractionCollection.EVENT_TYPE.ACTIVE, that);
+		this.emit(InteractionActiveType.ACTIVE, this);
+	}
+	else 
+	{
+		//this.manager.interactionCollection.emit(InteractionCollection.EVENT_TYPE.DEACTIVE);
+		this.emit(InteractionActiveType.DEACTIVE);
+	}
+};
+
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+AbsPointerInteraction.prototype.handle = function(browserEvent) 
+{
+	var type = browserEvent.type;
+
+	if (this.dragging)
+	{
+		if (type === MagoManager.EVENT_TYPE.LEFTUP || type === MagoManager.EVENT_TYPE.RIGHTUP || type === MagoManager.EVENT_TYPE.MIDDLEUP)
+		{
+			this.dragging = false;
+			this.mouseBtn = undefined;
+			this.endPoint = browserEvent.point;
+			this.handleUpEvent.call(this, browserEvent);
+		} 
+		else if (type === MagoManager.EVENT_TYPE.MOUSEMOVE)
+		{
+			this.handleDragEvent.call(this, browserEvent);
+		}
+	}
+	else 
+	{
+		if (type === MagoManager.EVENT_TYPE.LEFTDOWN || type === MagoManager.EVENT_TYPE.RIGHTDOWN || type === MagoManager.EVENT_TYPE.MIDDLEDOWN)
+		{
+			this.dragging = true;
+			this.mouseBtn = type;
+			this.endPoint = undefined;
+			this.startPoint = browserEvent.point;
+			this.handleDownEvent.call(this, browserEvent);
+		} 
+		else if (type === MagoManager.EVENT_TYPE.MOUSEMOVE)
+		{
+			this.handleMoveEvent.call(this, browserEvent);
+		}
+	}
+};
+
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+AbsPointerInteraction.prototype.handleDownEvent = function(browserEvent)
+{
+	return abstract();
+};
+
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+AbsPointerInteraction.prototype.handleDragEvent = function(browserEvent)
+{
+	return abstract();
+};
+
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+AbsPointerInteraction.prototype.handleMoveEvent = function(browserEvent)
+{
+	return abstract();
+};
+
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+AbsPointerInteraction.prototype.handleUpEvent = function(browserEvent)
+{
+	return abstract();
+};
+'use strict';
+
+/**
+ * This is the interaction for draw geometry.
+ * @constructor
+ * @class ClickInteraction
+ * 
+ * @abstract
+ * @param {object} option layer object.
+ */
+var ClickInteraction = function(option) 
+{
+	if (!(this instanceof ClickInteraction)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	option = option ? option : {};
+	AbsClickInteraction.call(this, option);
+};
+ClickInteraction.prototype = Object.create(AbsClickInteraction.prototype);
+ClickInteraction.prototype.constructor = ClickInteraction;
+
+/**
+ * interaction init
+ */
+ClickInteraction.prototype.init = function() 
+{
+	this.begin = false;
+	this.startPoint = undefined;
+	this.endPoint = undefined;
+};
+
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+ClickInteraction.prototype.handleDownEvent = function(browserEvent)
+{
+	return;
+};
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+ClickInteraction.prototype.handleUpEvent = function(browserEvent)
+{
+	return;
+};
+
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+ClickInteraction.prototype.handleMoveEvent = function(browserEvent)
+{
+	return;
+};
+'use strict';
+
+/**
+ * This is the interaction for draw geometry.
+ * @constructor
+ * @class DrawGeometryInteraction
+ * 
+ * @abstract
+ * @param {object} layer layer object.
+ */
+var DrawGeometryInteraction = function(style) 
+{
+	if (!(this instanceof DrawGeometryInteraction)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	Interaction.call(this);
+
+	/**
+	 * geometry style
+	 * @type {Object}
+	 * @default {}
+	 */
+	this.style;
+
+	if (style) 
+	{
+		this.setStyle(style);
+	}
+	else 
+	{
+		this.style = {};
+	}
+	this.collection;
+	this.result = [];
+};
+DrawGeometryInteraction.prototype = Object.create(Interaction.prototype);
+DrawGeometryInteraction.prototype.constructor = DrawGeometryInteraction;
+
+/**
+ * get style
+ * @return {object}
+ */
+DrawGeometryInteraction.prototype.getStyle = function() 
+{
+	return this.style;
+};
+
+/**
+ * set style
+ * @param {object} style
+ */
+DrawGeometryInteraction.prototype.setStyle = function(style) 
+{
+	this.style = style;
+};
+
+/**
+ * set active. set true, this interaction active, another interaction deactive.
+ * @param {boolean} active
+ * @fires DrawGeometryInteraction#ACTIVE
+ * @fires DrawGeometryInteraction#DEACTIVE
+ */
+DrawGeometryInteraction.prototype.setActive = function(active) 
+{
+	if (!this.manager || !(this.manager instanceof MagoManager)) 
+	{
+		throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
+	}
+
+	if (this.active === active) { return; }
+    
+	if (!this.collection) 
+	{
+		this.collection = this.manager.interactionCollection;
+	}
+
+	var that = this;
+	if (active) 
+	{
+		this.collection.emit(InteractionActiveType.ACTIVE, that);
+		this.emit(this.constructor.EVENT_TYPE.ACTIVE, this);
+	}
+	else 
+	{
+		this.collection.emit(InteractionActiveType.DEACTIVE);
+		this.emit(this.constructor.EVENT_TYPE.DEACTIVE);
+	}
+};
+
+/**
+ * make DrawGeometryInteraction. PointDrawer, LineDrawer, RectangleDrawer
+ * @static
+ * @param {string} type point, line, polygon, rectangle. polygon is not  ready.
+ * @return {DrawGeometryInteraction}
+ */
+DrawGeometryInteraction.createDrawGeometryInteraction = function(type) 
+{
+	if (!type) 
+	{
+		throw new Error(Messages.REQUIRED_EMPTY_ERROR('geometry type'));
+	}
+
+	var interaction;
+	switch (type)
+	{
+	case CODE.drawGeometryType.POINT : {
+		interaction = new PointDrawer();
+		break;
+	}
+	case CODE.drawGeometryType.LINE : {
+		interaction = new LineDrawer();
+		break;
+	}
+	case CODE.drawGeometryType.POLYGON : {
+		interaction = new PolygonDrawer();
+		break;
+	}
+	case CODE.drawGeometryType.RECTANGLE : {
+		interaction = new RectangleDrawer();
+		break;
+	}
+	}
+
+	return interaction;
+};
+'use strict';
+/**
+ * @enum
+ * Interaction target type enum
+ */
+var InteractionActiveType = {
+	'ACTIVE'    : 'active',
+	'DEACTIVE' : 'deactive'
+};
+'use strict';
+/**
+ * @enum
+ * Interaction event type enum
+ */
+var InteractionEventType = {
+	'LEFTMOUSEUP'    : 'leftmouseup',
+    'LEFTMOUSEDOWN' : 'leftmousedown',
+    'MOUSEMOVE' : 'mousemove',
+	'DRAG' : 'drag'
+};
+'use strict';
+
+/**
+ * This is the interaction for draw polyline.
+ * Last point use 'right click'
+ * @class LineDrawer
+ * 
+ * @param {MagoPolyline~MagoPolylineStyle} style line style object.
+ * 
+ * @extends {DrawGeometryInteraction}
+ */
+var LineDrawer = function(style) 
+{
+	if (!(this instanceof LineDrawer)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	DrawGeometryInteraction.call(this, style);
+    
+	this.points = [];
+	this.height = 200;
+
+	this.tempLine;
+	this.result = [];
+};
+LineDrawer.prototype = Object.create(DrawGeometryInteraction.prototype);
+LineDrawer.prototype.constructor = LineDrawer;
+
+LineDrawer.EVENT_TYPE = {
+	'DRAWEND': 'drawend'
+};
+/**
+ * @private
+ */
+LineDrawer.prototype.setHeight = function(height) 
+{
+	this.height = height;
+};
+/**
+ * @private
+ */
+LineDrawer.prototype.getHeight = function() 
+{
+	return this.height;
+};
+/**
+ * @private
+ */
+LineDrawer.prototype.init = function() 
+{
+	this.points = [];
+	this.tempLine = undefined;
+	clearTimeout(this.timeout);
+};
+/**
+ * @private
+ */
+LineDrawer.prototype.clear = function() 
+{
+	this.init();
+	var modeler = this.manager.modeler;
+	var result = this.result;
+	for (var i=0, len=result.length;i < len; i++) 
+	{
+		var rec = result[i];
+		modeler.removeObject(rec);
+	}
+	this.result.length = 0;
+};
+/**
+ * @private
+ */
+LineDrawer.prototype.start = function() 
+{
+	if (!this.manager || !(this.manager instanceof MagoManager)) 
+	{
+		throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
+	}
+	
+	var that = this;
+	var manager = that.manager;
+    
+	manager.on(MagoManager.EVENT_TYPE.LEFTUP, function(e)
+	{
+		if (!that.getActive()) { return; }
+
+		that.points.push(e.point.geographicCoordinate);
+	});
+
+	manager.on(MagoManager.EVENT_TYPE.MOUSEMOVE, function(e)
+	{
+		if (!that.getActive()) { return; }
+		if (that.points.length > 0) 
+		{   
+			var clonePoints = that.points.slice();
+			var auxPoint = e.endEvent.geographicCoordinate;
+			clonePoints.push(auxPoint);
+            
+			var position = {coordinates: clonePoints};
+			if (!that.tempLine)
+			{
+				if (Object.keys(that.style).length < 1) 
+				{
+					that.style = {
+						color     : '#ff0000',
+						thickness : 2.0
+					};
+				}
+				
+				that.tempLine = new MagoPolyline(position, that.style);
+				manager.modeler.magoRectangle = that.tempLine;
+			}
+			else 
+			{
+				that.tempLine.init(manager);
+				that.tempLine.setPosition(position);
+			}
+		}
+	});
+    
+	manager.on(MagoManager.EVENT_TYPE.RIGHTCLICK, function(e)
+	{
+		if (!that.getActive() || !that.tempLine) { return; }
+		that.points.push(e.clickCoordinate.geographicCoordinate);
+
+		var position = {coordinates: that.points};
+		that.tempLine.init(manager);
+		that.tempLine.setPosition(position);
+        
+		that.end();
+	});
+};
+/**
+ * @private
+ */
+LineDrawer.prototype.end = function()
+{
+	this.result.push(this.tempLine);
+
+	this.manager.modeler.addObject(this.tempLine, 1);
+
+	this.emit(LineDrawer.EVENT_TYPE.DRAWEND, this.tempLine);
+	this.init();
+};
+'use strict';
+
+/**
+ * This is the interaction for draw geometry.
+ * @constructor
+ * @class NativeUpDownInteraction
+ * 
+ * 
+ * @param {object} option layer object.
+ */
+var NativeUpDownInteraction = function(option) 
+{
+	if (!(this instanceof NativeUpDownInteraction)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	option = option ? option : {};
+	AbsPointerInteraction.call(this, option);
+    
+	this.targetType = DataType.NATIVE;
+	this.filter = defaultValue(option.filter, 'selected');
+	this.filter_;
+	this.offset = defaultValue(option.filter, 3.3);
+    
+
+	this.target = undefined;
+	this.selObjMovePlaneCC = undefined;
+	this.lineCC = new Line();
+	this.startPixel = undefined;
+
+};
+NativeUpDownInteraction.prototype = Object.create(AbsPointerInteraction.prototype);
+NativeUpDownInteraction.prototype.constructor = NativeUpDownInteraction;
+
+NativeUpDownInteraction.EVENT_TYPE = {
+	'ACTIVE'  	: 'active',
+	'DEACTIVE'	: 'deactive',
+	'CHANGEHEIGHT' : 'changeheight'
+};
+/**
+ * interaction init
+ * @override
+ */
+NativeUpDownInteraction.prototype.init = function() 
+{
+	this.dragging = false;
+	this.mouseBtn = undefined;
+	this.startPoint = undefined;
+	this.endPoint = undefined;
+	this.selObjMovePlaneCC = undefined;
+	this.startPixel = undefined;
+	this.target = undefined;
+};
+
+/**
+ * set TargetType
+ * @param {string} filter 
+ */
+NativeUpDownInteraction.prototype.setFilter = function(filter)
+{
+	var oldFilter = this.filter;
+	this.filter = filter;
+	if (oldFilter !== filter)
+	{
+		this.setFilterFunction();
+	}
+};
+
+/**
+ * get TargetType
+ * @return {boolean}
+ */
+NativeUpDownInteraction.prototype.getFilter = function()
+{
+	return this.filter;
+};
+
+NativeUpDownInteraction.prototype.handleDownEvent = function(browserEvent)
+{
+	var manager = this.manager;
+	if (browserEvent.type !== "leftdown") { return; }
+
+	var selectManager = manager.selectionManager;
+
+	if (manager.selectionFbo === undefined) 
+	{ manager.selectionFbo = new FBO(gl, manager.sceneState.drawingBufferWidth, manager.sceneState.drawingBufferHeight, {matchCanvasSize: true}); }
+
+	var gl = manager.getGl();
+	selectManager.selectProvisionalObjectByPixel(gl, browserEvent.point.screenCoordinate.x, browserEvent.point.screenCoordinate.y);
+
+	if (!this.filter_)
+	{
+		this.setFilterFunction();
+	}
+
+	var filterProvisional = selectManager.filterProvisional(this.targetType, this.filter_);
+
+	if (!isEmpty(filterProvisional))
+	{
+		this.target = filterProvisional[this.targetType][0];
+	}
+	else 
+	{
+		this.init();
+	}
+};
+
+NativeUpDownInteraction.prototype.handleDragEvent = function(browserEvent)
+{
+	if (this.target && this.dragging)
+	{
+		this.manager.setCameraMotion(false);
+		var object = this.target;
+		if (object instanceof ObjectMarker)
+		{ return; }
+		object = object.getRootOwner();
+
+		var attributes = object.attributes;
+		if (attributes === undefined)
+		{ return; }
+        
+		var geoLocDataManager = object.getGeoLocDataManager();
+		if (geoLocDataManager === undefined)
+		{ return; }
+        
+		var geoLocationData = geoLocDataManager.getCurrentGeoLocationData();
+		var manager = this.manager;
+		var gl = manager.getGl();
+		var sceneState = manager.sceneState;
+		if (this.selObjMovePlaneCC === undefined) 
+		{
+			this.selObjMovePlaneCC = new Plane();
+			// calculate the pixelPos in camCoord.
+			var geoLocMatrix = geoLocationData.geoLocMatrix;
+			var mvMat = sceneState.modelViewMatrix;
+			var mvMatRelToEye = sceneState.modelViewRelToEyeMatrix;
+            
+			var sc = this.startPoint.screenCoordinate;
+			var magoWC = ManagerUtils.calculatePixelPositionWorldCoord(gl, sc.x, sc.y, magoWC, undefined, undefined, undefined, manager);
+			//var pixelPosCC = mvMat.transformPoint3D(magoWC, undefined);
+			var pixelPosCC = mvMat.transformPoint3D(this.startPoint.worldCoordinate, undefined);
+
+			// movement in plane XZ.
+			//var globeYaxisWC = new Point3D(geoLocMatrix._floatArrays[4], geoLocMatrix._floatArrays[5], geoLocMatrix._floatArrays[6]);
+			var globeZaxisWC = new Point3D(geoLocMatrix._floatArrays[8], geoLocMatrix._floatArrays[9], geoLocMatrix._floatArrays[10]);
+			var camDirection = sceneState.camera.direction;
+
+			var dot = globeZaxisWC.scalarProduct(camDirection);
+			if (Math.abs(dot) > 0.9)
+			{
+               
+				var right = sceneState.camera.right;
+				var mat = new Matrix4();
+				mat.rotationAxisAngDeg(45, right.x, right.y, right.z);
+				var newPosition = mat.transformPoint3D(sceneState.camera.position);
+				/*
+                var cesiumCam = manager.scene.camera;
+                cesiumCam.flyTo({
+                    destination: new Cesium.Cartesian3(newPosition.x,newPosition.y,newPosition.z),
+                    orientation : {
+                        heading : Cesium.Math.toRadians(-45),
+                        pitch : 0,
+                        roll : 0.0
+                    },
+                    duration: 2
+                });
+                */
+				//this.handleUpEvent();
+				// alert('카메라를 스리디로 바꿉니다(문구 추천좀)');
+				//return;
+			}
+
+			var globeRightWC = globeZaxisWC.crossProduct(camDirection);
+			var globeP = globeRightWC.crossProduct(globeZaxisWC);
+			globeP.unitary();
+			var globeYaxisCC = mvMatRelToEye.transformPoint3D(globeP, undefined);
+			this.selObjMovePlaneCC.setPointAndNormal(pixelPosCC.x, pixelPosCC.y, pixelPosCC.z,    globeYaxisCC.x, globeYaxisCC.y, globeYaxisCC.z); 
+		}
+        
+		var screenCoordinate = browserEvent.endEvent.screenCoordinate;
+		var camRay = ManagerUtils.getRayCamSpace(screenCoordinate.x, screenCoordinate.y, camRay, manager);
+		this.lineCC.setPointAndDir(0, 0, 0,  camRay[0], camRay[1], camRay[2]);
+
+		// Calculate intersection cameraRay with planeCC.
+		var intersectionPointCC = new Point3D();
+		intersectionPointCC = this.selObjMovePlaneCC.intersectionLine(this.lineCC, intersectionPointCC);
+        
+		var mvMat = sceneState.getModelViewMatrixInv();
+		var intersectionWC = mvMat.transformPoint3D(intersectionPointCC, intersectionWC);
+        
+		var intersectionScreenCoord = ManagerUtils.calculateWorldPositionToScreenCoord(undefined, intersectionWC.x, intersectionWC.y, intersectionWC.z, intersectionScreenCoord, manager);
+        
+		if (!this.startPixel)
+		{
+			var geoCoord = geoLocationData.geographicCoord;
+			var wc = ManagerUtils.geographicCoordToWorldPoint(geoCoord.longitude, geoCoord.latitude, geoCoord.altitude);
+			this.startPixel = ManagerUtils.calculateWorldPositionToScreenCoord(undefined, wc.x, wc.y, wc.z, this.startPixel, manager);
+		}
+
+		var diff = intersectionScreenCoord.y - this.startPixel.y;
+		var up = diff < 0 ? true : false;
+		var gijun = Math.abs(diff);
+        
+		if (gijun > this.offset)
+		{
+			var currentbuilding = this.target;
+			var height = currentbuilding.height;
+            var prevHeight = height;
+			if (up) 
+			{
+				height = height+this.offset;
+			}
+			else 
+			{
+				height = height-this.offset;			
+			}
+
+			/*var model = currentbuilding.geographicCoordList.getExtrudedMeshRenderableObject(height, undefined, undefined, undefined, undefined, {color: currentbuilding.color4.getHexCode(), height: this.offset});
+            
+			currentbuilding.height = height;
+			currentbuilding.objectsArray = model.objectsArray;*/
+
+			currentbuilding.setHeight(height);
+
+			this.emit(NativeUpDownInteraction.EVENT_TYPE.CHANGEHEIGHT, {
+				type : NativeUpDownInteraction.EVENT_TYPE.CHANGEHEIGHT,
+				timestamp : new Date().getTime(),
+				prevHeight : prevHeight,
+				changedHeight : height
+			});
+            
+			this.startPixel.set(screenCoordinate.x, screenCoordinate.y, screenCoordinate.z);
+		}
+        
+		//geoLocationData = ManagerUtils.calculateGeoLocationData(undefined, undefined, difZ, undefined, undefined, undefined, geoLocationData, this);
+	}
+};
+
+NativeUpDownInteraction.prototype.handleMoveEvent = function()
+{
+	return;
+};
+
+NativeUpDownInteraction.prototype.handleUpEvent = function()
+{
+	this.init();
+	this.manager.setCameraMotion(true);
+	this.manager.isCameraMoved = true;
+	return;
+};
+
+
+NativeUpDownInteraction.prototype.setFilterFunction = function()
+{
+	var manager = this.manager;
+	if (this.filter === 'selected')
+	{
+		this.filter_ = function(prov)
+		{
+			return prov === manager.defaultSelectInteraction.getSelected();
+		};
+	}
+	else 
+	{
+		this.filter_ = function(){ return true; };
+	}
+};
+'use strict';
+
+/**
+ * This is the interaction for draw point.
+ * @class PointDrawer
+ * 
+ * @param {MagoPoint~MagoPointStyle} style layer object.
+ * 
+ * @extends {DrawGeometryInteraction}
+ */
+var PointDrawer = function(style) 
+{
+	if (!(this instanceof PointDrawer)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	DrawGeometryInteraction.call(this, style);
+
+	this.startDraw = false;
+	this.startTime = undefined;
+	this.startPoint = undefined;
+	this.result = [];
+};
+PointDrawer.prototype = Object.create(DrawGeometryInteraction.prototype);
+PointDrawer.prototype.constructor = PointDrawer;
+
+PointDrawer.EVENT_TYPE = {
+	'DRAWEND': 'drawend'
+};
+/**
+ * @private
+ */
+PointDrawer.prototype.init = function() 
+{
+	this.startDraw = false;
+	this.startTime = undefined;
+	this.startPoint = undefined;
+};
+/**
+ * @private
+ */
+PointDrawer.prototype.clear = function() 
+{
+	this.init();
+	var modeler = this.manager.modeler;
+	var result = this.result;
+	for (var i=0, len=result.length;i < len; i++) 
+	{
+		var rec = result[i];
+		modeler.removeObject(rec);
+	}
+	this.result.length = 0;
+};
+/**
+ * @private
+ */
+PointDrawer.prototype.start = function() 
+{
+	if (!this.manager || !(this.manager instanceof MagoManager)) 
+	{
+		throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
+	}
+	
+	var that = this;
+	var manager = that.manager;
+
+	manager.on(MagoManager.EVENT_TYPE.LEFTDOWN, function(e)
+	{
+		if (!that.getActive()) { return; }
+		if (!that.startDraw) 
+		{
+			that.startDraw = true;
+			that.startTime = e.timestamp;
+			that.startPoint = e.point.screenCoordinate;
+		}
+	});
+	manager.on(MagoManager.EVENT_TYPE.LEFTUP, function(e)
+	{
+		if (!that.getActive()) { return; }
+		if (that.startDraw) 
+		{
+			var moveless = false;
+			if ((e.timestamp - that.startTime) < 1500)
+			{
+				var startScreenCoordinate = that.startPoint;
+				var endScreenCoordinate = e.point.screenCoordinate;
+
+				var diffX = Math.abs(startScreenCoordinate.x - endScreenCoordinate.x);
+				var diffY = Math.abs(startScreenCoordinate.y - endScreenCoordinate.y);
+
+				if (diffX <= 0 && diffY  <= 0)
+				{
+					moveless = true;
+				}
+			}
+			if (!moveless)
+			{
+				that.init();
+				return;
+			} 
+
+			var position = e.point.geographicCoordinate;
+
+			if (Object.keys(that.style).length < 1) 
+			{
+				that.style = {
+					size  : 10,
+					color : '#00FF00'
+				};
+			}
+
+			that.end(new MagoPoint(position, that.style));
+		}
+	});
+};
+/**
+ * @private
+ */
+PointDrawer.prototype.end = function(point)
+{
+	this.result.push(point);
+	this.manager.modeler.addObject(point, 1);
+    
+	this.emit(PointDrawer.EVENT_TYPE.DRAWEND, point);
+	this.init();
+};
+'use strict';
+
+/**
+ * This is the interaction for draw geometry.
+ * @constructor
+ * @class GeometrySelectInteraction
+ * 
+ * 
+ * @param {object} option layer object.
+ */
+var PointSelectInteraction = function(option) 
+{
+	if (!(this instanceof PointSelectInteraction)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	option = option ? option : {};
+	AbsClickInteraction.call(this, option);
+	
+	this.selected = undefined;
+
+	this.targetType = defaultValue(option.targetType, DataType.F4D);
+	this.targetHighlight = defaultValue(option.targetHighlight, true);
+	this.filter = undefined;
+
+	var that = this;
+	this.on(PointSelectInteraction.EVENT_TYPE.DEACTIVE, function()
+	{
+		that.init();
+		that.selected = undefined;
+		that.manager.selectionManager.clearCurrents();
+	});
+};
+PointSelectInteraction.prototype = Object.create(AbsClickInteraction.prototype);
+PointSelectInteraction.prototype.constructor = PointSelectInteraction;
+
+PointSelectInteraction.EVENT_TYPE = {
+	'ACTIVE'  	: 'active',
+	'DEACTIVE'	: 'deactive'
+};
+/**
+ * interaction init
+ */
+PointSelectInteraction.prototype.init = function() 
+{
+	this.begin = false;
+	this.startPoint = undefined;
+	this.endPoint = undefined;
+};
+/**
+ * set TargetType
+ * @param {boolean} type 
+ */
+PointSelectInteraction.prototype.setTargetType = function(type)
+{
+	var oldType = this.targetType;
+	if (oldType !== type)
+	{
+		this.init();
+		this.selected = undefined;
+		this.manager.isCameraMoved = true;
+		this.manager.selectionManager.clearCurrents();
+		this.filter = undefined;
+	}
+	this.targetType = type;
+};
+
+/**
+ * get TargetType
+ * @return {boolean}
+ */
+PointSelectInteraction.prototype.getTargetType = function()
+{
+	return this.targetType;
+};
+
+/**
+ * set filter function
+ * @param {function} filterFunction
+ */
+PointSelectInteraction.prototype.setFilter = function(filterFunction)
+{
+	if(filterFunction && typeof filterFunction === 'function') {
+		this.filter = filterFunction;
+	}
+};
+
+/**
+ * set filter function
+ * @param {function} filterFunction
+ */
+PointSelectInteraction.prototype.getFilter = function(filterFunction)
+{
+	return this.filter;
+};
+
+/**
+ * set TargetHighlight
+ * @param {boolean} highlight 
+ */
+PointSelectInteraction.prototype.setTargetHighlight = function(highlight)
+{
+	if (!highlight)
+	{
+		this.init();
+		this.manager.selectionManager.clearCurrents();
+	}
+	this.targetHighlight = highlight;
+};
+
+/**
+ * get selected object
+ * @return {Object}
+ */
+PointSelectInteraction.prototype.getSelected = function()
+{
+	return this.selected;
+};
+
+/**
+ * get TargetHighlight
+ * @return {boolean}
+ */
+PointSelectInteraction.prototype.getTargetHighlight = function()
+{
+	return this.targetHighlight;
+};
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+PointSelectInteraction.prototype.handleDownEvent = function(browserEvent)
+{
+	return;
+};
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+PointSelectInteraction.prototype.handleUpEvent = function(browserEvent)
+{
+	var selectionManager = this.manager.selectionManager;
+	selectionManager.clearCurrents();
+	this.select(browserEvent.point.screenCoordinate);
+	var oldSelected = this.selected;
+	switch (this.targetType)
+	{
+	case DataType.F4D : {
+		this.selected = selectionManager.getSelectedF4dNode();
+		break;
+	}
+	case DataType.OBJECT : {
+		this.selected = selectionManager.getSelectedF4dObject();
+		break;
+	}
+	case DataType.NATIVE : {
+		this.selected = selectionManager.getSelectedGeneral();
+		break;
+	}
+	}
+	if (oldSelected)
+	{
+		this.emitEvent(oldSelected, false);
+	}
+	this.emitEvent(this.selected, true);
+};
+PointSelectInteraction.prototype.emitEvent = function(selectedObj, selected)
+{
+	if (selectedObj)
+	{
+		var type = PointSelectInteraction.getEventType(this.targetType, selected);
+		var eventObj = {
+			type      : type,
+			timestamp : new Date()
+		};
+		selected ? eventObj.selected = selectedObj : eventObj.deselected = selectedObj;
+		this.manager.emit(type, eventObj);
+	}
+};
+PointSelectInteraction.getEventType = function(target, selected)
+{
+	var eventType;
+	switch (target)
+	{
+	case DataType.F4D : {
+		eventType = selected ? MagoManager.EVENT_TYPE.SELECTEDF4D : MagoManager.EVENT_TYPE.DESELECTEDF4D;
+		break;
+	}
+	case DataType.OBJECT : {
+		eventType = selected ? MagoManager.EVENT_TYPE.SELECTEDF4DOBJECT : MagoManager.EVENT_TYPE.DESELECTEDF4DOBJECT;
+		break;
+	}
+	case DataType.NATIVE : {
+		eventType = selected ? MagoManager.EVENT_TYPE.SELECTEDGENERALOBJECT : MagoManager.EVENT_TYPE.DESELECTEDGENERALOBJECT;
+		break;
+	}
+	}
+	return eventType;
+};
+
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+PointSelectInteraction.prototype.handleMoveEvent = function(browserEvent)
+{
+	if (this.targetHighlight && !this.selected)
+	{
+		this.select(browserEvent.endEvent.screenCoordinate);
+	}
+};
+
+/**
+ * select 
+ * @param {Point2D} screenCoordinate
+ * @param {boolean} bObject
+ */
+PointSelectInteraction.prototype.select = function(screenCoordinate)
+{
+	var manager = this.manager;
+	var selectManager = manager.selectionManager;
+
+	if (manager.selectionFbo === undefined) 
+	{ manager.selectionFbo = new FBO(gl, manager.sceneState.drawingBufferWidth, manager.sceneState.drawingBufferHeight, {matchCanvasSize: true}); }
+
+	var gl = manager.getGl();
+	selectManager.selectProvisionalObjectByPixel(gl, screenCoordinate.x, screenCoordinate.y);
+	selectManager.provisionalToCurrent(this.targetType, this.filter);
+	
+	//selectManager.selectObjectByPixel(gl, screenCoordinate.x, screenCoordinate.y, bObject);
+};
+
+/**
+ * clear 
+ */
+PointSelectInteraction.prototype.clear = function()
+{
+	this.emitEvent(this.selected, false);
+	this.manager.selectionManager.clearCurrents();
+	this.init();
+	this.selected = undefined;
+};
+'use strict';
+
+/**
+ * This is the interaction for draw rectangle.
+ * @class RectangleDrawer
+ * 
+ * @param {MagoRectangle~MagoRectangleStyle} style style object.
+ * @extends {DrawGeometryInteraction}
+ */
+var RectangleDrawer = function(style) 
+{
+	if (!(this instanceof RectangleDrawer)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	DrawGeometryInteraction.call(this, style);
+    
+	this.startDraw = false;
+	this.dragging = false;
+	this.startPoint;
+	this.endPoint;
+	this.height = 200;
+
+	this.tempRectangle;
+	this.result = [];
+};
+RectangleDrawer.prototype = Object.create(DrawGeometryInteraction.prototype);
+RectangleDrawer.prototype.constructor = RectangleDrawer;
+
+RectangleDrawer.EVENT_TYPE = {
+	'DRAWEND'  : 'drawend',
+	'ACTIVE'   : 'active',
+	'DEACTIVE' : 'deactive'
+};
+/**
+ * @private
+ */
+RectangleDrawer.prototype.setHeight = function(height) 
+{
+	this.height = height;
+};
+/**
+ * @private
+ */
+RectangleDrawer.prototype.getHeight = function() 
+{
+	return this.height;
+};
+/**
+ * @private
+ */
+RectangleDrawer.prototype.init = function() 
+{
+	this.startDraw = false;
+	this.dragging = false;
+	this.startPoint = undefined;
+	this.endPoint = undefined;
+	this.tempRectangle = undefined;
+	this.manager.magoWorld.cameraMovable = true;
+
+	if (this.manager.modeler.magoRectangle) 
+	{
+		this.manager.modeler.magoRectangle.deleteObjects(this.manager.vboMemoryManager);
+		this.manager.modeler.magoRectangle = undefined;
+	}
+};
+/**
+ * @private
+ */
+RectangleDrawer.prototype.clear = function() 
+{
+	this.init();
+	var modeler = this.manager.modeler;
+	var result = this.result;
+	for (var i=0, len=result.length;i < len; i++) 
+	{
+		var rec = result[i];
+		modeler.removeObject(rec);
+	}
+	this.result.length = 0;
+};
+/**
+ * @private
+ */
+RectangleDrawer.prototype.start = function() 
+{
+	if (!this.manager || !(this.manager instanceof MagoManager)) 
+	{
+		throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
+	}
+	
+	var that = this;
+	var manager = that.manager;
+
+	manager.on(MagoManager.EVENT_TYPE.LEFTDOWN, function(e)
+	{
+		if (!that.getActive()) { return; }
+		if (!that.startDraw) 
+		{
+			manager.magoWorld.cameraMovable = false;
+			that.startDraw = true;
+			that.startPoint = e.point.geographicCoordinate;
+		}
+	});
+    
+	manager.on(MagoManager.EVENT_TYPE.MOUSEMOVE, function(e)
+	{
+		if (!that.getActive()) { return; }
+		if (that.startDraw && that.startPoint) 
+		{
+			that.dragging = true;
+            
+			var auxPoint = e.endEvent.geographicCoordinate;
+			var minLon = (that.startPoint.longitude < auxPoint.longitude) ? that.startPoint.longitude : auxPoint.longitude;
+			var minLat = (that.startPoint.latitude < auxPoint.latitude) ? that.startPoint.latitude : auxPoint.latitude;
+			var maxLon = (that.startPoint.longitude < auxPoint.longitude) ? auxPoint.longitude : that.startPoint.longitude;
+			var maxLat = (that.startPoint.latitude < auxPoint.latitude) ? auxPoint.latitude : that.startPoint.latitude;
+
+			var position = {
+				minLongitude : minLon,
+				minLatitude  : minLat,
+				maxLongitude : maxLon,
+				maxLatitude  : maxLat,
+				altitude     : -3000
+			};
+
+			if (!that.tempRectangle)
+			{
+				if (Object.keys(that.style).length < 1) 
+				{
+					that.style = {
+						fillColor: '#ff0000'
+					};
+				}
+				that.tempRectangle = new MagoRectangleGround(position, that.style);
+				manager.modeler.magoRectangle = that.tempRectangle;
+			}
+			else 
+			{
+				that.tempRectangle.init(manager);
+				that.tempRectangle.setPosition(position);
+			}
+		}
+	});
+    
+	manager.on(MagoManager.EVENT_TYPE.LEFTUP, function(e)
+	{
+		if (!that.getActive()) { return; }
+		if (that.dragging) 
+		{
+			that.endPoint = e.point;
+			that.end();
+		}
+	});
+};
+/**
+ * @private
+ */
+RectangleDrawer.prototype.end = function()
+{
+	this.manager.magoWorld.cameraMovable = true;
+
+	this.result.push(this.tempRectangle);
+
+	this.manager.modeler.addObject(this.tempRectangle, 1);
+
+	this.emit(RectangleDrawer.EVENT_TYPE.DRAWEND, this.tempRectangle);
+	this.init();
+};
+
+/**
+ * remove last drawed rectangle
+ */
+RectangleDrawer.prototype.cancle = function()
+{
+	var idx = this.result.length - 1;
+	var removalRectangle = this.result[idx];
+	this.manager.modeler.removeObject(removalRectangle);
+	this.result = this.result.slice(0, idx);
+};
+'use strict';
+
+/**
+ * This is the interaction for draw geometry.
+ * @constructor
+ * @class RotateInteraction
+ * 
+ * 
+ * @param {object} option layer object.
+ */
+var RotateInteraction = function(option) 
+{
+	if (!(this instanceof RotateInteraction)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	option = option ? option : {};
+	AbsPointerInteraction.call(this, option);
+    
+	this.targetType = defaultValue(option.targetType, DataType.F4D);
+	this.filter = defaultValue(option.filter, 'selected');
+	this.filter_;
+    
+
+	this.target = undefined;
+	this.parentNode = undefined;
+	this.centerScreenCoord = undefined;
+	this.clickDeg = undefined;
+};
+RotateInteraction.prototype = Object.create(AbsPointerInteraction.prototype);
+RotateInteraction.prototype.constructor = RotateInteraction;
+
+RotateInteraction.EVENT_TYPE = {
+	'ACTIVE'  	: 'active',
+	'DEACTIVE'	: 'deactive'
+};
+/**
+ * interaction init
+ * @override
+ */
+RotateInteraction.prototype.init = function() 
+{
+	this.dragging = false;
+	this.mouseBtn = undefined;
+	this.startPoint = undefined;
+	this.endPoint = undefined;
+	this.target = undefined;
+	this.parentNode = undefined;
+	this.centerScreenCoord = undefined;
+	this.clickDeg = undefined;
+};
+
+/**
+ * set TargetType
+ * @param {boolean} type 
+ */
+RotateInteraction.prototype.setTargetType = function(type)
+{
+	this.targetType = type;
+};
+
+/**
+ * get TargetType
+ * @return {boolean}
+ */
+RotateInteraction.prototype.getTargetType = function()
+{
+	return this.targetType;
+};
+
+/**
+ * set TargetType
+ * @param {string} filter 
+ */
+RotateInteraction.prototype.setFilter = function(filter)
+{
+	var oldFilter = this.filter;
+	this.filter = filter;
+	if (oldFilter !== filter)
+	{
+		this.setFilterFunction();
+	}
+};
+
+/**
+ * get TargetType
+ * @return {boolean}
+ */
+RotateInteraction.prototype.getFilter = function()
+{
+	return this.filter;
+};
+
+RotateInteraction.prototype.handleDownEvent = function(browserEvent)
+{
+	var manager = this.manager;
+	if (browserEvent.type !== "leftdown") { return; }
+
+	var selectManager = manager.selectionManager;
+
+	if (manager.selectionFbo === undefined) 
+	{ manager.selectionFbo = new FBO(gl, manager.sceneState.drawingBufferWidth, manager.sceneState.drawingBufferHeight, {matchCanvasSize: true}); }
+
+	var gl = manager.getGl();
+	var clickScreenCoord = browserEvent.point.screenCoordinate;
+	selectManager.selectProvisionalObjectByPixel(gl, clickScreenCoord.x, clickScreenCoord.y);
+
+	if (!this.filter_)
+	{
+		this.setFilterFunction();
+	}
+
+	var filterProvisional = selectManager.filterProvisional(this.targetType, this.filter_);
+
+	if (!isEmpty(filterProvisional))
+	{
+		this.target = filterProvisional[this.targetType][0];
+		if (this.targetType === DataType.OBJECT)
+		{
+			this.parentNode = filterProvisional[DataType.F4D][0];
+		}
+		var currentGeoLocData = this.target.getCurrentGeoLocationData();
+		var currentGeoCoord = currentGeoLocData.geographicCoord;
+		var wc = ManagerUtils.geographicCoordToWorldPoint(currentGeoCoord.longitude, currentGeoCoord.latitude, currentGeoCoord.altitude);
+        
+		this.centerScreenCoord = ManagerUtils.calculateWorldPositionToScreenCoord(undefined, wc.x, wc.y, wc.z, this.centerScreenCoord, manager);
+		var rad = Math.atan2(clickScreenCoord.x - this.centerScreenCoord.x, clickScreenCoord.y - this.centerScreenCoord.y);
+		this.clickDeg = Math.round((rad * (180/Math.PI) * -1) + 100);
+
+		this.manager.setCameraMotion(false);
+	}
+	else 
+	{
+		this.init();
+	}
+};
+
+RotateInteraction.prototype.handleDragEvent = function(browserEvent)
+{
+	if (this.target && this.dragging)
+	{
+		var screenCoordinate = browserEvent.endEvent.screenCoordinate;
+		var rad = Math.atan2(screenCoordinate.x - this.centerScreenCoord.x, screenCoordinate.y - this.centerScreenCoord.y);
+		var deg = Math.round((rad * (180/Math.PI) * -1) + 100);
+		var rdeg = deg - this.clickDeg;
+
+		var currentGeoLocData = this.target.getCurrentGeoLocationData();
+		var currentGeoCoord = currentGeoLocData.geographicCoord;
+		var currentLon = currentGeoCoord.longtitude;
+		var currentLat = currentGeoCoord.longtitude;
+		var currentAlt = currentGeoCoord.altitude;
+		var currentRoll = currentGeoLocData.roll;
+		var currentPitch = currentGeoLocData.pitch;
+
+		this.target.changeLocationAndRotation(currentLon, currentLat, currentAlt, -rdeg, currentRoll, currentPitch);
+	}
+};
+
+RotateInteraction.prototype.handleUpEvent = function()
+{
+	this.init();
+	this.manager.setCameraMotion(true);
+	this.manager.isCameraMoved = true;
+	return;
+};
+
+RotateInteraction.prototype.handleMoveEvent = function() 
+{
+	return;
+};
+
+RotateInteraction.prototype.setFilterFunction = function()
+{
+	var manager = this.manager;
+	if (this.filter === 'selected')
+	{
+		this.filter_ = function(prov)
+		{
+			return prov === manager.defaultSelectInteraction.getSelected();
+		};
+	}
+	else 
+	{
+		this.filter_ = function(){ return true; };
+	}
+};
+'use strict';
+
+/**
+ * This is the interaction for draw geometry.
+ * @constructor
+ * @class TranslateInteraction
+ * 
+ * 
+ * @param {object} option layer object.
+ */
+var TranslateInteraction = function(option) 
+{
+	if (!(this instanceof TranslateInteraction)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	option = option ? option : {};
+	AbsPointerInteraction.call(this, option);
+    
+	this.targetType = defaultValue(option.targetType, DataType.F4D);
+	this.filter = defaultValue(option.filter, 'selected');
+	this.filter_;
+    
+
+	this.target = undefined;
+	this.parentNode = undefined;
+	this.selObjMovePlaneCC = undefined;
+	this.selObjMovePlane = undefined;
+	this.lineCC = new Line();
+	this.lineSC = new Line();
+	this.startGeoCoordDif = undefined;
+	this.startMovPoint = undefined;
+};
+TranslateInteraction.prototype = Object.create(AbsPointerInteraction.prototype);
+TranslateInteraction.prototype.constructor = TranslateInteraction;
+
+TranslateInteraction.EVENT_TYPE = {
+	'ACTIVE'  	: 'active',
+	'DEACTIVE'	: 'deactive'
+};
+/**
+ * interaction init
+ * @override
+ */
+TranslateInteraction.prototype.init = function() 
+{
+	this.begin = false;
+	this.dragging = false;
+	this.mouseBtn = undefined;
+	this.startPoint = undefined;
+	this.endPoint = undefined;
+	this.selObjMovePlaneCC = undefined;
+	this.selObjMovePlane = undefined;
+	this.startGeoCoordDif = undefined;
+	this.startMovPoint = undefined;
+	this.target = undefined;
+	this.parentNode = undefined;
+};
+
+/**
+ * set TargetType
+ * @param {boolean} type 
+ */
+TranslateInteraction.prototype.setTargetType = function(type)
+{
+	this.targetType = type;
+};
+
+/**
+ * get TargetType
+ * @return {boolean}
+ */
+TranslateInteraction.prototype.getTargetType = function()
+{
+	return this.targetType;
+};
+
+/**
+ * set TargetType
+ * @param {string} filter 
+ */
+TranslateInteraction.prototype.setFilter = function(filter)
+{
+	var oldFilter = this.filter;
+	this.filter = filter;
+	if (oldFilter !== filter)
+	{
+		this.setFilterFunction();
+	}
+};
+
+/**
+ * get TargetType
+ * @return {boolean}
+ */
+TranslateInteraction.prototype.getFilter = function()
+{
+	return this.filter;
+};
+
+TranslateInteraction.prototype.handleDownEvent = function(browserEvent)
+{
+	var manager = this.manager;
+	if (browserEvent.type !== "leftdown") { return; }
+
+	var selectManager = manager.selectionManager;
+
+	if (manager.selectionFbo === undefined) 
+	{ manager.selectionFbo = new FBO(gl, manager.sceneState.drawingBufferWidth, manager.sceneState.drawingBufferHeight, {matchCanvasSize: true}); }
+
+	var gl = manager.getGl();
+	selectManager.selectProvisionalObjectByPixel(gl, browserEvent.point.screenCoordinate.x, browserEvent.point.screenCoordinate.y);
+
+	if (!this.filter_)
+	{
+		this.setFilterFunction();
+	}
+
+	var filterProvisional = selectManager.filterProvisional(this.targetType, this.filter_);
+
+	if (!isEmpty(filterProvisional))
+	{
+		this.target = filterProvisional[this.targetType][0];
+		if (this.targetType === DataType.OBJECT)
+		{
+			this.parentNode = filterProvisional[DataType.F4D][0];
+		}
+	}
+	else 
+	{
+		this.init();
+	}
+};
+
+TranslateInteraction.prototype.handleDragEvent = function(browserEvent)
+{
+	if (this.target && this.dragging)
+	{
+		this.manager.setCameraMotion(false);
+		switch (this.targetType)
+		{
+		case DataType.F4D : {
+			this.handleF4dDrag(browserEvent);
+			break;
+		}
+		case DataType.OBJECT : {
+			this.handleObjectDrag(browserEvent);
+			break;
+		}
+		case DataType.NATIVE : {
+			this.handleNativeDrag(browserEvent);
+			break;
+		}
+		}
+	}
+};
+
+TranslateInteraction.prototype.handleF4dDrag = function(browserEvent)
+{
+	var manager = this.manager;
+	var geoLocDataManager = this.target.getNodeGeoLocDataManager();
+	var geoLocationData = geoLocDataManager.getCurrentGeoLocationData();
+	var attributes = this.target.data.attributes;
+	if (!this.selObjMovePlaneCC)
+	{
+		this.selObjMovePlaneCC = new Plane();
+
+		var geoLocMatrix = geoLocationData.geoLocMatrix;
+		var mvMat = manager.sceneState.modelViewMatrix;
+		var mvMatRelToEye = manager.sceneState.modelViewRelToEyeMatrix;
+
+		var sc = this.startPoint.screenCoordinate;
+		var magoWC = ManagerUtils.calculatePixelPositionWorldCoord(manager.getGl(), sc.x, sc.y, magoWC, undefined, undefined, undefined, manager);
+		var pixelPosCC = mvMat.transformPoint3D(this.startPoint.worldCoordinate, pixelPosCC);
+        
+		if (attributes.movementInAxisZ)
+		{
+			// movement in plane XZ.
+			var globeYaxisWC = new Point3D(geoLocMatrix._floatArrays[4], geoLocMatrix._floatArrays[5], geoLocMatrix._floatArrays[6]);
+			var globeYaxisCC = mvMatRelToEye.transformPoint3D(globeYaxisWC, undefined);
+			this.selObjMovePlaneCC.setPointAndNormal(pixelPosCC.x, pixelPosCC.y, pixelPosCC.z,    globeYaxisCC.x, globeYaxisCC.y, globeYaxisCC.z); 
+		}
+		else 
+		{
+			// movement in plane XY.
+			var globeZaxisWC = new Point3D(geoLocMatrix._floatArrays[8], geoLocMatrix._floatArrays[9], geoLocMatrix._floatArrays[10]);
+			var globeZaxisCC = mvMatRelToEye.transformPoint3D(globeZaxisWC, undefined);
+			this.selObjMovePlaneCC.setPointAndNormal(pixelPosCC.x, pixelPosCC.y, pixelPosCC.z,    globeZaxisCC.x, globeZaxisCC.y, globeZaxisCC.z); 
+		}
+	}
+
+	var screenCoordinate = browserEvent.endEvent.screenCoordinate;
+	var camRay = ManagerUtils.getRayCamSpace(screenCoordinate.x, screenCoordinate.y, camRay, manager);
+	this.lineCC.setPointAndDir(0, 0, 0,  camRay[0], camRay[1], camRay[2]);
+    
+	var intersectionPointCC = new Point3D();
+	intersectionPointCC = this.selObjMovePlaneCC.intersectionLine(this.lineCC, intersectionPointCC);
+    
+	var mvMat = manager.sceneState.getModelViewMatrixInv();
+	var intersectionPointWC = mvMat.transformPoint3D(intersectionPointCC, intersectionPointWC);
+    
+	var cartographic = ManagerUtils.pointToGeographicCoord(intersectionPointWC, cartographic, this);
+	if (!this.startGeoCoordDif)
+	{
+		var buildingGeoCoord = geoLocationData.geographicCoord;
+		this.startGeoCoordDif = new GeographicCoord(cartographic.longitude-buildingGeoCoord.longitude, cartographic.latitude-buildingGeoCoord.latitude, cartographic.altitude-buildingGeoCoord.altitude);
+	}
+    
+	var difX = cartographic.longitude - this.startGeoCoordDif.longitude;
+	var difY = cartographic.latitude - this.startGeoCoordDif.latitude;
+	var difZ = cartographic.altitude - this.startGeoCoordDif.altitude;
+    
+	if (attributes.movementInAxisZ)
+	{
+		//geoLocationData = ManagerUtils.calculateGeoLocationData(undefined, undefined, newAltitude, undefined, undefined, undefined, geoLocationData, this);
+		manager.changeLocationAndRotationNode(this.target, undefined, undefined, difZ, undefined, undefined, undefined);
+	}
+	else 
+	{
+		//geoLocationData = ManagerUtils.calculateGeoLocationData(newLongitude, newlatitude, undefined, undefined, undefined, undefined, geoLocationData, this);
+		manager.changeLocationAndRotationNode(this.target, difY, difX, undefined, undefined, undefined, undefined);
+	}
+};
+
+TranslateInteraction.prototype.handleObjectDrag = function(browserEvent)
+{
+	var selectedObjtect= this.target;
+	var geoLocDataManager = this.parentNode.getNodeGeoLocDataManager();
+	var buildingGeoLocation = geoLocDataManager.getCurrentGeoLocationData();
+	var tMatrixInv = buildingGeoLocation.getTMatrixInv();
+	var gl = this.manager.getGl();
+	if (this.selObjMovePlane === undefined)
+	{
+		this.selObjMovePlane = new Plane();
+		var sc = this.startPoint.screenCoordinate;
+		var magoWC = ManagerUtils.calculatePixelPositionWorldCoord(gl, sc.x, sc.y, magoWC, undefined, undefined, undefined, this.manager);
+		//var lc = tMatrixInv.transformPoint3D(magoWC, lc);
+		var lc = tMatrixInv.transformPoint3D(this.startPoint.worldCoordinate, lc);
+
+		// the plane is in local coord.***
+		this.selObjMovePlane.setPointAndNormal(lc.x, lc.y, lc.z, 0.0, 0.0, 1.0);
+	}
+
+	var screenCoordinate = browserEvent.endEvent.screenCoordinate;
+	this.lineSC = ManagerUtils.getRayWorldSpace(gl, screenCoordinate.x, screenCoordinate.y, this.lineSC, this.manager); // rayWorldSpace.***
+	var camPosBuilding = new Point3D();
+	var camDirBuilding = new Point3D();
+
+	camPosBuilding = tMatrixInv.transformPoint3D(this.lineSC.point, camPosBuilding);
+	camDirBuilding = tMatrixInv.rotatePoint3D(this.lineSC.direction, camDirBuilding);
+
+	// now, intersect building_ray with the selObjMovePlane.***
+	var line = new Line();
+	line.setPointAndDir(camPosBuilding.x, camPosBuilding.y, camPosBuilding.z, camDirBuilding.x, camDirBuilding.y, camDirBuilding.z);// original.***
+
+	var intersectionPoint = new Point3D();
+	intersectionPoint = this.selObjMovePlane.intersectionLine(line, intersectionPoint);
+
+	//the movement of an object must multiply by buildingRotMatrix.***
+    
+	if (selectedObjtect.moveVectorRelToBuilding === undefined)
+	{ selectedObjtect.moveVectorRelToBuilding = new Point3D(); }
+
+	if (!this.startMovPoint)
+	{
+		this.startMovPoint = intersectionPoint;
+		this.startMovPoint.add(-selectedObjtect.moveVectorRelToBuilding.x, -selectedObjtect.moveVectorRelToBuilding.y, -selectedObjtect.moveVectorRelToBuilding.z);
+	}
+
+	var difX = intersectionPoint.x - this.startMovPoint.x;
+	var difY = intersectionPoint.y - this.startMovPoint.y;
+	var difZ = intersectionPoint.z - this.startMovPoint.z;
+
+	selectedObjtect.moveVectorRelToBuilding.set(difX, difY, difZ);
+	selectedObjtect.moveVector = buildingGeoLocation.tMatrix.rotatePoint3D(selectedObjtect.moveVectorRelToBuilding, selectedObjtect.moveVector); 
+    
+	var projectId = this.parentNode.data.projectId;
+	var data_key = this.parentNode.data.nodeId;
+	var objectIndexOrder = selectedObjtect._id;
+    
+	this.manager.config.deleteMovingHistoryObject(projectId, data_key, objectIndexOrder);
+	this.manager.objectMoved = true; // this provoques that on leftMouseUp -> saveHistoryObjectMovement
+};
+
+TranslateInteraction.prototype.handleNativeDrag = function(browserEvent)
+{
+	var object = this.target;
+	if (object instanceof ObjectMarker)
+	{ return; }
+	object = object.getRootOwner();
+
+	var attributes = object.attributes;
+	if (attributes === undefined)
+	{ return; }
+    
+	var isMovable = attributes.isMovable;
+	if (isMovable === undefined || isMovable === false)
+	{ return; }
+    
+	var geoLocDataManager = object.getGeoLocDataManager();
+	if (geoLocDataManager === undefined)
+	{ return; }
+    
+	var geoLocationData = geoLocDataManager.getCurrentGeoLocationData();
+	var manager = this.manager;
+	var gl = manager.getGl();
+	var sceneState = manager.sceneState;
+	if (this.selObjMovePlaneCC === undefined) 
+	{
+		this.selObjMovePlaneCC = new Plane();
+		// calculate the pixelPos in camCoord.
+		var geoLocMatrix = geoLocationData.geoLocMatrix;
+		var mvMat = sceneState.modelViewMatrix;
+		var mvMatRelToEye = sceneState.modelViewRelToEyeMatrix;
+        
+		var sc = this.startPoint.screenCoordinate;
+		var magoWC = ManagerUtils.calculatePixelPositionWorldCoord(gl, sc.x, sc.y, magoWC, undefined, undefined, undefined, manager);
+		//var pixelPosCC = mvMat.transformPoint3D(magoWC, undefined);
+		var pixelPosCC = mvMat.transformPoint3D(this.startPoint.worldCoordinate, undefined);
+
+		if (attributes.movementInAxisZ)
+		{
+			// movement in plane XZ.
+			var globeYaxisWC = new Point3D(geoLocMatrix._floatArrays[4], geoLocMatrix._floatArrays[5], geoLocMatrix._floatArrays[6]);
+			var globeYaxisCC = mvMatRelToEye.transformPoint3D(globeYaxisWC, undefined);
+			this.selObjMovePlaneCC.setPointAndNormal(pixelPosCC.x, pixelPosCC.y, pixelPosCC.z,    globeYaxisCC.x, globeYaxisCC.y, globeYaxisCC.z); 
+		}
+		else 
+		{
+			// movement in plane XY.
+			var globeZaxisWC = new Point3D(geoLocMatrix._floatArrays[8], geoLocMatrix._floatArrays[9], geoLocMatrix._floatArrays[10]);
+			var globeZaxisCC = mvMatRelToEye.transformPoint3D(globeZaxisWC, undefined);
+			this.selObjMovePlaneCC.setPointAndNormal(pixelPosCC.x, pixelPosCC.y, pixelPosCC.z,    globeZaxisCC.x, globeZaxisCC.y, globeZaxisCC.z); 
+		}
+	}
+    
+	var screenCoordinate = browserEvent.endEvent.screenCoordinate;
+	var camRay = ManagerUtils.getRayCamSpace(screenCoordinate.x, screenCoordinate.y, camRay, manager);
+	this.lineCC.setPointAndDir(0, 0, 0,  camRay[0], camRay[1], camRay[2]);
+
+	// Calculate intersection cameraRay with planeCC.
+	var intersectionPointCC = new Point3D();
+	intersectionPointCC = this.selObjMovePlaneCC.intersectionLine(this.lineCC, intersectionPointCC);
+    
+	var mvMat = sceneState.getModelViewMatrixInv();
+	var intersectionPointWC = mvMat.transformPoint3D(intersectionPointCC, intersectionPointWC);
+    
+	var cartographic = ManagerUtils.pointToGeographicCoord(intersectionPointWC, cartographic, manager);
+	if (!this.startGeoCoordDif)
+	{
+		var buildingGeoCoord = geoLocationData.geographicCoord;
+		this.startGeoCoordDif = new GeographicCoord(cartographic.longitude - buildingGeoCoord.longitude, cartographic.latitude-buildingGeoCoord.latitude, cartographic.altitude-buildingGeoCoord.altitude);
+	}
+
+	var difX = cartographic.longitude - this.startGeoCoordDif.longitude;
+	var difY = cartographic.latitude - this.startGeoCoordDif.latitude;
+	var difZ = cartographic.altitude - this.startGeoCoordDif.altitude;
+
+	var attributes = object.attributes;
+		
+	if (attributes.minAltitude !== undefined)
+	{
+		if (difZ < attributes.minAltitude)
+		{ difZ = attributes.minAltitude; }
+	}
+    
+	if (attributes.maxAltitude !== undefined)
+	{
+		if (difZ > attributes.maxAltitude)
+		{ difZ = attributes.maxAltitude; }
+	}
+
+	if (attributes && attributes.movementRestriction)
+	{
+		var movementRestriction = attributes.movementRestriction;
+		if (movementRestriction)
+		{
+			var movementRestrictionType = movementRestriction.restrictionType;
+			var movRestrictionElem = movementRestriction.element;
+			if (movRestrictionElem && movRestrictionElem.constructor.name === "GeographicCoordSegment")
+			{
+				// restriction.***
+				var geoCoordSegment = movRestrictionElem;
+				var newGeoCoord = new GeographicCoord(difX, difY, 0.0);
+				var projectedCoord = GeographicCoordSegment.getProjectedCoordToLine(geoCoordSegment, newGeoCoord, undefined);
+                
+				// check if is inside.***
+				if (!GeographicCoordSegment.intersectionWithGeoCoord(geoCoordSegment, projectedCoord))
+				{
+					var nearestGeoCoord = GeographicCoordSegment.getNearestGeoCoord(geoCoordSegment, projectedCoord);
+					difX = nearestGeoCoord.longitude;
+					difY = nearestGeoCoord.latitude;
+				}
+				else 
+				{
+					difX = projectedCoord.longitude;
+					difY = projectedCoord.latitude;
+				}
+			}
+		}
+	}
+	if (attributes && attributes.hasStaticModel)
+	{
+		var projectId = attributes.projectId;
+		var dataKey = attributes.instanceId;
+		if (!defined(projectId))
+		{
+			return false;
+		}
+		if (!defined(dataKey))
+		{
+			return false;
+		}
+		var node = manager.hierarchyManager.getNodeByDataKey(projectId, dataKey);
+		if (node !== undefined)
+		{
+			node.changeLocationAndRotation(difY, difX, 0, attributes.f4dHeading, 0, 0, this);
+		}
+	}
+
+	if (attributes.movementInAxisZ)
+	{
+		geoLocationData = ManagerUtils.calculateGeoLocationData(undefined, undefined, difZ, undefined, undefined, undefined, geoLocationData, this);
+	}
+	else 
+	{
+		geoLocationData = ManagerUtils.calculateGeoLocationData(difX, difY, undefined, undefined, undefined, undefined, geoLocationData, this);
+
+		if(object.localCoordListArray && object.geographicCoordListsArray) {
+			var geographicCoordListsArray = [];
+			var tmat = geoLocationData.tMatrix;
+			for(var i=0,len=object.localCoordListArray.length; i<len; i++)
+			{
+				var localCoordList = object.localCoordListArray[i];
+				var geographicCoordArray = [];
+				for(var j=0,localCoordListLen=localCoordList.length; j<localCoordListLen;j++) {
+					var lc = localCoordList[j];
+					var wc = tmat.transformPoint3D(lc);
+					var gc = ManagerUtils.pointToGeographicCoord(wc);
+					geographicCoordArray.push(gc);
+				}
+				geographicCoordListsArray.push(new GeographicCoordsList(geographicCoordArray));
+			}
+			object.geographicCoordListsArray = geographicCoordListsArray;
+		}
+		if(object.options.limitationGeographicCoords)
+		{
+			object.makeUniformPoints2dArray();
+		}
+	}
+
+	object.moved();
+};
+
+TranslateInteraction.prototype.handleMoveEvent = function()
+{
+	return;
+};
+
+TranslateInteraction.prototype.handleUpEvent = function()
+{
+	this.init();
+	this.manager.setCameraMotion(true);
+	this.manager.isCameraMoved = true;
+	return;
+};
+
+
+TranslateInteraction.prototype.setFilterFunction = function()
+{
+	var manager = this.manager;
+	if (this.filter === 'selected')
+	{
+		this.filter_ = function(prov)
+		{
+			return prov === manager.defaultSelectInteraction.getSelected();
+		};
+	}
+	else 
+	{
+		this.filter_ = function(){ return true; };
+	}
+};
+'use strict';
+
+/**
  * AnimatedPerson is a class object.
  * 
  * @class AnimatedPerson
@@ -93482,8 +93531,8 @@ ExtrusionBuilding.prototype.makeMesh = function() {
 		var topGeoCoordsList = geographicCoordList.getCopy();
 		// Reassign the altitude on the geoCoordsListCopy.
 
-		geographicCoordList.setAltitude(this.terrainHeight);
-		topGeoCoordsList.setAltitude(this.getRealHeight());
+		geographicCoordList.setAltitude(0);
+		topGeoCoordsList.setAltitude(this.height);
 		
 		var basePoints3dArray = GeographicCoordsList.getPointsRelativeToGeoLocation(geoLocData, geographicCoordList.geographicCoordsArray, undefined);
 		var topPoints3dArray = GeographicCoordsList.getPointsRelativeToGeoLocation(geoLocData, topGeoCoordsList.geographicCoordsArray, undefined);
@@ -93544,6 +93593,8 @@ ExtrusionBuilding.prototype.makeMesh = function() {
 	{
 		this.makeUniformPoints2dArray();
 	}
+
+	geoLocData = ManagerUtils.calculateGeoLocationData(undefined, undefined, this.terrainHeight, undefined, undefined, undefined, geoLocData, this);
 }
 
 ExtrusionBuilding.prototype.makeUniformPoints2dArray = function() 
@@ -96683,6 +96734,609 @@ Wheel.prototype.renderAsChild = function(magoManager, shader, renderType, glPrim
 	this.mesh.render(magoManager, shader, renderType, glPrimitive);
 
 	gl.disable(gl.BLEND);
+};
+'use strict';
+
+/**
+ * Network.
+ * IndoorGML의 네트워크를 파싱하고 그리는 데 사용합니다.
+ * @alias Network
+ * @class Network
+ */
+var Network = function(owner) 
+{
+	if (!(this instanceof Network)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	
+	this.nodeOwner;
+	if (owner)
+	{ this.nodeOwner = owner; }
+	
+	this.id; // network id.
+	this.nodesArray;
+	this.edgesArray;
+	this.spacesArray;
+	
+	this.attributes;
+	this.edgesVboKeysContainer; // to draw edges with an unique vbo.
+	this.nodesVboKeysContainer; // to draw nodes with an unique vbo.
+	
+	this.renderSpaces = true;
+	this.spacesAlpha = 0.2;
+};
+
+/**
+ * 
+ */
+Network.prototype.newNode = function()
+{
+	if (this.nodesArray === undefined)
+	{ this.nodesArray = []; }
+	
+	var networkNode = new NetworkNode(this);
+	this.nodesArray.push(networkNode);
+	return networkNode;
+};
+
+/**
+ * 
+ */
+Network.prototype.newEdge = function()
+{
+	if (this.edgesArray === undefined)
+	{ this.edgesArray = []; }
+	
+	var networkEdge = new NetworkEdge(this);
+	this.edgesArray.push(networkEdge);
+	return networkEdge;
+};
+
+/**
+ * 
+ */
+Network.prototype.newSpace = function()
+{
+	if (this.spacesArray === undefined)
+	{ this.spacesArray = []; }
+	
+	var networkSpace = new NetworkSpace(this);
+	this.spacesArray.push(networkSpace);
+	return networkSpace;
+};
+
+/**
+ * 
+ */
+Network.prototype.test__makeVbos = function(magoManager)
+{
+	// Here makes meshes and vbos.
+	// For edges, make an unique vbo for faster rendering.
+	var edgesCount = 0;
+	if (this.edgesArray)
+	{ edgesCount = this.edgesArray.length; }
+	
+	var pointsArray = [];
+	
+	for (var i=0; i<edgesCount; i++)
+	{
+		var edge = this.edgesArray[i];
+		var vtxSegment = edge.vtxSegment;
+		var point1 = vtxSegment.startVertex.point3d;
+		var point2 = vtxSegment.endVertex.point3d;
+		pointsArray.push(point1.x);
+		pointsArray.push(point1.y);
+		pointsArray.push(point1.z);
+		
+		pointsArray.push(point2.x);
+		pointsArray.push(point2.y);
+		pointsArray.push(point2.z);
+	}
+	
+	if (this.edgesVboKeysContainer === undefined)
+	{
+		this.edgesVboKeysContainer = new VBOVertexIdxCacheKeysContainer();
+	}
+	
+	var vboKey = this.edgesVboKeysContainer.newVBOVertexIdxCacheKey();
+	
+	var vboMemManager = magoManager.vboMemoryManager;
+	var pointsCount = edgesCount * 2;
+	var posByteSize = pointsCount * 3;
+	var classifiedPosByteSize = vboMemManager.getClassifiedBufferSize(posByteSize);
+	vboKey.posVboDataArray = new Float32Array(classifiedPosByteSize);
+	vboKey.posVboDataArray.set(pointsArray);
+	vboKey.posArrayByteSize = pointsArray.length;
+	vboKey.segmentsCount = edgesCount;
+	
+};
+
+/**
+ * Make triangle from IndoorGML data
+ * @param magoManager
+ * @param gmlDataContainer 
+ * 
+ */
+Network.prototype.parseTopologyData = function(magoManager, gmlDataContainer) 
+{
+	// gmlDataContainer.cellSpaceMembers
+	// gmlDataContainer.edges
+	// gmlDataContainer.nodes
+	// cityGML Lower point (78.02094, -82.801873, 18).
+	// cityGML Upper point (152.17466, 19.03087, 39).
+	// cityGML Center point {x=115.09780549999999 y=-31.885501999999999 z=28.500000000000000 ...}
+	
+	var bbox = new BoundingBox();
+	bbox.minX = gmlDataContainer.min_X;
+	bbox.minY = gmlDataContainer.min_Y;
+	bbox.minZ = gmlDataContainer.min_Z;
+	bbox.maxX = gmlDataContainer.max_X;
+	bbox.maxY = gmlDataContainer.max_Y;
+	bbox.maxZ = gmlDataContainer.max_Z;
+	
+	//bbox.maxX = 56.19070816040039;
+	//bbox.maxY = 71.51078033447266;
+	//bbox.maxZ = 10.5;
+	//bbox.minX = -379.18280029296875;
+	//bbox.minY = -142.4878387451172;
+	//bbox.minZ = -46.5;
+	
+	var offsetVector = new Point3D();
+	var zOffset = 0.1;
+	offsetVector.set(-115.0978055, 31.885502, -28.5); // cityGML ORIGINAL Center point inversed.
+	
+	var nodesMap = {};
+	var nodesCount = gmlDataContainer.nodes.length;
+	for (var i=0; i<nodesCount; i++)
+	{
+		var node = gmlDataContainer.nodes[i];
+		var networkNode = this.newNode();
+		networkNode.id = "#" + node.id;
+		
+		networkNode.position = new Point3D(node.coordinates[0], node.coordinates[1], node.coordinates[2]);
+		networkNode.position.addPoint(offsetVector); // rest bbox centerPoint.
+		networkNode.position.add(0.0, 0.0, zOffset); // aditional pos.
+		networkNode.box = new Box(0.6, 0.6, 0.6);
+		
+		nodesMap[networkNode.id] = networkNode;
+	}
+	
+	
+	var cellSpaceMap = {};
+	var cellSpacesCount = gmlDataContainer.cellSpaceMembers.length;
+	for (var i=0; i<cellSpacesCount; i++)
+	{
+		var cellSpace = gmlDataContainer.cellSpaceMembers[i];
+		var id = cellSpace.href;
+		var networkSpace = this.newSpace();
+		var mesh = new Mesh();
+		networkSpace.mesh = mesh; // assign mesh to networkSpace provisionally.
+		var vertexList = mesh.getVertexList();
+		
+		var surfacesMembersCount = cellSpace.surfaceMember.length;
+		for (var j=0; j<surfacesMembersCount; j++)
+		{
+			var surface = mesh.newSurface();
+			var face = surface.newFace();
+			
+			var coordinates = cellSpace.surfaceMember[j].coordinates;
+			var coordinatedCount = coordinates.length;
+			var pointsCount = coordinatedCount/3;
+			
+			for (var k=0; k<pointsCount; k++)
+			{
+				var x = coordinates[k * 3];
+				var y = coordinates[k * 3 + 1];
+				var z = coordinates[k * 3 + 2];
+				
+				var vertex = vertexList.newVertex();
+				vertex.setPosition(x, y, z);
+				vertex.point3d.addPoint(offsetVector); // rest bbox centerPoint.
+				face.addVertex(vertex);
+				
+			}
+			face.solveUroborus(); // Check & solve if the last point is coincident with the 1rst point.
+			face.calculateVerticesNormals();
+		}
+		
+		cellSpaceMap[cellSpace.href] = cellSpace;
+	}
+	
+	var edgesCount = gmlDataContainer.edges.length;
+	for (var i=0; i<edgesCount; i++)
+	{
+		var edge = gmlDataContainer.edges[i];
+		var networkEdge = this.newEdge();
+		
+		var point1 = edge.stateMembers[0].coordinates;
+		var point2 = edge.stateMembers[1].coordinates;
+		var vertex1 = new Vertex();
+		var vertex2 = new Vertex();
+		vertex1.setPosition(point1[0], point1[1], point1[2]);
+		vertex2.setPosition(point2[0], point2[1], point2[2]);
+		vertex1.point3d.addPoint(offsetVector); // rest bbox centerPoint.
+		vertex1.point3d.add(0.0, 0.0, zOffset); // aditional pos.
+		vertex2.point3d.addPoint(offsetVector); // rest bbox centerPoint.
+		vertex2.point3d.add(0.0, 0.0, zOffset); // aditional pos.
+		var vtxSegment = new VtxSegment(vertex1, vertex2);
+		networkEdge.vtxSegment = vtxSegment; // assign vtxSegment to networkEdge provisionally.
+		
+		var connect_1_id = edge.connects[0];
+		var connect_2_id = edge.connects[1];
+		
+		networkEdge.strNodeId = connect_1_id;
+		networkEdge.endNodeId = connect_2_id;
+	}
+	
+	this.test__makeVbos(magoManager);
+};
+
+/**
+ * 
+ */
+Network.prototype.renderColorCoding = function(magoManager, shader, renderType)
+{
+	// Provisional function.
+	// render nodes & edges.
+	var selectionColor = magoManager.selectionColor;
+	//selectionColor.init(); 
+	
+	// Check if exist selectionFamilies.
+	var selFamilyNameNodes = "networkNodes";
+	var selManager = magoManager.selectionManager;
+	var selCandidateNodes = selManager.getSelectionCandidatesFamily(selFamilyNameNodes);
+	if (selCandidateNodes === undefined)
+	{
+		selCandidateNodes = selManager.newCandidatesFamily(selFamilyNameNodes);
+	}
+	
+	var selFamilyNameEdges = "networkEdges";
+	var selManager = magoManager.selectionManager;
+	var selCandidateEdges = selManager.getSelectionCandidatesFamily(selFamilyNameEdges);
+	if (selCandidateEdges === undefined)
+	{
+		selCandidateEdges = selManager.newCandidatesFamily(selFamilyNameEdges);
+	}
+	
+	var vboMemManager = magoManager.vboMemoryManager;
+	var gl = magoManager.sceneState.gl;
+	var vboKey;
+	
+	shader.disableVertexAttribArray(shader.texCoord2_loc); 
+	shader.enableVertexAttribArray(shader.normal3_loc); 
+	gl.uniform1i(shader.hasTexture_loc, false); //.
+	gl.uniform4fv(shader.oneColor4_loc, [0.8, 0.8, 0.8, 1.0]);
+	
+	if (!shader.last_isAditionalMovedZero)
+	{
+		gl.uniform1i(shader.hasAditionalMov_loc, false);
+		gl.uniform3fv(shader.aditionalMov_loc, [0.0, 0.0, 0.0]); //.
+		shader.last_isAditionalMovedZero = true;
+	}
+	
+	// Nodes.**
+	var nodesCount = 0;
+	if (this.nodesArray)
+	{ nodesCount = this.nodesArray.length; }
+	
+	if (nodesCount > 0 )//&& !magoManager.isCameraMoving)
+	{
+		var refMatrixType = 1; // translation-type.
+		gl.uniform1i(shader.refMatrixType_loc, refMatrixType);
+		//gl.uniform4fv(shader.oneColor4_loc, [0.3, 0.3, 0.9, 1.0]);
+		var nodeMaster = this.nodesArray[0]; // render all with an unique box.
+		for (var i=0; i<nodesCount; i++)
+		{
+			var node = this.nodesArray[i];
+			
+			// nodes has a position, so render a point or a box.
+			gl.uniform3fv(shader.refTranslationVec_loc, [node.position.x, node.position.y, node.position.z]); 
+			
+			var selColor4 = selectionColor.getAvailableColor(undefined); // new.
+			var idxKey = selectionColor.decodeColor3(selColor4.r, selColor4.g, selColor4.b);
+			selManager.setCandidateCustom(idxKey, selFamilyNameNodes, node);
+			gl.uniform4fv(shader.oneColor4_loc, [selColor4.r/255.0, selColor4.g/255.0, selColor4.b/255.0, 1.0]);
+
+			nodeMaster.box.render(magoManager, shader, renderType);
+			
+		}
+	}
+	
+	// Edges.**
+	// Render with a unique vbo.
+	if (this.edgesVboKeysContainer)
+	{
+		var vboKey = this.edgesVboKeysContainer.vboCacheKeysArray[0];
+		if (vboKey.isReadyPositions(gl, vboMemManager))
+		{ 
+			shader.disableVertexAttribArray(shader.texCoord2_loc); 
+			shader.disableVertexAttribArray(shader.normal3_loc); 
+			refMatrixType = 0;
+			gl.uniform1i(shader.refMatrixType_loc, refMatrixType);
+			
+			// Positions.
+			if (vboKey.meshVertexCacheKey !== shader.lastVboKeyBindedMap[shader.position3_loc])
+			{
+				gl.bindBuffer(gl.ARRAY_BUFFER, vboKey.meshVertexCacheKey);
+				gl.vertexAttribPointer(shader.position3_loc, 3, gl.FLOAT, false, 0, 0);
+				shader.lastVboKeyBindedMap[shader.position3_loc] = vboKey.meshVertexCacheKey;
+			}
+				
+			var edgesCount = this.edgesArray.length;
+			for (var i=0; i<edgesCount; i++)
+			{
+				var edge = this.edgesArray[i];
+				var selColor4 = selectionColor.getAvailableColor(undefined); // new.
+				var idxKey = selectionColor.decodeColor3(selColor4.r, selColor4.g, selColor4.b);
+				selManager.setCandidateCustom(idxKey, selFamilyNameEdges, edge);
+				gl.uniform4fv(shader.oneColor4_loc, [selColor4.r/255.0, selColor4.g/255.0, selColor4.b/255.0, 1.0]);
+				gl.drawArrays(gl.LINES, i*2, 2);
+			}
+		}
+	}
+	
+};
+
+/**
+ * 
+ */
+Network.prototype.render = function(magoManager, shader, renderType)
+{
+	if (renderType === 2)
+	{
+		this.renderColorCoding(magoManager, shader, renderType);
+		return;
+	}
+	
+	// Check if ready smallBox and bigBox.
+	var selectionColor = magoManager.selectionColor;
+	selectionColor.init(); 
+	
+	// Check if exist selectionFamilies.
+	var selFamilyNameNodes = "networkNodes";
+	var selManager = magoManager.selectionManager;
+	var selCandidateNodes = selManager.getSelectionCandidatesFamily(selFamilyNameNodes);
+	if (selCandidateNodes === undefined)
+	{
+		selCandidateNodes = selManager.newCandidatesFamily(selFamilyNameNodes);
+	}
+	
+	var selFamilyNameEdges = "networkEdges";
+	var selManager = magoManager.selectionManager;
+	var selCandidateEdges = selManager.getSelectionCandidatesFamily(selFamilyNameEdges);
+	if (selCandidateEdges === undefined)
+	{
+		selCandidateEdges = selManager.newCandidatesFamily(selFamilyNameEdges);
+	}
+	
+	// Provisional function.
+	// render nodes & edges.
+	var vboMemManager = magoManager.vboMemoryManager;
+	var gl = magoManager.sceneState.gl;
+	var vboKey;
+	
+	shader.disableVertexAttribArray(shader.texCoord2_loc); 
+	shader.enableVertexAttribArray(shader.normal3_loc); 
+	
+	gl.uniform1i(shader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
+	gl.uniform4fv(shader.oneColor4_loc, [0.8, 0.8, 0.8, 1.0]);
+	
+	if (!shader.last_isAditionalMovedZero)
+	{
+		gl.uniform1i(shader.hasAditionalMov_loc, false);
+		gl.uniform3fv(shader.aditionalMov_loc, [0.0, 0.0, 0.0]); //.
+		shader.last_isAditionalMovedZero = true;
+	}
+	
+	// Nodes.**
+	var nodesCount = 0;
+	if (this.nodesArray)
+	{ nodesCount = this.nodesArray.length; }
+	
+	if (nodesCount > 0 )//&& !magoManager.isCameraMoving)
+	{
+		gl.uniform1i(shader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
+		var refMatrixType = 1; // translation-type.
+		gl.uniform1i(shader.refMatrixType_loc, refMatrixType);
+		gl.uniform4fv(shader.oneColor4_loc, [0.3, 0.3, 0.9, 1.0]);
+		var nodeMaster = this.nodesArray[0]; // render all with an unique box.
+		for (var i=0; i<nodesCount; i++)
+		{
+			var node = this.nodesArray[i];
+			
+			// check if is selected.
+			if (node === selCandidateNodes.currentSelected)
+			{
+				gl.uniform4fv(shader.oneColor4_loc, [0.9, 0.5, 0.1, 1.0]);
+			}
+			
+			// nodes has a position, so render a point or a box.
+			gl.uniform3fv(shader.refTranslationVec_loc, [node.position.x, node.position.y, node.position.z]); 
+			nodeMaster.box.render(magoManager, shader, renderType);
+			
+			// restore defaultColor.
+			if (node === selCandidateNodes.currentSelected)
+			{
+				gl.uniform4fv(shader.oneColor4_loc, [0.3, 0.3, 0.9, 1.0]);
+			}
+		}
+	}
+	
+	// Edges.**
+	// Render with a unique vbo.
+	if (this.edgesVboKeysContainer)
+	{
+		var vboKey = this.edgesVboKeysContainer.vboCacheKeysArray[0];
+		if (vboKey.isReadyPositions(gl, vboMemManager))
+		{ 
+			shader.disableVertexAttribArray(shader.texCoord2_loc); 
+			shader.disableVertexAttribArray(shader.normal3_loc); 
+			gl.uniform1i(shader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
+			refMatrixType = 0;
+			gl.uniform1i(shader.refMatrixType_loc, refMatrixType);
+			gl.uniform4fv(shader.oneColor4_loc, [0.1, 0.1, 0.6, 1.0]);
+	
+			// Positions.
+			if (vboKey.meshVertexCacheKey !== shader.lastVboKeyBindedMap[shader.position3_loc])
+			{
+				gl.bindBuffer(gl.ARRAY_BUFFER, vboKey.meshVertexCacheKey);
+				gl.vertexAttribPointer(shader.position3_loc, 3, gl.FLOAT, false, 0, 0);
+				shader.lastVboKeyBindedMap[shader.position3_loc] = vboKey.meshVertexCacheKey;
+			}
+			
+			//gl.drawArrays(gl.LINES, 0, vboKey.segmentsCount*2);
+			
+			var edgesCount = this.edgesArray.length;
+			for (var i=0; i<edgesCount; i++)
+			{
+				var edge = this.edgesArray[i];
+				if (edge === selCandidateEdges.currentSelected)
+				{
+					gl.uniform4fv(shader.oneColor4_loc, [0.0, 1.0, 0.0, 1.0]);
+				}
+				gl.drawArrays(gl.LINES, i*2, 2);
+				
+				// restore default color.
+				if (edge === selCandidateEdges.currentSelected)
+				{
+					gl.uniform4fv(shader.oneColor4_loc, [0.1, 0.1, 0.6, 1.0]);
+				}
+			}
+		}
+	}
+	
+	// Spaces.
+	this.renderSpaces = magoManager.tempSettings.renderSpaces;
+	this.spacesAlpha = magoManager.tempSettings.spacesAlpha;
+	
+	if (renderType === 1)
+	{ shader.enableVertexAttribArray(shader.normal3_loc); } 
+	
+	if (this.renderSpaces)
+	{
+		gl.uniform1i(shader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
+		refMatrixType = 0;
+		gl.uniform1i(shader.refMatrixType_loc, refMatrixType);
+		gl.uniform4fv(shader.oneColor4_loc, [0.8, 0.8, 0.8, this.spacesAlpha]);
+		gl.enable(gl.BLEND);
+		var spacesCount = 0;
+		if (this.spacesArray)
+		{ spacesCount = this.spacesArray.length; }
+		
+		for (var i=0; i<spacesCount; i++)
+		{
+			var space = this.spacesArray[i];
+			space.mesh.render(magoManager, shader);
+		}
+		
+		gl.disable(gl.BLEND);
+	}
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+'use strict';
+
+/**
+ * NetworkEdge.
+ * 
+ * @alias NetworkEdge
+ * @class NetworkEdge
+ */
+var NetworkEdge = function(owner) 
+{
+	if (!(this instanceof NetworkEdge)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	this.networkOwner = owner;
+	this.id;
+	this.strNode;
+	this.endNode;
+	this.sense;
+	this.attributes;
+	
+	// provisionally:
+	this.strNodeId;
+	this.endNodeId;
+};
+'use strict';
+
+/**
+ * NetworkNode.
+ * 
+ * @alias NetworkNode
+ * @class NetworkNode
+ */
+var NetworkNode = function(owner) 
+{
+	if (!(this instanceof NetworkNode)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	this.networkOwner = owner;
+	this.id;
+	this.edgesArray;
+	this.attributes;
+	this.box;
+	//this.mesh; // if display as a box, cilinder, etc.
+};
+'use strict';
+
+/**
+ * NetworkSpace.
+ * 
+ * @alias NetworkSpace
+ * @class NetworkSpace
+ */
+var NetworkSpace = function(owner) 
+{
+	if (!(this instanceof NetworkSpace)) 
+	{
+		throw new Error(Messages.CONSTRUCT_ERROR);
+	}
+	this.networkOwner = owner;
+	this.id;
+	this.mesh;
+	this.attributes;
+	
 };
 'use strict';
 
@@ -110226,605 +110880,38 @@ UniformVec4fvDataPair.prototype.bindUniform = function()
 'use strict';
 
 /**
- * Network.
- * IndoorGML의 네트워크를 파싱하고 그리는 데 사용합니다.
- * @alias Network
- * @class Network
+ * Geoserver for mago3Djs object.
+ * @class Geoserver
  */
-var Network = function(owner) 
+var GeoServer = function() 
 {
-	if (!(this instanceof Network)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	
-	this.nodeOwner;
-	if (owner)
-	{ this.nodeOwner = owner; }
-	
-	this.id; // network id.
-	this.nodesArray;
-	this.edgesArray;
-	this.spacesArray;
-	
-	this.attributes;
-	this.edgesVboKeysContainer; // to draw edges with an unique vbo.
-	this.nodesVboKeysContainer; // to draw nodes with an unique vbo.
-	
-	this.renderSpaces = true;
-	this.spacesAlpha = 0.2;
+
+	this.serverInfo = {};
+}; 
+
+GeoServer.prototype.setServerInfo = function(info) 
+{
+	this.serverInfo = info;
 };
 
-/**
- * 
- */
-Network.prototype.newNode = function()
+GeoServer.prototype.getDataUrl = function() 
 {
-	if (this.nodesArray === undefined)
-	{ this.nodesArray = []; }
-	
-	var networkNode = new NetworkNode(this);
-	this.nodesArray.push(networkNode);
-	return networkNode;
+	return this.serverInfo.dataUrl;
 };
 
-/**
- * 
- */
-Network.prototype.newEdge = function()
+GeoServer.prototype.getDataWorkspace = function() 
 {
-	if (this.edgesArray === undefined)
-	{ this.edgesArray = []; }
-	
-	var networkEdge = new NetworkEdge(this);
-	this.edgesArray.push(networkEdge);
-	return networkEdge;
+	return this.serverInfo.dataWorkspace;
 };
 
-/**
- * 
- */
-Network.prototype.newSpace = function()
+GeoServer.prototype.getDataRequestUrl = function() 
 {
-	if (this.spacesArray === undefined)
-	{ this.spacesArray = []; }
-	
-	var networkSpace = new NetworkSpace(this);
-	this.spacesArray.push(networkSpace);
-	return networkSpace;
+	return this.getDataUrl() + '/' + this.getDataWorkspace();
 };
 
-/**
- * 
- */
-Network.prototype.test__makeVbos = function(magoManager)
+GeoServer.prototype.getWmsVersion = function() 
 {
-	// Here makes meshes and vbos.
-	// For edges, make an unique vbo for faster rendering.
-	var edgesCount = 0;
-	if (this.edgesArray)
-	{ edgesCount = this.edgesArray.length; }
-	
-	var pointsArray = [];
-	
-	for (var i=0; i<edgesCount; i++)
-	{
-		var edge = this.edgesArray[i];
-		var vtxSegment = edge.vtxSegment;
-		var point1 = vtxSegment.startVertex.point3d;
-		var point2 = vtxSegment.endVertex.point3d;
-		pointsArray.push(point1.x);
-		pointsArray.push(point1.y);
-		pointsArray.push(point1.z);
-		
-		pointsArray.push(point2.x);
-		pointsArray.push(point2.y);
-		pointsArray.push(point2.z);
-	}
-	
-	if (this.edgesVboKeysContainer === undefined)
-	{
-		this.edgesVboKeysContainer = new VBOVertexIdxCacheKeysContainer();
-	}
-	
-	var vboKey = this.edgesVboKeysContainer.newVBOVertexIdxCacheKey();
-	
-	var vboMemManager = magoManager.vboMemoryManager;
-	var pointsCount = edgesCount * 2;
-	var posByteSize = pointsCount * 3;
-	var classifiedPosByteSize = vboMemManager.getClassifiedBufferSize(posByteSize);
-	vboKey.posVboDataArray = new Float32Array(classifiedPosByteSize);
-	vboKey.posVboDataArray.set(pointsArray);
-	vboKey.posArrayByteSize = pointsArray.length;
-	vboKey.segmentsCount = edgesCount;
-	
-};
-
-/**
- * Make triangle from IndoorGML data
- * @param magoManager
- * @param gmlDataContainer 
- * 
- */
-Network.prototype.parseTopologyData = function(magoManager, gmlDataContainer) 
-{
-	// gmlDataContainer.cellSpaceMembers
-	// gmlDataContainer.edges
-	// gmlDataContainer.nodes
-	// cityGML Lower point (78.02094, -82.801873, 18).
-	// cityGML Upper point (152.17466, 19.03087, 39).
-	// cityGML Center point {x=115.09780549999999 y=-31.885501999999999 z=28.500000000000000 ...}
-	
-	var bbox = new BoundingBox();
-	bbox.minX = gmlDataContainer.min_X;
-	bbox.minY = gmlDataContainer.min_Y;
-	bbox.minZ = gmlDataContainer.min_Z;
-	bbox.maxX = gmlDataContainer.max_X;
-	bbox.maxY = gmlDataContainer.max_Y;
-	bbox.maxZ = gmlDataContainer.max_Z;
-	
-	//bbox.maxX = 56.19070816040039;
-	//bbox.maxY = 71.51078033447266;
-	//bbox.maxZ = 10.5;
-	//bbox.minX = -379.18280029296875;
-	//bbox.minY = -142.4878387451172;
-	//bbox.minZ = -46.5;
-	
-	var offsetVector = new Point3D();
-	var zOffset = 0.1;
-	offsetVector.set(-115.0978055, 31.885502, -28.5); // cityGML ORIGINAL Center point inversed.
-	
-	var nodesMap = {};
-	var nodesCount = gmlDataContainer.nodes.length;
-	for (var i=0; i<nodesCount; i++)
-	{
-		var node = gmlDataContainer.nodes[i];
-		var networkNode = this.newNode();
-		networkNode.id = "#" + node.id;
-		
-		networkNode.position = new Point3D(node.coordinates[0], node.coordinates[1], node.coordinates[2]);
-		networkNode.position.addPoint(offsetVector); // rest bbox centerPoint.
-		networkNode.position.add(0.0, 0.0, zOffset); // aditional pos.
-		networkNode.box = new Box(0.6, 0.6, 0.6);
-		
-		nodesMap[networkNode.id] = networkNode;
-	}
-	
-	
-	var cellSpaceMap = {};
-	var cellSpacesCount = gmlDataContainer.cellSpaceMembers.length;
-	for (var i=0; i<cellSpacesCount; i++)
-	{
-		var cellSpace = gmlDataContainer.cellSpaceMembers[i];
-		var id = cellSpace.href;
-		var networkSpace = this.newSpace();
-		var mesh = new Mesh();
-		networkSpace.mesh = mesh; // assign mesh to networkSpace provisionally.
-		var vertexList = mesh.getVertexList();
-		
-		var surfacesMembersCount = cellSpace.surfaceMember.length;
-		for (var j=0; j<surfacesMembersCount; j++)
-		{
-			var surface = mesh.newSurface();
-			var face = surface.newFace();
-			
-			var coordinates = cellSpace.surfaceMember[j].coordinates;
-			var coordinatedCount = coordinates.length;
-			var pointsCount = coordinatedCount/3;
-			
-			for (var k=0; k<pointsCount; k++)
-			{
-				var x = coordinates[k * 3];
-				var y = coordinates[k * 3 + 1];
-				var z = coordinates[k * 3 + 2];
-				
-				var vertex = vertexList.newVertex();
-				vertex.setPosition(x, y, z);
-				vertex.point3d.addPoint(offsetVector); // rest bbox centerPoint.
-				face.addVertex(vertex);
-				
-			}
-			face.solveUroborus(); // Check & solve if the last point is coincident with the 1rst point.
-			face.calculateVerticesNormals();
-		}
-		
-		cellSpaceMap[cellSpace.href] = cellSpace;
-	}
-	
-	var edgesCount = gmlDataContainer.edges.length;
-	for (var i=0; i<edgesCount; i++)
-	{
-		var edge = gmlDataContainer.edges[i];
-		var networkEdge = this.newEdge();
-		
-		var point1 = edge.stateMembers[0].coordinates;
-		var point2 = edge.stateMembers[1].coordinates;
-		var vertex1 = new Vertex();
-		var vertex2 = new Vertex();
-		vertex1.setPosition(point1[0], point1[1], point1[2]);
-		vertex2.setPosition(point2[0], point2[1], point2[2]);
-		vertex1.point3d.addPoint(offsetVector); // rest bbox centerPoint.
-		vertex1.point3d.add(0.0, 0.0, zOffset); // aditional pos.
-		vertex2.point3d.addPoint(offsetVector); // rest bbox centerPoint.
-		vertex2.point3d.add(0.0, 0.0, zOffset); // aditional pos.
-		var vtxSegment = new VtxSegment(vertex1, vertex2);
-		networkEdge.vtxSegment = vtxSegment; // assign vtxSegment to networkEdge provisionally.
-		
-		var connect_1_id = edge.connects[0];
-		var connect_2_id = edge.connects[1];
-		
-		networkEdge.strNodeId = connect_1_id;
-		networkEdge.endNodeId = connect_2_id;
-	}
-	
-	this.test__makeVbos(magoManager);
-};
-
-/**
- * 
- */
-Network.prototype.renderColorCoding = function(magoManager, shader, renderType)
-{
-	// Provisional function.
-	// render nodes & edges.
-	var selectionColor = magoManager.selectionColor;
-	//selectionColor.init(); 
-	
-	// Check if exist selectionFamilies.
-	var selFamilyNameNodes = "networkNodes";
-	var selManager = magoManager.selectionManager;
-	var selCandidateNodes = selManager.getSelectionCandidatesFamily(selFamilyNameNodes);
-	if (selCandidateNodes === undefined)
-	{
-		selCandidateNodes = selManager.newCandidatesFamily(selFamilyNameNodes);
-	}
-	
-	var selFamilyNameEdges = "networkEdges";
-	var selManager = magoManager.selectionManager;
-	var selCandidateEdges = selManager.getSelectionCandidatesFamily(selFamilyNameEdges);
-	if (selCandidateEdges === undefined)
-	{
-		selCandidateEdges = selManager.newCandidatesFamily(selFamilyNameEdges);
-	}
-	
-	var vboMemManager = magoManager.vboMemoryManager;
-	var gl = magoManager.sceneState.gl;
-	var vboKey;
-	
-	shader.disableVertexAttribArray(shader.texCoord2_loc); 
-	shader.enableVertexAttribArray(shader.normal3_loc); 
-	gl.uniform1i(shader.hasTexture_loc, false); //.
-	gl.uniform4fv(shader.oneColor4_loc, [0.8, 0.8, 0.8, 1.0]);
-	
-	if (!shader.last_isAditionalMovedZero)
-	{
-		gl.uniform1i(shader.hasAditionalMov_loc, false);
-		gl.uniform3fv(shader.aditionalMov_loc, [0.0, 0.0, 0.0]); //.
-		shader.last_isAditionalMovedZero = true;
-	}
-	
-	// Nodes.**
-	var nodesCount = 0;
-	if (this.nodesArray)
-	{ nodesCount = this.nodesArray.length; }
-	
-	if (nodesCount > 0 )//&& !magoManager.isCameraMoving)
-	{
-		var refMatrixType = 1; // translation-type.
-		gl.uniform1i(shader.refMatrixType_loc, refMatrixType);
-		//gl.uniform4fv(shader.oneColor4_loc, [0.3, 0.3, 0.9, 1.0]);
-		var nodeMaster = this.nodesArray[0]; // render all with an unique box.
-		for (var i=0; i<nodesCount; i++)
-		{
-			var node = this.nodesArray[i];
-			
-			// nodes has a position, so render a point or a box.
-			gl.uniform3fv(shader.refTranslationVec_loc, [node.position.x, node.position.y, node.position.z]); 
-			
-			var selColor4 = selectionColor.getAvailableColor(undefined); // new.
-			var idxKey = selectionColor.decodeColor3(selColor4.r, selColor4.g, selColor4.b);
-			selManager.setCandidateCustom(idxKey, selFamilyNameNodes, node);
-			gl.uniform4fv(shader.oneColor4_loc, [selColor4.r/255.0, selColor4.g/255.0, selColor4.b/255.0, 1.0]);
-
-			nodeMaster.box.render(magoManager, shader, renderType);
-			
-		}
-	}
-	
-	// Edges.**
-	// Render with a unique vbo.
-	if (this.edgesVboKeysContainer)
-	{
-		var vboKey = this.edgesVboKeysContainer.vboCacheKeysArray[0];
-		if (vboKey.isReadyPositions(gl, vboMemManager))
-		{ 
-			shader.disableVertexAttribArray(shader.texCoord2_loc); 
-			shader.disableVertexAttribArray(shader.normal3_loc); 
-			refMatrixType = 0;
-			gl.uniform1i(shader.refMatrixType_loc, refMatrixType);
-			
-			// Positions.
-			if (vboKey.meshVertexCacheKey !== shader.lastVboKeyBindedMap[shader.position3_loc])
-			{
-				gl.bindBuffer(gl.ARRAY_BUFFER, vboKey.meshVertexCacheKey);
-				gl.vertexAttribPointer(shader.position3_loc, 3, gl.FLOAT, false, 0, 0);
-				shader.lastVboKeyBindedMap[shader.position3_loc] = vboKey.meshVertexCacheKey;
-			}
-				
-			var edgesCount = this.edgesArray.length;
-			for (var i=0; i<edgesCount; i++)
-			{
-				var edge = this.edgesArray[i];
-				var selColor4 = selectionColor.getAvailableColor(undefined); // new.
-				var idxKey = selectionColor.decodeColor3(selColor4.r, selColor4.g, selColor4.b);
-				selManager.setCandidateCustom(idxKey, selFamilyNameEdges, edge);
-				gl.uniform4fv(shader.oneColor4_loc, [selColor4.r/255.0, selColor4.g/255.0, selColor4.b/255.0, 1.0]);
-				gl.drawArrays(gl.LINES, i*2, 2);
-			}
-		}
-	}
-	
-};
-
-/**
- * 
- */
-Network.prototype.render = function(magoManager, shader, renderType)
-{
-	if (renderType === 2)
-	{
-		this.renderColorCoding(magoManager, shader, renderType);
-		return;
-	}
-	
-	// Check if ready smallBox and bigBox.
-	var selectionColor = magoManager.selectionColor;
-	selectionColor.init(); 
-	
-	// Check if exist selectionFamilies.
-	var selFamilyNameNodes = "networkNodes";
-	var selManager = magoManager.selectionManager;
-	var selCandidateNodes = selManager.getSelectionCandidatesFamily(selFamilyNameNodes);
-	if (selCandidateNodes === undefined)
-	{
-		selCandidateNodes = selManager.newCandidatesFamily(selFamilyNameNodes);
-	}
-	
-	var selFamilyNameEdges = "networkEdges";
-	var selManager = magoManager.selectionManager;
-	var selCandidateEdges = selManager.getSelectionCandidatesFamily(selFamilyNameEdges);
-	if (selCandidateEdges === undefined)
-	{
-		selCandidateEdges = selManager.newCandidatesFamily(selFamilyNameEdges);
-	}
-	
-	// Provisional function.
-	// render nodes & edges.
-	var vboMemManager = magoManager.vboMemoryManager;
-	var gl = magoManager.sceneState.gl;
-	var vboKey;
-	
-	shader.disableVertexAttribArray(shader.texCoord2_loc); 
-	shader.enableVertexAttribArray(shader.normal3_loc); 
-	
-	gl.uniform1i(shader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
-	gl.uniform4fv(shader.oneColor4_loc, [0.8, 0.8, 0.8, 1.0]);
-	
-	if (!shader.last_isAditionalMovedZero)
-	{
-		gl.uniform1i(shader.hasAditionalMov_loc, false);
-		gl.uniform3fv(shader.aditionalMov_loc, [0.0, 0.0, 0.0]); //.
-		shader.last_isAditionalMovedZero = true;
-	}
-	
-	// Nodes.**
-	var nodesCount = 0;
-	if (this.nodesArray)
-	{ nodesCount = this.nodesArray.length; }
-	
-	if (nodesCount > 0 )//&& !magoManager.isCameraMoving)
-	{
-		gl.uniform1i(shader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
-		var refMatrixType = 1; // translation-type.
-		gl.uniform1i(shader.refMatrixType_loc, refMatrixType);
-		gl.uniform4fv(shader.oneColor4_loc, [0.3, 0.3, 0.9, 1.0]);
-		var nodeMaster = this.nodesArray[0]; // render all with an unique box.
-		for (var i=0; i<nodesCount; i++)
-		{
-			var node = this.nodesArray[i];
-			
-			// check if is selected.
-			if (node === selCandidateNodes.currentSelected)
-			{
-				gl.uniform4fv(shader.oneColor4_loc, [0.9, 0.5, 0.1, 1.0]);
-			}
-			
-			// nodes has a position, so render a point or a box.
-			gl.uniform3fv(shader.refTranslationVec_loc, [node.position.x, node.position.y, node.position.z]); 
-			nodeMaster.box.render(magoManager, shader, renderType);
-			
-			// restore defaultColor.
-			if (node === selCandidateNodes.currentSelected)
-			{
-				gl.uniform4fv(shader.oneColor4_loc, [0.3, 0.3, 0.9, 1.0]);
-			}
-		}
-	}
-	
-	// Edges.**
-	// Render with a unique vbo.
-	if (this.edgesVboKeysContainer)
-	{
-		var vboKey = this.edgesVboKeysContainer.vboCacheKeysArray[0];
-		if (vboKey.isReadyPositions(gl, vboMemManager))
-		{ 
-			shader.disableVertexAttribArray(shader.texCoord2_loc); 
-			shader.disableVertexAttribArray(shader.normal3_loc); 
-			gl.uniform1i(shader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
-			refMatrixType = 0;
-			gl.uniform1i(shader.refMatrixType_loc, refMatrixType);
-			gl.uniform4fv(shader.oneColor4_loc, [0.1, 0.1, 0.6, 1.0]);
-	
-			// Positions.
-			if (vboKey.meshVertexCacheKey !== shader.lastVboKeyBindedMap[shader.position3_loc])
-			{
-				gl.bindBuffer(gl.ARRAY_BUFFER, vboKey.meshVertexCacheKey);
-				gl.vertexAttribPointer(shader.position3_loc, 3, gl.FLOAT, false, 0, 0);
-				shader.lastVboKeyBindedMap[shader.position3_loc] = vboKey.meshVertexCacheKey;
-			}
-			
-			//gl.drawArrays(gl.LINES, 0, vboKey.segmentsCount*2);
-			
-			var edgesCount = this.edgesArray.length;
-			for (var i=0; i<edgesCount; i++)
-			{
-				var edge = this.edgesArray[i];
-				if (edge === selCandidateEdges.currentSelected)
-				{
-					gl.uniform4fv(shader.oneColor4_loc, [0.0, 1.0, 0.0, 1.0]);
-				}
-				gl.drawArrays(gl.LINES, i*2, 2);
-				
-				// restore default color.
-				if (edge === selCandidateEdges.currentSelected)
-				{
-					gl.uniform4fv(shader.oneColor4_loc, [0.1, 0.1, 0.6, 1.0]);
-				}
-			}
-		}
-	}
-	
-	// Spaces.
-	this.renderSpaces = magoManager.tempSettings.renderSpaces;
-	this.spacesAlpha = magoManager.tempSettings.spacesAlpha;
-	
-	if (renderType === 1)
-	{ shader.enableVertexAttribArray(shader.normal3_loc); } 
-	
-	if (this.renderSpaces)
-	{
-		gl.uniform1i(shader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
-		refMatrixType = 0;
-		gl.uniform1i(shader.refMatrixType_loc, refMatrixType);
-		gl.uniform4fv(shader.oneColor4_loc, [0.8, 0.8, 0.8, this.spacesAlpha]);
-		gl.enable(gl.BLEND);
-		var spacesCount = 0;
-		if (this.spacesArray)
-		{ spacesCount = this.spacesArray.length; }
-		
-		for (var i=0; i<spacesCount; i++)
-		{
-			var space = this.spacesArray[i];
-			space.mesh.render(magoManager, shader);
-		}
-		
-		gl.disable(gl.BLEND);
-	}
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-'use strict';
-
-/**
- * NetworkEdge.
- * 
- * @alias NetworkEdge
- * @class NetworkEdge
- */
-var NetworkEdge = function(owner) 
-{
-	if (!(this instanceof NetworkEdge)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	this.networkOwner = owner;
-	this.id;
-	this.strNode;
-	this.endNode;
-	this.sense;
-	this.attributes;
-	
-	// provisionally:
-	this.strNodeId;
-	this.endNodeId;
-};
-'use strict';
-
-/**
- * NetworkNode.
- * 
- * @alias NetworkNode
- * @class NetworkNode
- */
-var NetworkNode = function(owner) 
-{
-	if (!(this instanceof NetworkNode)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	this.networkOwner = owner;
-	this.id;
-	this.edgesArray;
-	this.attributes;
-	this.box;
-	//this.mesh; // if display as a box, cilinder, etc.
-};
-'use strict';
-
-/**
- * NetworkSpace.
- * 
- * @alias NetworkSpace
- * @class NetworkSpace
- */
-var NetworkSpace = function(owner) 
-{
-	if (!(this instanceof NetworkSpace)) 
-	{
-		throw new Error(Messages.CONSTRUCT_ERROR);
-	}
-	this.networkOwner = owner;
-	this.id;
-	this.mesh;
-	this.attributes;
-	
+	return this.serverInfo.wmsVersion;
 };
 'use strict';
 
