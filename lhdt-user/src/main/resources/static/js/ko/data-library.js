@@ -324,6 +324,7 @@ ModelerObj.prototype.selectByPolygonCallback = function(cartesians) {
 
 
 
+	//TODO refactoring. 함수로 생성
 	//TODO 선택된 인스턴스의 정보 화면에 표시
 	//TODO handlebar 이용
 	let s = '';
