@@ -2740,13 +2740,13 @@ DesignLayerObj.prototype.showLandInfo = function(browserEvent){
             $floorCo.html(options)
                 .unbind('change')
                 .change(function(){
-                    // 필지내 전체 건물 층수 변경
-                    _this.setBuldingHeightByTheGeom(_this.selectedLand.theGeom, $floorCo.val());
+                    // // 필지내 전체 건물 층수 변경
+                    // _this.setBuldingHeightByTheGeom(_this.selectedLand.theGeom, $floorCo.val());
 
-                    //필지 정보 
-                    _this.renderLandInfo(_this.selectedLand);
+                    // //필지 정보 
+                    // _this.renderLandInfo(_this.selectedLand);
 
-                    _this.resizeModelessHeight();
+                    // _this.resizeModelessHeight();
                 });
             
             //up 이벤트 등록
@@ -2757,6 +2757,14 @@ DesignLayerObj.prototype.showLandInfo = function(browserEvent){
                     $wrapper.find('select.floor-co').val((100<v ? 100 : v));
                     // select change 이벤트 호출
                     $wrapper.find('select.floor-co').trigger('change');
+
+                     // 필지내 전체 건물 층수 변경
+                     _this.updownBuildingHeightByTheGeom(_this.selectedLand.theGeom, 'UP');
+
+                     //필지 정보 
+                     _this.renderLandInfo(_this.selectedLand);
+ 
+                     _this.resizeModelessHeight();
                 });
     
             //down 이벤트 등록
@@ -2767,6 +2775,14 @@ DesignLayerObj.prototype.showLandInfo = function(browserEvent){
                     $wrapper.find('select.floor-co').val((0>v ? 0 : v));
                     // select change 이벤트 호출
                     $wrapper.find('select.floor-co').trigger('change');
+
+                     // 필지내 전체 건물 층수 변경
+                     _this.updownBuildingHeightByTheGeom(_this.selectedLand.theGeom, 'DOWN');
+
+                     //필지 정보 
+                     _this.renderLandInfo(_this.selectedLand);
+ 
+                     _this.resizeModelessHeight();
                 });
         }
     }
@@ -3309,6 +3325,22 @@ DesignLayerObj.prototype.getLandObjectFromApiResponse = function(res){
 
 
 /**
+ * 
+ * @param {String} theGeom 필지의 multipolygon 문자열
+ * @param {*} gbn UP|DOWN
+ */
+DesignLayerObj.prototype.updownBuildingHeightByTheGeom = function(theGeom, gbn){
+  //
+  let lonLats = Ppmap.Convert.multiPolygonToLonLats(theGeom);
+
+    //건물들 높이 변경
+    this.updownBuldingHeightByLonLats(lonLats, gbn);
+
+    //
+    this.buildingHeightChanged(this.selectedLand, null);
+};
+
+/**
  * 특정영역(필지)내의 모든 건물 층수 설정
  * @param {String} theGeom (필지의)multipolygon 문자열
  * @param {number} floorCo 층수
@@ -3495,6 +3527,20 @@ DesignLayerObj.prototype.getBuildingsByPolygon2D = function(polygon2d){
 
 
 /**
+ * 
+ * @param {*} lonLats 
+ * @param {*} gbn UP|DOWN
+ */
+DesignLayerObj.prototype.updownBuldingHeightByLonLats = function(lonLats, gbn){
+    //
+    let buildings = this.getBuildingsByLonLats(lonLats);
+
+    //
+    this.updownBuldingHeightByBuildings(buildings, gbn);
+};
+
+
+/**
  * 건물 층수 설정
  * @param {Array<LonLat>} lonLats lonlat 목록
  * @param {number} floorCo 층수
@@ -3510,6 +3556,18 @@ DesignLayerObj.prototype.setBuldingHeightByLonLats = function(lonLats, floorCo){
 
 
 /**
+ * 
+ * @param {*} buildings 
+ * @param {*} gbn UP|DOWN
+ */
+DesignLayerObj.prototype.updownBuldingHeightByBuildings = function(buildings, gbn){
+    for(let i=0; i<buildings.length; i++){
+        this.updownBuldingHeightByBuilding(buildings[i], gbn);
+    }
+};
+
+
+/**
  * 건물 층수 설정
  * @param {Mago3D.ExtrusionBuilding} buildings 건물 목록
  * @param {number} floorCo 층수
@@ -3518,6 +3576,27 @@ DesignLayerObj.prototype.setBuldingHeightByBuildings = function(buildings, floor
     for(let i=0; i<buildings.length; i++){
         this.setBuldingHeightByBuilding(buildings[i], floorCo);
     }
+};
+
+
+DesignLayerObj.prototype.updownBuldingHeightByBuilding = function(building, gbn){
+    if(Pp.isEmpty(building)){
+        return;
+    }
+
+    let h = building.getHeight();
+    if(Pp.isEmpty(h)){
+        return;
+    }
+
+    if('UP' == gbn){
+        h += HEIGHT_PER_FLOOR;
+    }else{
+        h -= HEIGHT_PER_FLOOR;
+    }
+
+    //
+    building.setHeight(h);
 };
 
 
