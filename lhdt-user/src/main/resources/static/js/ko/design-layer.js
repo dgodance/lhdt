@@ -2368,7 +2368,9 @@ DesignLayerObj.prototype.extrusionGaraLine = function(model, isShow) {
                 resultRenderableObject.type = 'land';
                 resultRenderableObject.setDirty(false);
                 resultRenderableObject.options = {};
-                resultRenderableObject.color4 = new Mago3D.Color(0, 170/ 255, 224 / 255, 0.8),
+                resultRenderableObject.color4 = new Mago3D.Color(0, 170/ 255, 224 / 255, 0.8);
+                resultRenderableObject.options = {};
+                resultRenderableObject.options.renderWireframe = true;
                 
                 resultRenderableObject.makeMesh = function(){
                 	this.setDirty(false);
