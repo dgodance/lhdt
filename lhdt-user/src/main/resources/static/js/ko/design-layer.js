@@ -3488,7 +3488,9 @@ DesignLayerObj.prototype.getBuildingsByLonLats = function(lonLats){
  */
 DesignLayerObj.prototype.getBuildingsByPolygon2D = function(polygon2d){
     //
-    return Ppmap.getManager().frustumVolumeControl.selectionByPolygon2D(polygon2d, 'native');
+    return Ppmap.getManager().frustumVolumeControl.selectionByPolygon2D(polygon2d, 'native', function(model) {
+    	return model.hasOwnProperty('type') || model.type === 'land'
+    });
 }
 
 
