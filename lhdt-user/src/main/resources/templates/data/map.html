@@ -316,8 +316,18 @@
 		viewer.scene.globe.depthTestAgainstTerrain = true;
 		//viewer.scene.screenSpaceCameraController.minimumZoomDistance = 10;
 
-		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.MOUSEMOVE, function(result) {
-			//console.info(result);
+		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.SELECTEDF4D, function(result) {
+			var nodeId = result.selected.data.nodeId;
+			var id;
+			if(nodeId === "F4D_GC1_1284") {
+				id = 1;
+			} else if (nodeId === "F4D_GC2_341") {
+				id = 2;
+			} else if (nodeId === "F4D_GC1_251") {
+				id = 3;
+			}
+			
+			detailTestDataInfo(id);
 		});
 
 		//우측 상단 지도 컨트롤러, 당분간 map-controll.js 파일 삭제하지 말아주세요 ㅠㅠ
@@ -375,6 +385,7 @@
 		mapControllEvent(e);
 		
 		var baseMapController = new BaseMapController(viewer);
+
 		var terrainController = new TerrainController(viewer, 'http://118.42.112.206:9998/tilesets/terrain/');
 		
         var promises = [];
@@ -402,19 +413,15 @@
             }
         });
         
-       /*  $.ajax({
-            url: 'http://localhost/sample/json/masterplan.json',
+       /* $.ajax({
+            url: 'http://localhost/sample/json/allfourland.json',
             type: "GET",
             headers: {"X-Requested-With": "XMLHttpRequest"},
             dataType: "json",
             success: function(json){
+            	console.info(json);
             	 var children = json.children;
-            	for(var i in children) {
-					var gara = gara_masterplan[children[i].data_key];
-					children[i].longitude = gara.longitude;
-					children[i].latitude = gara.latitude;
-					children[i].mapping_type = 'boundingboxcenter';
-            	} 
+	
                 f4dController.addF4dGroup(json);
             },
             error:function(request,status,error){
@@ -1030,38 +1037,38 @@
  		var polygonHierarchy  = entity.polygon.hierarchy.getValue().positions;
  		polygonHierarchy.pop();
  		
-   	 	var targetArray = Mago3D.GeographicCoordsList.fromCartesians(polygonHierarchy.reverse());
-   	 	if(layername.indexOf('test') > -1) {
-	   	 	var polygon2d = Mago3D.Polygon2D.makePolygonByCartesian3Array(polygonHierarchy.reverse());
-	 		polygon2d.calculateNormal();
-	   	 	if(polygon2d.normal < 0)
-	   		{
-	   			polygon2d.reverseSense();
-	   		}
-			var segments2dArray = segments2dObj[id]; 
-	 		
-	 		var resultSplittedPolygons = Mago3D.Polygon2D.splitPolygonByMultipleSegments(polygon2d, segments2dArray, undefined, 1E-2);
-	   	 	var splittedPolygonsCount = resultSplittedPolygons.length;
-	   		var geoCoordsListsArray = [];
-	   		for(var k=0; k<splittedPolygonsCount; k++)
-	   		{
-	   			var splittedPolygon2d = resultSplittedPolygons[k];
-	   			var geographicCoordsArray = [];
-	   			var coordsCount = splittedPolygon2d.point2dList.getPointsCount();
-	   			for(var j=0; j<coordsCount; j++)
-	   			{
-	   				var point2d = splittedPolygon2d.point2dList.getPoint(j);
-	   				var geoCoord = new Mago3D.GeographicCoord(point2d.x, point2d.y, 0.0);
-	   				geographicCoordsArray.push(geoCoord);
-	   			}
-	   			var geoCoordList = new Mago3D.GeographicCoordsList(geographicCoordsArray);
-	   			geoCoordsListsArray.push(geoCoordList);
-	   		}
-	   		
-	   		targetArray = geoCoordsListsArray;
-   	 	}
+   	 	//var targetArray = Mago3D.GeographicCoordsList.fromCartesians(polygonHierarchy.reverse());
+   	 	//console.info(targetArray);
+   	 	var polygon2d = Mago3D.Polygon2D.makePolygonByCartesian3Array(polygonHierarchy.reverse());
+ 		polygon2d.calculateNormal();
+   	 	if(polygon2d.normal < 0)
+   		{
+   			polygon2d.reverseSense();
+   		}
+		var segments2dArray = []; 
+		if(layername.indexOf('plan1') > -1) {
+			segments2dArray = segments2dObj[id]; 
+		}
+ 		
+ 		var resultSplittedPolygons = Mago3D.Polygon2D.splitPolygonByMultipleSegments(polygon2d, segments2dArray, undefined, 1E-2);
+   	 	var splittedPolygonsCount = resultSplittedPolygons.length;
+   		var geoCoordsListsArray = [];
+   		for(var k=0; k<splittedPolygonsCount; k++)
+   		{
+   			var splittedPolygon2d = resultSplittedPolygons[k];
+   			var geographicCoordsArray = [];
+   			var coordsCount = splittedPolygon2d.point2dList.getPointsCount();
+   			for(var j=0; j<coordsCount; j++)
+   			{
+   				var point2d = splittedPolygon2d.point2dList.getPoint(j);
+   				var geoCoord = new Mago3D.GeographicCoord(point2d.x, point2d.y, 0.0);
+   				geographicCoordsArray.push(geoCoord);
+   			}
+   			var geoCoordList = new Mago3D.GeographicCoordsList(geographicCoordsArray);
+   			geoCoordsListsArray.push(geoCoordList);
+   		}
 
-   		var building = new Mago3D.ExtrusionBuilding(targetArray, parseFloat(height), {
+   		var building = new Mago3D.ExtrusionBuilding(geoCoordsListsArray, parseFloat(height), {
  			//color : new Mago3D.Color(0, 112 / 255, 192 / 255, 1), 연한 파랑
  			//color : new Mago3D.Color(148/255, 216 / 255, 246 / 255, 1), 진한 파랑
  			//color : new Mago3D.Color(1, 229 / 255, 212 / 255, 1),
@@ -1092,6 +1099,7 @@
 
 	//데이터 상세 정보 조회
 	function detailTestDataInfo(id) {
+		if(!id) return;
 		var dataInfo1 = { "altitude": "63.3475037274624", "attributeExist": false, "dataGroupId": 2, "dataGroupKey": "masterplan", "dataGroupName": "기본 그룹", "dataType": "3DS",
 			"dataGroupTarget": "admin", "dataId": 200752, "dataKey": "Museum", "dataName": "masterplan_249", "heading": 0, "latitude": "37.4384039960509", "longitude": "127.00568415409452",
 			"mappingType": "origin", "metainfo": "{\"nodeType\": \"masterplan\", \"isPhysical\": true, \"flipYTexCoords\": true}\"", "objectAttributeExist": false, "pitch": 0, "roll": 0,
