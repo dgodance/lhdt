@@ -971,7 +971,6 @@ DesignLayerObj.prototype.toggleExtrusionBuilding = function(d, isShow){
                 continue;
             }
             
-            
             // let color = new Mago3D.Color.fromHexCode(d.data.layerFillColor);
             let color = new Mago3D.Color.fromHexCode(_color(d.data, entity));
             color.a = 0.5;
@@ -1789,6 +1788,37 @@ DesignLayerObj.prototype.getDesignLayers = function(){
         if(Pp.isNotEmpty(res._embedded) && Pp.isNotEmpty(res._embedded.designLayers)){
             _this.datas = res._embedded.designLayers;
         }
+        
+        var gara = {
+    		available: true,
+    		cacheAvailable: false,
+    		coordinate: "EPSG:4326",
+    		description: "",
+    		designLayerGroupId: 4,
+    		designLayerGroupName: "과천 도시계획 제한",
+    		designLayerGroupType: "building_limit_line",
+    		designLayerId: 63,
+    		designLayerKey: "limit_line",
+    		designLayerName: "벽면한계선",
+    		designLayerType: null,
+    		geometryType: "Polygon",
+    		insertDate: "2020-09-17T21:42:25.969804",
+    		labelDisplay: null,
+    		layerAlphaStyle: 1,
+    		layerFillColor: "#000000",
+    		layerLineColor: "#000000",
+    		layerLineStyle: 1,
+    		ogcWebServices: "wfs",
+    		sharing: null,
+    		styleFileContent: null,
+    		updateDate: "2020-09-17T21:45:33.604132",
+    		urbanGroupId: 7,
+    		userId: "admin",
+    		viewOrder: 1,
+    		viewZIndex: 0,
+    		zindex: 0
+        }
+        _this.datas.push(gara);
         return _this.datas;
     }, {'async':false});
 };
@@ -1928,7 +1958,6 @@ DesignLayerObj.prototype.renderDesignLayersByUrbanGroupId = function(urbanGroupI
 
     //
     let datas = this.getDatasByUrbanGroupId(urbanGroupId);
-
     //handlerbars
     let source = $('#design-layer-template').html();
     let template = Handlebars.compile(source);
@@ -2015,7 +2044,11 @@ DesignLayerObj.prototype.showDesignLayer = function(designLayerId, isShow){
     }
 
     if(DesignLayerObj.OgcType.WFS['text'] === model.ogctype){
-        this.extrusionModelBuildingToggle(model, isShow);
+    	if(model.layername === 'limit_line') {
+    		this.extrusionGaraLine(model, isShow);
+    	} else {
+    		this.extrusionModelBuildingToggle(model, isShow);
+    	}
     }
 };
 
@@ -2274,6 +2307,77 @@ DesignLayerObj.prototype.extrusionModelBuildingToggle = function(model, isShow) 
                      */
                     Ppmap.getManager().modeler.addObject(building, 12);
                 }
+        });
+    } else {
+        this.offExtrusionModel(model.id);
+        // var modeler = Ppmap.getManager().modeler;
+        
+        // var models = modeler.objectsArray;
+        // if(Pp.isEmpty(models)){
+        //     return;
+        // }
+        // //
+        // for(let i=0; i<models.length; i++){
+        //     let building = models[i];
+
+        //     if(building.layerId == model.id) {
+        //         /**
+        //              * modeler 인스턴스의 removeObject 메소드를 통해 모델 삭제
+        //              */
+        //         modeler.removeObject(building);
+        //     }
+        // }
+    }
+}
+
+/**
+ * 가라 선 올리기
+ * @param {object} model 
+ * @param {bool} isShow
+ */
+DesignLayerObj.prototype.extrusionGaraLine = function(model, isShow) {
+    let _this = this;
+
+
+    if(isShow) {
+      
+        let opt = {
+            'typeNames': model.layername,
+            'cql_filter': 'design_layer_id=' + model.id
+        };
+        //this.getFeatures(opt, function(e){
+        var loader = new Cesium.GeoJsonDataSource().load('http://localhost/sample/json/limit_line.geojson').then(function(e){
+            var entities = e.entities.values;
+            
+            console.info(entities);
+
+            for(var i in entities) {
+                var entity = entities[i];       
+                
+                var polyline = entity.polyline.positions.getValue();
+                var properties = entity.properties;
+                var maxHeight = properties.max_height.getValue();
+                var gcl = Mago3D.GeographicCoordsList.fromCartesians(polyline);
+                
+                var manager = Ppmap.getManager();
+                var options= {};
+                options.doubleFace = true;
+                options.doubleFace = true;
+                var resultRenderableObject = gcl.getExtrudedWallRenderableObject(parseFloat(maxHeight) * 3.3 , undefined, manager, undefined, options, undefined);
+                resultRenderableObject.layerId = model.id;
+                resultRenderableObject.type = 'land';
+                resultRenderableObject.setDirty(false);
+                resultRenderableObject.options = {};
+                resultRenderableObject.color4 = new Mago3D.Color(0, 170/ 255, 224 / 255, 0.8),
+                
+                resultRenderableObject.makeMesh = function(){
+                	this.setDirty(false);
+                	this.validTerrainHeight();
+                	return true;
+                }
+                
+                manager.modeler.addObject(resultRenderableObject, 10);
+            }
         });
     } else {
         this.offExtrusionModel(model.id);
