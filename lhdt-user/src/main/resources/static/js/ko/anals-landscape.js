@@ -624,17 +624,43 @@ SkylineObj.prototype.clearAllSkylineImg = function(){
  * @returns {object} {'aView':{LonLatAlt}, 'bView':{LonLatAlt}, 'cView':{LonLatAlt}}
  */
 SkylineObj.prototype.calcViewPoint = function(beginXyz, endXyz){
-	//
-	let diffx = (endXyz.lon - beginXyz.lon) / 4;
-	let diffy = (endXyz.lat - beginXyz.lat) / 4;
+	//@deprecated 0923
+	//시점 ~ 종점 사이에 2개 점(위치) 생성
+	let _logic1 = function(_this){
+		//
+		let diffx = (endXyz.lon - beginXyz.lon) / 4;
+		let diffy = (endXyz.lat - beginXyz.lat) / 4;
+	
+		//
+		for(let i=0; i<3; i++){
+			let times = (i+1);
+			//
+			_this._viewPoint[i] = {'lon' : (beginXyz.lon + (diffx*times)), 'lat': (beginXyz.lat + (diffy*times)),
+			'alt': beginXyz.alt};
+		}
+	}
+
+	/**
+	 * 시점~종점 사이에 1개 점(위치) 생성
+	 * 시점,종점도 viewPoint에 추가
+	 * @param {SkylineObj} _this 
+	 * @since 0923
+	 */
+	let _logic2 = function(_this){
+		let diffx = (endXyz.lon - beginXyz.lon) / 2;
+		let diffy = (endXyz.lat - beginXyz.lat) / 2;
+
+		_this._viewPoint[0] = beginXyz;
+		_this._viewPoint[1] = {'lon': (beginXyz.lon + diffx), 'lat': (beginXyz.lat + diffy), 'alt': beginXyz.alt};
+		_this._viewPoint[2] = endXyz;
+
+
+		return _this._viewPoint;
+
+	};
 
 	//
-	for(let i=0; i<3; i++){
-		let times = (i+1);
-		//
-		this._viewPoint[i] = {'lon' : (beginXyz.lon + (diffx*times)), 'lat': (beginXyz.lat + (diffy*times)),
-		'alt': beginXyz.alt};
-	}
+	_logic2(this);
 
 	//
 	return this._viewPoint;
@@ -986,6 +1012,7 @@ SkylineObj.prototype.saveAllImages = function(){
  * 8. 카메라 상태 복원
  */
 SkylineObj.prototype.process = function(xyz1, xyz2){
+
 	//
 	if(Pp.isEmpty(xyz1) || Pp.isEmpty(xyz2)){
 		toastr.warning('지도위에 경관축이 생성되지 않았습니다. 분석을 취소합니다.');
