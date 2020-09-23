@@ -3275,7 +3275,6 @@ DesignLayerObj.prototype.showLandVo = function(vo){
     }else{
         $wrapper.find('td.household-co:last').removeClass('color-exceed');
     }
-
 };
 
 /**
