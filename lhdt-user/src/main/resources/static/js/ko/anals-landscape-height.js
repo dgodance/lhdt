@@ -25,6 +25,31 @@ function AnalsHeightLandScapeView(viewer, magoInstance) {
         $(this._ele).change(function(value) {
             lsHeightAnals.analsHeightView($(this).val());
         });
+
+        //
+        $('.up-camera').click(function(){
+            $('#mapCameraFix').trigger('click');
+            Ppmap.getViewer().scene.camera.rotateUp(0.1);
+            $('#mapCameraFix').trigger('click');
+        });
+        //
+        $('.down-camera').click(function(){
+            $('#mapCameraFix').trigger('click');
+            Ppmap.getViewer().scene.camera.rotateDown(0.1);
+            $('#mapCameraFix').trigger('click');
+        });
+        //
+        $('.left-camera').click(function(){
+            $('#mapCameraFix').trigger('click');
+            MAGO3D_INSTANCE.getViewer().scene.camera.rotateLeft(0.1);
+            $('#mapCameraFix').trigger('click');
+        });
+        //
+        $('.right-camera').click(function(){
+            $('#mapCameraFix').trigger('click');
+            MAGO3D_INSTANCE.getViewer().scene.camera.rotateRight(0.1);
+            $('#mapCameraFix').trigger('click');
+        });
     }
 
     LSHeightDropDownList.prototype.render = function(maxHeight) {
