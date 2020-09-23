@@ -3130,16 +3130,17 @@ DesignLayerObj.prototype.getLandVoByLand = function(land){
         let buildings = _this.getBuildingsByLonLats(lonLats);
 
         //
-        let co=0;
+        let coAllowed=0, co=0;
         for(let i=0; i<buildings.length; i++){
             let d = buildings[i];
 
             //
+            coAllowed += (d.unitCount * _this.toFloorCo(d['__originHeight']));
             co += (d.unitCount * _this.toFloorCo(d.getHeight()));
         }
 
         //
-        return co;
+        return {'coAllowed': coAllowed, 'co': co};
     };
 
     //용적률 = sum(건물바닥넓이*층수) / 필지넓이 * 100
@@ -3180,7 +3181,8 @@ DesignLayerObj.prototype.getLandVoByLand = function(land){
 		'floorAreaRatioStandard': 0,
 		'floorAreaRatioAllowed': 0,
 		'floorAreaRatio': 0,
-		'householdCo': 0
+		'householdCoAllowed': 0,
+		'householdCo': 0,
 		};
 
 
@@ -3204,7 +3206,9 @@ DesignLayerObj.prototype.getLandVoByLand = function(land){
     data.floorAreaRatioAllowed = land.floorAreaRatio;
     data.floorAreaRatio = _floorAreaRatio(land);
     //세대수
-    data.householdCo = _householdCo(land);
+    let householdco = _householdCo(land);
+    data.householdCoAllowed = householdco.coAllowed;
+    data.householdCo = householdco.co;
 
 	return data;
 }
@@ -3264,7 +3268,13 @@ DesignLayerObj.prototype.showLandVo = function(vo){
     //
     $wrapper.find('td.landuse-zoning').text(vo.landuseZoning);
     //
-    $wrapper.find('td.household-co').text(Pp.addComma(vo.householdCo));
+    $wrapper.find('td.household-co:first').text(Pp.addComma(vo.householdCoAllowed));
+    $wrapper.find('td.household-co:last').text(Pp.addComma(vo.householdCo));
+    if(vo.householdCoAllowed < vo.householdCo){
+        $wrapper.find('td.household-co:last').addClass('color-exceed');
+    }else{
+        $wrapper.find('td.household-co:last').removeClass('color-exceed');
+    }
 
 };
 
