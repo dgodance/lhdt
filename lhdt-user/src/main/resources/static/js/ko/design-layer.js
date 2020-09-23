@@ -2191,7 +2191,7 @@ DesignLayerObj.prototype.extrusionModelWMSToggle = function(model, isShow){
 				heightReference : Cesium.HeightReference.CLAMP_TO_GROUND,
 				style: Cesium.LabelStyle.FILL_AND_OUTLINE,
 				//translucencyByDistance : new Cesium.NearFarScalar(1200, 1.0, 2000, 0.0),
-				distanceDisplayCondition : new Cesium.DistanceDisplayCondition(0.0, 2000)
+				distanceDisplayCondition : new Cesium.DistanceDisplayCondition(0.0, 800)
  			}
         }
     } else {
@@ -2348,9 +2348,6 @@ DesignLayerObj.prototype.extrusionGaraLine = function(model, isShow) {
         //this.getFeatures(opt, function(e){
         var loader = new Cesium.GeoJsonDataSource().load('http://localhost/sample/json/limit_line.geojson').then(function(e){
             var entities = e.entities.values;
-            
-            console.info(entities);
-
             for(var i in entities) {
                 var entity = entities[i];       
                 
@@ -2362,12 +2359,10 @@ DesignLayerObj.prototype.extrusionGaraLine = function(model, isShow) {
                 var manager = Ppmap.getManager();
                 var options= {};
                 options.doubleFace = true;
-                options.doubleFace = true;
                 var resultRenderableObject = gcl.getExtrudedWallRenderableObject(parseFloat(maxHeight) * 3.3 , undefined, manager, undefined, options, undefined);
                 resultRenderableObject.layerId = model.id;
                 resultRenderableObject.type = 'land';
                 resultRenderableObject.setDirty(false);
-                resultRenderableObject.options = {};
                 resultRenderableObject.color4 = new Mago3D.Color(0, 170/ 255, 224 / 255, 0.8);
                 resultRenderableObject.options = {};
                 resultRenderableObject.options.renderWireframe = true;

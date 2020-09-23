@@ -331,6 +331,19 @@
 			
 			detailTestDataInfo(id);
 		});
+		
+		viewer.clock.onTick.addEventListener(function(e){
+			var pitchDeg = Cesium.Math.toDegrees(viewer.scene.camera.pitch);
+			for(var i in viewer.dataSources._dataSources) {
+ 				var ds = viewer.dataSources._dataSources[i];
+ 				if(ds instanceof Cesium.CustomDataSource) {
+ 					var entities = ds.entities.values;
+ 					entities.forEach(function(entity) {
+ 						entity.label.scale = (pitchDeg > -30) ? 0 : 0.5;
+ 					});
+ 				}
+ 			}
+		});
 
 		//우측 상단 지도 컨트롤러, 당분간 map-controll.js 파일 삭제하지 말아주세요 ㅠㅠ
 		//MapControll(viewer);
