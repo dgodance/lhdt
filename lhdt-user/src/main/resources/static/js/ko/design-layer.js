@@ -992,7 +992,7 @@ DesignLayerObj.prototype.toggleExtrusionBuilding = function(d, isShow){
             /**
              * 필지 폴리곤 정보로 건물에 제한 정보 설정
              */ 
-            if(entity.properties.landuse_zoning.getValue() === '공동주택(아파트)') {
+            if(entity.properties.landuse_zoning && entity.properties.landuse_zoning.getValue() === '공동주택(아파트)') {
             	polygonHierarchy.pop();
                 _this.setLimitInfoByPolygon(polygonHierarchy, h);
             }
