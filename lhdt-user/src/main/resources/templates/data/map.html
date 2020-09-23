@@ -412,19 +412,14 @@
             }
         });
         
-       /*  $.ajax({
-            url: 'http://localhost/sample/json/masterplan.json',
+       /* $.ajax({
+            url: 'http://localhost/sample/json/allfourland.json',
             type: "GET",
             headers: {"X-Requested-With": "XMLHttpRequest"},
             dataType: "json",
             success: function(json){
             	 var children = json.children;
-            	for(var i in children) {
-					var gara = gara_masterplan[children[i].data_key];
-					children[i].longitude = gara.longitude;
-					children[i].latitude = gara.latitude;
-					children[i].mapping_type = 'boundingboxcenter';
-            	} 
+
                 f4dController.addF4dGroup(json);
             },
             error:function(request,status,error){

@@ -2858,6 +2858,12 @@ ul.listDefault li.on > ul li > button {
 .mapCtrl button.ge {
     background-position: -442px 5px ;
 }
+.mapCtrl button.pf {
+    background-position: -490px 5px ;
+}
+.mapCtrl button.li {
+    background-position: -538px 5px ;
+}
 .mapCtrl button.zi {
 	width: 40px;
 	height: 40px;
@@ -2896,6 +2902,12 @@ ul.listDefault li.on > ul li > button {
 }
 .mapCtrl button.ge:hover {
     background-position: -442px -45px ;
+}
+.mapCtrl button.pf:hover {
+    background-position: -490px -45px ;
+}
+.mapCtrl button.li:hover {
+    background-position: -538px -45px ;
 }
 .mapCtrl button.zi:hover {
 	width: 40px;
@@ -2939,6 +2951,12 @@ ul.listDefault li.on > ul li > button {
 .mapCtrl button.ge.on {
 	background-position: -442px 105px ;
 }
+.mapCtrl button.pf.on {
+    background-position: -490px 105px ;
+}
+.mapCtrl button.li.on {
+    background-position: -538px 105px ;
+}
 .mapCtrl button.zi.on {
 	width: 40px;
 	height: 40px;
@@ -2961,6 +2979,13 @@ ul.listDefault li.on > ul li > button {
 .mapCtrl button.ms_hi.on {
 	background-position: -393px 108px ;
 }
+/* /// DISABLE /// */
+.mapCtrl button.pf:disabled {
+    background-position: -490px -145px ;
+}
+.mapCtrl button.li:disabled {
+    background-position: -538px -145px ;
+} 
 .bearing {
 	position: fixed;
 	right: 0;
