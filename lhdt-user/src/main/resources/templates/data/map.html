@@ -390,8 +390,9 @@
 		
         var promises = [];
         var garaJsonCnt = 28;
+        //아래 url은 원래 localhost로 되어있으나, IP를 명시할 때는 user로 들어가는 post도 같이 명시해야 CROS문제가 발생하지 않음
         for(var i=0;i<garaJsonCnt;i++) {
-			promises.push($.ajax({url: `http://localhost/sample/json/temp_json/${i}.geojson`, dataType: "json"}));
+			promises.push($.ajax({url: `http://118.42.112.206:180/sample/json/temp_json/${i}.geojson`, dataType: "json"}));
         }
         
         $.when.apply($,promises).then(function(){

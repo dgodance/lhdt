@@ -7,7 +7,7 @@ event.preventDefault();
             var form = $(this);
             var idVal = form.find('input[name="id"]').val();
             var contentVal = form.find('input[name="content"]').val();
-            var url = 'http://localhost:8080/articles/'+idVal;
+            var url = 'http://118.42.112.206:8080/articles/'+idVal;
             var jsonString = JSON.stringify({id: idVal, content: contentVal});
             console.log(jsonString);
             $.ajax({
