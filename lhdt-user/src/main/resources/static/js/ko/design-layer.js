@@ -2740,6 +2740,7 @@ DesignLayerObj.prototype.showLandInfo = function(browserEvent){
             $floorCo.html(options)
                 .unbind('change')
                 .change(function(){
+                    //주석처리이유. 전체 건물을 동일하게 높이 조절하는 기능 불필요. 0923
                     // // 필지내 전체 건물 층수 변경
                     // _this.setBuldingHeightByTheGeom(_this.selectedLand.theGeom, $floorCo.val());
 
@@ -3325,7 +3326,7 @@ DesignLayerObj.prototype.getLandObjectFromApiResponse = function(res){
 
 
 /**
- * 
+ * theGeom내의 모든 건물 높이 조절하기
  * @param {String} theGeom 필지의 multipolygon 문자열
  * @param {*} gbn UP|DOWN
  */
@@ -3527,8 +3528,8 @@ DesignLayerObj.prototype.getBuildingsByPolygon2D = function(polygon2d){
 
 
 /**
- * 
- * @param {*} lonLats 
+ * lonLat내의 모든 건물 높이 조절하기
+ * @param {LonLat} lonLats 필지의 LonLat
  * @param {*} gbn UP|DOWN
  */
 DesignLayerObj.prototype.updownBuldingHeightByLonLats = function(lonLats, gbn){
@@ -3556,8 +3557,8 @@ DesignLayerObj.prototype.setBuldingHeightByLonLats = function(lonLats, floorCo){
 
 
 /**
- * 
- * @param {*} buildings 
+ * buildings의 높이 조절하기
+ * @param {Array<ExtrusionBuilding>} buildings 건물 목록
  * @param {*} gbn UP|DOWN
  */
 DesignLayerObj.prototype.updownBuldingHeightByBuildings = function(buildings, gbn){
@@ -3579,6 +3580,11 @@ DesignLayerObj.prototype.setBuldingHeightByBuildings = function(buildings, floor
 };
 
 
+/**
+ * building의 높이 조절하기
+ * @param {ExtrusionBuilding} building 
+ * @param {String} gbn UP|DOWN
+ */
 DesignLayerObj.prototype.updownBuldingHeightByBuilding = function(building, gbn){
     if(Pp.isEmpty(building)){
         return;
@@ -3590,9 +3596,14 @@ DesignLayerObj.prototype.updownBuldingHeightByBuilding = function(building, gbn)
     }
 
     if('UP' == gbn){
+        //원래 높이에 추가
         h += HEIGHT_PER_FLOOR;
     }else{
+        //원래 높이에서 감소
         h -= HEIGHT_PER_FLOOR;
+        if(h<0){
+            h = 0.0;
+        }
     }
 
     //
