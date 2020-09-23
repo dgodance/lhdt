@@ -16,7 +16,10 @@ let ModelerObj = function(){
 	//
 	this.handler = null;
 
+	//회전 instance
 	this.rotate = null;
+	
+	this.selectByPolygon = null;
 	
 }
 
@@ -31,9 +34,16 @@ ModelerObj.Tool = {
 		'DELETE':4,
 		'MOVE':5,
 		'ROTATE':6,
+		'SELECTBYPOLYGON':7,
 };
 
 
+/**
+ * 
+ */
+ModelerObj.TargetType = {
+	F4D: {'value':0, 'text':'f4d'},
+};
 
 /**
  * 초기
@@ -51,7 +61,16 @@ ModelerObj.prototype.init = function(){
 	this.getDataLibraries();
 	this.renderDatas(1);
 
+	//회전 instance
+	this.rotate = new Mago3D.RotateInteraction();
+	Ppmap.getManager().interactionCollection.add(this.rotate);
+	this.rotate.setTargetType(ModelerObj.TargetType.F4D['text']);
 
+	//영역으로 선택 instance
+	this.selectByPolygon = new PolygonDrawer(Ppmap.getViewer(),  this.selectByPolygonCallback);
+
+	//
+	this.setTool(ModelerObj.Tool.NONE);
 	
 	//
 	console.log('ModelerObj', '<<.init');
@@ -282,6 +301,69 @@ ModelerObj.prototype.selectedf4dCallback = function (e) {
 	//
 };
 
+
+/**
+ * 영역으로 선택 후 호출되는 콜백함수
+ * @param {Array<Node>} cartesians 
+ */
+ModelerObj.prototype.selectByPolygonCallback = function(cartesians) {
+		
+	/**
+	 * Cesium Cartesian3의 array를 이욯하여 Mago3D.Polygon2D 객체 생성
+	 */
+	var polygon2D = Mago3D.Polygon2D.makePolygonByCartesian3Array(cartesians);
+	
+	var selectionManager = Ppmap.getManager().selectionManager;
+	
+	/**
+	 * selectionManager는 mago3d에서 선택된 데이터들을 관리하는 객체.
+	 * selectionByPolygon2D 메소드를 이용하여 영역에 포함된 데이터를 찾을 수 있음.
+	 */
+	var selected = selectionManager.selectionByPolygon2D(polygon2D, ModelerObj.TargetType.F4D['text']);
+	console.log(selected);
+
+
+
+	//TODO 선택된 인스턴스의 정보 화면에 표시
+	//TODO handlebar 이용
+	let s = '';
+	for(let i=0; i<selected.length; i++){
+		let d = selected[i];
+		let data = mobj.getDataById(d.data.projectId);
+		s += '<div class="ds-selected-item" data-project-id="'+d.data.projectId+'" data-node-id="'+d.data.nodeId+'">';
+		s += '	<span class="mr-10">'+(i+1)+'</span>';
+		s += '	<span class="mr-10">'+data.dataLibraryName+'</span>';
+		s += '	<a href="javascript:;" class="mr-10 ds-selected-delete">삭제</a>';
+		s += '	<a href="javascript:;" class="mr-10 ds-selected-deselect">선택해제</a>';
+		s += '</div>';
+	}
+	$('div.ds-selected-list').html(s);
+	//이벤트 등록 - 삭제
+	$('.ds-selected-delete').click(function(){
+		if(!confirm('삭제하시겠습니까?')){
+			return;
+		}
+
+
+		let projectId = $(this).closest('div').data('project-id');
+		let nodeId = $(this).closest('div').data('node-id');
+
+
+		//TODO 삭제
+	});
+
+	//이벤트 등록 - 선택해제
+	$('.ds-selected-deselect').click(function(){
+		let projectId = $(this).closest('div').data('project-id');
+		let nodeId = $(this).closest('div').data('node-id');
+
+
+		//TODO 선택해제
+	});
+
+
+};
+
 /**
  * tool이 변경되면 호출됨
  * @param {ModelerObj.Tool}
@@ -296,15 +378,18 @@ ModelerObj.prototype.toolChanged = function (beforeTool, afterTool) {
 		Ppmap.getManager().defaultSelectInteraction.setActive(false);
 		Ppmap.getManager().defaultTranslateInteraction.setActive(false);
 		Ppmap.getManager().off(Mago3D.MagoManager.EVENT_TYPE.SELECTEDF4D, this.selectedf4dCallback);
+
+		if(Pp.isNotEmpty(Ppmap.getManager().selectionManager)){
+			Ppmap.getManager().selectionManager.clearCurrents();
+		}
 		
 		//
 		if (Pp.isNotNull(this.handler) && !this.handler.isDestroyed()) {
 			this.handler.destroy();
 		}
 		
-		if(Pp.isNotNull(this.rotate)){
-			this.rotate.setActive(false);
-		}
+		this.rotate.setActive(false);
+		this.selectByPolygon.setActive(false);
 	}
 
 	//
@@ -356,6 +441,11 @@ ModelerObj.prototype.toolChanged = function (beforeTool, afterTool) {
 	//
 	if(this.toolIs(ModelerObj.Tool.ROTATE)){
 		this.processToolRotate();
+	}
+
+	//
+	if(this.toolIs(ModelerObj.Tool.SELECTBYPOLYGON)){
+		this.processToolSelectByPolygon();
 	}
 };
 
@@ -435,11 +525,11 @@ ModelerObj.prototype.processToolMove = function(){
 	let _this = this;
 
 	//
-	Ppmap.getManager().defaultTranslateInteraction.setTargetType('f4d');
+	Ppmap.getManager().defaultTranslateInteraction.setTargetType(ModelerObj.TargetType.F4D['text']);
 	Ppmap.getManager().defaultTranslateInteraction.setActive(true);
 	
 	//
-	Ppmap.getManager().defaultSelectInteraction.setTargetType('f4d');
+	Ppmap.getManager().defaultSelectInteraction.setTargetType(ModelerObj.TargetType.F4D['text']);
 	Ppmap.getManager().defaultSelectInteraction.setActive(true);
 	Ppmap.getManager().isCameraMoved = true;
 	
@@ -468,7 +558,7 @@ ModelerObj.prototype.processToolSelect = function(){
 	let _this = this;
 
 	
-	Ppmap.getManager().defaultSelectInteraction.setTargetType('f4d');
+	Ppmap.getManager().defaultSelectInteraction.setTargetType(ModelerObj.TargetType.F4D['text']);
 	Ppmap.getManager().defaultSelectInteraction.setActive(true);
 	Ppmap.getManager().isCameraMoved = true;
 	Ppmap.getManager().on(Mago3D.MagoManager.EVENT_TYPE.SELECTEDF4D, _this.selectedf4dCallback);
@@ -666,7 +756,7 @@ ModelerObj.prototype.processToolDelete = function(){
 	let _this = this;
 		
 	//
-	Ppmap.getManager().defaultSelectInteraction.setTargetType('f4d');
+	Ppmap.getManager().defaultSelectInteraction.setTargetType(ModelerObj.TargetType.F4D['text']);
 	Ppmap.getManager().defaultSelectInteraction.setActive(true);
 	Ppmap.getManager().isCameraMoved = true;
 	Ppmap.getManager().on(Mago3D.MagoManager.EVENT_TYPE.SELECTEDF4D, _this.selectedf4dCallback);
@@ -686,6 +776,11 @@ ModelerObj.prototype.processToolDelete = function(){
 };
 
 
+
+/**
+ * 회전
+ * @since 20200922 init
+ */
 ModelerObj.prototype.processToolRotate = function(){
 	let _this = this;
 
@@ -697,15 +792,10 @@ ModelerObj.prototype.processToolRotate = function(){
 	/**
 	 * 선택된 객체를 마우스로 회전시키는 기능
 	 */
-	if(Pp.isNull(this.rotate)){
-		this.rotate = new Mago3D.RotateInteraction();
-		Ppmap.getManager().interactionCollection.add(this.rotate);
-		this.rotate.setTargetType('f4d');
-	}
-
 	this.rotate.setActive(true);
+	
 
-	Ppmap.getManager().defaultSelectInteraction.setTargetType('f4d');
+	Ppmap.getManager().defaultSelectInteraction.setTargetType(ModelerObj.TargetType.F4D['text']);
 	Ppmap.getManager().defaultSelectInteraction.setActive(true);
 	Ppmap.getManager().isCameraMoved = true;
 	Ppmap.getManager().on(Mago3D.MagoManager.EVENT_TYPE.SELECTEDF4D, _this.selectedf4dCallback);
@@ -723,6 +813,30 @@ ModelerObj.prototype.processToolRotate = function(){
 		//console.log('delete right clicked');
 	}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 	
+};
+
+
+/**
+ * 영역으로 선택
+ */
+ModelerObj.prototype.processToolSelectByPolygon = function(){
+	if(!this.toolIs(ModelerObj.Tool.SELECTBYPOLYGON)){
+		return;
+	}
+
+	this.selectByPolygon.setActive(true);
+
+	let _this = this;
+	//
+	_this.handler = new Cesium.ScreenSpaceEventHandler(Ppmap.getViewer().scene.canvas);
+	//오른쪽 클릭
+	_this.handler.setInputAction(function(){
+		if (_this.toolIs(ModelerObj.Tool.SELECTBYPOLYGON)) {
+			//
+			$('button[class*=ds-tool-selectbypolygon]').trigger('click');
+		}
+		//console.log('delete right clicked');
+	}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 };
 
 
