@@ -21,11 +21,11 @@
 	<div id="districtSelectContent" class="districtWrap" style="display:none;">
 		<!-- S: 행정구역 명 -->
 		<p id="districtSelectNavDHTML" class="districtNav">
-			<span id="sdoName" class="on"><th:block th:text="#{search.administrative.sdo}"></th:block></span>
+			<span class="on"><th:block th:text="#{search.administrative.sdo}"></th:block></span>
 			&rsaquo;
-			<span id="sggName"><th:block th:text="#{search.administrative.sgg}"></th:block></span>
+			<span><th:block th:text="#{search.administrative.sgg}"></th:block></span>
 			&rsaquo;
-			<span id="emdName"><th:block th:text="#{search.administrative.emd}"></th:block></span>
+			<span><th:block th:text="#{search.administrative.emd}"></th:block></span>
 		</p>
 		<!-- E: 행정구역 명 -->
 
@@ -69,12 +69,12 @@
 	<div id="districtSearchResultContent" class="searchContent" style="display:none;">
 		<!-- S: 검색결과 목록 -->
 		<ul id="districtSearchResultDHTML" class="listDefault">
-			<li id="districtList" class="on">
+			<li class="on">
 				<p>
 					<th:block th:text="#{search.administrative.district}"></th:block>
 					<span th:text="|#{common.all} 0 #{common.count.unit}|"></span>
 				</p>
-				<ul id="districtSearchList" style="height:250px" class="yScroll">
+				<ul style="height:250px" class="yScroll">
 					<li th:text="#{search.no.results}"></li>
 				</ul>
 			</li>
