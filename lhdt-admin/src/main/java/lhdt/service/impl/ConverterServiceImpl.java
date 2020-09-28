@@ -265,7 +265,9 @@ public class ConverterServiceImpl implements ConverterService {
 		ConverterJob converterJob = converterResultLog.getConverterJob();
 
 		// 1. 로그파일 정보를 통해 ConvertJob 갱신
-		updateConverterJob(converterJob, converterResultLog);
+		if (!updateConverterJob(converterJob, converterResultLog)) {
+			return;
+		}
 
 		// 2. 로그파일 정보를 통해 ConvertJobFile 갱신
 		List<ConverterJobFile> converterJobFiles = converterMapper.getListConverterJobFileByConverterJob(converterJob);
@@ -410,7 +412,8 @@ public class ConverterServiceImpl implements ConverterService {
 	 * @param converterJob	converterJob
 	 * @param converterResultLog	converterResultLog
 	 */
-	private void updateConverterJob(ConverterJob converterJob, ConverterResultLog converterResultLog) {
+	private boolean updateConverterJob(ConverterJob converterJob, ConverterResultLog converterResultLog) {
+		boolean isSuccess = true;
 		int numberOfFilesConverted = converterResultLog.getNumberOfFilesConverted();
 		if (converterResultLog.getIsSuccess() && numberOfFilesConverted != 0) {
 			if (converterResultLog.getNumberOfFilesToBeConverted() - numberOfFilesConverted > 0) {
@@ -418,11 +421,14 @@ public class ConverterServiceImpl implements ConverterService {
 			} else {
 				converterJob.setStatus(ConverterJobStatus.SUCCESS.getValue());
 			}
+			isSuccess = true;
 		} else {
 			converterJob.setStatus(ConverterJobStatus.FAIL.getValue());
 			converterJob.setErrorCode(converterResultLog.getFailureLog());
+			isSuccess = false;
 		}
 		converterMapper.updateConverterJob(converterJob);
+		return isSuccess;
 	}
 
 	/**
