@@ -12,10 +12,16 @@
 	        SELECT A.design_layer_group_id, A.design_layer_group_name, A.user_id, A.ancestor, A.parent, A.depth, A.view_order, A.children, A.available,
 	        	A.description, A.insert_date, ARRAY[A.view_order], false
 			FROM design_layer_group A
-			WHERE A.parent = 0
-			<if test="available != null">
-				AND A.available = #{available}
-			</if>
+			WHERE A.available = true
+			<choose>
+				<when test="designLayerGroupId != null and designLayerGroupId > 0">
+					AND A.design_layer_group_id = #{designLayerGrouupId}
+				</when>
+				<otherwise>
+					AND A.parent = 0
+				</otherwise>
+			</choose>
+
 			UNION ALL
 	        SELECT A.design_layer_group_id, A.design_layer_group_name, A.user_id, A.ancestor, A.parent, A.depth, A.view_order, A.children, A.available,
 	        	A.description, A.insert_date, path || A.view_order, A.design_layer_group_id = ANY(path)
@@ -24,6 +30,9 @@
 		)
 	    SELECT design_layer_group_id, design_layer_group_name, user_id, ancestor, parent, depth, view_order, children, available, description, insert_date, path
 	    FROM design_layer_group_tree
+		<if test="designLayerGroupId != null and designLayerGroupId > 0">
+			WHERE design_layer_group_id != #{designLayerGrouupId}
+		</if>
 	    ORDER BY path
 	</select>
 

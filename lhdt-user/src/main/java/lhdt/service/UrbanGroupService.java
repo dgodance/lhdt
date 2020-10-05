@@ -8,10 +8,10 @@ public interface UrbanGroupService {
 
     /**
      * 도시 그룹 목록
-     *
+     * @param urbanGroup 도시그룹
      * @return
      */
-    List<UrbanGroup> getListUrbanGroup();
+    List<UrbanGroup> getListUrbanGroup(UrbanGroup urbanGroup);
 
     /**
      * 도시 그룹 정보 조회
