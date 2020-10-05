@@ -32,7 +32,7 @@ class DataLibraryGroupAPIControllerTests extends BaseControllerTest {
     @Test
     @DisplayName("데이터 라이브러리 그룹 목록 조회 하기")
     public void getDataLibraryGroups() throws Exception {
-        given(dataLibraryGroupService.getListDataLibraryGroup()).willReturn(getDataLibraryGroupList());
+        given(dataLibraryGroupService.getListDataLibraryGroup(any())).willReturn(getDataLibraryGroupList());
 
         this.mockMvc.perform(get("/api/data-library-groups"))
                 .andDo(print())
@@ -60,7 +60,7 @@ class DataLibraryGroupAPIControllerTests extends BaseControllerTest {
     @Test
     @DisplayName("데이터 라이브러리 그룹 parent 로 조회 하기")
     public void getDataLibraryGroupsByParent() throws Exception {
-        given(dataLibraryGroupService.getChildrenDataLibraryGroupListByParent(any())).willReturn(getDataLibraryGroupList());
+        given(dataLibraryGroupService.getListDataLibraryGroup(any())).willReturn(getDataLibraryGroupList());
 
         this.mockMvc.perform(get("/api/data-library-groups/parent/1"))
                 .andDo(print())

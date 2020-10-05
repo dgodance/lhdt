@@ -37,7 +37,7 @@ public class DataLibraryGroupAPIController {
      */
     @GetMapping
     public ResponseEntity<CollectionModel<EntityModel<DataLibraryGroupDto>>> getDataLibraryGroups() {
-        List<EntityModel<DataLibraryGroupDto>> dataLibraryGroupList  = dataLibraryGroupService.getListDataLibraryGroup()
+        List<EntityModel<DataLibraryGroupDto>> dataLibraryGroupList  = dataLibraryGroupService.getListDataLibraryGroup(new DataLibraryGroup())
                 .stream()
                 .map(f -> EntityModel.of(modelMapper.map(f, DataLibraryGroupDto.class))
                         .add(linkTo(DesignLayerGroupAPIController.class).slash(f.getDataLibraryGroupId()).withSelfRel()))
@@ -97,7 +97,7 @@ public class DataLibraryGroupAPIController {
      */
     @GetMapping("/parent/{id}")
     public ResponseEntity<CollectionModel<EntityModel<DataLibraryGroupDto>>> getDataLibraryGroupByParent(@PathVariable("id") Integer id) {
-        List<EntityModel<DataLibraryGroupDto>> urbanGroupList = dataLibraryGroupService.getChildrenDataLibraryGroupListByParent(
+        List<EntityModel<DataLibraryGroupDto>> urbanGroupList = dataLibraryGroupService.getListDataLibraryGroup(
                 DataLibraryGroup.builder().dataLibraryGroupId(id).build())
                 .stream()
                 .map(f -> EntityModel.of(modelMapper.map(f, DataLibraryGroupDto.class))

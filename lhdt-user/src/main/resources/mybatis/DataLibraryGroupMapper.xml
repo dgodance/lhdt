@@ -15,9 +15,17 @@
 	         	A.sharing, A.user_id, A.ancestor, A.parent, A.depth, A.view_order,
 	        	A.children, A.basic, A.available, A.data_library_count, A.description, A.update_date, A.insert_date, ARRAY[A.view_order], false
 			FROM data_library_group A
-			WHERE A.parent = 0
-				AND A.data_library_group_target = 'admin'
+			WHERE A.data_library_group_target = 'admin'
 				AND A.available = true
+				<choose>
+					<when test="dataLibraryGroupId != null and dataLibraryGroupId > 0">
+						AND A.data_library_group_id = #{dataLibraryGroupId}
+					</when>
+					<otherwise>
+						AND A.parent = 0
+					</otherwise>
+				</choose>
+
 			UNION ALL
 	        SELECT A.data_library_group_id, A.data_library_group_name, A.data_library_group_key, A.data_library_group_path, A.data_library_group_target,
 	         	A.sharing, A.user_id, A.ancestor, A.parent, A.depth, A.view_order,
@@ -29,6 +37,9 @@
 	     	sharing, user_id, ancestor, parent, depth, view_order,
 	    	children, basic, available, data_library_count, description, update_date, insert_date, path
 	    FROM data_library_group_tree
+		<if test="dataLibraryGroupId != null and dataLibraryGroupId > 0">
+			WHERE data_library_group_id != #{dataLibraryGroupId}
+		</if>
 	    ORDER BY path
 	</select>
 

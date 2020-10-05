@@ -1,5 +1,6 @@
 package lhdt.api;
 
+import lhdt.domain.extrusionmodel.DesignLayerGroup;
 import lhdt.domain.extrusionmodel.DesignLayerGroupDto;
 import lhdt.service.DesignLayerGroupService;
 import lombok.AllArgsConstructor;
@@ -36,7 +37,7 @@ public class DesignLayerGroupAPIController {
      */
     @GetMapping
     public ResponseEntity<CollectionModel<EntityModel<DesignLayerGroupDto>>> getDesignLayerGroups() {
-        List<EntityModel<DesignLayerGroupDto>> designLayerGroupList = designLayerGroupService.getListDesignLayerGroup()
+        List<EntityModel<DesignLayerGroupDto>> designLayerGroupList = designLayerGroupService.getListDesignLayerGroup(new DesignLayerGroup())
                 .stream()
                 .map(f -> EntityModel.of(modelMapper.map(f, DesignLayerGroupDto.class))
                         .add(linkTo(DesignLayerGroupAPIController.class).slash(f.getDesignLayerGroupId()).withSelfRel()))
@@ -64,5 +65,27 @@ public class DesignLayerGroupAPIController {
         designLayerGroup.add(Link.of("/docs/index.html#resources-design-layer-group-get").withRel("profile"));
 
         return ResponseEntity.ok(designLayerGroup);
+    }
+
+    /**
+     * parent 에 대한 디자인 레이어 그룹 목록 조회
+     * @param id
+     * @return
+     */
+    @GetMapping("/parent/{id}")
+    public ResponseEntity<CollectionModel<EntityModel<DesignLayerGroupDto>>> getDesignLayerGroupByParent(@PathVariable("id") Integer id) {
+        List<EntityModel<DesignLayerGroupDto>> designLayerGroupList = designLayerGroupService.getListDesignLayerGroup(
+                DesignLayerGroup.builder().designLayerGroupId(id).build())
+                .stream()
+                .map(f -> EntityModel.of(modelMapper.map(f, DesignLayerGroupDto.class))
+                        .add(linkTo(DesignLayerGroupAPIController.class).slash(f.getDesignLayerGroupId()).withSelfRel()))
+                .collect(Collectors.toList());
+
+        CollectionModel<EntityModel<DesignLayerGroupDto>> model = CollectionModel.of(designLayerGroupList);
+
+        model.add(linkTo(DesignLayerGroupAPIController.class).withSelfRel());
+        model.add(Link.of("/docs/index.html#resources-design-layer-group-parent").withRel("profile"));
+
+        return ResponseEntity.ok(model);
     }
 }
