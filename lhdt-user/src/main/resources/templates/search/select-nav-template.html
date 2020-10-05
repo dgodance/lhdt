@@ -1,20 +1,20 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
 <script id="districtSelectNavSource" type="text/x-handlebars-template">
-	<span id="sdoName" {{#if isSelectedSdo}}class="on"{{/if}}>
+	<span {{#if isSelectedSdo}}class="on"{{/if}}>
 		{{#if sdoName}}
 			{{sdoName}}
 		{{else}}
 			<th:block th:text="#{search.administrative.sdo}"></th:block>
 		{{/if}}
 	</span>&rsaquo;
-	<span id="sggName" {{#if isSelectedSgg}}class="on"{{/if}}>
+	<span {{#if isSelectedSgg}}class="on"{{/if}}>
 		{{#if sggName}}
 			{{sggName}}
 		{{else}}
 			<th:block th:text="#{search.administrative.sgg}"></th:block>
 		{{/if}}
 	</span>&rsaquo;
-	<span id="emdName" {{#if isSelectedEmd}}class="on"{{/if}}>
+	<span {{#if isSelectedEmd}}class="on"{{/if}}>
 		{{#if emdName}}
 			{{emdName}}
 		{{else}}

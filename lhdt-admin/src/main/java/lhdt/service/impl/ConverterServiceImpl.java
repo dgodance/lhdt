@@ -265,7 +265,9 @@ public class ConverterServiceImpl implements ConverterService {
 		ConverterJob converterJob = converterResultLog.getConverterJob();
 
 		// 1. 로그파일 정보를 통해 ConvertJob 갱신
-		updateConverterJob(converterJob, converterResultLog);
+		if (!updateConverterJob(converterJob, converterResultLog)) {
+			return;
+		}
 
 		// 2. 로그파일 정보를 통해 ConvertJobFile 갱신
 		List<ConverterJobFile> converterJobFiles = converterMapper.getListConverterJobFileByConverterJob(converterJob);
@@ -320,7 +322,9 @@ public class ConverterServiceImpl implements ConverterService {
 				// dataInfo.setUserId(converterJob.getUserId());
 				dataInfo.setConverterJobId(converterJobId);
 				List<DataInfo> dataInfoList = dataService.getDataByConverterJob(dataInfo);
-				deleteFailData(dataInfoList);
+				if (dataInfoList.size() > 0) {
+					deleteFailData(dataInfoList);
+				}
 
 				converterJobFile.setStatus(ConverterJobStatus.FAIL.getValue());
 				converterJobFile.setErrorCode(conversionJobResult.getMessage());
@@ -408,18 +412,23 @@ public class ConverterServiceImpl implements ConverterService {
 	 * @param converterJob	converterJob
 	 * @param converterResultLog	converterResultLog
 	 */
-	private void updateConverterJob(ConverterJob converterJob, ConverterResultLog converterResultLog) {
-		if (converterResultLog.getIsSuccess()) {
-			if (converterResultLog.getNumberOfFilesConverted() != converterResultLog.getNumberOfFilesToBeConverted()) {
+	private boolean updateConverterJob(ConverterJob converterJob, ConverterResultLog converterResultLog) {
+		boolean isSuccess = true;
+		int numberOfFilesConverted = converterResultLog.getNumberOfFilesConverted();
+		if (converterResultLog.getIsSuccess() && numberOfFilesConverted != 0) {
+			if (converterResultLog.getNumberOfFilesToBeConverted() - numberOfFilesConverted > 0) {
 				converterJob.setStatus(ConverterJobStatus.PARTIAL_SUCCESS.getValue());
 			} else {
 				converterJob.setStatus(ConverterJobStatus.SUCCESS.getValue());
 			}
+			isSuccess = true;
 		} else {
 			converterJob.setStatus(ConverterJobStatus.FAIL.getValue());
 			converterJob.setErrorCode(converterResultLog.getFailureLog());
+			isSuccess = false;
 		}
 		converterMapper.updateConverterJob(converterJob);
+		return isSuccess;
 	}
 
 	/**
@@ -608,12 +617,21 @@ public class ConverterServiceImpl implements ConverterService {
 	 * @param dataInfoList	dataInfoList
 	 */
 	private void deleteFailData(List<DataInfo> dataInfoList) {
-		for(DataInfo dataInfo : dataInfoList) {
+		for(DataInfo deleteDataInfo : dataInfoList) {
+			// deleteDataInfo.setUserId(converterJob.getUserId());
+			// deleteDataInfo.setConverterJobId(converterJob.getConverterJobId());
+			// dataService.deleteDataByConverterJob(deleteDataInfo);
+
 			DataGroup dataGroup = new DataGroup();
 			// dataGroup.setUserId(converterJob.getUserId());
-			dataGroup.setDataGroupId(dataInfo.getDataGroupId());
-			dataGroup.setDataCount(-1);
-			dataGroupService.updateDataGroupChildren(dataGroup);
+			dataGroup.setDataGroupId(deleteDataInfo.getDataGroupId());
+			dataGroup = dataGroupService.getDataGroup(dataGroup);
+
+			DataGroup updateDataGroup = new DataGroup();
+			// updateDataGroup.setUserId(converterJob.getUserId());
+			updateDataGroup.setDataGroupId(dataGroup.getDataGroupId());
+			updateDataGroup.setDataCount(dataGroup.getDataCount() - 1);
+			dataGroupService.updateDataGroup(updateDataGroup);
 		}
 	}
 }

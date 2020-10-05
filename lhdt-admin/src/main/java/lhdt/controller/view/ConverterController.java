@@ -1,10 +1,13 @@
 package lhdt.controller.view;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
+import lhdt.domain.PageType;
+import lhdt.domain.common.Pagination;
+import lhdt.domain.converter.ConverterJob;
+import lhdt.domain.converter.ConverterJobFile;
+import lhdt.service.ConverterService;
+import lhdt.support.SQLInjectSupport;
+import lhdt.utils.DateUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,15 +16,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import lombok.extern.slf4j.Slf4j;
-import lhdt.domain.converter.ConverterJob;
-import lhdt.domain.converter.ConverterJobFile;
-import lhdt.domain.data.DataInfo;
-import lhdt.domain.PageType;
-import lhdt.domain.common.Pagination;
-import lhdt.service.ConverterService;
-import lhdt.support.SQLInjectSupport;
-import lhdt.utils.DateUtils;
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Data Converter
@@ -79,60 +76,45 @@ public class ConverterController {
 	/**
 	 *
 	 * @param request
-	 * @param converterJob
 	 * @param pageNo
 	 * @param converterJobFile
-	 * @param converterJobId
 	 * @param model
 	 * @return
 	 */
 	@GetMapping(value = "/converter-job-file-list")
-	public String converterJob(HttpServletRequest request, @RequestParam(defaultValue="1") String pageNo, ConverterJobFile converterJobFile, Model model) {
-		//UserSession userSession = (UserSession)request.getSession().getAttribute(Key.USER_SESSION.name());
+	public String converterJobFileList(HttpServletRequest request, @RequestParam(defaultValue="1") String pageNo, ConverterJobFile converterJobFile, Model model) {
 
-		model.addAttribute("converterJobFile", converterJobFile);
-		/*model.addAttribute(pagination);
-		model.addAttribute("converterJobFileList", selectedConverterJobFile);*/
+		converterJobFile.setSearchWord(SQLInjectSupport.replaceSqlInection(converterJobFile.getSearchWord()));
+		converterJobFile.setOrderWord(SQLInjectSupport.replaceSqlInection(converterJobFile.getOrderWord()));
+
+//		UserSession userSession = (UserSession)request.getSession().getAttribute(Key.USER_SESSION.name());
+//		converterJobFile.setUserId(userSession.getUserId());
+		log.info("@@ converterJobFile = {}", converterJobFile);
+
+		if(!StringUtils.isEmpty(converterJobFile.getStartDate())) {
+			converterJobFile.setStartDate(converterJobFile.getStartDate().substring(0, 8) + DateUtils.START_TIME);
+		}
+		if(!StringUtils.isEmpty(converterJobFile.getEndDate())) {
+			converterJobFile.setEndDate(converterJobFile.getEndDate().substring(0, 8) + DateUtils.END_TIME);
+		}
+
+		long totalCount = converterService.getConverterJobFileTotalCount(converterJobFile);
+		StringBuffer buffer = new StringBuffer(converterJobFile.getParameters());
+		Pagination pagination = new Pagination(request.getRequestURI(), buffer.toString(),
+				totalCount, Long.parseLong(pageNo), converterJobFile.getListCounter());
+		converterJobFile.setOffset(pagination.getOffset());
+		converterJobFile.setLimit(pagination.getPageRows());
+
+		List<ConverterJobFile> converterJobFileList = new ArrayList<>();
+		if(totalCount > 0l) {
+			converterJobFileList = converterService.getListConverterJobFile(converterJobFile);
+		}
+
+		model.addAttribute(pagination);
+		model.addAttribute("converterJobFileList", converterJobFileList);
+
 		return "/converter/converter-job-file-list";
 	}
-
-//	/**
-//	 * converter job 파일 목록
-//	 * @param request
-//	 * @param membership_id
-//	 * @param pageNo
-//	 * @param model
-//	 * @return
-//	 */
-//	@RequestMapping(value = "list-converter-job-file.do")
-//	public String listConverterJobFile(HttpServletRequest request, ConverterJobFile converterJobFile, @RequestParam(defaultValue="1") String pageNo, Model model) {
-//		
-//		UserSession userSession = (UserSession)request.getSession().getAttribute(UserSession.KEY);
-//		converterJobFile.setUser_id(userSession.getUser_id());		
-//		log.info("@@ converterJobFile = {}", converterJobFile);
-//		
-//		if(StringUtil.isNotEmpty(converterJobFile.getStart_date())) {
-//			converterJobFile.setStart_date(converterJobFile.getStart_date().substring(0, 8) + DateUtil.START_TIME);
-//		}
-//		if(StringUtil.isNotEmpty(converterJobFile.getEnd_date())) {
-//			converterJobFile.setEnd_date(converterJobFile.getEnd_date().substring(0, 8) + DateUtil.END_TIME);
-//		}
-//		long totalCount = converterService.getListConverterJobFileTotalCount(converterJobFile);
-//		
-//		Pagination pagination = new Pagination(request.getRequestURI(), getSearchParametersConverterJobFile(converterJobFile), totalCount, Long.parseLong(pageNo));
-//		log.info("@@ pagination = {}", pagination);
-//		
-//		converterJobFile.setOffset(pagination.getOffset());
-//		converterJobFile.setLimit(pagination.getPageRows());
-//		List<ConverterJobFile> converterJobFileList = new ArrayList<>();
-//		if(totalCount > 0l) {
-//			converterJobFileList = converterService.getListConverterJobFile(converterJobFile);
-//		}
-//		
-//		model.addAttribute(pagination);
-//		model.addAttribute("converterJobFileList", converterJobFileList);
-//		return "/converter/list-converter-job-file";
-//	}
 
 	/**
 	 * 검색 조건

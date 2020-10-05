@@ -1,6 +1,6 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
 <script id="districtSearchResultSource" type="text/x-handlebars-template">
-<li id="districtList" class="on">
+<li class="on">
 	<div class="searchSummary">
 		<span>
 			<th:block th:text="#{common.all}"></th:block>
@@ -12,13 +12,12 @@
 		</span>
 		<input type="hidden" name="pageNo" value="{{pagination.pageNo}}">
 	</div>
-	<ul id="districtSearchList" style="height:250px" class="yScroll">
+	<ul style="height:250px" class="yScroll">
 		{{#if districtList}}
 			{{#each districtList}}
-		<li>
+		<li onclick="district.gotoFly('{{longitude}}', '{{latitude}}', '300', '2');">
 			<span>{{koname}}</span>
-			<button type="button" onclick="district.gotoFly('{{longitude}}', '{{latitude}}', '300', '2');"
-					class="basic" th:title="#{common.move}">
+			<button type="button" class="basic" th:title="#{common.move}">
 				<th:block th:text="#{common.move}"></th:block>
 			</button>
 		</li>
