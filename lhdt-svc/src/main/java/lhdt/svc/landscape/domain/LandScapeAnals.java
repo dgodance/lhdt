@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * 경관분석마스터
+ * 경관점에 대한 데이터 구조 정의 클래스
  * UK
  * landScapeAnalsName, startLandScape, endLandScape
  */
@@ -26,22 +26,41 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class LandScapeAnals extends Domain {
+public class LandScapeAnals extends Domain
+{
+    /**
+     * 경관점 이름
+     */
     @Column(name = "land_scape_anals_name")
     private String landScapeAnalsName;
 
+    /**
+     * 경관 시작점
+     */
     @Column(name = "start_land_scape")
     private Point startLandScapePos;
 
+    /**
+     * 경관 종료점
+     */
     @Column(name = "end_land_scape")
     private Point endLandScapePos;
 
+    /**
+     * 시작점 고도
+     */
     @Column(name = "start_alt")
     private Double startAltitude;
 
+    /**
+     * 종료점 고도
+     */
     @Column(name = "end_alt")
     private Double endAltitude;
 
+    /**
+     * 경관점 종류
+     */
     @Enumerated(EnumType.ORDINAL)
     LandScapeAnalsType landScapeAnalsType;
 }

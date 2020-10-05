@@ -17,7 +17,8 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class CPDistricInfoServiceImpl
+public class
+CPDistricInfoServiceImpl
         extends AdminSvcServiceImpl<CPDistricInfoRepository, CPDistricInfoMapper, CPDistricInfo, Long>
         implements CPDistricInfoService {
     private final CPDistricInfoRepository jpaRepo;

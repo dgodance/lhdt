@@ -49,7 +49,7 @@ import lhdt.svc.landscape.types.LandScapeAnalsType;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 경관 분석
+ * 경관 분석 데이터 제공 서비스
  * @author gravity
  * @since 2020. 9. 4.
  *
@@ -340,6 +340,7 @@ public class LandScapeAnalsController extends SvcController {
 	
 	
 	/**
+	 * 경관분석 결과를 저장합니다
 	 * 1. 이미지 파일 저장
 	 * 2. regist file_info 테이블
 	 * 3. regist 경관 분석 테이블
@@ -403,7 +404,7 @@ public class LandScapeAnalsController extends SvcController {
 
 	
 	/**
-	 * 파일 저장
+	 * 물리적인 파일로 파일 저장
 	 * @param mfile
 	 * @param filename
 	 * @return

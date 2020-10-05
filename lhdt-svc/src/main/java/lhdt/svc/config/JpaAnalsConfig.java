@@ -44,12 +44,19 @@ import lombok.extern.slf4j.Slf4j;
 		)
 public class JpaAnalsConfig {
 
+	/**
+	 * jpa analsConfig 초기화
+	 */
 	@PostConstruct
 	private void init() {
 		log.info("{}",this);
 	}
 
 
+	/**
+	 * 데이터 소스 생성
+	 * @return
+	 */
 	@Primary
 	@Bean(name = "dataSource")
 	@ConfigurationProperties(prefix = "app.datasource.anals")
@@ -58,7 +65,12 @@ public class JpaAnalsConfig {
 	}
 
 
-
+	/**
+	 * 엔티티매니저 펙토리 생성
+	 * @param builder
+	 * @param dataSource
+	 * @return
+	 */
 	@Primary
 	@Bean(name = "entityManagerFactory")
 	public LocalContainerEntityManagerFactoryBean entityManagerFactory(	EntityManagerFactoryBuilder builder,@Qualifier("dataSource") DataSource dataSource	) {
@@ -70,6 +82,11 @@ public class JpaAnalsConfig {
 	}
 
 
+	/**
+	 * JAP 트랜잭션 객체 생성
+	 * @param entityManagerFactory
+	 * @return
+	 */
 	@Primary
 	@Bean(name = "transactionManager")
 	public PlatformTransactionManager transactionManager(@Qualifier("entityManagerFactory") EntityManagerFactory entityManagerFactory) {
