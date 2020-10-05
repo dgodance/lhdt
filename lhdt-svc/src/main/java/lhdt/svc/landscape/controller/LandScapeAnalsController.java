@@ -60,8 +60,6 @@ import lombok.extern.slf4j.Slf4j;
 public class LandScapeAnalsController extends SvcController {
 	@Autowired
 	private LandScapeAnalsService landScapeAnalsService;
-	
-
 
 	@Value("${app.file.upload.path}")
 	private String fileUploadPath;
@@ -70,29 +68,29 @@ public class LandScapeAnalsController extends SvcController {
 	private String predictServerUrl;
 
 	/**
-	 * 모든 LowInfo 정보를 가지고 옵니다
+	 * 등록된 모든 경관 점 정보를 가져옵니다
 	 * @return
 	 */
 	@GetMapping("/select_all")
-	public List<LandScapeAnals> getLandScapeAll() {
+	public List<LandScapeAnals> getLsPosAll() {
 		return this.landScapeAnalsService.findAll();
 	}
 
 	/**
-	 * id에 부합하는 LowInfo 정보를 가지고 옵니다
+	 * 아이디를 통하여 등록된 모든 경관 점 정보를 가져옵니다
 	 * @return
 	 */
 	@GetMapping("/select")
-	public List<LandScapeAnals> getLandScapeAllById(Integer id) {
+	public List<LandScapeAnals> getLsPosAllById(Integer id) {
 		return this.landScapeAnalsService.findAllById(Long.valueOf(id));
 	}
 
 	/**
-	 * Uk에 대한 SubType이 존재하는지 확인합니다
+	 * 아이디와 경관분석 종류를 통하여 등록된 모든 경관 점 정보를 가져옵니다
 	 * @return
 	 */
 	@GetMapping("/exists")
-	public boolean existsCityPlanReportDet(Integer id, LandScapeAnalsType landScapeAnalsType) {
+	public boolean existsLsPosByBiz(Integer id, LandScapeAnalsType landScapeAnalsType) {
 		var spdt = new LandScapeAnals();
 		spdt.setId(Long.valueOf(id));
 		spdt.setLandScapeAnalsType(landScapeAnalsType);
@@ -100,12 +98,12 @@ public class LandScapeAnalsController extends SvcController {
 	}
 
 	/**
-	 * 하나의 데이터를 입력합니다
 	 *
+	 * 경관점 정보를 저장합니다
 	 * @return
 	 */
 	@PostMapping(path = "/insert")
-	public LandScapeAnals insertCityPlanReportDet(LandScapeAnalsParam cprd) {
+	public LandScapeAnals insertLsPos(LandScapeAnalsParam cprd) {
 		LandScapeAnals lsa = new LandScapeAnals();
 		lsa.setLandScapeAnalsName(cprd.getLandScapeAnalsName());
 
@@ -129,12 +127,11 @@ public class LandScapeAnalsController extends SvcController {
 	}
 
 	/**
-	 * 특정 데이터를 업데이트합니다.
-	 *
+	 * 경관점 정보를 수정합니다
 	 * @return
 	 */
 	@PutMapping("/update")
-	public LandScapeAnals updateCityPlanReportDet(LandScapeAnals cprdt) {
+	public LandScapeAnals updateLsPos(LandScapeAnals cprdt) {
 		var p = this.landScapeAnalsService.findOneById(cprdt.getId());
 		p.setLandScapeAnalsName(cprdt.getLandScapeAnalsName());
 		p.setStartLandScapePos(cprdt.getStartLandScapePos());
@@ -149,11 +146,11 @@ public class LandScapeAnalsController extends SvcController {
 	}
 
 	/**
-	 * 데이터를 삭제합니다
+	 * 경관점 정보를 삭제합니다
 	 * @return
 	 */
 	@DeleteMapping("/delete")
-	public boolean deleteExample(Integer id) {
+	public boolean deleteLsPos(Integer id) {
 		this.landScapeAnalsService.deleteAllById(Long.valueOf(id));
 		return true;
 	}
