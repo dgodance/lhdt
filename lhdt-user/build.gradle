@@ -113,6 +113,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.12'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
     testCompileOnly 'org.projectlombok:lombok:1.18.12'
+    testCompile 'com.googlecode.json-simple:json-simple:1.1.1'
 
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     
