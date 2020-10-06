@@ -75,7 +75,7 @@ public abstract class CRUDService<T extends Domain> implements CRUDInterface<T> 
     }
 
     /**
-     *
+     * vo를 통하여 업데이트를 수행합니다
      * @param vo
      * @return
      */
@@ -84,7 +84,7 @@ public abstract class CRUDService<T extends Domain> implements CRUDInterface<T> 
     }
 
     /**
-     *
+     * vo 리스트를 통해 모든 객체에 대하여 업데이트를 수행합니다
      * @param vos
      * @return
      */

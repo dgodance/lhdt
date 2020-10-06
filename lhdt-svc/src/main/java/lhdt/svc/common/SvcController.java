@@ -25,7 +25,12 @@ import lombok.extern.slf4j.Slf4j;
 public class SvcController extends CmmnController{
 	@Autowired
 	protected FileInfoService fileInfoService;
-	
+
+	/**
+	 * 유저 세션을 추출합니다
+	 * @param request
+	 * @return
+	 */
 	protected UserSession getUserSession(HttpServletRequest request) {
 		Object obj = request.getSession().getAttribute(CmmnConst.USER_SESSION);
 		if(null == obj) {

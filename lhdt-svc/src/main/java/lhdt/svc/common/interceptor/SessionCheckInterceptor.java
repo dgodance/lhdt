@@ -30,7 +30,7 @@ public class SessionCheckInterceptor extends HandlerInterceptorAdapter {
 	
 
 	/**
-	 * 
+	 * 초기화 시점 이벤트 감지
 	 */
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
@@ -42,7 +42,7 @@ public class SessionCheckInterceptor extends HandlerInterceptorAdapter {
 	}
 
 	/**
-	 * 
+	 * 모든 전송 상태 시점 이벤트 감지
 	 */
 	@Override
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
@@ -50,7 +50,7 @@ public class SessionCheckInterceptor extends HandlerInterceptorAdapter {
 	}
 
 	/**
-	 * 
+	 *  전송 상태 이후 시점 이벤트 감지
 	 */
 	@Override
 	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler,

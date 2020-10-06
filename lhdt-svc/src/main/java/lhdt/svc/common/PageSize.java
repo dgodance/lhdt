@@ -3,6 +3,9 @@ package lhdt.svc.common;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * 페이지 사이즈에 대하여 정의합니다
+ */
 @Getter
 @AllArgsConstructor
 public enum PageSize {

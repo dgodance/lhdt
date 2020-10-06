@@ -52,7 +52,11 @@ public class AnalsDatabaseConfig {
 //	 
 //	    return transactionManager;
 //	}
-	 
+
+	/**
+	 * Spring의 모든 적용 가능한 리소스 팩토리
+	 * @return
+	 */
 	@Bean
 	public PersistenceExceptionTranslationPostProcessor exceptionTranslation(){
 	    return new PersistenceExceptionTranslationPostProcessor();
@@ -73,7 +77,14 @@ public class AnalsDatabaseConfig {
 //		log.info("<< {}", ToStringBuilder.reflectionToString(dmds));
 //		return dmds;
 //	}
-	
+
+	/**
+	 * sql 세션 초기화
+	 * @param dataSource
+	 * @param context
+	 * @return
+	 * @throws Exception
+	 */
 	@Bean(name = "analsSqlSessionFactory")
 	@Primary
 	public SqlSessionFactory analsSqlSessionFactory(@Qualifier("dataSource") DataSource dataSource, ApplicationContext context) throws Exception{
@@ -90,7 +101,13 @@ public class AnalsDatabaseConfig {
 		log.info("<< {}", ToStringBuilder.reflectionToString(sqlSessionFactory));
 		return sqlSessionFactory;
 	}
-	
+
+	/**
+	 * 세션 템플릿 메서드
+	 * @param analsSqlSessionFactory
+	 * @return
+	 * @throws Exception
+	 */
 	@Bean(name = "analsSqlSessionTemplate")
 	@Primary
 	public SqlSessionTemplate analsSqlSessionTemplate(SqlSessionFactory analsSqlSessionFactory) throws Exception{

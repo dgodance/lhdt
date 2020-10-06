@@ -10,13 +10,15 @@ import org.slf4j.LoggerFactory;
 
 import lhdt.cmmn.misc.PpUtil;
 
+/**
+ * 공통 날짜 유틸 기능을 제공합니다
+ */
 public class PpDateUtil {
-public static final String YMSHMS = "yyyyMMddHHmmss";
+	public static final String YMSHMS = "yyyyMMddHHmmss";
 	
 	public static final String YYYYMMDD = "yyyyMMdd";
 	
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PpDateUtil.class);
-	
 
 	/**
 	 * 현재 년월일시분초밀리초를 문자열로 리턴
