@@ -5,7 +5,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
@@ -24,7 +24,7 @@ public class findDustTests {
 
     private JSONParser parser = new JSONParser();
 
-    @Test
+    @Disabled
     void 미세먼지_샘플_데이터_생성() throws IOException, ParseException {
         JSONArray jsonArray = new JSONArray();
         JSONObject stationJson = (JSONObject) parser.parse(new FileReader(this.getClass().getClassLoader().getResource("msrstn_info.json").getFile()));
@@ -84,5 +84,34 @@ public class findDustTests {
         log.info("-------- statusCode = {}, body = {}", response.getStatusCodeValue(), response.getBody());
 
         return response.getBody().toString();
+    }
+
+    @Disabled
+    void 코드값_추가() throws IOException, ParseException {
+        JSONArray jsonArray = new JSONArray();
+        JSONObject stationJson = (JSONObject) parser.parse(new FileReader(this.getClass().getClassLoader().getResource("msrstn_info.json").getFile()));
+        JSONObject tempJson = (JSONObject) parser.parse(new FileReader("D:\\findDustSample.json"));
+        List<?> stationList = (List<?>) stationJson.get("list");
+        List<?> tempList = (List<?>) tempJson.get("list");
+        stationList.forEach(f -> {
+            var locationInfo = (JSONObject) f;
+            tempList.forEach(a -> {
+                var tempInfo = (JSONObject) a;
+                if(locationInfo.get("STATION_NAME").equals(tempInfo.get("STATION_NAME"))) {
+                    tempInfo.put("STATION_CODE", locationInfo.get("STATION_CODE"));
+                    jsonArray.add(tempInfo);
+                }
+            });
+
+        });
+
+        try {
+            FileWriter file = new FileWriter("D:\\temp.json", true);
+            file.write(jsonArray.toJSONString());
+            file.flush();
+            file.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
