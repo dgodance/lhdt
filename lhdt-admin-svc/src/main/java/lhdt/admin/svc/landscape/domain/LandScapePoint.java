@@ -10,32 +10,55 @@ import org.springframework.data.geo.Point;
 import javax.persistence.*;
 
 @Entity
-@Table(name="landscape_anals")
+@Table(name="scene_anals")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class LandScapePoint extends CmmnDomain {
+    /**
+     * COMMENT '경관 점 명'"
+     */
     @NotNull
-    @Column(name = "land_scape_point_name")
+    @Column(name = "scene_point_nm")
     private String landScapePointName;
 
+    /**
+     *  NUMERIC COMMENT '경관 시작 위치 명'"
+     */
     @NotNull
-    @Column(name = "start_land_scape")
+    @Column(name = "scene_begin_lc_nm")
     private Point startLandScapePos;
 
-    @Column(name = "end_land_scape")
+    /**
+     *  NUMERIC COMMENT '경관 종료 위치 명'"
+     */
+    @Column(name = "scene_end_lc_nm")
     private Point endLandScapePos;
 
-    @Column(name = "start_alt")
+    /**
+     *  NUMERIC COMMENT '시작 위치 높이 값'"
+     */
+    @Column(name = "begin_lc_hg_value")
     private Double startAltitude;
 
-    @Column(name = "end_alt")
+    /**
+     *  NUMERIC COMMENT '종료 위치 높이 값'"
+     */
+    @Column(name = "end_lc_hg_value")
     private Double endAltitude;
 
+    /**
+     * COMMENT '경관 점 타입 값'"
+     */
     @NotNull
     @Enumerated(EnumType.ORDINAL)
+    @Column(name = "scene_point_ty_value")
     LandScapeAnalsType landScapePointType;
 
+    /**
+     * COMMENT '경관 점 작용 타입 값'"
+     */
+    @Column(name = "scene_point_actn_ty_value")
     LSPointActionType LSPointActionType;
 }

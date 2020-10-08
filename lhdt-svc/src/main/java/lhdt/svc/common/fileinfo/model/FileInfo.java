@@ -29,24 +29,24 @@ public class FileInfo extends CmmnDomain {
 	/**
 	 * 파일 확장자
 	 */
-	@Column(name = "file_ext")
+	@Column(name = "file_extsn_nm")
 	private String fileExt;
 
 	/**
 	 * 파일명
 	 */
-	@Column(name = "file_name")
+	@Column(name = "file_nm")
 	private String fileName;
 
 	/**
 	 * 파일 경로
 	 */
-	@Column(name = "file_path")
+	@Column(name = "file_cours_nm")
 	private String filePath;
 
 	/**
 	 * 원본 파일명
 	 */
-	@Column(name = "origin_file_name")
+	@Column(name = "origin_file_nm")
 	private String originFileName;
 }

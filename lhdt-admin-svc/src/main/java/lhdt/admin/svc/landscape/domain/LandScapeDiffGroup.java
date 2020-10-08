@@ -15,15 +15,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name="ls_diff_group")
+@Table(name="scene_cmpr_group")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class LandScapeDiffGroup extends CmmnDomain {
+    /**
+     * COMMENT '경관 비교 그룹 명'"
+     */
     @NotNull
     @CmmnField(bizKey = true, order = 0)
-    @Column(name = "ls_diff_group_name")
+    @Column(name = "scene_cmpr_group_nm")
     private String lsDiffGrupName;
 
 

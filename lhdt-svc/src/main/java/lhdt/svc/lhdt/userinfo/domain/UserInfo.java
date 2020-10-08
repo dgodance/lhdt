@@ -26,10 +26,16 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserInfo extends LhdtDomain {
+	/**
+	 * COMMENT '사용자 id'"
+	 */
 	@Id
 	@Column(name = "user_id")
 	private String userId;
 	
-	@Column(name = "user_name")
+	/**
+	 * COMMENT '사용자 명'"
+	 */
+	@Column(name = "user_nm")
 	private String userName;
 }

@@ -16,7 +16,7 @@ import java.util.List;
  * id, cityPlanId
  */
 @Entity
-@Table(name="cp_file_info")
+@Table(name="ctypln_file_info")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -24,34 +24,39 @@ import java.util.List;
 public class CPFileInfo extends Domain {
     /**
      * 파일명
+     * COMMENT '파일 명'"
      */
-    @Column(name = "file_name")
+    @Column(name = "file_nm")
     private String fileName;
 
     /**
      * 파일경로
+     * COMMENT '파일 경로 명'"
      */
-    @Column(name = "file_path")
+    @Column(name = "file_cours_nm")
     private String filePath;
 
     /**
      * 파일경로
+     * COMMENT '원본 파일 명'"
      */
-    @Column(name = "origin_file_name")
+    @Column(name = "origin_file_nm")
     private String originFileName;
 
     /**
      * 파일종류
+     * COMMENT '파일 타입 값'"
      */
-    @Column(name = "file_type")
+    @Column(name = "file_ty_value")
     private CPFileType cpFileType;
 
     /**
      * 지구번호
+     * COMMENT '지구 id'"
      */
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="district_id")
+    @JoinColumn(name="dstrc_id")
     private CPDistricInfo cpDistricInfo;
 
     @JsonManagedReference

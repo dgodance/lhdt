@@ -18,7 +18,7 @@ import javax.persistence.*;
  * id, cityPlanId
  */
 @Entity
-@Table(name="cp_report_detail")
+@Table(name="ctypln_report_detail")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -26,147 +26,171 @@ import javax.persistence.*;
 public class CPReportDetail extends CmmnDomain {
     /**
      * 식별키
+     * COMMENT '도시계획 id'"
      */
-    @Column(name = "cp_id")
+    @Column(name = "ctypln_id")
     @CmmnField(bizKey = true, order = 1)
     private Long lotId;
 
     /**
      * 사업유형
+     * COMMENT '프로젝트 타입 명'"
      */
-    @Column(name = "project_type")
+    @Column(name = "project_ty_nm")
     private String projectTypeString;
 
     /**
      * 사업지구
+     * COMMENT '프로젝트 제목'"
      */
-    @Column(name = "project_title")
+    @Column(name = "project_sj")
     private String projectTitle;
 
     /**
      * 가구번호
+     *  VARCHAR(10) COMMENT '블로 코드'"
      */
-    @Column(name = "block_code")
+    @Column(name = "blck_code", columnDefinition = " varchar(10)")
     private String blockCode;
 
     /**
      * 획지번호
+     *  VARCHAR(10) COMMENT '필지 코드'"
      */
-    @Column(name = "lot_code")
+    @Column(name = "lot_code", columnDefinition = " varchar(10)")
     private String lotCode;
 
     /**
      * 획지면적
+     *  NUMERIC COMMENT '필지 면적 값'"
      */
-    @Column(name = "lot_area")
+    @Column(name = "lot_ar_value")
     private Long lotArea;
 
     /**
      * 용도지역
+     * COMMENT '육지 이용 구역 명'"
      */
-    @Column(name = "land_use_zon")
+    @Column(name = "land_use_zone_nm")
     private String landUseZoning;
 
     /**
      * 토지이용
+     * COMMENT '육지 이용 계획 명'"
      */
-    @Column(name = "land_use_plan")
+    @Column(name = "land_use_plan_nm")
     private String landUsePlan;
 
     /**
      * 대지분할합필
+     * COMMENT '필지 분할 병합 명'"
      */
-    @Column(name = "lot_div_merge")
+    @Column(name = "lot_partitn_mrg_nm")
     private String lotDivideMarge;
 
     /**
      * 용도
+     * COMMENT '건물 이용 명'"
      */
-    @Column(name = "building_use")
+    @Column(name = "buld_use_nm")
     private String buildingUse;
 
     /**
      * 용도_지정
+     * COMMENT '건물 이용 정의 명'"
      */
-    @Column(name = "building_use_defin")
+    @Column(name = "buld_use_dfn_nm")
     private String buildingUseDefined;
 
     /**
      * 용도_권장
+     * COMMENT '건물 이용 추천 명'"
      */
-    @Column(name = "building_use_recomd")
+    @Column(name = "buld_use_recomend_nm")
     private String buildingUseRecommended;
 
     /**
      * 용도_허용
+     * COMMENT '건물 이용 허가 명'"
      */
-    @Column(name = "building_use_allowd")
+    @Column(name = "buld_use_perm_nm")
     private String buildingUseAllowed;
 
     /**
      * 용도_제한
+     * COMMENT '건물 이용 조건 명'"
      */
-    @Column(name = "building_use_condi")
+    @Column(name = "buld_use_cnd_nm")
     private String buildingUseConditional;
 
     /**
      * 용도_불허
+     * COMMENT '건물 이용 제한 명'"
      */
-    @Column(name = "building_use_fobidn")
+    @Column(name = "buld_use_prhibt_nm")
     private String buildingUseForbidden;
 
     /**
      * 건폐율
+     *  NUMERIC COMMENT '용적률 값'"
      */
-    @Column(name = "building_cov_ratio")
+    @Column(name = "measrmt_ratio_value")
     private Long buildingCoverageRatio;
 
     /**
      * 용적률
+     *  NUMERIC COMMENT '용적2률 값'"
      */
-    @Column(name = "floor_area_ratio")
+    @Column(name = "measrmt2_ratio_value")
     private Long floorAreaRatio;
 
     /**
      * 용적률_기준
+     *  NUMERIC COMMENT '용적률 기준 값'"
      */
-    @Column(name = "floor_area_ratio_std")
+    @Column(name = "measrmt_ratio_stdr_value")
     private Long floorAreaRatioStandard;
 
     /**
      * 용적률_허용
+     *  NUMERIC COMMENT '용적률 허용 값'"
      */
-    @Column(name = "floor_area_ratio_allowd")
+    @Column(name = "measrmt_ratio_perm_value")
     private Long floorAreaRatioAllowed;
 
     /**
      * 용적률_상한
+     *  NUMERIC COMMENT '용적률 제한 값'"
      */
-    @Column(name = "floor_area_ratio_maximum")
+    @Column(name = "measrmt_ratio_prhibt_value")
     private Long floorAreaRatioMaximum;
 
     /**
      * 최고높이
+     *  NUMERIC COMMENT '건물 최대 높이 값'"
      */
-    @Column(name = "maximun_build_height")
+    @Column(name = "buld_mxmm_hg_value")
     private Long maximunBuildingHeight;
 
     /**
      * 최고층수
+     *  NUMERIC COMMENT '건물 최대 층수 값'"
      */
-    @Column(name = "maximun_build_floors")
+    @Column(name = "buld_mxmm_floor_value")
     private Long maximunBuildingFloors;
 
     /**
      * 주택유형
+     * COMMENT '주택 타입 명'"
      */
-    @Column(name = "housing_type")
+    @Column(name = "house_ty_nm")
     private String housingTypeString;
 
     /**
      * 세대수
+     * COMMENT '세대 수'"
      */
-    @Column(name = "num_of_household")
+    @Column(name = "hshld_co")
     private Long numberOfHouseholds;
 
     /**
@@ -175,8 +199,11 @@ public class CPReportDetail extends CmmnDomain {
     @Column(name = "reference")
     private String reference;
 
+    /**
+     * COMMENT '도시계획 파일 id'"
+     */
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="cp_file_id")
+    @JoinColumn(name="ctypln_file_id")
     private FileInfo cpfileInfo;
 }

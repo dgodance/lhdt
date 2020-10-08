@@ -19,7 +19,7 @@ import java.util.List;
  * id, cityPlanId
  */
 @Entity
-@Table(name="cp_district_info")
+@Table(name="ctypln_dstrc_info")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -30,13 +30,17 @@ public class CPDistricInfo extends Domain {
     }
     /**
      * 도면번호(명)
+     * COMMENT '지구 명'"
      */
-    @Column(name = "district_name")
+    @Column(name = "dstrc_nm")
     private String districtName;
 
+    /**
+     * COMMENT '영역 id'"
+     */
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="local_id")
+    @JoinColumn(name="zone_id")
     private CPLocalInfo cpLocalInfo;
 
     @JsonManagedReference

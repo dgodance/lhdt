@@ -21,7 +21,7 @@ import lombok.Setter;
  * landScapeAnalsName, startLandScape, endLandScape
  */
 @Entity
-@Table(name="landscape_anals")
+@Table(name="scene_anals")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -30,37 +30,44 @@ public class LandScapeAnals extends Domain
 {
     /**
      * 경관점 이름
+     * COMMENT '경관 분석 명'"
      */
-    @Column(name = "land_scape_anals_name")
+    @Column(name = "scene_anals_nm")
     private String landScapeAnalsName;
 
     /**
      * 경관 시작점
+     *  COMMENT '경관 시작 위치 명'"
      */
-    @Column(name = "start_land_scape")
+    @Column(name = "scene_begin_lc_nm")
     private Point startLandScapePos;
 
     /**
      * 경관 종료점
+     *  COMMENT '경관 종료 위치 명'"
      */
-    @Column(name = "end_land_scape")
+    @Column(name = "scene_end_lc_nm")
     private Point endLandScapePos;
 
     /**
      * 시작점 고도
+     *  COMMENT '시작 위치 높이 값'"
      */
-    @Column(name = "start_alt")
+    @Column(name = "begin_lc_hg_value")
     private Double startAltitude;
 
     /**
      * 종료점 고도
+     * COMMENT '종료 위치 높이 값'"
      */
-    @Column(name = "end_alt")
+    @Column(name = "end_lc_hg_value")
     private Double endAltitude;
 
     /**
      * 경관점 종류
+     * COMMENT '경관 분석 타입 값'"
      */
     @Enumerated(EnumType.ORDINAL)
+    @Column(name = "scene_anals_ty_value")
     LandScapeAnalsType landScapeAnalsType;
 }
