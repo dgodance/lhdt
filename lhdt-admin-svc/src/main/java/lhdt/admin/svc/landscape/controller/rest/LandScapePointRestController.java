@@ -26,6 +26,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 경관점 정보를 REST API로 제공합니다
+ */
 @Slf4j
 @RestController
 @RequestMapping("/ls-point-rest")
@@ -37,6 +40,9 @@ public class LandScapePointRestController {
     @Autowired
     private CPLocalInfoService cpLocalInfoService;
 
+    /**
+     * 기본 경관점에 대한 데이터를 생성합니다
+     */
     @GetMapping("/init")
     public void initLandScapePoint() {
         var 관문체육공원 = new LandScapePoint();
@@ -76,8 +82,13 @@ public class LandScapePointRestController {
         resultList.forEach(p -> landScapeService.regist(p));
     }
 
+    /**
+     * 페이지 정보를 통해 경관점 가시화 정보를 제공합니다
+     * @param nowPageNum
+     * @return
+     */
     @GetMapping
-    public PageParam<LandScapeAnalsTable> getNoticePage(
+    public PageParam<LandScapeAnalsTable> getLsPointView(
             @RequestParam(value = "lsDiffPage", defaultValue = "1") Integer nowPageNum) {
         Page<LandScapePoint> cpLocalInfoPage = landScapeService.findAllPgByStartPg(nowPageNum-1, CmmnPageSize.NOTICE.getContent());
 
@@ -109,6 +120,11 @@ public class LandScapePointRestController {
         return sendParam;
     }
 
+    /**
+     * id를 통해 경관점을 가져옵니다
+     * @param id
+     * @return
+     */
     @GetMapping("/{id}")
     public LandScapePoint getLSPointById(
             @PathVariable(value = "id") Long id) {
@@ -116,8 +132,14 @@ public class LandScapePointRestController {
         return lp;
     }
 
+    /**
+     * 가시화를 위한 경관비교그룹정보를 가져옵니다
+     * @param landscape_page
+     * @param model
+     * @return
+     */
     @PostMapping()
-    public LSDiffGroupTable getNoticePage(
+    public LSDiffGroupTable getLsDiffGroupTableDefault(
             @RequestParam(value = "lsGroupPage", defaultValue = "1") Integer landscape_page,
             Model model) {
         Page<LandScapePoint> cpLocalInfoPage = landScapeService
@@ -139,8 +161,13 @@ public class LandScapePointRestController {
         return p;
     }
 
+    /**
+     * 경관점 정보를 수정합니다
+     * @param landScapeRegistParam
+     * @return
+     */
     @PostMapping("/edit")
-    public String registLandScape(LandScapeRegistParam landScapeRegistParam) {
+    public String editLsPoint(LandScapeRegistParam landScapeRegistParam) {
         LandScapePoint landScapePoint = new LandScapePoint();
         landScapePoint.setLandScapePointName(landScapeRegistParam.getLandScapeAnalsName());
         if (landScapeRegistParam.getLandScapeAnalsType() == LandScapeAnalsType.점) {

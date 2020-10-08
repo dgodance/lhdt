@@ -19,6 +19,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 경관비교 기능 Rest API 클래스 
+ */
 @Slf4j
 @RestController
 @RequestMapping("/ls-diff-group-rest")
@@ -26,8 +29,14 @@ public class LandScapeDiffGroupRestController {
     @Autowired
     private LandScapeDiffGroupService landScapeDiffGroupService;
 
+    /**
+     * 경관 비교 그룹 페이지 정보를 제공합니다
+     * @param landscape_page
+     * @param model
+     * @return
+     */
     @GetMapping()
-    public LSDiffGroupTable getNoticePage(
+    public LSDiffGroupTable getLsDiffGroupPages(
             @RequestParam(value = "lsGroupPage", defaultValue = "1") Integer landscape_page,
             Model model) {
         Page<LandScapeDiffGroup> cpLocalInfoPage = landScapeDiffGroupService
@@ -50,8 +59,13 @@ public class LandScapeDiffGroupRestController {
 
         return p;
     }
+
+    /**
+     * 경관 비교 그룹 테이블 정보를 제공합니다
+     * @return
+     */
     @PostMapping()
-    public LSDiffGroupTable postNoticePage() {
+    public LSDiffGroupTable getLsGroup() {
         LSDiffGroupTable p = new LSDiffGroupTable();
         landScapeDiffGroupService.findAll().forEach(obj -> {
             var lsdiffGroupTableDefault =  LSDiffGroupTableDefault.builder()

@@ -33,6 +33,9 @@ public class FileInfoServiceImpl
     @Value("${app.file.upload.path}")
     private String fileUploadPath = "";
 
+    /**
+     * 파일인포 객체에 mybatis 객체와 jpa 객체 주입
+     */
     @PostConstruct
     private void init() {
         super.set(jpaRepo, mapper, new FileInfo());

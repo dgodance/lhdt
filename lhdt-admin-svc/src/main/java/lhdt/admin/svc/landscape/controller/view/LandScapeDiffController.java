@@ -23,6 +23,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * 경관비교 페이지에 대한 데이터를 제공합니다
+ */
 @Slf4j
 @Controller
 @RequestMapping("/ls-diff")
@@ -30,8 +33,14 @@ public class LandScapeDiffController {
     @Autowired
     private LandScapeDiffService landScapeDiffService;
 
+    /**
+     * 경관비교 페이지를 가시화 합니다
+     * @param landscape_page
+     * @param model
+     * @return
+     */
     @GetMapping()
-    public String getNoticePage(
+    public String viewLsDiffPage(
             @RequestParam(value = "lsDiffPage", defaultValue = "1") Integer landscape_page,
             Model model) {
         Page<LandScapeDiff> cpLocalInfoPage = landScapeDiffService
@@ -43,6 +52,13 @@ public class LandScapeDiffController {
 
         return "landscape-diff/index";
     }
+
+    /**
+     * 아이디를 통해 이미지 데이터를 바이너리로 제공합니다
+     * @param id
+     * @return
+     * @throws IOException
+     */
     @GetMapping(
             value = "/img/{id}",
             produces = MediaType.IMAGE_PNG_VALUE

@@ -35,6 +35,9 @@ import lhdt.cmmn.misc.CmmnPaginator;
 import lhdt.cmmn.misc.CmmnPaginatorInfo;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * 경관비교에 대한 REST API를 제공합니다
+ */
 @Slf4j
 @RestController
 @RequestMapping("/ls-diff-rest")
@@ -48,6 +51,10 @@ public class LandScapeDiffRestController extends CmmnController {
     @Autowired
     private LandScapeBizService landScapeBizService;
 
+    /**
+     * 모든 경관비교 그룹을 가져옵니다
+     * @return
+     */
     @GetMapping("/group")
     private List<LandScapeDiffGroup> getLSDiffGroup() {
         return this.landScapeDiffGroupService.findAll();
@@ -77,24 +84,45 @@ public class LandScapeDiffRestController extends CmmnController {
         return sendParam;
     }
 
+    /**
+     * id를 통해 경관 비교 정보를 가져옵니다
+     * @param id
+     * @return
+     */
     @GetMapping("/scene/{id}")
     private LandScapeDiffScene getLSDiffSceneById(@PathVariable(value = "id") Long id) {
         var landScapeDiff = this.landScapeDiffService.findTopById(id);
         return landScapeDiff;
     };
 
+    /**
+     * id를 통해 경관 비교 정보를 제거합니다
+     * @param id
+     * @return
+     */
     @DeleteMapping("/scene/{id}")
     private String deleteLSDiffSceneById(@PathVariable(value = "id") Long id) {
         this.landScapeDiffService.delete(id);
         return "1";
     };
 
+    /**
+     * 경관비교그룹 정보를 id를 통하여 가져옵니다
+     * @param id
+     * @return
+     */
     @GetMapping("/info/{id}")
     private List<LandScapeDiffDefault> getLSDiffInfoById(@PathVariable(value = "id") Long id) {
         var landScapeDiffGroup = this.landScapeDiffGroupService.findById(id);
         return this.landScapeDiffService.findALlByLandScapeDiffGroup(landScapeDiffGroup);
     };
 
+    /**
+     * 경관비교 정보를 입력합니다
+     * @param landScapeDiff
+     * @return
+     * @throws IOException
+     */
     @PostMapping()
     private LandScapeDiff addLSDiff(LandScapeDiffParam landScapeDiff) throws IOException {
         MultipartFile[] multipartFileList = new MultipartFile[]{
