@@ -20,7 +20,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * 조망점 관리 View
+ * 조망점 관리 가시화 페이지에 대한 정보를 제공합니다
  */
 @Slf4j
 @Controller
@@ -33,8 +33,14 @@ public class LandScapePointController {
     @Autowired
     private CPLocalInfoService cpLocalInfoService;
 
+    /**
+     * 경관비교점 페이지를 생성합니다
+     * @param landscape_page
+     * @param model
+     * @return
+     */
     @GetMapping()
-    public String getNoticePage(
+    public String viewLsPoint(
             @RequestParam(value = "landScapePage", defaultValue = "1") Integer landscape_page,
             Model model) {
         Page<LandScapePoint> cpLocalInfoPage = landScapeService
@@ -47,15 +53,26 @@ public class LandScapePointController {
         return "/landscape-point/index";
     }
 
+    /**
+     * 경관점 등록 페이지로 이동합니다
+     * @param model
+     * @return
+     */
     @GetMapping("/regist")
-    public String addCityInfoByParam(Model model) {
+    public String registLsPoint(Model model) {
         var apara2 = CmmnUtils.getEnum2Map(LandScapeAnalsType.class, 0);
         model.addAttribute("landScapeAnalsType", apara2);
         return "/landscape-point/edit";
     }
 
+    /**
+     * 경관점 비교 페이지로 이동합니다
+     * @param id
+     * @param model
+     * @return
+     */
     @GetMapping("/edit/{id}")
-    public String editLandScapeView(@PathVariable(value = "id") Long id, Model model) {
+    public String editLsPoint(@PathVariable(value = "id") Long id, Model model) {
         LandScapePoint localInfo = landScapeService.findById(id);
         localInfo.setLSPointActionType(LSPointActionType.EDIT);
         model.addAttribute("landScapePointInfo", localInfo);
@@ -71,8 +88,14 @@ public class LandScapePointController {
         return "/landscape-point/edit";
     }
 
+    /**
+     * 경관점 조회 페이지로 이동합니다
+     * @param id
+     * @param model
+     * @return
+     */
     @GetMapping("/content/{id}")
-    public String viewLandScapeView(@PathVariable(value = "id") Long id, Model model) {
+    public String viewLsPoint(@PathVariable(value = "id") Long id, Model model) {
         LandScapePoint localInfo = landScapeService.findById(id);
         localInfo.setLSPointActionType(LSPointActionType.CONTENT);
         model.addAttribute("landScapePointInfo", localInfo);
@@ -80,8 +103,14 @@ public class LandScapePointController {
         return "/landscape-point/edit";
     }
 
+    /**
+     * 정관점을 등록합니다
+     * @param model
+     * @param landScapeRegistParam
+     * @return
+     */
     @PostMapping("/edit")
-    public String registLandScape(Model model, LandScapeRegistParam landScapeRegistParam) {
+    public String registLsPoint(Model model, LandScapeRegistParam landScapeRegistParam) {
         System.out.println(landScapeRegistParam.toString());
         LandScapePoint landScapePoint = new LandScapePoint();
         landScapePoint.setLandScapePointName(landScapeRegistParam.getLandScapeAnalsName());
@@ -101,8 +130,14 @@ public class LandScapePointController {
         return "redirect:/ls-point";
     }
 
+    /**
+     * 경관점을 수정합니다
+     * @param model
+     * @param landScapeRegistParam
+     * @return
+     */
     @PutMapping("/edit")
-    public String editLandScape(Model model, LandScapeRegistParam landScapeRegistParam) {
+    public String editLsPoint(Model model, LandScapeRegistParam landScapeRegistParam) {
         LandScapePoint landScapePoint = new LandScapePoint();
         landScapePoint.setLandScapePointName(landScapeRegistParam.getLandScapeAnalsName());
         if (landScapeRegistParam.getLandScapeAnalsType() == LandScapeAnalsType.점) {

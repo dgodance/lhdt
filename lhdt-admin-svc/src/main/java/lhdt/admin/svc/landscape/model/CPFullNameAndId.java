@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * 지구계획전체이름과 아이디를 제공합니다
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

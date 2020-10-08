@@ -17,7 +17,9 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.List;
 
-
+/**
+ * 경관분석비즈니스 로직에 대한 세부 기능 구현 클래스
+ */
 @Service
 @RequiredArgsConstructor
 public class LandScapeBizServiceImpl implements LandScapeBizService {
@@ -26,7 +28,7 @@ public class LandScapeBizServiceImpl implements LandScapeBizService {
     private final LandScapeDiffGroupService landScapeDiffGroupService;
 
     /**
-     * error point
+     * 파일정보 및 경관비교 정보를 등록합니다
      * @param fileInfos
      * @param landScapeDiff
      * @return
