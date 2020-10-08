@@ -204,7 +204,7 @@ Ppmap.removeEntity = function(entity){
  * 엔티티명으로 entity 목록 조회. like조건으로 검색
  * @param {String} entityName 엔티티명
  */
-Ppmap.getEntitesByName = function(entityName){
+Ppmap.getEntitiesByName = function(entityName){
 	let arr=[];
 	
 	
