@@ -137,15 +137,18 @@ public class CPReportDetail extends Domain {
 
     /**
      * 필지이상이하구분
+     * COMMIT '지역 이상 이하 타입 값'"
      */
     @Enumerated(EnumType.ORDINAL)
-    @col
+    @Column(name = "area_above_below_ty_value")
     private UpDownType areaUpDownType;
 
     /**
      * 층수이상이하구분
+     * COMMIT '층 이상 이하 타입 값'"
      */
     @Enumerated(EnumType.ORDINAL)
+    @Column(name = "floor_above_below_ty_value")
     private UpDownType floorUpDownType;
 
     /**
