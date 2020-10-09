@@ -195,7 +195,7 @@ public class PostProcess {
             // List<Map<String, Object>> attributes = objectMapper.readValue(attributeFile, new TypeReference<>() {});
 
             if (UploadDataType.CITYGML == uploadDataType || UploadDataType.INDOORGML == uploadDataType) {
-                if(invalidFilePath(attributeFilePath)) {
+                if(!invalidFilePath(attributeFilePath)) {
                     // json 파일을 Object로 변환하여 전송할 예정이였으나, json string으로 DB에 넣기 때문에 string 변경함.
                     byte[] jsonData = Files.readAllBytes(Paths.get(attributeFilePath));
                     String attributes = new String(jsonData, StandardCharsets.UTF_8);
