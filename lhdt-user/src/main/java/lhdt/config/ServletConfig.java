@@ -122,6 +122,7 @@ public class ServletConfig implements WebMvcConfigurer {
 		registry.addResourceHandler("/f4d/sample/**").addResourceLocations("file:" + propertiesConfig.getGuideDataServiceDir());
 		registry.addResourceHandler("/sample/json/**").addResourceLocations("classpath:static/sample/json/");
 		registry.addResourceHandler("/sample/images/**").addResourceLocations("classpath:static/sample/images/");
+		registry.addResourceHandler("/sample/wind/**").addResourceLocations("classpath:static/sample/wind/");
 		registry.addResourceHandler("/css/**").addResourceLocations("classpath:static/css/");
 		registry.addResourceHandler("/externlib/**").addResourceLocations("classpath:static/externlib/");
 		registry.addResourceHandler("/images/**").addResourceLocations("classpath:static/images/");

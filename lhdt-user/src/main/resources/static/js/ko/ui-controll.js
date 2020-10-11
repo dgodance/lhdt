@@ -44,6 +44,7 @@ $(function() {
 		$('button#closeLeftBtn').toggle(true);
 		// 다른거 활성화
 		if( currentUrl.indexOf("/data/map") >= 0) {
+			var weatherEnable = false;
 			if( currentUrl.indexOf("#search") >= 0) {
 				$("#searchMenu").addClass('on');
 				$('#searchContent').toggle(true);
@@ -59,10 +60,16 @@ $(function() {
 			} else if( currentUrl.indexOf("#layer") >= 0) {
 				$("#layerMenu").addClass('on');
 				$('#layerContent').toggle(true);
+			} else if( currentUrl.indexOf("#iot") >= 0) {
+				$("#iotMenu").addClass('on');
+				$('#iotContent').toggle(true);
+				weatherEnable = true;
 			} else {
 				$("#dataMenu").addClass('on');
 				$('#dataContent').toggle(true);
+
 			}
+			showWeather(weatherEnable);
 			$('#contentsWrap').toggle(true);
 		} else {
 			// 데이터 변환
@@ -120,11 +127,13 @@ $(function() {
         	$(this).removeClass('on');
         	var classId = $(this).attr('class');
         	window.location="../data/map#" + classId;
+        	return;
         }
         
         // 변환 클릭 이벤트시 url 변경 
         if(active === "converterContent") {
         	window.location="../upload-data/list";
+        	return;
         }
 
         $("ul.nav li[data-nav]:not(:empty)").not($(this)).each(function() {
@@ -139,6 +148,12 @@ $(function() {
         // 데이터 검색 필터가 열려있다면 닫기
         if ($('#searchFilterContent').is(':visible')) {
 			$('#searchFilterContent').hide();
+		}
+
+        if(active === "iotContent") {
+        	showWeather(display);
+		} else {
+        	showWeather(false);
 		}
     });
 
