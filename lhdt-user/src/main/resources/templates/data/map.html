@@ -1156,7 +1156,7 @@
 			return;
 		}
 
-		if(MAGO3D_INSTANCE === undefined) {
+		if(MAGO3D_INSTANCE === undefined || MAGO3D_DIVIDE_INSTANCE === undefined) {
 			setTimeout(function () {
 				showWeather(display);
 			}, 500);
@@ -1172,6 +1172,11 @@
 		var magoManager = MAGO3D_INSTANCE.getMagoManager();
 		if (magoManager.weatherStation === undefined) {
 			magoManager.weatherStation = new Mago3D.WeatherStation();
+		}
+
+		var magoManager2 = MAGO3D_DIVIDE_INSTANCE.getMagoManager();
+		if (magoManager2.weatherStation === undefined) {
+			magoManager2.weatherStation = new Mago3D.WeatherStation();
 		}
 
 		setTimeout(function () {
@@ -1190,6 +1195,10 @@
 			magoManager.weatherStation.test_loadWindData3d(magoManager, windDataFilesNamesArray, windMapFilesFolderPath);
 			magoManager.TEST__golfPark();
 			magoManager.windTest = true;
+
+			magoManager2.weatherStation.test_loadWindData3d(magoManager2, windDataFilesNamesArray, windMapFilesFolderPath);
+			magoManager2.TEST__golfPark();
+			magoManager2.windTest = true;
 		}, 1000);
 	}
 
