@@ -188,7 +188,6 @@
 <script type="text/javascript" th:src="@{/externlib/tuidatepicker-4.0.3/tui-date-picker.min.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/mago3d.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/mago3d_lx.js(cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/mago3djs-weather.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/common.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/message.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/map-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
@@ -1150,7 +1149,7 @@
 		$("#dataInfoTestDialogDHTML").html("").append(dataInfoHtml);
 	}
 
-	function showWeather(display) {
+	/*function showWeather(display) {
 		if(!display) {
 			// weather 가 활성화 되어 있으면 삭제해야 함
 			return;
@@ -1166,8 +1165,8 @@
 		// $("#iotContent").hide();
 		console.log("----------------------- 바람장 활성화 되었다. --------------------" + ", display = " + display);
 		document.getElementById('closeLeftBtn').click();
-		/*$('#contentsWrap').hide();
-		*/
+		/!*$('#contentsWrap').hide();
+		*!/
 
 		var magoManager = MAGO3D_INSTANCE.getMagoManager();
 		if (magoManager.weatherStation === undefined) {
@@ -1200,8 +1199,7 @@
 			magoManager2.TEST__golfPark();
 			magoManager2.windTest = true;
 		}, 1000);
-	}
-
+	}*/
 </script>
 </body>
 </html>
