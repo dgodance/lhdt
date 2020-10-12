@@ -207,6 +207,13 @@ include::{snippets}/urban-group-get/response-fields.adoc[]
 include::{snippets}/design-layer-group-list/curl-request.adoc[]
 include::{snippets}/design-layer-group-list/http-response.adoc[]
 
+[[resources-design-layer-group-list-by-parent]]
+=== 디자인 레이어 그룹 parent 로 조회
+
+`GET` 요청을 사용하여 parent 에 해당하는 디자인 레이어 그룹을 조회할 수 있다.
+
+include::{snippets}/design-layer-group-list-by-parent/curl-request.adoc[]
+
 [[resources-design-layer-group-get]]
 === 디자인 레이어 그룹 조회
 

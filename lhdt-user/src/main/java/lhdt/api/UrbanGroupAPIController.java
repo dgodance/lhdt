@@ -1,5 +1,6 @@
 package lhdt.api;
 
+import lhdt.domain.urban.UrbanGroup;
 import lhdt.domain.urban.UrbanGroupDto;
 import lhdt.service.UrbanGroupService;
 import lombok.AllArgsConstructor;
@@ -35,8 +36,8 @@ public class UrbanGroupAPIController {
      * @return
      */
     @GetMapping
-    public ResponseEntity<CollectionModel<EntityModel<UrbanGroupDto>>> getDesignLayerGroups() {
-        List<EntityModel<UrbanGroupDto>> urbanGroupList = urbanGroupService.getListUrbanGroup()
+    public ResponseEntity<CollectionModel<EntityModel<UrbanGroupDto>>> getUrbanGroups() {
+        List<EntityModel<UrbanGroupDto>> urbanGroupList = urbanGroupService.getListUrbanGroup(new UrbanGroup())
                 .stream()
                 .map(f -> EntityModel.of(modelMapper.map(f, UrbanGroupDto.class))
                         .add(linkTo(DesignLayerGroupAPIController.class).slash(f.getUrbanGroupId()).withSelfRel()))
@@ -94,7 +95,7 @@ public class UrbanGroupAPIController {
      */
     @GetMapping("/parent/{id}")
     public ResponseEntity<CollectionModel<EntityModel<UrbanGroupDto>>> getUrbanGroupByParent(@PathVariable("id") Integer id) {
-        List<EntityModel<UrbanGroupDto>> urbanGroupList = urbanGroupService.getListUrbanGroupByParent(id)
+        List<EntityModel<UrbanGroupDto>> urbanGroupList = urbanGroupService.getListUrbanGroup(UrbanGroup.builder().urbanGroupId(id).build())
                 .stream()
                 .map(f -> EntityModel.of(modelMapper.map(f, UrbanGroupDto.class))
                         .add(linkTo(DesignLayerGroupAPIController.class).slash(f.getUrbanGroupId()).withSelfRel()))

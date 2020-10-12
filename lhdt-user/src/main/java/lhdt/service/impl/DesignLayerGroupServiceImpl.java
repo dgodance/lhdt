@@ -25,10 +25,11 @@ public class DesignLayerGroupServiceImpl implements DesignLayerGroupService {
 
 	/**
 	 * 디자인 레이어 그룹 목록
+	 * @param  designLayerGroup 디자인 레이어 그룹
 	 */
 	@Transactional(readOnly = true)
-	public List<DesignLayerGroup> getListDesignLayerGroup() {
-		return designLayerGroupMapper.getListDesignLayerGroup();
+	public List<DesignLayerGroup> getListDesignLayerGroup(DesignLayerGroup designLayerGroup) {
+		return designLayerGroupMapper.getListDesignLayerGroup(designLayerGroup);
 	}
 
 	/**
@@ -47,7 +48,7 @@ public class DesignLayerGroupServiceImpl implements DesignLayerGroupService {
      */
 	@Transactional(readOnly = true)
 	public List<DesignLayerGroup> getListDesignLayerGroupAndLayer() {
-		List<DesignLayerGroup> designLayerGroupList = designLayerGroupMapper.getListDesignLayerGroup();
+		List<DesignLayerGroup> designLayerGroupList = designLayerGroupMapper.getListDesignLayerGroup(new DesignLayerGroup());
 		for(DesignLayerGroup designLayerGroup : designLayerGroupList) {
 			DesignLayer designLayer = new DesignLayer();
 			designLayer.setDesignLayerGroupId(designLayerGroup.getDesignLayerGroupId());

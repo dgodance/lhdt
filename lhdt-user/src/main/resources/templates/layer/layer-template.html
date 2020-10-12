@@ -8,18 +8,18 @@
 		</p>
 		<ul>
 	{{/ifMatch}}
-		{{#ifMatch depth 2}}
+	{{#ifMatch depth 2}}
 				<li class="mapLayer" data-depth="{{layerGroupId}}" data-ancestor="{{ancestor}}">
 					<p class="ellipsis"><span class="folder"></span>{{layerGroupName}}</p>
 				<ul>
-		{{/ifMatch}}
-			{{#ifMatch depth 3}}
+	{{/ifMatch}}
+	{{#ifMatch depth 3}}
 					<li class="mapLayer" data-depth="{{layerGroupId}}" data-ancestor="{{ancestor}}">
 						<p class="ellipsis"><span class="depthThree"></span>{{layerGroupName}}</p>
 					<ul>
-			{{/ifMatch}}
+	{{/ifMatch}}
 	{{#if layerList}}
-			{{#each layerList}}
+		{{#each layerList}}
 				<li class="nodepth {{ogcWebServices}}Layer {{#replace defaultDisplay true 'on'}}{{/replace}}"
 					data-depth="{{layerId}}"
 					data-parent="{{layerGroupId}}"
@@ -27,7 +27,7 @@
 					data-layer-key="{{layerKey}}">
 					<p><span></span>{{layerName}}</p>
 				</li>
-			{{/each}}
+		{{/each}}
 	{{/if}}
 		</ul>
 	</li>

@@ -61,7 +61,7 @@ TerrainController.prototype.setEventListener = function() {
 			var siblings = this.previousElementSibling || this.nextElementSibling;
 			that.off(siblings);
 			
-			MAGO3D_INSTANCE.getMagoManager().modeler.objectsArray.forEach(function(o) {
+			/*MAGO3D_INSTANCE.getMagoManager().modeler.objectsArray.forEach(function(o) {
 				o.valid = false;
 			});
 			
@@ -75,7 +75,7 @@ TerrainController.prototype.setEventListener = function() {
 						node.data.valid = false;
 					}
 				}
-			}
+			}*/
 		}, false);
 	}
 }

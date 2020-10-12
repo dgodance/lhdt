@@ -33,7 +33,7 @@ class UrbanGroupAPIControllerTests extends BaseControllerTest {
     @Test
     @DisplayName("도시 그룹 목록 조회 하기")
     public void getUrbanGroups() throws Exception {
-        given(urbanGroupService.getListUrbanGroup()).willReturn(getUrbanGroupList());
+        given(urbanGroupService.getListUrbanGroup(any())).willReturn(getUrbanGroupList());
 
         this.mockMvc.perform(get("/api/urban-groups"))
                 .andDo(print())
@@ -61,7 +61,7 @@ class UrbanGroupAPIControllerTests extends BaseControllerTest {
     @Test
     @DisplayName("도시 그룹 parent 로 조회 하기")
     public void getUrbanGroupsByParent() throws Exception {
-        given(urbanGroupService.getListUrbanGroupByParent(any())).willReturn(getUrbanGroupList());
+        given(urbanGroupService.getListUrbanGroup(any())).willReturn(getUrbanGroupList());
 
         this.mockMvc.perform(get("/api/urban-groups/parent/1"))
                 .andDo(print())
@@ -107,7 +107,7 @@ class UrbanGroupAPIControllerTests extends BaseControllerTest {
                                 fieldWithPath("latitude").description("위도"),
                                 fieldWithPath("longitude").description("경도"),
                                 fieldWithPath("altitude").description("높이"),
-                                fieldWithPath("duraction").description("이동 시간"),
+                                fieldWithPath("duration").description("이동 시간"),
                                 fieldWithPath("description").description("설명"),
                                 fieldWithPath("updateDate").description("수정일"),
                                 fieldWithPath("insertDate").description("등록일")

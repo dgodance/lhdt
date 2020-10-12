@@ -24,8 +24,8 @@ public class DataLibraryGroupServiceImpl implements DataLibraryGroupService {
 
 
 	@Transactional(readOnly = true)
-	public List<DataLibraryGroup> getListDataLibraryGroup() {
-		return dataLibraryGroupMapper.getListDataLibraryGroup();
+	public List<DataLibraryGroup> getListDataLibraryGroup(DataLibraryGroup dataLibraryGroup) {
+		return dataLibraryGroupMapper.getListDataLibraryGroup(dataLibraryGroup);
 	}
 
 	/**
@@ -34,7 +34,7 @@ public class DataLibraryGroupServiceImpl implements DataLibraryGroupService {
 	 */
 	@Transactional(readOnly = true)
 	public List<DataLibraryGroup> getListDataLibraryGroupAndDataLibrary() {
-		List<DataLibraryGroup> dataLibraryGroupList = getListDataLibraryGroup();
+		List<DataLibraryGroup> dataLibraryGroupList = getListDataLibraryGroup(new DataLibraryGroup());
 		for(DataLibraryGroup dataLibraryGroup : dataLibraryGroupList) {
 			List<DataLibrary> dataLibraryList = dataLibraryService.getListDataLibrary(DataLibrary.builder().dataLibraryGroupId(dataLibraryGroup.getDataLibraryGroupId()).build());
 			dataLibraryGroup.setDataLibraryList(dataLibraryList);

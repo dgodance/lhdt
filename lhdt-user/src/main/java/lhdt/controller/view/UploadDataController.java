@@ -123,42 +123,43 @@ public class UploadDataController {
 	 */
 	@GetMapping(value = "/input")
 	public String input(HttpServletRequest request, Model model) {
-		
+
 		UserSession userSession = (UserSession)request.getSession().getAttribute(Key.USER_SESSION.name());
-		
+
 		String roleCheckResult = roleValidator(request, userSession.getUserGroupId(), RoleKey.USER_DATA_CREATE.name());
 		if(roleCheckResult != null) return roleCheckResult;
-		
+
 		DataGroup dataGroup = new DataGroup();
 		dataGroup.setUserId(userSession.getUserId());
+
+		String dataGroupPath = userSession.getUserId() + "/basic/";
+		DataGroup basicDataGroup = dataGroupService.getBasicDataGroup(dataGroup);
+		if(basicDataGroup == null) {
+			basicDataGroup = new DataGroup();
+			basicDataGroup.setDataGroupKey("basic");
+			basicDataGroup.setDataGroupName(messageSource.getMessage("common.basic", null, getUserLocale(request)));
+			basicDataGroup.setDataGroupPath(propertiesConfig.getUserDataServicePath() + dataGroupPath);
+			basicDataGroup.setSharing(SharingType.PUBLIC.name().toLowerCase());
+			basicDataGroup.setMetainfo("{\"isPhysical\": false}");
+
+			dataGroupService.insertBasicDataGroup(basicDataGroup);
+		}
+
+		FileUtils.makeDirectoryByPath(propertiesConfig.getUserDataServiceDir(), dataGroupPath);
+
 		// 자기것만 나와야 해서 dataGroupId가 필요 없음
 		List<DataGroup> dataGroupList = dataGroupService.getAllListDataGroup(dataGroup);
-		if(dataGroupList == null || dataGroupList.isEmpty()) {
-			String dataGroupPath = userSession.getUserId() + "/basic/";
-			dataGroup.setDataGroupKey("basic");
-			dataGroup.setDataGroupName(messageSource.getMessage("common.basic", null, getUserLocale(request)));
-			dataGroup.setDataGroupPath(propertiesConfig.getUserDataServicePath() + dataGroupPath);
-			dataGroup.setSharing(SharingType.PUBLIC.name().toLowerCase());
-			dataGroup.setMetainfo("{\"isPhysical\": false}");
-			
-			FileUtils.makeDirectoryByPath(propertiesConfig.getUserDataServiceDir(), dataGroupPath);
-			dataGroupService.insertBasicDataGroup(dataGroup);
-			
-			dataGroupList = dataGroupService.getListDataGroup(dataGroup);
-		}
-		
-		DataGroup basicDataGroup = dataGroupService.getBasicDataGroup(dataGroup);
-		
+
 		UploadData uploadData = UploadData.builder().
-											dataGroupId(basicDataGroup.getDataGroupId()).
-											dataGroupName(basicDataGroup.getDataGroupName()).build();
-		
+				dataGroupId(basicDataGroup.getDataGroupId()).
+				dataGroupName(basicDataGroup.getDataGroupName()).build();
+
 		String acceptedFiles = policyService.getUserUploadType();
-		
+
 		model.addAttribute("uploadData", uploadData);
 		model.addAttribute("dataGroupList", dataGroupList);
 		model.addAttribute("acceptedFiles", acceptedFiles);
-		
+
 		return "/upload-data/input";
 	}
 	

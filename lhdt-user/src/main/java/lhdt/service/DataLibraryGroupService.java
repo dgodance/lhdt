@@ -8,9 +8,10 @@ public interface DataLibraryGroupService {
 
 	/**
 	 * 데이터 라이브러리 그룹 목록
+	 * @param dataLibraryGroup 데이터라이브러리 그룹
 	 * @return
 	 */
-	List<DataLibraryGroup> getListDataLibraryGroup();
+	List<DataLibraryGroup> getListDataLibraryGroup(DataLibraryGroup dataLibraryGroup);
 
 	/**
 	 * 모든 데이러 라이브러리 그룹에 속하는 데이터 라이브러리 목록

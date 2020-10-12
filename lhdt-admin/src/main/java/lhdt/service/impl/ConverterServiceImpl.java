@@ -265,9 +265,7 @@ public class ConverterServiceImpl implements ConverterService {
 		ConverterJob converterJob = converterResultLog.getConverterJob();
 
 		// 1. 로그파일 정보를 통해 ConvertJob 갱신
-		if (!updateConverterJob(converterJob, converterResultLog)) {
-			return;
-		}
+		updateConverterJob(converterJob, converterResultLog);
 
 		// 2. 로그파일 정보를 통해 ConvertJobFile 갱신
 		List<ConverterJobFile> converterJobFiles = converterMapper.getListConverterJobFileByConverterJob(converterJob);
@@ -302,11 +300,12 @@ public class ConverterServiceImpl implements ConverterService {
 				// location_update_type 이 auto 일 경우 dataInfo 위치 정보로 dataGroup 위치 정보 수정
 				updateDataGroup(userId, dataInfo, uploadDataFile);
 
-				if (conversionJobResult.getLocation() != null && conversionJobResult.getAttributes() != null) {
+				if (conversionJobResult.getLocation() != null) {
 					// 위치정보 갱신
 					ConverterLocation converterLocation = conversionJobResult.getLocation();
 					updateConverterLocation(converterLocation, dataInfo);
-
+				}
+				if (conversionJobResult.getAttributes() != null) {
 					// 속성정보 갱신
 					String attributes = conversionJobResult.getAttributes();
 					updateConverterAttribute(attributes, dataInfo);
@@ -322,9 +321,7 @@ public class ConverterServiceImpl implements ConverterService {
 				// dataInfo.setUserId(converterJob.getUserId());
 				dataInfo.setConverterJobId(converterJobId);
 				List<DataInfo> dataInfoList = dataService.getDataByConverterJob(dataInfo);
-				if (dataInfoList.size() > 0) {
-					deleteFailData(dataInfoList);
-				}
+				deleteFailData(dataInfoList);
 
 				converterJobFile.setStatus(ConverterJobStatus.FAIL.getValue());
 				converterJobFile.setErrorCode(conversionJobResult.getMessage());
@@ -493,6 +490,7 @@ public class ConverterServiceImpl implements ConverterService {
 		String dataType = uploadDataFile.getDataType();
 		String sharing = uploadDataFile.getSharing();
 		String mappingType = uploadDataFile.getMappingType();
+		String heightReference = uploadDataFile.getHeightReference();
 		BigDecimal latitude = uploadDataFile.getLatitude();
 		BigDecimal longitude = uploadDataFile.getLongitude();
 		BigDecimal altitude = uploadDataFile.getAltitude();
@@ -505,7 +503,7 @@ public class ConverterServiceImpl implements ConverterService {
 		if (dataInfo == null) {
 			// int order = 1;
 			// TODO nodeType 도 입력해야 함
-			String metainfo = "{\"isPhysical\": true}";
+			String metainfo = "{\"isPhysical\": true, \"heightReference\": \"" + heightReference + "\"}";
 
 			dataInfo = new DataInfo();
 			dataInfo.setMethodType(MethodType.INSERT);
@@ -536,6 +534,7 @@ public class ConverterServiceImpl implements ConverterService {
 			dataInfo.setDataType(dataType);
 			dataInfo.setDataName(dataName);
 			dataInfo.setUserId(userId);
+			dataInfo.setMetainfo("{\"isPhysical\": true, \"heightReference\": \"" + heightReference + "\"}");
 			dataInfo.setLatitude(latitude);
 			dataInfo.setLongitude(longitude);
 			dataInfo.setAltitude(altitude);
