@@ -97,13 +97,19 @@
 		</tr>
 	</thead>
 	<tbody>
-		{{#each datas}}
-		<tr>
-			<td class="col-number"><input type="radio" name="dataLibraryId" value="{{dataLibraryId}}"></td>
-			<td class="col-number text-left cursor-pointer">{{dataLibraryName}}</td>
-			<td class="col-number text-left cursor-pointer">{{showGroupName dataLibraryGroupId}}</td>
-		</tr>
-		{{/each}}
+		{{#if datas}}
+			{{#each datas}}
+			<tr>
+				<td class="col-number"><input type="radio" name="dataLibraryId" value="{{dataLibraryId}}"></td>
+				<td class="col-number text-left cursor-pointer">{{dataLibraryName}}</td>
+				<td class="col-number text-left cursor-pointer">{{showGroupName dataLibraryGroupId}}</td>
+			</tr>
+			{{/each}}
+		{{else}}
+			<tr>
+				<td colspan="3">데이터가 없습니다.</td>
+			</tr>
+		{{/if}}
 	</tbody>
 </table>
 </script>
