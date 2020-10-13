@@ -22,7 +22,7 @@ const TERRAIN_URL = 'http://118.42.112.206:9997/tilesets/terrain/';
 
 DS.init = function(){
 	toastr.options = {
-		"positionClass": "toast-top-center"
+		"positionClass": "toast-bottom-left"
 	}
 };
 
