@@ -400,6 +400,8 @@ ModelerObj.prototype.toolChanged = function (beforeTool, afterTool) {
 	//
 	if (this.toolIs(ModelerObj.Tool.DELETE)) {
 		this.processToolDelete();
+		
+		toastr.info('지도상에서 데이터 라이브러리를 선택하시기 바랍니다.');
     }
 
 	//
@@ -414,6 +416,8 @@ ModelerObj.prototype.toolChanged = function (beforeTool, afterTool) {
 
 		//
 		this.processToolLine();
+		
+		toastr.info('지도상에서 여러점을 선택(클릭)하시기 바랍니다.<br/>오른쪽 클릭하면 선택 완료됩니다.');
 	}	
 
 	//
@@ -427,26 +431,36 @@ ModelerObj.prototype.toolChanged = function (beforeTool, afterTool) {
 		}
 		//
 		this.processToolPoint();
+		
+		toastr.info('지도상에서 한점을 선택(클릭)하시기 바랍니다.');
 	}
 
 	//
 	if (this.toolIs(ModelerObj.Tool.SELECT)) {
 		this.processToolSelect();
+		
+		toastr.info('지도상에서 데이터 라이브러리를 선택하시기 바랍니다.');
 	}
 
 	//
 	if (this.toolIs(ModelerObj.Tool.MOVE)) {
 		this.processToolMove();
+		
+		toastr.info('지도상에서 데이터 라이브러리 선택 후 드래그하시기 바랍니다.');
 	}
 
 	//
 	if(this.toolIs(ModelerObj.Tool.ROTATE)){
 		this.processToolRotate();
+		
+		toastr.info('지도상에서 데이터 라이브러리 선택 후 회전하시기 바랍니다.');
 	}
 
 	//
 	if(this.toolIs(ModelerObj.Tool.SELECTBYPOLYGON)){
 		this.processToolSelectByPolygon();
+		
+		toastr.info('지도상에서 여러점을 선택(클릭)하시기 바랍니다.<br/>더블클릭하면 선택 완료됩니다.');
 	}
 };
 
@@ -1026,6 +1040,8 @@ ModelerObj.prototype.renderDatas = function(pageNo){
 		//
 		Ppui.removeClass('table.ds-data-library-list > tbody > tr', 'on');
 		Ppui.addClass(this, 'on');
+		
+		toastr.info('점으로생성 또는 선으로 생성을 클릭하여 지도상에 생성하시기 바랍니다.');
 	});
 	
 	
