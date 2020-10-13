@@ -289,12 +289,16 @@ const RenderType = {
 const LsAnalsAutoObj = function(){
 	this._xyz1 = {};
 	this._xyz2 = {};
+	
+	this._handler = null; 
 };
 
 /**
  * 초기
  */
 LsAnalsAutoObj.prototype.init = function(){
+	this._handler = new Cesium.ScreenSpaceEventHandler(MAGO3D_INSTANCE.getViewer().scene.canvas);
+	
 	this.setEventHandler();
 	
 	//
@@ -305,12 +309,12 @@ LsAnalsAutoObj.prototype.init = function(){
  * 이벤트 등록
  */
 LsAnalsAutoObj.prototype.setEventHandler = function(){
-	let _this = this;
+	let self = this;
 	console.log(Ppui.find('#landscapeAnalsBtn'));
 	
 	//분석 버튼 클릭
 	Ppui.click('#landscapeAnalsBtn', function(){
-		_this.doAnals();
+		self.doAnals();
 	});
 	
 	//두점선택 버튼 클릭
@@ -320,16 +324,34 @@ LsAnalsAutoObj.prototype.setEventHandler = function(){
 		//
 		Ppmap.resetRotate(function(){
 			//
-			toastr.info('지도상에서 두점을 클릭하시기 바랍니다.');
+			toastr.info('지도상에서 두점을 선택(클릭)하시기 바랍니다.');
 			//
 			// el.disabled = true;
 			
 			//
-			_this.createTwoPoints();
+			self.createTwoPoints();
 		});
+	});
+	
+	
+	//초기화
+	$('.init-lsanals').click(function(){
+		self.removeEvent();
 	});
 };
 
+
+/**
+ * 초기화
+ */
+LsAnalsAutoObj.prototype.removeEvent = function(){
+	//마우스 이벤트 삭제	
+	this._handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+    this._handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+	//모든 엔티티 삭제
+	Ppmap.removeAllEntities();	
+};
 
 /**
  * 지도위에 2점 생성
@@ -337,52 +359,42 @@ LsAnalsAutoObj.prototype.setEventHandler = function(){
  * 2점 모두 마우스 왼쪽 버튼 1클릭으로 생성
  */
 LsAnalsAutoObj.prototype.createTwoPoints = function(){
-	let _this = this;
+	let self = this;
 	
 	//
-	_this._xyz1 = {};
-	_this._xyz2 = {};
+	self._xyz1 = {};
+	self._xyz2 = {};
 	
 	//
-	Ppmap.removeAll();
-
-	
-	//
-	const handler = new Cesium.ScreenSpaceEventHandler(MAGO3D_INSTANCE.getViewer().scene.canvas);
-	//	
-	handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-    handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+	this.removeEvent();
     
     //
     Ppmap.setCursor('pointer');
 	
 	//마우스 왼쪽 클릭 이벤트 등록
-    handler.setInputAction( function(click) {
+    self._handler.setInputAction( function(click) {
 
 		//점1 세팅
-		if(Pp.isEmpty(_this._xyz1.lon)){
-			_this._xyz1 = Ppmap.cartesian2ToLonLatAlt(click.position);
-            _this._xyz1.alt = _this._xyz1.alt + new lsAnalsMoveInputBox().getHeight();
+		if(Pp.isEmpty(self._xyz1.lon)){
+			self._xyz1 = Ppmap.cartesian2ToLonLatAlt(click.position);
+            self._xyz1.alt = self._xyz1.alt + new lsAnalsMoveInputBox().getHeight();
 			//		
-			Ppmap.createPointAndAlt('ls-anals-auto-xyz1', _this._xyz1.lon, _this._xyz1.lat, _this._xyz1.alt);
+			Ppmap.createPointAndAlt('ls-anals-auto-xyz1', self._xyz1.lon, self._xyz1.lat, self._xyz1.alt);
 			//
 			return;
 		}
 
 		//점2 세팅
-		if(Pp.isEmpty(_this._xyz2.lon)){
-			_this._xyz2 = Ppmap.cartesian2ToLonLatAlt(click.position);
-            _this._xyz2.alt = _this._xyz2.alt + new lsAnalsMoveInputBox().getHeight();
+		if(Pp.isEmpty(self._xyz2.lon)){
+			self._xyz2 = Ppmap.cartesian2ToLonLatAlt(click.position);
+            self._xyz2.alt = self._xyz2.alt + new lsAnalsMoveInputBox().getHeight();
 			//		
-			Ppmap.createPointAndAlt('ls-anals-auto-xyz2', _this._xyz2.lon, _this._xyz2.lat, _this._xyz2.alt);
+			Ppmap.createPointAndAlt('ls-anals-auto-xyz2', self._xyz2.lon, self._xyz2.lat, self._xyz2.alt);
 		}
 		
 		//
-		if(Pp.isNotEmpty(_this._xyz1.lon) && Pp.isNotEmpty(_this._xyz2.lon)){
-			//이벤트 삭제
-			handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-			handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-            
+		if(Pp.isNotEmpty(self._xyz1.lon) && Pp.isNotEmpty(self._xyz2.lon)){
+			
             //
             Ppmap.restoreCursor();		
 
@@ -391,9 +403,11 @@ LsAnalsAutoObj.prototype.createTwoPoints = function(){
 
 			//분석. 0.5초 지연
 			setTimeout(function(){
-				_this.doAnals();
-                Ppmap.removeAll();
+				self.doAnals();
+                
 			}, 500);
+			
+			self.removeEvent();
 		}
 			
         },
@@ -402,13 +416,13 @@ LsAnalsAutoObj.prototype.createTwoPoints = function(){
 
 
 	//마우스 이동
-	handler.setInputAction( function(e) {
+	self._handler.setInputAction( function(e) {
 		//
 		let xyz = Ppmap.cartesian2ToLonLat(e.endPosition);
 		//console.log(e.endPosition, xyz);
 		
 		//
-		if(Pp.isEmpty(_this._xyz1.lon) || Pp.isEmpty(xyz.lon)){
+		if(Pp.isEmpty(self._xyz1.lon) || Pp.isEmpty(xyz.lon)){
 			return;
 		}
 		
@@ -420,7 +434,7 @@ LsAnalsAutoObj.prototype.createTwoPoints = function(){
 			 polyline: {
                 // This callback updates positions each frame.
                 positions: new Cesium.CallbackProperty(function() {
-					return Cesium.Cartesian3.fromDegreesArray([_this._xyz1.lon, _this._xyz1.lat, xyz.lon, xyz.lat]);                    
+					return Cesium.Cartesian3.fromDegreesArray([self._xyz1.lon, self._xyz1.lat, xyz.lon, xyz.lat]);                    
                 }, false),
                 width: 10,
                 clampToGround: true,
