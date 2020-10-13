@@ -70,7 +70,7 @@ var extrusionTools = function (magoInstance){
 	  			var geoCoord = e.point.geographicCoordinate;
 	  			
 	  			var req = new Cesium.Resource({
-	  				url : 'http://localhost:18080/geoserver/lhdt/wfs',
+	  				url : 'http://118.42.112.206:18080/geoserver/lhdt/wfs',
 	  				queryParameters : {
 	  					service : 'wfs',
 	  					version : '1.0.0',
@@ -246,7 +246,7 @@ var extrusionTools = function (magoInstance){
 		if(on) {
 			var currentCqlFilter = `design_layer_id=${model.id} AND enable_yn='Y'`;
 			var prov = new Cesium.WebMapServiceImageryProvider({
-			    url : 'http://localhost:18080/geoserver/lhdt/wms',
+			    url : 'http://118.42.112.206:18080/geoserver/lhdt/wms',
 			    parameters : {
 			    	transparent : true,
 			    	srs:'EPSG:4326',
@@ -267,7 +267,7 @@ var extrusionTools = function (magoInstance){
 	            dataType: "json",
 	            success: function(json){
 	            	var req = new Cesium.Resource({
-	      				url : 'http://localhost:18080/geoserver/lhdt/wfs',
+	      				url : 'http://118.42.112.206:18080/geoserver/lhdt/wfs',
 	      				queryParameters : {
 	      					service : 'wfs',
 	      					version : '1.0.0',
@@ -392,7 +392,7 @@ var extrusionTools = function (magoInstance){
 	 * wfs 요청(건물 등의 데이터를 요청할 때 사용) 기본 객체
 	 */
 	var wfsResource = new Cesium.Resource({
-		url : 'http://localhost:18080/geoserver/lhdt/wfs',
+		url : 'http://118.42.112.206:18080/geoserver/lhdt/wfs',
 		queryParameters : {
 			service : 'wfs',
 			version : '1.0.0',

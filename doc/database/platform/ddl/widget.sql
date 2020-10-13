@@ -8,7 +8,7 @@ create table widget(
 	view_order				integer							default 1,
 	user_id					varchar(32)	 					not null,
 	insert_date				timestamp with time zone		default now(),
-	constraint widget_pk 	primary key (widget_id)	
+	constraint widget_pk 	primary key (widget_id)
 );
 
 
