@@ -1,13 +1,19 @@
+/**
+ * 시곡면 분석
+ */
 var AnalsLandScapeDirection = function(viewer, magoInstance) {
     const magoManager = magoInstance.getMagoManager();
     this._viewer = viewer;
     this._scene = viewer.scene;
+	this._handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
     let workingMode;
     let realtimeMousePos;
     let pointEntitiy = [];
     let polylineEntitiy;
     let polyLinelastPos;
     let polygonEntitiy;
+
+	let self = this;
 
     const landScapPos = {
         startLocalPosition: undefined,
@@ -42,10 +48,39 @@ var AnalsLandScapeDirection = function(viewer, magoInstance) {
         } else {
             workingMode = undefined;
         }
+
+		if(statusChecked){
+			toastr.info('마우스 더블클릭을 이용하여 지도상에서 세곳을 선택하시기 바랍니다.');
+			
+			init();
+			landscapeDirectionEvt();
+		}
     });
+
+
+	//초기화
+	$('#initLandscapeDirect').click(function(){
+		init();
+		
+		$("#landscapeDirectToggle").prop('checked', false);
+	});
+	
+	
+	
+	function init(){
+		//마우스 이벤트 삭제
+		self._handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
+		self._handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+	
+		//지도위 entity 삭제
+		Ppmap.removeAll();
+	};
+	
+	
 
     landscapeDirectionEvt();
 
+	//마우스 이벤트 등록
     function landscapeDirectionEvt() {
         leftMouseDoubleClick();
         mouseMove()
@@ -198,8 +233,8 @@ var AnalsLandScapeDirection = function(viewer, magoInstance) {
     }
 
     function leftMouseDoubleClick() {
-        const handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
-        handler.setInputAction( (click) => {
+        //const handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
+        self._handler.setInputAction( (click) => {
                 if(workingMode === 'landscapedirect') {
                     const pos = getPositionByCesiumEvt(click.position);
                     switch (landScapeDirectType) {
@@ -242,8 +277,8 @@ var AnalsLandScapeDirection = function(viewer, magoInstance) {
     }
 
     function mouseMove() {
-        const handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
-        handler.setInputAction( (move) => {
+        //const handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
+        self._handler.setInputAction( (move) => {
                 if(workingMode === 'landscapedirect') {
                     mouseEndMoveWorldPos(move.endPosition);
                 }
