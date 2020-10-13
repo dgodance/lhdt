@@ -22,7 +22,7 @@ import java.util.List;
  * id, cityPlanId
  */
 @Entity
-@Table(name="cp_district_info")
+@Table(name="ctypln_dstrc_info")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -33,14 +33,15 @@ public class CPDistricInfo extends CmmnDomain {
     }
     /**
      * 도면번호(명)
+     * COMMENT '지구 명'"
      */
-    @Column(name = "district_name")
+    @Column(name = "dstrc_nm")
     @CmmnField(bizKey = true, order = 0)
     private String districtName;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="cpDistricInfos")
+    @JoinColumn(name="ctypln_dstrc_nm")
     @CmmnField(bizKey = true, order = 1)
     private CPLocalInfo cpLocalInfo;
 

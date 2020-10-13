@@ -1,4 +1,11 @@
+/**
+ * 경관보기
+ */
 function AnalsHeightLandScapeView(viewer, magoInstance) {
+	this._handler = new Cesium.ScreenSpaceEventHandler(MAGO3D_INSTANCE.getViewer().scene.canvas); 
+	let self = this;
+	
+	
     const LSHeightViewAnalsWidget = function() {
         this._ele = '#lsHeightViewAnalsWidget'
     }
@@ -25,7 +32,44 @@ function AnalsHeightLandScapeView(viewer, magoInstance) {
         $(this._ele).change(function(value) {
             lsHeightAnals.analsHeightView($(this).val());
         });
+
+        //
+        $('.up-camera').click(function(){
+            $('#mapCameraFix').trigger('click');
+            Ppmap.getViewer().scene.camera.rotateUp(0.1);
+            $('#mapCameraFix').trigger('click');
+        });
+        //
+        $('.down-camera').click(function(){
+            $('#mapCameraFix').trigger('click');
+            Ppmap.getViewer().scene.camera.rotateDown(0.1);
+            $('#mapCameraFix').trigger('click');
+        });
+        //
+        $('.left-camera').click(function(){
+            $('#mapCameraFix').trigger('click');
+            MAGO3D_INSTANCE.getViewer().scene.camera.rotateLeft(0.1);
+            $('#mapCameraFix').trigger('click');
+        });
+        //
+        $('.right-camera').click(function(){
+            $('#mapCameraFix').trigger('click');
+            MAGO3D_INSTANCE.getViewer().scene.camera.rotateRight(0.1);
+            $('#mapCameraFix').trigger('click');
+        });
+
+		//초기화
+		$('.init-lsheight').click(function(){
+			//마우스 이벤트 삭제
+			self._handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+        	self._handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+			
+			//지도위 모든 엔티티 삭제
+			Ppmap.removeAllEntities();
+		});
     }
+
+
 
     LSHeightDropDownList.prototype.render = function(maxHeight) {
         $(this._ele).empty();
@@ -70,7 +114,7 @@ function AnalsHeightLandScapeView(viewer, magoInstance) {
         //여러점 선택 버튼 클릭
         Ppui.click('#lsHeightBtn', function(){
             let el = this;
-            toastr.info('지도상에서 경관점을 클릭하시기 바랍니다.');
+            toastr.info('경관분석을 위한 두 위치를 선택(클릭)하시기 바랍니다.');
             that.createTwoPoint();
         });
     };
@@ -82,21 +126,14 @@ function AnalsHeightLandScapeView(viewer, magoInstance) {
         _this._xyz1 = {};
         _this._xyz2 = {};
 
-        //
-        Ppmap.removeAll();
-
-
-        //
-        const handler = new Cesium.ScreenSpaceEventHandler(MAGO3D_INSTANCE.getViewer().scene.canvas);
-        //
-        handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-        handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+        //초기화
+		$('.init-lsheight').trigger('click');
 
         //
         Ppmap.setCursor('pointer');
 
         //마우스 왼쪽 클릭 이벤트 등록
-        handler.setInputAction( function(click) {
+        self._handler.setInputAction( function(click) {
 
                 //점1 세팅
                 if(Pp.isEmpty(_this._xyz1.lon)){
@@ -104,7 +141,7 @@ function AnalsHeightLandScapeView(viewer, magoInstance) {
                     //
                     Ppmap.createPointAndAlt('ls-anals-auto-xyz1', _this._xyz1.lon, _this._xyz1.lat, _this._xyz1.alt);
                     //
-                    toastr.info('지도상에서 경관방향을 지정해주시길 바랍니다.');
+                    //toastr.info('지도상에서 경관방향을 지정해주시길 바랍니다.');
                     return;
                 }
 
@@ -117,19 +154,19 @@ function AnalsHeightLandScapeView(viewer, magoInstance) {
 
                 //
                 if(Pp.isNotEmpty(_this._xyz1.lon) && Pp.isNotEmpty(_this._xyz2.lon)){
-                    //이벤트 삭제
-                    handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-                    handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-
+                    
                     //
                     Ppmap.restoreCursor();
 
                     //분석. 0.5초 지연
                     setTimeout(function(){
                         _this.doAnals();
-                        Ppmap.removeAll();
-                        toastr.info('높이 데이터를 생성완료 했습니다');
+
+                        toastr.info('높이 데이터를 생성했습니다. <br/>분석 높이를 선택하시기 바랍니다.');
                     }, 500);
+
+
+					$('.init-lsheight').trigger('click');
                 }
 
             },
@@ -138,7 +175,7 @@ function AnalsHeightLandScapeView(viewer, magoInstance) {
 
 
         //마우스 이동
-        handler.setInputAction( function(e) {
+        self._handler.setInputAction( function(e) {
                 //
                 let xyz = Ppmap.cartesian2ToLonLat(e.endPosition);
                 //console.log(e.endPosition, xyz);
@@ -185,6 +222,11 @@ function AnalsHeightLandScapeView(viewer, magoInstance) {
  // lon lat to cartesian
         lsHeightAnals.init(this._xyz1, this._xyz2);
         lsHeightAnals.genHeightView(parseInt($('#lsHeightAnalsInput').val()));
+
+		//중간층수로 자동 이동
+		let maxHeight = parseInt($('#lsHeightAnalsInput').val());
+		$('.lsHeightAnalsList').val(Math.round(maxHeight/2))
+			.trigger('change');
     };
 
 

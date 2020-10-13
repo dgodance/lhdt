@@ -38,9 +38,9 @@ values
 	(41, '0', '1', '업로드 목록', 'DATA', 3, 3, 2, 9, '/upload-data/list', null, null, 'glyph-monitor', 'Y', 'Y', 'Y'),
 	(42, '0', '1', '업로드 수정', 'DATA', 3, 3, 2, 10, '/upload-data/modify', '/upload-data/list', null, 'glyph-monitor', 'N', 'Y', 'N'),
 	(43, '0', '1', '데이터 변환 결과', 'DATA', 3, 3, 2, 11, '/converter/list', null, null, 'glyph-monitor', 'Y', 'Y', 'Y'),
-	(44, '0', '1', '데이터 위치 변경 요청 이력', 'DATA', 3, 3, 2, 12, '/data-adjust-log/list', null, null, 'glyph-monitor', 'Y', 'Y', 'Y'),
+	(44, '0', '1', '데이터 변환 상세 목록', 'DATA', 3, 3, 2, 12, '/converter/converter-job-file-list', null , null ,'glyph-monitor', 'Y', 'Y', 'Y'),
 	(45, '0', '1', '데이터 변경 이력', 'DATA', 3, 3, 2, 13, '/data-log/list', null, null, 'glyph-monitor', 'Y', 'Y', 'Y'),
-	(46, '0', '1', '데이터 변환 상세 목록', 'DATA', 3, 3, 2, 12, '/converter/converter-job-file-list', null , null ,'glyph-monitor', 'Y', 'Y', 'Y'),
+	(46, '0', '1', '데이터 위치 변경 요청 이력', 'DATA', 3, 3, 2, 14, '/data-adjust-log/list', null, null, 'glyph-monitor', 'Y', 'Y', 'Y'),
 	(5, '0', '1', '레이어', 'LAYER', 5, 0, 1, 5, '/layer-group/list', null, null, 'glyph-check', 'Y', 'Y', 'Y'),
 	(51, '0', '1', '2D 레이어 그룹', 'LAYER', 5, 5, 2, 1, '/layer-group/list', null, null, 'glyph-check', 'Y', 'Y', 'Y'),
 	(52, '0', '1', '2D 레이어 그룹 등록', 'LAYER', 5, 5, 2, 2, '/layer-group/input', '/layer-group/list', null, 'glyph-check', 'N', 'Y', 'N'),
@@ -91,7 +91,8 @@ values
     (1102, '1', '0', '변환', 'CONVERTER', 1102, 0, 1, 6, '/upload-data/list', null, 'converterMenu', 'converterContent', 'converter', 'Y', 'Y', 'Y'),
     /*(1103, '1', '0', 'Extrusion', 'EXTRUSION', 1103, 0, 1, 7, '/extrusion', null, 'extrusionMenu', 'extrusionContent', 'extrusion', 'Y', 'Y', 'Y'),*/
     (1104, '1', '0', '레이어', 'LAYER', 1104, 0, 1, 8, '/layer/list', null, 'layerMenu', 'layerContent', 'layer', 'Y', 'Y', 'Y'),
-    (1105, '1', '0', '환경설정', 'USER POLICY', 1105, 0, 1, 9, '/user-policy/modify', null, 'userPolicyMenu', 'userPolicyContent', 'userPolicy', 'Y', 'Y', 'Y');
+    /*(1105, '1', '0', '사물인터넷', 'IOT', 1105, 0, 1, 9, '/iot/windy', null, 'iotMenu', 'iotContent', 'iot', 'Y', 'Y', 'Y'),*/
+    (1106, '1', '0', '환경설정', 'USER POLICY', 1106, 0, 1, 10, '/user-policy/modify', null, 'userPolicyMenu', 'userPolicyContent', 'userPolicy', 'Y', 'Y', 'Y');
 
 
 
@@ -168,7 +169,8 @@ values
 	(NEXTVAL('user_group_menu_seq'), 1, 1102, 'Y'),
 	/*(NEXTVAL('user_group_menu_seq'), 1, 1103, 'Y'),*/
 	(NEXTVAL('user_group_menu_seq'), 1, 1104, 'Y'),
-	(NEXTVAL('user_group_menu_seq'), 1, 1105, 'Y'),
+	/*(NEXTVAL('user_group_menu_seq'), 1, 1105, 'Y'),*/
+	(NEXTVAL('user_group_menu_seq'), 1, 1106, 'Y'),
 
 	--(NEXTVAL('user_group_menu_seq'), 2, 1001, 'Y'),
 	(NEXTVAL('user_group_menu_seq'), 2, 1001, 'Y'),
@@ -179,7 +181,8 @@ values
 	(NEXTVAL('user_group_menu_seq'), 2, 1102, 'Y'),
 	/*(NEXTVAL('user_group_menu_seq'), 2, 1103, 'Y'),*/
 	(NEXTVAL('user_group_menu_seq'), 2, 1104, 'Y'),
-	(NEXTVAL('user_group_menu_seq'), 2, 1105, 'Y');
+	/*(NEXTVAL('user_group_menu_seq'), 2, 1105, 'Y'),*/
+	(NEXTVAL('user_group_menu_seq'), 2, 1106, 'Y');
 
 insert into user_group_role(user_group_role_id, user_group_id, role_id)
 values

@@ -8,14 +8,22 @@
         </div>
         <div class="form-group form-group-data">
             <button type="button" id="lsHeightBtn" class="btnTextF search-text" >위치선택</button>
+			<!-- 화면에 표시되지 않음 -->
+            <button type="button" class="btnTextF search-text display-none init-lsheight">초기화</button>
         </div>
         <div class="form-group form-group-data">
             <label for="lsHeightAnalsGroup">분석 높이</label>
-            <select id="lsHeightAnalsGroup" name="lsHeightAnalsGroup" class="lsHeightAnalsList">
+            <select id="lsHeightAnalsGroup" name="lsHeightAnalsGroup" class="lsHeightAnalsList w-40">
                 <option value="0">
                     비교조망점
                 </option>
             </select>
+            <span style="font-size:large; vertical-align: middle;">
+                <a href="javascript:;" class="up-camera" title="위로">△</a>
+				<a href="javascript:;" class="down-camera" title="아래로">▽</a>
+                <a href="javascript:;" class="left-camera" title="왼쪽">◁</a>
+				<a href="javascript:;" class="right-camera" title="오른쪽">▷</a>
+            </span>
         </div>
     </script>
 </div>

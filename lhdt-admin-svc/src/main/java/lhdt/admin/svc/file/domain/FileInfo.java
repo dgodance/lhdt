@@ -36,52 +36,59 @@ import java.util.List;
 public class FileInfo extends CmmnDomain implements CmmnFile {
     /**
      * 파일명
+     * COMMENT '파일 명'"
      */
     @NotNull
-    @Column(name = "file_name")
+    @Column(name = "file_nm")
     @CmmnField(bizKey = true, order = 0)
     private String fileName;
 
     /**
      * 파일경로
+     * COMMENT '파일 경로 명'"
      */
     @NotNull
-    @Column(name = "file_path")
+    @Column(name = "file_cours_nm")
     @CmmnField(bizKey = true, order = 1)
     private String filePath;
 
     /**
      * 파일경로
+     * COMMENT '원본 파일 명'"
      */
     @NotNull
-    @Column(name = "origin_file_name")
+    @Column(name = "origin_file_nm")
     private String originFileName;
 
     /**
      * 파일종류
+     * COMMENT '파일 타입 값'"
      */
-    @Column(name = "file_type")
+    @Column(name = "file_ty_value")
     private FileType fileType;
     /**
      * 파일종류
+     * COMMENT '파일 분류 값'"
      */
-    @Column(name = "file_cls_type")
+    @Column(name = "file_cl_value")
     private FileClsType fileClsType;
 
     /**
      * 확장자
+     * COMMENT '파일 확장자 명'"
      */
     @NotNull
-    @Column(name = "file_ext")
+    @Column(name = "file_extsn_nm")
     @CmmnField(bizKey = true, order = 2)
     private String fileExtention;
 
     /**
      * 지구번호
+     * COMMENT '파일 번호'"
      */
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="fileInfos")
+    @JoinColumn(name="file_no")
     private CPDistricInfo cpDistricInfo;
 
     /**

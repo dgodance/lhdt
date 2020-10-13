@@ -42,7 +42,6 @@ public class CPFileViewController {
     @Autowired
     private CPReportParserService cpReportParserService;
 
-
     @GetMapping()
     public String getCPFile(
             @RequestParam(value = "filePage", defaultValue = "1") Integer file_page,

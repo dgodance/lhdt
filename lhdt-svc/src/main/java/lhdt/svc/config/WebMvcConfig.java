@@ -29,7 +29,7 @@ import lhdt.cmmn.interceptor.CmmnMiscInterceptor;
 
 /**
  * @author gravity
- *
+ * 스프링 Mvc 설정
  */
 @Slf4j
 @Configuration
@@ -37,11 +37,18 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	@Autowired
 	private CmmnMiscInterceptor miscInterceptor;
 
+	/**
+	 * 초기화
+	 */
 	@PostConstruct
 	private void init() {
 		log.info("{}", this);
 	}
 
+	/**
+	 * 인터셉터 추가
+	 * @param registry
+	 */
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		
@@ -51,12 +58,20 @@ public class WebMvcConfig implements WebMvcConfigurer {
 			.excludePathPatterns("/", "/error", "/static/**", "/images/**", "/css/**", "/js/**");
 	}
 
+	/**
+	 * CORS 정보 추가
+	 * @param registry
+	 */
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
 		registry.addMapping("/**")
 				.allowedOrigins("*");
 	}
 
+	/**
+	 * 리소스 정보 추가
+	 * @param registry
+	 */
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry.addResourceHandler("/data/**").addResourceLocations("classpath:data/");

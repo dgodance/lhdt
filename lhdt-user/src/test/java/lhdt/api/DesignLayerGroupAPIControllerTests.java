@@ -31,7 +31,7 @@ class DesignLayerGroupAPIControllerTests extends BaseControllerTest {
     @Test
     @DisplayName("DesignLayerGroup 목록 조회 하기")
     public void getDesignLayerGroups() throws Exception {
-        given(designLayerGroupService.getListDesignLayerGroup()).willReturn(getDesignGroupList());
+        given(designLayerGroupService.getListDesignLayerGroup(any())).willReturn(getDesignGroupList());
 
         this.mockMvc.perform(get("/api/design-layer-groups"))
                 .andDo(print())
@@ -40,6 +40,20 @@ class DesignLayerGroupAPIControllerTests extends BaseControllerTest {
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.profile").exists())
                 .andDo(document("design-layer-group-list"));
+    }
+
+    @Test
+    @DisplayName("디자인 레이어 그룹 parent 로 조회 하기")
+    public void getDesignLayerGroupsByParent() throws Exception {
+        given(designLayerGroupService.getListDesignLayerGroup(any())).willReturn(getDesignGroupList());
+
+        this.mockMvc.perform(get("/api/design-layer-groups/parent/1"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("_embedded.designLayerGroups[0]._links.self").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andDo(document("design-layer-group-list-by-parent"));
     }
 
     @Test

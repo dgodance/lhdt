@@ -296,7 +296,7 @@ public class ConverterServiceImpl implements ConverterService {
 			String key = uploadDataFile.getFileRealName();
 			ConversionJobResult conversionJobResult = converterJobResultMap.get(key);
 
-			if (ConverterJobResultStatus.SUCCESS.equals(conversionJobResult.getResultStatus())) {
+			if (ConverterJobResultStatus.SUCCESS == conversionJobResult.getResultStatus()) {
 				// 상태가 성공인 경우
 
 				// 데이터를 등록 혹은 갱신. 상태를 use(사용중)로 등록.
@@ -306,11 +306,12 @@ public class ConverterServiceImpl implements ConverterService {
 				// location_update_type 이 auto 일 경우 dataInfo 위치 정보로 dataGroup 위치 정보 수정
 				updateDataGroup(userId, dataInfo, uploadDataFile);
 
-				if (conversionJobResult.getLocation() != null && conversionJobResult.getAttributes() != null) {
+				if (conversionJobResult.getLocation() != null) {
 					// 위치정보 갱신
 					ConverterLocation converterLocation = conversionJobResult.getLocation();
 					updateConverterLocation(converterLocation, dataInfo);
-
+				}
+				if (conversionJobResult.getAttributes() != null) {
 					// 속성정보 갱신
 					String attributes = conversionJobResult.getAttributes();
 					updateConverterAttribute(attributes, dataInfo);
@@ -323,7 +324,7 @@ public class ConverterServiceImpl implements ConverterService {
 				// 2) 데이터 그룹 데이터 건수 -1
 				// 3) 데이터 그룹 최신 이동 location 은? 이건 그냥 다음에 하는걸로~
 				DataInfo dataInfo = new DataInfo();
-				// dataInfo.setUserId(converterJob.getUserId());
+				dataInfo.setUserId(converterJob.getUserId());
 				dataInfo.setConverterJobId(converterJobId);
 				List<DataInfo> dataInfoList = dataService.getDataByConverterJob(dataInfo);
 				deleteFailData(dataInfoList);
@@ -414,18 +415,23 @@ public class ConverterServiceImpl implements ConverterService {
 	 * @param converterJob	converterJob
 	 * @param converterResultLog	converterResultLog
 	 */
-	private void updateConverterJob(ConverterJob converterJob, ConverterResultLog converterResultLog) {
-		if (converterResultLog.getIsSuccess()) {
-			if (converterResultLog.getNumberOfFilesConverted() != converterResultLog.getNumberOfFilesToBeConverted()) {
+	private boolean updateConverterJob(ConverterJob converterJob, ConverterResultLog converterResultLog) {
+		boolean isSuccess = true;
+		int numberOfFilesConverted = converterResultLog.getNumberOfFilesConverted();
+		if (converterResultLog.getIsSuccess() && numberOfFilesConverted != 0) {
+			if (converterResultLog.getNumberOfFilesToBeConverted() - numberOfFilesConverted > 0) {
 				converterJob.setStatus(ConverterJobStatus.PARTIAL_SUCCESS.getValue());
 			} else {
 				converterJob.setStatus(ConverterJobStatus.SUCCESS.getValue());
 			}
+			isSuccess = true;
 		} else {
 			converterJob.setStatus(ConverterJobStatus.FAIL.getValue());
 			converterJob.setErrorCode(converterResultLog.getFailureLog());
+			isSuccess = false;
 		}
 		converterMapper.updateConverterJob(converterJob);
+		return isSuccess;
 	}
 
 	/**
@@ -437,7 +443,7 @@ public class ConverterServiceImpl implements ConverterService {
 	private void updateConverterLocation(ConverterLocation converterLocation, DataInfo updateDataInfo) {
 		BigDecimal longitude = converterLocation.getLongitude();
 		BigDecimal latitude = converterLocation.getLatitude();
-		if (validationLonLat(longitude, latitude)) {
+		if (isNotNull(longitude, latitude)) {
 			updateDataInfo.setLongitude(longitude);
 			updateDataInfo.setLatitude(latitude);
 			updateDataInfo.setLocation("POINT(" + longitude + " " + latitude + ")");
@@ -490,6 +496,7 @@ public class ConverterServiceImpl implements ConverterService {
 		String dataType = uploadDataFile.getDataType();
 		String sharing = uploadDataFile.getSharing();
 		String mappingType = uploadDataFile.getMappingType();
+		String heightReference = uploadDataFile.getHeightReference();
 		BigDecimal latitude = uploadDataFile.getLatitude();
 		BigDecimal longitude = uploadDataFile.getLongitude();
 		BigDecimal altitude = uploadDataFile.getAltitude();
@@ -502,7 +509,7 @@ public class ConverterServiceImpl implements ConverterService {
 		if (dataInfo == null) {
 			// int order = 1;
 			// TODO nodeType 도 입력해야 함
-			String metainfo = "{\"isPhysical\": true}";
+			String metainfo = "{\"isPhysical\": true, \"heightReference\": \"" + heightReference + "\"}";
 
 			dataInfo = new DataInfo();
 			dataInfo.setMethodType(MethodType.INSERT);
@@ -517,7 +524,7 @@ public class ConverterServiceImpl implements ConverterService {
 			dataInfo.setLatitude(latitude);
 			dataInfo.setLongitude(longitude);
 			dataInfo.setAltitude(altitude);
-			if (validationLonLat(longitude, latitude)) {
+			if (isNotNull(longitude, latitude)) {
 				dataInfo.setLocation("POINT(" + longitude + " " + latitude + ")");
 			}
 			dataInfo.setMetainfo(metainfo);
@@ -533,10 +540,11 @@ public class ConverterServiceImpl implements ConverterService {
 			dataInfo.setDataType(dataType);
 			dataInfo.setDataName(dataName);
 			dataInfo.setUserId(userId);
+			dataInfo.setMetainfo("{\"isPhysical\": true, \"heightReference\": \"" + heightReference + "\"}");
 			dataInfo.setLatitude(latitude);
 			dataInfo.setLongitude(longitude);
 			dataInfo.setAltitude(altitude);
-			if (validationLonLat(longitude, latitude)) {
+			if (isNotNull(longitude, latitude)) {
 				dataInfo.setLocation("POINT(" + longitude + " " + latitude + ")");
 			} else {
 				dataInfo.setLocation(null);
@@ -571,7 +579,7 @@ public class ConverterServiceImpl implements ConverterService {
 		if (LocationUdateType.AUTO == LocationUdateType.valueOf(dbDataGroup.getLocationUpdateType().toUpperCase())) {
 			BigDecimal longitude = dataInfo.getLongitude();
 			BigDecimal latitude = dataInfo.getLatitude();
-			if (validationLonLat(longitude, latitude)) {
+			if (isNotNull(longitude, latitude)) {
 				dataGroup.setLocation("POINT(" + longitude + " " + latitude + ")");
 				dataGroup.setAltitude(dataInfo.getAltitude());
 			}
@@ -605,7 +613,7 @@ public class ConverterServiceImpl implements ConverterService {
 	 * @param latitude	위도
 	 * @return 유효한 값일 경우 true, 아닐경우 false
 	 */
-	private boolean validationLonLat(BigDecimal longitude, BigDecimal latitude) {
+	private boolean isNotNull(BigDecimal longitude, BigDecimal latitude) {
 		return longitude != null && latitude != null;
 	}
 
@@ -620,12 +628,12 @@ public class ConverterServiceImpl implements ConverterService {
 			// dataService.deleteDataByConverterJob(deleteDataInfo);
 
 			DataGroup dataGroup = new DataGroup();
-			// dataGroup.setUserId(converterJob.getUserId());
+			dataGroup.setUserId(deleteDataInfo.getUserId());
 			dataGroup.setDataGroupId(deleteDataInfo.getDataGroupId());
 			dataGroup = dataGroupService.getDataGroup(dataGroup);
 
 			DataGroup updateDataGroup = new DataGroup();
-			// updateDataGroup.setUserId(converterJob.getUserId());
+			updateDataGroup.setUserId(dataGroup.getUserId());
 			updateDataGroup.setDataGroupId(dataGroup.getDataGroupId());
 			updateDataGroup.setDataCount(dataGroup.getDataCount() - 1);
 			dataGroupService.updateDataGroup(updateDataGroup);
@@ -681,6 +689,4 @@ public class ConverterServiceImpl implements ConverterService {
 		
 		return attribute;
 	}
-
-
 }

@@ -81,7 +81,7 @@
 									</th>
 									<td class="col-input">
 										<input type="hidden" id="layerGroupId" name="layerGroupId" th:field="*{layerGroupId}" />
-										<input type="text" id="layerGroupName" name="layerGroupName" th:field="*{layerGroupName}" class="ml" th:readonly="true" />
+										<input type="text" id="layerGroupName" name="layerGroupName" th:field="*{layerGroupName}" class="ml" th:readonly="readonly" />
 										<input type="button" id="layerGroupButton" value="Layer 그룹 찾기" />
 									</td>
 									<th class="col-label" scope="row">공유 유형</th>
@@ -107,7 +107,7 @@
 										<span class="icon-glyph glyph-emark-dot color-warning"></span>
 									</th>
 									<td class="col-input">
-										<input type="text" id="layerKey" name="layerKey" th:field="*{layerKey}" class="ml" th:readonly="true" />
+										<input type="text" id="layerKey" name="layerKey" th:field="*{layerKey}" class="ml" th:readonly="readonly" />
 									</td>
 								</tr>
 								<tr>

@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 
+/**
+ * 경관비교 서비스에 대한 세부 기능을 구현합니다
+ */
 @Service
 @RequiredArgsConstructor
 public class LandScapeDiffGroupServiceImpl
@@ -18,6 +21,9 @@ public class LandScapeDiffGroupServiceImpl
     private final LandScapeDiffGroupRepository jpaRepo;
     private final LandScapeDiffGroupMapper mapper;
 
+    /**
+     * JPA와 MYBATIS정보를 객체에 주입합니다
+     */
     @PostConstruct
     private void init() {
         super.set(jpaRepo, mapper, new LandScapeDiffGroup());

@@ -17,7 +17,7 @@ const template = Handlebars.compile(source);
 
 
 /**
- * 경관 비교
+ * 조망점 비교
  * @dependency pp, ppmap
  * @constructor
  * @since 20200824 init
@@ -139,7 +139,10 @@ AnalsLandScapeDiff.prototype.renderDiffDropdown = function() {
                 // the.captureScreenProc(blob); //drawing
             })
         })
-    });
+    })
+	.fail(function(){
+		$('#landscapeDiffDataDiv').append(template_html({landscapeGroupList: []}));
+	});
 }
 
 

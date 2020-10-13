@@ -33,6 +33,7 @@
                 <li id="tabUploadDataInput"><a href="/upload-data/input"><th:block th:text="#{upload.data.input.tab.menu}"></th:block></a></li>
                 <li id="tabUploadDataList"><a href="/upload-data/list"><th:block th:text="#{upload.data.list.tab.menu}"></th:block></a></li>
                 <li id="tabConverterList"><a href="/converter/list"><th:block th:text="#{converter.list.tab.menu}"></th:block></a></li>
+                <li id="tabConverterJobFileList"><a href="/converter/converter-job-file-list"><th:block th:text="#{converter.job.file.list.tab.menu}"></th:block></a></li>
                 <li id="tabDataList"><a href="/data/list"><th:block th:text="#{data.list.tab.menu}"></th:block></a></li>
                 <li id="tabDataLogList"><a href="/data-log/list"><th:block th:text="#{data.log.list.tab.menu}"></th:block></a></li>
             </ul>
@@ -100,6 +101,7 @@
                     </div>
                 </div>
                 <table class="list-table scope-col">
+                    <caption class="hiddenTag">데이터 변환 결과</caption>
                     <colgroup>
                         <col class="col-number"></col>
                         <col class="col-name"></col>
@@ -140,11 +142,14 @@
                                 <th:block th:if="${#strings.equals(converterJob.converterTemplate, 'extra-big-building')}" th:text="#{converter.template.extra.big.building}"></th:block>
                                 <th:block th:if="${#strings.equals(converterJob.converterTemplate, 'point-cloud')}" th:text="#{converter.template.point.cloud}"></th:block>
                             </td>
-                            <td class="col-name ellipsis" th:text="${converterJob.title}" style="min-width:200px;max-width:200px;"></td>
+                            <td class="col-name ellipsis" style="min-width:200px;max-width:200px;">
+                                <a th:text="${converterJob.title}" th:href="@{/converter/converter-job-file-list(converterJobId=${converterJob.converterJobId})}"></a>
+                            </td>
                             <td class="col-count">
                                 <th:block th:if="${converterJob.usf >= 1 and converterJob.usf < 10}" th:text="|${converterJob.usf}m|"></th:block>
-                                <th:block th:if="${converterJob.usf >= 0.01 and converterJob.usf < 0.1}" th:text="|${converterJob.usf}m|"></th:block>
-                                <th:block th:if="${converterJob.usf >= 0.001 and converterJob.usf < 0.1}" th:text="|${converterJob.usf}m|"></th:block>
+                                <th:block th:if="${converterJob.usf >= 0.1 and converterJob.usf < 1}" th:text="|${converterJob.usf}cm|"></th:block>
+                                <th:block th:if="${converterJob.usf >= 0.01 and converterJob.usf < 0.1}" th:text="|${converterJob.usf}cm|"></th:block>
+                                <th:block th:if="${converterJob.usf >= 0.001 and converterJob.usf < 0.01}" th:text="|${converterJob.usf}mm|"></th:block>
                                 <th:block th:if="${converterJob.usf >= 10}" th:text="|${converterJob.usf}m|"></th:block>
                             </td>
                             <td class="col-type">
@@ -192,11 +197,11 @@
 		var orderValue = "[[${converterJob.orderValue}]]";
 		var listCounter = "[[${converterJob.listCounter}]]";
 
-		if(searchWord != "") $("#searchWord").val("${converterJob.searchWord}");
-		if(searchOption != "") $("#searchOption").val("${converterJob.searchOption}");
-		if(orderWord != "") $("#orderWord").val("${converterJob.orderWord}");
-		if(orderValue != "") $("#orderValue").val("${converterJob.orderValue}");
-		if(listCounter != "") $("#listCounter").val("${converterJob.listCounter}");
+        if(searchWord != "") $("#searchWord").val(searchWord);
+        if(searchOption != "") $("#searchOption").val(searchOption);
+        if(orderWord != "") $("#orderWord").val(orderWord);
+        if(orderValue != "") $("#orderValue").val(orderValue);
+        if(listCounter != "") $("#listCounter").val(listCounter);
 
 		initDatePicker();
 		initCalendar(new Array("startDate", "endDate"), new Array("[[${converterJob.startDate}]]", "[[${converterJob.endDate}]]"));

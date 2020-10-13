@@ -380,13 +380,15 @@
 					</tr>
 					<tr>
 						<td>세대수</td>
-						<td class="household-co text-right" colspan="3"></td>
+						<td class="text-right" >-</td>
+						<td class="household-co text-right" ></td>
+						<td class="household-co text-right"></td>
 					</tr>
 				</tbody>
 			</table>
-			<div class="form-group form-group-data mt-2">
+			<div class="form-group form-group-data mt-2 ">
 				<label for="floor-co" class="w-30">전체 건물 층수 변경</label> 
-				<select class="floor-co">
+				<select class="floor-co display-none">
 					<!--by js. 1~100-->
 				</select>
 				<a href="javascript:;" class="up-floor-co" title="증가"><img th:src="@{/images/ico_up.png}" class="mt-5" alt="증가"/></a>

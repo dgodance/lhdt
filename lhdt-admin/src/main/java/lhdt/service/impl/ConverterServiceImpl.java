@@ -300,11 +300,12 @@ public class ConverterServiceImpl implements ConverterService {
 				// location_update_type 이 auto 일 경우 dataInfo 위치 정보로 dataGroup 위치 정보 수정
 				updateDataGroup(userId, dataInfo, uploadDataFile);
 
-				if (conversionJobResult.getLocation() != null && conversionJobResult.getAttributes() != null) {
+				if (conversionJobResult.getLocation() != null) {
 					// 위치정보 갱신
 					ConverterLocation converterLocation = conversionJobResult.getLocation();
 					updateConverterLocation(converterLocation, dataInfo);
-
+				}
+				if (conversionJobResult.getAttributes() != null) {
 					// 속성정보 갱신
 					String attributes = conversionJobResult.getAttributes();
 					updateConverterAttribute(attributes, dataInfo);
@@ -408,18 +409,23 @@ public class ConverterServiceImpl implements ConverterService {
 	 * @param converterJob	converterJob
 	 * @param converterResultLog	converterResultLog
 	 */
-	private void updateConverterJob(ConverterJob converterJob, ConverterResultLog converterResultLog) {
-		if (converterResultLog.getIsSuccess()) {
-			if (converterResultLog.getNumberOfFilesConverted() != converterResultLog.getNumberOfFilesToBeConverted()) {
+	private boolean updateConverterJob(ConverterJob converterJob, ConverterResultLog converterResultLog) {
+		boolean isSuccess = true;
+		int numberOfFilesConverted = converterResultLog.getNumberOfFilesConverted();
+		if (converterResultLog.getIsSuccess() && numberOfFilesConverted != 0) {
+			if (converterResultLog.getNumberOfFilesToBeConverted() - numberOfFilesConverted > 0) {
 				converterJob.setStatus(ConverterJobStatus.PARTIAL_SUCCESS.getValue());
 			} else {
 				converterJob.setStatus(ConverterJobStatus.SUCCESS.getValue());
 			}
+			isSuccess = true;
 		} else {
 			converterJob.setStatus(ConverterJobStatus.FAIL.getValue());
 			converterJob.setErrorCode(converterResultLog.getFailureLog());
+			isSuccess = false;
 		}
 		converterMapper.updateConverterJob(converterJob);
+		return isSuccess;
 	}
 
 	/**
@@ -484,6 +490,7 @@ public class ConverterServiceImpl implements ConverterService {
 		String dataType = uploadDataFile.getDataType();
 		String sharing = uploadDataFile.getSharing();
 		String mappingType = uploadDataFile.getMappingType();
+		String heightReference = uploadDataFile.getHeightReference();
 		BigDecimal latitude = uploadDataFile.getLatitude();
 		BigDecimal longitude = uploadDataFile.getLongitude();
 		BigDecimal altitude = uploadDataFile.getAltitude();
@@ -496,7 +503,7 @@ public class ConverterServiceImpl implements ConverterService {
 		if (dataInfo == null) {
 			// int order = 1;
 			// TODO nodeType 도 입력해야 함
-			String metainfo = "{\"isPhysical\": true}";
+			String metainfo = "{\"isPhysical\": true, \"heightReference\": \"" + heightReference + "\"}";
 
 			dataInfo = new DataInfo();
 			dataInfo.setMethodType(MethodType.INSERT);
@@ -527,6 +534,7 @@ public class ConverterServiceImpl implements ConverterService {
 			dataInfo.setDataType(dataType);
 			dataInfo.setDataName(dataName);
 			dataInfo.setUserId(userId);
+			dataInfo.setMetainfo("{\"isPhysical\": true, \"heightReference\": \"" + heightReference + "\"}");
 			dataInfo.setLatitude(latitude);
 			dataInfo.setLongitude(longitude);
 			dataInfo.setAltitude(altitude);
@@ -608,12 +616,21 @@ public class ConverterServiceImpl implements ConverterService {
 	 * @param dataInfoList	dataInfoList
 	 */
 	private void deleteFailData(List<DataInfo> dataInfoList) {
-		for(DataInfo dataInfo : dataInfoList) {
+		for(DataInfo deleteDataInfo : dataInfoList) {
+			// deleteDataInfo.setUserId(converterJob.getUserId());
+			// deleteDataInfo.setConverterJobId(converterJob.getConverterJobId());
+			// dataService.deleteDataByConverterJob(deleteDataInfo);
+
 			DataGroup dataGroup = new DataGroup();
 			// dataGroup.setUserId(converterJob.getUserId());
-			dataGroup.setDataGroupId(dataInfo.getDataGroupId());
-			dataGroup.setDataCount(-1);
-			dataGroupService.updateDataGroupChildren(dataGroup);
+			dataGroup.setDataGroupId(deleteDataInfo.getDataGroupId());
+			dataGroup = dataGroupService.getDataGroup(dataGroup);
+
+			DataGroup updateDataGroup = new DataGroup();
+			// updateDataGroup.setUserId(converterJob.getUserId());
+			updateDataGroup.setDataGroupId(dataGroup.getDataGroupId());
+			updateDataGroup.setDataCount(dataGroup.getDataCount() - 1);
+			dataGroupService.updateDataGroup(updateDataGroup);
 		}
 	}
 }

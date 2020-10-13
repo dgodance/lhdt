@@ -31,6 +31,11 @@ public interface CRUDInterface<T> {
      */
     List<T> findAllById(Long id);
 
+    /**
+     * 해당 페이지에 부합하는 리스트를 리턴합니다
+     * @param pageable
+     * @return
+     */
     Page<T> findAllByPage(Pageable pageable);
 
     /**
@@ -40,8 +45,18 @@ public interface CRUDInterface<T> {
      */
     boolean existVoByUk(T vo);
 
+    /**
+     * UK에 대한 데이터를 찾습니다
+     * @param vo
+     * @return
+     */
     T findByUk(T vo);
 
+    /**
+     * UK에 대한 모든 데이터를 찾습니다
+     * @param vo
+     * @return
+     */
     List<T> findAllByUk(T vo);
 
     /**

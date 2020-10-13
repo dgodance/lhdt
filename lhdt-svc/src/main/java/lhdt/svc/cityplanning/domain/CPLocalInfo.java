@@ -17,7 +17,7 @@ import java.util.List;
  * id, cityPlanId
  */
 @Entity
-@Table(name="cp_local_info")
+@Table(name="ctypln_zone_info")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -28,8 +28,9 @@ public class CPLocalInfo extends Domain {
     }
     /**
      * 지역명
+     * COMMENT '구역 명'"
      */
-    @Column(name = "local_name")
+    @Column(name = "zone_nm")
     private String localName;
 
     @JsonManagedReference

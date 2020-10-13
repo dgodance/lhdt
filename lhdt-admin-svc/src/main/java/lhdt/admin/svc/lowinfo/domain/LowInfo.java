@@ -23,14 +23,17 @@ import lombok.*;
  * lowInfoName
  */
 @Entity
-@Table(name="low_info")
+@Table(name="law_info")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class LowInfo extends CmmnDomain {
 
-    @Column(name = "low_info_name")
+    /**
+     * COMMENT '법률 정보 명'"
+     */
+    @Column(name = "law_info_nm")
     @CmmnField(bizKey = true, order = 0)
     private String lowInfoName;
 

@@ -19,10 +19,11 @@ public class UrbanGroupServiceImpl implements UrbanGroupService {
 
     /**
      * 도시 그룹 목록
+     * @param urbanGroup 도시그룹
      */
     @Transactional(readOnly = true)
-    public List<UrbanGroup> getListUrbanGroup() {
-        return urbanGroupMapper.getListUrbanGroup();
+    public List<UrbanGroup> getListUrbanGroup(UrbanGroup urbanGroup) {
+        return urbanGroupMapper.getListUrbanGroup(urbanGroup);
     }
 
     /**

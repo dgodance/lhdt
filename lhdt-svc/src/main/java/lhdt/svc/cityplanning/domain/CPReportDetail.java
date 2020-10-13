@@ -16,7 +16,7 @@ import lombok.Setter;
  * id, cityPlanId
  */
 @Entity
-@Table(name="cp_report_detail")
+@Table(name="ctypln_report_detail")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -24,112 +24,136 @@ import lombok.Setter;
 public class CPReportDetail extends Domain {
     /**
      * 지역명
+     * COMMENT '구역 명'"
      */
-    @Column(name = "local_name")
+    @Column(name = "zone_nm")
     private String localName;
 
     /**
      * 지구명
+     * COMMENT '지구 명'"
      */
-    @Column(name = "district_name")
+    @Column(name = "dstrc_nm")
     private String districtName;
 
     /**
      * 사업방식
+     * COMMENT '사업 방식 명'"
      */
-    @Column(name = "business_way")
+    @Column(name = "bsns_mthd_nm")
     private String bussinessWay;
 
     /**
      * 용지명
+     * COMMENT '종이 명'"
      */
-    @Column(name = "paper_name")
+    @Column(name = "paper_nm")
     private String paperName;
 
     /**
      * 획지명
+     * COMMENT '필지 명'"
      */
-    @Column(name = "nomination")
+    @Column(name = "lot_nm")
     private String nomination;
 
     /**
      * 토지이용구분정보
+     * COMMENT '육지 이용 분류 명'"
      */
-    @Column(name = "lnd_use_cls_info")
+    @Column(name = "land_use_cl_nm")
     private String lndUseClsInfo;
 
     /**
      * 면적
+     *  NUMERIC COMMENT '면적 값'"
      */
-    @Column(name = "area")
+    @Column(name = "ar_value")
     private Long Area;
 
     /**
      * 허용용도
+     * COMMENT '허용 용도 내용'"
      */
-    @Column(name = "allowalbe_use", columnDefinition="TEXT")
+    @Column(name = "perm_prpos_cn")
     private String allowableUse;
 
     /**
      * 불허용도
+     * COMMENT '불허 이용 내용'"
      */
-    @Column(name = "not_allowalbe_use", columnDefinition="TEXT")
+    @Column(name = "nnpmsn_use_cn")
     private String notAllowableUse;
 
     /**
      * 건폐율
+     *  NUMERIC COMMENT '건폐율 값'"
      */
-    @Column(name = "building_to_land_ratio")
+    @Column(name = "btl_ratio_value")
     private Long buildingToLandRatio;
 
     /**
      * 용적률
+     *  NUMERIC COMMENT '용적률 값'"
      */
+    @Deprecated
     @Column(name = "fllor_area_ratio")
     private Long floorAreaRatio;
 
     /**
      * 최고높이
+     *  NUMERIC COMMENT '지역 최대 높이 값'"
      */
-    @Column(name = "area_max_height")
+    @Column(name = "area_mxmm_hg_value")
     private Long areaMaxHeight;
 
     /**
      * 최고층수
+     * COMMENT '최대 층 수'"
      */
-    @Column(name = "floor_max_height")
+    @Column(name = "mxmm_floor_co")
     private Long floorMaxHeight;
 
     /**
      * 공동주택규모
+     *  NUMERIC COMMENT '공동주택 규모 값'"
      */
-    @Column(name = "aprt_scale")
+    @Column(name = "aphus_scale_value")
     private Long aprartmentScale;
 
     /**
      * 공동주택세대수
+     * COMMENT '공동주택 세대 수'"
      */
-    @Column(name = "num_scale_aprt_house")
+    @Column(name = "aphus_hshld_co")
     private Long numOfApartmentHouse;
 
     /**
      * 분양형태
+     * COMMENT '분양 타입 명'"
      */
-    @Column(name = "sales_type")
+    @Column(name = "lttot_ty_nm")
     private String salesType;
 
     /**
      * 필지이상이하구분
+     * COMMIT '지역 이상 이하 타입 값'"
      */
     @Enumerated(EnumType.ORDINAL)
+    @Column(name = "area_above_below_ty_value")
     private UpDownType areaUpDownType;
 
     /**
      * 층수이상이하구분
+     * COMMIT '층 이상 이하 타입 값'"
      */
     @Enumerated(EnumType.ORDINAL)
+    @Column(name = "floor_above_below_ty_value")
     private UpDownType floorUpDownType;
 
+    /**
+     * COMMENT '파일 id'"
+     */
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="file_id")

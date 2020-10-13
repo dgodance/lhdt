@@ -117,3 +117,34 @@ var UserPolicy = function(magoInstance) {
 		LHDT.issueController.clearIssue();
 	}
 }
+
+var updateUserPolicyFlag = true;
+function userPolicyUpdate() {
+	if(updateUserPolicyFlag) {
+		updateUserPolicyFlag = false;
+		var url = "/user-policy/update";
+		var formData = $("#userPolicy").serialize();
+		$.ajax({
+			url: url,
+			type: "POST",
+			headers: {"X-Requested-With": "XMLHttpRequest"},
+			data: formData,
+			dataType: "json",
+			success: function(msg) {
+				if(msg.statusCode <= 200) {
+					alert(JS_MESSAGE["save"]);
+				} else {
+					alert(msg.message);
+					console.log("---- " + msg.message);
+				}
+				updateUserPolicyFlag = true;
+			},
+			error: function(request, status, error) {
+				alert(JS_MESSAGE["ajax.error.message"]);
+				updateUserPolicyFlag = true;
+			}
+		});
+	} else {
+		alert(JS_MESSAGE["button.dobule.click"]);
+	}
+}

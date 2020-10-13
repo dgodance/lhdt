@@ -25,14 +25,17 @@ import lombok.Setter;
  * lowInfoName
  */
 @Entity
-@Table(name="low_info")
+@Table(name="law_info")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class LowInfo extends Domain {
+    /**
+     * COMMENT '법률 정보 명'"
+     */
     @NotNull
-    @Column(name = "low_info_name")
+    @Column(name = "law_info_nm")
     private String lowInfoName;
 
     @JsonManagedReference

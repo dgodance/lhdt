@@ -76,10 +76,10 @@
 						<form id="dataLibraryUpload" th:object="${dataLibraryUpload}" th:action="@{#}" method="post" onsubmit="return false;">
 							<table class="input-table scope-row">
 								<colgroup>
-									<col class="col-label l" style="width: 15%"></col>
-									<col class="col-input" style="width: 35%"></col>
-									<col class="col-label l" style="width: 15%"></col>
-									<col class="col-input" style="width: 35%"></col>
+									<col class="col-label l" style="width: 16%"></col>
+									<col class="col-input" style="width: 34%"></col>
+									<col class="col-label l" style="width: 16%"></col>
+									<col class="col-input" style="width: 34%"></col>
 								</colgroup>
 								<tr>
 									<th class="col-label" scope="row">
@@ -87,7 +87,7 @@
 										<span class="icon-glyph glyph-emark-dot color-warning"></span>
 									</th>
 									<td class="col-input">
-										<input type="text" id="dataLibraryName" name="dataLibraryName" class="l" maxlength="255" />
+										<input type="text" id="dataLibraryName" name="dataLibraryName" class="ml" maxlength="255" />
 									</td>
 									<th class="col-label" scope="row">
 										<label for="dataLibraryGroupName">데이터 라이브러리 그룹</label>
@@ -96,7 +96,7 @@
 									<td class="col-input">
 										<hidden id="dataLibraryGroupId" name="dataLibraryGroupId" />
 										<input type="text" id="dataLibraryGroupName" name="dataLibraryGroupName" class="ml" readonly="true" />
-										<input type="button" id="dataLibraryGroupButtion" value="데이터 라이브러리 그룹 선택" />
+										<input type="button" id="dataLibraryGroupButtion" value="그룹 선택" />
 									</td>
 								</tr>
 								<tr>
@@ -153,7 +153,7 @@
 										<label for="description" th:text="#{description}"></label>
 									</th>
 									<td class="col-input">
-										<input type="text" id="description" name="description" class="xl" maxlength="255" />
+										<input type="text" id="description" name="description" class="l" maxlength="255" />
 									</td>
 								</tr>
 							</table>
@@ -173,7 +173,7 @@
 							<div class="center-buttons">
 								<button id="allFileUpload">업로드</button>
 								<button id="allFileClear">파일 초기화</button>
-								<a href="/data-library/list" class="button">목록</a>
+								<a href="/data-library-upload/list" class="button">목록</a>
 							</div>
 						</div>
 

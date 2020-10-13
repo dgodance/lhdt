@@ -17,7 +17,7 @@ import lhdt.svc.common.fileinfo.service.FileInfoService;
 /**
  * @author gravity
  * @since 2020. 9. 4.
- *
+ * 파일정보 제공 서비스 상세 구현 클래스
  */
 @Service("fileInfoService")
 public class FileInfoServiceImpl extends CmmnServiceImpl<FileInfoRepository, FileInfoMapper, FileInfo, Long> implements FileInfoService {
@@ -27,7 +27,10 @@ public class FileInfoServiceImpl extends CmmnServiceImpl<FileInfoRepository, Fil
 	
 	@Autowired
 	private FileInfoMapper mapper;
-	
+
+	/**
+	 * 데이터 베이스 연결 파일 정보 주입
+	 */
 	@PostConstruct
 	private void init() {
 		super.set(jpaRepo, mapper, new FileInfo());

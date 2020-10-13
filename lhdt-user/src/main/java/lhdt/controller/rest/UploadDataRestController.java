@@ -78,13 +78,7 @@ public class UploadDataRestController {
 		List<String> converterTypeList = Arrays.asList(converterTypes);
 		
 		errorCode = dataValidate(request);
-		if(!StringUtils.isEmpty(errorCode)) {
-			log.info("@@@@@@@@@@@@ errorCode = {}", errorCode);
-			result.put("statusCode", HttpStatus.BAD_REQUEST.value());
-			result.put("errorCode", errorCode);
-			result.put("message", message);
-            return result;
-		}
+		if(!StringUtils.isEmpty(errorCode)) return getResultMap(result, HttpStatus.BAD_REQUEST.value(), errorCode, message);
 		
 		UserSession userSession = (UserSession)request.getSession().getAttribute(Key.USER_SESSION.name());
 		String userId = userSession.getUserId();
@@ -115,21 +109,14 @@ public class UploadDataRestController {
 					// validation 체크
 					if(uploadMap.containsKey("errorCode")) {
 						errorCode = (String)uploadMap.get("errorCode");
-						log.info("@@@@@@@@@@@@ errorCode = {}", errorCode);
-						result.put("statusCode", HttpStatus.BAD_REQUEST.value());
-						result.put("errorCode", errorCode);
-						result.put("message", message);
-			            return result;
+						return getResultMap(result, HttpStatus.BAD_REQUEST.value(), errorCode, message);
 					}
 					
 					// converter 변환 대상 파일 수
 					converterTargetCount = (Integer)uploadMap.get("converterTargetCount");
 					if(converterTargetCount <= 0) {
-						log.info("@@@@@@@@@@@@ converterTargetCount = {}", converterTargetCount);
-						result.put("statusCode", HttpStatus.BAD_REQUEST.value());
-						result.put("errorCode", "converter.target.count.invalid");
-						result.put("message", message);
-			            return result;
+						errorCode = "converter.target.count.invalid";
+						return getResultMap(result, HttpStatus.BAD_REQUEST.value(), errorCode, message);
 					}
 
 					uploadDataFileList = (List<UploadDataFile>)uploadMap.get("uploadDataFileList");
@@ -140,6 +127,7 @@ public class UploadDataRestController {
 		if(!isZipFile) {
 			// zip 파일이 아니면 기본적으로 한 폴더에 넣어야 함
 			
+			Map<String, String> fileNameMatchingMap = new HashMap<>();
 			String tempDirectory = userId + "_" + System.nanoTime();
 			// 파일을 upload 디렉토리로 복사
 			FileUtils.makeDirectory(makedDirectory + tempDirectory);
@@ -153,11 +141,7 @@ public class UploadDataRestController {
 				// 파일 기본 validation 체크
 				errorCode = fileValidate(policy, uploadTypeList, multipartFile);
 				if(!StringUtils.isEmpty(errorCode)) {
-					log.info("@@@@@@@@@@@@ errorCode = {}", errorCode);
-					result.put("statusCode", HttpStatus.BAD_REQUEST.value());
-					result.put("errorCode", errorCode);
-					result.put("message", message);
-		            return result;
+					return getResultMap(result, HttpStatus.BAD_REQUEST.value(), errorCode, message);
 				}
 				
 				String originalName = multipartFile.getOriginalFilename();
@@ -167,22 +151,22 @@ public class UploadDataRestController {
     			// validation
     			if(divideFileName.length == 0) {
     				log.info("@@@@@@@@@@@@ upload.file.type.invalid. originalName = {}", originalName);
-					result.put("statusCode", HttpStatus.BAD_REQUEST.value());
-					result.put("errorCode", "upload.file.type.invalid");
-					result.put("message", message);
-		            return result;
+    				errorCode = "upload.file.type.invalid";
+    				return getResultMap(result, HttpStatus.BAD_REQUEST.value(), errorCode, message);
     			}
 				
     			String extension = divideFileName[divideFileName.length - 1];
     			// !extList.contains(extension.toLowerCase())
 				if(UploadData.ZIP_EXTENSION.equalsIgnoreCase(extension) || !uploadTypeList.contains(extension.toLowerCase())) {
 					log.info("@@@@@@@@@@@@ upload.file.type.invalid. originalName = {}", originalName);
-					result.put("statusCode", HttpStatus.BAD_REQUEST.value());
-					result.put("errorCode", "upload.file.type.invalid");
-					result.put("message", message);
-					return result;
+					errorCode = "upload.file.type.invalid";
+					return getResultMap(result, HttpStatus.BAD_REQUEST.value(), errorCode, message);
 				}
 				
+				// 매칭 되는 파일 이름이 있는 경우, 그대로 사용
+				String searchfileNameKey = originalName.substring(0, originalName.length() - extension.length() - 1);
+				String sameFileName = fileNameMatchingMap.get(searchfileNameKey);
+				// 변환 대상 파일
 				if(converterTypeList.contains(extension.toLowerCase())) {
 					if(!dataType.equalsIgnoreCase(extension)) {
 						// 데이터 타입과 업로딩 파일 확장자가 같지 않고
@@ -195,18 +179,16 @@ public class UploadDataRestController {
 						} else {
 							// 전부 예외
 							log.info("@@@@@@@@@@@@ datatype = {}, extension = {}", dataType, extension);
-	    					result.put("statusCode", HttpStatus.BAD_REQUEST.value());
-	    					result.put("errorCode", "upload.file.type.invalid");
-	    					result.put("message", message);
-	    					return result;
+							errorCode = "upload.file.type.invalid";
+	    					return getResultMap(result, HttpStatus.BAD_REQUEST.value(), errorCode, message);
 						}
 					}
 					
 					if(UploadDataType.CITYGML == UploadDataType.findBy(dataType) && UploadDataType.INDOORGML == UploadDataType.findBy(extension)) {
 						// 전부 예외
 						log.info("@@@@@@@@@@@@ 데이터 타입이 다른 경우. datatype = {}, extension = {}", dataType, extension);
-						result.put("errorCode", "file.ext.invalid");
-						return result;
+						errorCode = "file.ext.invalid";
+						return getResultMap(result, HttpStatus.BAD_REQUEST.value(), errorCode, message);
 					}
 					
 					if (UploadDataType.CITYGML.getValue().equalsIgnoreCase(dataType) && UploadDataType.GML.getValue().equalsIgnoreCase(extension)) {
@@ -214,6 +196,7 @@ public class UploadDataRestController {
 					} else if (UploadDataType.INDOORGML.getValue().equalsIgnoreCase(dataType) && UploadDataType.GML.getValue().equalsIgnoreCase(extension)) {
 						extension = UploadDataType.INDOORGML.getValue();
 					}
+
 					// 변환 대상 파일만 이름을 변경하고 나머지 파일은 그대로 이름 유지
 					saveFileName = userId + "_" + today + "_" + System.nanoTime() + "." + extension;
 					converterTarget = true;
@@ -241,17 +224,11 @@ public class UploadDataRestController {
         			uploadDataFile.setConverterTarget(converterTarget);
         			uploadDataFile.setDepth(1);
 				} catch(IOException e) {
-					LogMessageSupport.printMessage(e, "@@@@@@@@@@@@ io exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
-					result.put("statusCode", HttpStatus.INTERNAL_SERVER_ERROR.value());
-					result.put("errorCode", "io.exception");
-					result.put("message", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
-		            return result;
+					log.info("@@@@@@@@@@@@ io exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+					return getResultMap(result, HttpStatus.INTERNAL_SERVER_ERROR.value(), "io.exception", message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
 				} catch(Exception e) {
-					LogMessageSupport.printMessage(e, "@@@@@@@@@@@@ file copy exception.");
-					result.put("statusCode", HttpStatus.INTERNAL_SERVER_ERROR.value());
-					result.put("errorCode", "file.copy.exception");
-					result.put("message", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
-		            return result;
+					log.info("@@@@@@@@@@@@ file copy exception.");
+					return getResultMap(result, HttpStatus.INTERNAL_SERVER_ERROR.value(), "file.copy.exception", message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
 				}
 
 				uploadDataFileList.add(uploadDataFile);
@@ -263,7 +240,8 @@ public class UploadDataRestController {
 			result.put("statusCode", HttpStatus.BAD_REQUEST.value());
 			result.put("errorCode", "converter.target.count.invalid");
 			result.put("message", message);
-            return result;
+
+			return getResultMap(result, HttpStatus.BAD_REQUEST.value(), errorCode, message);
 		}
 
 		UploadData uploadData = new UploadData();
@@ -272,8 +250,9 @@ public class UploadDataRestController {
 		uploadData.setSharing(request.getParameter("sharing"));
 		uploadData.setDataType(dataType);
 		uploadData.setUserId(userId);
+		uploadData.setHeightReference(request.getParameter("heightReference"));
 		// citygml 인 경우 converter 에서 자동 추출
-		if(	UploadDataType.CITYGML != UploadDataType.findBy(dataType)) {
+		if(	UploadDataType.CITYGML != UploadDataType.findBy(dataType) && UploadDataType.LAS != UploadDataType.findBy(dataType)) {
 			uploadData.setLongitude(new BigDecimal(request.getParameter("longitude")) );
 			uploadData.setLatitude(new BigDecimal(request.getParameter("latitude")) );
 			uploadData.setAltitude(new BigDecimal(request.getParameter("altitude")) );
@@ -332,7 +311,7 @@ public class UploadDataRestController {
 		File uploadedFile = new File(targetDirectory + multipartFile.getOriginalFilename());
 		multipartFile.transferTo(uploadedFile);
 
-		Map<String, String> fileNameCoupleMap = new HashMap<>();
+		Map<String, String> fileNameMatchingMap = new HashMap<>();
 		List<UploadDataFile> uploadDataFileList = new ArrayList<>();
 		// zip 파일을 압축할때 한글이나 다국어가 포함된 경우 java.lang.IllegalArgumentException: malformed input off 같은 오류가 발생. 윈도우가 CP949 인코딩으로 파일명을 저장하기 때문.
 		// Charset CP949 = Charset.forName("UTF-8");
@@ -391,7 +370,6 @@ public class UploadDataRestController {
             		String extension = null;
             		String[] divideFileName;
             		String saveFileName;
-					String coupleKey = null;
 
             		// TODO zip 파일도 확장자 validation 체크를 해야 함
             		if(directoryName == null) {
@@ -401,6 +379,9 @@ public class UploadDataRestController {
             			if(divideFileName.length != 0) {
             				extension = divideFileName[divideFileName.length - 1];
             				if(uploadTypeList.contains(extension.toLowerCase())) {
+
+            					String searchfileNameKey = fileName.substring(0, fileName.length() - extension.length() - 1);
+        						String sameFileName = fileNameMatchingMap.get(searchfileNameKey);
             					if(converterTypeList.contains(extension.toLowerCase())) {
             						if(!dataType.equalsIgnoreCase(extension)) {
                 						// 데이터 타입과 업로딩 파일 확장자가 같지 않고
@@ -431,30 +412,10 @@ public class UploadDataRestController {
                 						extension = UploadDataType.INDOORGML.getValue();
                 					}
 
-									// Obj 파일이거나 확장자가 mtl 인 경우
-									String coupleFileName = null;
-									if(UploadDataType.OBJ.getValue().equalsIgnoreCase(dataType) || UploadDataType.MTL.getValue().equalsIgnoreCase(extension)) {
-										coupleFileName = fileNameCoupleMap.get(fileName);
-										if(StringUtils.isEmpty(coupleFileName)) {
-											// 변환 대상 파일만 이름을 변경하고 나머지 파일은 그대로 이름 유지
-											saveFileName = userId + "_" + today + "_" + System.nanoTime() + "." + extension;
-											converterTarget = true;
-											converterTargetCount++;
-
-											coupleKey = fileName.substring(0, fileName.length() - extension.length() -1);
-											fileNameCoupleMap.put(coupleKey, saveFileName);
-										} else {
-											// 변환 대상 파일만 이름을 변경하고 나머지 파일은 그대로 이름 유지
-											saveFileName = coupleFileName;
-											converterTarget = true;
-											converterTargetCount++;
-										}
-									} else {
-										// 변환 대상 파일만 이름을 변경하고 나머지 파일은 그대로 이름 유지
-										saveFileName = userId + "_" + today + "_" + System.nanoTime() + "." + extension;
-										converterTarget = true;
-										converterTargetCount++;
-									}
+            						// 변환 대상 파일만 이름을 변경하고 나머지 파일은 그대로 이름 유지
+            						saveFileName = userId + "_" + today + "_" + System.nanoTime() + "." + extension;
+            						converterTarget = true;
+									converterTargetCount++;
             					}
 	        				}
             			}
@@ -474,6 +435,9 @@ public class UploadDataRestController {
             			if(divideFileName.length != 0) {
             				extension = divideFileName[divideFileName.length - 1];
             				if(uploadTypeList.contains(extension.toLowerCase())) {
+
+            					String searchfileNameKey = fileName.substring(0, fileName.length() - extension.length() - 1);
+        						String sameFileName = fileNameMatchingMap.get(searchfileNameKey);
             					if(converterTypeList.contains(extension.toLowerCase())) {
             						if(!dataType.equalsIgnoreCase(extension)) {
                 						// 데이터 타입과 업로딩 파일 확장자가 같지 않고
@@ -504,30 +468,10 @@ public class UploadDataRestController {
                 						extension = UploadDataType.INDOORGML.getValue();
                 					}
 
-									// Obj 파일이거나 확장자가 mtl 인 경우
-									String coupleFileName = null;
-									if(UploadDataType.OBJ.getValue().equalsIgnoreCase(dataType) || UploadDataType.MTL.getValue().equalsIgnoreCase(extension)) {
-										coupleFileName = fileNameCoupleMap.get(fileName);
-										if(StringUtils.isEmpty(coupleFileName)) {
-											// 변환 대상 파일만 이름을 변경하고 나머지 파일은 그대로 이름 유지
-											saveFileName = userId + "_" + today + "_" + System.nanoTime() + "." + extension;
-											converterTarget = true;
-											converterTargetCount++;
-
-											coupleKey = fileName.substring(0, fileName.length() - extension.length() -1);
-											fileNameCoupleMap.put(coupleKey, saveFileName);
-										} else {
-											// 변환 대상 파일만 이름을 변경하고 나머지 파일은 그대로 이름 유지
-											saveFileName = coupleFileName;
-											converterTarget = true;
-											converterTargetCount++;
-										}
-									} else {
-										// 변환 대상 파일만 이름을 변경하고 나머지 파일은 그대로 이름 유지
-										saveFileName = userId + "_" + today + "_" + System.nanoTime() + "." + extension;
-										converterTarget = true;
-										converterTargetCount++;
-									}
+            						// 변환 대상 파일만 이름을 변경하고 나머지 파일은 그대로 이름 유지
+            						saveFileName = userId + "_" + today + "_" + System.nanoTime() + "." + extension;
+									converterTarget = true;
+									converterTargetCount++;
             					}
 	        				} else {
 	        					// 예외 처리
@@ -537,49 +481,60 @@ public class UploadDataRestController {
 	        				}
             			}
             		}
-            		
-            		long size = 0L;
-                	try ( 	InputStream inputStream = zipFile.getInputStream(entry);
-                			FileOutputStream outputStream = new FileOutputStream(directoryPath + saveFileName) ) {
-                		
-                		int bytesRead;
-                        byte[] buffer = new byte[BUFFER_SIZE];
-                        while ((bytesRead = inputStream.read(buffer, 0, BUFFER_SIZE)) != -1) {
-                            size += bytesRead;
-                            outputStream.write(buffer, 0, bytesRead);
-                        }
-                        
-                		uploadDataFile.setFileType(FileType.FILE.name());
-                		uploadDataFile.setFileExt(extension);
-                		uploadDataFile.setFileName(fileName);
-                		uploadDataFile.setFileRealName(saveFileName);
-                		uploadDataFile.setFilePath(directoryPath);
-                		uploadDataFile.setFileSubPath(subDirectoryPath);
-                		uploadDataFile.setDepth(depth);
-                		uploadDataFile.setFileSize(String.valueOf(size));
-                	
-                	} catch(IOException e) {
-                		LogMessageSupport.printMessage(e, "@@@@@@@@@@@@ io exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
-                		uploadDataFile.setErrorMessage(e.getMessage());
-                    } catch(Exception e) {
-                		LogMessageSupport.printMessage(e, "@@@@@@@@@@@@ exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
-                    	uploadDataFile.setErrorMessage(e.getMessage());
-                    }
+            		uploadDataFile = fileCopyInUnzip(uploadDataFile, zipFile, entry, directoryPath, saveFileName, extension, fileName, subDirectoryPath, depth);
                 }
-            	
+
             	uploadDataFile.setConverterTarget(converterTarget);
             	uploadDataFile.setFileSize(String.valueOf(entry.getSize()));
             	uploadDataFileList.add(uploadDataFile);
             }
 		} catch(RuntimeException ex) {
-			LogMessageSupport.printMessage(ex, "@@@@@@@@@@@@ RuntimeException. message = {}", ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
+			log.info("@@@@@@@@@@@@ RuntimeException. message = {}", ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
 		} catch(IOException ex) {
-			LogMessageSupport.printMessage(ex, "@@@@@@@@@@@@ IOException. message = {}", ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
+			log.info("@@@@@@@@@@@@ IOException. message = {}", ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
 		}
-		
+
 		result.put("converterTargetCount", converterTargetCount);
 		result.put("uploadDataFileList", uploadDataFileList);
 		return result;
+	}
+
+	/*
+	 * unzip 로직 안에서 파일 복사
+	 */
+	private UploadDataFile fileCopyInUnzip(UploadDataFile uploadDataFile, ZipFile zipFile, ZipEntry entry, String directoryPath, String saveFileName,
+									String extension, String fileName, String subDirectoryPath, int depth) {
+		long size = 0L;
+    	try ( 	InputStream inputStream = zipFile.getInputStream(entry);
+    			FileOutputStream outputStream = new FileOutputStream(directoryPath + saveFileName); ) {
+
+    		int bytesRead = 0;
+            byte[] buffer = new byte[BUFFER_SIZE];
+            while ((bytesRead = inputStream.read(buffer, 0, BUFFER_SIZE)) != -1) {
+                size += bytesRead;
+                outputStream.write(buffer, 0, bytesRead);
+            }
+
+    		uploadDataFile.setFileType(FileType.FILE.name());
+    		uploadDataFile.setFileExt(extension);
+    		uploadDataFile.setFileName(fileName);
+    		uploadDataFile.setFileRealName(saveFileName);
+    		uploadDataFile.setFilePath(directoryPath);
+    		uploadDataFile.setFileSubPath(subDirectoryPath);
+    		uploadDataFile.setDepth(depth);
+    		uploadDataFile.setFileSize(String.valueOf(size));
+
+    	} catch(IOException e) {
+    		e.printStackTrace();
+    		log.info("@@@@@@@@@@@@ io exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+    		uploadDataFile.setErrorMessage(e.getMessage());
+        } catch(Exception e) {
+        	e.printStackTrace();
+        	log.info("@@@@@@@@@@@@ exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+        	uploadDataFile.setErrorMessage(e.getMessage());
+        }
+
+    	return uploadDataFile;
 	}
 	
 	/**
@@ -632,6 +587,14 @@ public class UploadDataRestController {
 		return null;
 	}
 	
+	private Map<String, Object> getResultMap(Map<String, Object> result, int statusCode, String errorCode, String message) {
+		log.info("@@@@@@@@@@@@ errorCode = {}", errorCode);
+		result.put("statusCode", statusCode);
+		result.put("errorCode", errorCode);
+		result.put("message", message);
+        return result;
+	}
+
 	/**
 	 * 업로드 데이트 수정
 	 * @param request
@@ -755,7 +718,7 @@ public class UploadDataRestController {
 			return "data.type.empty";
 		}
 		
-		if(	UploadDataType.CITYGML != UploadDataType.findBy(dataType)) {
+		if(	UploadDataType.CITYGML != UploadDataType.findBy(dataType) && UploadDataType.LAS != UploadDataType.findBy(dataType)) {
 			if(StringUtils.isEmpty(request.getParameter("longitude"))) {
 				return "data.longitude.empty";
 			}

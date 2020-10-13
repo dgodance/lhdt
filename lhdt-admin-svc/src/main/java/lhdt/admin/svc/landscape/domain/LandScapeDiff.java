@@ -22,35 +22,47 @@ import java.sql.Blob;
 import java.sql.SQLException;
 
 @Entity
-@Table(name="ls_diff")
+@Table(name="scene_cmpr")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @TypeDef(name="jsonb", typeClass=JsonBinaryType.class)
 public class LandScapeDiff extends CmmnDomain {
+    /**
+     * COMMENT '경관 비교 명'"
+     */
     @NotNull
     @CmmnField(bizKey = true, order = 0)
-    @Column(name = "ls_diff_name")
+    @Column(name = "scene_cmpr_nm")
     private String lsDiffName;
 
 
+    /**
+     *  JSONB COMMENT '카메라 내용'"
+     */
     @NotNull
     @Type(type = "jsonb")
-    @Column(name = "ls_camera_state", columnDefinition = "jsonb")
+    @Column(name = "camera_cn", columnDefinition = "jsonb")
     private String captureCameraState;
 
+    /**
+     * COMMENT '경관 비교 그룹 id'"
+     */
     @JsonIgnore
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="ls_diff_group_id")
+    @JoinColumn(name="scene_cmpr_group_id")
     @CmmnField(bizKey = true, order = 1)
     private LandScapeDiffGroup landScapeDiffGroup;
 
+    /**
+     * COMMENT '경관 비교 이미지 id'"
+     */
     @JsonIgnore
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name="ls_diff_img_id")
+    @JoinColumn(name="scene_cmpr_img_id")
     @CmmnField(bizKey = true, order = 2)
     private FileInfo lsDiffImgInfo;
 }

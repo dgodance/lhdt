@@ -16,7 +16,7 @@ import lombok.Setter;
 /**
  * @author gravity
  * @since 2020. 9. 4.
- *
+ * 파일 정보 데이터 구조 정의
  */
 @SuppressWarnings("serial")
 @Entity(name = "file_info")
@@ -26,15 +26,27 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FileInfo extends CmmnDomain {
-	@Column(name = "file_ext")
+	/**
+	 * 파일 확장자
+	 */
+	@Column(name = "file_extsn_nm")
 	private String fileExt;
-	
-	@Column(name = "file_name")
+
+	/**
+	 * 파일명
+	 */
+	@Column(name = "file_nm")
 	private String fileName;
-	
-	@Column(name = "file_path")
+
+	/**
+	 * 파일 경로
+	 */
+	@Column(name = "file_cours_nm")
 	private String filePath;
-	
-	@Column(name = "origin_file_name")
+
+	/**
+	 * 원본 파일명
+	 */
+	@Column(name = "origin_file_nm")
 	private String originFileName;
 }

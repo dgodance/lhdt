@@ -21,7 +21,7 @@ import org.springframework.http.HttpStatus;
 import lhdt.cmmn.misc.CmmnUtils;
 
 /**
- * 이것저것 유틸리티
+ * 공통 유틸리티
  * @author gravity
  *
  */
@@ -112,7 +112,7 @@ public class SvcUtils extends CmmnUtils{
 	
 	
 	/**
-	 * create HttpClient
+	 * HttpClient 생성
 	 * @return
 	 */
 	private static HttpClient createHttpClient() {
@@ -125,7 +125,7 @@ public class SvcUtils extends CmmnUtils{
 	
 
 	/**
-	 * create HttpRequest
+	 * HttpRequest 생성
 	 * @param httpMethod
 	 * @param url
 	 * @param param

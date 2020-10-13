@@ -187,6 +187,14 @@ Ppmap.removeAll = function(){
 
 
 /**
+ * 모든 entity 삭제
+ */
+Ppmap.removeAllEntities = function(){
+	Ppmap.removeAll();
+};
+
+
+/**
  * entity 삭제
  * @param {Entity} entity 엔티티 인스턴스
  */
@@ -198,6 +206,40 @@ Ppmap.removeEntity = function(entity){
 	//
 	MAGO3D_INSTANCE.getViewer().entities.remove(entity);
 }
+
+
+/**
+ * 엔티티명으로 entity 목록 조회. like조건으로 검색
+ * @param {String} entityName 엔티티명
+ */
+Ppmap.getEntitiesByName = function(entityName){
+	let arr=[];
+	
+	
+	if(Pp.isEmpty(Ppmap.getViewer().entities)){
+		return arr;
+	}
+	
+	if(0 == Ppmap.getViewer().entities.values.length){
+		return arr;
+	}
+	
+	
+	for(let i=0; i<Ppmap.getViewer().entities.values.length; i++){
+		let entity = Ppmap.getViewer().entities.values[i];
+		
+		if(Pp.isEmpty(entity['name'])){
+			continue;
+		}
+		
+		if(-1 != entity['name'].indexOf(entityName)){
+			arr.push(entity);
+		}
+	}
+	
+	
+	return arr;
+};
 
 /**
  * PointAndLabel 생성

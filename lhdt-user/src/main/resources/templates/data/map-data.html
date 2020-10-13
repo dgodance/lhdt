@@ -9,19 +9,19 @@
 		<label for="searchDataGroup" th:text="#{data.list.tab.group}"></label>
 		<select id="searchDataGroup" name="searchDataGroup">
 			<option value="" th:text="#{common.all}"></option>
-			<th:block th:if="${dataGroupList.size() > 0}" th:each="dataGroup : ${dataGroupList}">
+<th:block th:if="${dataGroupList.size() > 0}" th:each="dataGroup : ${dataGroupList}">
 				<option th:value="${dataGroup.dataGroupId}">
-					<th:block th:if="${dataGroup.dataGroupTarget == 'admin'}" th:text="|[#{common.common}]|"></th:block>
-					<th:block th:unless="${dataGroup.dataGroupTarget == 'admin'}">
-						<th:block th:if="${dataGroup.sharing == 'commomn'}" th:text="|[#{common.common}]|"></th:block>
-						<th:block th:if="${dataGroup.sharing == 'public'}" th:text="|[#{common.public}]|"></th:block>
-						<th:block th:if="${dataGroup.sharing == 'private'}" th:text="|[#{data.share.private}]|"></th:block>
-						<th:block th:if="${dataGroup.sharing == 'group'}" th:text="|[#{data.share.group}]|"></th:block>
-						<th:block th:text="'['+${dataGroup.userId}+']'"></th:block>
-					</th:block>
-					<th:block th:text="${dataGroup.dataGroupName }"></th:block>
+	<th:block th:if="${dataGroup.dataGroupTarget == 'admin'}" th:text="|[#{common.common}]|"></th:block>
+	<th:block th:unless="${dataGroup.dataGroupTarget == 'admin'}">
+		<th:block th:if="${dataGroup.sharing == 'commomn'}" th:text="|[#{common.common}]|"></th:block>
+		<th:block th:if="${dataGroup.sharing == 'public'}" th:text="|[#{common.public}]|"></th:block>
+		<th:block th:if="${dataGroup.sharing == 'private'}" th:text="|[#{data.share.private}]|"></th:block>
+		<th:block th:if="${dataGroup.sharing == 'group'}" th:text="|[#{data.share.group}]|"></th:block>
+		<th:block th:text="'['+${dataGroup.userId}+']'"></th:block>
+	</th:block>
+	<th:block th:text="${dataGroup.dataGroupName }"></th:block>
 				</option>
-			</th:block>
+</th:block>
 		</select>
 	</div>
 	<div class="form-group form-group-data">

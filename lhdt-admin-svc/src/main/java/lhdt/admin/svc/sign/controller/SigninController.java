@@ -144,7 +144,7 @@ public class SigninController extends CmmnController {
 		CmmnSessionUtils.set(request, CmmnConst.USER_SESSION, userSession);
 		
 		//
-		return new RedirectView("../main/dashboard");
+		return new RedirectView("../main");
 	}
 	
 	
