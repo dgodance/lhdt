@@ -223,6 +223,10 @@ function AnalsHeightLandScapeView(viewer, magoInstance) {
         lsHeightAnals.init(this._xyz1, this._xyz2);
         lsHeightAnals.genHeightView(parseInt($('#lsHeightAnalsInput').val()));
 
+		//중간층수로 자동 이동
+		let maxHeight = parseInt($('#lsHeightAnalsInput').val());
+		$('.lsHeightAnalsList').val(Math.round(maxHeight/2))
+			.trigger('change');
     };
 
 
