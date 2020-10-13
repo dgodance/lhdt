@@ -985,6 +985,10 @@ ModelerObj.prototype.renderDatas = function(pageNo){
 	let _paging = function(datas, pageJson){
 		let arr=[];
 		
+		if(Pp.isEmpty(datas)){
+			return arr;
+		}
+		
 		//
 		for(let i=pageJson.startIndex; i<=pageJson.endIndex; i++){
 			arr.push(datas[i]);
@@ -1078,16 +1082,16 @@ ModelerObj.prototype.getGroup = function(dataLibraryGroupId){
  * 데이터 라이브러리 목록
  */
 ModelerObj.prototype.getDataLibraries = function(){
-	let _this = this;
+	let self = this;
 	
 	//
-	_this.dataLibraries = [];
+	self.dataLibraries = [];
 	Pp.get('../api/data-libraries', [], function(res){
 		if(Pp.isNotEmpty(res._embedded) && Pp.isNotEmpty(res._embedded.dataLibraries)){
-			_this.dataLibraries = res._embedded.dataLibraries;			
+			self.dataLibraries = res._embedded.dataLibraries;			
 		}
 		//
-		return _this.dataLibraries;
+		return self.dataLibraries;
 	
 	}, {'async':false});
 };
