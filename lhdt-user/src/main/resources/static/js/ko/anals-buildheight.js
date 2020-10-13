@@ -20,7 +20,7 @@ var AnalsBuildHeight = function(viewer, magoInstance) {
         clearMagoInit();
         if($('#heightAvgToggle').is(':checked')) {
             changeLightingAPI(MAGO3D_INSTANCE, 0.3);
-            toastr.info('지도상에서 여러 점을 클릭하시기 바랍니다.');
+            toastr.info('지도상에서 여러 점을 선택(클릭)하시기 바랍니다.<br/>마우스 오른쪽 버튼을 클릭하면 선택이 완료됩니다.');
             drawingMode = 'heightAvgAnals';
             startDrawPolyLine();
         } else {
