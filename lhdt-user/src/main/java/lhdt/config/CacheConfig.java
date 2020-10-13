@@ -47,14 +47,14 @@ public class CacheConfig {
 
     @PostConstruct
     public void init() {
+		log.info("*************************************************");
+		log.info("************ User Cache Init Start *************");
+		log.info("*************************************************");
+
     	if(ProfileType.LOCAL  == ProfileType.valueOf(propertiesConfig.getProfile().toUpperCase())) {
         	LogMessageSupport.stackTraceEnable = true;
         }
         log.info("************ User Profile = {}, stackTraceEnable = {} *************", propertiesConfig.getProfile(), LogMessageSupport.stackTraceEnable);
-        
-    	log.info("*************************************************");
-        log.info("************ User Cache Init Start *************");
-        log.info("*************************************************");
 
         CacheParams cacheParams = new CacheParams();
 		cacheParams.setCacheType(CacheType.SELF);
