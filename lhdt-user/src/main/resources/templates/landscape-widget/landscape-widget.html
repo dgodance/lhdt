@@ -17,13 +17,16 @@
 					{{/if}}
                 </select>
             </div>
-            <div class="form-group form-group-data">
-                <label for="landscapeName">경관명</label>
-                <input type="text" id="landscapeName" name="landscapeName" placeholder="데이터명을 입력하여 주십시오." size="30">
-            </div>
-            <div class="form-group form-group-data">
-                <button type="submit" id="landscapeSaveBtn" class="btnTextF search-text" title="검색">저장</button>
-            </div>
+            
+			{{#if landscapeGroupList}}
+				<div class="form-group form-group-data">
+                	<label for="landscapeName">경관명</label>
+                	<input type="text" id="landscapeName" name="landscapeName" placeholder="데이터명을 입력하여 주십시오." size="30">
+            	</div>
+            	<div class="form-group form-group-data">
+                	<button type="submit" id="landscapeSaveBtn" class="btnTextF search-text" title="검색">저장</button>
+            	</div>
+			{{/if}}
         </form>
     </script>
 
