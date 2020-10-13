@@ -187,6 +187,14 @@ Ppmap.removeAll = function(){
 
 
 /**
+ * 모든 entity 삭제
+ */
+Ppmap.removeAllEntities = function(){
+	Ppmap.removeAll();
+};
+
+
+/**
  * entity 삭제
  * @param {Entity} entity 엔티티 인스턴스
  */
