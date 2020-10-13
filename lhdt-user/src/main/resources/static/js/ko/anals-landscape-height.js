@@ -23,7 +23,7 @@ function AnalsHeightLandScapeView(viewer, magoInstance) {
         this._ele = '.lsHeightAnalsList';
         this.items = [];
     }
-n
+
     LSHeightDropDownList.prototype.init = function() {
         this.evt();
     }
