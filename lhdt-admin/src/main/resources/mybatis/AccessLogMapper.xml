@@ -68,6 +68,11 @@
 		SELECT * FROM access_log WHERE access_log_id = #{accessLogId}
 	</select>
 
+	<!-- 다음년도 파티션 테이블 자동 생성 -->
+	<select id="createPartitionTable" parameterType="partitionTable" resultType="int">
+		SELECT create_access_log( '${tableName}', '${startTime}', '${endTime}' )
+	</select>
+
 	<!-- 서비스 요청 이력 등록 -->
 	<insert id="insertAccessLog" parameterType="accessLog" >
 		/* insertAccessLog */

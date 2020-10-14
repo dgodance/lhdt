@@ -31,6 +31,11 @@ public interface DataLogService {
 	 * @return
 	 */
 	DataInfoLog getDataInfoLog(Long dataInfoLogId);
+
+	/**
+	 * 스케줄러에 의한 다음년도 파티션 테이블 자동 생성
+	 */
+	public int createPartitionTable(String tableName, String startTime, String endTime);
 	
 	/**
 	 * 데이터 변경 이력 등록
