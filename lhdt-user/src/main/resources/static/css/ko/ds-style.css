@@ -14,22 +14,40 @@
 .text-center {text-align:center  !important;}
 .text-right {text-align:right  !important;}
 
+
 .mt-2 {margin-top:2px !important;}
 .mt-5 {margin-top:5px !important;}
 .mt-10 {margin-top:10px !important;}
 .mt-15 {margin-top:15px !important;}
 .mt-20 {margin-top:20px !important;}
 
+
 .mr-10 {margin-right:10px !important;}
+
+
+.ml-5 {margin-left:10px !important;}
+.ml-10 {margin-left:10px !important;}
+.ml-15 {margin-left:10px !important;}
+
+
+.float-left {float:left !important;}
+.float-right {float:left !important;}
+.float-none {float:left !important;}
+
 
 .cursor-pointer {cursor:pointer !important;}
 .cursor-default {cursor:default !important;}
 
 .display-none {display:none !important;}
+.d-none {display:none !important;}
 
 .w-30 {width:30% !important;}
+.w-32 {width:32% !important;}
+.w-33 {width:33% !important;}
 .w-35 {width:35% !important;}
 .w-40 {width:40% !important;}
+.w-45 {width:45% !important;}
+.w-49 {width:49% !important;}
 
 .ui-dialog { z-index: 1000 !important ;}
 
