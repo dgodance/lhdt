@@ -1154,64 +1154,63 @@ var mapControllEvent = function(magoInstance) {
 		magoManager.sceneState.setApplySunShadows($(this).hasClass('on'));
 	});
 	
-	var defaultSelectInteraction = magoInstance.getMagoManager().defaultSelectInteraction;
-	defaultSelectInteraction.on('active', function(e) {
-		var targetType = defaultSelectInteraction.getTargetType();
-		
-		if(targetType === 'f4d') {
-			$('#selectModeF4d').addClass('on');
-		} else if(targetType === 'native') {
-			$('#selectModeNative').addClass('on');
-		} else {
-			$('#selectModeObject').addClass('on');
-		}
-	});
 	
-	defaultSelectInteraction.on('deactive', function(e) {
-		var targetType = defaultSelectInteraction.getTargetType();
-		
-		if(targetType === 'f4d') {
-			$('#selectModeF4d').removeClass('on');
-		} else if(targetType === 'native') {
-			$('#selectModeNative').removeClass('on');
-		} else {
-			$('#selectModeObject').removeClass('on');
-		}
-	});
+	var defaultSelectInteraction = magoInstance.getMagoManager().defaultSelectInteraction;
+	var defaultTranslateInteraction = magoInstance.getMagoManager().defaultTranslateInteraction;
 
 	// SELECT, MOVE MODE
 	$('#selectModeF4d').click(function() {
-		$(this).siblings('button').removeClass('on');
-		
-		defaultSelectInteraction.setActive(!defaultSelectInteraction.getActive());
-		defaultSelectInteraction.setTargetType('f4d');
+		setClassSiblingsInteractionBtn($(this));
+		setSelectInteraction($(this).hasClass('on'), 'f4d');
 	});
 	$('#moveModeF4d').click(function() {
-		$(this).siblings('button').removeClass('on');
-		$(this).toggleClass('on');
+		setClassSiblingsInteractionBtn($(this));
+		setSelectInteraction($(this).hasClass('on'), 'f4d');
+		setTranslateInteraction($(this).hasClass('on'), 'f4d');
 	});
 
 	$('#selectModeObject').click(function() {
-		$(this).siblings('button').removeClass('on');
-		
-		defaultSelectInteraction.setActive(!defaultSelectInteraction.getActive());
-		defaultSelectInteraction.setTargetType('object');
+		setClassSiblingsInteractionBtn($(this));
+		setSelectInteraction($(this).hasClass('on'), 'object');
 	});
 	$('#moveModeObject').click(function() {
-		$(this).siblings('button').removeClass('on');
-		$(this).toggleClass('on');
+		setClassSiblingsInteractionBtn($(this));
+		setSelectInteraction($(this).hasClass('on'), 'object');
+		setTranslateInteraction($(this).hasClass('on'), 'object');
 	});
 
 	$('#selectModeNative').click(function() {
-		$(this).siblings('button').removeClass('on');
-		
-		defaultSelectInteraction.setActive(!defaultSelectInteraction.getActive());
-		defaultSelectInteraction.setTargetType('native');
+		setClassSiblingsInteractionBtn($(this));
+		setSelectInteraction($(this).hasClass('on'), 'native');
 	});
 	$('#moveModeNative').click(function() {
-		$(this).siblings('button').removeClass('on');
-		$(this).toggleClass('on');
+		setClassSiblingsInteractionBtn($(this));
+		setSelectInteraction($(this).hasClass('on'), 'native');
+		setTranslateInteraction($(this).hasClass('on'), 'native');
 	});
+	
+	function setClassSiblingsInteractionBtn($obj) {
+		var buttonModeWrap = $obj.parents('div.buttonModeWrap');
+		var wrapSiblings = buttonModeWrap.siblings();
+		wrapSiblings.each(function(idx, e){
+			var buttons = $(this).find('div.rightButtonWrap').children();
+			buttons.each(function(){
+				$(this).removeClass('on');
+			});
+		});
+		
+		$obj.siblings('button').removeClass('on');
+		$obj.toggleClass('on');
+	}
+	
+	function setSelectInteraction(active, type) {
+		defaultSelectInteraction.setActive(active);
+		defaultSelectInteraction.setTargetType(type);
+	}
+	function setTranslateInteraction(active, type) {
+		defaultTranslateInteraction.setActive(active);
+		defaultTranslateInteraction.setTargetType(type);
+	}
 	
 	var handler = new Cesium.ScreenSpaceEventHandler(magoInstance.getViewer().scene.canvas);
 	$('#mapRenderPosition').click(function() {
