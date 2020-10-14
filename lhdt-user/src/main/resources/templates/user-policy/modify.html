@@ -28,6 +28,74 @@
 				</div>
 			</div>
 		</div>
+		
+		<!-- 
+		임시
+		시연용
+		나중에 삭제요망
+		gravity
+		1014
+		 -->
+		<div class="userPolicyContent">
+			<div class="button-group-align marB10">
+				<h3 class="h3-heading">속성 표시</h3>
+			</div>
+			<div class="form-group form-group-policy">
+				<input type="checkbox" id="show-property" class="w-30">
+				<label for="show-property" class="w-50">속성을 표시합니다.</label>
+			</div>
+		</div>
+		
+		<script type="text/javascript">
+		window.addEventListener('load', function(){
+			$('#show-property').click(function(){
+				let b = $(this).is(':checked');
+				//console.log(b);
+				
+				if(b){
+					Ppmap.getManager().defaultSelectInteraction.setTargetType('f4d');
+					Ppmap.getManager().defaultSelectInteraction.setActive(true);
+					Ppmap.getManager().isCameraMoved = true;
+					Ppmap.getManager().on(Mago3D.MagoManager.EVENT_TYPE.SELECTEDF4D, window['selectedf4dCallback']);
+				}else{
+					Ppmap.getManager().defaultSelectInteraction.setActive(false);
+					Ppmap.getManager().off(Mago3D.MagoManager.EVENT_TYPE.SELECTEDF4D, window['selectedf4dCallback']);					
+				}
+				
+				console.log(b, window['selectedf4dCallback']);
+			});	
+			
+			
+			//
+			window['selectedf4dCallback'] = function(evt){
+				var selectionManager = Ppmap.getManager().selectionManager;
+				var selected = Ppmap.getManager().selectionManager.getSelectedF4dNode();
+				console.log(evt, selected);
+				
+				//모달 실행
+				$('.dialog-show-property').dialog({
+					autoOpen: false,
+					modal: true,
+					resizable: false,
+					title: '속성',
+					width:300,
+					height: 300,
+					buttons: {
+						'닫기': function(){
+							$(this).dialog('close')
+						}
+					}
+				}).dialog('open');
+			};
+		});
+		
+		</script>
+		
+		<div class="dialog-show-property" style="display:none;">
+			TODO
+		</div>
+		<!-- //임시 -->
+		
 		<button class="focusA btn-full" th:text="#{common.save}" th:onclick="'userPolicyUpdate();'"></button>
 		</form>
 	</div>
