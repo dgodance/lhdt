@@ -32,6 +32,8 @@ public class Menu {
 	private String updateType;
 	// Page Header 표시용
 	private String aliasName;
+	// 이전 depth
+	private Integer previousDepth;
 	
 	// 메뉴 접근 모든 권한
 	private String allYn;

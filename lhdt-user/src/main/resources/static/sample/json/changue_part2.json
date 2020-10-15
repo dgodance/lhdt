@@ -1,0 +1,1378 @@
+{
+"attributes": {
+"isPhysical": false
+},
+"parent": 0,
+"depth": 1,
+"view_order": 2,
+"data_key": "infra/data/changue_part2",
+"data_name": "changue_part2",
+"children": [
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_0",
+    "data_name": "block_0",
+    "label" : {
+    	"background" : true,
+    	"backgroundSize" : [40,20],
+		"backgroundFillColor" : "rgba(68, 114, 196, 1.0)",
+		"backgroundStrokeColor" : "rgba(205, 211, 222, 1.0)",
+		"backgroundOffset" : [-20, -20],
+		"font" : "11px Arial",
+		"text" : "학교",
+		"textOffset" : [0, -5]
+    },
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_1",
+    "data_name": "block_1",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_10",
+    "data_name": "block_10",
+    "label" : {
+    	"background" : true,
+    	"backgroundSize" : [60,20],
+		"backgroundFillColor" : "rgba(112, 48, 160, 1.0)",
+		"backgroundStrokeColor" : "rgba(225, 225, 225, 1.0)",
+		"backgroundOffset" :  [-20, -20],
+		"font" : "11px Arial",
+		"text" : "앵커기업",
+		"textOffset" : [10, -5]
+    },
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_11",
+    "data_name": "block_11",
+    "label" : {
+    	"background" : true,
+    	"backgroundSize" : [60,20],
+		"backgroundFillColor" : "rgba(112, 48, 160, 1.0)",
+		"backgroundStrokeColor" : "rgba(225, 225, 225, 1.0)",
+		"backgroundOffset" :  [-20, -20],
+		"font" : "11px Arial",
+		"text" : "앵커기업",
+		"textOffset" : [10, -5]
+    },
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_12",
+    "data_name": "block_12",
+    "label" : {
+    	"background" : true,
+    	"backgroundSize" : [70,20],
+		"backgroundFillColor" : "rgba(112, 48, 160, 1.0)",
+		"backgroundStrokeColor" : "rgba(225, 225, 225, 1.0)",
+		"backgroundOffset" :  [-20, -20],
+		"font" : "11px Arial",
+		"text" : "청년발전소",
+		"textOffset" : [15, -5]
+    },
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_13",
+    "data_name": "block_13",
+    "label" : {
+    	"background" : true,
+    	"backgroundSize" : [60,20],
+		"backgroundFillColor" : "rgba(112, 48, 160, 1.0)",
+		"backgroundStrokeColor" : "rgba(225, 225, 225, 1.0)",
+		"backgroundOffset" :  [-20, -20],
+		"font" : "11px Arial",
+		"text" : "스타트업",
+		"textOffset" : [10, -5]
+    },
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_14",
+    "data_name": "block_14",
+    "label" : {
+    	"background" : true,
+    	"backgroundSize" : [100,20],
+		"backgroundFillColor" : "rgba(112, 48, 160, 1.0)",
+		"backgroundStrokeColor" : "rgba(225, 225, 225, 1.0)",
+		"backgroundOffset" : [-20, -20],
+		"font" : "11px Arial",
+		"text" : "대학(도시캠퍼스)",
+		"textOffset" : [30, -5]
+    },
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_15",
+    "data_name": "block_15",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_16",
+    "data_name": "block_16",
+    "label" : {
+    	"background" : true,
+    	"backgroundSize" : [60,20],
+		"backgroundFillColor" : "rgba(127, 127, 127, 1.0)",
+		"backgroundStrokeColor" : "rgba(190, 190, 190, 1.0)",
+		"backgroundOffset" :  [-20, -20],
+		"font" : "11px Arial",
+		"text" : "신혼부부",
+		"textOffset" : [10, -5]
+    },
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_17",
+    "data_name": "block_17",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_18",
+    "data_name": "block_18",
+    "label" : {
+    	"background" : true,
+    	"backgroundSize" : [60,20],
+		"backgroundFillColor" : "rgba(127, 127, 127, 1.0)",
+		"backgroundStrokeColor" : "rgba(190, 190, 190, 1.0)",
+		"backgroundOffset" :  [-20, -20],
+		"font" : "11px Arial",
+		"text" : "청년주택",
+		"textOffset" : [10, -5]
+    },
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_19",
+    "data_name": "block_19",
+    "label" : {
+    	"background" : true,
+    	"backgroundSize" : [60,20],
+		"backgroundFillColor" : "rgba(127, 127, 127, 1.0)",
+		"backgroundStrokeColor" : "rgba(190, 190, 190, 1.0)",
+		"backgroundOffset" :  [-20, -20],
+		"font" : "11px Arial",
+		"text" : "실버주택",
+		"textOffset" : [10, -5]
+    },
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_2",
+    "data_name": "block_2",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_20",
+    "data_name": "block_20",
+    "label" : {
+    	"background" : true,
+    	"backgroundSize" : [60,20],
+		"backgroundFillColor" : "rgba(127, 127, 127, 1.0)",
+		"backgroundStrokeColor" : "rgba(190, 190, 190, 1.0)",
+		"backgroundOffset" :  [-20, -20],
+		"font" : "11px Arial",
+		"text" : "민간주택",
+		"textOffset" : [10, -5]
+    },
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_21",
+    "data_name": "block_21",
+    "label" : {
+    	"background" : true,
+    	"backgroundSize" : [60,20],
+		"backgroundFillColor" : "rgba(127, 127, 127, 1.0)",
+		"backgroundStrokeColor" : "rgba(190, 190, 190, 1.0)",
+		"backgroundOffset" :  [-20, -20],
+		"font" : "11px Arial",
+		"text" : "민간주택",
+		"textOffset" : [10, -5]
+    },
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_22",
+    "data_name": "block_22",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_23",
+    "data_name": "block_23",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_24",
+    "data_name": "block_24",
+    "label" : {
+    	"background" : true,
+    	"backgroundSize" : [60,20],
+		"backgroundFillColor" : "rgba(112, 48, 160, 1.0)",
+		"backgroundStrokeColor" : "rgba(225, 225, 225, 1.0)",
+		"backgroundOffset" :  [-20, -20],
+		"font" : "11px Arial",
+		"text" : "중소기업",
+		"textOffset" : [10, -5]
+    },
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_25",
+    "data_name": "block_25",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_26",
+    "data_name": "block_26",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_27",
+    "data_name": "block_27",
+    "label" : {
+    	"background" : true,
+    	"backgroundSize" : [140,20],
+		"backgroundFillColor" : "rgba(112, 173, 71, 1.0)",
+		"backgroundStrokeColor" : "rgba(190, 190, 190, 1.0)",
+		"backgroundOffset" : [-20, -20],
+		"font" : "11px Arial",
+		"text" : "창업지원 및 커뮤니티시설",
+		"textOffset" : [50, -5]
+    },
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_28",
+    "data_name": "block_28",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_29",
+    "data_name": "block_29",
+    "label" : {
+    	"background" : true,
+    	"backgroundSize" : [70,20],
+		"backgroundFillColor" : "rgba(112, 48, 160, 1.0)",
+		"backgroundStrokeColor" : "rgba(225, 225, 225, 1.0)",
+		"backgroundOffset" :  [-20, -20],
+		"font" : "11px Arial",
+		"text" : "퍼블릭마켓",
+		"textOffset" : [15, -5]
+    },
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_3",
+    "data_name": "block_3",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_30",
+    "data_name": "block_30",
+    "label" : {
+    	"background" : true,
+    	"backgroundSize" : [85,20],
+		"backgroundFillColor" : "rgba(112, 48, 160, 1.0)",
+		"backgroundStrokeColor" : "rgba(225, 225, 225, 1.0)",
+		"backgroundOffset" :  [-20, -20],
+		"font" : "11px Arial",
+		"text" : "마을커뮤니티",
+		"textOffset" : [25, -5]
+    },
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_31",
+    "data_name": "block_31",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_32",
+    "data_name": "block_32",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_33",
+    "data_name": "block_33",
+    "label" : {
+    	"background" : true,
+    	"backgroundSize" : [60,20],
+		"backgroundFillColor" : "rgba(112, 48, 160, 1.0)",
+		"backgroundStrokeColor" : "rgba(225, 225, 225, 1.0)",
+		"backgroundOffset" :  [-20, -20],
+		"font" : "11px Arial",
+		"text" : "스타트업",
+		"textOffset" : [10, -5]
+    },
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_34",
+    "data_name": "block_34",
+    "label" : {
+    	"background" : true,
+    	"backgroundSize" : [50,20],
+		"backgroundFillColor" : "rgba(112, 48, 160, 1.0)",
+		"backgroundStrokeColor" : "rgba(225, 225, 225, 1.0)",
+		"backgroundOffset" :  [-20, -20],
+		"font" : "11px Arial",
+		"text" : "세입자",
+		"textOffset" : [5, -5]
+    },
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_35",
+    "data_name": "block_35",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_36",
+    "data_name": "block_36",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_37",
+    "data_name": "block_37",
+    "label" : {
+    	"background" : true,
+    	"backgroundSize" : [120,20],
+		"backgroundFillColor" : "rgba(112, 173, 71, 1.0)",
+		"backgroundStrokeColor" : "rgba(190, 190, 190, 1.0)",
+		"backgroundOffset" : [-80, -20],
+		"font" : "11px Arial",
+		"text" : "이주자택지(주거전용)",
+		"textOffset" : [-20, -5]
+    },
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_38",
+    "data_name": "block_38",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_39",
+    "data_name": "block_39",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_4",
+    "data_name": "block_4",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_40",
+    "data_name": "block_40",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_41",
+    "data_name": "block_41",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_42",
+    "data_name": "block_42",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_43",
+    "data_name": "block_43",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_44",
+    "data_name": "block_44",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_45",
+    "data_name": "block_45",
+    "label" : {
+    	"background" : true,
+    	"backgroundSize" : [50,20],
+		"backgroundFillColor" : "rgba(112, 48, 160, 1.0)",
+		"backgroundStrokeColor" : "rgba(225, 225, 225, 1.0)",
+		"backgroundOffset" :  [-20, -20],
+		"font" : "11px Arial",
+		"text" : "이주자",
+		"textOffset" : [5, -5]
+    },
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_46",
+    "data_name": "block_46",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_47",
+    "data_name": "block_47",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_48",
+    "data_name": "block_48",
+    "label" : {
+    	"background" : true,
+    	"backgroundSize" : [70,20],
+		"backgroundFillColor" : "rgba(112, 48, 160, 1.0)",
+		"backgroundStrokeColor" : "rgba(225, 225, 225, 1.0)",
+		"backgroundOffset" :  [-20, -20],
+		"font" : "11px Arial",
+		"text" : "사회적주택",
+		"textOffset" : [15, -5]
+    },
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_49",
+    "data_name": "block_49",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_5",
+    "data_name": "block_5",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_50",
+    "data_name": "block_50",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_51",
+    "data_name": "block_51",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_52",
+    "data_name": "block_52",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_53",
+    "data_name": "block_53",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_6",
+    "data_name": "block_6",
+    "label" : {
+    	"background" : true,
+    	"backgroundSize" : [60,20],
+		"backgroundFillColor" : "rgba(112, 48, 160, 1.0)",
+		"backgroundStrokeColor" : "rgba(225, 225, 225, 1.0)",
+		"backgroundOffset" :  [-20, -20],
+		"font" : "11px Arial",
+		"text" : "앵커기업",
+		"textOffset" : [10, -5]
+    },
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_7",
+    "data_name": "block_7",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_8",
+    "data_name": "block_8",
+    "label" : {
+    	"background" : true,
+    	"backgroundSize" : [50,20],
+		"backgroundFillColor" : "rgba(112, 48, 160, 1.0)",
+		"backgroundStrokeColor" : "rgba(225, 225, 225, 1.0)",
+		"backgroundOffset" :  [-20, -20],
+		"font" : "11px Arial",
+		"text" : "R&D",
+		"textOffset" : [5, -5]
+    },
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_9",
+    "data_name": "block_9",
+    "label" : {
+    	"background" : true,
+    	"backgroundSize" : [60,20],
+		"backgroundFillColor" : "rgba(112, 48, 160, 1.0)",
+		"backgroundStrokeColor" : "rgba(225, 225, 225, 1.0)",
+		"backgroundOffset" :  [-20, -20],
+		"font" : "11px Arial",
+		"text" : "중소기업",
+		"textOffset" : [10, -5]
+    },
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "bridge_0",
+    "data_name": "bridge_0",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "bridge_1",
+    "data_name": "bridge_1",
+    "label" : {
+    	"background" : true,
+    	"backgroundSize" : [120,20],
+		"backgroundFillColor" : "rgba(68, 114, 196, 1.0)",
+		"backgroundStrokeColor" : "rgba(205, 211, 222, 1.0)",
+		"backgroundOffset" : [-20, -20],
+		"font" : "11px Arial",
+		"text" : "의료/커뮤니티케어",
+		"textOffset" : [40, -5]
+    },
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "bridge_2",
+    "data_name": "bridge_2",
+    "label" : {
+    	"background" : true,
+    	"backgroundSize" : [60,20],
+		"backgroundFillColor" : "rgba(255, 192, 0, 1.0)",
+		"backgroundStrokeColor" : "rgba(224, 219, 202, 1.0)",
+		"backgroundOffset" :  [-20, -20],
+		"font" : "11px Arial",
+		"text" : "보육센터",
+		"textOffset" : [10, -5]
+    },
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "bridge_3",
+    "data_name": "bridge_3",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "bridge_4",
+    "data_name": "bridge_4",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "bridge_5",
+    "data_name": "bridge_5",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "bridge_6",
+    "data_name": "bridge_6",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"clampToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "bridge_7",
+    "data_name": "bridge_7",
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+
+]
+}
