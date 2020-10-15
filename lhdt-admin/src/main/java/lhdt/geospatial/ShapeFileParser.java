@@ -1,6 +1,7 @@
 package lhdt.geospatial;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lhdt.domain.ShapeFileField;
 import lhdt.domain.extrusionmodel.DesignLayer;
 import lhdt.support.LogMessageSupport;
@@ -13,6 +14,12 @@ import org.geotools.data.shapefile.files.ShpFileType;
 import org.geotools.data.shapefile.files.ShpFiles;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.simplify.TopologyPreservingSimplifier;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -42,8 +49,9 @@ public class ShapeFileParser {
      * shape 파일로 부터 extrusion model 시뮬레이션에 필요한 필수 컬럼(design layer) 과 옵션 컬럼 값을 추출
      * @param extrusionColumns
      * @return
+     * @throws ParseException 
      */
-    public List<DesignLayer> getExtrusionModelList(ObjectMapper objectMapper, String extrusionColumns) {
+    public List<DesignLayer> getExtrusionModelList(ObjectMapper objectMapper, String extrusionColumns) throws ParseException {
         log.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ extrusionColumns = {}", extrusionColumns);
         List<DesignLayer> extrusionModelList = new ArrayList<>();
         if(StringUtils.isEmpty(extrusionColumns)) return extrusionModelList;
@@ -63,6 +71,7 @@ public class ShapeFileParser {
                 Map<String, String> attributesMap = new HashMap<>();
 
                 SimpleFeature feature = features.next();
+                
                 DesignLayer designLayer = new DesignLayer();
                 log.info("@@@@@@@@@@@@@@@@@@@@@@@ feature = {}", feature);
                 // 한 row의 속성들
@@ -72,9 +81,19 @@ public class ShapeFileParser {
                     if(columnList.contains(attributeName)) {
                         // 필수 속성값일 경우
                         if(attributeName.equalsIgnoreCase(DesignLayer.RequiredColumn.THE_GEOM.getValue())) {
-                            designLayer.setTheGeom(attribute.getValue().toString());
+                        	Geometry geom = (Geometry) feature.getDefaultGeometry();
+                        	
+                    		geom = TopologyPreservingSimplifier.simplify(geom,1);
+                        	
+                        	if(geom instanceof Polygon) {
+                        		Polygon[] polygonArray = new Polygon[1];
+                        		polygonArray[0] = (Polygon) geom;
+                        		geom = new MultiPolygon(polygonArray, new GeometryFactory());
+                        	}
+                        	
+                            designLayer.setTheGeom(geom.toText());
                         } else if(attributeName.equalsIgnoreCase(DesignLayer.RequiredColumn.SHAPE_ID.getValue())) {
-                            designLayer.setShapeId((Long) attribute.getValue());
+                            designLayer.setShapeId(Long.parseLong(attribute.getValue().toString()));
                         }
                     } else {
                         // 옵션 속성 값일 경우 json 통으로 넣음.

@@ -32,7 +32,7 @@ import java.time.Duration;
 @Slf4j
 @EnableWebMvc
 @Configuration
-@ComponentScan(basePackages = {"lhdt.config", "lhdt.controller.view", "lhdt.controller.rest", "lhdt.interceptor", "lhdt.validation"}, includeFilters = {
+@ComponentScan(basePackages = {"lhdt.config", "lhdt.controller.view", "lhdt.controller.rest", "lhdt.interceptor", "lhdt.validation", "lhdt.schedule"}, includeFilters = {
 		@Filter(type = FilterType.ANNOTATION, value = Component.class),
 		@Filter(type = FilterType.ANNOTATION, value = Controller.class),
 		@Filter(type = FilterType.ANNOTATION, value = RestController.class)})

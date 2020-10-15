@@ -1,3 +1,5 @@
+spring boot 사이트에서 추천하는 open source licensed java
+https://adoptopenjdk.net/
 
 https://jdk.java.net/archive/
 

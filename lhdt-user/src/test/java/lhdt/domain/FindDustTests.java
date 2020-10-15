@@ -20,7 +20,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 @Slf4j
-public class findDustTests {
+public class FindDustTests {
 
     private JSONParser parser = new JSONParser();
 

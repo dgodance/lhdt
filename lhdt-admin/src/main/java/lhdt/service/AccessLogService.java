@@ -38,4 +38,9 @@ public interface AccessLogService {
 	 * @return
 	 */
 	public int insertAccessLog(AccessLog accessLog);
+
+	/**
+	 * 스케줄러에 의한 다음년도 파티션 테이블 자동 생성
+	 */
+	public int createPartitionTable(String tableName, String startTime, String endTime);
 }
