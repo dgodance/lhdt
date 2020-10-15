@@ -545,13 +545,13 @@
     "data_name": "block_29",
     "label" : {
     	"background" : true,
-    	"backgroundSize" : [70,20],
+    	"backgroundSize" : [120,30],
 		"backgroundFillColor" : "rgba(112, 48, 160, 1.0)",
 		"backgroundStrokeColor" : "rgba(225, 225, 225, 1.0)",
 		"backgroundOffset" :  [-20, -20],
 		"font" : "11px Arial",
-		"text" : "퍼블릭마켓",
-		"textOffset" : [15, -5]
+		"text" : "퍼블릭마켓(세입자)\n          (사회적기업)",
+		"textOffset" : [35, -5]
     },
     "mapping_type":"origin",
     "longitude": 126.99512128891877,
@@ -617,10 +617,48 @@
     "children": [],
     "data_key": "block_31",
     "data_name": "block_31",
+    "label" : {
+    	"background" : true,
+    	"backgroundSize" : [120,20],
+		"backgroundFillColor" : "rgba(112, 48, 160, 1.0)",
+		"backgroundStrokeColor" : "rgba(225, 225, 225, 1.0)",
+		"backgroundOffset" :  [-80, -20],
+		"font" : "11px Arial",
+		"text" : "퍼블릭마켓(이주자)",
+		"textOffset" : [-25, -5]
+    },
     "mapping_type":"origin",
     "longitude": 126.99512128891877,
     "latitude": 37.431555811854395,
     "height": 0.000000,
+    "heading": 0.000000,
+    "pitch": 0.000000,
+    "roll": 0.000000
+}
+,
+{
+    "attributes": {
+        "isPhysical": true,"heightReference":"relativeToGround",
+        "nodeType": "default",
+        "flipYTexCoords": true
+    },
+    "children": [],
+    "data_key": "block_31_1",
+    "data_name": "block_31_1",
+    "label" : {
+    	"background" : true,
+    	"backgroundSize" : [70,20],
+		"backgroundFillColor" : "rgba(112, 48, 160, 1.0)",
+		"backgroundStrokeColor" : "rgba(225, 225, 225, 1.0)",
+		"backgroundOffset" :  [40, 0],
+		"font" : "11px Arial",
+		"text" : "지하주차장",
+		"textOffset" : [75, 15]
+    },
+    "mapping_type":"origin",
+    "longitude": 126.99512128891877,
+    "latitude": 37.431555811854395,
+    "height": -30.000000,
     "heading": 0.000000,
     "pitch": 0.000000,
     "roll": 0.000000
@@ -681,16 +719,6 @@
     "children": [],
     "data_key": "block_34",
     "data_name": "block_34",
-    "label" : {
-    	"background" : true,
-    	"backgroundSize" : [50,20],
-		"backgroundFillColor" : "rgba(112, 48, 160, 1.0)",
-		"backgroundStrokeColor" : "rgba(225, 225, 225, 1.0)",
-		"backgroundOffset" :  [-20, -20],
-		"font" : "11px Arial",
-		"text" : "세입자",
-		"textOffset" : [5, -5]
-    },
     "mapping_type":"origin",
     "longitude": 126.99512128891877,
     "latitude": 37.431555811854395,
@@ -917,16 +945,6 @@
     "children": [],
     "data_key": "block_45",
     "data_name": "block_45",
-    "label" : {
-    	"background" : true,
-    	"backgroundSize" : [50,20],
-		"backgroundFillColor" : "rgba(112, 48, 160, 1.0)",
-		"backgroundStrokeColor" : "rgba(225, 225, 225, 1.0)",
-		"backgroundOffset" :  [-20, -20],
-		"font" : "11px Arial",
-		"text" : "이주자",
-		"textOffset" : [5, -5]
-    },
     "mapping_type":"origin",
     "longitude": 126.99512128891877,
     "latitude": 37.431555811854395,
@@ -981,16 +999,6 @@
     "children": [],
     "data_key": "block_48",
     "data_name": "block_48",
-    "label" : {
-    	"background" : true,
-    	"backgroundSize" : [70,20],
-		"backgroundFillColor" : "rgba(112, 48, 160, 1.0)",
-		"backgroundStrokeColor" : "rgba(225, 225, 225, 1.0)",
-		"backgroundOffset" :  [-20, -20],
-		"font" : "11px Arial",
-		"text" : "사회적주택",
-		"textOffset" : [15, -5]
-    },
     "mapping_type":"origin",
     "longitude": 126.99512128891877,
     "latitude": 37.431555811854395,
@@ -1145,6 +1153,16 @@
     "children": [],
     "data_key": "block_7",
     "data_name": "block_7",
+    "label" : {
+    	"background" : true,
+    	"backgroundSize" : [50,20],
+		"backgroundFillColor" : "rgba(112, 48, 160, 1.0)",
+		"backgroundStrokeColor" : "rgba(225, 225, 225, 1.0)",
+		"backgroundOffset" :  [-20, -20],
+		"font" : "11px Arial",
+		"text" : "R&D",
+		"textOffset" : [5, -5]
+    },
     "mapping_type":"origin",
     "longitude": 126.99512128891877,
     "latitude": 37.431555811854395,
@@ -1239,13 +1257,13 @@
     "data_name": "bridge_1",
     "label" : {
     	"background" : true,
-    	"backgroundSize" : [120,20],
+    	"backgroundSize" : [100,20],
 		"backgroundFillColor" : "rgba(68, 114, 196, 1.0)",
 		"backgroundStrokeColor" : "rgba(205, 211, 222, 1.0)",
-		"backgroundOffset" : [-20, -20],
+		"backgroundOffset" : [-50, 15],
 		"font" : "11px Arial",
 		"text" : "의료/커뮤니티케어",
-		"textOffset" : [40, -5]
+		"textOffset" : [0, 30]
     },
     "mapping_type":"origin",
     "longitude": 126.99512128891877,

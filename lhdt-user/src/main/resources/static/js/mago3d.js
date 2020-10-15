@@ -15544,1359 +15544,6 @@ LodAPI.changeLod = function (api, magoManager) {
 };
 'use strict';
 /**
- * 
- * @exception {Error} Messages.CONSTRUCT_ERROR
- * 
- * @class AbsControl. abstract class
- * @constructor
- * @abstract
- * 
- * @param {object} options
- */
-
-var AbsControl = function AbsControl(options) {
-  if (!(this instanceof AbsControl)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  var element = options.element;
-
-  if (element && !options.target && !element.style.pointerEvents) {
-    element.style.pointerEvents = 'auto';
-  }
-
-  this.element = element ? element : undefined;
-  this.target = options.target ? options.target : undefined;
-  this.magoManager;
-};
-
-AbsControl.prototype.setControl = function (magoManager) {
-  this.magoManager = magoManager;
-  var target = this.target ? this.target : this.magoManager.defaultControlContainer;
-  target.appendChild(this.element);
-  this.target = target;
-};
-/**
- * button element set basic style 
- * @param {HTMLElement} element 
- */
-
-
-AbsControl.prototype.setBtnStyle = function (element) {
-  element.style.display = 'block';
-  element.style.margin = '1px';
-  element.style.padding = 0;
-  element.style.color = 'white';
-  element.style.fontSize = '1.14em';
-  element.style.fontWeight = 'bold';
-  element.style.textDecoration = 'none';
-  element.style.textAlign = 'center';
-  element.style.height = '42px';
-  element.style.width = '42px';
-  element.style.lineHeight = '.4em';
-  element.style.border = 'none';
-  element.style.backgroundColor = 'rgba(148,216,246, 0.8)';
-  element.addEventListener('mouseenter', function () {
-    element.style.filter = 'invert(30%)';
-  }, false);
-  element.addEventListener('mouseleave', function () {
-    element.style.filter = 'none';
-  }, false);
-};
-/**
- * button element set basic style 
- * @param {HTMLElement} element 
- */
-
-
-AbsControl.prototype.setTextBtn = function (element) {
-  element.style.display = 'inline-block';
-  element.style.margin = '1px';
-  element.style.padding = 0;
-  element.style.color = 'white';
-  element.style.fontSize = '.84em';
-  element.style.fontWeight = 'bold';
-  element.style.textDecoration = 'none';
-  element.style.textAlign = 'center';
-  element.style.height = '1.75em';
-  element.style.width = '4.575em';
-  element.style.lineHeight = '.4em';
-  element.style.border = 'none';
-  element.style.backgroundColor = 'rgba(148,216,246, 0.8)';
-};
-'use strict';
-/**
- * 줌 컨트롤
- * @exception {Error} Messages.CONSTRUCT_ERROR
- * 
- * @constructor
- * @class Attribution
- * @param {Attribution~Options} options position info. coordinate. required.
- *  
- * @extends AbsControl
- * 
- */
-
-var Attribution = function Attribution(options) {
-  if (!(this instanceof Attribution)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  var element = document.createElement('div');
-  options = options ? options : {};
-  options.element = element;
-  AbsControl.call(this, options);
-};
-
-Attribution.prototype = Object.create(AbsControl.prototype);
-Attribution.prototype.constructor = Attribution;
-
-Attribution.prototype.setControl = function (magoManager) {
-  this.magoManager = magoManager;
-
-  if (this.magoManager.isCesiumGlobe()) {
-    var creditDisplay = this.magoManager.scene.frameState.creditDisplay;
-    var mago3d_credit = new Cesium.Credit('<a href="http://www.mago3d.com/" target="_blank"><img class="mago3d_logo" src="/images/logo_mago3d.png" title="Mago3D" alt="Mago3D" /></a>', true);
-    creditDisplay.addDefaultCredit(mago3d_credit);
-  } else {
-    var target = this.target ? this.target : this.magoManager.overlayContainer;
-    target.appendChild(this.element);
-  }
-};
-'use strict';
-/**
- * 줌 컨트롤
- * @exception {Error} Messages.CONSTRUCT_ERROR
- * 
- * @constructor
- * @class Compass
- * @param {Compass~Options} options position info. coordinate. required.
- *  
- * @extends AbsControl
- * 
- */
-
-var Compass = function Compass(options) {
-  if (!(this instanceof Compass)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  var element = document.createElement('div');
-  options = options ? options : {};
-  options.element = element;
-  AbsControl.call(this, options);
-  element.style.position = 'absolute';
-  element.style.pointerEvents = 'auto';
-  element.style.backgroundColor = 'rgba(255,255,255,0.4)';
-  element.style.borderRadius = '4px';
-  element.style.padding = '2px';
-  element.style.top = '24.0em';
-  element.style.right = '.5em';
-  var that = this;
-  var homeButton = document.createElement('button');
-  homeButton.setAttribute('type', 'button');
-  homeButton.title = 'init position';
-  homeButton.appendChild(document.createTextNode("\uD83E\uDDED"));
-  this.setBtnStyle(homeButton);
-  homeButton.style.backgroundColor = 'rgba(217, 217, 217, 0.8)';
-  this.element.appendChild(homeButton);
-};
-
-Compass.prototype = Object.create(AbsControl.prototype);
-Compass.prototype.constructor = Compass;
-'use strict';
-/**
- * 줌 컨트롤
- * @exception {Error} Messages.CONSTRUCT_ERROR
- * 
- * @constructor
- * @class FullScreen
- * @param {FullScreen~Options} options position info. coordinate. required.
- *  
- * @extends AbsControl
- * 
- */
-
-var FullScreen = function FullScreen(options) {
-  if (!(this instanceof FullScreen)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  var element = document.createElement('div');
-  options = options ? options : {};
-  options.element = element;
-  AbsControl.call(this, options);
-  var that = this;
-  this.full = false;
-  element.style.position = 'absolute';
-  element.style.pointerEvents = 'auto';
-  element.style.backgroundColor = 'rgba(255,255,255,0.4)';
-  element.style.borderRadius = '4px';
-  element.style.padding = '2px';
-  element.style.top = '4.5em';
-  element.style.right = '.5em';
-  var fullButton = document.createElement('button');
-  fullButton.setAttribute('type', 'button');
-  fullButton.title = 'Full Screen';
-  var imageSpan = document.createElement('span');
-  imageSpan.appendChild(document.createTextNode("\u21C5"));
-  imageSpan.style.transform = 'rotate(0.1turn)';
-  imageSpan.style.display = 'inline-block';
-  imageSpan.style.verticalAlign = 'super';
-  imageSpan.style.lineHeight = '0.6em';
-  fullButton.appendChild(imageSpan);
-  fullButton.appendChild(document.createElement('br'));
-  var textSpan = document.createElement('span');
-  textSpan.appendChild(document.createTextNode('전체화면'));
-  textSpan.style.fontSize = '10px';
-  textSpan.style.verticalAlign = 'baseline';
-  textSpan.style.lineHeight = '0.6em';
-  fullButton.appendChild(textSpan);
-  this.setBtnStyle(fullButton);
-  fullButton.addEventListener('click', that.handleClick.bind(that), false);
-  this.fullButtonElement = fullButton;
-  var cancleButton = document.createElement('button');
-  cancleButton.setAttribute('type', 'button');
-  cancleButton.title = 'Cancle Full Screen';
-  var cancleImageSpan = document.createElement('span');
-  cancleImageSpan.appendChild(document.createTextNode("\u2716"));
-  cancleImageSpan.style.verticalAlign = 'super';
-  cancleImageSpan.style.lineHeight = '0.6em';
-  cancleButton.appendChild(cancleImageSpan);
-  cancleButton.appendChild(document.createElement('br'));
-  var cancleTextSpan = document.createElement('span');
-  cancleTextSpan.appendChild(document.createTextNode('취소'));
-  cancleTextSpan.style.fontSize = '10px';
-  cancleTextSpan.style.verticalAlign = 'baseline';
-  cancleTextSpan.style.lineHeight = '0.6em';
-  cancleButton.appendChild(cancleTextSpan);
-  this.setBtnStyle(cancleButton);
-  cancleButton.style.display = 'none';
-  cancleButton.addEventListener('click', that.handleClick.bind(that), false);
-  this.cancleButtonElement = cancleButton;
-  this.element.appendChild(fullButton);
-  this.element.appendChild(cancleButton);
-};
-
-FullScreen.prototype = Object.create(AbsControl.prototype);
-FullScreen.prototype.constructor = FullScreen;
-
-FullScreen.prototype.handleClick = function () {
-  var target = document.getElementById(this.magoManager.config.getContainerId());
-
-  if (this.full) {
-    if (isFullScreen()) {
-      this.fullButtonElement.style.display = 'block';
-      this.cancleButtonElement.style.display = 'none';
-      exitFullScreen();
-      this.full = false;
-    }
-  } else {
-    if (isFullScreenSupported()) {
-      this.fullButtonElement.style.display = 'none';
-      this.cancleButtonElement.style.display = 'block';
-      requestFullScreen(target);
-      this.full = true;
-    }
-  }
-
-  function isFullScreenSupported() {
-    var body = document.body;
-    return !!(body.webkitRequestFullscreen || body.msRequestFullscreen && document.msFullscreenEnabled || body.requestFullscreen && document.fullscreenEnabled);
-  }
-
-  function isFullScreen() {
-    return !!(document.webkitIsFullScreen || document.msFullscreenElement || document.fullscreenElement);
-  }
-
-  function requestFullScreen(element) {
-    if (element.requestFullscreen) {
-      element.requestFullscreen();
-    } else if (element.msRequestFullscreen) {
-      element.msRequestFullscreen();
-    } else if (element.webkitRequestFullscreen) {
-      element.webkitRequestFullscreen();
-    }
-  }
-
-  function exitFullScreen() {
-    if (document.exitFullscreen) {
-      document.exitFullscreen();
-    } else if (document.msExitFullscreen) {
-      document.msExitFullscreen();
-    } else if (document.webkitExitFullscreen) {
-      document.webkitExitFullscreen();
-    }
-  }
-};
-'use strict';
-/**
- * 줌 컨트롤
- * @exception {Error} Messages.CONSTRUCT_ERROR
- * 
- * @constructor
- * @class InitCamera
- * @param {InitCamera~Options} options position info. coordinate. required.
- *  
- * @extends AbsControl
- * 
- */
-
-var InitCamera = function InitCamera(options) {
-  if (!(this instanceof InitCamera)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  var element = document.createElement('div');
-  options = options ? options : {};
-  options.element = element;
-  AbsControl.call(this, options);
-  element.style.position = 'absolute';
-  element.style.pointerEvents = 'auto';
-  element.style.backgroundColor = 'rgba(255,255,255,0.4)';
-  element.style.borderRadius = '4px';
-  element.style.padding = '2px';
-  element.style.top = '1.0em';
-  element.style.right = '.5em';
-  var that = this;
-  var homeButton = document.createElement('button');
-  homeButton.setAttribute('type', 'button');
-  homeButton.title = 'init position';
-  var imageSpan = document.createElement('span');
-  imageSpan.appendChild(document.createTextNode("\uD83C\uDFE0"));
-  imageSpan.style.verticalAlign = 'text-top';
-  imageSpan.style.lineHeight = '0.6em';
-  homeButton.appendChild(imageSpan);
-  homeButton.appendChild(document.createElement('br'));
-  var textSpan = document.createElement('span');
-  textSpan.appendChild(document.createTextNode('처음으로'));
-  textSpan.style.fontSize = '10px';
-  textSpan.style.verticalAlign = 'baseline';
-  textSpan.style.lineHeight = '0.6em';
-  homeButton.appendChild(textSpan);
-  this.setBtnStyle(homeButton);
-  homeButton.style.backgroundColor = 'rgba(217, 217, 217, 0.8)';
-  homeButton.addEventListener('click', that.handleClick.bind(that), false);
-  this.element.appendChild(homeButton);
-};
-
-InitCamera.prototype = Object.create(AbsControl.prototype);
-InitCamera.prototype.constructor = InitCamera;
-
-InitCamera.prototype.handleClick = function () {
-  if (this.magoManager.isCesiumGlobe()) {
-    var config = this.magoManager.configInformation;
-
-    if (config.initCameraEnable) {
-      var lon = parseFloat(config.initLongitude);
-      var lat = parseFloat(config.initLatitude);
-      var height = parseFloat(config.initAltitude);
-      var duration = parseInt(config.initDuration);
-
-      if (isNaN(lon) || isNaN(lat) || isNaN(height)) {
-        throw new Error('Longitude, Latitude, Height must number type.');
-      }
-
-      if (isNaN(duration)) {
-        duration = 3;
-      }
-
-      this.magoManager.flyTo(lon, lat, height, duration);
-    }
-  }
-};
-'use strict';
-/**
- * 줌 컨트롤
- * @exception {Error} Messages.CONSTRUCT_ERROR
- * 
- * @constructor
- * @class Measure
- * @param {Measure~Options} options position info. coordinate. required.
- *  
- * @extends AbsControl
- * 
- */
-
-var Measure = function Measure(options) {
-  if (!(this instanceof Measure)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  var element = document.createElement('div');
-  options = options ? options : {};
-  options.element = element;
-  AbsControl.call(this, options);
-  this.buttons = {};
-  element.style.position = 'absolute';
-  element.style.pointerEvents = 'auto';
-  element.style.backgroundColor = 'rgba(255,255,255,0.4)';
-  element.style.borderRadius = '4px';
-  element.style.padding = '2px';
-  element.style.bottom = '9.5em';
-  element.style.right = '.5em';
-  setButton(this, 'length', "\uD83D\uDCCF", 'Measure Length', '거리측정');
-  setButton(this, 'area', "\u26F6", 'Measure Area', '면적측정');
-  setButton(this, 'height', "\u2BB8", 'Measure Height', '높이측정');
-
-  function setButton(thisArg, type, text, title, description) {
-    var button = document.createElement('button');
-    button.setAttribute('type', 'button');
-    button.title = title;
-    var imageSpan = document.createElement('span');
-    imageSpan.appendChild(document.createTextNode(text));
-    imageSpan.style.verticalAlign = 'super';
-    imageSpan.style.lineHeight = '0.6em';
-    button.appendChild(imageSpan);
-    button.appendChild(document.createElement('br'));
-    var textSpan = document.createElement('span');
-    textSpan.appendChild(document.createTextNode(description));
-    textSpan.style.fontSize = '10px';
-    textSpan.style.verticalAlign = 'baseline';
-    textSpan.style.lineHeight = '0.6em';
-    button.appendChild(textSpan);
-    thisArg.setBtnStyle(button);
-    button.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
-    button.style.display = 'inline-block';
-    thisArg.buttons[type] = {
-      status: false,
-      element: button
-    };
-    thisArg.element.appendChild(button);
-    button.addEventListener('click', thisArg.handleClick.bind(thisArg, type), false);
-  }
-};
-
-Measure.prototype = Object.create(AbsControl.prototype);
-Measure.prototype.constructor = Measure;
-
-Measure.prototype.handleClick = function (e) {
-  if (this.buttons[e].status) {
-    var button = this.buttons[e];
-    button.status = false;
-    button.element.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
-  } else {
-    for (var buttonName in this.buttons) {
-      if (this.buttons.hasOwnProperty(buttonName)) {
-        var button = this.buttons[buttonName];
-
-        if (buttonName === e) {
-          button.element.style.backgroundColor = 'rgba(148,216,246, 0.8)';
-          button.status = true;
-        } else {
-          button.element.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
-          button.status = false;
-        }
-      }
-    }
-
-    alert('기능 준비중');
-  }
-};
-'use strict';
-/**
- * 줌 컨트롤
- * @exception {Error} Messages.CONSTRUCT_ERROR
- * 
- * @constructor
- * @class Zoom
- * @param {Zoom~Options} options position info. coordinate. required.
- *  
- * @extends AbsControl
- * 
- */
-
-var OverviewMap = function OverviewMap(options) {
-  if (!(this instanceof OverviewMap)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  var element = document.createElement('div');
-  options = options ? options : {};
-  options.element = element;
-  AbsControl.call(this, options);
-  var id = 'mago3dOlMap';
-  element.id = id;
-  element.style.position = 'absolute';
-  element.style.pointerEvents = 'auto';
-  element.style.borderRadius = '4px';
-  element.style.padding = '2px';
-  element.style.bottom = '.5em';
-  element.style.right = '.5em';
-  element.style.width = '135px';
-  element.style.height = '135px';
-  element.style.borderRadius = '4px';
-  element.style.border = '2px solid #CCE5EC';
-};
-
-OverviewMap.prototype = Object.create(AbsControl.prototype);
-OverviewMap.prototype.constructor = OverviewMap;
-
-OverviewMap.prototype.setControl = function (magoManager) {
-  this.magoManager = magoManager;
-  var target = this.target ? this.target : this.magoManager.defaultControlContainer;
-  target.appendChild(this.element);
-  var vectorlayer = new OlMago3d.layer.VectorLayer({
-    source: new OlMago3d.source.VectorSource()
-  });
-  var tilelayer = new OlMago3d.layer.TileLayer({
-    source: new OlMago3d.source.XYZ({
-      url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.png'
-    })
-  });
-  this.overviewMap = new OlMago3d.Map({
-    target: 'mago3dOlMap',
-    view: new OlMago3d.View({
-      zoom: 3,
-      center: [0, 0],
-      projection: 'EPSG:4326'
-    }),
-    layers: [tilelayer, vectorlayer],
-    controls: OlMago3d.control.defaults({
-      attribution: true,
-      zoom: false,
-      rotate: false
-    }),
-    interactions: OlMago3d.interaction.defaults({
-      altShiftDragRotate: false,
-      onFocusOnly: false,
-      doubleClickZoom: false,
-      keyboard: false,
-      mouseWheelZoom: false,
-      shiftDragZoom: false,
-      dragPan: false,
-      pinchRotate: false,
-      pinchZoom: false
-    })
-  });
-  this.overviewMap.overlayContainerStopEvent_.style.pointerEvents = 'none';
-
-  if (this.magoManager.isCesiumGlobe()) {
-    var syncByMago = function syncByMago() {
-      var viewRectangle = scene.camera.computeViewRectangle(scene.globe.ellipsoid);
-      var minx = viewRectangle.west < viewRectangle.east ? viewRectangle.west : viewRectangle.east;
-      var miny = viewRectangle.south < viewRectangle.north ? viewRectangle.south : viewRectangle.north;
-      var maxx = viewRectangle.west > viewRectangle.east ? viewRectangle.west : viewRectangle.east;
-      var maxy = viewRectangle.south > viewRectangle.north ? viewRectangle.south : viewRectangle.north;
-      var extent = [Cesium.Math.toDegrees(minx), Cesium.Math.toDegrees(miny), Cesium.Math.toDegrees(maxx), Cesium.Math.toDegrees(maxy)];
-      var geomPolygon = OlMago3d.geom.Polygon.fromExtent(extent);
-
-      if (!feature) {
-        feature = new OlMago3d.Feature({
-          geometry: geomPolygon
-        });
-        vectorlayer.getSource().addFeature(feature);
-      } else {
-        feature.setGeometry(geomPolygon);
-      }
-
-      var ellipsoid = Cesium.Ellipsoid.WGS84;
-      var canvas = scene.canvas;
-      var canvasCenter = new Cesium.Cartesian2(canvas.clientWidth / 2, canvas.clientHeight / 2);
-      var ray = scene.camera.getPickRay(canvasCenter);
-      var targetCenter = scene.globe.pick(ray, scene) || scene.camera.pickEllipsoid(canvasCenter);
-      var bestTarget = targetCenter;
-
-      if (!bestTarget) {
-        //TODO: how to handle this properly ?
-        var globe = scene.globe;
-        var carto = scene.camera.positionCartographic.clone();
-        var height = globe.getHeight(carto);
-        carto.height = height || 0;
-        bestTarget = Cesium.Ellipsoid.WGS84.cartographicToCartesian(carto);
-      }
-
-      var distance = Cesium.Cartesian3.distance(bestTarget, scene.camera.position);
-      view.fit(extent, {
-        size: getSizeByDistance(distance)
-      });
-      return;
-      var ellipsoid = Cesium.Ellipsoid.WGS84;
-      var canvas = scene.canvas;
-      var canvasCenter = new Cesium.Cartesian2(canvas.clientWidth / 2, canvas.clientHeight / 2);
-      var ray = scene.camera.getPickRay(canvasCenter);
-      var targetCenter = scene.globe.pick(ray, scene) || scene.camera.pickEllipsoid(canvasCenter);
-      var bestTarget = targetCenter;
-
-      if (!bestTarget) {
-        //TODO: how to handle this properly ?
-        var globe = scene.globe;
-        var carto = scene.camera.positionCartographic.clone();
-        var height = globe.getHeight(carto);
-        carto.height = height || 0;
-        bestTarget = Cesium.Ellipsoid.WGS84.cartographicToCartesian(carto);
-      }
-
-      var distance = Cesium.Cartesian3.distance(bestTarget, scene.camera.position);
-      var bestTargetCartographic = ellipsoid.cartesianToCartographic(bestTarget);
-      var properties = {}; //var c = fromLonLat(toDegree(bestTargetCartographic.longitude), toDegree(bestTargetCartographic.latitude));
-
-      properties.center = [toDegree(bestTargetCartographic.longitude), toDegree(bestTargetCartographic.latitude)];
-      properties.resolution = calcResolutionForDistance(canvas, distance, bestTargetCartographic ? bestTargetCartographic.latitude : 0);
-      view.setProperties(properties, true);
-      view.changed();
-
-      function calcResolutionForDistance(cv, dis, lat) {
-        var fovy = scene.camera.frustum.fovy;
-        var metersPerUnit = view.getProjection().getMetersPerUnit();
-        var visibleMeters = 2 * dis * Math.tan(fovy / 2);
-        var relativeCircumference = Math.cos(Math.abs(lat));
-        var visibleMapUnits = visibleMeters / metersPerUnit / relativeCircumference;
-        var resolution = visibleMapUnits / cv.clientHeight;
-        return resolution;
-      }
-    };
-
-    var syncByOl = function syncByOl() {
-      var center = view.getCenter();
-
-      if (!center) {
-        return;
-      }
-
-      var ll = toLonLat(center);
-      var carto = new Cesium.Cartographic(toRadian(ll[0]), toRadian(ll[1]));
-
-      if (scene.globe) {
-        carto.height = scene.globe.getHeight(carto) || 0;
-      }
-
-      var destination = Cesium.Ellipsoid.WGS84.cartographicToCartesian(carto);
-      var oritentation = {
-        pitch: 0 - Cesium.Math.PI_OVER_TWO,
-        heading: -view.getRotation(),
-        roll: undefined
-      };
-      scene.camera.setView({
-        destination: destination,
-        oritentation: oritentation
-      });
-      scene.camera.moveBackward(calcDistanceForResolution(view.getResolution(), toRadian(ll[1])));
-
-      function calcDistanceForResolution(res, lat) {
-        var canvas = scene.canvas;
-        var fovy = scene.camera.frustum.fovy;
-        var metersPerUnit = view.getProjection().getMetersPerUnit();
-        var visibleMapUnits = res * canvas.clientHeight;
-        var relativeCircumference = Math.cos(Math.abs(lat));
-        var visibleMeters = visibleMapUnits * metersPerUnit * relativeCircumference;
-        var requiredDistance = visibleMeters / 2 / Math.tan(fovy / 2);
-        return requiredDistance;
-      }
-    };
-
-    var getSizeByDistance = function getSizeByDistance(d) {
-      var num = 0;
-
-      if (d < 5000) {
-        num = 90;
-      } else if (d < 20000) {
-        num = 70;
-      } else if (d < 70000) {
-        num = 50;
-      } else {
-        num = 30;
-      }
-
-      return [num, num];
-    };
-
-    var toRadian = function toRadian(deg) {
-      return deg * Math.PI / 180;
-    };
-
-    var toDegree = function toDegree(rad) {
-      return rad * 180 / Math.PI;
-    };
-
-    var scene = this.magoManager.scene;
-    var feature = null;
-    var map = this.overviewMap;
-    var view = map.getView();
-    var toLonLat = OlMago3d.proj.getTransform(view.getProjection(), 'EPSG:4326');
-    var fromLonLat = OlMago3d.proj.getTransform('EPSG:4326', view.getProjection());
-    syncByMago();
-    view.on('change:resolution', function () {//syncByOl();
-    });
-    view.on('change:center', function () {//syncByOl();
-    });
-    view.on('change:rotation', function () {//syncByOl();
-    });
-    this.magoManager.on('isCameraMoved', function () {
-      syncByMago();
-    });
-  }
-};
-'use strict';
-/**
- * 줌 컨트롤
- * @exception {Error} Messages.CONSTRUCT_ERROR
- * 
- * @constructor
- * @class Tools
- * @param {Tools~Options} options position info. coordinate. required.
- *  
- * @extends AbsControl
- * 
- */
-
-var Tools = function Tools(options) {
-  if (!(this instanceof Tools)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  var element = document.createElement('div');
-  options = options ? options : {};
-  options.element = element;
-  AbsControl.call(this, options);
-  this.tools = {};
-  element.style.position = 'absolute';
-  element.style.pointerEvents = 'auto';
-  element.style.backgroundColor = 'rgba(255,255,255,0.4)';
-  element.style.borderRadius = '4px';
-  element.style.padding = '2px';
-  element.style.top = '7.5em';
-  element.style.right = '.5em';
-  element.addEventListener('mouseover', this.handleMouseOver.bind(this), false);
-  element.addEventListener('mouseout', this.handleMouseOut.bind(this), false);
-  var that = this;
-  element.addEventListener('click', function () {
-    var mainContainer = document.getElementById(that.magoManager.config.getContainerId()).getElementsByClassName('mago3d-overlayContainer-defaultContent').item(0);
-    var thisContainer = mainContainer.getElementsByClassName('mago3d-tools-advance').item(0);
-    var on = element.className.indexOf('on') >= 0;
-
-    if (!on) {
-      that.target.style.right = '320px';
-      mainContainer.style.display = 'block';
-      mainContainer.style.right = '0px';
-      var toolsDivs = mainContainer.getElementsByClassName('mago3d-tools-div');
-
-      for (var i = 0, len = toolsDivs.length; i < len; i++) {
-        var toolDiv = toolsDivs.item(i);
-        toolDiv.style.display = 'none';
-      }
-
-      thisContainer.style.display = 'block';
-      element.className = 'on';
-      element.getElementsByTagName('button')[0].style.backgroundColor = 'rgba(148,216,246, 0.8)';
-    } else {
-      thisContainer.style.display = 'none';
-      that.target.style.right = '0px';
-      mainContainer.style.display = 'none';
-      mainContainer.style.right = '0px';
-      element.className = '';
-      element.getElementsByTagName('button')[0].style.backgroundColor = 'rgba(70, 70, 70, 0.8)';
-    }
-  }, false);
-  var button = document.createElement('button');
-  button.setAttribute('type', 'button');
-  button.title = 'Tool Box';
-  var imageSpan = document.createElement('span');
-  imageSpan.appendChild(document.createTextNode("\u2699"));
-  imageSpan.style.verticalAlign = 'super';
-  imageSpan.style.lineHeight = '0.6em';
-  button.appendChild(imageSpan);
-  button.appendChild(document.createElement('br'));
-  var textSpan = document.createElement('span');
-  textSpan.appendChild(document.createTextNode('설정'));
-  textSpan.style.fontSize = '10px';
-  textSpan.style.verticalAlign = 'baseline';
-  textSpan.style.lineHeight = '0.6em';
-  button.appendChild(textSpan);
-  this.setBtnStyle(button);
-  button.style.backgroundColor = 'rgba(217, 217, 217, 0.8)';
-  element.appendChild(button);
-};
-
-Tools.prototype = Object.create(AbsControl.prototype);
-Tools.prototype.constructor = Tools;
-
-Tools.prototype.setControl = function (magoManager) {
-  this.magoManager = magoManager;
-  var target = this.target ? this.target : magoManager.defaultControlContainer;
-  target.appendChild(this.element);
-  this.target = target;
-  var advanceToolDiv = document.createElement('div');
-  advanceToolDiv.style.position = 'absolute';
-  advanceToolDiv.style["float"] = 'right';
-  advanceToolDiv.style.width = '100%';
-  advanceToolDiv.style.backgroundColor = '#FFFFFF';
-  advanceToolDiv.style.pointerEvents = 'auto';
-  advanceToolDiv.style.display = 'none';
-  advanceToolDiv.className = 'mago3d-tools-div mago3d-tools-advance';
-  magoManager.defaultContentContainer.appendChild(advanceToolDiv);
-  var basicSettingsDiv = getGroupDiv('기본 설정');
-  advanceToolDiv.appendChild(basicSettingsDiv);
-  var basicSettingBtnDiv = document.createElement('div');
-  basicSettingBtnDiv.style.marginTop = '5px';
-  basicSettingsDiv.appendChild(basicSettingBtnDiv);
-  var that = this;
-  var basicBtns = [];
-  var bboxBtnObj = getBasicButtonObject('bbox', 'BoundingBox Toggle', 'BBOX', 'toggle', function (value) {
-    that.magoManager.magoPolicy.setShowBoundingBox(value);
-  });
-  var labelBtnObj = getBasicButtonObject('label', 'Label Toggle', 'LABEL', 'toggle', function (value) {
-    that.magoManager.magoPolicy.setShowLabelInfo(value); // clear the text canvas.
-
-    var canvas = that.magoManager.getObjectLabel();
-    var ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  });
-  var originBtnObj = getBasicButtonObject('orgin', 'Origin Toggle', 'ORIGIN', 'toggle', function (value) {
-    that.magoManager.magoPolicy.setShowOrigin(value);
-  });
-  var shadowBtnObj = getBasicButtonObject('shadow', 'Shadow Toggle', 'SHADOW', 'toggle', function (value) {
-    that.magoManager.sceneState.setApplySunShadows(value);
-  });
-  basicBtns.push(bboxBtnObj);
-  basicBtns.push(labelBtnObj);
-  basicBtns.push(originBtnObj);
-  basicBtns.push(shadowBtnObj);
-
-  for (var i = 0, btnLength = basicBtns.length; i < btnLength; i++) {
-    var basicBtn = basicBtns[i];
-    var elem = basicBtn.element;
-    basicSettingBtnDiv.appendChild(elem);
-    elem.addEventListener('click', that.handleToolClick.bind(this, basicBtn), false);
-  }
-
-  var basicSettingInputDiv = document.createElement('div');
-  basicSettingInputDiv.style.padding = '0 5px 0 0';
-  basicSettingInputDiv.style.margin = '5px 5px 0 5px';
-  basicSettingsDiv.appendChild(basicSettingInputDiv);
-  var ssaoDiv = document.createElement('div');
-  ssaoDiv.style.padding = '4px';
-  ssaoDiv.style.margin = '10px 0px 4px';
-  ssaoDiv.style.outline = '0px 0px 4px';
-  ssaoDiv.style.verticalAlign = 'top';
-  ssaoDiv.style.backgroundColor = 'rgb(243,243,243)';
-  ssaoDiv.style.borderRadius = '12px';
-  ssaoDiv.style.borderStyle = 'none';
-  ssaoDiv.className = 'mago3d-tools-ssao-div';
-  basicSettingInputDiv.appendChild(ssaoDiv);
-  var ssaoLabel = document.createElement('label');
-  ssaoLabel.style.width = '25%';
-  ssaoLabel.style.padding = '2px';
-  ssaoLabel.style.verticalAlign = 'middle';
-  ssaoLabel.style.display = 'inline-block';
-  ssaoLabel.style.textAlign = 'justify';
-  ssaoLabel.style.fontSize = '13.33333px';
-  ssaoLabel.setAttribute('for', 'ssaoRadius');
-  ssaoLabel.appendChild(document.createTextNode('SSAO'));
-  ssaoDiv.appendChild(ssaoLabel);
-  var ssaoInput = document.createElement('input');
-  ssaoInput.style.width = '45%';
-  ssaoInput.style.marginRight = '5px';
-  ssaoInput.style.padding = '5px';
-  ssaoInput.style.fontSize = 'small';
-  ssaoInput.style.verticalAlign = 'middle';
-  ssaoInput.style.lineHeight = '1.5em';
-  ssaoInput.style.color = '#444';
-  ssaoInput.setAttribute('id', 'ssaoRadius');
-  ssaoInput.setAttribute('name', 'ssaoRadius');
-  ssaoInput.setAttribute('type', 'text');
-  ssaoInput.setAttribute('value', magoManager.configInformation.ssaoRadius);
-  ssaoDiv.appendChild(ssaoInput);
-  var ssaoBtn = document.createElement('button');
-  ssaoBtn.setAttribute('type', 'button');
-  ssaoBtn.style.display = 'inline-block';
-  ssaoBtn.style.verticalAlign = 'middle';
-  ssaoBtn.style.padding = '2px 10px';
-  ssaoBtn.style.fontSize = '12px';
-  ssaoBtn.style.color = '#FFFFFF';
-  ssaoBtn.style.borderRadius = '12px';
-  ssaoBtn.style.borderStyle = 'none';
-  ssaoBtn.style.backgroundColor = '#636363';
-  ssaoBtn.appendChild(document.createTextNode('적용'));
-  ssaoBtn.addEventListener('click', function () {
-    var ssao = ssaoInput.value;
-
-    if (isNaN(ssao)) {
-      alert('숫자만 입력 가능합니다.');
-      return;
-    }
-
-    magoManager.magoPolicy.setSsaoRadius(ssao);
-    magoManager.sceneState.ssaoRadius[0] = Number(ssao);
-  }, false);
-  ssaoDiv.appendChild(ssaoBtn);
-  var lodDiv = document.createElement('div');
-  lodDiv.style.padding = '4px';
-  lodDiv.style.margin = '10px 0px 4px';
-  lodDiv.style.outline = '0px 0px 4px';
-  lodDiv.style.verticalAlign = 'top';
-  lodDiv.style.backgroundColor = 'rgb(243,243,243)';
-  lodDiv.style.borderRadius = '12px';
-  lodDiv.style.borderStyle = 'none';
-  lodDiv.className = 'mago3d-tools-lod-div';
-  basicSettingInputDiv.appendChild(lodDiv);
-  var lodh3 = document.createElement('h3');
-  lodh3.style.fontSize = '15px';
-  lodh3.appendChild(document.createTextNode('Level of Detail'));
-  lodDiv.appendChild(lodh3);
-
-  for (var i = 0; i < 6; i++) {
-    var id = 'geoLod' + i;
-    var name = 'lod' + i;
-    var lodLabel = document.createElement('label');
-    lodLabel.style.width = '25%';
-    lodLabel.style.padding = '2px';
-    lodLabel.style.verticalAlign = 'middle';
-    lodLabel.style.display = 'inline-block';
-    lodLabel.style.textAlign = 'justify';
-    lodLabel.style.fontSize = '13.33333px';
-    lodLabel.setAttribute('for', id);
-    lodLabel.appendChild(document.createTextNode(name.toUpperCase()));
-    lodDiv.appendChild(lodLabel);
-    var lodInput = document.createElement('input');
-    lodInput.style.width = '45%';
-    lodInput.style.marginRight = '5px';
-    lodInput.style.padding = '5px';
-    lodInput.style.fontSize = 'small';
-    lodInput.style.verticalAlign = 'middle';
-    lodInput.style.lineHeight = '1.5em';
-    lodInput.style.color = '#444';
-    lodInput.setAttribute('id', id);
-    lodInput.setAttribute('name', name);
-    lodInput.setAttribute('type', 'text');
-    lodInput.setAttribute('value', magoManager.configInformation[name]);
-    lodDiv.appendChild(lodInput);
-  }
-
-  var lodBtn = document.createElement('button');
-  lodBtn.setAttribute('type', 'button');
-  lodBtn.style.display = 'inline-block';
-  lodBtn.style.verticalAlign = 'middle';
-  lodBtn.style.padding = '2px 10px';
-  lodBtn.style.fontSize = '12px';
-  lodBtn.style.color = '#FFFFFF';
-  lodBtn.style.borderRadius = '12px';
-  lodBtn.style.borderStyle = 'none';
-  lodBtn.style.backgroundColor = '#636363';
-  lodBtn.appendChild(document.createTextNode('적용'));
-  lodBtn.addEventListener('click', function () {
-    var lod0 = document.getElementById('geoLod0').value;
-    var lod1 = document.getElementById('geoLod1').value;
-    var lod2 = document.getElementById('geoLod2').value;
-    var lod3 = document.getElementById('geoLod3').value;
-    var lod4 = document.getElementById('geoLod4').value;
-    var lod5 = document.getElementById('geoLod5').value;
-
-    if (isNaN(lod0) || isNaN(lod1) || isNaN(lod2) || isNaN(lod3) || isNaN(lod4) || isNaN(lod5)) {
-      alert('숫자만 입력 가능합니다.');
-      return;
-    }
-
-    if (lod0 !== null && lod0 !== "") {
-      magoManager.magoPolicy.setLod0DistInMeters(lod0);
-    }
-
-    if (lod1 !== null && lod1 !== "") {
-      magoManager.magoPolicy.setLod1DistInMeters(lod1);
-    }
-
-    if (lod2 !== null && lod2 !== "") {
-      magoManager.magoPolicy.setLod2DistInMeters(lod2);
-    }
-
-    if (lod3 !== null && lod3 !== "") {
-      magoManager.magoPolicy.setLod3DistInMeters(lod3);
-    }
-
-    if (lod4 !== null && lod4 !== "") {
-      magoManager.magoPolicy.setLod4DistInMeters(lod4);
-    }
-
-    if (lod5 !== null && lod5 !== "") {
-      magoManager.magoPolicy.setLod5DistInMeters(lod5);
-    }
-  }, false);
-  lodDiv.appendChild(lodBtn);
-  var dataDiv = getGroupDiv('데이터 선택');
-  advanceToolDiv.appendChild(dataDiv);
-  var dataControlDiv = document.createElement('div');
-  dataControlDiv.style.padding = '4px';
-  dataControlDiv.style.margin = '10px 0px 4px';
-  dataControlDiv.style.outline = '0px 0px 4px';
-  dataControlDiv.style.verticalAlign = 'top';
-  dataControlDiv.style.backgroundColor = 'rgb(243,243,243)';
-  dataControlDiv.style.borderRadius = '12px';
-  dataControlDiv.style.borderStyle = 'none';
-  dataControlDiv.className = 'mago3d-tools-data-div';
-  dataDiv.appendChild(dataControlDiv);
-  var allText = document.createElement('strong');
-  allText.style.width = '35%';
-  allText.style.padding = '2px';
-  allText.style.verticalAlign = 'middle';
-  allText.style.display = 'inline-block';
-  allText.style.textAlign = 'justify';
-  allText.style.fontSize = '13.33333px';
-  allText.appendChild(document.createTextNode('F4D 모델'));
-  dataControlDiv.appendChild(allText);
-  var allSelectBtn = document.createElement('button');
-  allSelectBtn.setAttribute('type', 'button');
-  allSelectBtn.dataset.type = DataType.F4D;
-  allSelectBtn.dataset["function"] = 'select';
-  allSelectBtn.dataset.active = 'off';
-  allSelectBtn.className = 'mago3d-tools-select';
-  allSelectBtn.name = 'btn-' + DataType.F4D;
-  allSelectBtn.style.display = 'inline-block';
-  allSelectBtn.style.verticalAlign = 'middle';
-  allSelectBtn.style.padding = '2px 10px';
-  allSelectBtn.style.fontSize = '12px';
-  allSelectBtn.style.color = 'rgb(20, 20, 20)';
-  allSelectBtn.style.borderRadius = '12px';
-  allSelectBtn.style.borderStyle = 'none';
-  allSelectBtn.style.backgroundColor = 'rgb(255, 255, 255)';
-  allSelectBtn.appendChild(document.createTextNode('선택'));
-  dataControlDiv.appendChild(allSelectBtn);
-  var allMoveBtn = document.createElement('button');
-  allMoveBtn.setAttribute('type', 'button');
-  allMoveBtn.dataset.type = DataType.F4D;
-  allMoveBtn.dataset["function"] = 'translate';
-  allMoveBtn.dataset.active = 'off';
-  allMoveBtn.className = 'mago3d-tools-translate';
-  allMoveBtn.name = 'btn-' + DataType.F4D;
-  allMoveBtn.style.display = 'inline-block';
-  allMoveBtn.style.verticalAlign = 'middle';
-  allMoveBtn.style.marginLeft = '5px';
-  allMoveBtn.style.padding = '2px 10px';
-  allMoveBtn.style.fontSize = '12px';
-  allMoveBtn.style.color = 'rgb(20, 20, 20)';
-  allMoveBtn.style.borderRadius = '12px';
-  allMoveBtn.style.borderStyle = 'none';
-  allMoveBtn.style.backgroundColor = 'rgb(255, 255, 255)';
-  allMoveBtn.appendChild(document.createTextNode('이동'));
-  dataControlDiv.appendChild(allMoveBtn);
-  dataControlDiv.appendChild(document.createElement('br'));
-  var partText = document.createElement('strong');
-  partText.style.width = '35%';
-  partText.style.padding = '2px';
-  partText.style.verticalAlign = 'middle';
-  partText.style.display = 'inline-block';
-  partText.style.textAlign = 'justify';
-  partText.style.fontSize = '13.33333px';
-  partText.appendChild(document.createTextNode('F4D 모델 부분'));
-  dataControlDiv.appendChild(partText);
-  var partSelectBtn = document.createElement('button');
-  partSelectBtn.setAttribute('type', 'button');
-  partSelectBtn.dataset.type = DataType.OBJECT;
-  partSelectBtn.dataset["function"] = 'select';
-  partSelectBtn.dataset.active = 'off';
-  partSelectBtn.className = 'mago3d-tools-select';
-  partSelectBtn.name = 'btn-' + DataType.OBJECT;
-  partSelectBtn.style.display = 'inline-block';
-  partSelectBtn.style.verticalAlign = 'middle';
-  partSelectBtn.style.padding = '2px 10px';
-  partSelectBtn.style.fontSize = '12px';
-  partSelectBtn.style.color = 'rgb(20, 20, 20)';
-  partSelectBtn.style.borderRadius = '12px';
-  partSelectBtn.style.borderStyle = 'none';
-  partSelectBtn.style.backgroundColor = 'rgb(255, 255, 255)';
-  partSelectBtn.appendChild(document.createTextNode('선택'));
-  dataControlDiv.appendChild(partSelectBtn);
-  var partMoveBtn = document.createElement('button');
-  partMoveBtn.setAttribute('type', 'button');
-  partMoveBtn.dataset.type = DataType.OBJECT;
-  partMoveBtn.dataset["function"] = 'translate';
-  partMoveBtn.dataset.active = 'off';
-  partMoveBtn.className = 'mago3d-tools-translate';
-  partMoveBtn.name = 'btn-' + DataType.OBJECT;
-  partMoveBtn.style.display = 'inline-block';
-  partMoveBtn.style.verticalAlign = 'middle';
-  partMoveBtn.style.marginLeft = '5px';
-  partMoveBtn.style.padding = '2px 10px';
-  partMoveBtn.style.fontSize = '12px';
-  partMoveBtn.style.color = 'rgb(20, 20, 20)';
-  partMoveBtn.style.borderRadius = '12px';
-  partMoveBtn.style.borderStyle = 'none';
-  partMoveBtn.style.backgroundColor = 'rgb(255, 255, 255)';
-  partMoveBtn.appendChild(document.createTextNode('이동'));
-  dataControlDiv.appendChild(partMoveBtn);
-  dataControlDiv.appendChild(document.createElement('br'));
-  var nativeText = document.createElement('strong');
-  nativeText.style.width = '35%';
-  nativeText.style.padding = '2px';
-  nativeText.style.verticalAlign = 'middle';
-  nativeText.style.display = 'inline-block';
-  nativeText.style.textAlign = 'justify';
-  nativeText.style.fontSize = '13.33333px';
-  nativeText.appendChild(document.createTextNode('원시 모델 부분'));
-  dataControlDiv.appendChild(nativeText);
-  var nativeSelectBtn = document.createElement('button');
-  nativeSelectBtn.setAttribute('type', 'button');
-  nativeSelectBtn.dataset.type = DataType.NATIVE;
-  nativeSelectBtn.dataset["function"] = 'select';
-  nativeSelectBtn.dataset.active = 'off';
-  nativeSelectBtn.className = 'mago3d-tools-select';
-  nativeSelectBtn.name = 'btn-' + DataType.NATIVE;
-  nativeSelectBtn.style.display = 'inline-block';
-  nativeSelectBtn.style.verticalAlign = 'middle';
-  nativeSelectBtn.style.padding = '2px 10px';
-  nativeSelectBtn.style.fontSize = '12px';
-  nativeSelectBtn.style.color = 'rgb(20, 20, 20)';
-  nativeSelectBtn.style.borderRadius = '12px';
-  nativeSelectBtn.style.borderStyle = 'none';
-  nativeSelectBtn.style.backgroundColor = 'rgb(255, 255, 255)';
-  nativeSelectBtn.appendChild(document.createTextNode('선택'));
-  dataControlDiv.appendChild(nativeSelectBtn);
-  var nativeMoveBtn = document.createElement('button');
-  nativeMoveBtn.setAttribute('type', 'button');
-  nativeMoveBtn.dataset.type = DataType.NATIVE;
-  nativeMoveBtn.dataset["function"] = 'translate';
-  nativeMoveBtn.dataset.active = 'off';
-  nativeMoveBtn.className = 'mago3d-tools-translate';
-  nativeMoveBtn.name = 'btn-' + DataType.NATIVE;
-  nativeMoveBtn.style.display = 'inline-block';
-  nativeMoveBtn.style.verticalAlign = 'middle';
-  nativeMoveBtn.style.marginLeft = '5px';
-  nativeMoveBtn.style.padding = '2px 10px';
-  nativeMoveBtn.style.fontSize = '12px';
-  nativeMoveBtn.style.color = 'rgb(20, 20, 20)';
-  nativeMoveBtn.style.borderRadius = '12px';
-  nativeMoveBtn.style.borderStyle = 'none';
-  nativeMoveBtn.style.backgroundColor = 'rgb(255, 255, 255)';
-  nativeMoveBtn.appendChild(document.createTextNode('이동'));
-  dataControlDiv.appendChild(nativeMoveBtn);
-  var selectBtns = magoManager.defaultContentContainer.getElementsByClassName('mago3d-tools-select');
-  var selectInteraction = magoManager.defaultSelectInteraction;
-  var translateBtns = magoManager.defaultContentContainer.getElementsByClassName('mago3d-tools-translate');
-  var translateInteraction = magoManager.defaultTranslateInteraction;
-  var names = [DataType.NATIVE, DataType.OBJECT, DataType.F4D];
-
-  for (var i = 0, sLength = selectBtns.length; i < sLength; i++) {
-    (function (idx) {
-      var sBtn = selectBtns.item(idx);
-      sBtn.addEventListener('click', function () {
-        var type = sBtn.dataset.type;
-
-        if (!selectInteraction.getActive()) {
-          selectInteraction.setTargetType(type);
-          selectInteraction.setActive(true);
-          sBtn.dataset.active = 'on';
-        } else {
-          var nowTargetType = selectInteraction.getTargetType();
-
-          if (type === nowTargetType) {
-            selectInteraction.setActive(false);
-            sBtn.dataset.active = 'off';
-          } else {
-            var nowBtn = selectBtns.namedItem('btn-' + nowTargetType);
-            nowBtn.dataset.active = 'off';
-            btnActiveStyle(nowBtn);
-            selectInteraction.setTargetType(type);
-            sBtn.dataset.active = 'on';
-          }
-        }
-
-        btnActiveStyle(sBtn);
-      }, false);
-    })(i);
-  }
-
-  for (var i = 0, tLength = translateBtns.length; i < tLength; i++) {
-    (function (idx) {
-      var tBtn = translateBtns.item(idx);
-      tBtn.addEventListener('click', function () {
-        var type = tBtn.dataset.type;
-
-        if (!translateInteraction.getActive()) {
-          translateInteraction.setTargetType(type);
-          translateInteraction.setActive(true);
-          tBtn.dataset.active = 'on';
-        } else {
-          var nowTargetType = translateInteraction.getTargetType();
-
-          if (type === nowTargetType) {
-            translateInteraction.setActive(false);
-            tBtn.dataset.active = 'off';
-          } else {
-            var nowBtn = translateBtns.namedItem('btn-' + nowTargetType);
-            nowBtn.dataset.active = 'off';
-            btnActiveStyle(nowBtn);
-            translateInteraction.setTargetType(type);
-            tBtn.dataset.active = 'on';
-          }
-        }
-
-        btnActiveStyle(tBtn);
-      }, false);
-    })(i);
-  }
-
-  function btnActiveStyle(b) {
-    if (b.dataset.active === 'on') {
-      b.style.backgroundColor = 'rgb(160, 160, 160)';
-      b.style.color = 'rgb(230, 230, 230)';
-    } else {
-      b.style.backgroundColor = 'rgb(255, 255, 255)';
-      b.style.color = 'rgb(20, 20, 20)';
-    }
-  }
-
-  function getBasicButtonObject(type, title, text, runtype, action) {
-    var btn = document.createElement('button');
-    btn.setAttribute('type', 'button');
-    btn.dataset.type = type;
-    btn.dataset.status = 'off';
-    btn.title = title;
-    btn.appendChild(document.createTextNode(text));
-    btn.style.display = 'inline-block';
-    btn.style.margin = '1px 1px 1px 5px';
-    btn.style.padding = '0';
-    btn.style.color = 'rgb(136, 136, 136)';
-    btn.style.fontWeight = 'bold';
-    btn.style.height = '33px';
-    btn.style.width = '66px';
-    btn.style.backgroundColor = '#f3f3f3';
-    btn.style.borderRadius = '12px';
-    btn.style.borderStyle = 'none';
-    return {
-      runType: runtype,
-      element: btn,
-      action: action
-    };
-  }
-
-  function getGroupDiv(category) {
-    var div = document.createElement('div');
-    div.style.padding = '5px 10px';
-    div.style.margin = '0 0 20px 0';
-    div.style.outline = '0px';
-    div.style.verticalAlign = 'top';
-    div.style.fontSize = '16PX';
-    div.style.fontWeight = 'bold';
-    div.style.color = '#888';
-    var strong = document.createElement('strong');
-    strong.style.display = 'block';
-    strong.style.padding = '10px 6px';
-    strong.style.borderBottom = '1px solid #e2e2e2';
-    strong.appendChild(document.createTextNode(category));
-    div.appendChild(strong);
-    return div;
-  }
-};
-
-Tools.prototype.handleMouseOver = function () {
-  this.element.getElementsByTagName('button')[0].style.backgroundColor = 'rgba(148,216,246, 0.8)';
-};
-
-Tools.prototype.handleMouseOut = function () {
-  if (this.element.className !== 'on') {
-    this.element.getElementsByTagName('button')[0].style.backgroundColor = 'rgba(217, 217, 217, 0.8)';
-  }
-};
-
-Tools.prototype.handleToolClick = function (tool) {
-  if (tool.runType === 'toggle') {
-    var element = tool.element;
-    element.dataset.status = element.dataset.status === 'on' ? 'off' : 'on';
-    var status = element.dataset.status;
-    var boolStatus = status === 'on' ? true : false;
-    tool.action.call(this, boolStatus);
-
-    if (boolStatus) {
-      tool.element.style.backgroundColor = 'rgba(148,216,246, 0.8)';
-    } else {
-      tool.element.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
-    }
-  }
-};
-'use strict';
-/**
- * 줌 컨트롤
- * @exception {Error} Messages.CONSTRUCT_ERROR
- * 
- * @constructor
- * @class Zoom
- * @param {Zoom~Options} options position info. coordinate. required.
- *  
- * @extends AbsControl
- * 
- */
-
-var Zoom = function Zoom(options) {
-  if (!(this instanceof Zoom)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  var element = document.createElement('div');
-  options = options ? options : {};
-  options.element = element;
-  AbsControl.call(this, options);
-  element.style.position = 'absolute';
-  element.style.pointerEvents = 'auto';
-  element.style.backgroundColor = 'rgba(255,255,255,0.4)';
-  element.style.borderRadius = '4px';
-  element.style.padding = '2px';
-  element.style.bottom = '0.5em';
-  element.style.right = '9.5em';
-  var that = this;
-  var upButton = document.createElement('button');
-  upButton.setAttribute('type', 'button');
-  upButton.title = 'zoom in';
-  var imageSpan = document.createElement('span');
-  imageSpan.appendChild(document.createTextNode('+'));
-  imageSpan.style.verticalAlign = 'super';
-  imageSpan.style.lineHeight = '0.6em';
-  upButton.appendChild(imageSpan);
-  /*upButton.appendChild(document.createElement('br'));
-  	var textSpan = document.createElement('span');
-  textSpan.appendChild(document.createTextNode('줌인'));
-  textSpan.style.fontSize = '10px';
-  textSpan.style.verticalAlign = 'baseline';
-  textSpan.style.lineHeight = '0.6em';
-  upButton.appendChild(textSpan);*/
-
-  this.setBtnStyle(upButton);
-  upButton.style.width = '25px';
-  upButton.style.height = '25px';
-  upButton.style.display = 'inline-block';
-  upButton.addEventListener('click', that.handleClick.bind(that, 1), false);
-  var downButton = document.createElement('button');
-  downButton.setAttribute('type', 'button');
-  downButton.title = 'zoom out';
-  var downImageSpan = document.createElement('span');
-  downImageSpan.appendChild(document.createTextNode("\u2212"));
-  downImageSpan.style.verticalAlign = 'super';
-  downImageSpan.style.lineHeight = '0.6em';
-  downButton.appendChild(downImageSpan);
-  /*downButton.appendChild(document.createElement('br'));
-  	var downTextSpan = document.createElement('span');
-  downTextSpan.appendChild(document.createTextNode('줌아웃'));
-  downTextSpan.style.fontSize = '10px';
-  downTextSpan.style.verticalAlign = 'baseline';
-  downTextSpan.style.lineHeight = '0.6em';
-  downButton.appendChild(downTextSpan);*/
-
-  this.setBtnStyle(downButton);
-  downButton.style.width = '25px';
-  downButton.style.height = '25px';
-  downButton.style.display = 'inline-block';
-  downButton.addEventListener('click', that.handleClick.bind(that, 0), false);
-  this.element.appendChild(upButton);
-  this.element.appendChild(downButton);
-};
-
-Zoom.prototype = Object.create(AbsControl.prototype);
-Zoom.prototype.constructor = Zoom;
-
-Zoom.prototype.handleClick = function (type) {
-  if (this.magoManager.isCesiumGlobe()) {
-    var scene = this.magoManager.scene;
-    var camera = scene.camera;
-    var cartographicPosition = Cesium.Cartographic.fromCartesian(camera.position);
-    var alt = cartographicPosition.height;
-
-    if (type) {
-      scene.camera.zoomIn(alt * 0.1);
-    } else {
-      scene.camera.zoomOut(alt * 0.1);
-    }
-  }
-};
-'use strict';
-/**
  * save the data related with making feature move
  * @class AnimationData
  */
@@ -28590,7 +27237,22 @@ MagoManager.prototype.drawBuildingNames = function (visibleObjControlerNodes) {
           //ctx.strokeText('민간분양', screenCoord.x+30, screenCoord.y);
 
           var textOffset = label.textOffset;
-          ctx.fillText(label.text, screenCoord.x + textOffset[0], screenCoord.y + textOffset[1]);
+          var text = label.text;
+
+          if (text.indexOf('\n') > -1) {
+            var splitTexts = text.split('\n');
+            var yoffset = textOffset[1];
+            var halfYoffset = yoffset / 2;
+            var ypos = screenCoord.y + yoffset;
+
+            for (var k = 0, textLen = splitTexts.length; k < textLen; k++) {
+              var splitText = splitTexts[k];
+              ypos = ypos + k * -2 * yoffset;
+              ctx.fillText(splitText, screenCoord.x + textOffset[0], ypos);
+            }
+          } else {
+            ctx.fillText(text, screenCoord.x + textOffset[0], screenCoord.y + textOffset[1]);
+          }
         }
       }
     }
@@ -46224,6 +44886,1359 @@ Policy.prototype.setModelMovable = function (movable) {
 
 Policy.prototype.isModelMovable = function () {
   return this.modelMovable;
+};
+'use strict';
+/**
+ * 
+ * @exception {Error} Messages.CONSTRUCT_ERROR
+ * 
+ * @class AbsControl. abstract class
+ * @constructor
+ * @abstract
+ * 
+ * @param {object} options
+ */
+
+var AbsControl = function AbsControl(options) {
+  if (!(this instanceof AbsControl)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  var element = options.element;
+
+  if (element && !options.target && !element.style.pointerEvents) {
+    element.style.pointerEvents = 'auto';
+  }
+
+  this.element = element ? element : undefined;
+  this.target = options.target ? options.target : undefined;
+  this.magoManager;
+};
+
+AbsControl.prototype.setControl = function (magoManager) {
+  this.magoManager = magoManager;
+  var target = this.target ? this.target : this.magoManager.defaultControlContainer;
+  target.appendChild(this.element);
+  this.target = target;
+};
+/**
+ * button element set basic style 
+ * @param {HTMLElement} element 
+ */
+
+
+AbsControl.prototype.setBtnStyle = function (element) {
+  element.style.display = 'block';
+  element.style.margin = '1px';
+  element.style.padding = 0;
+  element.style.color = 'white';
+  element.style.fontSize = '1.14em';
+  element.style.fontWeight = 'bold';
+  element.style.textDecoration = 'none';
+  element.style.textAlign = 'center';
+  element.style.height = '42px';
+  element.style.width = '42px';
+  element.style.lineHeight = '.4em';
+  element.style.border = 'none';
+  element.style.backgroundColor = 'rgba(148,216,246, 0.8)';
+  element.addEventListener('mouseenter', function () {
+    element.style.filter = 'invert(30%)';
+  }, false);
+  element.addEventListener('mouseleave', function () {
+    element.style.filter = 'none';
+  }, false);
+};
+/**
+ * button element set basic style 
+ * @param {HTMLElement} element 
+ */
+
+
+AbsControl.prototype.setTextBtn = function (element) {
+  element.style.display = 'inline-block';
+  element.style.margin = '1px';
+  element.style.padding = 0;
+  element.style.color = 'white';
+  element.style.fontSize = '.84em';
+  element.style.fontWeight = 'bold';
+  element.style.textDecoration = 'none';
+  element.style.textAlign = 'center';
+  element.style.height = '1.75em';
+  element.style.width = '4.575em';
+  element.style.lineHeight = '.4em';
+  element.style.border = 'none';
+  element.style.backgroundColor = 'rgba(148,216,246, 0.8)';
+};
+'use strict';
+/**
+ * 줌 컨트롤
+ * @exception {Error} Messages.CONSTRUCT_ERROR
+ * 
+ * @constructor
+ * @class Attribution
+ * @param {Attribution~Options} options position info. coordinate. required.
+ *  
+ * @extends AbsControl
+ * 
+ */
+
+var Attribution = function Attribution(options) {
+  if (!(this instanceof Attribution)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  var element = document.createElement('div');
+  options = options ? options : {};
+  options.element = element;
+  AbsControl.call(this, options);
+};
+
+Attribution.prototype = Object.create(AbsControl.prototype);
+Attribution.prototype.constructor = Attribution;
+
+Attribution.prototype.setControl = function (magoManager) {
+  this.magoManager = magoManager;
+
+  if (this.magoManager.isCesiumGlobe()) {
+    var creditDisplay = this.magoManager.scene.frameState.creditDisplay;
+    var mago3d_credit = new Cesium.Credit('<a href="http://www.mago3d.com/" target="_blank"><img class="mago3d_logo" src="/images/logo_mago3d.png" title="Mago3D" alt="Mago3D" /></a>', true);
+    creditDisplay.addDefaultCredit(mago3d_credit);
+  } else {
+    var target = this.target ? this.target : this.magoManager.overlayContainer;
+    target.appendChild(this.element);
+  }
+};
+'use strict';
+/**
+ * 줌 컨트롤
+ * @exception {Error} Messages.CONSTRUCT_ERROR
+ * 
+ * @constructor
+ * @class Compass
+ * @param {Compass~Options} options position info. coordinate. required.
+ *  
+ * @extends AbsControl
+ * 
+ */
+
+var Compass = function Compass(options) {
+  if (!(this instanceof Compass)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  var element = document.createElement('div');
+  options = options ? options : {};
+  options.element = element;
+  AbsControl.call(this, options);
+  element.style.position = 'absolute';
+  element.style.pointerEvents = 'auto';
+  element.style.backgroundColor = 'rgba(255,255,255,0.4)';
+  element.style.borderRadius = '4px';
+  element.style.padding = '2px';
+  element.style.top = '24.0em';
+  element.style.right = '.5em';
+  var that = this;
+  var homeButton = document.createElement('button');
+  homeButton.setAttribute('type', 'button');
+  homeButton.title = 'init position';
+  homeButton.appendChild(document.createTextNode("\uD83E\uDDED"));
+  this.setBtnStyle(homeButton);
+  homeButton.style.backgroundColor = 'rgba(217, 217, 217, 0.8)';
+  this.element.appendChild(homeButton);
+};
+
+Compass.prototype = Object.create(AbsControl.prototype);
+Compass.prototype.constructor = Compass;
+'use strict';
+/**
+ * 줌 컨트롤
+ * @exception {Error} Messages.CONSTRUCT_ERROR
+ * 
+ * @constructor
+ * @class FullScreen
+ * @param {FullScreen~Options} options position info. coordinate. required.
+ *  
+ * @extends AbsControl
+ * 
+ */
+
+var FullScreen = function FullScreen(options) {
+  if (!(this instanceof FullScreen)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  var element = document.createElement('div');
+  options = options ? options : {};
+  options.element = element;
+  AbsControl.call(this, options);
+  var that = this;
+  this.full = false;
+  element.style.position = 'absolute';
+  element.style.pointerEvents = 'auto';
+  element.style.backgroundColor = 'rgba(255,255,255,0.4)';
+  element.style.borderRadius = '4px';
+  element.style.padding = '2px';
+  element.style.top = '4.5em';
+  element.style.right = '.5em';
+  var fullButton = document.createElement('button');
+  fullButton.setAttribute('type', 'button');
+  fullButton.title = 'Full Screen';
+  var imageSpan = document.createElement('span');
+  imageSpan.appendChild(document.createTextNode("\u21C5"));
+  imageSpan.style.transform = 'rotate(0.1turn)';
+  imageSpan.style.display = 'inline-block';
+  imageSpan.style.verticalAlign = 'super';
+  imageSpan.style.lineHeight = '0.6em';
+  fullButton.appendChild(imageSpan);
+  fullButton.appendChild(document.createElement('br'));
+  var textSpan = document.createElement('span');
+  textSpan.appendChild(document.createTextNode('전체화면'));
+  textSpan.style.fontSize = '10px';
+  textSpan.style.verticalAlign = 'baseline';
+  textSpan.style.lineHeight = '0.6em';
+  fullButton.appendChild(textSpan);
+  this.setBtnStyle(fullButton);
+  fullButton.addEventListener('click', that.handleClick.bind(that), false);
+  this.fullButtonElement = fullButton;
+  var cancleButton = document.createElement('button');
+  cancleButton.setAttribute('type', 'button');
+  cancleButton.title = 'Cancle Full Screen';
+  var cancleImageSpan = document.createElement('span');
+  cancleImageSpan.appendChild(document.createTextNode("\u2716"));
+  cancleImageSpan.style.verticalAlign = 'super';
+  cancleImageSpan.style.lineHeight = '0.6em';
+  cancleButton.appendChild(cancleImageSpan);
+  cancleButton.appendChild(document.createElement('br'));
+  var cancleTextSpan = document.createElement('span');
+  cancleTextSpan.appendChild(document.createTextNode('취소'));
+  cancleTextSpan.style.fontSize = '10px';
+  cancleTextSpan.style.verticalAlign = 'baseline';
+  cancleTextSpan.style.lineHeight = '0.6em';
+  cancleButton.appendChild(cancleTextSpan);
+  this.setBtnStyle(cancleButton);
+  cancleButton.style.display = 'none';
+  cancleButton.addEventListener('click', that.handleClick.bind(that), false);
+  this.cancleButtonElement = cancleButton;
+  this.element.appendChild(fullButton);
+  this.element.appendChild(cancleButton);
+};
+
+FullScreen.prototype = Object.create(AbsControl.prototype);
+FullScreen.prototype.constructor = FullScreen;
+
+FullScreen.prototype.handleClick = function () {
+  var target = document.getElementById(this.magoManager.config.getContainerId());
+
+  if (this.full) {
+    if (isFullScreen()) {
+      this.fullButtonElement.style.display = 'block';
+      this.cancleButtonElement.style.display = 'none';
+      exitFullScreen();
+      this.full = false;
+    }
+  } else {
+    if (isFullScreenSupported()) {
+      this.fullButtonElement.style.display = 'none';
+      this.cancleButtonElement.style.display = 'block';
+      requestFullScreen(target);
+      this.full = true;
+    }
+  }
+
+  function isFullScreenSupported() {
+    var body = document.body;
+    return !!(body.webkitRequestFullscreen || body.msRequestFullscreen && document.msFullscreenEnabled || body.requestFullscreen && document.fullscreenEnabled);
+  }
+
+  function isFullScreen() {
+    return !!(document.webkitIsFullScreen || document.msFullscreenElement || document.fullscreenElement);
+  }
+
+  function requestFullScreen(element) {
+    if (element.requestFullscreen) {
+      element.requestFullscreen();
+    } else if (element.msRequestFullscreen) {
+      element.msRequestFullscreen();
+    } else if (element.webkitRequestFullscreen) {
+      element.webkitRequestFullscreen();
+    }
+  }
+
+  function exitFullScreen() {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen();
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    }
+  }
+};
+'use strict';
+/**
+ * 줌 컨트롤
+ * @exception {Error} Messages.CONSTRUCT_ERROR
+ * 
+ * @constructor
+ * @class InitCamera
+ * @param {InitCamera~Options} options position info. coordinate. required.
+ *  
+ * @extends AbsControl
+ * 
+ */
+
+var InitCamera = function InitCamera(options) {
+  if (!(this instanceof InitCamera)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  var element = document.createElement('div');
+  options = options ? options : {};
+  options.element = element;
+  AbsControl.call(this, options);
+  element.style.position = 'absolute';
+  element.style.pointerEvents = 'auto';
+  element.style.backgroundColor = 'rgba(255,255,255,0.4)';
+  element.style.borderRadius = '4px';
+  element.style.padding = '2px';
+  element.style.top = '1.0em';
+  element.style.right = '.5em';
+  var that = this;
+  var homeButton = document.createElement('button');
+  homeButton.setAttribute('type', 'button');
+  homeButton.title = 'init position';
+  var imageSpan = document.createElement('span');
+  imageSpan.appendChild(document.createTextNode("\uD83C\uDFE0"));
+  imageSpan.style.verticalAlign = 'text-top';
+  imageSpan.style.lineHeight = '0.6em';
+  homeButton.appendChild(imageSpan);
+  homeButton.appendChild(document.createElement('br'));
+  var textSpan = document.createElement('span');
+  textSpan.appendChild(document.createTextNode('처음으로'));
+  textSpan.style.fontSize = '10px';
+  textSpan.style.verticalAlign = 'baseline';
+  textSpan.style.lineHeight = '0.6em';
+  homeButton.appendChild(textSpan);
+  this.setBtnStyle(homeButton);
+  homeButton.style.backgroundColor = 'rgba(217, 217, 217, 0.8)';
+  homeButton.addEventListener('click', that.handleClick.bind(that), false);
+  this.element.appendChild(homeButton);
+};
+
+InitCamera.prototype = Object.create(AbsControl.prototype);
+InitCamera.prototype.constructor = InitCamera;
+
+InitCamera.prototype.handleClick = function () {
+  if (this.magoManager.isCesiumGlobe()) {
+    var config = this.magoManager.configInformation;
+
+    if (config.initCameraEnable) {
+      var lon = parseFloat(config.initLongitude);
+      var lat = parseFloat(config.initLatitude);
+      var height = parseFloat(config.initAltitude);
+      var duration = parseInt(config.initDuration);
+
+      if (isNaN(lon) || isNaN(lat) || isNaN(height)) {
+        throw new Error('Longitude, Latitude, Height must number type.');
+      }
+
+      if (isNaN(duration)) {
+        duration = 3;
+      }
+
+      this.magoManager.flyTo(lon, lat, height, duration);
+    }
+  }
+};
+'use strict';
+/**
+ * 줌 컨트롤
+ * @exception {Error} Messages.CONSTRUCT_ERROR
+ * 
+ * @constructor
+ * @class Measure
+ * @param {Measure~Options} options position info. coordinate. required.
+ *  
+ * @extends AbsControl
+ * 
+ */
+
+var Measure = function Measure(options) {
+  if (!(this instanceof Measure)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  var element = document.createElement('div');
+  options = options ? options : {};
+  options.element = element;
+  AbsControl.call(this, options);
+  this.buttons = {};
+  element.style.position = 'absolute';
+  element.style.pointerEvents = 'auto';
+  element.style.backgroundColor = 'rgba(255,255,255,0.4)';
+  element.style.borderRadius = '4px';
+  element.style.padding = '2px';
+  element.style.bottom = '9.5em';
+  element.style.right = '.5em';
+  setButton(this, 'length', "\uD83D\uDCCF", 'Measure Length', '거리측정');
+  setButton(this, 'area', "\u26F6", 'Measure Area', '면적측정');
+  setButton(this, 'height', "\u2BB8", 'Measure Height', '높이측정');
+
+  function setButton(thisArg, type, text, title, description) {
+    var button = document.createElement('button');
+    button.setAttribute('type', 'button');
+    button.title = title;
+    var imageSpan = document.createElement('span');
+    imageSpan.appendChild(document.createTextNode(text));
+    imageSpan.style.verticalAlign = 'super';
+    imageSpan.style.lineHeight = '0.6em';
+    button.appendChild(imageSpan);
+    button.appendChild(document.createElement('br'));
+    var textSpan = document.createElement('span');
+    textSpan.appendChild(document.createTextNode(description));
+    textSpan.style.fontSize = '10px';
+    textSpan.style.verticalAlign = 'baseline';
+    textSpan.style.lineHeight = '0.6em';
+    button.appendChild(textSpan);
+    thisArg.setBtnStyle(button);
+    button.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
+    button.style.display = 'inline-block';
+    thisArg.buttons[type] = {
+      status: false,
+      element: button
+    };
+    thisArg.element.appendChild(button);
+    button.addEventListener('click', thisArg.handleClick.bind(thisArg, type), false);
+  }
+};
+
+Measure.prototype = Object.create(AbsControl.prototype);
+Measure.prototype.constructor = Measure;
+
+Measure.prototype.handleClick = function (e) {
+  if (this.buttons[e].status) {
+    var button = this.buttons[e];
+    button.status = false;
+    button.element.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
+  } else {
+    for (var buttonName in this.buttons) {
+      if (this.buttons.hasOwnProperty(buttonName)) {
+        var button = this.buttons[buttonName];
+
+        if (buttonName === e) {
+          button.element.style.backgroundColor = 'rgba(148,216,246, 0.8)';
+          button.status = true;
+        } else {
+          button.element.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
+          button.status = false;
+        }
+      }
+    }
+
+    alert('기능 준비중');
+  }
+};
+'use strict';
+/**
+ * 줌 컨트롤
+ * @exception {Error} Messages.CONSTRUCT_ERROR
+ * 
+ * @constructor
+ * @class Zoom
+ * @param {Zoom~Options} options position info. coordinate. required.
+ *  
+ * @extends AbsControl
+ * 
+ */
+
+var OverviewMap = function OverviewMap(options) {
+  if (!(this instanceof OverviewMap)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  var element = document.createElement('div');
+  options = options ? options : {};
+  options.element = element;
+  AbsControl.call(this, options);
+  var id = 'mago3dOlMap';
+  element.id = id;
+  element.style.position = 'absolute';
+  element.style.pointerEvents = 'auto';
+  element.style.borderRadius = '4px';
+  element.style.padding = '2px';
+  element.style.bottom = '.5em';
+  element.style.right = '.5em';
+  element.style.width = '135px';
+  element.style.height = '135px';
+  element.style.borderRadius = '4px';
+  element.style.border = '2px solid #CCE5EC';
+};
+
+OverviewMap.prototype = Object.create(AbsControl.prototype);
+OverviewMap.prototype.constructor = OverviewMap;
+
+OverviewMap.prototype.setControl = function (magoManager) {
+  this.magoManager = magoManager;
+  var target = this.target ? this.target : this.magoManager.defaultControlContainer;
+  target.appendChild(this.element);
+  var vectorlayer = new OlMago3d.layer.VectorLayer({
+    source: new OlMago3d.source.VectorSource()
+  });
+  var tilelayer = new OlMago3d.layer.TileLayer({
+    source: new OlMago3d.source.XYZ({
+      url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.png'
+    })
+  });
+  this.overviewMap = new OlMago3d.Map({
+    target: 'mago3dOlMap',
+    view: new OlMago3d.View({
+      zoom: 3,
+      center: [0, 0],
+      projection: 'EPSG:4326'
+    }),
+    layers: [tilelayer, vectorlayer],
+    controls: OlMago3d.control.defaults({
+      attribution: true,
+      zoom: false,
+      rotate: false
+    }),
+    interactions: OlMago3d.interaction.defaults({
+      altShiftDragRotate: false,
+      onFocusOnly: false,
+      doubleClickZoom: false,
+      keyboard: false,
+      mouseWheelZoom: false,
+      shiftDragZoom: false,
+      dragPan: false,
+      pinchRotate: false,
+      pinchZoom: false
+    })
+  });
+  this.overviewMap.overlayContainerStopEvent_.style.pointerEvents = 'none';
+
+  if (this.magoManager.isCesiumGlobe()) {
+    var syncByMago = function syncByMago() {
+      var viewRectangle = scene.camera.computeViewRectangle(scene.globe.ellipsoid);
+      var minx = viewRectangle.west < viewRectangle.east ? viewRectangle.west : viewRectangle.east;
+      var miny = viewRectangle.south < viewRectangle.north ? viewRectangle.south : viewRectangle.north;
+      var maxx = viewRectangle.west > viewRectangle.east ? viewRectangle.west : viewRectangle.east;
+      var maxy = viewRectangle.south > viewRectangle.north ? viewRectangle.south : viewRectangle.north;
+      var extent = [Cesium.Math.toDegrees(minx), Cesium.Math.toDegrees(miny), Cesium.Math.toDegrees(maxx), Cesium.Math.toDegrees(maxy)];
+      var geomPolygon = OlMago3d.geom.Polygon.fromExtent(extent);
+
+      if (!feature) {
+        feature = new OlMago3d.Feature({
+          geometry: geomPolygon
+        });
+        vectorlayer.getSource().addFeature(feature);
+      } else {
+        feature.setGeometry(geomPolygon);
+      }
+
+      var ellipsoid = Cesium.Ellipsoid.WGS84;
+      var canvas = scene.canvas;
+      var canvasCenter = new Cesium.Cartesian2(canvas.clientWidth / 2, canvas.clientHeight / 2);
+      var ray = scene.camera.getPickRay(canvasCenter);
+      var targetCenter = scene.globe.pick(ray, scene) || scene.camera.pickEllipsoid(canvasCenter);
+      var bestTarget = targetCenter;
+
+      if (!bestTarget) {
+        //TODO: how to handle this properly ?
+        var globe = scene.globe;
+        var carto = scene.camera.positionCartographic.clone();
+        var height = globe.getHeight(carto);
+        carto.height = height || 0;
+        bestTarget = Cesium.Ellipsoid.WGS84.cartographicToCartesian(carto);
+      }
+
+      var distance = Cesium.Cartesian3.distance(bestTarget, scene.camera.position);
+      view.fit(extent, {
+        size: getSizeByDistance(distance)
+      });
+      return;
+      var ellipsoid = Cesium.Ellipsoid.WGS84;
+      var canvas = scene.canvas;
+      var canvasCenter = new Cesium.Cartesian2(canvas.clientWidth / 2, canvas.clientHeight / 2);
+      var ray = scene.camera.getPickRay(canvasCenter);
+      var targetCenter = scene.globe.pick(ray, scene) || scene.camera.pickEllipsoid(canvasCenter);
+      var bestTarget = targetCenter;
+
+      if (!bestTarget) {
+        //TODO: how to handle this properly ?
+        var globe = scene.globe;
+        var carto = scene.camera.positionCartographic.clone();
+        var height = globe.getHeight(carto);
+        carto.height = height || 0;
+        bestTarget = Cesium.Ellipsoid.WGS84.cartographicToCartesian(carto);
+      }
+
+      var distance = Cesium.Cartesian3.distance(bestTarget, scene.camera.position);
+      var bestTargetCartographic = ellipsoid.cartesianToCartographic(bestTarget);
+      var properties = {}; //var c = fromLonLat(toDegree(bestTargetCartographic.longitude), toDegree(bestTargetCartographic.latitude));
+
+      properties.center = [toDegree(bestTargetCartographic.longitude), toDegree(bestTargetCartographic.latitude)];
+      properties.resolution = calcResolutionForDistance(canvas, distance, bestTargetCartographic ? bestTargetCartographic.latitude : 0);
+      view.setProperties(properties, true);
+      view.changed();
+
+      function calcResolutionForDistance(cv, dis, lat) {
+        var fovy = scene.camera.frustum.fovy;
+        var metersPerUnit = view.getProjection().getMetersPerUnit();
+        var visibleMeters = 2 * dis * Math.tan(fovy / 2);
+        var relativeCircumference = Math.cos(Math.abs(lat));
+        var visibleMapUnits = visibleMeters / metersPerUnit / relativeCircumference;
+        var resolution = visibleMapUnits / cv.clientHeight;
+        return resolution;
+      }
+    };
+
+    var syncByOl = function syncByOl() {
+      var center = view.getCenter();
+
+      if (!center) {
+        return;
+      }
+
+      var ll = toLonLat(center);
+      var carto = new Cesium.Cartographic(toRadian(ll[0]), toRadian(ll[1]));
+
+      if (scene.globe) {
+        carto.height = scene.globe.getHeight(carto) || 0;
+      }
+
+      var destination = Cesium.Ellipsoid.WGS84.cartographicToCartesian(carto);
+      var oritentation = {
+        pitch: 0 - Cesium.Math.PI_OVER_TWO,
+        heading: -view.getRotation(),
+        roll: undefined
+      };
+      scene.camera.setView({
+        destination: destination,
+        oritentation: oritentation
+      });
+      scene.camera.moveBackward(calcDistanceForResolution(view.getResolution(), toRadian(ll[1])));
+
+      function calcDistanceForResolution(res, lat) {
+        var canvas = scene.canvas;
+        var fovy = scene.camera.frustum.fovy;
+        var metersPerUnit = view.getProjection().getMetersPerUnit();
+        var visibleMapUnits = res * canvas.clientHeight;
+        var relativeCircumference = Math.cos(Math.abs(lat));
+        var visibleMeters = visibleMapUnits * metersPerUnit * relativeCircumference;
+        var requiredDistance = visibleMeters / 2 / Math.tan(fovy / 2);
+        return requiredDistance;
+      }
+    };
+
+    var getSizeByDistance = function getSizeByDistance(d) {
+      var num = 0;
+
+      if (d < 5000) {
+        num = 90;
+      } else if (d < 20000) {
+        num = 70;
+      } else if (d < 70000) {
+        num = 50;
+      } else {
+        num = 30;
+      }
+
+      return [num, num];
+    };
+
+    var toRadian = function toRadian(deg) {
+      return deg * Math.PI / 180;
+    };
+
+    var toDegree = function toDegree(rad) {
+      return rad * 180 / Math.PI;
+    };
+
+    var scene = this.magoManager.scene;
+    var feature = null;
+    var map = this.overviewMap;
+    var view = map.getView();
+    var toLonLat = OlMago3d.proj.getTransform(view.getProjection(), 'EPSG:4326');
+    var fromLonLat = OlMago3d.proj.getTransform('EPSG:4326', view.getProjection());
+    syncByMago();
+    view.on('change:resolution', function () {//syncByOl();
+    });
+    view.on('change:center', function () {//syncByOl();
+    });
+    view.on('change:rotation', function () {//syncByOl();
+    });
+    this.magoManager.on('isCameraMoved', function () {
+      syncByMago();
+    });
+  }
+};
+'use strict';
+/**
+ * 줌 컨트롤
+ * @exception {Error} Messages.CONSTRUCT_ERROR
+ * 
+ * @constructor
+ * @class Tools
+ * @param {Tools~Options} options position info. coordinate. required.
+ *  
+ * @extends AbsControl
+ * 
+ */
+
+var Tools = function Tools(options) {
+  if (!(this instanceof Tools)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  var element = document.createElement('div');
+  options = options ? options : {};
+  options.element = element;
+  AbsControl.call(this, options);
+  this.tools = {};
+  element.style.position = 'absolute';
+  element.style.pointerEvents = 'auto';
+  element.style.backgroundColor = 'rgba(255,255,255,0.4)';
+  element.style.borderRadius = '4px';
+  element.style.padding = '2px';
+  element.style.top = '7.5em';
+  element.style.right = '.5em';
+  element.addEventListener('mouseover', this.handleMouseOver.bind(this), false);
+  element.addEventListener('mouseout', this.handleMouseOut.bind(this), false);
+  var that = this;
+  element.addEventListener('click', function () {
+    var mainContainer = document.getElementById(that.magoManager.config.getContainerId()).getElementsByClassName('mago3d-overlayContainer-defaultContent').item(0);
+    var thisContainer = mainContainer.getElementsByClassName('mago3d-tools-advance').item(0);
+    var on = element.className.indexOf('on') >= 0;
+
+    if (!on) {
+      that.target.style.right = '320px';
+      mainContainer.style.display = 'block';
+      mainContainer.style.right = '0px';
+      var toolsDivs = mainContainer.getElementsByClassName('mago3d-tools-div');
+
+      for (var i = 0, len = toolsDivs.length; i < len; i++) {
+        var toolDiv = toolsDivs.item(i);
+        toolDiv.style.display = 'none';
+      }
+
+      thisContainer.style.display = 'block';
+      element.className = 'on';
+      element.getElementsByTagName('button')[0].style.backgroundColor = 'rgba(148,216,246, 0.8)';
+    } else {
+      thisContainer.style.display = 'none';
+      that.target.style.right = '0px';
+      mainContainer.style.display = 'none';
+      mainContainer.style.right = '0px';
+      element.className = '';
+      element.getElementsByTagName('button')[0].style.backgroundColor = 'rgba(70, 70, 70, 0.8)';
+    }
+  }, false);
+  var button = document.createElement('button');
+  button.setAttribute('type', 'button');
+  button.title = 'Tool Box';
+  var imageSpan = document.createElement('span');
+  imageSpan.appendChild(document.createTextNode("\u2699"));
+  imageSpan.style.verticalAlign = 'super';
+  imageSpan.style.lineHeight = '0.6em';
+  button.appendChild(imageSpan);
+  button.appendChild(document.createElement('br'));
+  var textSpan = document.createElement('span');
+  textSpan.appendChild(document.createTextNode('설정'));
+  textSpan.style.fontSize = '10px';
+  textSpan.style.verticalAlign = 'baseline';
+  textSpan.style.lineHeight = '0.6em';
+  button.appendChild(textSpan);
+  this.setBtnStyle(button);
+  button.style.backgroundColor = 'rgba(217, 217, 217, 0.8)';
+  element.appendChild(button);
+};
+
+Tools.prototype = Object.create(AbsControl.prototype);
+Tools.prototype.constructor = Tools;
+
+Tools.prototype.setControl = function (magoManager) {
+  this.magoManager = magoManager;
+  var target = this.target ? this.target : magoManager.defaultControlContainer;
+  target.appendChild(this.element);
+  this.target = target;
+  var advanceToolDiv = document.createElement('div');
+  advanceToolDiv.style.position = 'absolute';
+  advanceToolDiv.style["float"] = 'right';
+  advanceToolDiv.style.width = '100%';
+  advanceToolDiv.style.backgroundColor = '#FFFFFF';
+  advanceToolDiv.style.pointerEvents = 'auto';
+  advanceToolDiv.style.display = 'none';
+  advanceToolDiv.className = 'mago3d-tools-div mago3d-tools-advance';
+  magoManager.defaultContentContainer.appendChild(advanceToolDiv);
+  var basicSettingsDiv = getGroupDiv('기본 설정');
+  advanceToolDiv.appendChild(basicSettingsDiv);
+  var basicSettingBtnDiv = document.createElement('div');
+  basicSettingBtnDiv.style.marginTop = '5px';
+  basicSettingsDiv.appendChild(basicSettingBtnDiv);
+  var that = this;
+  var basicBtns = [];
+  var bboxBtnObj = getBasicButtonObject('bbox', 'BoundingBox Toggle', 'BBOX', 'toggle', function (value) {
+    that.magoManager.magoPolicy.setShowBoundingBox(value);
+  });
+  var labelBtnObj = getBasicButtonObject('label', 'Label Toggle', 'LABEL', 'toggle', function (value) {
+    that.magoManager.magoPolicy.setShowLabelInfo(value); // clear the text canvas.
+
+    var canvas = that.magoManager.getObjectLabel();
+    var ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  });
+  var originBtnObj = getBasicButtonObject('orgin', 'Origin Toggle', 'ORIGIN', 'toggle', function (value) {
+    that.magoManager.magoPolicy.setShowOrigin(value);
+  });
+  var shadowBtnObj = getBasicButtonObject('shadow', 'Shadow Toggle', 'SHADOW', 'toggle', function (value) {
+    that.magoManager.sceneState.setApplySunShadows(value);
+  });
+  basicBtns.push(bboxBtnObj);
+  basicBtns.push(labelBtnObj);
+  basicBtns.push(originBtnObj);
+  basicBtns.push(shadowBtnObj);
+
+  for (var i = 0, btnLength = basicBtns.length; i < btnLength; i++) {
+    var basicBtn = basicBtns[i];
+    var elem = basicBtn.element;
+    basicSettingBtnDiv.appendChild(elem);
+    elem.addEventListener('click', that.handleToolClick.bind(this, basicBtn), false);
+  }
+
+  var basicSettingInputDiv = document.createElement('div');
+  basicSettingInputDiv.style.padding = '0 5px 0 0';
+  basicSettingInputDiv.style.margin = '5px 5px 0 5px';
+  basicSettingsDiv.appendChild(basicSettingInputDiv);
+  var ssaoDiv = document.createElement('div');
+  ssaoDiv.style.padding = '4px';
+  ssaoDiv.style.margin = '10px 0px 4px';
+  ssaoDiv.style.outline = '0px 0px 4px';
+  ssaoDiv.style.verticalAlign = 'top';
+  ssaoDiv.style.backgroundColor = 'rgb(243,243,243)';
+  ssaoDiv.style.borderRadius = '12px';
+  ssaoDiv.style.borderStyle = 'none';
+  ssaoDiv.className = 'mago3d-tools-ssao-div';
+  basicSettingInputDiv.appendChild(ssaoDiv);
+  var ssaoLabel = document.createElement('label');
+  ssaoLabel.style.width = '25%';
+  ssaoLabel.style.padding = '2px';
+  ssaoLabel.style.verticalAlign = 'middle';
+  ssaoLabel.style.display = 'inline-block';
+  ssaoLabel.style.textAlign = 'justify';
+  ssaoLabel.style.fontSize = '13.33333px';
+  ssaoLabel.setAttribute('for', 'ssaoRadius');
+  ssaoLabel.appendChild(document.createTextNode('SSAO'));
+  ssaoDiv.appendChild(ssaoLabel);
+  var ssaoInput = document.createElement('input');
+  ssaoInput.style.width = '45%';
+  ssaoInput.style.marginRight = '5px';
+  ssaoInput.style.padding = '5px';
+  ssaoInput.style.fontSize = 'small';
+  ssaoInput.style.verticalAlign = 'middle';
+  ssaoInput.style.lineHeight = '1.5em';
+  ssaoInput.style.color = '#444';
+  ssaoInput.setAttribute('id', 'ssaoRadius');
+  ssaoInput.setAttribute('name', 'ssaoRadius');
+  ssaoInput.setAttribute('type', 'text');
+  ssaoInput.setAttribute('value', magoManager.configInformation.ssaoRadius);
+  ssaoDiv.appendChild(ssaoInput);
+  var ssaoBtn = document.createElement('button');
+  ssaoBtn.setAttribute('type', 'button');
+  ssaoBtn.style.display = 'inline-block';
+  ssaoBtn.style.verticalAlign = 'middle';
+  ssaoBtn.style.padding = '2px 10px';
+  ssaoBtn.style.fontSize = '12px';
+  ssaoBtn.style.color = '#FFFFFF';
+  ssaoBtn.style.borderRadius = '12px';
+  ssaoBtn.style.borderStyle = 'none';
+  ssaoBtn.style.backgroundColor = '#636363';
+  ssaoBtn.appendChild(document.createTextNode('적용'));
+  ssaoBtn.addEventListener('click', function () {
+    var ssao = ssaoInput.value;
+
+    if (isNaN(ssao)) {
+      alert('숫자만 입력 가능합니다.');
+      return;
+    }
+
+    magoManager.magoPolicy.setSsaoRadius(ssao);
+    magoManager.sceneState.ssaoRadius[0] = Number(ssao);
+  }, false);
+  ssaoDiv.appendChild(ssaoBtn);
+  var lodDiv = document.createElement('div');
+  lodDiv.style.padding = '4px';
+  lodDiv.style.margin = '10px 0px 4px';
+  lodDiv.style.outline = '0px 0px 4px';
+  lodDiv.style.verticalAlign = 'top';
+  lodDiv.style.backgroundColor = 'rgb(243,243,243)';
+  lodDiv.style.borderRadius = '12px';
+  lodDiv.style.borderStyle = 'none';
+  lodDiv.className = 'mago3d-tools-lod-div';
+  basicSettingInputDiv.appendChild(lodDiv);
+  var lodh3 = document.createElement('h3');
+  lodh3.style.fontSize = '15px';
+  lodh3.appendChild(document.createTextNode('Level of Detail'));
+  lodDiv.appendChild(lodh3);
+
+  for (var i = 0; i < 6; i++) {
+    var id = 'geoLod' + i;
+    var name = 'lod' + i;
+    var lodLabel = document.createElement('label');
+    lodLabel.style.width = '25%';
+    lodLabel.style.padding = '2px';
+    lodLabel.style.verticalAlign = 'middle';
+    lodLabel.style.display = 'inline-block';
+    lodLabel.style.textAlign = 'justify';
+    lodLabel.style.fontSize = '13.33333px';
+    lodLabel.setAttribute('for', id);
+    lodLabel.appendChild(document.createTextNode(name.toUpperCase()));
+    lodDiv.appendChild(lodLabel);
+    var lodInput = document.createElement('input');
+    lodInput.style.width = '45%';
+    lodInput.style.marginRight = '5px';
+    lodInput.style.padding = '5px';
+    lodInput.style.fontSize = 'small';
+    lodInput.style.verticalAlign = 'middle';
+    lodInput.style.lineHeight = '1.5em';
+    lodInput.style.color = '#444';
+    lodInput.setAttribute('id', id);
+    lodInput.setAttribute('name', name);
+    lodInput.setAttribute('type', 'text');
+    lodInput.setAttribute('value', magoManager.configInformation[name]);
+    lodDiv.appendChild(lodInput);
+  }
+
+  var lodBtn = document.createElement('button');
+  lodBtn.setAttribute('type', 'button');
+  lodBtn.style.display = 'inline-block';
+  lodBtn.style.verticalAlign = 'middle';
+  lodBtn.style.padding = '2px 10px';
+  lodBtn.style.fontSize = '12px';
+  lodBtn.style.color = '#FFFFFF';
+  lodBtn.style.borderRadius = '12px';
+  lodBtn.style.borderStyle = 'none';
+  lodBtn.style.backgroundColor = '#636363';
+  lodBtn.appendChild(document.createTextNode('적용'));
+  lodBtn.addEventListener('click', function () {
+    var lod0 = document.getElementById('geoLod0').value;
+    var lod1 = document.getElementById('geoLod1').value;
+    var lod2 = document.getElementById('geoLod2').value;
+    var lod3 = document.getElementById('geoLod3').value;
+    var lod4 = document.getElementById('geoLod4').value;
+    var lod5 = document.getElementById('geoLod5').value;
+
+    if (isNaN(lod0) || isNaN(lod1) || isNaN(lod2) || isNaN(lod3) || isNaN(lod4) || isNaN(lod5)) {
+      alert('숫자만 입력 가능합니다.');
+      return;
+    }
+
+    if (lod0 !== null && lod0 !== "") {
+      magoManager.magoPolicy.setLod0DistInMeters(lod0);
+    }
+
+    if (lod1 !== null && lod1 !== "") {
+      magoManager.magoPolicy.setLod1DistInMeters(lod1);
+    }
+
+    if (lod2 !== null && lod2 !== "") {
+      magoManager.magoPolicy.setLod2DistInMeters(lod2);
+    }
+
+    if (lod3 !== null && lod3 !== "") {
+      magoManager.magoPolicy.setLod3DistInMeters(lod3);
+    }
+
+    if (lod4 !== null && lod4 !== "") {
+      magoManager.magoPolicy.setLod4DistInMeters(lod4);
+    }
+
+    if (lod5 !== null && lod5 !== "") {
+      magoManager.magoPolicy.setLod5DistInMeters(lod5);
+    }
+  }, false);
+  lodDiv.appendChild(lodBtn);
+  var dataDiv = getGroupDiv('데이터 선택');
+  advanceToolDiv.appendChild(dataDiv);
+  var dataControlDiv = document.createElement('div');
+  dataControlDiv.style.padding = '4px';
+  dataControlDiv.style.margin = '10px 0px 4px';
+  dataControlDiv.style.outline = '0px 0px 4px';
+  dataControlDiv.style.verticalAlign = 'top';
+  dataControlDiv.style.backgroundColor = 'rgb(243,243,243)';
+  dataControlDiv.style.borderRadius = '12px';
+  dataControlDiv.style.borderStyle = 'none';
+  dataControlDiv.className = 'mago3d-tools-data-div';
+  dataDiv.appendChild(dataControlDiv);
+  var allText = document.createElement('strong');
+  allText.style.width = '35%';
+  allText.style.padding = '2px';
+  allText.style.verticalAlign = 'middle';
+  allText.style.display = 'inline-block';
+  allText.style.textAlign = 'justify';
+  allText.style.fontSize = '13.33333px';
+  allText.appendChild(document.createTextNode('F4D 모델'));
+  dataControlDiv.appendChild(allText);
+  var allSelectBtn = document.createElement('button');
+  allSelectBtn.setAttribute('type', 'button');
+  allSelectBtn.dataset.type = DataType.F4D;
+  allSelectBtn.dataset["function"] = 'select';
+  allSelectBtn.dataset.active = 'off';
+  allSelectBtn.className = 'mago3d-tools-select';
+  allSelectBtn.name = 'btn-' + DataType.F4D;
+  allSelectBtn.style.display = 'inline-block';
+  allSelectBtn.style.verticalAlign = 'middle';
+  allSelectBtn.style.padding = '2px 10px';
+  allSelectBtn.style.fontSize = '12px';
+  allSelectBtn.style.color = 'rgb(20, 20, 20)';
+  allSelectBtn.style.borderRadius = '12px';
+  allSelectBtn.style.borderStyle = 'none';
+  allSelectBtn.style.backgroundColor = 'rgb(255, 255, 255)';
+  allSelectBtn.appendChild(document.createTextNode('선택'));
+  dataControlDiv.appendChild(allSelectBtn);
+  var allMoveBtn = document.createElement('button');
+  allMoveBtn.setAttribute('type', 'button');
+  allMoveBtn.dataset.type = DataType.F4D;
+  allMoveBtn.dataset["function"] = 'translate';
+  allMoveBtn.dataset.active = 'off';
+  allMoveBtn.className = 'mago3d-tools-translate';
+  allMoveBtn.name = 'btn-' + DataType.F4D;
+  allMoveBtn.style.display = 'inline-block';
+  allMoveBtn.style.verticalAlign = 'middle';
+  allMoveBtn.style.marginLeft = '5px';
+  allMoveBtn.style.padding = '2px 10px';
+  allMoveBtn.style.fontSize = '12px';
+  allMoveBtn.style.color = 'rgb(20, 20, 20)';
+  allMoveBtn.style.borderRadius = '12px';
+  allMoveBtn.style.borderStyle = 'none';
+  allMoveBtn.style.backgroundColor = 'rgb(255, 255, 255)';
+  allMoveBtn.appendChild(document.createTextNode('이동'));
+  dataControlDiv.appendChild(allMoveBtn);
+  dataControlDiv.appendChild(document.createElement('br'));
+  var partText = document.createElement('strong');
+  partText.style.width = '35%';
+  partText.style.padding = '2px';
+  partText.style.verticalAlign = 'middle';
+  partText.style.display = 'inline-block';
+  partText.style.textAlign = 'justify';
+  partText.style.fontSize = '13.33333px';
+  partText.appendChild(document.createTextNode('F4D 모델 부분'));
+  dataControlDiv.appendChild(partText);
+  var partSelectBtn = document.createElement('button');
+  partSelectBtn.setAttribute('type', 'button');
+  partSelectBtn.dataset.type = DataType.OBJECT;
+  partSelectBtn.dataset["function"] = 'select';
+  partSelectBtn.dataset.active = 'off';
+  partSelectBtn.className = 'mago3d-tools-select';
+  partSelectBtn.name = 'btn-' + DataType.OBJECT;
+  partSelectBtn.style.display = 'inline-block';
+  partSelectBtn.style.verticalAlign = 'middle';
+  partSelectBtn.style.padding = '2px 10px';
+  partSelectBtn.style.fontSize = '12px';
+  partSelectBtn.style.color = 'rgb(20, 20, 20)';
+  partSelectBtn.style.borderRadius = '12px';
+  partSelectBtn.style.borderStyle = 'none';
+  partSelectBtn.style.backgroundColor = 'rgb(255, 255, 255)';
+  partSelectBtn.appendChild(document.createTextNode('선택'));
+  dataControlDiv.appendChild(partSelectBtn);
+  var partMoveBtn = document.createElement('button');
+  partMoveBtn.setAttribute('type', 'button');
+  partMoveBtn.dataset.type = DataType.OBJECT;
+  partMoveBtn.dataset["function"] = 'translate';
+  partMoveBtn.dataset.active = 'off';
+  partMoveBtn.className = 'mago3d-tools-translate';
+  partMoveBtn.name = 'btn-' + DataType.OBJECT;
+  partMoveBtn.style.display = 'inline-block';
+  partMoveBtn.style.verticalAlign = 'middle';
+  partMoveBtn.style.marginLeft = '5px';
+  partMoveBtn.style.padding = '2px 10px';
+  partMoveBtn.style.fontSize = '12px';
+  partMoveBtn.style.color = 'rgb(20, 20, 20)';
+  partMoveBtn.style.borderRadius = '12px';
+  partMoveBtn.style.borderStyle = 'none';
+  partMoveBtn.style.backgroundColor = 'rgb(255, 255, 255)';
+  partMoveBtn.appendChild(document.createTextNode('이동'));
+  dataControlDiv.appendChild(partMoveBtn);
+  dataControlDiv.appendChild(document.createElement('br'));
+  var nativeText = document.createElement('strong');
+  nativeText.style.width = '35%';
+  nativeText.style.padding = '2px';
+  nativeText.style.verticalAlign = 'middle';
+  nativeText.style.display = 'inline-block';
+  nativeText.style.textAlign = 'justify';
+  nativeText.style.fontSize = '13.33333px';
+  nativeText.appendChild(document.createTextNode('원시 모델 부분'));
+  dataControlDiv.appendChild(nativeText);
+  var nativeSelectBtn = document.createElement('button');
+  nativeSelectBtn.setAttribute('type', 'button');
+  nativeSelectBtn.dataset.type = DataType.NATIVE;
+  nativeSelectBtn.dataset["function"] = 'select';
+  nativeSelectBtn.dataset.active = 'off';
+  nativeSelectBtn.className = 'mago3d-tools-select';
+  nativeSelectBtn.name = 'btn-' + DataType.NATIVE;
+  nativeSelectBtn.style.display = 'inline-block';
+  nativeSelectBtn.style.verticalAlign = 'middle';
+  nativeSelectBtn.style.padding = '2px 10px';
+  nativeSelectBtn.style.fontSize = '12px';
+  nativeSelectBtn.style.color = 'rgb(20, 20, 20)';
+  nativeSelectBtn.style.borderRadius = '12px';
+  nativeSelectBtn.style.borderStyle = 'none';
+  nativeSelectBtn.style.backgroundColor = 'rgb(255, 255, 255)';
+  nativeSelectBtn.appendChild(document.createTextNode('선택'));
+  dataControlDiv.appendChild(nativeSelectBtn);
+  var nativeMoveBtn = document.createElement('button');
+  nativeMoveBtn.setAttribute('type', 'button');
+  nativeMoveBtn.dataset.type = DataType.NATIVE;
+  nativeMoveBtn.dataset["function"] = 'translate';
+  nativeMoveBtn.dataset.active = 'off';
+  nativeMoveBtn.className = 'mago3d-tools-translate';
+  nativeMoveBtn.name = 'btn-' + DataType.NATIVE;
+  nativeMoveBtn.style.display = 'inline-block';
+  nativeMoveBtn.style.verticalAlign = 'middle';
+  nativeMoveBtn.style.marginLeft = '5px';
+  nativeMoveBtn.style.padding = '2px 10px';
+  nativeMoveBtn.style.fontSize = '12px';
+  nativeMoveBtn.style.color = 'rgb(20, 20, 20)';
+  nativeMoveBtn.style.borderRadius = '12px';
+  nativeMoveBtn.style.borderStyle = 'none';
+  nativeMoveBtn.style.backgroundColor = 'rgb(255, 255, 255)';
+  nativeMoveBtn.appendChild(document.createTextNode('이동'));
+  dataControlDiv.appendChild(nativeMoveBtn);
+  var selectBtns = magoManager.defaultContentContainer.getElementsByClassName('mago3d-tools-select');
+  var selectInteraction = magoManager.defaultSelectInteraction;
+  var translateBtns = magoManager.defaultContentContainer.getElementsByClassName('mago3d-tools-translate');
+  var translateInteraction = magoManager.defaultTranslateInteraction;
+  var names = [DataType.NATIVE, DataType.OBJECT, DataType.F4D];
+
+  for (var i = 0, sLength = selectBtns.length; i < sLength; i++) {
+    (function (idx) {
+      var sBtn = selectBtns.item(idx);
+      sBtn.addEventListener('click', function () {
+        var type = sBtn.dataset.type;
+
+        if (!selectInteraction.getActive()) {
+          selectInteraction.setTargetType(type);
+          selectInteraction.setActive(true);
+          sBtn.dataset.active = 'on';
+        } else {
+          var nowTargetType = selectInteraction.getTargetType();
+
+          if (type === nowTargetType) {
+            selectInteraction.setActive(false);
+            sBtn.dataset.active = 'off';
+          } else {
+            var nowBtn = selectBtns.namedItem('btn-' + nowTargetType);
+            nowBtn.dataset.active = 'off';
+            btnActiveStyle(nowBtn);
+            selectInteraction.setTargetType(type);
+            sBtn.dataset.active = 'on';
+          }
+        }
+
+        btnActiveStyle(sBtn);
+      }, false);
+    })(i);
+  }
+
+  for (var i = 0, tLength = translateBtns.length; i < tLength; i++) {
+    (function (idx) {
+      var tBtn = translateBtns.item(idx);
+      tBtn.addEventListener('click', function () {
+        var type = tBtn.dataset.type;
+
+        if (!translateInteraction.getActive()) {
+          translateInteraction.setTargetType(type);
+          translateInteraction.setActive(true);
+          tBtn.dataset.active = 'on';
+        } else {
+          var nowTargetType = translateInteraction.getTargetType();
+
+          if (type === nowTargetType) {
+            translateInteraction.setActive(false);
+            tBtn.dataset.active = 'off';
+          } else {
+            var nowBtn = translateBtns.namedItem('btn-' + nowTargetType);
+            nowBtn.dataset.active = 'off';
+            btnActiveStyle(nowBtn);
+            translateInteraction.setTargetType(type);
+            tBtn.dataset.active = 'on';
+          }
+        }
+
+        btnActiveStyle(tBtn);
+      }, false);
+    })(i);
+  }
+
+  function btnActiveStyle(b) {
+    if (b.dataset.active === 'on') {
+      b.style.backgroundColor = 'rgb(160, 160, 160)';
+      b.style.color = 'rgb(230, 230, 230)';
+    } else {
+      b.style.backgroundColor = 'rgb(255, 255, 255)';
+      b.style.color = 'rgb(20, 20, 20)';
+    }
+  }
+
+  function getBasicButtonObject(type, title, text, runtype, action) {
+    var btn = document.createElement('button');
+    btn.setAttribute('type', 'button');
+    btn.dataset.type = type;
+    btn.dataset.status = 'off';
+    btn.title = title;
+    btn.appendChild(document.createTextNode(text));
+    btn.style.display = 'inline-block';
+    btn.style.margin = '1px 1px 1px 5px';
+    btn.style.padding = '0';
+    btn.style.color = 'rgb(136, 136, 136)';
+    btn.style.fontWeight = 'bold';
+    btn.style.height = '33px';
+    btn.style.width = '66px';
+    btn.style.backgroundColor = '#f3f3f3';
+    btn.style.borderRadius = '12px';
+    btn.style.borderStyle = 'none';
+    return {
+      runType: runtype,
+      element: btn,
+      action: action
+    };
+  }
+
+  function getGroupDiv(category) {
+    var div = document.createElement('div');
+    div.style.padding = '5px 10px';
+    div.style.margin = '0 0 20px 0';
+    div.style.outline = '0px';
+    div.style.verticalAlign = 'top';
+    div.style.fontSize = '16PX';
+    div.style.fontWeight = 'bold';
+    div.style.color = '#888';
+    var strong = document.createElement('strong');
+    strong.style.display = 'block';
+    strong.style.padding = '10px 6px';
+    strong.style.borderBottom = '1px solid #e2e2e2';
+    strong.appendChild(document.createTextNode(category));
+    div.appendChild(strong);
+    return div;
+  }
+};
+
+Tools.prototype.handleMouseOver = function () {
+  this.element.getElementsByTagName('button')[0].style.backgroundColor = 'rgba(148,216,246, 0.8)';
+};
+
+Tools.prototype.handleMouseOut = function () {
+  if (this.element.className !== 'on') {
+    this.element.getElementsByTagName('button')[0].style.backgroundColor = 'rgba(217, 217, 217, 0.8)';
+  }
+};
+
+Tools.prototype.handleToolClick = function (tool) {
+  if (tool.runType === 'toggle') {
+    var element = tool.element;
+    element.dataset.status = element.dataset.status === 'on' ? 'off' : 'on';
+    var status = element.dataset.status;
+    var boolStatus = status === 'on' ? true : false;
+    tool.action.call(this, boolStatus);
+
+    if (boolStatus) {
+      tool.element.style.backgroundColor = 'rgba(148,216,246, 0.8)';
+    } else {
+      tool.element.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
+    }
+  }
+};
+'use strict';
+/**
+ * 줌 컨트롤
+ * @exception {Error} Messages.CONSTRUCT_ERROR
+ * 
+ * @constructor
+ * @class Zoom
+ * @param {Zoom~Options} options position info. coordinate. required.
+ *  
+ * @extends AbsControl
+ * 
+ */
+
+var Zoom = function Zoom(options) {
+  if (!(this instanceof Zoom)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  var element = document.createElement('div');
+  options = options ? options : {};
+  options.element = element;
+  AbsControl.call(this, options);
+  element.style.position = 'absolute';
+  element.style.pointerEvents = 'auto';
+  element.style.backgroundColor = 'rgba(255,255,255,0.4)';
+  element.style.borderRadius = '4px';
+  element.style.padding = '2px';
+  element.style.bottom = '0.5em';
+  element.style.right = '9.5em';
+  var that = this;
+  var upButton = document.createElement('button');
+  upButton.setAttribute('type', 'button');
+  upButton.title = 'zoom in';
+  var imageSpan = document.createElement('span');
+  imageSpan.appendChild(document.createTextNode('+'));
+  imageSpan.style.verticalAlign = 'super';
+  imageSpan.style.lineHeight = '0.6em';
+  upButton.appendChild(imageSpan);
+  /*upButton.appendChild(document.createElement('br'));
+  	var textSpan = document.createElement('span');
+  textSpan.appendChild(document.createTextNode('줌인'));
+  textSpan.style.fontSize = '10px';
+  textSpan.style.verticalAlign = 'baseline';
+  textSpan.style.lineHeight = '0.6em';
+  upButton.appendChild(textSpan);*/
+
+  this.setBtnStyle(upButton);
+  upButton.style.width = '25px';
+  upButton.style.height = '25px';
+  upButton.style.display = 'inline-block';
+  upButton.addEventListener('click', that.handleClick.bind(that, 1), false);
+  var downButton = document.createElement('button');
+  downButton.setAttribute('type', 'button');
+  downButton.title = 'zoom out';
+  var downImageSpan = document.createElement('span');
+  downImageSpan.appendChild(document.createTextNode("\u2212"));
+  downImageSpan.style.verticalAlign = 'super';
+  downImageSpan.style.lineHeight = '0.6em';
+  downButton.appendChild(downImageSpan);
+  /*downButton.appendChild(document.createElement('br'));
+  	var downTextSpan = document.createElement('span');
+  downTextSpan.appendChild(document.createTextNode('줌아웃'));
+  downTextSpan.style.fontSize = '10px';
+  downTextSpan.style.verticalAlign = 'baseline';
+  downTextSpan.style.lineHeight = '0.6em';
+  downButton.appendChild(downTextSpan);*/
+
+  this.setBtnStyle(downButton);
+  downButton.style.width = '25px';
+  downButton.style.height = '25px';
+  downButton.style.display = 'inline-block';
+  downButton.addEventListener('click', that.handleClick.bind(that, 0), false);
+  this.element.appendChild(upButton);
+  this.element.appendChild(downButton);
+};
+
+Zoom.prototype = Object.create(AbsControl.prototype);
+Zoom.prototype.constructor = Zoom;
+
+Zoom.prototype.handleClick = function (type) {
+  if (this.magoManager.isCesiumGlobe()) {
+    var scene = this.magoManager.scene;
+    var camera = scene.camera;
+    var cartographicPosition = Cesium.Cartographic.fromCartesian(camera.position);
+    var alt = cartographicPosition.height;
+
+    if (type) {
+      scene.camera.zoomIn(alt * 0.1);
+    } else {
+      scene.camera.zoomOut(alt * 0.1);
+    }
+  }
 };
 'use strict';
 /**
@@ -86679,35 +86694,6 @@ TranslateInteraction.prototype.setFilterFunction = function () {
 };
 'use strict';
 /**
- * Geoserver for mago3Djs object.
- * @class Geoserver
- */
-
-var GeoServer = function GeoServer() {
-  this.serverInfo = {};
-};
-
-GeoServer.prototype.setServerInfo = function (info) {
-  this.serverInfo = info;
-};
-
-GeoServer.prototype.getDataUrl = function () {
-  return this.serverInfo.dataUrl;
-};
-
-GeoServer.prototype.getDataWorkspace = function () {
-  return this.serverInfo.dataWorkspace;
-};
-
-GeoServer.prototype.getDataRequestUrl = function () {
-  return this.getDataUrl() + '/' + this.getDataWorkspace();
-};
-
-GeoServer.prototype.getWmsVersion = function () {
-  return this.serverInfo.wmsVersion;
-};
-'use strict';
-/**
  * 메세지
  * 
  * @class
@@ -86798,6 +86784,35 @@ MessageSource.ko = {
       }
     }
   }
+};
+'use strict';
+/**
+ * Geoserver for mago3Djs object.
+ * @class Geoserver
+ */
+
+var GeoServer = function GeoServer() {
+  this.serverInfo = {};
+};
+
+GeoServer.prototype.setServerInfo = function (info) {
+  this.serverInfo = info;
+};
+
+GeoServer.prototype.getDataUrl = function () {
+  return this.serverInfo.dataUrl;
+};
+
+GeoServer.prototype.getDataWorkspace = function () {
+  return this.serverInfo.dataWorkspace;
+};
+
+GeoServer.prototype.getDataRequestUrl = function () {
+  return this.getDataUrl() + '/' + this.getDataWorkspace();
+};
+
+GeoServer.prototype.getWmsVersion = function () {
+  return this.serverInfo.wmsVersion;
 };
 'use strict';
 /**
