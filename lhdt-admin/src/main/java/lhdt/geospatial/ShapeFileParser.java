@@ -14,11 +14,13 @@ import org.geotools.data.shapefile.files.ShpFileType;
 import org.geotools.data.shapefile.files.ShpFiles;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
+import org.geotools.geometry.jts.JTS;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.simplify.DouglasPeuckerSimplifier;
 import org.locationtech.jts.simplify.TopologyPreservingSimplifier;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
@@ -83,8 +85,9 @@ public class ShapeFileParser {
                         if(attributeName.equalsIgnoreCase(DesignLayer.RequiredColumn.THE_GEOM.getValue())) {
                         	Geometry geom = (Geometry) feature.getDefaultGeometry();
                         	
-                    		geom = TopologyPreservingSimplifier.simplify(geom,1);
                         	
+                        	geom = TopologyPreservingSimplifier.simplify(geom,0.1);
+                    		log.info("@@@@@@@@@@@@@@@@@@@@@@@ geomtype = {}", geom.getGeometryType());
                         	if(geom instanceof Polygon) {
                         		Polygon[] polygonArray = new Polygon[1];
                         		polygonArray[0] = (Polygon) geom;
