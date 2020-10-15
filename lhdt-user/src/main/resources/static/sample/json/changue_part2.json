@@ -1242,10 +1242,10 @@
     	"backgroundSize" : [120,20],
 		"backgroundFillColor" : "rgba(68, 114, 196, 1.0)",
 		"backgroundStrokeColor" : "rgba(205, 211, 222, 1.0)",
-		"backgroundOffset" : [-20, -20],
+		"backgroundOffset" : [-50, 15],
 		"font" : "11px Arial",
 		"text" : "의료/커뮤니티케어",
-		"textOffset" : [40, -5]
+		"textOffset" : [12, 30]
     },
     "mapping_type":"origin",
     "longitude": 126.99512128891877,
