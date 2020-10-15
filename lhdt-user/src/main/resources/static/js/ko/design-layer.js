@@ -2280,6 +2280,7 @@ DesignLayerObj.prototype.extrusionModelBuildingToggle = function(model, isShow) 
                     // let h = parseFloat(entity.properties.build_height._value);
                     // var building = Mago3D.ExtrusionBuilding.makeExtrusionBuildingByCartesian3Array(polygonHierarchy.reverse(), _this.toFloorCo(h))
                     let building = entityToMagoExtrusionBuilding(entity, model.layername);
+                    if(!building) continue;
                     
                     building.layerId = model.id; 
                     building['__originHeight'] = Pp.nvl(building.getHeight(), 0.0);
