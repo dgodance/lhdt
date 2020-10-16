@@ -68,6 +68,7 @@ class DataLibraryAPIControllerTests extends BaseControllerTest {
                         relaxedResponseFields(
                                 fieldWithPath("dataLibraryId").description("data library 고유번호"),
                                 fieldWithPath("dataLibraryGroupId").description("data library 그룹 고유번호"),
+                                fieldWithPath("dataLibraryGroupName").description("data library 그룹명"),
                                 fieldWithPath("dataLibraryConverterJobId").description("converter job 고유번호"),
                                 fieldWithPath("dataLibraryKey").description("data library 고유키(API용)"),
                                 fieldWithPath("dataLibraryName").description("data library명"),
@@ -92,6 +93,7 @@ class DataLibraryAPIControllerTests extends BaseControllerTest {
             mockList.add(DataLibrary.builder()
                     .dataLibraryId(i)
                     .dataLibraryGroupId(1)
+                    .dataLibraryGroupName("테스트 그룹")
                     .dataLibraryConverterJobId(1L)
                     .dataLibraryKey("test"+i)
                     .dataLibraryName("test")
@@ -114,6 +116,7 @@ class DataLibraryAPIControllerTests extends BaseControllerTest {
         return DataLibrary.builder()
                 .dataLibraryId(1L)
                 .dataLibraryGroupId(1)
+                .dataLibraryGroupName("테스트 그룹")
                 .dataLibraryConverterJobId(1L)
                 .dataLibraryKey("test")
                 .dataLibraryName("test")
