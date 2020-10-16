@@ -94,9 +94,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-quartz'
 
 	implementation 'org.springframework.security:spring-security-core:5.2.1.RELEASE'
-
 	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:2.4.1'
-
 	implementation 'org.apache.httpcomponents:httpclient'
 	implementation 'org.apache.commons:commons-exec:1.3'
 

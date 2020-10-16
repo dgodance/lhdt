@@ -36,6 +36,8 @@ public class DataLibraryDto implements Serializable {
 	private Long dataLibraryId;
 	// data libray Group 고유번호
 	private Integer dataLibraryGroupId;
+	// 데이터 라이브러리 그룹명
+	private String dataLibraryGroupName;
 	// converter job 고유번호
 	private Long dataLibraryConverterJobId;
 	// data library key

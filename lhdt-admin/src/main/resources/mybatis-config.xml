@@ -13,6 +13,7 @@
     	<typeAlias type="lhdt.domain.accesslog.AccessLog" alias="accessLog" />
     	<typeAlias type="lhdt.domain.converter.ConverterJob" alias="converterJob" />
     	<typeAlias type="lhdt.domain.converter.ConverterJobFile" alias="converterJobFile" />
+		<typeAlias type="lhdt.domain.common.PartitionTable" alias="partitionTable" />
 		<typeAlias type="lhdt.domain.data.DataAdjustLog" alias="dataAdjustLog" />
 		<typeAlias type="lhdt.domain.data.DataAttribute" alias="dataAttribute" />
 		<typeAlias type="lhdt.domain.extrusionmodel.DataLibraryConverterJob" alias="dataLibraryConverterJob" />

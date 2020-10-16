@@ -2086,6 +2086,7 @@ DesignLayerObj.prototype.extrusionModelWMSToggle = function(model, isShow){
         /**
          * wms labeling 
          */
+        /*
         $.ajax({
 			url : `/api/design-layers/${model.id}`,
 			type: "GET",
@@ -2166,7 +2167,7 @@ DesignLayerObj.prototype.extrusionModelWMSToggle = function(model, isShow){
       			});
             }
 		});
-        
+        */
         function _getPolygonEntityBoundingSphereCenter(cEntity) {
         	if(!cEntity || !(cEntity instanceof Cesium.Entity)) {
         		return;
@@ -2208,12 +2209,12 @@ DesignLayerObj.prototype.extrusionModelWMSToggle = function(model, isShow){
         this.offExtrusionModel(model.id);
         
         //라벨 제거
-        var dataSources = Ppmap.getViewer().dataSources;
+       /* var dataSources = Ppmap.getViewer().dataSources;
 		var filter = dataSources._dataSources.filter(function(ds) {
 			return ds.labelLayerId  === model.id; 
 		})[0];
 		
-		dataSources.remove(filter, true);
+		dataSources.remove(filter, true);*/
     }
 };
 
@@ -2280,6 +2281,7 @@ DesignLayerObj.prototype.extrusionModelBuildingToggle = function(model, isShow) 
                     // let h = parseFloat(entity.properties.build_height._value);
                     // var building = Mago3D.ExtrusionBuilding.makeExtrusionBuildingByCartesian3Array(polygonHierarchy.reverse(), _this.toFloorCo(h))
                     let building = entityToMagoExtrusionBuilding(entity, model.layername);
+                    if(!building) continue;
                     
                     building.layerId = model.id; 
                     building['__originHeight'] = Pp.nvl(building.getHeight(), 0.0);
