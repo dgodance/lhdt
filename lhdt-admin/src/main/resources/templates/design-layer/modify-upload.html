@@ -231,10 +231,13 @@
 									<label for="availableFalse">미사용</label>
 			                    </td>
 								<th class="col-label" scope="row">
-									<label for="description">설명</label>
+									<label>Label 표시 여부</label>
 								</th>
-								<td class="col-input">
-									<input type="text" id="description" name="description" th:field="*{description}" class="l"/>
+								<td class="col-input radio-set">
+									<input type="radio" id="labelDisplayTrue" name="labelDisplay" th:field="*{labelDisplay}" value="true"  />
+									<label for="availableTrue">표시</label>
+									<input type="radio" id="labelDisplayFalse" name="labelDisplay" th:field="*{labelDisplay}" value="false" />
+									<label for="availableFalse">비표시</label>
 								</td>
 			                </tr>
 			                <tr>
@@ -280,6 +283,14 @@
 				                    </select>
 			                    </td>
 			                </tr>
+							<tr>
+								<th class="col-label" scope="row">
+									<label for="description">설명</label>
+								</th>
+								<td class="col-input" colspan="3">
+									<input type="text" id="description" name="description" class="l" style="width:100%;"/>
+								</td>
+							</tr>
 						</table>
 						</form>
 
@@ -688,6 +699,7 @@
 				formData.append("layerFillColor", $("#layerFillColor").val());
 				formData.append("layerAlphaStyle", $("#sliderRange").val() / 100);
 				formData.append("available", $(':radio[name="available"]:checked').val());
+				formData.append("labelDisplay", $(':radio[name="labelDisplay"]:checked').val());
 				formData.append("coordinate", $("#coordinate").val());
 				formData.append("description", $("#description").val());
 				formData.append("shapeEncoding", $("#shapeEncoding").val());
