@@ -348,7 +348,7 @@
 		// 행정 구역 이동
         DistrictControll(magoInstance);
 
-        //dataGroupList();
+        dataGroupList();
 		//var dataGroupParams = { searchWord : "data_group_name", searchValue : null, searchOption : "1"};
 		//mapDataGroupList(1, dataGroupParams);
 		var dataInfoParams = { searchWord : "data_name", searchValue : null, searchOption : "1", dataGroupId : null, dataType : null};
@@ -431,7 +431,7 @@
                 segments2dObj[i] = segments2dArray;
             }
         });
-        
+        /*
         $.ajax({
             url: 'http://localhost/sample/json/changue_all.json',
             type: "GET",
@@ -461,10 +461,10 @@
                 alert(JS_MESSAGE["ajax.error.message"]);
             }
         });
-        
+        */
         magoManager.on(Mago3D.MagoManager.EVENT_TYPE.F4DRENDERREADY, function(e){
     		var f4d = e.f4d;
-    		if(f4d.data.projectId.indexOf('infra') > -1)
+    		/*if(f4d.data.projectId.indexOf('infra') > -1)
    			{
     			var color = '190,190,190';
     			if(f4d.data.nodeId === 'bridge_2'){
@@ -475,7 +475,7 @@
     				color = '0,176,80';
     			}
     			changeColorAPI(MAGO3D_INSTANCE, f4d.data.projectId, f4d.data.nodeId, null, 'isPhysical=true', color);
-   			} 
+   			} */
     	});
         
         /* $.ajax({
