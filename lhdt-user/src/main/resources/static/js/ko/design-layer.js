@@ -2086,6 +2086,7 @@ DesignLayerObj.prototype.extrusionModelWMSToggle = function(model, isShow){
         /**
          * wms labeling 
          */
+        /*
         $.ajax({
 			url : `/api/design-layers/${model.id}`,
 			type: "GET",
@@ -2166,7 +2167,7 @@ DesignLayerObj.prototype.extrusionModelWMSToggle = function(model, isShow){
       			});
             }
 		});
-        
+        */
         function _getPolygonEntityBoundingSphereCenter(cEntity) {
         	if(!cEntity || !(cEntity instanceof Cesium.Entity)) {
         		return;
@@ -2208,12 +2209,12 @@ DesignLayerObj.prototype.extrusionModelWMSToggle = function(model, isShow){
         this.offExtrusionModel(model.id);
         
         //라벨 제거
-        var dataSources = Ppmap.getViewer().dataSources;
+       /* var dataSources = Ppmap.getViewer().dataSources;
 		var filter = dataSources._dataSources.filter(function(ds) {
 			return ds.labelLayerId  === model.id; 
 		})[0];
 		
-		dataSources.remove(filter, true);
+		dataSources.remove(filter, true);*/
     }
 };
 
