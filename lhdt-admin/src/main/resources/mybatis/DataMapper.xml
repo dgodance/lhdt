@@ -225,7 +225,7 @@
 			<if test="metainfo != null and metainfo != ''">
 			metainfo,
 			</if>
-			status, description
+			status, label, label_template, description
 		) VALUES (
 			#{dataId}, #{dataGroupId}, #{converterJobId}, #{dataKey}, #{dataName}, #{dataType}, #{sharing}, #{userId}, #{mappingType},
 			<if test="location != null">
@@ -235,7 +235,7 @@
 			<if test="metainfo != null and metainfo != ''">
 			(#{metainfo}::jsonb),
 			</if>
-			#{status}, #{description}
+			#{status}, #{lablel}, #{lableTemplate}, #{description}
 		)
 	</insert>
 	
@@ -251,7 +251,7 @@
 			<if test="metainfo != null and metainfo != ''">
 			metainfo,
 			</if>
-			status, description
+			status, label, label_template, description
 		) VALUES (
 			#{dataId}, #{dataGroupId}, #{converterJobId}, #{dataKey}, #{dataName}, #{dataType}, #{sharing}, #{userId}, #{mappingType},
 			<if test="location != null">
@@ -261,7 +261,7 @@
 			<if test="metainfo != null and metainfo != ''">
 			#{metainfo}::jsonb,
 			</if>
-			#{status}, #{description}
+			#{status}, #{lablel}, #{lableTemplate}, #{description}
 		)
 	</insert>
 
@@ -280,7 +280,7 @@
 			<if test="metainfo != null and metainfo != ''">
 				metainfo,
 			</if>
-			status, description
+			status, label, label_template, description
 		) VALUES (
 			#{dataId}, #{dataGroupId}, #{converterJobId}, #{dataKey}, #{dataName}, #{dataType}, #{sharing}, #{userId}, #{mappingType},
 			<if test="location != null">
@@ -290,7 +290,7 @@
 			<if test="metainfo != null and metainfo != ''">
 			#{metainfo}::jsonb,
 			</if>
-			#{status}, #{description}
+			#{status}, #{lablel}, #{lableTemplate}, #{description}
 		)
 	</insert>
 	
@@ -372,6 +372,12 @@
 			</if>
 			<if test="metainfo != null and metainfo != ''">
 			metainfo = (#{metainfo}::json),
+			</if>
+			<if test="label != null and label != ''">
+				label = #{label},
+			</if>
+			<if test="labelTemplate != null and labelTemplate != ''">
+				label_template = #{labelTemplate},
 			</if>
 			<if test="description != null and description != ''">
 			description = #{description},

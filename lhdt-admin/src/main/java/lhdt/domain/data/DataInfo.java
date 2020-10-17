@@ -125,6 +125,10 @@ public class DataInfo extends Search implements Serializable {
 	private String status;
 	// 데이터 상태(ENUM)
 	private DataStatus dataStatus;
+	// 라벨. data_name과 다른 이름으로 style을 활용하기 위함. 줄바꿈 \n
+	private String label;
+	// 라벨 템플릿. 데이터에 적용할 라벨 템플릿 타입을 저장
+	private String labelTemplate;
 	// 속성 존재 유무. true : 존재, false : 존재하지 않음(기본값)
 	private Boolean attributeExist;
 	// object 속성 존재 유무. true : 존재, false : 존재하지 않음(기본값)

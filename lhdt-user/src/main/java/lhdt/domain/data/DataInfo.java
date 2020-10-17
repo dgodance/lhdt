@@ -112,6 +112,10 @@ public class DataInfo extends Search implements Serializable {
 
 	// 기본 정보
 	private String metainfo;
+	// 라벨. data_name과 다른 이름으로 style을 활용하기 위함. 줄바꿈 \n
+	private String label;
+	// 라벨 템플릿. 데이터에 적용할 라벨 템플릿 타입을 저장
+	private String labelTemplate;
 	// data 상태. processing : 변환중, use : 사용중, unused : 사용중지(관리자), delete : 삭제(비표시)
 	private String status;
 	// 속성 존재 유무. true : 존재, false : 존재하지 않음(기본값)
