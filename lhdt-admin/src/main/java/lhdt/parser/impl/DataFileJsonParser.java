@@ -110,6 +110,8 @@ public class DataFileJsonParser implements DataFileParser {
 			String mappingType = jsonNode.path("mappingType").asText();
 			JsonNode metainfo = jsonNode.path("metainfo");
 			JsonNode childrene = jsonNode.path("children");
+			String label = jsonNode.path("label").asText();
+			String labelTemplate = jsonNode.path("labelTemplate").asText();
 			
 			DataInfo dataInfo = new DataInfo();
 			dataInfo.setDataId(dataId);
@@ -130,7 +132,10 @@ public class DataFileJsonParser implements DataFileParser {
 			dataInfo.setChildrenDepth(depth);
 			dataInfo.setChildrenViewOrder(viewOrder);
 			// TODO ancestor 같은것도 넣어 줘야 하는데..... 귀찮아서
-			
+
+			dataInfo.setLabel(label);
+			dataInfo.setLabelTemplate(labelTemplate);
+
 			dataInfoList.add(dataInfo);
 			
 			if(childrene.isArray() && childrene.size() != 0) {
