@@ -845,25 +845,6 @@
             "flipYTexCoords": true
         },
         "children": [],
-        "dataKey": "changue_all_74",
-        "dataName": "changue_all_74",
-        "mapping_type":"origin",
-        "longitude": 126.99512128891877,
-        "latitude": 37.431555811854395,
-        "height": 0.000000,
-        "heading": 0.000000,
-        "pitch": 0.000000,
-        "roll": 0.000000
-    }
-    ,
-
-    {
-        "metainfo": {
-            "isPhysical": true,"heightReference":"clampToGround",
-            "nodeType": "default",
-            "flipYTexCoords": true
-        },
-        "children": [],
         "dataKey": "changue_all_83",
         "dataName": "changue_all_83",
         "mapping_type":"origin",

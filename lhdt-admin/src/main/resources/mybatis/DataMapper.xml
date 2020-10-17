@@ -235,7 +235,7 @@
 			<if test="metainfo != null and metainfo != ''">
 			(#{metainfo}::jsonb),
 			</if>
-			#{status}, #{lablel}, #{lableTemplate}, #{description}
+			#{status}, #{label}, #{labelTemplate}, #{description}
 		)
 	</insert>
 	
@@ -261,7 +261,7 @@
 			<if test="metainfo != null and metainfo != ''">
 			#{metainfo}::jsonb,
 			</if>
-			#{status}, #{lablel}, #{lableTemplate}, #{description}
+			#{status}, #{label}, #{labelTemplate}, #{description}
 		)
 	</insert>
 
@@ -290,7 +290,7 @@
 			<if test="metainfo != null and metainfo != ''">
 			#{metainfo}::jsonb,
 			</if>
-			#{status}, #{lablel}, #{lableTemplate}, #{description}
+			#{status}, #{label}, #{labelTemplate}, #{description}
 		)
 	</insert>
 	
