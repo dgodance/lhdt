@@ -483,18 +483,18 @@
          
         magoManager.on(Mago3D.MagoManager.EVENT_TYPE.F4DRENDERREADY, function(e){
     		var f4d = e.f4d;
-    		/*if(f4d.data.projectId.indexOf('infra') > -1)
-   			{
-    			var color = '190,190,190';
-    			if(f4d.data.nodeId === 'bridge_2'){
-    				color = '255,192,0';
-    			} else if(f4d.data.nodeId === 'bridge_1'){
-    				color = '49,161,208';
-    			} else if(f4d.data.nodeId === 'block_27'){
-    				color = '0,176,80';
-    			}
-    			changeColorAPI(MAGO3D_INSTANCE, f4d.data.projectId, f4d.data.nodeId, null, 'isPhysical=true', color);
-   			} */
+   			var color = '190,190,190';
+   			if(f4d.data.nodeId === 'bridge_2'){
+   				color = '255,192,0';
+   			} else if(f4d.data.nodeId === 'bridge_1'){
+   				color = '49,161,208';
+   			} else if(f4d.data.nodeId === 'block_27'){
+   				color = '0,176,80';
+   			} else {
+   				return;
+   			}
+   			changeColorAPI(MAGO3D_INSTANCE, f4d.data.projectId, f4d.data.nodeId, null, 'isPhysical=true', color);
+   			
     	});
         
         /* $.ajax({
