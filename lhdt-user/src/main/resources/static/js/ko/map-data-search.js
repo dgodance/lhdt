@@ -408,7 +408,20 @@ function dataList(dataGroupArray) {
                            break;
                         }
                      }
-
+					 for(var k in dataInfoList) {
+						 var dataInfo = dataInfoList[k];
+						 if((dataInfo.label && dataInfo.label.length > 0) && (dataInfo.labelTemplate && dataInfo.labelTemplate.length > 0)) {
+							 var labTemplate = LABEL_TEMPLATE[dataInfo.labelTemplate];
+							 var clone = basicObjectClone(labTemplate)
+							 clone.text = dataInfo.label;  
+							 
+							 dataInfo.label = clone; 
+						 } else {
+							 if(dataInfo.label) delete dataInfo.label;
+							 if(dataInfo.labelTemplate) delete dataInfo.labelTemplate;
+						 }
+					 }
+					 
                      group.datas = dataInfoList;
                      f4dController.addF4dGroup(group);
                   }

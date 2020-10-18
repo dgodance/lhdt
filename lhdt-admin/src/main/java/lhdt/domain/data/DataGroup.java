@@ -96,6 +96,8 @@ public class DataGroup extends Search {
 	private BigDecimal altitude;
 	// Map 이동시간
 	private Integer duration;
+	// 라벨 템플릿. 데이터에 적용할 라벨 템플릿 타입을 저장
+	private String labelTemplate;
 	// location 업데이트 방법. auto : data 입력시 자동, user : 사용자가 직접 입력
 	private String locationUpdateType;
 	// 데이터 그룹 메타 정보. 그룹 control을 위해 인위적으로 만든 속성

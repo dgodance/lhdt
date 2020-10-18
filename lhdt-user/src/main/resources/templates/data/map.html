@@ -259,6 +259,7 @@
 		baseLayers : {}
 	};
 	var segments2dObj = {};
+	var LABEL_TEMPLATE;
 	initPolicy(function(policy, baseLayers){
 		LHDT.policy = policy;
 		LHDT.baseLayers = baseLayers;
@@ -348,7 +349,22 @@
 		// 행정 구역 이동
         DistrictControll(magoInstance);
 
+        $.ajax({
+            url: "/sample/json/label_template.json",
+            type: "GET",
+            headers: {"X-Requested-With": "XMLHttpRequest"},
+            dataType: "json",
+            success: function(msg){
+            	LABEL_TEMPLATE = msg;
+            	dataGroupList();
+            },
+            error:function(request,status,error){
+                alert(JS_MESSAGE["ajax.error.message"]);
+             }
+        });
+        //라벨템플릿 받은 후 실행.
         //dataGroupList();
+        
 		//var dataGroupParams = { searchWord : "data_group_name", searchValue : null, searchOption : "1"};
 		//mapDataGroupList(1, dataGroupParams);
 		var dataInfoParams = { searchWord : "data_name", searchValue : null, searchOption : "1", dataGroupId : null, dataType : null};
@@ -433,9 +449,9 @@
                 segments2dObj[i] = segments2dArray;
             }
         });
-        
+        /*
         $.ajax({
-            url: 'http://localhost/sample/json/changue_all.json',
+            url: 'http://118.42.112.206:180/sample/json/changue_all.json',
             type: "GET",
             headers: {"X-Requested-With": "XMLHttpRequest"},
             dataType: "json",
@@ -450,7 +466,7 @@
         });
         
         $.ajax({
-            url: 'http://localhost/sample/json/changue_part2.json',
+            url: 'http://118.42.112.206:180/sample/json/changue_part2.json',
             type: "GET",
             headers: {"X-Requested-With": "XMLHttpRequest"},
             dataType: "json",
@@ -463,10 +479,11 @@
                 alert(JS_MESSAGE["ajax.error.message"]);
             }
         });
-        
+        */
+         
         magoManager.on(Mago3D.MagoManager.EVENT_TYPE.F4DRENDERREADY, function(e){
     		var f4d = e.f4d;
-    		if(f4d.data.projectId.indexOf('infra') > -1)
+    		/*if(f4d.data.projectId.indexOf('infra') > -1)
    			{
     			var color = '190,190,190';
     			if(f4d.data.nodeId === 'bridge_2'){
@@ -477,7 +494,7 @@
     				color = '0,176,80';
     			}
     			changeColorAPI(MAGO3D_INSTANCE, f4d.data.projectId, f4d.data.nodeId, null, 'isPhysical=true', color);
-   			} 
+   			} */
     	});
         
         /* $.ajax({
@@ -1115,9 +1132,7 @@
    				var geoCoord = new Mago3D.GeographicCoord(point2d.x, point2d.y, 0.0);
    				geographicCoordsArray.push(geoCoord);
    			}
-   			console.info(geographicCoordsArray.length);
    			Mago3D.GeographicCoordsList.solveDegeneratedPoints(geographicCoordsArray, error);
-   			console.info(geographicCoordsArray.length);
    			var geoCoordList = new Mago3D.GeographicCoordsList(geographicCoordsArray);
    			geoCoordsListsArray.push(geoCoordList);
    		}
@@ -1128,12 +1143,13 @@
  			//color : new Mago3D.Color(1, 229 / 255, 212 / 255, 1),
  			//wireframeColor4 :  new Mago3D.Color(244/255, 115 / 255, 120 / 255, 1),
  			
- 			color : new Mago3D.Color(152/255, 224 / 255, 173 / 255, 1),
- 			wireframeColor4 :  new Mago3D.Color(34/255, 177 / 255, 76 / 255, 1),
+ 			//color : new Mago3D.Color(152/255, 224 / 255, 173 / 255, 1),
+ 			//wireframeColor4 :  new Mago3D.Color(34/255, 177 / 255, 76 / 255, 1),
  			
- 			//color : new Mago3D.Color(248/255, 248/ 255, 248/ 255, 1),
+ 			color : new Mago3D.Color(248/255, 248/ 255, 248/ 255, 1),
+ 			renderWireframe : false,
  			//wireframeColor4 :  new Mago3D.Color(217/255, 217 / 255, 217 / 255, 1),
- 			renderWireframe : true,
+ 			//renderWireframe : true,
  			heightReference : Mago3D.HeightReference.CLAMP_TO_GROUND
  		});
    		building.options.limitationInfringingDynamicColor4 = new Mago3D.DynamicColor(1.0, 0.5, 1.0, 1.0);

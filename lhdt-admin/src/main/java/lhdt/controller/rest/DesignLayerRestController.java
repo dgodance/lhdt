@@ -527,6 +527,7 @@ public class DesignLayerRestController implements AuthorizationController {
 				.layerFillColor(request.getParameter("layerFillColor"))
 				.layerAlphaStyle(Float.valueOf(request.getParameter("layerAlphaStyle")))
 				.available(Boolean.valueOf(request.getParameter("available")))
+				.labelDisplay(Boolean.valueOf(request.getParameter("labelDisplay")))
 				.coordinate(request.getParameter("coordinate"))
 				.description(request.getParameter("description"))
 				.zIndex(Integer.valueOf(request.getParameter("zIndex")))

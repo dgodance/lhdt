@@ -524,6 +524,7 @@ public class ConverterServiceImpl implements ConverterService {
 			dataInfo.setMetainfo(metainfo);
 			//dataInfo.setStatus(DataStatus.PROCESSING.name().toLowerCase());
 			dataInfo.setStatus(DataStatus.USE.name().toLowerCase());
+			dataInfo.setLabel(dataName);
 			dataService.insertData(dataInfo);
 
 		} else {
