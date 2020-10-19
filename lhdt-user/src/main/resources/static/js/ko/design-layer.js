@@ -2091,37 +2091,62 @@ DesignLayerObj.prototype.extrusionModelWMSLabelToggle = function(model, isShow){
           				ds.labelLayerId = labelLayerId;
           				
           				if(designLayerGroupType === 'land') {
-          					for(var i in entities) {
-                   	 			var entity = entities[i];
-                   	 			var properties = entity.properties;
-                   	 			
-                   	 			var cRatio = properties.building_coverage_ratio.getValue();
-                   	 			var fRatio = properties.floor_area_ratio.getValue();
-                   	 			var labelText;
-                   	 			if(!fRatio || !cRatio) {
-                   	 				labelText = `${properties.landuse_zoning.getValue()}`;
-                   	 			} else {
-                   	 				labelText = `${properties.lot_code.getValue()}\n건폐율 : ${cRatio}\n용적률 : ${fRatio}`;
-                   	 			}
-               	 			
-                   	 			ds.entities.add({
+          					var designLayerName = json.designLayerName;
+          					if(designLayerName === '주거생활결합존' || designLayerName === '도심형마켓존' || designLayerName === '창의혁신클러스터존') {
+          						var entity = entities[0];
+          						var label;
+          						if(designLayerName === '주거생활결합존') {
+          							label = _defaultLabelOption('주거ㆍ생활 Complex Zone');
+          							label.backgroundColor = Cesium.Color.fromCssColorString('#f1b531');
+          						} else if( designLayerName === '도심형마켓존') {
+          							label = _defaultLabelOption('도심형 마켓 Zone');
+          							label.backgroundColor = Cesium.Color.fromCssColorString('#f0575a');
+          						} else if(designLayerName === '창의혁신클러스터존') {
+          							label = _defaultLabelOption('창의혁신 클러스터 Zone');
+          							label.backgroundColor = Cesium.Color.fromCssColorString('#8c5a99');
+          							label.pixelOffset = new Cesium.Cartesian2(120,0);
+          						}
+          						label.showBackground = true;
+          						label.font = "normal normal bolder 44px Helvetica white",
+          						label.distanceDisplayCondition = new Cesium.DistanceDisplayCondition(0.0, 1500)
+          						
+          						ds.entities.add({
     	               	 			position :  _getPolygonEntityBoundingSphereCenter(entity),
-    	               	 			label :  _defaultLabelOption(labelText)
+    	               	 			label :  label
     	          				});
-                   	 		}
-                   	 		ds.clustering.enabled = true;
-                   	 		ds.clustering.pixelRange = 40;
-                   	 		ds.clustering.minimumClusterSize = 5;
-                   	 		ds.clustering.clusterPoints = false;
-                   	 		ds.clustering.clusterBillboards = false; 
-                   	 		
-                   	 		ds.clustering.clusterEvent.addEventListener(function (clusteredEntities, cluster, e) {
-                   	 			if(cluster.label.id.length > 5) {
-                   	 				cluster.label.show = false;
-                   	 			} else {
-                   	 				cluster.label.show = true;
-                   	 			}
-                   	        });
+          					} else {
+          						for(var i in entities) {
+                       	 			var entity = entities[i];
+                       	 			var properties = entity.properties;
+                       	 			
+                       	 			var cRatio = properties.building_coverage_ratio.getValue();
+                       	 			var fRatio = properties.floor_area_ratio.getValue();
+                       	 			var labelText;
+                       	 			if(!fRatio || !cRatio) {
+                       	 				labelText = `${properties.landuse_zoning.getValue()}`;
+                       	 			} else {
+                       	 				labelText = `${properties.lot_code.getValue()}\n건폐율 : ${cRatio}\n용적률 : ${fRatio}`;
+                       	 			}
+                   	 			
+                       	 			ds.entities.add({
+        	               	 			position :  _getPolygonEntityBoundingSphereCenter(entity),
+        	               	 			label :  _defaultLabelOption(labelText)
+        	          				});
+                       	 		}
+                       	 		ds.clustering.enabled = true;
+                       	 		ds.clustering.pixelRange = 40;
+                       	 		ds.clustering.minimumClusterSize = 5;
+                       	 		ds.clustering.clusterPoints = false;
+                       	 		ds.clustering.clusterBillboards = false; 
+                       	 		
+                       	 		ds.clustering.clusterEvent.addEventListener(function (clusteredEntities, cluster, e) {
+                       	 			if(cluster.label.id.length > 5) {
+                       	 				cluster.label.show = false;
+                       	 			} else {
+                       	 				cluster.label.show = true;
+                       	 			}
+                       	        });
+          					}
           				} else if(designLayerGroupType === 'building_height') {
           					var designLayerName = json.designLayerName;
                    	 		for(var i in entities) {
