@@ -124,5 +124,14 @@
 	  "backgroundOffset" :  [-20, -20],
 	  "font" : "12px Arial",
 	  "textOffset" : [10, -5]
-  }
+  },
+	"하늘다섯글자" : {
+		"background" : true,
+		"backgroundSize" : [70,20],
+		"backgroundFillColor" : "rgba(80, 188, 223, 1.0)",
+		"backgroundStrokeColor" : "rgba(225, 225, 225, 1.0)",
+		"backgroundOffset" :  [-20, -20],
+		"font" : "12px Arial",
+		"textOffset" : [15, -5]
+	}
 }
