@@ -1017,7 +1017,7 @@ DesignLayerObj.prototype.setLimitInfoByPolygon = function(polygonHierarchy, h) {
     for(let i in buildings) {
     	let building = buildings[i];
     	building.setLimitationGeographicCoords(geographicCoordsList.geographicCoordsArray);
-    	building.setLimitationHeight(h+building.terrainHeight);
+    	building.setLimitationHeight(h);
     }
 }
 
