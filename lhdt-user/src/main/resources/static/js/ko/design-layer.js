@@ -976,7 +976,8 @@ DesignLayerObj.prototype.toggleExtrusionBuilding = function(d, isShow){
             color.a = 0.5;
             var building = Mago3D.ExtrusionBuilding.makeExtrusionBuildingByCartesian3Array(polygonHierarchy.reverse(), h, {	
                 color: color, /*new Mago3D.Color(color.r, color.b, color.b, 0.4)*/
-                wireframeColor4 : color
+                wireframeColor4 : color,
+                heightReference : Mago3D.HeightReference.CLAMP_TO_GROUND
             });
 
             building.type = d.data.designLayerGroupType;
