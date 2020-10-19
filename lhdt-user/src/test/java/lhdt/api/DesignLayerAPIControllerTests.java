@@ -87,6 +87,7 @@ class DesignLayerAPIControllerTests extends BaseControllerTest {
                                 fieldWithPath("viewOrder").description("나열 순서"),
                                 fieldWithPath("zindex").description("지도위에 노출 순위(css z-index와 동일)"),
                                 fieldWithPath("available").description("사용유무"),
+                                fieldWithPath("labelDisplay").description("레이블 사용유무"),
                                 fieldWithPath("cacheAvailable").description("캐시 사용 유무"),
                                 fieldWithPath("coordinate").description("좌표계 정보"),
                                 fieldWithPath("description").description("설명"),
@@ -116,6 +117,7 @@ class DesignLayerAPIControllerTests extends BaseControllerTest {
                     .viewOrder(1)
                     .zIndex(1)
                     .available(true)
+                    .labelDisplay(true)
                     .cacheAvailable(true)
                     .coordinate("EPSG:4326")
                     .description("test")
@@ -142,6 +144,7 @@ class DesignLayerAPIControllerTests extends BaseControllerTest {
                 .viewOrder(1)
                 .zIndex(1)
                 .available(true)
+                .labelDisplay(true)
                 .cacheAvailable(true)
                 .coordinate("EPSG:4326")
                 .description("test")

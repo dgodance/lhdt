@@ -271,7 +271,8 @@ ModelerObj.prototype.showDataLibraryAtMap = function(lonLat){
 		instanceId : uid,
 		longitude : lonLat.lon,
 		latitude : lonLat.lat,
-		height : 0
+		height : 0,
+		heightReference:Mago3D.HeightReference.CLAMP_TO_GROUND,
 	});
 };
 
@@ -351,6 +352,7 @@ ModelerObj.prototype.selectByPolygonCallback = function(cartesians) {
 
 
 		//TODO 삭제
+		MAGO3D_INSTANCE.getF4dController().deleteF4dMember(projectId, nodeId);
 	});
 
 	//이벤트 등록 - 선택해제
@@ -360,6 +362,8 @@ ModelerObj.prototype.selectByPolygonCallback = function(cartesians) {
 
 
 		//TODO 선택해제
+		let node = MAGO3D_INSTANCE.getF4dController().getF4d(projectId, nodeId);
+		if(node) MAGO3D_INSTANCE.getMagoManager().selectionManager.removeF4d(node);
 	});
 
 

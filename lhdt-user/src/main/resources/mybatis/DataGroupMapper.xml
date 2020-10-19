@@ -69,11 +69,11 @@
 		/* getAllListDataGroup */
 		WITH RECURSIVE data_group_tree (
 			data_group_id, data_group_name, data_group_key, data_group_path, data_group_target, sharing, user_id, ancestor, parent, depth, view_order,
-			children, basic, available, tiling, data_count, location, altitude, duration, location_update_type, metainfo, description, update_date, insert_date,
+			children, basic, available, tiling, data_count, location, altitude, duration, label_template, location_update_type, metainfo, description, update_date, insert_date,
 			path, cycle
 		) AS (
 	        SELECT A.data_group_id, A.data_group_name, A.data_group_key, A.data_group_path, A.data_group_target, A.sharing, A.user_id, A.ancestor, A.parent, A.depth, A.view_order,
-	        	A.children, A.basic, A.available, A.tiling, A.data_count, A.location, A.altitude, A.duration, A.location_update_type, A.metainfo, A.description, A.update_date, A.insert_date,
+	        	A.children, A.basic, A.available, A.tiling, A.data_count, A.location, A.altitude, A.duration, A.label_template, A.location_update_type, A.metainfo, A.description, A.update_date, A.insert_date,
 	        	ARRAY[A.view_order], false
 			FROM data_group A
 			WHERE A.parent = 0
@@ -92,7 +92,7 @@
 			</if>
 			UNION ALL
 	        SELECT A.data_group_id, A.data_group_name, A.data_group_key, A.data_group_path, A.data_group_target, A.sharing, A.user_id, A.ancestor, A.parent, A.depth, A.view_order,
-	        	A.children, A.basic, A.available, A.tiling, A.data_count, A.location, A.altitude, A.duration, A.location_update_type, A.metainfo, A.description, A.update_date, A.insert_date,
+	        	A.children, A.basic, A.available, A.tiling, A.data_count, A.location, A.altitude, A.duration, A.label_template, A.location_update_type, A.metainfo, A.description, A.update_date, A.insert_date,
 	        	path || A.view_order, A.data_group_id = ANY(path)
 	        FROM data_group A,data_group_tree B
 	        WHERE A.parent = B.data_group_id
@@ -105,7 +105,7 @@
 	        	AND not cycle
 		)
 	    SELECT A.data_group_id, A.data_group_name, A.data_group_key, A.data_group_path, A.data_group_target, A.sharing, A.user_id, A.ancestor, A.parent, A.depth, A.view_order,
-	    	A.children, A.basic, A.available, A.tiling, A.data_count, A.location, A.altitude, A.duration, A.location_update_type, A.metainfo, A.description, A.update_date, A.insert_date,
+	    	A.children, A.basic, A.available, A.tiling, A.data_count, A.location, A.altitude, A.duration, A.label_template, A.location_update_type, A.metainfo, A.description, A.update_date, A.insert_date,
 	    	path
 	    FROM data_group_tree A
 	    <if test="userId != null and userId != '' and userGroupId != null and userGroupId >= 0">
@@ -309,7 +309,7 @@
 			<if test="location != null">
 			location,
 			</if>
-			altitude, duration,
+			altitude, duration, label_template,
 			<if test="locationUpdateType != null and locationUpdateType != ''">
 			location_update_type,
 			</if>
@@ -355,7 +355,7 @@
 			<if test="location != null">
 			ST_GeomFromText(#{location}, 4326),
 			</if>
-			#{altitude}, #{duration}, 
+			#{altitude}, #{duration}, #{labelTemplate},
 			<if test="locationUpdateType != null and locationUpdateType != ''">
 			#{locationUpdateType},
 			</if>
@@ -452,6 +452,9 @@
 			</if>
 			<if test="duration != null">
 			duration = #{duration},
+			</if>
+			<if test="labelTemplate != null and labelTemplate != ''">
+				label_template = #{labelTemplate},
 			</if>
 			<if test="locationUpdateType != null and locationUpdateType != ''">
 			location_update_type = #{locationUpdateType},

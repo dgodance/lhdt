@@ -23,6 +23,7 @@ create table data_group (
 	location		 			GEOMETRY(POINT, 4326),
 	altitude					numeric(13,7),
 	duration					integer,
+	label_template              varchar(50),
 	location_update_type		varchar(20)							default 'auto',
 	metainfo					jsonb,
 	description					varchar(256),
@@ -48,6 +49,7 @@ comment on column data_group.tiling is 'true : 사용, false : 사용안함(기�
 comment on column data_group.location is 'POINT(위도, 경도). 공간 검색 속도 때문에 altitude는 분리';
 comment on column data_group.altitude is '높이';
 comment on column data_group.duration is 'Map 이동시간';
+comment on column data_group.label_template is '라벨 템플릿. 데이터 그룹에 적용할 라벨 템플릿 타입을 저장';
 comment on column data_group.location_update_type is 'location 업데이트 방법. auto : data 입력시 자동, user : 사용자가 직접 입력';
 comment on column data_group.metainfo is '데이터 그룹 메타 정보. 그룹 control을 위해 인위적으로 만든 속성';
 comment on column data_group.description is '설명';
@@ -78,6 +80,8 @@ create table data_info(
 	children_view_order			integer								default 1,
 	metainfo					jsonb,
 	status						varchar(20)							default 'use',
+	label                       varchar(256),
+	label_template              varchar(50),
 	attribute_exist				boolean								default false,
 	object_attribute_exist		boolean								default false,
 	description					varchar(256),
@@ -108,6 +112,8 @@ comment on column data_info.children_depth is '깊이';
 comment on column data_info.children_view_order is '표시 순서';
 comment on column data_info.metainfo is '데이터 메타 정보. 데이터  control을 위해 인위적으로 만든 속성';
 comment on column data_info.status is '상태. processing : 변환중, use : 사용중, unused : 사용중지(관리자), delete : 삭제(비표시)';
+comment on column data_info.label is '라벨. data_name과 다른 이름으로 style을 활용하기 위함. 줄바꿈 \n';
+comment on column data_info.label_template is '라벨 템플릿. 데이터에 적용할 라벨 템플릿 타입을 저장';
 comment on column data_info.attribute_exist is '속성 존재 유무. true : 존재, false : 존재하지 않음(기본값)';
 comment on column data_info.object_attribute_exist is 'Object 속성 존재 유무. true : 존재, false : 존재하지 않음(기본값)';
 comment on column data_info.description is '설명';

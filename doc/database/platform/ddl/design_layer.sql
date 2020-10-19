@@ -87,6 +87,7 @@ create table design_layer (
 	view_order					        integer							default 1,
 	z_index						        integer,
 	available					        boolean							default true,
+    label_display				        boolean							default false,
 	cache_available				        boolean							default false,
 	
 	coordinate					        varchar(256),
@@ -114,6 +115,7 @@ comment on column design_layer.layer_alpha_style is '투명도';
 comment on column design_layer.view_order is '나열 순서';
 comment on column design_layer.z_index is '지도위에 노출 순위(css z-index와 동일)';
 comment on column design_layer.available is '사용유무.';
+comment on column design_layer.label_display is '레이블 표시';
 comment on column design_layer.cache_available is '캐시 사용 유무';
 comment on column design_layer.coordinate is '좌표계 정보';
 comment on column design_layer.description is '설명';
