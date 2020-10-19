@@ -992,9 +992,9 @@ DataLibrary2Obj.prototype.renderSelectedDataLibraries = function(datas){
 		}
 		
 		
-		self.$container.find('.selected-data-library-list .del').each(function(i,item){
-			let projectId = $(item).data('project-id');
-			let nodeId = $(item).data('node-id');
+		self.$container.find('.selected-data-library-list .selected-data-library-item').each(function(i,item){
+			let projectId = $(this).data('project-id');
+			let nodeId = $(this).data('node-id');
 			
 			
 			MAGO3D_INSTANCE.getF4dController().deleteF4dMember(projectId, nodeId);
