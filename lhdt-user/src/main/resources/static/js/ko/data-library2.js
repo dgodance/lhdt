@@ -939,19 +939,25 @@ DataLibrary2Obj.prototype.renderSelectedDataLibraries = function(datas){
 	let template = Handlebars.compile(source);
 	let html = template({datas: datas});
 	this.$container.find('.selected-data-library-list').html(html);
+
 	
+	_totcnt();
+
+
 	
 	//선택해제 클릭 이벤트
 	this.$container.find('.selected-data-library-list .deselect').click(function(){
-		let projectId = $(this).data('project-id');
-		let nodeId = $(this).data('node-id');
+		let $tr = $(this).closest('tr');
+		
+		let projectId = $tr.data('project-id');
+		let nodeId = $tr.data('node-id');
 		
 		//
 		let node = MAGO3D_INSTANCE.getF4dController().getF4d(projectId, nodeId);
 		if(node){
 			MAGO3D_INSTANCE.getMagoManager().selectionManager.removeF4d(node);
 			
-			$(this).closest('tr').remove();
+			$tr.remove();
 			_totcnt();
 		}
 	});
@@ -965,15 +971,15 @@ DataLibrary2Obj.prototype.renderSelectedDataLibraries = function(datas){
 			return;
 		}
 		
-		
-		let projectId = $(this).data('project-id');
-		let nodeId = $(this).data('node-id');
+		let $tr = $(this).closest('tr');
+		let projectId = $tr.data('project-id');
+		let nodeId = $tr.data('node-id');
 		
 		
 		MAGO3D_INSTANCE.getF4dController().deleteF4dMember(projectId, nodeId);
 		
 		
-		$(this).closest('tr').remove();		
+		$tr.remove();		
 		_totcnt();
 	});
 	
