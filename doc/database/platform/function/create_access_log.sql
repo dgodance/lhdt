@@ -9,5 +9,11 @@ BEGIN
     EXECUTE FORMAT('ALTER TABLE ONLY access_log_%s ADD CONSTRAINT access_log_%s_pk PRIMARY KEY (access_log_id)', table_name, table_name);
 
     RETURN 0;
+
+EXCEPTION
+    WHEN undefined_table THEN
+        raise notice '%, %', SQLSTATE, SQLERRM;
+        RETURN -1;
+
 END;
 $function$;

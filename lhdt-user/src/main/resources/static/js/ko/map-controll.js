@@ -1136,6 +1136,7 @@ var mapControllEvent = function(magoInstance) {
 	// LABEL
 	$('#mapSettingLabelToggle').click(function() {
 		$(this).toggleClass('on');
+		debugger;
 		var magoManager = magoInstance.getMagoManager();
 		magoManager.magoPolicy.setShowLabelInfo($(this).hasClass('on'));
 	});

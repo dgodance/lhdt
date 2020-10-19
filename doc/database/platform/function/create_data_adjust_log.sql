@@ -9,5 +9,11 @@ BEGIN
     EXECUTE FORMAT('ALTER TABLE ONLY data_adjust_log_%s ADD CONSTRAINT data_adjust_log_%s_pk PRIMARY KEY (data_adjust_log_id)', table_name, table_name);
 
     RETURN 0;
+
+EXCEPTION
+    WHEN undefined_table THEN
+        raise notice '%, %', SQLSTATE, SQLERRM;
+        RETURN -1;
+
 END;
 $function$;

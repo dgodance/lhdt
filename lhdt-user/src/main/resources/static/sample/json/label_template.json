@@ -1,0 +1,120 @@
+{
+	"파랑두글자" :  {
+              "background" : true,
+              "backgroundSize" : [40,20],
+              "backgroundFillColor" : "rgba(68, 114, 196, 1.0)",
+              "backgroundStrokeColor" : "rgba(205, 211, 222, 1.0)",
+              "backgroundOffset" : [-20, -20],
+              "font" : "11px Arial",
+              "textOffset" : [0, -5]
+	},
+	
+	"보라네글자" : {
+		  "background" : true,
+		  "backgroundSize" : [60,20],
+		  "backgroundFillColor" : "rgba(112, 48, 160, 1.0)",
+		  "backgroundStrokeColor" : "rgba(225, 225, 225, 1.0)",
+		  "backgroundOffset" :  [-20, -20],
+		  "font" : "11px Arial",
+		  "textOffset" : [10, -5]
+    },
+	"보라다섯글자" : {
+		  "background" : true,
+		  "backgroundSize" : [70,20],
+		  "backgroundFillColor" : "rgba(112, 48, 160, 1.0)",
+		  "backgroundStrokeColor" : "rgba(225, 225, 225, 1.0)",
+		  "backgroundOffset" :  [-20, -20],
+		  "font" : "11px Arial",
+		  "textOffset" : [15, -5]
+    },
+	"보라아홉글자" : {
+	  "background" : true,
+	  "backgroundSize" : [100,20],
+	  "backgroundFillColor" : "rgba(112, 48, 160, 1.0)",
+	  "backgroundStrokeColor" : "rgba(225, 225, 225, 1.0)",
+	  "backgroundOffset" : [-20, -20],
+	  "font" : "11px Arial",
+	  "textOffset" : [30, -5]
+  },
+  "회색네글자" : {
+	  "background" : true,
+	  "backgroundSize" : [60,20],
+	  "backgroundFillColor" : "rgba(127, 127, 127, 1.0)",
+	  "backgroundStrokeColor" : "rgba(190, 190, 190, 1.0)",
+	  "backgroundOffset" :  [-20, -20],
+	  "font" : "11px Arial",
+	  "textOffset" : [10, -5]
+  },
+  "녹색열세글자" : {
+              "background" : true,
+              "backgroundSize" : [140,20],
+              "backgroundFillColor" : "rgba(112, 173, 71, 1.0)",
+              "backgroundStrokeColor" : "rgba(190, 190, 190, 1.0)",
+              "backgroundOffset" : [-20, -20],
+              "font" : "11px Arial",
+              "textOffset" : [50, -5]
+          },
+   "보라두줄열자" : {
+	  "background" : true,
+	  "backgroundSize" : [130,30],
+	  "backgroundFillColor" : "rgba(112, 48, 160, 1.0)",
+	  "backgroundStrokeColor" : "rgba(225, 225, 225, 1.0)",
+	  "backgroundOffset" :  [-20, -20],
+	  "font" : "11px Arial",
+	  "textOffset" : [35, -5]
+  },
+  "보라여섯글자" : {
+	  "background" : true,
+	  "backgroundSize" : [85,20],
+	  "backgroundFillColor" : "rgba(112, 48, 160, 1.0)",
+	  "backgroundStrokeColor" : "rgba(225, 225, 225, 1.0)",
+	  "backgroundOffset" :  [-20, -20],
+	  "font" : "11px Arial",
+	  "textOffset" : [25, -5]
+  },
+  "보라두줄아홉자" : {
+	  "background" : true,
+	  "backgroundSize" : [120,30],
+	  "backgroundFillColor" : "rgba(112, 48, 160, 1.0)",
+	  "backgroundStrokeColor" : "rgba(225, 225, 225, 1.0)",
+	  "backgroundOffset" :  [-80, -20],
+	  "font" : "11px Arial",
+	  "textOffset" : [-25, -5]
+  },
+  "녹색열한글자" : {
+	  "background" : true,
+	  "backgroundSize" : [120,20],
+	  "backgroundFillColor" : "rgba(112, 173, 71, 1.0)",
+	  "backgroundStrokeColor" : "rgba(190, 190, 190, 1.0)",
+	  "backgroundOffset" : [-80, -20],
+	  "font" : "11px Arial",
+	  "textOffset" : [-20, -5]
+  },
+  "보라세글자" : {
+	  "background" : true,
+	  "backgroundSize" : [50,20],
+	  "backgroundFillColor" : "rgba(112, 48, 160, 1.0)",
+	  "backgroundStrokeColor" : "rgba(225, 225, 225, 1.0)",
+	  "backgroundOffset" :  [-20, -20],
+	  "font" : "11px Arial",
+	  "textOffset" : [5, -5]
+  },
+  "파랑아홉글자" : {
+	  "background" : true,
+	  "backgroundSize" : [100,20],
+	  "backgroundFillColor" : "rgba(68, 114, 196, 1.0)",
+	  "backgroundStrokeColor" : "rgba(205, 211, 222, 1.0)",
+	  "backgroundOffset" : [-50, 15],
+	  "font" : "11px Arial",
+	  "textOffset" : [0, 30]
+  },
+  "노랑네글자" : {
+	  "background" : true,
+	  "backgroundSize" : [60,20],
+	  "backgroundFillColor" : "rgba(255, 192, 0, 1.0)",
+	  "backgroundStrokeColor" : "rgba(224, 219, 202, 1.0)",
+	  "backgroundOffset" :  [-20, -20],
+	  "font" : "11px Arial",
+	  "textOffset" : [10, -5]
+  }
+}

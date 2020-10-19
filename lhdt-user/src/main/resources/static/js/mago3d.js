@@ -15371,6 +15371,179 @@ ViewerInit.prototype.createElement = function () {
 };
 'use strict';
 /**
+ * color 처리 관련 도메인
+ * @class ColorAPI
+ */
+
+var ColorAPI = {};
+
+ColorAPI.changeColor = function (api, magoManager) {
+  var projectId = api.getProjectId();
+  var dataKey = api.getDataKey();
+  var objectIds = api.getObjectIds();
+  var property = api.getProperty();
+  var propertyKey = null;
+  var propertyValue = null;
+
+  if (property !== null && property !== "") {
+    var properties = property.split("=");
+    propertyKey = properties[0];
+    propertyValue = properties[1];
+  }
+
+  var colorString = api.getColor();
+
+  if (colorString === undefined || colorString === 0) {
+    return;
+  }
+
+  var color = api.getColor().split(",");
+  var colorsValueCount = color.length;
+  var alpha = 1.0;
+
+  if (colorsValueCount === 4) {
+    alpha = color[3] / 255;
+  }
+
+  var rgbaColor = [color[0] / 255, color[1] / 255, color[2] / 255, alpha];
+  var isExistObjectIds = false;
+
+  if (objectIds !== null && objectIds.length !== 0) {
+    isExistObjectIds = true;
+  }
+
+  var changeHistorys = [];
+
+  if (isExistObjectIds) {
+    for (var i = 0, objectCount = objectIds.length; i < objectCount; i++) {
+      var changeHistory = new ChangeHistory();
+      changeHistory.setProjectId(projectId);
+      changeHistory.setDataKey(dataKey);
+      changeHistory.setObjectId(objectIds[i]);
+      changeHistory.setProperty(property);
+      changeHistory.setPropertyKey(propertyKey);
+      changeHistory.setPropertyValue(propertyValue); //changeHistory.setRgbColor(rgbColor);
+
+      changeHistory.setColor(rgbaColor);
+      changeHistorys.push(changeHistory);
+    }
+  } else {
+    var changeHistory = new ChangeHistory();
+    changeHistory.setProjectId(projectId);
+    changeHistory.setDataKey(dataKey);
+    changeHistory.setObjectId(null);
+    changeHistory.setProperty(property);
+    changeHistory.setPropertyKey(propertyKey);
+    changeHistory.setPropertyValue(propertyValue); //changeHistory.setRgbColor(rgbColor);
+
+    changeHistory.setColor(rgbaColor);
+    changeHistorys.push(changeHistory);
+  }
+
+  var changeHistory;
+  var historiesCount = changeHistorys.length;
+
+  for (var i = 0; i < historiesCount; i++) {
+    changeHistory = changeHistorys[i];
+    magoManager.config.saveColorHistory(projectId, dataKey, changeHistory.getObjectId(), changeHistory);
+  }
+};
+'use strict';
+/**
+ * Draw 관련 API를 담당하는 클래스
+ * 원래는 이렇게 만들려고 한게 아니지만, legacy 파일이랑 이름, function 등이 중복되서 이렇게 만들었음
+ * @class DrawAPI
+ */
+
+var DrawAPI = {};
+
+DrawAPI.drawAppendData = function (api, magoManager) {
+  magoManager.getObjectIndexFile(api.getProjectId(), api.getProjectDataFolder());
+};
+
+DrawAPI.drawInsertIssueImage = function (api, magoManager) {
+  // pin 을 표시
+  if (magoManager.objMarkerSC === undefined || api.getDrawType() === 0) {
+    magoManager.objMarkerSC = new ObjectMarker();
+    magoManager.objMarkerSC.geoLocationData.geographicCoord = new GeographicCoord();
+    ManagerUtils.calculateGeoLocationData(parseFloat(api.getLongitude()), parseFloat(api.getLatitude()), parseFloat(api.getElevation()), undefined, undefined, undefined, magoManager.objMarkerSC.geoLocationData, magoManager);
+  }
+
+  var objMarker = magoManager.objMarkerManager.newObjectMarker({
+    imageFilePath: 'defaultRed',
+    sizeX: 64,
+    sizeY: 64
+  });
+  magoManager.objMarkerSC.issue_id = api.getIssueId();
+  magoManager.objMarkerSC.issue_type = api.getIssueType();
+  magoManager.objMarkerSC.geoLocationData.geographicCoord.setLonLatAlt(parseFloat(api.getLongitude()), parseFloat(api.getLatitude()), parseFloat(api.getElevation()));
+  objMarker.copyFrom(magoManager.objMarkerSC);
+  magoManager.objMarkerSC = undefined;
+};
+'use strict';
+/**
+ * 변환 행렬 API
+ * @class LocationAndRotationAPI
+ */
+
+var LocationAndRotationAPI = {};
+
+LocationAndRotationAPI.changeLocationAndRotation = function (api, magoManager) {
+  //	var buildingId = api.getDataKey();
+  //	var buildingType = "structure";
+  //	var building = this.getNeoBuildingByTypeId(buildingType, buildingId);
+  var changeHistory = new ChangeHistory();
+  changeHistory.setProjectId(api.getProjectId());
+  changeHistory.setDataKey(api.getDataKey());
+  changeHistory.setLatitude(parseFloat(api.getLatitude()));
+  changeHistory.setLongitude(parseFloat(api.getLongitude()));
+  changeHistory.setElevation(parseFloat(api.getElevation()));
+  changeHistory.setHeading(parseFloat(api.getHeading()));
+  changeHistory.setPitch(parseFloat(api.getPitch()));
+  changeHistory.setRoll(parseFloat(api.getRoll()));
+  var lat = api.getLatitude();
+  var lon = api.getLongitude();
+  var elevation = api.getElevation();
+  var heading = api.getHeading();
+  var pitch = api.getPitch();
+  var roll = api.getRoll();
+  magoManager.changeLocationAndRotation(api.getProjectId(), api.getDataKey(), lat, lon, elevation, heading, pitch, roll, api.getAnimationOption()); // MagoConfig에 저장......?
+};
+'use strict';
+/**
+ * lod 처리 관련 도메인
+ * @class LodAPI
+ */
+
+var LodAPI = {};
+
+LodAPI.changeLod = function (api, magoManager) {
+  if (api.getLod0DistInMeters() !== null && api.getLod0DistInMeters() !== "") {
+    magoManager.magoPolicy.setLod0DistInMeters(api.getLod0DistInMeters());
+  }
+
+  if (api.getLod1DistInMeters() !== null && api.getLod1DistInMeters() !== "") {
+    magoManager.magoPolicy.setLod1DistInMeters(api.getLod1DistInMeters());
+  }
+
+  if (api.getLod2DistInMeters() !== null && api.getLod2DistInMeters() !== "") {
+    magoManager.magoPolicy.setLod2DistInMeters(api.getLod2DistInMeters());
+  }
+
+  if (api.getLod3DistInMeters() !== null && api.getLod3DistInMeters() !== "") {
+    magoManager.magoPolicy.setLod3DistInMeters(api.getLod3DistInMeters());
+  }
+
+  if (api.getLod4DistInMeters() !== null && api.getLod4DistInMeters() !== "") {
+    magoManager.magoPolicy.setLod4DistInMeters(api.getLod4DistInMeters());
+  }
+
+  if (api.getLod5DistInMeters() !== null && api.getLod5DistInMeters() !== "") {
+    magoManager.magoPolicy.setLod5DistInMeters(api.getLod5DistInMeters());
+  }
+};
+'use strict';
+/**
  * mago3djs API
  * 
  * @alias API
@@ -17285,1532 +17458,6 @@ Policy.prototype.setModelMovable = function (movable) {
 
 Policy.prototype.isModelMovable = function () {
   return this.modelMovable;
-};
-'use strict';
-/**
- * color 처리 관련 도메인
- * @class ColorAPI
- */
-
-var ColorAPI = {};
-
-ColorAPI.changeColor = function (api, magoManager) {
-  var projectId = api.getProjectId();
-  var dataKey = api.getDataKey();
-  var objectIds = api.getObjectIds();
-  var property = api.getProperty();
-  var propertyKey = null;
-  var propertyValue = null;
-
-  if (property !== null && property !== "") {
-    var properties = property.split("=");
-    propertyKey = properties[0];
-    propertyValue = properties[1];
-  }
-
-  var colorString = api.getColor();
-
-  if (colorString === undefined || colorString === 0) {
-    return;
-  }
-
-  var color = api.getColor().split(",");
-  var colorsValueCount = color.length;
-  var alpha = 1.0;
-
-  if (colorsValueCount === 4) {
-    alpha = color[3] / 255;
-  }
-
-  var rgbaColor = [color[0] / 255, color[1] / 255, color[2] / 255, alpha];
-  var isExistObjectIds = false;
-
-  if (objectIds !== null && objectIds.length !== 0) {
-    isExistObjectIds = true;
-  }
-
-  var changeHistorys = [];
-
-  if (isExistObjectIds) {
-    for (var i = 0, objectCount = objectIds.length; i < objectCount; i++) {
-      var changeHistory = new ChangeHistory();
-      changeHistory.setProjectId(projectId);
-      changeHistory.setDataKey(dataKey);
-      changeHistory.setObjectId(objectIds[i]);
-      changeHistory.setProperty(property);
-      changeHistory.setPropertyKey(propertyKey);
-      changeHistory.setPropertyValue(propertyValue); //changeHistory.setRgbColor(rgbColor);
-
-      changeHistory.setColor(rgbaColor);
-      changeHistorys.push(changeHistory);
-    }
-  } else {
-    var changeHistory = new ChangeHistory();
-    changeHistory.setProjectId(projectId);
-    changeHistory.setDataKey(dataKey);
-    changeHistory.setObjectId(null);
-    changeHistory.setProperty(property);
-    changeHistory.setPropertyKey(propertyKey);
-    changeHistory.setPropertyValue(propertyValue); //changeHistory.setRgbColor(rgbColor);
-
-    changeHistory.setColor(rgbaColor);
-    changeHistorys.push(changeHistory);
-  }
-
-  var changeHistory;
-  var historiesCount = changeHistorys.length;
-
-  for (var i = 0; i < historiesCount; i++) {
-    changeHistory = changeHistorys[i];
-    magoManager.config.saveColorHistory(projectId, dataKey, changeHistory.getObjectId(), changeHistory);
-  }
-};
-'use strict';
-/**
- * Draw 관련 API를 담당하는 클래스
- * 원래는 이렇게 만들려고 한게 아니지만, legacy 파일이랑 이름, function 등이 중복되서 이렇게 만들었음
- * @class DrawAPI
- */
-
-var DrawAPI = {};
-
-DrawAPI.drawAppendData = function (api, magoManager) {
-  magoManager.getObjectIndexFile(api.getProjectId(), api.getProjectDataFolder());
-};
-
-DrawAPI.drawInsertIssueImage = function (api, magoManager) {
-  // pin 을 표시
-  if (magoManager.objMarkerSC === undefined || api.getDrawType() === 0) {
-    magoManager.objMarkerSC = new ObjectMarker();
-    magoManager.objMarkerSC.geoLocationData.geographicCoord = new GeographicCoord();
-    ManagerUtils.calculateGeoLocationData(parseFloat(api.getLongitude()), parseFloat(api.getLatitude()), parseFloat(api.getElevation()), undefined, undefined, undefined, magoManager.objMarkerSC.geoLocationData, magoManager);
-  }
-
-  var objMarker = magoManager.objMarkerManager.newObjectMarker({
-    imageFilePath: 'defaultRed',
-    sizeX: 64,
-    sizeY: 64
-  });
-  magoManager.objMarkerSC.issue_id = api.getIssueId();
-  magoManager.objMarkerSC.issue_type = api.getIssueType();
-  magoManager.objMarkerSC.geoLocationData.geographicCoord.setLonLatAlt(parseFloat(api.getLongitude()), parseFloat(api.getLatitude()), parseFloat(api.getElevation()));
-  objMarker.copyFrom(magoManager.objMarkerSC);
-  magoManager.objMarkerSC = undefined;
-};
-'use strict';
-/**
- * 변환 행렬 API
- * @class LocationAndRotationAPI
- */
-
-var LocationAndRotationAPI = {};
-
-LocationAndRotationAPI.changeLocationAndRotation = function (api, magoManager) {
-  //	var buildingId = api.getDataKey();
-  //	var buildingType = "structure";
-  //	var building = this.getNeoBuildingByTypeId(buildingType, buildingId);
-  var changeHistory = new ChangeHistory();
-  changeHistory.setProjectId(api.getProjectId());
-  changeHistory.setDataKey(api.getDataKey());
-  changeHistory.setLatitude(parseFloat(api.getLatitude()));
-  changeHistory.setLongitude(parseFloat(api.getLongitude()));
-  changeHistory.setElevation(parseFloat(api.getElevation()));
-  changeHistory.setHeading(parseFloat(api.getHeading()));
-  changeHistory.setPitch(parseFloat(api.getPitch()));
-  changeHistory.setRoll(parseFloat(api.getRoll()));
-  var lat = api.getLatitude();
-  var lon = api.getLongitude();
-  var elevation = api.getElevation();
-  var heading = api.getHeading();
-  var pitch = api.getPitch();
-  var roll = api.getRoll();
-  magoManager.changeLocationAndRotation(api.getProjectId(), api.getDataKey(), lat, lon, elevation, heading, pitch, roll, api.getAnimationOption()); // MagoConfig에 저장......?
-};
-'use strict';
-/**
- * lod 처리 관련 도메인
- * @class LodAPI
- */
-
-var LodAPI = {};
-
-LodAPI.changeLod = function (api, magoManager) {
-  if (api.getLod0DistInMeters() !== null && api.getLod0DistInMeters() !== "") {
-    magoManager.magoPolicy.setLod0DistInMeters(api.getLod0DistInMeters());
-  }
-
-  if (api.getLod1DistInMeters() !== null && api.getLod1DistInMeters() !== "") {
-    magoManager.magoPolicy.setLod1DistInMeters(api.getLod1DistInMeters());
-  }
-
-  if (api.getLod2DistInMeters() !== null && api.getLod2DistInMeters() !== "") {
-    magoManager.magoPolicy.setLod2DistInMeters(api.getLod2DistInMeters());
-  }
-
-  if (api.getLod3DistInMeters() !== null && api.getLod3DistInMeters() !== "") {
-    magoManager.magoPolicy.setLod3DistInMeters(api.getLod3DistInMeters());
-  }
-
-  if (api.getLod4DistInMeters() !== null && api.getLod4DistInMeters() !== "") {
-    magoManager.magoPolicy.setLod4DistInMeters(api.getLod4DistInMeters());
-  }
-
-  if (api.getLod5DistInMeters() !== null && api.getLod5DistInMeters() !== "") {
-    magoManager.magoPolicy.setLod5DistInMeters(api.getLod5DistInMeters());
-  }
-};
-'use strict';
-/**
- * 
- * @exception {Error} Messages.CONSTRUCT_ERROR
- * 
- * @class AbsControl. abstract class
- * @constructor
- * @abstract
- * 
- * @param {object} options
- */
-
-var AbsControl = function AbsControl(options) {
-  if (!(this instanceof AbsControl)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  var element = options.element;
-
-  if (element && !options.target && !element.style.pointerEvents) {
-    element.style.pointerEvents = 'auto';
-  }
-
-  this.element = element ? element : undefined;
-  this.target = options.target ? options.target : undefined;
-  this.magoManager;
-};
-
-AbsControl.prototype.setControl = function (magoManager) {
-  this.magoManager = magoManager;
-  var target = this.target ? this.target : this.magoManager.defaultControlContainer;
-  target.appendChild(this.element);
-  this.target = target;
-};
-/**
- * button element set basic style 
- * @param {HTMLElement} element 
- */
-
-
-AbsControl.prototype.setBtnStyle = function (element) {
-  element.style.display = 'block';
-  element.style.margin = '1px';
-  element.style.padding = 0;
-  element.style.color = 'white';
-  element.style.fontSize = '1.14em';
-  element.style.fontWeight = 'bold';
-  element.style.textDecoration = 'none';
-  element.style.textAlign = 'center';
-  element.style.height = '42px';
-  element.style.width = '42px';
-  element.style.lineHeight = '.4em';
-  element.style.border = 'none';
-  element.style.backgroundColor = 'rgba(148,216,246, 0.8)';
-  element.addEventListener('mouseenter', function () {
-    element.style.filter = 'invert(30%)';
-  }, false);
-  element.addEventListener('mouseleave', function () {
-    element.style.filter = 'none';
-  }, false);
-};
-/**
- * button element set basic style 
- * @param {HTMLElement} element 
- */
-
-
-AbsControl.prototype.setTextBtn = function (element) {
-  element.style.display = 'inline-block';
-  element.style.margin = '1px';
-  element.style.padding = 0;
-  element.style.color = 'white';
-  element.style.fontSize = '.84em';
-  element.style.fontWeight = 'bold';
-  element.style.textDecoration = 'none';
-  element.style.textAlign = 'center';
-  element.style.height = '1.75em';
-  element.style.width = '4.575em';
-  element.style.lineHeight = '.4em';
-  element.style.border = 'none';
-  element.style.backgroundColor = 'rgba(148,216,246, 0.8)';
-};
-'use strict';
-/**
- * 줌 컨트롤
- * @exception {Error} Messages.CONSTRUCT_ERROR
- * 
- * @constructor
- * @class Attribution
- * @param {Attribution~Options} options position info. coordinate. required.
- *  
- * @extends AbsControl
- * 
- */
-
-var Attribution = function Attribution(options) {
-  if (!(this instanceof Attribution)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  var element = document.createElement('div');
-  options = options ? options : {};
-  options.element = element;
-  AbsControl.call(this, options);
-};
-
-Attribution.prototype = Object.create(AbsControl.prototype);
-Attribution.prototype.constructor = Attribution;
-
-Attribution.prototype.setControl = function (magoManager) {
-  this.magoManager = magoManager;
-
-  if (this.magoManager.isCesiumGlobe()) {
-    var creditDisplay = this.magoManager.scene.frameState.creditDisplay;
-    var mago3d_credit = new Cesium.Credit('<a href="http://www.mago3d.com/" target="_blank"><img class="mago3d_logo" src="/images/logo_mago3d.png" title="Mago3D" alt="Mago3D" /></a>', true);
-    creditDisplay.addDefaultCredit(mago3d_credit);
-  } else {
-    var target = this.target ? this.target : this.magoManager.overlayContainer;
-    target.appendChild(this.element);
-  }
-};
-'use strict';
-/**
- * 줌 컨트롤
- * @exception {Error} Messages.CONSTRUCT_ERROR
- * 
- * @constructor
- * @class Compass
- * @param {Compass~Options} options position info. coordinate. required.
- *  
- * @extends AbsControl
- * 
- */
-
-var Compass = function Compass(options) {
-  if (!(this instanceof Compass)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  var element = document.createElement('div');
-  options = options ? options : {};
-  options.element = element;
-  AbsControl.call(this, options);
-  element.style.position = 'absolute';
-  element.style.pointerEvents = 'auto';
-  element.style.backgroundColor = 'rgba(255,255,255,0.4)';
-  element.style.borderRadius = '4px';
-  element.style.padding = '2px';
-  element.style.top = '24.0em';
-  element.style.right = '.5em';
-  var that = this;
-  var homeButton = document.createElement('button');
-  homeButton.setAttribute('type', 'button');
-  homeButton.title = 'init position';
-  homeButton.appendChild(document.createTextNode("\uD83E\uDDED"));
-  this.setBtnStyle(homeButton);
-  homeButton.style.backgroundColor = 'rgba(217, 217, 217, 0.8)';
-  this.element.appendChild(homeButton);
-};
-
-Compass.prototype = Object.create(AbsControl.prototype);
-Compass.prototype.constructor = Compass;
-'use strict';
-/**
- * 줌 컨트롤
- * @exception {Error} Messages.CONSTRUCT_ERROR
- * 
- * @constructor
- * @class FullScreen
- * @param {FullScreen~Options} options position info. coordinate. required.
- *  
- * @extends AbsControl
- * 
- */
-
-var FullScreen = function FullScreen(options) {
-  if (!(this instanceof FullScreen)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  var element = document.createElement('div');
-  options = options ? options : {};
-  options.element = element;
-  AbsControl.call(this, options);
-  var that = this;
-  this.full = false;
-  element.style.position = 'absolute';
-  element.style.pointerEvents = 'auto';
-  element.style.backgroundColor = 'rgba(255,255,255,0.4)';
-  element.style.borderRadius = '4px';
-  element.style.padding = '2px';
-  element.style.top = '4.5em';
-  element.style.right = '.5em';
-  var fullButton = document.createElement('button');
-  fullButton.setAttribute('type', 'button');
-  fullButton.title = 'Full Screen';
-  var imageSpan = document.createElement('span');
-  imageSpan.appendChild(document.createTextNode("\u21C5"));
-  imageSpan.style.transform = 'rotate(0.1turn)';
-  imageSpan.style.display = 'inline-block';
-  imageSpan.style.verticalAlign = 'super';
-  imageSpan.style.lineHeight = '0.6em';
-  fullButton.appendChild(imageSpan);
-  fullButton.appendChild(document.createElement('br'));
-  var textSpan = document.createElement('span');
-  textSpan.appendChild(document.createTextNode('전체화면'));
-  textSpan.style.fontSize = '10px';
-  textSpan.style.verticalAlign = 'baseline';
-  textSpan.style.lineHeight = '0.6em';
-  fullButton.appendChild(textSpan);
-  this.setBtnStyle(fullButton);
-  fullButton.addEventListener('click', that.handleClick.bind(that), false);
-  this.fullButtonElement = fullButton;
-  var cancleButton = document.createElement('button');
-  cancleButton.setAttribute('type', 'button');
-  cancleButton.title = 'Cancle Full Screen';
-  var cancleImageSpan = document.createElement('span');
-  cancleImageSpan.appendChild(document.createTextNode("\u2716"));
-  cancleImageSpan.style.verticalAlign = 'super';
-  cancleImageSpan.style.lineHeight = '0.6em';
-  cancleButton.appendChild(cancleImageSpan);
-  cancleButton.appendChild(document.createElement('br'));
-  var cancleTextSpan = document.createElement('span');
-  cancleTextSpan.appendChild(document.createTextNode('취소'));
-  cancleTextSpan.style.fontSize = '10px';
-  cancleTextSpan.style.verticalAlign = 'baseline';
-  cancleTextSpan.style.lineHeight = '0.6em';
-  cancleButton.appendChild(cancleTextSpan);
-  this.setBtnStyle(cancleButton);
-  cancleButton.style.display = 'none';
-  cancleButton.addEventListener('click', that.handleClick.bind(that), false);
-  this.cancleButtonElement = cancleButton;
-  this.element.appendChild(fullButton);
-  this.element.appendChild(cancleButton);
-};
-
-FullScreen.prototype = Object.create(AbsControl.prototype);
-FullScreen.prototype.constructor = FullScreen;
-
-FullScreen.prototype.handleClick = function () {
-  var target = document.getElementById(this.magoManager.config.getContainerId());
-
-  if (this.full) {
-    if (isFullScreen()) {
-      this.fullButtonElement.style.display = 'block';
-      this.cancleButtonElement.style.display = 'none';
-      exitFullScreen();
-      this.full = false;
-    }
-  } else {
-    if (isFullScreenSupported()) {
-      this.fullButtonElement.style.display = 'none';
-      this.cancleButtonElement.style.display = 'block';
-      requestFullScreen(target);
-      this.full = true;
-    }
-  }
-
-  function isFullScreenSupported() {
-    var body = document.body;
-    return !!(body.webkitRequestFullscreen || body.msRequestFullscreen && document.msFullscreenEnabled || body.requestFullscreen && document.fullscreenEnabled);
-  }
-
-  function isFullScreen() {
-    return !!(document.webkitIsFullScreen || document.msFullscreenElement || document.fullscreenElement);
-  }
-
-  function requestFullScreen(element) {
-    if (element.requestFullscreen) {
-      element.requestFullscreen();
-    } else if (element.msRequestFullscreen) {
-      element.msRequestFullscreen();
-    } else if (element.webkitRequestFullscreen) {
-      element.webkitRequestFullscreen();
-    }
-  }
-
-  function exitFullScreen() {
-    if (document.exitFullscreen) {
-      document.exitFullscreen();
-    } else if (document.msExitFullscreen) {
-      document.msExitFullscreen();
-    } else if (document.webkitExitFullscreen) {
-      document.webkitExitFullscreen();
-    }
-  }
-};
-'use strict';
-/**
- * 줌 컨트롤
- * @exception {Error} Messages.CONSTRUCT_ERROR
- * 
- * @constructor
- * @class InitCamera
- * @param {InitCamera~Options} options position info. coordinate. required.
- *  
- * @extends AbsControl
- * 
- */
-
-var InitCamera = function InitCamera(options) {
-  if (!(this instanceof InitCamera)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  var element = document.createElement('div');
-  options = options ? options : {};
-  options.element = element;
-  AbsControl.call(this, options);
-  element.style.position = 'absolute';
-  element.style.pointerEvents = 'auto';
-  element.style.backgroundColor = 'rgba(255,255,255,0.4)';
-  element.style.borderRadius = '4px';
-  element.style.padding = '2px';
-  element.style.top = '1.0em';
-  element.style.right = '.5em';
-  var that = this;
-  var homeButton = document.createElement('button');
-  homeButton.setAttribute('type', 'button');
-  homeButton.title = 'init position';
-  var imageSpan = document.createElement('span');
-  imageSpan.appendChild(document.createTextNode("\uD83C\uDFE0"));
-  imageSpan.style.verticalAlign = 'text-top';
-  imageSpan.style.lineHeight = '0.6em';
-  homeButton.appendChild(imageSpan);
-  homeButton.appendChild(document.createElement('br'));
-  var textSpan = document.createElement('span');
-  textSpan.appendChild(document.createTextNode('처음으로'));
-  textSpan.style.fontSize = '10px';
-  textSpan.style.verticalAlign = 'baseline';
-  textSpan.style.lineHeight = '0.6em';
-  homeButton.appendChild(textSpan);
-  this.setBtnStyle(homeButton);
-  homeButton.style.backgroundColor = 'rgba(217, 217, 217, 0.8)';
-  homeButton.addEventListener('click', that.handleClick.bind(that), false);
-  this.element.appendChild(homeButton);
-};
-
-InitCamera.prototype = Object.create(AbsControl.prototype);
-InitCamera.prototype.constructor = InitCamera;
-
-InitCamera.prototype.handleClick = function () {
-  if (this.magoManager.isCesiumGlobe()) {
-    var config = this.magoManager.configInformation;
-
-    if (config.initCameraEnable) {
-      var lon = parseFloat(config.initLongitude);
-      var lat = parseFloat(config.initLatitude);
-      var height = parseFloat(config.initAltitude);
-      var duration = parseInt(config.initDuration);
-
-      if (isNaN(lon) || isNaN(lat) || isNaN(height)) {
-        throw new Error('Longitude, Latitude, Height must number type.');
-      }
-
-      if (isNaN(duration)) {
-        duration = 3;
-      }
-
-      this.magoManager.flyTo(lon, lat, height, duration);
-    }
-  }
-};
-'use strict';
-/**
- * 줌 컨트롤
- * @exception {Error} Messages.CONSTRUCT_ERROR
- * 
- * @constructor
- * @class Measure
- * @param {Measure~Options} options position info. coordinate. required.
- *  
- * @extends AbsControl
- * 
- */
-
-var Measure = function Measure(options) {
-  if (!(this instanceof Measure)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  var element = document.createElement('div');
-  options = options ? options : {};
-  options.element = element;
-  AbsControl.call(this, options);
-  this.buttons = {};
-  element.style.position = 'absolute';
-  element.style.pointerEvents = 'auto';
-  element.style.backgroundColor = 'rgba(255,255,255,0.4)';
-  element.style.borderRadius = '4px';
-  element.style.padding = '2px';
-  element.style.bottom = '9.5em';
-  element.style.right = '.5em';
-  setButton(this, 'length', "\uD83D\uDCCF", 'Measure Length', '거리측정');
-  setButton(this, 'area', "\u26F6", 'Measure Area', '면적측정');
-  setButton(this, 'height', "\u2BB8", 'Measure Height', '높이측정');
-
-  function setButton(thisArg, type, text, title, description) {
-    var button = document.createElement('button');
-    button.setAttribute('type', 'button');
-    button.title = title;
-    var imageSpan = document.createElement('span');
-    imageSpan.appendChild(document.createTextNode(text));
-    imageSpan.style.verticalAlign = 'super';
-    imageSpan.style.lineHeight = '0.6em';
-    button.appendChild(imageSpan);
-    button.appendChild(document.createElement('br'));
-    var textSpan = document.createElement('span');
-    textSpan.appendChild(document.createTextNode(description));
-    textSpan.style.fontSize = '10px';
-    textSpan.style.verticalAlign = 'baseline';
-    textSpan.style.lineHeight = '0.6em';
-    button.appendChild(textSpan);
-    thisArg.setBtnStyle(button);
-    button.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
-    button.style.display = 'inline-block';
-    thisArg.buttons[type] = {
-      status: false,
-      element: button
-    };
-    thisArg.element.appendChild(button);
-    button.addEventListener('click', thisArg.handleClick.bind(thisArg, type), false);
-  }
-};
-
-Measure.prototype = Object.create(AbsControl.prototype);
-Measure.prototype.constructor = Measure;
-
-Measure.prototype.handleClick = function (e) {
-  if (this.buttons[e].status) {
-    var button = this.buttons[e];
-    button.status = false;
-    button.element.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
-  } else {
-    for (var buttonName in this.buttons) {
-      if (this.buttons.hasOwnProperty(buttonName)) {
-        var button = this.buttons[buttonName];
-
-        if (buttonName === e) {
-          button.element.style.backgroundColor = 'rgba(148,216,246, 0.8)';
-          button.status = true;
-        } else {
-          button.element.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
-          button.status = false;
-        }
-      }
-    }
-
-    alert('기능 준비중');
-  }
-};
-'use strict';
-/**
- * 줌 컨트롤
- * @exception {Error} Messages.CONSTRUCT_ERROR
- * 
- * @constructor
- * @class Zoom
- * @param {Zoom~Options} options position info. coordinate. required.
- *  
- * @extends AbsControl
- * 
- */
-
-var OverviewMap = function OverviewMap(options) {
-  if (!(this instanceof OverviewMap)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  var element = document.createElement('div');
-  options = options ? options : {};
-  options.element = element;
-  AbsControl.call(this, options);
-  var id = 'mago3dOlMap';
-  element.id = id;
-  element.style.position = 'absolute';
-  element.style.pointerEvents = 'auto';
-  element.style.borderRadius = '4px';
-  element.style.padding = '2px';
-  element.style.bottom = '.5em';
-  element.style.right = '.5em';
-  element.style.width = '135px';
-  element.style.height = '135px';
-  element.style.borderRadius = '4px';
-  element.style.border = '2px solid #CCE5EC';
-};
-
-OverviewMap.prototype = Object.create(AbsControl.prototype);
-OverviewMap.prototype.constructor = OverviewMap;
-
-OverviewMap.prototype.setControl = function (magoManager) {
-  this.magoManager = magoManager;
-  var target = this.target ? this.target : this.magoManager.defaultControlContainer;
-  target.appendChild(this.element);
-  var vectorlayer = new OlMago3d.layer.VectorLayer({
-    source: new OlMago3d.source.VectorSource()
-  });
-  var tilelayer = new OlMago3d.layer.TileLayer({
-    source: new OlMago3d.source.XYZ({
-      url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.png'
-    })
-  });
-  this.overviewMap = new OlMago3d.Map({
-    target: 'mago3dOlMap',
-    view: new OlMago3d.View({
-      zoom: 3,
-      center: [0, 0],
-      projection: 'EPSG:4326'
-    }),
-    layers: [tilelayer, vectorlayer],
-    controls: OlMago3d.control.defaults({
-      attribution: true,
-      zoom: false,
-      rotate: false
-    }),
-    interactions: OlMago3d.interaction.defaults({
-      altShiftDragRotate: false,
-      onFocusOnly: false,
-      doubleClickZoom: false,
-      keyboard: false,
-      mouseWheelZoom: false,
-      shiftDragZoom: false,
-      dragPan: false,
-      pinchRotate: false,
-      pinchZoom: false
-    })
-  });
-  this.overviewMap.overlayContainerStopEvent_.style.pointerEvents = 'none';
-
-  if (this.magoManager.isCesiumGlobe()) {
-    var syncByMago = function syncByMago() {
-      var viewRectangle = scene.camera.computeViewRectangle(scene.globe.ellipsoid);
-      var minx = viewRectangle.west < viewRectangle.east ? viewRectangle.west : viewRectangle.east;
-      var miny = viewRectangle.south < viewRectangle.north ? viewRectangle.south : viewRectangle.north;
-      var maxx = viewRectangle.west > viewRectangle.east ? viewRectangle.west : viewRectangle.east;
-      var maxy = viewRectangle.south > viewRectangle.north ? viewRectangle.south : viewRectangle.north;
-      var extent = [Cesium.Math.toDegrees(minx), Cesium.Math.toDegrees(miny), Cesium.Math.toDegrees(maxx), Cesium.Math.toDegrees(maxy)];
-      var geomPolygon = OlMago3d.geom.Polygon.fromExtent(extent);
-
-      if (!feature) {
-        feature = new OlMago3d.Feature({
-          geometry: geomPolygon
-        });
-        vectorlayer.getSource().addFeature(feature);
-      } else {
-        feature.setGeometry(geomPolygon);
-      }
-
-      var ellipsoid = Cesium.Ellipsoid.WGS84;
-      var canvas = scene.canvas;
-      var canvasCenter = new Cesium.Cartesian2(canvas.clientWidth / 2, canvas.clientHeight / 2);
-      var ray = scene.camera.getPickRay(canvasCenter);
-      var targetCenter = scene.globe.pick(ray, scene) || scene.camera.pickEllipsoid(canvasCenter);
-      var bestTarget = targetCenter;
-
-      if (!bestTarget) {
-        //TODO: how to handle this properly ?
-        var globe = scene.globe;
-        var carto = scene.camera.positionCartographic.clone();
-        var height = globe.getHeight(carto);
-        carto.height = height || 0;
-        bestTarget = Cesium.Ellipsoid.WGS84.cartographicToCartesian(carto);
-      }
-
-      var distance = Cesium.Cartesian3.distance(bestTarget, scene.camera.position);
-      view.fit(extent, {
-        size: getSizeByDistance(distance)
-      });
-      return;
-      var ellipsoid = Cesium.Ellipsoid.WGS84;
-      var canvas = scene.canvas;
-      var canvasCenter = new Cesium.Cartesian2(canvas.clientWidth / 2, canvas.clientHeight / 2);
-      var ray = scene.camera.getPickRay(canvasCenter);
-      var targetCenter = scene.globe.pick(ray, scene) || scene.camera.pickEllipsoid(canvasCenter);
-      var bestTarget = targetCenter;
-
-      if (!bestTarget) {
-        //TODO: how to handle this properly ?
-        var globe = scene.globe;
-        var carto = scene.camera.positionCartographic.clone();
-        var height = globe.getHeight(carto);
-        carto.height = height || 0;
-        bestTarget = Cesium.Ellipsoid.WGS84.cartographicToCartesian(carto);
-      }
-
-      var distance = Cesium.Cartesian3.distance(bestTarget, scene.camera.position);
-      var bestTargetCartographic = ellipsoid.cartesianToCartographic(bestTarget);
-      var properties = {}; //var c = fromLonLat(toDegree(bestTargetCartographic.longitude), toDegree(bestTargetCartographic.latitude));
-
-      properties.center = [toDegree(bestTargetCartographic.longitude), toDegree(bestTargetCartographic.latitude)];
-      properties.resolution = calcResolutionForDistance(canvas, distance, bestTargetCartographic ? bestTargetCartographic.latitude : 0);
-      view.setProperties(properties, true);
-      view.changed();
-
-      function calcResolutionForDistance(cv, dis, lat) {
-        var fovy = scene.camera.frustum.fovy;
-        var metersPerUnit = view.getProjection().getMetersPerUnit();
-        var visibleMeters = 2 * dis * Math.tan(fovy / 2);
-        var relativeCircumference = Math.cos(Math.abs(lat));
-        var visibleMapUnits = visibleMeters / metersPerUnit / relativeCircumference;
-        var resolution = visibleMapUnits / cv.clientHeight;
-        return resolution;
-      }
-    };
-
-    var syncByOl = function syncByOl() {
-      var center = view.getCenter();
-
-      if (!center) {
-        return;
-      }
-
-      var ll = toLonLat(center);
-      var carto = new Cesium.Cartographic(toRadian(ll[0]), toRadian(ll[1]));
-
-      if (scene.globe) {
-        carto.height = scene.globe.getHeight(carto) || 0;
-      }
-
-      var destination = Cesium.Ellipsoid.WGS84.cartographicToCartesian(carto);
-      var oritentation = {
-        pitch: 0 - Cesium.Math.PI_OVER_TWO,
-        heading: -view.getRotation(),
-        roll: undefined
-      };
-      scene.camera.setView({
-        destination: destination,
-        oritentation: oritentation
-      });
-      scene.camera.moveBackward(calcDistanceForResolution(view.getResolution(), toRadian(ll[1])));
-
-      function calcDistanceForResolution(res, lat) {
-        var canvas = scene.canvas;
-        var fovy = scene.camera.frustum.fovy;
-        var metersPerUnit = view.getProjection().getMetersPerUnit();
-        var visibleMapUnits = res * canvas.clientHeight;
-        var relativeCircumference = Math.cos(Math.abs(lat));
-        var visibleMeters = visibleMapUnits * metersPerUnit * relativeCircumference;
-        var requiredDistance = visibleMeters / 2 / Math.tan(fovy / 2);
-        return requiredDistance;
-      }
-    };
-
-    var getSizeByDistance = function getSizeByDistance(d) {
-      var num = 0;
-
-      if (d < 5000) {
-        num = 90;
-      } else if (d < 20000) {
-        num = 70;
-      } else if (d < 70000) {
-        num = 50;
-      } else {
-        num = 30;
-      }
-
-      return [num, num];
-    };
-
-    var toRadian = function toRadian(deg) {
-      return deg * Math.PI / 180;
-    };
-
-    var toDegree = function toDegree(rad) {
-      return rad * 180 / Math.PI;
-    };
-
-    var scene = this.magoManager.scene;
-    var feature = null;
-    var map = this.overviewMap;
-    var view = map.getView();
-    var toLonLat = OlMago3d.proj.getTransform(view.getProjection(), 'EPSG:4326');
-    var fromLonLat = OlMago3d.proj.getTransform('EPSG:4326', view.getProjection());
-    syncByMago();
-    view.on('change:resolution', function () {//syncByOl();
-    });
-    view.on('change:center', function () {//syncByOl();
-    });
-    view.on('change:rotation', function () {//syncByOl();
-    });
-    this.magoManager.on('isCameraMoved', function () {
-      syncByMago();
-    });
-  }
-};
-'use strict';
-/**
- * 줌 컨트롤
- * @exception {Error} Messages.CONSTRUCT_ERROR
- * 
- * @constructor
- * @class Tools
- * @param {Tools~Options} options position info. coordinate. required.
- *  
- * @extends AbsControl
- * 
- */
-
-var Tools = function Tools(options) {
-  if (!(this instanceof Tools)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  var element = document.createElement('div');
-  options = options ? options : {};
-  options.element = element;
-  AbsControl.call(this, options);
-  this.tools = {};
-  element.style.position = 'absolute';
-  element.style.pointerEvents = 'auto';
-  element.style.backgroundColor = 'rgba(255,255,255,0.4)';
-  element.style.borderRadius = '4px';
-  element.style.padding = '2px';
-  element.style.top = '7.5em';
-  element.style.right = '.5em';
-  element.addEventListener('mouseover', this.handleMouseOver.bind(this), false);
-  element.addEventListener('mouseout', this.handleMouseOut.bind(this), false);
-  var that = this;
-  element.addEventListener('click', function () {
-    var mainContainer = document.getElementById(that.magoManager.config.getContainerId()).getElementsByClassName('mago3d-overlayContainer-defaultContent').item(0);
-    var thisContainer = mainContainer.getElementsByClassName('mago3d-tools-advance').item(0);
-    var on = element.className.indexOf('on') >= 0;
-
-    if (!on) {
-      that.target.style.right = '320px';
-      mainContainer.style.display = 'block';
-      mainContainer.style.right = '0px';
-      var toolsDivs = mainContainer.getElementsByClassName('mago3d-tools-div');
-
-      for (var i = 0, len = toolsDivs.length; i < len; i++) {
-        var toolDiv = toolsDivs.item(i);
-        toolDiv.style.display = 'none';
-      }
-
-      thisContainer.style.display = 'block';
-      element.className = 'on';
-      element.getElementsByTagName('button')[0].style.backgroundColor = 'rgba(148,216,246, 0.8)';
-    } else {
-      thisContainer.style.display = 'none';
-      that.target.style.right = '0px';
-      mainContainer.style.display = 'none';
-      mainContainer.style.right = '0px';
-      element.className = '';
-      element.getElementsByTagName('button')[0].style.backgroundColor = 'rgba(70, 70, 70, 0.8)';
-    }
-  }, false);
-  var button = document.createElement('button');
-  button.setAttribute('type', 'button');
-  button.title = 'Tool Box';
-  var imageSpan = document.createElement('span');
-  imageSpan.appendChild(document.createTextNode("\u2699"));
-  imageSpan.style.verticalAlign = 'super';
-  imageSpan.style.lineHeight = '0.6em';
-  button.appendChild(imageSpan);
-  button.appendChild(document.createElement('br'));
-  var textSpan = document.createElement('span');
-  textSpan.appendChild(document.createTextNode('설정'));
-  textSpan.style.fontSize = '10px';
-  textSpan.style.verticalAlign = 'baseline';
-  textSpan.style.lineHeight = '0.6em';
-  button.appendChild(textSpan);
-  this.setBtnStyle(button);
-  button.style.backgroundColor = 'rgba(217, 217, 217, 0.8)';
-  element.appendChild(button);
-};
-
-Tools.prototype = Object.create(AbsControl.prototype);
-Tools.prototype.constructor = Tools;
-
-Tools.prototype.setControl = function (magoManager) {
-  this.magoManager = magoManager;
-  var target = this.target ? this.target : magoManager.defaultControlContainer;
-  target.appendChild(this.element);
-  this.target = target;
-  var advanceToolDiv = document.createElement('div');
-  advanceToolDiv.style.position = 'absolute';
-  advanceToolDiv.style["float"] = 'right';
-  advanceToolDiv.style.width = '100%';
-  advanceToolDiv.style.backgroundColor = '#FFFFFF';
-  advanceToolDiv.style.pointerEvents = 'auto';
-  advanceToolDiv.style.display = 'none';
-  advanceToolDiv.className = 'mago3d-tools-div mago3d-tools-advance';
-  magoManager.defaultContentContainer.appendChild(advanceToolDiv);
-  var basicSettingsDiv = getGroupDiv('기본 설정');
-  advanceToolDiv.appendChild(basicSettingsDiv);
-  var basicSettingBtnDiv = document.createElement('div');
-  basicSettingBtnDiv.style.marginTop = '5px';
-  basicSettingsDiv.appendChild(basicSettingBtnDiv);
-  var that = this;
-  var basicBtns = [];
-  var bboxBtnObj = getBasicButtonObject('bbox', 'BoundingBox Toggle', 'BBOX', 'toggle', function (value) {
-    that.magoManager.magoPolicy.setShowBoundingBox(value);
-  });
-  var labelBtnObj = getBasicButtonObject('label', 'Label Toggle', 'LABEL', 'toggle', function (value) {
-    that.magoManager.magoPolicy.setShowLabelInfo(value); // clear the text canvas.
-
-    var canvas = that.magoManager.getObjectLabel();
-    var ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  });
-  var originBtnObj = getBasicButtonObject('orgin', 'Origin Toggle', 'ORIGIN', 'toggle', function (value) {
-    that.magoManager.magoPolicy.setShowOrigin(value);
-  });
-  var shadowBtnObj = getBasicButtonObject('shadow', 'Shadow Toggle', 'SHADOW', 'toggle', function (value) {
-    that.magoManager.sceneState.setApplySunShadows(value);
-  });
-  basicBtns.push(bboxBtnObj);
-  basicBtns.push(labelBtnObj);
-  basicBtns.push(originBtnObj);
-  basicBtns.push(shadowBtnObj);
-
-  for (var i = 0, btnLength = basicBtns.length; i < btnLength; i++) {
-    var basicBtn = basicBtns[i];
-    var elem = basicBtn.element;
-    basicSettingBtnDiv.appendChild(elem);
-    elem.addEventListener('click', that.handleToolClick.bind(this, basicBtn), false);
-  }
-
-  var basicSettingInputDiv = document.createElement('div');
-  basicSettingInputDiv.style.padding = '0 5px 0 0';
-  basicSettingInputDiv.style.margin = '5px 5px 0 5px';
-  basicSettingsDiv.appendChild(basicSettingInputDiv);
-  var ssaoDiv = document.createElement('div');
-  ssaoDiv.style.padding = '4px';
-  ssaoDiv.style.margin = '10px 0px 4px';
-  ssaoDiv.style.outline = '0px 0px 4px';
-  ssaoDiv.style.verticalAlign = 'top';
-  ssaoDiv.style.backgroundColor = 'rgb(243,243,243)';
-  ssaoDiv.style.borderRadius = '12px';
-  ssaoDiv.style.borderStyle = 'none';
-  ssaoDiv.className = 'mago3d-tools-ssao-div';
-  basicSettingInputDiv.appendChild(ssaoDiv);
-  var ssaoLabel = document.createElement('label');
-  ssaoLabel.style.width = '25%';
-  ssaoLabel.style.padding = '2px';
-  ssaoLabel.style.verticalAlign = 'middle';
-  ssaoLabel.style.display = 'inline-block';
-  ssaoLabel.style.textAlign = 'justify';
-  ssaoLabel.style.fontSize = '13.33333px';
-  ssaoLabel.setAttribute('for', 'ssaoRadius');
-  ssaoLabel.appendChild(document.createTextNode('SSAO'));
-  ssaoDiv.appendChild(ssaoLabel);
-  var ssaoInput = document.createElement('input');
-  ssaoInput.style.width = '45%';
-  ssaoInput.style.marginRight = '5px';
-  ssaoInput.style.padding = '5px';
-  ssaoInput.style.fontSize = 'small';
-  ssaoInput.style.verticalAlign = 'middle';
-  ssaoInput.style.lineHeight = '1.5em';
-  ssaoInput.style.color = '#444';
-  ssaoInput.setAttribute('id', 'ssaoRadius');
-  ssaoInput.setAttribute('name', 'ssaoRadius');
-  ssaoInput.setAttribute('type', 'text');
-  ssaoInput.setAttribute('value', magoManager.configInformation.ssaoRadius);
-  ssaoDiv.appendChild(ssaoInput);
-  var ssaoBtn = document.createElement('button');
-  ssaoBtn.setAttribute('type', 'button');
-  ssaoBtn.style.display = 'inline-block';
-  ssaoBtn.style.verticalAlign = 'middle';
-  ssaoBtn.style.padding = '2px 10px';
-  ssaoBtn.style.fontSize = '12px';
-  ssaoBtn.style.color = '#FFFFFF';
-  ssaoBtn.style.borderRadius = '12px';
-  ssaoBtn.style.borderStyle = 'none';
-  ssaoBtn.style.backgroundColor = '#636363';
-  ssaoBtn.appendChild(document.createTextNode('적용'));
-  ssaoBtn.addEventListener('click', function () {
-    var ssao = ssaoInput.value;
-
-    if (isNaN(ssao)) {
-      alert('숫자만 입력 가능합니다.');
-      return;
-    }
-
-    magoManager.magoPolicy.setSsaoRadius(ssao);
-    magoManager.sceneState.ssaoRadius[0] = Number(ssao);
-  }, false);
-  ssaoDiv.appendChild(ssaoBtn);
-  var lodDiv = document.createElement('div');
-  lodDiv.style.padding = '4px';
-  lodDiv.style.margin = '10px 0px 4px';
-  lodDiv.style.outline = '0px 0px 4px';
-  lodDiv.style.verticalAlign = 'top';
-  lodDiv.style.backgroundColor = 'rgb(243,243,243)';
-  lodDiv.style.borderRadius = '12px';
-  lodDiv.style.borderStyle = 'none';
-  lodDiv.className = 'mago3d-tools-lod-div';
-  basicSettingInputDiv.appendChild(lodDiv);
-  var lodh3 = document.createElement('h3');
-  lodh3.style.fontSize = '15px';
-  lodh3.appendChild(document.createTextNode('Level of Detail'));
-  lodDiv.appendChild(lodh3);
-
-  for (var i = 0; i < 6; i++) {
-    var id = 'geoLod' + i;
-    var name = 'lod' + i;
-    var lodLabel = document.createElement('label');
-    lodLabel.style.width = '25%';
-    lodLabel.style.padding = '2px';
-    lodLabel.style.verticalAlign = 'middle';
-    lodLabel.style.display = 'inline-block';
-    lodLabel.style.textAlign = 'justify';
-    lodLabel.style.fontSize = '13.33333px';
-    lodLabel.setAttribute('for', id);
-    lodLabel.appendChild(document.createTextNode(name.toUpperCase()));
-    lodDiv.appendChild(lodLabel);
-    var lodInput = document.createElement('input');
-    lodInput.style.width = '45%';
-    lodInput.style.marginRight = '5px';
-    lodInput.style.padding = '5px';
-    lodInput.style.fontSize = 'small';
-    lodInput.style.verticalAlign = 'middle';
-    lodInput.style.lineHeight = '1.5em';
-    lodInput.style.color = '#444';
-    lodInput.setAttribute('id', id);
-    lodInput.setAttribute('name', name);
-    lodInput.setAttribute('type', 'text');
-    lodInput.setAttribute('value', magoManager.configInformation[name]);
-    lodDiv.appendChild(lodInput);
-  }
-
-  var lodBtn = document.createElement('button');
-  lodBtn.setAttribute('type', 'button');
-  lodBtn.style.display = 'inline-block';
-  lodBtn.style.verticalAlign = 'middle';
-  lodBtn.style.padding = '2px 10px';
-  lodBtn.style.fontSize = '12px';
-  lodBtn.style.color = '#FFFFFF';
-  lodBtn.style.borderRadius = '12px';
-  lodBtn.style.borderStyle = 'none';
-  lodBtn.style.backgroundColor = '#636363';
-  lodBtn.appendChild(document.createTextNode('적용'));
-  lodBtn.addEventListener('click', function () {
-    var lod0 = document.getElementById('geoLod0').value;
-    var lod1 = document.getElementById('geoLod1').value;
-    var lod2 = document.getElementById('geoLod2').value;
-    var lod3 = document.getElementById('geoLod3').value;
-    var lod4 = document.getElementById('geoLod4').value;
-    var lod5 = document.getElementById('geoLod5').value;
-
-    if (isNaN(lod0) || isNaN(lod1) || isNaN(lod2) || isNaN(lod3) || isNaN(lod4) || isNaN(lod5)) {
-      alert('숫자만 입력 가능합니다.');
-      return;
-    }
-
-    if (lod0 !== null && lod0 !== "") {
-      magoManager.magoPolicy.setLod0DistInMeters(lod0);
-    }
-
-    if (lod1 !== null && lod1 !== "") {
-      magoManager.magoPolicy.setLod1DistInMeters(lod1);
-    }
-
-    if (lod2 !== null && lod2 !== "") {
-      magoManager.magoPolicy.setLod2DistInMeters(lod2);
-    }
-
-    if (lod3 !== null && lod3 !== "") {
-      magoManager.magoPolicy.setLod3DistInMeters(lod3);
-    }
-
-    if (lod4 !== null && lod4 !== "") {
-      magoManager.magoPolicy.setLod4DistInMeters(lod4);
-    }
-
-    if (lod5 !== null && lod5 !== "") {
-      magoManager.magoPolicy.setLod5DistInMeters(lod5);
-    }
-  }, false);
-  lodDiv.appendChild(lodBtn);
-  var dataDiv = getGroupDiv('데이터 선택');
-  advanceToolDiv.appendChild(dataDiv);
-  var dataControlDiv = document.createElement('div');
-  dataControlDiv.style.padding = '4px';
-  dataControlDiv.style.margin = '10px 0px 4px';
-  dataControlDiv.style.outline = '0px 0px 4px';
-  dataControlDiv.style.verticalAlign = 'top';
-  dataControlDiv.style.backgroundColor = 'rgb(243,243,243)';
-  dataControlDiv.style.borderRadius = '12px';
-  dataControlDiv.style.borderStyle = 'none';
-  dataControlDiv.className = 'mago3d-tools-data-div';
-  dataDiv.appendChild(dataControlDiv);
-  var allText = document.createElement('strong');
-  allText.style.width = '35%';
-  allText.style.padding = '2px';
-  allText.style.verticalAlign = 'middle';
-  allText.style.display = 'inline-block';
-  allText.style.textAlign = 'justify';
-  allText.style.fontSize = '13.33333px';
-  allText.appendChild(document.createTextNode('F4D 모델'));
-  dataControlDiv.appendChild(allText);
-  var allSelectBtn = document.createElement('button');
-  allSelectBtn.setAttribute('type', 'button');
-  allSelectBtn.dataset.type = DataType.F4D;
-  allSelectBtn.dataset["function"] = 'select';
-  allSelectBtn.dataset.active = 'off';
-  allSelectBtn.className = 'mago3d-tools-select';
-  allSelectBtn.name = 'btn-' + DataType.F4D;
-  allSelectBtn.style.display = 'inline-block';
-  allSelectBtn.style.verticalAlign = 'middle';
-  allSelectBtn.style.padding = '2px 10px';
-  allSelectBtn.style.fontSize = '12px';
-  allSelectBtn.style.color = 'rgb(20, 20, 20)';
-  allSelectBtn.style.borderRadius = '12px';
-  allSelectBtn.style.borderStyle = 'none';
-  allSelectBtn.style.backgroundColor = 'rgb(255, 255, 255)';
-  allSelectBtn.appendChild(document.createTextNode('선택'));
-  dataControlDiv.appendChild(allSelectBtn);
-  var allMoveBtn = document.createElement('button');
-  allMoveBtn.setAttribute('type', 'button');
-  allMoveBtn.dataset.type = DataType.F4D;
-  allMoveBtn.dataset["function"] = 'translate';
-  allMoveBtn.dataset.active = 'off';
-  allMoveBtn.className = 'mago3d-tools-translate';
-  allMoveBtn.name = 'btn-' + DataType.F4D;
-  allMoveBtn.style.display = 'inline-block';
-  allMoveBtn.style.verticalAlign = 'middle';
-  allMoveBtn.style.marginLeft = '5px';
-  allMoveBtn.style.padding = '2px 10px';
-  allMoveBtn.style.fontSize = '12px';
-  allMoveBtn.style.color = 'rgb(20, 20, 20)';
-  allMoveBtn.style.borderRadius = '12px';
-  allMoveBtn.style.borderStyle = 'none';
-  allMoveBtn.style.backgroundColor = 'rgb(255, 255, 255)';
-  allMoveBtn.appendChild(document.createTextNode('이동'));
-  dataControlDiv.appendChild(allMoveBtn);
-  dataControlDiv.appendChild(document.createElement('br'));
-  var partText = document.createElement('strong');
-  partText.style.width = '35%';
-  partText.style.padding = '2px';
-  partText.style.verticalAlign = 'middle';
-  partText.style.display = 'inline-block';
-  partText.style.textAlign = 'justify';
-  partText.style.fontSize = '13.33333px';
-  partText.appendChild(document.createTextNode('F4D 모델 부분'));
-  dataControlDiv.appendChild(partText);
-  var partSelectBtn = document.createElement('button');
-  partSelectBtn.setAttribute('type', 'button');
-  partSelectBtn.dataset.type = DataType.OBJECT;
-  partSelectBtn.dataset["function"] = 'select';
-  partSelectBtn.dataset.active = 'off';
-  partSelectBtn.className = 'mago3d-tools-select';
-  partSelectBtn.name = 'btn-' + DataType.OBJECT;
-  partSelectBtn.style.display = 'inline-block';
-  partSelectBtn.style.verticalAlign = 'middle';
-  partSelectBtn.style.padding = '2px 10px';
-  partSelectBtn.style.fontSize = '12px';
-  partSelectBtn.style.color = 'rgb(20, 20, 20)';
-  partSelectBtn.style.borderRadius = '12px';
-  partSelectBtn.style.borderStyle = 'none';
-  partSelectBtn.style.backgroundColor = 'rgb(255, 255, 255)';
-  partSelectBtn.appendChild(document.createTextNode('선택'));
-  dataControlDiv.appendChild(partSelectBtn);
-  var partMoveBtn = document.createElement('button');
-  partMoveBtn.setAttribute('type', 'button');
-  partMoveBtn.dataset.type = DataType.OBJECT;
-  partMoveBtn.dataset["function"] = 'translate';
-  partMoveBtn.dataset.active = 'off';
-  partMoveBtn.className = 'mago3d-tools-translate';
-  partMoveBtn.name = 'btn-' + DataType.OBJECT;
-  partMoveBtn.style.display = 'inline-block';
-  partMoveBtn.style.verticalAlign = 'middle';
-  partMoveBtn.style.marginLeft = '5px';
-  partMoveBtn.style.padding = '2px 10px';
-  partMoveBtn.style.fontSize = '12px';
-  partMoveBtn.style.color = 'rgb(20, 20, 20)';
-  partMoveBtn.style.borderRadius = '12px';
-  partMoveBtn.style.borderStyle = 'none';
-  partMoveBtn.style.backgroundColor = 'rgb(255, 255, 255)';
-  partMoveBtn.appendChild(document.createTextNode('이동'));
-  dataControlDiv.appendChild(partMoveBtn);
-  dataControlDiv.appendChild(document.createElement('br'));
-  var nativeText = document.createElement('strong');
-  nativeText.style.width = '35%';
-  nativeText.style.padding = '2px';
-  nativeText.style.verticalAlign = 'middle';
-  nativeText.style.display = 'inline-block';
-  nativeText.style.textAlign = 'justify';
-  nativeText.style.fontSize = '13.33333px';
-  nativeText.appendChild(document.createTextNode('원시 모델 부분'));
-  dataControlDiv.appendChild(nativeText);
-  var nativeSelectBtn = document.createElement('button');
-  nativeSelectBtn.setAttribute('type', 'button');
-  nativeSelectBtn.dataset.type = DataType.NATIVE;
-  nativeSelectBtn.dataset["function"] = 'select';
-  nativeSelectBtn.dataset.active = 'off';
-  nativeSelectBtn.className = 'mago3d-tools-select';
-  nativeSelectBtn.name = 'btn-' + DataType.NATIVE;
-  nativeSelectBtn.style.display = 'inline-block';
-  nativeSelectBtn.style.verticalAlign = 'middle';
-  nativeSelectBtn.style.padding = '2px 10px';
-  nativeSelectBtn.style.fontSize = '12px';
-  nativeSelectBtn.style.color = 'rgb(20, 20, 20)';
-  nativeSelectBtn.style.borderRadius = '12px';
-  nativeSelectBtn.style.borderStyle = 'none';
-  nativeSelectBtn.style.backgroundColor = 'rgb(255, 255, 255)';
-  nativeSelectBtn.appendChild(document.createTextNode('선택'));
-  dataControlDiv.appendChild(nativeSelectBtn);
-  var nativeMoveBtn = document.createElement('button');
-  nativeMoveBtn.setAttribute('type', 'button');
-  nativeMoveBtn.dataset.type = DataType.NATIVE;
-  nativeMoveBtn.dataset["function"] = 'translate';
-  nativeMoveBtn.dataset.active = 'off';
-  nativeMoveBtn.className = 'mago3d-tools-translate';
-  nativeMoveBtn.name = 'btn-' + DataType.NATIVE;
-  nativeMoveBtn.style.display = 'inline-block';
-  nativeMoveBtn.style.verticalAlign = 'middle';
-  nativeMoveBtn.style.marginLeft = '5px';
-  nativeMoveBtn.style.padding = '2px 10px';
-  nativeMoveBtn.style.fontSize = '12px';
-  nativeMoveBtn.style.color = 'rgb(20, 20, 20)';
-  nativeMoveBtn.style.borderRadius = '12px';
-  nativeMoveBtn.style.borderStyle = 'none';
-  nativeMoveBtn.style.backgroundColor = 'rgb(255, 255, 255)';
-  nativeMoveBtn.appendChild(document.createTextNode('이동'));
-  dataControlDiv.appendChild(nativeMoveBtn);
-  var selectBtns = magoManager.defaultContentContainer.getElementsByClassName('mago3d-tools-select');
-  var selectInteraction = magoManager.defaultSelectInteraction;
-  var translateBtns = magoManager.defaultContentContainer.getElementsByClassName('mago3d-tools-translate');
-  var translateInteraction = magoManager.defaultTranslateInteraction;
-  var names = [DataType.NATIVE, DataType.OBJECT, DataType.F4D];
-
-  for (var i = 0, sLength = selectBtns.length; i < sLength; i++) {
-    (function (idx) {
-      var sBtn = selectBtns.item(idx);
-      sBtn.addEventListener('click', function () {
-        var type = sBtn.dataset.type;
-
-        if (!selectInteraction.getActive()) {
-          selectInteraction.setTargetType(type);
-          selectInteraction.setActive(true);
-          sBtn.dataset.active = 'on';
-        } else {
-          var nowTargetType = selectInteraction.getTargetType();
-
-          if (type === nowTargetType) {
-            selectInteraction.setActive(false);
-            sBtn.dataset.active = 'off';
-          } else {
-            var nowBtn = selectBtns.namedItem('btn-' + nowTargetType);
-            nowBtn.dataset.active = 'off';
-            btnActiveStyle(nowBtn);
-            selectInteraction.setTargetType(type);
-            sBtn.dataset.active = 'on';
-          }
-        }
-
-        btnActiveStyle(sBtn);
-      }, false);
-    })(i);
-  }
-
-  for (var i = 0, tLength = translateBtns.length; i < tLength; i++) {
-    (function (idx) {
-      var tBtn = translateBtns.item(idx);
-      tBtn.addEventListener('click', function () {
-        var type = tBtn.dataset.type;
-
-        if (!translateInteraction.getActive()) {
-          translateInteraction.setTargetType(type);
-          translateInteraction.setActive(true);
-          tBtn.dataset.active = 'on';
-        } else {
-          var nowTargetType = translateInteraction.getTargetType();
-
-          if (type === nowTargetType) {
-            translateInteraction.setActive(false);
-            tBtn.dataset.active = 'off';
-          } else {
-            var nowBtn = translateBtns.namedItem('btn-' + nowTargetType);
-            nowBtn.dataset.active = 'off';
-            btnActiveStyle(nowBtn);
-            translateInteraction.setTargetType(type);
-            tBtn.dataset.active = 'on';
-          }
-        }
-
-        btnActiveStyle(tBtn);
-      }, false);
-    })(i);
-  }
-
-  function btnActiveStyle(b) {
-    if (b.dataset.active === 'on') {
-      b.style.backgroundColor = 'rgb(160, 160, 160)';
-      b.style.color = 'rgb(230, 230, 230)';
-    } else {
-      b.style.backgroundColor = 'rgb(255, 255, 255)';
-      b.style.color = 'rgb(20, 20, 20)';
-    }
-  }
-
-  function getBasicButtonObject(type, title, text, runtype, action) {
-    var btn = document.createElement('button');
-    btn.setAttribute('type', 'button');
-    btn.dataset.type = type;
-    btn.dataset.status = 'off';
-    btn.title = title;
-    btn.appendChild(document.createTextNode(text));
-    btn.style.display = 'inline-block';
-    btn.style.margin = '1px 1px 1px 5px';
-    btn.style.padding = '0';
-    btn.style.color = 'rgb(136, 136, 136)';
-    btn.style.fontWeight = 'bold';
-    btn.style.height = '33px';
-    btn.style.width = '66px';
-    btn.style.backgroundColor = '#f3f3f3';
-    btn.style.borderRadius = '12px';
-    btn.style.borderStyle = 'none';
-    return {
-      runType: runtype,
-      element: btn,
-      action: action
-    };
-  }
-
-  function getGroupDiv(category) {
-    var div = document.createElement('div');
-    div.style.padding = '5px 10px';
-    div.style.margin = '0 0 20px 0';
-    div.style.outline = '0px';
-    div.style.verticalAlign = 'top';
-    div.style.fontSize = '16PX';
-    div.style.fontWeight = 'bold';
-    div.style.color = '#888';
-    var strong = document.createElement('strong');
-    strong.style.display = 'block';
-    strong.style.padding = '10px 6px';
-    strong.style.borderBottom = '1px solid #e2e2e2';
-    strong.appendChild(document.createTextNode(category));
-    div.appendChild(strong);
-    return div;
-  }
-};
-
-Tools.prototype.handleMouseOver = function () {
-  this.element.getElementsByTagName('button')[0].style.backgroundColor = 'rgba(148,216,246, 0.8)';
-};
-
-Tools.prototype.handleMouseOut = function () {
-  if (this.element.className !== 'on') {
-    this.element.getElementsByTagName('button')[0].style.backgroundColor = 'rgba(217, 217, 217, 0.8)';
-  }
-};
-
-Tools.prototype.handleToolClick = function (tool) {
-  if (tool.runType === 'toggle') {
-    var element = tool.element;
-    element.dataset.status = element.dataset.status === 'on' ? 'off' : 'on';
-    var status = element.dataset.status;
-    var boolStatus = status === 'on' ? true : false;
-    tool.action.call(this, boolStatus);
-
-    if (boolStatus) {
-      tool.element.style.backgroundColor = 'rgba(148,216,246, 0.8)';
-    } else {
-      tool.element.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
-    }
-  }
-};
-'use strict';
-/**
- * 줌 컨트롤
- * @exception {Error} Messages.CONSTRUCT_ERROR
- * 
- * @constructor
- * @class Zoom
- * @param {Zoom~Options} options position info. coordinate. required.
- *  
- * @extends AbsControl
- * 
- */
-
-var Zoom = function Zoom(options) {
-  if (!(this instanceof Zoom)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  var element = document.createElement('div');
-  options = options ? options : {};
-  options.element = element;
-  AbsControl.call(this, options);
-  element.style.position = 'absolute';
-  element.style.pointerEvents = 'auto';
-  element.style.backgroundColor = 'rgba(255,255,255,0.4)';
-  element.style.borderRadius = '4px';
-  element.style.padding = '2px';
-  element.style.bottom = '0.5em';
-  element.style.right = '9.5em';
-  var that = this;
-  var upButton = document.createElement('button');
-  upButton.setAttribute('type', 'button');
-  upButton.title = 'zoom in';
-  var imageSpan = document.createElement('span');
-  imageSpan.appendChild(document.createTextNode('+'));
-  imageSpan.style.verticalAlign = 'super';
-  imageSpan.style.lineHeight = '0.6em';
-  upButton.appendChild(imageSpan);
-  /*upButton.appendChild(document.createElement('br'));
-  	var textSpan = document.createElement('span');
-  textSpan.appendChild(document.createTextNode('줌인'));
-  textSpan.style.fontSize = '10px';
-  textSpan.style.verticalAlign = 'baseline';
-  textSpan.style.lineHeight = '0.6em';
-  upButton.appendChild(textSpan);*/
-
-  this.setBtnStyle(upButton);
-  upButton.style.width = '25px';
-  upButton.style.height = '25px';
-  upButton.style.display = 'inline-block';
-  upButton.addEventListener('click', that.handleClick.bind(that, 1), false);
-  var downButton = document.createElement('button');
-  downButton.setAttribute('type', 'button');
-  downButton.title = 'zoom out';
-  var downImageSpan = document.createElement('span');
-  downImageSpan.appendChild(document.createTextNode("\u2212"));
-  downImageSpan.style.verticalAlign = 'super';
-  downImageSpan.style.lineHeight = '0.6em';
-  downButton.appendChild(downImageSpan);
-  /*downButton.appendChild(document.createElement('br'));
-  	var downTextSpan = document.createElement('span');
-  downTextSpan.appendChild(document.createTextNode('줌아웃'));
-  downTextSpan.style.fontSize = '10px';
-  downTextSpan.style.verticalAlign = 'baseline';
-  downTextSpan.style.lineHeight = '0.6em';
-  downButton.appendChild(downTextSpan);*/
-
-  this.setBtnStyle(downButton);
-  downButton.style.width = '25px';
-  downButton.style.height = '25px';
-  downButton.style.display = 'inline-block';
-  downButton.addEventListener('click', that.handleClick.bind(that, 0), false);
-  this.element.appendChild(upButton);
-  this.element.appendChild(downButton);
-};
-
-Zoom.prototype = Object.create(AbsControl.prototype);
-Zoom.prototype.constructor = Zoom;
-
-Zoom.prototype.handleClick = function (type) {
-  if (this.magoManager.isCesiumGlobe()) {
-    var scene = this.magoManager.scene;
-    var camera = scene.camera;
-    var cartographicPosition = Cesium.Cartographic.fromCartesian(camera.position);
-    var alt = cartographicPosition.height;
-
-    if (type) {
-      scene.camera.zoomIn(alt * 0.1);
-    } else {
-      scene.camera.zoomOut(alt * 0.1);
-    }
-  }
 };
 'use strict';
 /**
@@ -20965,8 +19612,7 @@ Camera.prototype.setCurrentFrustum = function (frustumIdx) {
 
 Camera.prototype.bindUniforms = function (gl, shader) {
   // Bind frustum near & far. far.
-  var frustum = this.frustum; //var frustum = this.bigFrustum;
-
+  var frustum = this.frustum;
   gl.uniform1f(shader.frustumNear_loc, frustum.near[0]);
   gl.uniform1f(shader.frustumFar_loc, frustum.far[0]);
 };
@@ -23741,6 +22387,13 @@ var FBO = function FBO(gl, width, height, options) {
 
   this.colorBuffer = undefined;
   /**
+   * WebGL texture.
+   * @type {WebGLTexture}
+   * @default WebGLTexture
+   */
+
+  this.colorBuffer2 = undefined;
+  /**
    * Boolean var that indicates that the parameters must be updated.
    * @type {Boolean}
    * @default true
@@ -23750,7 +22403,14 @@ var FBO = function FBO(gl, width, height, options) {
 
   this.width[0] = width;
   this.height[0] = height;
-  this.init();
+
+  if (options.multiRenderTarget) {
+    this.multiRenderTarget = true;
+  }
+
+  if (options.multiRenderTargetNoRenderbuffer) {
+    this.multiRenderTargetNoRenderbuffer = true;
+  }
 
   if (options.matchCanvasSize) {
     var that = this;
@@ -23759,8 +22419,16 @@ var FBO = function FBO(gl, width, height, options) {
       that.width[0] = canvas.offsetWidth;
       that.height[0] = canvas.offsetHeight;
       that.deleteObjects(that.gl);
-      that.init();
+      if (that.multiRenderTarget === true) that.initMRT();else if (that.multiRenderTargetNoRenderbuffer === true) that.initMRTNoRenderbuffer();else that.init();
     }, false);
+  }
+
+  if (this.multiRenderTarget) {
+    this.initMRT();
+  } else if (this.multiRenderTargetNoRenderbuffer) {
+    this.initMRTNoRenderbuffer();
+  } else {
+    this.init();
   }
 };
 
@@ -23781,14 +22449,115 @@ FBO.prototype.init = function () {
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); //LINEAR_MIPMAP_LINEAR
 
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE); //gl.generateMipmap(gl.TEXTURE_2D)
-
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width[0], this.height[0], 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
   gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbo);
   gl.bindRenderbuffer(gl.RENDERBUFFER, this.depthBuffer);
   gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, this.width[0], this.height[0]);
   gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this.depthBuffer);
   gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.colorBuffer, 0);
+
+  if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
+    throw "Incomplete frame buffer object.";
+  }
+
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+};
+
+FBO.prototype.initMRT = function () {
+  var gl = this.gl;
+  this.fbo = gl.createFramebuffer();
+  this.depthBuffer = gl.createRenderbuffer();
+  this.extbuffers = gl.getExtension("WEBGL_draw_buffers");
+
+  if (this.options.colorBuffer) {
+    this.colorBuffer = this.options.colorBuffer;
+  } else {
+    this.colorBuffer = gl.createTexture();
+  }
+
+  if (this.options.colorBuffer1) {
+    this.colorBuffer1 = this.options.colorBuffer1;
+  } else {
+    this.colorBuffer1 = gl.createTexture();
+  }
+
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, this.colorBuffer);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); //LINEAR_MIPMAP_LINEAR
+
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width[0], this.height[0], 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+  gl.activeTexture(gl.TEXTURE1);
+  gl.bindTexture(gl.TEXTURE_2D, this.colorBuffer1);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); //LINEAR_MIPMAP_LINEAR
+
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width[0], this.height[0], 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbo);
+  gl.bindRenderbuffer(gl.RENDERBUFFER, this.depthBuffer);
+  gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, this.width[0], this.height[0]);
+  gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this.depthBuffer);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, this.extbuffers.COLOR_ATTACHMENT0_WEBGL, gl.TEXTURE_2D, this.colorBuffer, 0);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, this.extbuffers.COLOR_ATTACHMENT1_WEBGL, gl.TEXTURE_2D, this.colorBuffer1, 0);
+  this.extbuffers.drawBuffersWEBGL([this.extbuffers.COLOR_ATTACHMENT0_WEBGL, // gl_FragData[0]
+  this.extbuffers.COLOR_ATTACHMENT1_WEBGL // gl_FragData[1]
+  ]);
+
+  if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
+    throw "Incomplete frame buffer object.";
+  }
+
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+};
+
+FBO.prototype.initMRTNoRenderbuffer = function () {
+  var gl = this.gl;
+  this.fbo = gl.createFramebuffer(); //this.depthBuffer = gl.createRenderbuffer();
+
+  this.extbuffers = gl.getExtension("WEBGL_draw_buffers");
+
+  if (this.options.colorBuffer) {
+    this.colorBuffer = this.options.colorBuffer;
+  } else {
+    this.colorBuffer = gl.createTexture();
+  }
+
+  if (this.options.colorBuffer1) {
+    this.colorBuffer1 = this.options.colorBuffer1;
+  } else {
+    this.colorBuffer1 = gl.createTexture();
+  }
+
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, this.colorBuffer);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); //LINEAR_MIPMAP_LINEAR
+
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width[0], this.height[0], 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+  gl.activeTexture(gl.TEXTURE1);
+  gl.bindTexture(gl.TEXTURE_2D, this.colorBuffer1);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); //LINEAR_MIPMAP_LINEAR
+
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width[0], this.height[0], 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbo); //gl.bindRenderbuffer(gl.RENDERBUFFER, this.depthBuffer);
+  //gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, this.width[0], this.height[0]);
+  //gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this.depthBuffer);
+
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, this.extbuffers.COLOR_ATTACHMENT0_WEBGL, gl.TEXTURE_2D, this.colorBuffer, 0);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, this.extbuffers.COLOR_ATTACHMENT1_WEBGL, gl.TEXTURE_2D, this.colorBuffer1, 0);
+  this.extbuffers.drawBuffersWEBGL([this.extbuffers.COLOR_ATTACHMENT0_WEBGL, // gl_FragData[0]
+  this.extbuffers.COLOR_ATTACHMENT1_WEBGL // gl_FragData[1]
+  ]);
 
   if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
     throw "Incomplete frame buffer object.";
@@ -23806,8 +22575,7 @@ FBO.prototype.setColorBuffer = function (colorBuffer) {
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); //LINEAR_MIPMAP_LINEAR
 
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE); //gl.generateMipmap(gl.TEXTURE_2D)
-
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width[0], this.height[0], 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
   gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbo);
   gl.bindRenderbuffer(gl.RENDERBUFFER, this.depthBuffer);
@@ -23889,6 +22657,27 @@ FBO.bindFramebuffer = function (gl, framebuffer, texture) {
 
   if (texture) {
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+  }
+};
+/**
+ * Binds a framebuffer and texture to this instance
+ * @param {WebGLRenderingContext} gl WebGL Rendering Context.
+ * @param {WebGLFramebuffer} framebuffer WebGL Framebuffer.
+ * @param {WebGLTexture} texture WebGL Texture.
+ * @param {WebGLTexture} texture2 WebGL Texture.
+ * @param {extbuffers} extbuffers.
+ */
+
+
+FBO.bindFramebufferMRT = function (gl, framebuffer, texture, texture2, extbuffers) {
+  gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+
+  if (texture) {
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, extbuffers.COLOR_ATTACHMENT0_WEBGL, gl.TEXTURE_2D, texture, 0);
+  }
+
+  if (texture2) {
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, extbuffers.COLOR_ATTACHMENT1_WEBGL, gl.TEXTURE_2D, texture2, 0);
   }
 };
 /**
@@ -24273,6 +23062,8 @@ var FrustumVolumeControl = function FrustumVolumeControl() {
   }
 
   this.frustumVolumensMap = {};
+  var mexFrustumsCount = 4;
+  this.nearFarArray = new Float32Array(2 * mexFrustumsCount);
 };
 /**
  * Find the specific volumn by the key of this.frustumVolumensMap
@@ -29132,8 +27923,19 @@ MagoManager.prototype.upDateSceneStateMatrices = function (sceneState) {
     if (sceneState.drawingBufferWidth[0] !== scene.drawingBufferWidth || sceneState.drawingBufferHeight[0] !== scene.drawingBufferHeight) {
       sceneState.drawingBufferWidth[0] = scene.drawingBufferWidth;
       sceneState.drawingBufferHeight[0] = scene.drawingBufferHeight;
+      var canvas = this.getObjectLabel();
+      canvas.width = scene.drawingBufferWidth;
+      canvas.height = scene.drawingBufferHeight;
       window.dispatchEvent(this._changeCanvasSizeEvent);
-    }
+    } // set nearfar-array.***
+
+
+    var currFrustumIdx = this.currentFrustumIdx;
+    var projectionMat = this.sceneState.projectionMatrix;
+    var n = Matrix4.getNearFromPerspectiveMatrix(projectionMat);
+    var f = Matrix4.getFarFromPerspectiveMatrix(projectionMat);
+    this.frustumVolumeControl.nearFarArray[currFrustumIdx * 2] = n;
+    this.frustumVolumeControl.nearFarArray[currFrustumIdx * 2 + 1] = f;
   } else
     /* if (this.configInformation.basicGlobe === Constant.MAGOWORLD)*/
     {
@@ -29233,7 +28035,11 @@ MagoManager.prototype.upDateSceneStateMatrices = function (sceneState) {
       var modelViewProjRelToEyeMatrixSky = sceneState.modelViewProjRelToEyeMatrixSky;
       modelViewProjRelToEyeMatrixSky._floatArrays = glMatrix.mat4.multiply(modelViewProjRelToEyeMatrixSky._floatArrays, projectionMatrixSky._floatArrays, modelViewRelToEyeMatrix._floatArrays); // Parameters for logarithmic depth buffer.
 
-      sceneState.fCoef_logDepth[0] = 2.0 / Math.log2(frustum0.far[0] + 1.0);
+      sceneState.fCoef_logDepth[0] = 2.0 / Math.log2(frustum0.far[0] + 1.0); // set nearfar-array.***
+
+      var currFrustumIdx = this.currentFrustumIdx;
+      this.frustumVolumeControl.nearFarArray[currFrustumIdx * 2] = frustum0.near[0];
+      this.frustumVolumeControl.nearFarArray[currFrustumIdx * 2 + 1] = frustum0.far[0];
     }
 
   sceneState.modelViewProjMatrixInv = undefined; // init. Calculate when necessary.***
@@ -29894,16 +28700,15 @@ MagoManager.prototype.doRender = function (frustumVolumenObject) {
   this.renderType = 0;
   var renderTexture = false; // Take the depFrameBufferObject of the current frustumVolume.***
 
-  /*
-  if (this.depthFboNeo === undefined) { this.depthFboNeo = new FBO(gl, this.sceneState.drawingBufferWidth, this.sceneState.drawingBufferHeight, {matchCanvasSize : true}); }
-  */
+  var bUseMultiRenderTarget = this.postFxShadersManager.bUseMultiRenderTarget;
 
   if (frustumVolumenObject.depthFbo === undefined) {
     frustumVolumenObject.depthFbo = new FBO(gl, this.sceneState.drawingBufferWidth[0], this.sceneState.drawingBufferHeight[0], {
-      matchCanvasSize: true
+      matchCanvasSize: true,
+      multiRenderTarget: bUseMultiRenderTarget
     });
   } //if (this.depthFboNeo === undefined) { this.depthFboNeo = new FBO(gl, this.sceneState.drawingBufferWidth, this.sceneState.drawingBufferHeight, {matchCanvasSize: true}); }
-  //if (this.ssaoFromDepthFbo === undefined) { this.ssaoFromDepthFbo = new FBO(gl, new Float32Array([this.sceneState.drawingBufferWidth[0]/2.0]), new Float32Array([this.sceneState.drawingBufferHeight/2.0]), {matchCanvasSize : true}); }
+  //if (frustumVolumenObject.ssaoFromDepthFbo === undefined) { frustumVolumenObject.ssaoFromDepthFbo = new FBO(gl, this.sceneState.drawingBufferWidth, this.sceneState.drawingBufferHeight, {matchCanvasSize : true}); }
 
 
   if (this.ssaoFromDepthFbo === undefined) {
@@ -29922,15 +28727,41 @@ MagoManager.prototype.doRender = function (frustumVolumenObject) {
   gl.clearStencil(0); // provisionally here.***
 
   gl.viewport(0, 0, this.sceneState.drawingBufferWidth[0], this.sceneState.drawingBufferHeight[0]);
-  this.renderer.renderGeometry(gl, renderType, this.visibleObjControlerNodes); // test mago geometries.************************************************************************************************************
-  //this.renderer.renderMagoGeometries(renderType); //TEST
-
+  this.renderer.renderGeometry(gl, renderType, this.visibleObjControlerNodes);
   this.depthFboNeo.unbind();
-  this.swapRenderingFase(); // 1.1) ssao and other effects from depthBuffer render.*****************************************************************************
+  this.swapRenderingFase(); // If is the frustum zero, then merge depthTexture.***
 
-  this.postFxShadersManager.useProgram(null); // init current bind shader.***
+  if (this.currentFrustumIdx === 0) {
+    // If is the frustum zero, then merge depthTexture.***
+    if (!this.texturesManager) {
+      this.texturesManager = new TexturesManager(this);
+      var bufferWidth = this.sceneState.drawingBufferWidth[0];
+      var bufferHeight = this.sceneState.drawingBufferHeight[0];
+      var bUseMultiRenderTarget = this.postFxShadersManager.bUseMultiRenderTarget; // Create a FBO without renderbuffer.***
 
-  this.renderer.renderSsaoFromDepth(gl); // prev 2) ready to color frame buffer
+      this.texturesManager.texturesMergerFbo = new FBO(gl, bufferWidth, bufferHeight, {
+        matchCanvasSize: true,
+        multiRenderTargetNoRenderbuffer: bUseMultiRenderTarget
+      });
+    } // Now, collect depthTextures & normalTextures.***
+
+
+    var depthTexturesArray = [];
+    var normalTexturesArray = [];
+    var frustumsCount = this.numFrustums;
+
+    for (var i = 0; i < frustumsCount; i++) {
+      var frustumVolumenObject = this.frustumVolumeControl.getFrustumVolumeCulling(i);
+      var depthTex = frustumVolumenObject.depthFbo.colorBuffer;
+      var normalTex = frustumVolumenObject.depthFbo.colorBuffer1;
+      depthTexturesArray.push(depthTex);
+      normalTexturesArray.push(normalTex);
+    }
+
+    this.texturesManager.mergeDepthTextures(this, depthTexturesArray, normalTexturesArray);
+    this.renderer.renderSsaoFromDepth(gl);
+  } // prev 2) ready to color frame buffer
+
 
   this.postFxShadersManager.useProgram(null); // init current bind shader.***
 
@@ -29952,10 +28783,15 @@ MagoManager.prototype.doRender = function (frustumVolumenObject) {
 
   renderType = 1;
   this.renderType = 1;
-  this.renderer.renderGeometry(gl, renderType, this.visibleObjControlerNodes); // ex) webgl render basic pipeline, tutorial.
-  //this.renderBasicGl_test();
+  this.renderer.renderGeometry(gl, renderType, this.visibleObjControlerNodes); // 1.1) ssao and other effects from depthBuffer render.*****************************************************************************
 
   if (this.currentFrustumIdx === 0) {
+    for (var i = 0; i < 8; i++) {
+      gl.activeTexture(gl.TEXTURE0 + i);
+      gl.bindTexture(gl.TEXTURE_2D, null);
+    }
+
+    this.renderer.renderScreenQuadSsao(gl);
     this.renderCluster();
   }
   /*
@@ -30009,13 +28845,6 @@ MagoManager.prototype.doRender = function (frustumVolumenObject) {
   //{
   //	this.TEST__splittedExtrudedBuilding();
   //	this.test__splittedMesh = true;
-  //}
-  // 4) Render filter.******************************************************************************************************************
-  //this.renderFilter();
-  // Test.***
-  //if(!this.test_shader)
-  //{
-  //	this.TEST__shader();
   //}
 };
 /**
@@ -30443,7 +29272,7 @@ MagoManager.prototype.drawBuildingNames = function (visibleObjControlerNodes) {
       continue;
     }
 
-    if (node.data.distToCam > 1500.0) {
+    if (node.data.distToCam > 3000.0) {
       continue;
     }
 
@@ -30456,6 +29285,7 @@ MagoManager.prototype.drawBuildingNames = function (visibleObjControlerNodes) {
     if (Object.prototype.hasOwnProperty.call(rootNodesMap, key)) {
       //nodeRoot = rootNodesArray[i];
       nodeRoot = rootNodesMap[key];
+      if (nodeRoot.data.attributes.isVisible === false || !nodeRoot.data.attributes.label) continue;
       geoLocDataManager = nodeRoot.data.geoLocDataManager;
       geoLoc = geoLocDataManager.getCurrentGeoLocationData(); //neoBuilding = node.data.neoBuilding;
 
@@ -30469,17 +29299,116 @@ MagoManager.prototype.drawBuildingNames = function (visibleObjControlerNodes) {
       }
 
       if (elemFromPoints[0].nodeName === 'CANVAS' && screenCoord.x >= 0 && screenCoord.y >= 0) {
-        ctx.font = "13px Arial"; //ctx.strokeText(nodeRoot.data.nodeId, screenCoord.x, screenCoord.y);
-        //ctx.fillText(nodeRoot.data.nodeId, screenCoord.x, screenCoord.y);
+        var label = nodeRoot.data.attributes.label;
 
-        ctx.strokeText(nodeRoot.data.data_name, screenCoord.x, screenCoord.y);
-        ctx.fillText(nodeRoot.data.data_name, screenCoord.x, screenCoord.y);
+        if (label instanceof Array) {
+          for (var j = 0, labelLen = label.length; j < labelLen; j++) {
+            var lb = label[j];
+            ctx.fillStyle = lb.backgroundFillColor;
+            ctx.strokeStyle = lb.backgroundStrokeColor;
+            var backgroundOffset = lb.backgroundOffset;
+            var backgroundSize = lb.backgroundSize;
+            roundRect(ctx, screenCoord.x + backgroundOffset[0], screenCoord.y + backgroundOffset[1], backgroundSize[0], backgroundSize[1], 10, true, true);
+            ctx.font = "13px Arial";
+            ctx.fillStyle = "white";
+            ctx.strokeStyle = "white";
+            ctx.textAlign = "center"; //ctx.strokeText(nodeRoot.data.nodeId, screenCoord.x, screenCoord.y);
+            //ctx.fillText(nodeRoot.data.nodeId, screenCoord.x, screenCoord.y);
+            //ctx.strokeText('민간분양', screenCoord.x+30, screenCoord.y);
+
+            var textOffset = lb.textOffset;
+            ctx.fillText(lb.text, screenCoord.x + textOffset[0], screenCoord.y + textOffset[1]);
+          }
+        } else {
+          ctx.fillStyle = label.backgroundFillColor;
+          ctx.strokeStyle = label.backgroundStrokeColor;
+          var backgroundOffset = label.backgroundOffset;
+          var backgroundSize = label.backgroundSize;
+          roundRect(ctx, screenCoord.x + backgroundOffset[0], screenCoord.y + backgroundOffset[1], backgroundSize[0], backgroundSize[1], 10, true, true);
+          ctx.font = label.font ? label.font : "13px Arial";
+          ctx.fillStyle = "white";
+          ctx.strokeStyle = "white";
+          ctx.textAlign = "center"; //ctx.strokeText(nodeRoot.data.nodeId, screenCoord.x, screenCoord.y);
+          //ctx.fillText(nodeRoot.data.nodeId, screenCoord.x, screenCoord.y);
+          //ctx.strokeText('민간분양', screenCoord.x+30, screenCoord.y);
+
+          var textOffset = label.textOffset;
+          var text = label.text;
+
+          if (text.indexOf('\n') > -1) {
+            var splitTexts = text.split('\n');
+            var yoffset = textOffset[1];
+            var halfYoffset = yoffset / 2;
+            var ypos = screenCoord.y + yoffset;
+
+            for (var k = 0, textLen = splitTexts.length; k < textLen; k++) {
+              var splitText = splitTexts[k];
+              ypos = ypos + k * -2 * yoffset;
+              if (k > 0) ypos += 3;
+              ctx.fillText(splitText, screenCoord.x + textOffset[0], ypos);
+            }
+          } else {
+            ctx.fillText(text, screenCoord.x + textOffset[0], screenCoord.y + textOffset[1]);
+          }
+        }
       }
     }
   }
 
   rootNodesMap = {};
   ctx.restore();
+
+  function roundRect(context, x, y, width, height, radius, fill, stroke) {
+    if (typeof stroke === 'undefined') {
+      stroke = true;
+    }
+
+    if (typeof radius === 'undefined') {
+      radius = 5;
+    }
+
+    if (typeof radius === 'number') {
+      radius = {
+        tl: radius,
+        tr: radius,
+        br: radius,
+        bl: radius
+      };
+    } else {
+      var defaultRadius = {
+        tl: 0,
+        tr: 0,
+        br: 0,
+        bl: 0
+      };
+
+      for (var side in defaultRadius) {
+        if (defaultRadius.hasOwnProperty(side)) {
+          radius[side] = radius[side] || defaultRadius[side];
+        }
+      }
+    }
+
+    context.beginPath();
+    context.moveTo(x + radius.tl, y);
+    context.lineTo(x + width - radius.tr, y);
+    context.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+    context.lineTo(x + width, y + height - radius.br);
+    context.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+    context.lineTo(x + radius.bl, y + height);
+    context.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+    context.lineTo(x, y + radius.tl);
+    context.quadraticCurveTo(x, y, x + radius.tl, y);
+    context.closePath();
+
+    if (fill) {
+      context.fill();
+    }
+
+    if (stroke) {
+      context.stroke();
+    }
+  }
 };
 /**
  * Draw building names on scene.
@@ -33706,6 +32635,7 @@ MagoManager.prototype.setRenderCondition = function (projectId, dataKey, conditi
 
 MagoManager.prototype.createDefaultShaders = function (gl) {
   var use_linearOrLogarithmicDepth = "USE_LINEAR_DEPTH";
+  var use_multi_render_target = "NO_USE_MULTI_RENDER_TARGET";
 
   if (!this.isCesiumGlobe()) {
     var supportEXT = gl.getSupportedExtensions().indexOf("EXT_frag_depth");
@@ -33717,13 +32647,14 @@ MagoManager.prototype.createDefaultShaders = function (gl) {
     this.EXTENSIONS_init = true;
     use_linearOrLogarithmicDepth = "USE_LOGARITHMIC_DEPTH";
     this.postFxShadersManager.bUseLogarithmicDepth = true;
-    /*
-    var supportTexterFloatType = gl.getSupportedExtensions().indexOf("OES_texture_float");
-    	if (supportTexterFloatType) 
-    {
-    	gl.getExtension("OES_texture_float");
-    }
-    */
+  }
+
+  var supportEXT = gl.getSupportedExtensions().indexOf("WEBGL_draw_buffers");
+
+  if (supportEXT) {
+    var extbuffers = gl.getExtension("WEBGL_draw_buffers");
+    this.postFxShadersManager.bUseMultiRenderTarget = true;
+    use_multi_render_target = "USE_MULTI_RENDER_TARGET";
   }
 
   var userAgent = window.navigator.userAgent;
@@ -33748,9 +32679,11 @@ MagoManager.prototype.createDefaultShaders = function (gl) {
   var showDepth_vs_source = ShaderSource.RenderShowDepthVS;
   var showDepth_fs_source = ShaderSource.RenderShowDepthFS;
   showDepth_fs_source = showDepth_fs_source.replace(/%USE_LOGARITHMIC_DEPTH%/g, use_linearOrLogarithmicDepth);
+  showDepth_fs_source = showDepth_fs_source.replace(/%USE_MULTI_RENDER_TARGET%/g, use_multi_render_target);
   shader = this.postFxShadersManager.createShaderProgram(gl, showDepth_vs_source, showDepth_fs_source, shaderName, this);
   shader.bUseLogarithmicDepth_loc = gl.getUniformLocation(shader.program, "bUseLogarithmicDepth");
-  shader.uFCoef_logDepth_loc = gl.getUniformLocation(shader.program, "uFCoef_logDepth"); // 2) ModelReferences colorCoding shader.***********************************************************************
+  shader.uFCoef_logDepth_loc = gl.getUniformLocation(shader.program, "uFCoef_logDepth");
+  shader.uFrustumIdx_loc = gl.getUniformLocation(shader.program, "uFrustumIdx"); // 2) ModelReferences colorCoding shader.***********************************************************************
 
   var shaderName = "modelRefColorCoding";
   var showDepth_vs_source = ShaderSource.ColorSelectionSsaoVS;
@@ -33761,6 +32694,7 @@ MagoManager.prototype.createDefaultShaders = function (gl) {
   ssao_vs_source = ShaderSource.TinTerrainVS;
   ssao_fs_source = ShaderSource.TinTerrainFS;
   ssao_fs_source = ssao_fs_source.replace(/%USE_LOGARITHMIC_DEPTH%/g, use_linearOrLogarithmicDepth);
+  ssao_fs_source = ssao_fs_source.replace(/%USE_MULTI_RENDER_TARGET%/g, use_multi_render_target);
   shader = this.postFxShadersManager.createShaderProgram(gl, ssao_vs_source, ssao_fs_source, shaderName, this);
   shader.bIsMakingDepth_loc = gl.getUniformLocation(shader.program, "bIsMakingDepth");
   shader.bExistAltitudes_loc = gl.getUniformLocation(shader.program, "bExistAltitudes");
@@ -33777,17 +32711,7 @@ MagoManager.prototype.createDefaultShaders = function (gl) {
   shader.uTileGeoExtent_loc = gl.getUniformLocation(shader.program, "uTileGeoExtent");
   shader.uTileDepthOfBindedTextures_loc = gl.getUniformLocation(shader.program, "uTileDepthOfBindedTextures");
   shader.uTileGeoExtentOfBindedTextures_loc = gl.getUniformLocation(shader.program, "uTileGeoExtentOfBindedTextures");
-  shader.uDebug_texCorrectionFactor_loc = gl.getUniformLocation(shader.program, "uDebug_texCorrectionFactor"); //shader.uSsaoRadius_loc = gl.getUniformLocation(shader.program, "radius");
-  // In fragment shader:
-  //uniform sampler2D diffuseTex;    // 0
-  //uniform sampler2D shadowMapTex;  // 1
-  //uniform sampler2D shadowMapTex2; // 2
-  //uniform sampler2D diffuseTex_1;  // 3
-  //uniform sampler2D diffuseTex_2;  // 4
-  //uniform sampler2D diffuseTex_3;  // 5
-  //uniform sampler2D diffuseTex_4;  // 6
-  //uniform sampler2D diffuseTex_5;  // 7
-
+  shader.uDebug_texCorrectionFactor_loc = gl.getUniformLocation(shader.program, "uDebug_texCorrectionFactor");
   shader.uActiveTextures_loc = gl.getUniformLocation(shader.program, "uActiveTextures");
   shader.externalAlphasArray_loc = gl.getUniformLocation(shader.program, "externalAlphasArray");
   var uniformLocation;
@@ -33798,12 +32722,6 @@ MagoManager.prototype.createDefaultShaders = function (gl) {
 
   uniformDataPair = shader.getUniformDataPair("shadowMapTex2");
   uniformDataPair.intValue = 1; // reassign.***
-  //"depthTex" 
-  //uniformDataPair = shader.getUniformDataPair("depthTex");
-  //uniformDataPair.intValue = 2; // reassign.***
-  //"noiseTex" 
-  //uniformDataPair = shader.getUniformDataPair("noiseTex");
-  //uniformDataPair.intValue = 3; // reassign.***
 
   uniformDataPair = shader.getUniformDataPair("diffuseTex");
   uniformDataPair.intValue = 2; // reassign.***
@@ -34020,7 +32938,12 @@ MagoManager.prototype.createDefaultShaders = function (gl) {
   var shaderName = "screenQuad";
   var ssao_vs_source = ShaderSource.ScreenQuadVS;
   var ssao_fs_source = ShaderSource.ScreenQuadFS;
-  var shader = this.postFxShadersManager.createShaderProgram(gl, ssao_vs_source, ssao_fs_source, shaderName, this); // 15) Pin shader.******************************************************************************************
+  var shader = this.postFxShadersManager.createShaderProgram(gl, ssao_vs_source, ssao_fs_source, shaderName, this);
+  shader.ssaoTex_loc = gl.getUniformLocation(shader.program, "ssaoTex");
+  shader.normalTex_loc = gl.getUniformLocation(shader.program, "normalTex");
+  this.postFxShadersManager.useProgram(shader);
+  gl.uniform1i(shader.ssaoTex_loc, 5);
+  gl.uniform1i(shader.normalTex_loc, 6); // 15) Pin shader.******************************************************************************************
 
   var shaderName = "pin";
   var ssao_vs_source = ShaderSource.PngImageVS;
@@ -34064,14 +32987,56 @@ MagoManager.prototype.createDefaultShaders = function (gl) {
   gl.uniform1i(shader.tex_4_loc, 4);
   gl.uniform1i(shader.tex_5_loc, 5);
   gl.uniform1i(shader.tex_6_loc, 6);
-  gl.uniform1i(shader.tex_7_loc, 7); // ssaoFromDepth shader.***********************************************************************************
+  gl.uniform1i(shader.tex_7_loc, 7); // TexturesMerger shader.******************************************************************************************
+
+  var shaderName = "depthTexturesMerger";
+  var ssao_vs_source = ShaderSource.texturesMergerVS;
+  var ssao_fs_source = ShaderSource.depthTexturesMergerFS;
+  ssao_fs_source = ssao_fs_source.replace(/%USE_MULTI_RENDER_TARGET%/g, use_multi_render_target);
+  var shader = this.postFxShadersManager.createShaderProgram(gl, ssao_vs_source, ssao_fs_source, shaderName, this);
+  shader.position2_loc = gl.getAttribLocation(shader.program, "a_pos");
+  shader.uNumFrustums_loc = gl.getUniformLocation(shader.program, "uNumFrustums");
+  shader.depthTexture_0_loc = gl.getUniformLocation(shader.program, "depthTexture_0");
+  shader.normalTexture_0_loc = gl.getUniformLocation(shader.program, "normalTexture_0");
+  shader.depthTexture_1_loc = gl.getUniformLocation(shader.program, "depthTexture_1");
+  shader.normalTexture_1_loc = gl.getUniformLocation(shader.program, "normalTexture_1");
+  shader.depthTexture_2_loc = gl.getUniformLocation(shader.program, "depthTexture_2");
+  shader.normalTexture_2_loc = gl.getUniformLocation(shader.program, "normalTexture_2");
+  shader.depthTexture_3_loc = gl.getUniformLocation(shader.program, "depthTexture_3");
+  shader.normalTexture_3_loc = gl.getUniformLocation(shader.program, "normalTexture_3");
+  this.postFxShadersManager.useProgram(shader);
+  gl.uniform1i(shader.depthTexture_0_loc, 0);
+  gl.uniform1i(shader.normalTexture_0_loc, 1);
+  gl.uniform1i(shader.depthTexture_1_loc, 2);
+  gl.uniform1i(shader.normalTexture_1_loc, 3);
+  gl.uniform1i(shader.depthTexture_2_loc, 4);
+  gl.uniform1i(shader.normalTexture_2_loc, 5);
+  gl.uniform1i(shader.depthTexture_3_loc, 6);
+  gl.uniform1i(shader.normalTexture_3_loc, 7); // ssaoFromDepth shader.***********************************************************************************
 
   var shaderName = "ssaoFromDepth";
   var ssao_vs_source = ShaderSource.ScreenQuadVS;
   var ssao_fs_source = ShaderSource.ssaoFromDepthFS;
   var shader = this.postFxShadersManager.createShaderProgram(gl, ssao_vs_source, ssao_fs_source, shaderName, this);
   shader.bUseLogarithmicDepth_loc = gl.getUniformLocation(shader.program, "bUseLogarithmicDepth");
-  shader.uFCoef_logDepth_loc = gl.getUniformLocation(shader.program, "uFCoef_logDepth"); // 13) ThickLine clampToTerrain shader.******************************************************************************
+  shader.uFCoef_logDepth_loc = gl.getUniformLocation(shader.program, "uFCoef_logDepth");
+  shader.uNumFrustums_loc = gl.getUniformLocation(shader.program, "uNumFrustums");
+  shader.uNearFarArray_loc = gl.getUniformLocation(shader.program, "uNearFarArray"); //gl.bindAttribLocation(shader.program, 0, "depthTex");
+  //gl.bindAttribLocation(shader.program, 1, "depthTex_1");
+  //gl.bindAttribLocation(shader.program, 2, "depthTex_2");
+  //gl.bindAttribLocation(shader.program, 3, "depthTex_3");
+  //gl.bindAttribLocation(shader.program, 4, "noiseTex");
+
+  shader.depthTex_loc = gl.getUniformLocation(shader.program, "depthTex"); //shader.depthTex_1_loc = gl.getUniformLocation(shader.program, "depthTex_1");
+  //shader.depthTex_2_loc = gl.getUniformLocation(shader.program, "depthTex_2");
+  //shader.depthTex_3_loc = gl.getUniformLocation(shader.program, "depthTex_3");
+
+  shader.noiseTex_loc = gl.getUniformLocation(shader.program, "noiseTex");
+  shader.normalTex_loc = gl.getUniformLocation(shader.program, "normalTex");
+  this.postFxShadersManager.useProgram(shader);
+  gl.uniform1i(shader.depthTex_loc, 0);
+  gl.uniform1i(shader.noiseTex_loc, 1);
+  gl.uniform1i(shader.normalTex_loc, 3); // 13) ThickLine clampToTerrain shader.******************************************************************************
 
   var shaderName = "thickLineClampToTerrain";
   var ssao_vs_source = ShaderSource.vectorMeshClampToTerrainVS;
@@ -34772,6 +33737,7 @@ MagoManager.prototype.makeNode = function (jasonObject, resultPhysicalNodesArray
   var pitch = undefined;
   var roll = undefined;
   var mapping_type = undefined;
+  var label = undefined;
 
   if (jasonObject !== undefined) {
     if (!jasonObject.data_key) {
@@ -34804,6 +33770,7 @@ MagoManager.prototype.makeNode = function (jasonObject, resultPhysicalNodesArray
       pitch = jasonObject.pitch;
       roll = jasonObject.roll;
       mapping_type = jasonObject.mappingType || 'origin';
+      label = jasonObject.label;
     } else {
       data_group_id = jasonObject.data_group_id;
       data_group_name = jasonObject.data_group_name;
@@ -34817,6 +33784,7 @@ MagoManager.prototype.makeNode = function (jasonObject, resultPhysicalNodesArray
       pitch = jasonObject.pitch;
       roll = jasonObject.roll;
       mapping_type = jasonObject.mapping_type;
+      label = jasonObject.label;
     }
 
     attributes = jasonObject.attributes;
@@ -34877,6 +33845,10 @@ MagoManager.prototype.makeNode = function (jasonObject, resultPhysicalNodesArray
 
         if (!attributes.hasOwnProperty('heightReference') || !attributes.heightReference) {
           attributes.heightReference = HeightReference.NONE;
+        }
+
+        if (label) {
+          attributes.label = label;
         }
       }
 
@@ -43262,11 +42234,12 @@ var TexturesManager = function TexturesManager(magoManager) {
   if (!(this instanceof TexturesManager)) {
     throw new Error(Messages.CONSTRUCT_ERROR);
   }
+
+  this.magoManager = magoManager;
   /**
    * Textures loaded array.
    * @type {Array}
    */
-
 
   this._texturesLoaded = [];
   this.texturesMap = {}; // map<textureName, Texture>
@@ -43387,6 +42360,80 @@ TexturesManager.newWebGlTextureByEmbeddedImage = function (gl, embeddedImage, te
     type: 'application/octet-binary'
   });
   TexturesManager.newWebGlTextureByBlob(gl, blob, texture);
+};
+
+TexturesManager.prototype.mergeDepthTextures = function (magoManager, depthTexturesArray, normalTexturesArray) {
+  var gl = magoManager.getGl();
+  var sceneState = magoManager.sceneState;
+  var texBufferWidth = sceneState.drawingBufferWidth[0];
+  var texBufferHeight = sceneState.drawingBufferHeight[0]; // This function merges depthTextures into one depthTexture.***
+
+  if (!this.texturesMergerFbo) {
+    return;
+  }
+
+  var texturesMergerFbo = this.texturesMergerFbo;
+  texturesMergerFbo.bind();
+  texturesMergerFbo.extbuffers.drawBuffersWEBGL([texturesMergerFbo.extbuffers.COLOR_ATTACHMENT0_WEBGL, // gl_FragData[0]
+  texturesMergerFbo.extbuffers.COLOR_ATTACHMENT1_WEBGL // gl_FragData[1]
+  ]);
+  gl.viewport(0, 0, texBufferWidth, texBufferHeight);
+  gl.clearColor(0, 0, 0, 0);
+  gl.clearDepth(1);
+  gl.clear(gl.COLOR_BUFFER_BIT); // | gl.DEPTH_BUFFER_BIT);
+
+  gl.clearColor(0, 0, 0, 1);
+
+  if (this.quadBuffer === undefined) {
+    var data = new Float32Array([0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1]);
+    this.quadBuffer = FBO.createBuffer(gl, data);
+  }
+
+  var postFxShadersManager = magoManager.postFxShadersManager;
+  var shader = postFxShadersManager.getShader("depthTexturesMerger");
+  postFxShadersManager.useProgram(shader);
+  gl.uniform1i(shader.uNumFrustums_loc, magoManager.numFrustums);
+  gl.enableVertexAttribArray(shader.position2_loc);
+  FBO.bindAttribute(gl, this.quadBuffer, shader.position2_loc, 2); // 2= dim.***
+
+  /*
+  for (var i=0; i<8; i++)
+  {
+  	gl.activeTexture(gl.TEXTURE0 + i); 
+  	gl.bindTexture(gl.TEXTURE_2D, null);
+  }
+  */
+
+  var frustumsCount = depthTexturesArray.length;
+
+  for (var i = 0; i < frustumsCount; i++) {
+    var depthTex = depthTexturesArray[i];
+    var normalTex = normalTexturesArray[i];
+    gl.activeTexture(gl.TEXTURE0 + 2 * i);
+    gl.bindTexture(gl.TEXTURE_2D, depthTex);
+    gl.activeTexture(gl.TEXTURE0 + (2 * i + 1));
+    gl.bindTexture(gl.TEXTURE_2D, normalTex);
+  }
+
+  gl.disable(gl.BLEND);
+  gl.drawArrays(gl.TRIANGLES, 0, 6); //texturesMergerFbo.extbuffers.drawBuffersWEBGL(
+  //	[
+  //		texturesMergerFbo.extbuffers.COLOR_ATTACHMENT0_WEBGL, // gl_FragData[0]
+  //		texturesMergerFbo.extbuffers.NONE  // gl_FragData[1]
+  //	]);
+  //	for (var i=0; i<8; i++)
+  //{
+  //	gl.activeTexture(gl.TEXTURE0 + i); 
+  //	gl.bindTexture(gl.TEXTURE_2D, null);
+  //}
+  //FBO.bindFramebuffer(gl, null);
+
+  texturesMergerFbo.unbind();
+
+  for (var i = 0; i < 8; i++) {
+    gl.activeTexture(gl.TEXTURE0 + i);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+  }
 };
 'use strict';
 /**
@@ -46133,6 +45180,1359 @@ EffectsManager.prototype.executeEffects = function (id, currTime) {
 };
 'use strict';
 /**
+ * 
+ * @exception {Error} Messages.CONSTRUCT_ERROR
+ * 
+ * @class AbsControl. abstract class
+ * @constructor
+ * @abstract
+ * 
+ * @param {object} options
+ */
+
+var AbsControl = function AbsControl(options) {
+  if (!(this instanceof AbsControl)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  var element = options.element;
+
+  if (element && !options.target && !element.style.pointerEvents) {
+    element.style.pointerEvents = 'auto';
+  }
+
+  this.element = element ? element : undefined;
+  this.target = options.target ? options.target : undefined;
+  this.magoManager;
+};
+
+AbsControl.prototype.setControl = function (magoManager) {
+  this.magoManager = magoManager;
+  var target = this.target ? this.target : this.magoManager.defaultControlContainer;
+  target.appendChild(this.element);
+  this.target = target;
+};
+/**
+ * button element set basic style 
+ * @param {HTMLElement} element 
+ */
+
+
+AbsControl.prototype.setBtnStyle = function (element) {
+  element.style.display = 'block';
+  element.style.margin = '1px';
+  element.style.padding = 0;
+  element.style.color = 'white';
+  element.style.fontSize = '1.14em';
+  element.style.fontWeight = 'bold';
+  element.style.textDecoration = 'none';
+  element.style.textAlign = 'center';
+  element.style.height = '42px';
+  element.style.width = '42px';
+  element.style.lineHeight = '.4em';
+  element.style.border = 'none';
+  element.style.backgroundColor = 'rgba(148,216,246, 0.8)';
+  element.addEventListener('mouseenter', function () {
+    element.style.filter = 'invert(30%)';
+  }, false);
+  element.addEventListener('mouseleave', function () {
+    element.style.filter = 'none';
+  }, false);
+};
+/**
+ * button element set basic style 
+ * @param {HTMLElement} element 
+ */
+
+
+AbsControl.prototype.setTextBtn = function (element) {
+  element.style.display = 'inline-block';
+  element.style.margin = '1px';
+  element.style.padding = 0;
+  element.style.color = 'white';
+  element.style.fontSize = '.84em';
+  element.style.fontWeight = 'bold';
+  element.style.textDecoration = 'none';
+  element.style.textAlign = 'center';
+  element.style.height = '1.75em';
+  element.style.width = '4.575em';
+  element.style.lineHeight = '.4em';
+  element.style.border = 'none';
+  element.style.backgroundColor = 'rgba(148,216,246, 0.8)';
+};
+'use strict';
+/**
+ * 줌 컨트롤
+ * @exception {Error} Messages.CONSTRUCT_ERROR
+ * 
+ * @constructor
+ * @class Attribution
+ * @param {Attribution~Options} options position info. coordinate. required.
+ *  
+ * @extends AbsControl
+ * 
+ */
+
+var Attribution = function Attribution(options) {
+  if (!(this instanceof Attribution)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  var element = document.createElement('div');
+  options = options ? options : {};
+  options.element = element;
+  AbsControl.call(this, options);
+};
+
+Attribution.prototype = Object.create(AbsControl.prototype);
+Attribution.prototype.constructor = Attribution;
+
+Attribution.prototype.setControl = function (magoManager) {
+  this.magoManager = magoManager;
+
+  if (this.magoManager.isCesiumGlobe()) {
+    var creditDisplay = this.magoManager.scene.frameState.creditDisplay;
+    var mago3d_credit = new Cesium.Credit('<a href="http://www.mago3d.com/" target="_blank"><img class="mago3d_logo" src="/images/logo_mago3d.png" title="Mago3D" alt="Mago3D" /></a>', true);
+    creditDisplay.addDefaultCredit(mago3d_credit);
+  } else {
+    var target = this.target ? this.target : this.magoManager.overlayContainer;
+    target.appendChild(this.element);
+  }
+};
+'use strict';
+/**
+ * 줌 컨트롤
+ * @exception {Error} Messages.CONSTRUCT_ERROR
+ * 
+ * @constructor
+ * @class Compass
+ * @param {Compass~Options} options position info. coordinate. required.
+ *  
+ * @extends AbsControl
+ * 
+ */
+
+var Compass = function Compass(options) {
+  if (!(this instanceof Compass)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  var element = document.createElement('div');
+  options = options ? options : {};
+  options.element = element;
+  AbsControl.call(this, options);
+  element.style.position = 'absolute';
+  element.style.pointerEvents = 'auto';
+  element.style.backgroundColor = 'rgba(255,255,255,0.4)';
+  element.style.borderRadius = '4px';
+  element.style.padding = '2px';
+  element.style.top = '24.0em';
+  element.style.right = '.5em';
+  var that = this;
+  var homeButton = document.createElement('button');
+  homeButton.setAttribute('type', 'button');
+  homeButton.title = 'init position';
+  homeButton.appendChild(document.createTextNode("\uD83E\uDDED"));
+  this.setBtnStyle(homeButton);
+  homeButton.style.backgroundColor = 'rgba(217, 217, 217, 0.8)';
+  this.element.appendChild(homeButton);
+};
+
+Compass.prototype = Object.create(AbsControl.prototype);
+Compass.prototype.constructor = Compass;
+'use strict';
+/**
+ * 줌 컨트롤
+ * @exception {Error} Messages.CONSTRUCT_ERROR
+ * 
+ * @constructor
+ * @class FullScreen
+ * @param {FullScreen~Options} options position info. coordinate. required.
+ *  
+ * @extends AbsControl
+ * 
+ */
+
+var FullScreen = function FullScreen(options) {
+  if (!(this instanceof FullScreen)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  var element = document.createElement('div');
+  options = options ? options : {};
+  options.element = element;
+  AbsControl.call(this, options);
+  var that = this;
+  this.full = false;
+  element.style.position = 'absolute';
+  element.style.pointerEvents = 'auto';
+  element.style.backgroundColor = 'rgba(255,255,255,0.4)';
+  element.style.borderRadius = '4px';
+  element.style.padding = '2px';
+  element.style.top = '4.5em';
+  element.style.right = '.5em';
+  var fullButton = document.createElement('button');
+  fullButton.setAttribute('type', 'button');
+  fullButton.title = 'Full Screen';
+  var imageSpan = document.createElement('span');
+  imageSpan.appendChild(document.createTextNode("\u21C5"));
+  imageSpan.style.transform = 'rotate(0.1turn)';
+  imageSpan.style.display = 'inline-block';
+  imageSpan.style.verticalAlign = 'super';
+  imageSpan.style.lineHeight = '0.6em';
+  fullButton.appendChild(imageSpan);
+  fullButton.appendChild(document.createElement('br'));
+  var textSpan = document.createElement('span');
+  textSpan.appendChild(document.createTextNode('전체화면'));
+  textSpan.style.fontSize = '10px';
+  textSpan.style.verticalAlign = 'baseline';
+  textSpan.style.lineHeight = '0.6em';
+  fullButton.appendChild(textSpan);
+  this.setBtnStyle(fullButton);
+  fullButton.addEventListener('click', that.handleClick.bind(that), false);
+  this.fullButtonElement = fullButton;
+  var cancleButton = document.createElement('button');
+  cancleButton.setAttribute('type', 'button');
+  cancleButton.title = 'Cancle Full Screen';
+  var cancleImageSpan = document.createElement('span');
+  cancleImageSpan.appendChild(document.createTextNode("\u2716"));
+  cancleImageSpan.style.verticalAlign = 'super';
+  cancleImageSpan.style.lineHeight = '0.6em';
+  cancleButton.appendChild(cancleImageSpan);
+  cancleButton.appendChild(document.createElement('br'));
+  var cancleTextSpan = document.createElement('span');
+  cancleTextSpan.appendChild(document.createTextNode('취소'));
+  cancleTextSpan.style.fontSize = '10px';
+  cancleTextSpan.style.verticalAlign = 'baseline';
+  cancleTextSpan.style.lineHeight = '0.6em';
+  cancleButton.appendChild(cancleTextSpan);
+  this.setBtnStyle(cancleButton);
+  cancleButton.style.display = 'none';
+  cancleButton.addEventListener('click', that.handleClick.bind(that), false);
+  this.cancleButtonElement = cancleButton;
+  this.element.appendChild(fullButton);
+  this.element.appendChild(cancleButton);
+};
+
+FullScreen.prototype = Object.create(AbsControl.prototype);
+FullScreen.prototype.constructor = FullScreen;
+
+FullScreen.prototype.handleClick = function () {
+  var target = document.getElementById(this.magoManager.config.getContainerId());
+
+  if (this.full) {
+    if (isFullScreen()) {
+      this.fullButtonElement.style.display = 'block';
+      this.cancleButtonElement.style.display = 'none';
+      exitFullScreen();
+      this.full = false;
+    }
+  } else {
+    if (isFullScreenSupported()) {
+      this.fullButtonElement.style.display = 'none';
+      this.cancleButtonElement.style.display = 'block';
+      requestFullScreen(target);
+      this.full = true;
+    }
+  }
+
+  function isFullScreenSupported() {
+    var body = document.body;
+    return !!(body.webkitRequestFullscreen || body.msRequestFullscreen && document.msFullscreenEnabled || body.requestFullscreen && document.fullscreenEnabled);
+  }
+
+  function isFullScreen() {
+    return !!(document.webkitIsFullScreen || document.msFullscreenElement || document.fullscreenElement);
+  }
+
+  function requestFullScreen(element) {
+    if (element.requestFullscreen) {
+      element.requestFullscreen();
+    } else if (element.msRequestFullscreen) {
+      element.msRequestFullscreen();
+    } else if (element.webkitRequestFullscreen) {
+      element.webkitRequestFullscreen();
+    }
+  }
+
+  function exitFullScreen() {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen();
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    }
+  }
+};
+'use strict';
+/**
+ * 줌 컨트롤
+ * @exception {Error} Messages.CONSTRUCT_ERROR
+ * 
+ * @constructor
+ * @class InitCamera
+ * @param {InitCamera~Options} options position info. coordinate. required.
+ *  
+ * @extends AbsControl
+ * 
+ */
+
+var InitCamera = function InitCamera(options) {
+  if (!(this instanceof InitCamera)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  var element = document.createElement('div');
+  options = options ? options : {};
+  options.element = element;
+  AbsControl.call(this, options);
+  element.style.position = 'absolute';
+  element.style.pointerEvents = 'auto';
+  element.style.backgroundColor = 'rgba(255,255,255,0.4)';
+  element.style.borderRadius = '4px';
+  element.style.padding = '2px';
+  element.style.top = '1.0em';
+  element.style.right = '.5em';
+  var that = this;
+  var homeButton = document.createElement('button');
+  homeButton.setAttribute('type', 'button');
+  homeButton.title = 'init position';
+  var imageSpan = document.createElement('span');
+  imageSpan.appendChild(document.createTextNode("\uD83C\uDFE0"));
+  imageSpan.style.verticalAlign = 'text-top';
+  imageSpan.style.lineHeight = '0.6em';
+  homeButton.appendChild(imageSpan);
+  homeButton.appendChild(document.createElement('br'));
+  var textSpan = document.createElement('span');
+  textSpan.appendChild(document.createTextNode('처음으로'));
+  textSpan.style.fontSize = '10px';
+  textSpan.style.verticalAlign = 'baseline';
+  textSpan.style.lineHeight = '0.6em';
+  homeButton.appendChild(textSpan);
+  this.setBtnStyle(homeButton);
+  homeButton.style.backgroundColor = 'rgba(217, 217, 217, 0.8)';
+  homeButton.addEventListener('click', that.handleClick.bind(that), false);
+  this.element.appendChild(homeButton);
+};
+
+InitCamera.prototype = Object.create(AbsControl.prototype);
+InitCamera.prototype.constructor = InitCamera;
+
+InitCamera.prototype.handleClick = function () {
+  if (this.magoManager.isCesiumGlobe()) {
+    var config = this.magoManager.configInformation;
+
+    if (config.initCameraEnable) {
+      var lon = parseFloat(config.initLongitude);
+      var lat = parseFloat(config.initLatitude);
+      var height = parseFloat(config.initAltitude);
+      var duration = parseInt(config.initDuration);
+
+      if (isNaN(lon) || isNaN(lat) || isNaN(height)) {
+        throw new Error('Longitude, Latitude, Height must number type.');
+      }
+
+      if (isNaN(duration)) {
+        duration = 3;
+      }
+
+      this.magoManager.flyTo(lon, lat, height, duration);
+    }
+  }
+};
+'use strict';
+/**
+ * 줌 컨트롤
+ * @exception {Error} Messages.CONSTRUCT_ERROR
+ * 
+ * @constructor
+ * @class Measure
+ * @param {Measure~Options} options position info. coordinate. required.
+ *  
+ * @extends AbsControl
+ * 
+ */
+
+var Measure = function Measure(options) {
+  if (!(this instanceof Measure)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  var element = document.createElement('div');
+  options = options ? options : {};
+  options.element = element;
+  AbsControl.call(this, options);
+  this.buttons = {};
+  element.style.position = 'absolute';
+  element.style.pointerEvents = 'auto';
+  element.style.backgroundColor = 'rgba(255,255,255,0.4)';
+  element.style.borderRadius = '4px';
+  element.style.padding = '2px';
+  element.style.bottom = '9.5em';
+  element.style.right = '.5em';
+  setButton(this, 'length', "\uD83D\uDCCF", 'Measure Length', '거리측정');
+  setButton(this, 'area', "\u26F6", 'Measure Area', '면적측정');
+  setButton(this, 'height', "\u2BB8", 'Measure Height', '높이측정');
+
+  function setButton(thisArg, type, text, title, description) {
+    var button = document.createElement('button');
+    button.setAttribute('type', 'button');
+    button.title = title;
+    var imageSpan = document.createElement('span');
+    imageSpan.appendChild(document.createTextNode(text));
+    imageSpan.style.verticalAlign = 'super';
+    imageSpan.style.lineHeight = '0.6em';
+    button.appendChild(imageSpan);
+    button.appendChild(document.createElement('br'));
+    var textSpan = document.createElement('span');
+    textSpan.appendChild(document.createTextNode(description));
+    textSpan.style.fontSize = '10px';
+    textSpan.style.verticalAlign = 'baseline';
+    textSpan.style.lineHeight = '0.6em';
+    button.appendChild(textSpan);
+    thisArg.setBtnStyle(button);
+    button.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
+    button.style.display = 'inline-block';
+    thisArg.buttons[type] = {
+      status: false,
+      element: button
+    };
+    thisArg.element.appendChild(button);
+    button.addEventListener('click', thisArg.handleClick.bind(thisArg, type), false);
+  }
+};
+
+Measure.prototype = Object.create(AbsControl.prototype);
+Measure.prototype.constructor = Measure;
+
+Measure.prototype.handleClick = function (e) {
+  if (this.buttons[e].status) {
+    var button = this.buttons[e];
+    button.status = false;
+    button.element.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
+  } else {
+    for (var buttonName in this.buttons) {
+      if (this.buttons.hasOwnProperty(buttonName)) {
+        var button = this.buttons[buttonName];
+
+        if (buttonName === e) {
+          button.element.style.backgroundColor = 'rgba(148,216,246, 0.8)';
+          button.status = true;
+        } else {
+          button.element.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
+          button.status = false;
+        }
+      }
+    }
+
+    alert('기능 준비중');
+  }
+};
+'use strict';
+/**
+ * 줌 컨트롤
+ * @exception {Error} Messages.CONSTRUCT_ERROR
+ * 
+ * @constructor
+ * @class Zoom
+ * @param {Zoom~Options} options position info. coordinate. required.
+ *  
+ * @extends AbsControl
+ * 
+ */
+
+var OverviewMap = function OverviewMap(options) {
+  if (!(this instanceof OverviewMap)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  var element = document.createElement('div');
+  options = options ? options : {};
+  options.element = element;
+  AbsControl.call(this, options);
+  var id = 'mago3dOlMap';
+  element.id = id;
+  element.style.position = 'absolute';
+  element.style.pointerEvents = 'auto';
+  element.style.borderRadius = '4px';
+  element.style.padding = '2px';
+  element.style.bottom = '.5em';
+  element.style.right = '.5em';
+  element.style.width = '135px';
+  element.style.height = '135px';
+  element.style.borderRadius = '4px';
+  element.style.border = '2px solid #CCE5EC';
+};
+
+OverviewMap.prototype = Object.create(AbsControl.prototype);
+OverviewMap.prototype.constructor = OverviewMap;
+
+OverviewMap.prototype.setControl = function (magoManager) {
+  this.magoManager = magoManager;
+  var target = this.target ? this.target : this.magoManager.defaultControlContainer;
+  target.appendChild(this.element);
+  var vectorlayer = new OlMago3d.layer.VectorLayer({
+    source: new OlMago3d.source.VectorSource()
+  });
+  var tilelayer = new OlMago3d.layer.TileLayer({
+    source: new OlMago3d.source.XYZ({
+      url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.png'
+    })
+  });
+  this.overviewMap = new OlMago3d.Map({
+    target: 'mago3dOlMap',
+    view: new OlMago3d.View({
+      zoom: 3,
+      center: [0, 0],
+      projection: 'EPSG:4326'
+    }),
+    layers: [tilelayer, vectorlayer],
+    controls: OlMago3d.control.defaults({
+      attribution: true,
+      zoom: false,
+      rotate: false
+    }),
+    interactions: OlMago3d.interaction.defaults({
+      altShiftDragRotate: false,
+      onFocusOnly: false,
+      doubleClickZoom: false,
+      keyboard: false,
+      mouseWheelZoom: false,
+      shiftDragZoom: false,
+      dragPan: false,
+      pinchRotate: false,
+      pinchZoom: false
+    })
+  });
+  this.overviewMap.overlayContainerStopEvent_.style.pointerEvents = 'none';
+
+  if (this.magoManager.isCesiumGlobe()) {
+    var syncByMago = function syncByMago() {
+      var viewRectangle = scene.camera.computeViewRectangle(scene.globe.ellipsoid);
+      var minx = viewRectangle.west < viewRectangle.east ? viewRectangle.west : viewRectangle.east;
+      var miny = viewRectangle.south < viewRectangle.north ? viewRectangle.south : viewRectangle.north;
+      var maxx = viewRectangle.west > viewRectangle.east ? viewRectangle.west : viewRectangle.east;
+      var maxy = viewRectangle.south > viewRectangle.north ? viewRectangle.south : viewRectangle.north;
+      var extent = [Cesium.Math.toDegrees(minx), Cesium.Math.toDegrees(miny), Cesium.Math.toDegrees(maxx), Cesium.Math.toDegrees(maxy)];
+      var geomPolygon = OlMago3d.geom.Polygon.fromExtent(extent);
+
+      if (!feature) {
+        feature = new OlMago3d.Feature({
+          geometry: geomPolygon
+        });
+        vectorlayer.getSource().addFeature(feature);
+      } else {
+        feature.setGeometry(geomPolygon);
+      }
+
+      var ellipsoid = Cesium.Ellipsoid.WGS84;
+      var canvas = scene.canvas;
+      var canvasCenter = new Cesium.Cartesian2(canvas.clientWidth / 2, canvas.clientHeight / 2);
+      var ray = scene.camera.getPickRay(canvasCenter);
+      var targetCenter = scene.globe.pick(ray, scene) || scene.camera.pickEllipsoid(canvasCenter);
+      var bestTarget = targetCenter;
+
+      if (!bestTarget) {
+        //TODO: how to handle this properly ?
+        var globe = scene.globe;
+        var carto = scene.camera.positionCartographic.clone();
+        var height = globe.getHeight(carto);
+        carto.height = height || 0;
+        bestTarget = Cesium.Ellipsoid.WGS84.cartographicToCartesian(carto);
+      }
+
+      var distance = Cesium.Cartesian3.distance(bestTarget, scene.camera.position);
+      view.fit(extent, {
+        size: getSizeByDistance(distance)
+      });
+      return;
+      var ellipsoid = Cesium.Ellipsoid.WGS84;
+      var canvas = scene.canvas;
+      var canvasCenter = new Cesium.Cartesian2(canvas.clientWidth / 2, canvas.clientHeight / 2);
+      var ray = scene.camera.getPickRay(canvasCenter);
+      var targetCenter = scene.globe.pick(ray, scene) || scene.camera.pickEllipsoid(canvasCenter);
+      var bestTarget = targetCenter;
+
+      if (!bestTarget) {
+        //TODO: how to handle this properly ?
+        var globe = scene.globe;
+        var carto = scene.camera.positionCartographic.clone();
+        var height = globe.getHeight(carto);
+        carto.height = height || 0;
+        bestTarget = Cesium.Ellipsoid.WGS84.cartographicToCartesian(carto);
+      }
+
+      var distance = Cesium.Cartesian3.distance(bestTarget, scene.camera.position);
+      var bestTargetCartographic = ellipsoid.cartesianToCartographic(bestTarget);
+      var properties = {}; //var c = fromLonLat(toDegree(bestTargetCartographic.longitude), toDegree(bestTargetCartographic.latitude));
+
+      properties.center = [toDegree(bestTargetCartographic.longitude), toDegree(bestTargetCartographic.latitude)];
+      properties.resolution = calcResolutionForDistance(canvas, distance, bestTargetCartographic ? bestTargetCartographic.latitude : 0);
+      view.setProperties(properties, true);
+      view.changed();
+
+      function calcResolutionForDistance(cv, dis, lat) {
+        var fovy = scene.camera.frustum.fovy;
+        var metersPerUnit = view.getProjection().getMetersPerUnit();
+        var visibleMeters = 2 * dis * Math.tan(fovy / 2);
+        var relativeCircumference = Math.cos(Math.abs(lat));
+        var visibleMapUnits = visibleMeters / metersPerUnit / relativeCircumference;
+        var resolution = visibleMapUnits / cv.clientHeight;
+        return resolution;
+      }
+    };
+
+    var syncByOl = function syncByOl() {
+      var center = view.getCenter();
+
+      if (!center) {
+        return;
+      }
+
+      var ll = toLonLat(center);
+      var carto = new Cesium.Cartographic(toRadian(ll[0]), toRadian(ll[1]));
+
+      if (scene.globe) {
+        carto.height = scene.globe.getHeight(carto) || 0;
+      }
+
+      var destination = Cesium.Ellipsoid.WGS84.cartographicToCartesian(carto);
+      var oritentation = {
+        pitch: 0 - Cesium.Math.PI_OVER_TWO,
+        heading: -view.getRotation(),
+        roll: undefined
+      };
+      scene.camera.setView({
+        destination: destination,
+        oritentation: oritentation
+      });
+      scene.camera.moveBackward(calcDistanceForResolution(view.getResolution(), toRadian(ll[1])));
+
+      function calcDistanceForResolution(res, lat) {
+        var canvas = scene.canvas;
+        var fovy = scene.camera.frustum.fovy;
+        var metersPerUnit = view.getProjection().getMetersPerUnit();
+        var visibleMapUnits = res * canvas.clientHeight;
+        var relativeCircumference = Math.cos(Math.abs(lat));
+        var visibleMeters = visibleMapUnits * metersPerUnit * relativeCircumference;
+        var requiredDistance = visibleMeters / 2 / Math.tan(fovy / 2);
+        return requiredDistance;
+      }
+    };
+
+    var getSizeByDistance = function getSizeByDistance(d) {
+      var num = 0;
+
+      if (d < 5000) {
+        num = 90;
+      } else if (d < 20000) {
+        num = 70;
+      } else if (d < 70000) {
+        num = 50;
+      } else {
+        num = 30;
+      }
+
+      return [num, num];
+    };
+
+    var toRadian = function toRadian(deg) {
+      return deg * Math.PI / 180;
+    };
+
+    var toDegree = function toDegree(rad) {
+      return rad * 180 / Math.PI;
+    };
+
+    var scene = this.magoManager.scene;
+    var feature = null;
+    var map = this.overviewMap;
+    var view = map.getView();
+    var toLonLat = OlMago3d.proj.getTransform(view.getProjection(), 'EPSG:4326');
+    var fromLonLat = OlMago3d.proj.getTransform('EPSG:4326', view.getProjection());
+    syncByMago();
+    view.on('change:resolution', function () {//syncByOl();
+    });
+    view.on('change:center', function () {//syncByOl();
+    });
+    view.on('change:rotation', function () {//syncByOl();
+    });
+    this.magoManager.on('isCameraMoved', function () {
+      syncByMago();
+    });
+  }
+};
+'use strict';
+/**
+ * 줌 컨트롤
+ * @exception {Error} Messages.CONSTRUCT_ERROR
+ * 
+ * @constructor
+ * @class Tools
+ * @param {Tools~Options} options position info. coordinate. required.
+ *  
+ * @extends AbsControl
+ * 
+ */
+
+var Tools = function Tools(options) {
+  if (!(this instanceof Tools)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  var element = document.createElement('div');
+  options = options ? options : {};
+  options.element = element;
+  AbsControl.call(this, options);
+  this.tools = {};
+  element.style.position = 'absolute';
+  element.style.pointerEvents = 'auto';
+  element.style.backgroundColor = 'rgba(255,255,255,0.4)';
+  element.style.borderRadius = '4px';
+  element.style.padding = '2px';
+  element.style.top = '7.5em';
+  element.style.right = '.5em';
+  element.addEventListener('mouseover', this.handleMouseOver.bind(this), false);
+  element.addEventListener('mouseout', this.handleMouseOut.bind(this), false);
+  var that = this;
+  element.addEventListener('click', function () {
+    var mainContainer = document.getElementById(that.magoManager.config.getContainerId()).getElementsByClassName('mago3d-overlayContainer-defaultContent').item(0);
+    var thisContainer = mainContainer.getElementsByClassName('mago3d-tools-advance').item(0);
+    var on = element.className.indexOf('on') >= 0;
+
+    if (!on) {
+      that.target.style.right = '320px';
+      mainContainer.style.display = 'block';
+      mainContainer.style.right = '0px';
+      var toolsDivs = mainContainer.getElementsByClassName('mago3d-tools-div');
+
+      for (var i = 0, len = toolsDivs.length; i < len; i++) {
+        var toolDiv = toolsDivs.item(i);
+        toolDiv.style.display = 'none';
+      }
+
+      thisContainer.style.display = 'block';
+      element.className = 'on';
+      element.getElementsByTagName('button')[0].style.backgroundColor = 'rgba(148,216,246, 0.8)';
+    } else {
+      thisContainer.style.display = 'none';
+      that.target.style.right = '0px';
+      mainContainer.style.display = 'none';
+      mainContainer.style.right = '0px';
+      element.className = '';
+      element.getElementsByTagName('button')[0].style.backgroundColor = 'rgba(70, 70, 70, 0.8)';
+    }
+  }, false);
+  var button = document.createElement('button');
+  button.setAttribute('type', 'button');
+  button.title = 'Tool Box';
+  var imageSpan = document.createElement('span');
+  imageSpan.appendChild(document.createTextNode("\u2699"));
+  imageSpan.style.verticalAlign = 'super';
+  imageSpan.style.lineHeight = '0.6em';
+  button.appendChild(imageSpan);
+  button.appendChild(document.createElement('br'));
+  var textSpan = document.createElement('span');
+  textSpan.appendChild(document.createTextNode('설정'));
+  textSpan.style.fontSize = '10px';
+  textSpan.style.verticalAlign = 'baseline';
+  textSpan.style.lineHeight = '0.6em';
+  button.appendChild(textSpan);
+  this.setBtnStyle(button);
+  button.style.backgroundColor = 'rgba(217, 217, 217, 0.8)';
+  element.appendChild(button);
+};
+
+Tools.prototype = Object.create(AbsControl.prototype);
+Tools.prototype.constructor = Tools;
+
+Tools.prototype.setControl = function (magoManager) {
+  this.magoManager = magoManager;
+  var target = this.target ? this.target : magoManager.defaultControlContainer;
+  target.appendChild(this.element);
+  this.target = target;
+  var advanceToolDiv = document.createElement('div');
+  advanceToolDiv.style.position = 'absolute';
+  advanceToolDiv.style["float"] = 'right';
+  advanceToolDiv.style.width = '100%';
+  advanceToolDiv.style.backgroundColor = '#FFFFFF';
+  advanceToolDiv.style.pointerEvents = 'auto';
+  advanceToolDiv.style.display = 'none';
+  advanceToolDiv.className = 'mago3d-tools-div mago3d-tools-advance';
+  magoManager.defaultContentContainer.appendChild(advanceToolDiv);
+  var basicSettingsDiv = getGroupDiv('기본 설정');
+  advanceToolDiv.appendChild(basicSettingsDiv);
+  var basicSettingBtnDiv = document.createElement('div');
+  basicSettingBtnDiv.style.marginTop = '5px';
+  basicSettingsDiv.appendChild(basicSettingBtnDiv);
+  var that = this;
+  var basicBtns = [];
+  var bboxBtnObj = getBasicButtonObject('bbox', 'BoundingBox Toggle', 'BBOX', 'toggle', function (value) {
+    that.magoManager.magoPolicy.setShowBoundingBox(value);
+  });
+  var labelBtnObj = getBasicButtonObject('label', 'Label Toggle', 'LABEL', 'toggle', function (value) {
+    that.magoManager.magoPolicy.setShowLabelInfo(value); // clear the text canvas.
+
+    var canvas = that.magoManager.getObjectLabel();
+    var ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  });
+  var originBtnObj = getBasicButtonObject('orgin', 'Origin Toggle', 'ORIGIN', 'toggle', function (value) {
+    that.magoManager.magoPolicy.setShowOrigin(value);
+  });
+  var shadowBtnObj = getBasicButtonObject('shadow', 'Shadow Toggle', 'SHADOW', 'toggle', function (value) {
+    that.magoManager.sceneState.setApplySunShadows(value);
+  });
+  basicBtns.push(bboxBtnObj);
+  basicBtns.push(labelBtnObj);
+  basicBtns.push(originBtnObj);
+  basicBtns.push(shadowBtnObj);
+
+  for (var i = 0, btnLength = basicBtns.length; i < btnLength; i++) {
+    var basicBtn = basicBtns[i];
+    var elem = basicBtn.element;
+    basicSettingBtnDiv.appendChild(elem);
+    elem.addEventListener('click', that.handleToolClick.bind(this, basicBtn), false);
+  }
+
+  var basicSettingInputDiv = document.createElement('div');
+  basicSettingInputDiv.style.padding = '0 5px 0 0';
+  basicSettingInputDiv.style.margin = '5px 5px 0 5px';
+  basicSettingsDiv.appendChild(basicSettingInputDiv);
+  var ssaoDiv = document.createElement('div');
+  ssaoDiv.style.padding = '4px';
+  ssaoDiv.style.margin = '10px 0px 4px';
+  ssaoDiv.style.outline = '0px 0px 4px';
+  ssaoDiv.style.verticalAlign = 'top';
+  ssaoDiv.style.backgroundColor = 'rgb(243,243,243)';
+  ssaoDiv.style.borderRadius = '12px';
+  ssaoDiv.style.borderStyle = 'none';
+  ssaoDiv.className = 'mago3d-tools-ssao-div';
+  basicSettingInputDiv.appendChild(ssaoDiv);
+  var ssaoLabel = document.createElement('label');
+  ssaoLabel.style.width = '25%';
+  ssaoLabel.style.padding = '2px';
+  ssaoLabel.style.verticalAlign = 'middle';
+  ssaoLabel.style.display = 'inline-block';
+  ssaoLabel.style.textAlign = 'justify';
+  ssaoLabel.style.fontSize = '13.33333px';
+  ssaoLabel.setAttribute('for', 'ssaoRadius');
+  ssaoLabel.appendChild(document.createTextNode('SSAO'));
+  ssaoDiv.appendChild(ssaoLabel);
+  var ssaoInput = document.createElement('input');
+  ssaoInput.style.width = '45%';
+  ssaoInput.style.marginRight = '5px';
+  ssaoInput.style.padding = '5px';
+  ssaoInput.style.fontSize = 'small';
+  ssaoInput.style.verticalAlign = 'middle';
+  ssaoInput.style.lineHeight = '1.5em';
+  ssaoInput.style.color = '#444';
+  ssaoInput.setAttribute('id', 'ssaoRadius');
+  ssaoInput.setAttribute('name', 'ssaoRadius');
+  ssaoInput.setAttribute('type', 'text');
+  ssaoInput.setAttribute('value', magoManager.configInformation.ssaoRadius);
+  ssaoDiv.appendChild(ssaoInput);
+  var ssaoBtn = document.createElement('button');
+  ssaoBtn.setAttribute('type', 'button');
+  ssaoBtn.style.display = 'inline-block';
+  ssaoBtn.style.verticalAlign = 'middle';
+  ssaoBtn.style.padding = '2px 10px';
+  ssaoBtn.style.fontSize = '12px';
+  ssaoBtn.style.color = '#FFFFFF';
+  ssaoBtn.style.borderRadius = '12px';
+  ssaoBtn.style.borderStyle = 'none';
+  ssaoBtn.style.backgroundColor = '#636363';
+  ssaoBtn.appendChild(document.createTextNode('적용'));
+  ssaoBtn.addEventListener('click', function () {
+    var ssao = ssaoInput.value;
+
+    if (isNaN(ssao)) {
+      alert('숫자만 입력 가능합니다.');
+      return;
+    }
+
+    magoManager.magoPolicy.setSsaoRadius(ssao);
+    magoManager.sceneState.ssaoRadius[0] = Number(ssao);
+  }, false);
+  ssaoDiv.appendChild(ssaoBtn);
+  var lodDiv = document.createElement('div');
+  lodDiv.style.padding = '4px';
+  lodDiv.style.margin = '10px 0px 4px';
+  lodDiv.style.outline = '0px 0px 4px';
+  lodDiv.style.verticalAlign = 'top';
+  lodDiv.style.backgroundColor = 'rgb(243,243,243)';
+  lodDiv.style.borderRadius = '12px';
+  lodDiv.style.borderStyle = 'none';
+  lodDiv.className = 'mago3d-tools-lod-div';
+  basicSettingInputDiv.appendChild(lodDiv);
+  var lodh3 = document.createElement('h3');
+  lodh3.style.fontSize = '15px';
+  lodh3.appendChild(document.createTextNode('Level of Detail'));
+  lodDiv.appendChild(lodh3);
+
+  for (var i = 0; i < 6; i++) {
+    var id = 'geoLod' + i;
+    var name = 'lod' + i;
+    var lodLabel = document.createElement('label');
+    lodLabel.style.width = '25%';
+    lodLabel.style.padding = '2px';
+    lodLabel.style.verticalAlign = 'middle';
+    lodLabel.style.display = 'inline-block';
+    lodLabel.style.textAlign = 'justify';
+    lodLabel.style.fontSize = '13.33333px';
+    lodLabel.setAttribute('for', id);
+    lodLabel.appendChild(document.createTextNode(name.toUpperCase()));
+    lodDiv.appendChild(lodLabel);
+    var lodInput = document.createElement('input');
+    lodInput.style.width = '45%';
+    lodInput.style.marginRight = '5px';
+    lodInput.style.padding = '5px';
+    lodInput.style.fontSize = 'small';
+    lodInput.style.verticalAlign = 'middle';
+    lodInput.style.lineHeight = '1.5em';
+    lodInput.style.color = '#444';
+    lodInput.setAttribute('id', id);
+    lodInput.setAttribute('name', name);
+    lodInput.setAttribute('type', 'text');
+    lodInput.setAttribute('value', magoManager.configInformation[name]);
+    lodDiv.appendChild(lodInput);
+  }
+
+  var lodBtn = document.createElement('button');
+  lodBtn.setAttribute('type', 'button');
+  lodBtn.style.display = 'inline-block';
+  lodBtn.style.verticalAlign = 'middle';
+  lodBtn.style.padding = '2px 10px';
+  lodBtn.style.fontSize = '12px';
+  lodBtn.style.color = '#FFFFFF';
+  lodBtn.style.borderRadius = '12px';
+  lodBtn.style.borderStyle = 'none';
+  lodBtn.style.backgroundColor = '#636363';
+  lodBtn.appendChild(document.createTextNode('적용'));
+  lodBtn.addEventListener('click', function () {
+    var lod0 = document.getElementById('geoLod0').value;
+    var lod1 = document.getElementById('geoLod1').value;
+    var lod2 = document.getElementById('geoLod2').value;
+    var lod3 = document.getElementById('geoLod3').value;
+    var lod4 = document.getElementById('geoLod4').value;
+    var lod5 = document.getElementById('geoLod5').value;
+
+    if (isNaN(lod0) || isNaN(lod1) || isNaN(lod2) || isNaN(lod3) || isNaN(lod4) || isNaN(lod5)) {
+      alert('숫자만 입력 가능합니다.');
+      return;
+    }
+
+    if (lod0 !== null && lod0 !== "") {
+      magoManager.magoPolicy.setLod0DistInMeters(lod0);
+    }
+
+    if (lod1 !== null && lod1 !== "") {
+      magoManager.magoPolicy.setLod1DistInMeters(lod1);
+    }
+
+    if (lod2 !== null && lod2 !== "") {
+      magoManager.magoPolicy.setLod2DistInMeters(lod2);
+    }
+
+    if (lod3 !== null && lod3 !== "") {
+      magoManager.magoPolicy.setLod3DistInMeters(lod3);
+    }
+
+    if (lod4 !== null && lod4 !== "") {
+      magoManager.magoPolicy.setLod4DistInMeters(lod4);
+    }
+
+    if (lod5 !== null && lod5 !== "") {
+      magoManager.magoPolicy.setLod5DistInMeters(lod5);
+    }
+  }, false);
+  lodDiv.appendChild(lodBtn);
+  var dataDiv = getGroupDiv('데이터 선택');
+  advanceToolDiv.appendChild(dataDiv);
+  var dataControlDiv = document.createElement('div');
+  dataControlDiv.style.padding = '4px';
+  dataControlDiv.style.margin = '10px 0px 4px';
+  dataControlDiv.style.outline = '0px 0px 4px';
+  dataControlDiv.style.verticalAlign = 'top';
+  dataControlDiv.style.backgroundColor = 'rgb(243,243,243)';
+  dataControlDiv.style.borderRadius = '12px';
+  dataControlDiv.style.borderStyle = 'none';
+  dataControlDiv.className = 'mago3d-tools-data-div';
+  dataDiv.appendChild(dataControlDiv);
+  var allText = document.createElement('strong');
+  allText.style.width = '35%';
+  allText.style.padding = '2px';
+  allText.style.verticalAlign = 'middle';
+  allText.style.display = 'inline-block';
+  allText.style.textAlign = 'justify';
+  allText.style.fontSize = '13.33333px';
+  allText.appendChild(document.createTextNode('F4D 모델'));
+  dataControlDiv.appendChild(allText);
+  var allSelectBtn = document.createElement('button');
+  allSelectBtn.setAttribute('type', 'button');
+  allSelectBtn.dataset.type = DataType.F4D;
+  allSelectBtn.dataset["function"] = 'select';
+  allSelectBtn.dataset.active = 'off';
+  allSelectBtn.className = 'mago3d-tools-select';
+  allSelectBtn.name = 'btn-' + DataType.F4D;
+  allSelectBtn.style.display = 'inline-block';
+  allSelectBtn.style.verticalAlign = 'middle';
+  allSelectBtn.style.padding = '2px 10px';
+  allSelectBtn.style.fontSize = '12px';
+  allSelectBtn.style.color = 'rgb(20, 20, 20)';
+  allSelectBtn.style.borderRadius = '12px';
+  allSelectBtn.style.borderStyle = 'none';
+  allSelectBtn.style.backgroundColor = 'rgb(255, 255, 255)';
+  allSelectBtn.appendChild(document.createTextNode('선택'));
+  dataControlDiv.appendChild(allSelectBtn);
+  var allMoveBtn = document.createElement('button');
+  allMoveBtn.setAttribute('type', 'button');
+  allMoveBtn.dataset.type = DataType.F4D;
+  allMoveBtn.dataset["function"] = 'translate';
+  allMoveBtn.dataset.active = 'off';
+  allMoveBtn.className = 'mago3d-tools-translate';
+  allMoveBtn.name = 'btn-' + DataType.F4D;
+  allMoveBtn.style.display = 'inline-block';
+  allMoveBtn.style.verticalAlign = 'middle';
+  allMoveBtn.style.marginLeft = '5px';
+  allMoveBtn.style.padding = '2px 10px';
+  allMoveBtn.style.fontSize = '12px';
+  allMoveBtn.style.color = 'rgb(20, 20, 20)';
+  allMoveBtn.style.borderRadius = '12px';
+  allMoveBtn.style.borderStyle = 'none';
+  allMoveBtn.style.backgroundColor = 'rgb(255, 255, 255)';
+  allMoveBtn.appendChild(document.createTextNode('이동'));
+  dataControlDiv.appendChild(allMoveBtn);
+  dataControlDiv.appendChild(document.createElement('br'));
+  var partText = document.createElement('strong');
+  partText.style.width = '35%';
+  partText.style.padding = '2px';
+  partText.style.verticalAlign = 'middle';
+  partText.style.display = 'inline-block';
+  partText.style.textAlign = 'justify';
+  partText.style.fontSize = '13.33333px';
+  partText.appendChild(document.createTextNode('F4D 모델 부분'));
+  dataControlDiv.appendChild(partText);
+  var partSelectBtn = document.createElement('button');
+  partSelectBtn.setAttribute('type', 'button');
+  partSelectBtn.dataset.type = DataType.OBJECT;
+  partSelectBtn.dataset["function"] = 'select';
+  partSelectBtn.dataset.active = 'off';
+  partSelectBtn.className = 'mago3d-tools-select';
+  partSelectBtn.name = 'btn-' + DataType.OBJECT;
+  partSelectBtn.style.display = 'inline-block';
+  partSelectBtn.style.verticalAlign = 'middle';
+  partSelectBtn.style.padding = '2px 10px';
+  partSelectBtn.style.fontSize = '12px';
+  partSelectBtn.style.color = 'rgb(20, 20, 20)';
+  partSelectBtn.style.borderRadius = '12px';
+  partSelectBtn.style.borderStyle = 'none';
+  partSelectBtn.style.backgroundColor = 'rgb(255, 255, 255)';
+  partSelectBtn.appendChild(document.createTextNode('선택'));
+  dataControlDiv.appendChild(partSelectBtn);
+  var partMoveBtn = document.createElement('button');
+  partMoveBtn.setAttribute('type', 'button');
+  partMoveBtn.dataset.type = DataType.OBJECT;
+  partMoveBtn.dataset["function"] = 'translate';
+  partMoveBtn.dataset.active = 'off';
+  partMoveBtn.className = 'mago3d-tools-translate';
+  partMoveBtn.name = 'btn-' + DataType.OBJECT;
+  partMoveBtn.style.display = 'inline-block';
+  partMoveBtn.style.verticalAlign = 'middle';
+  partMoveBtn.style.marginLeft = '5px';
+  partMoveBtn.style.padding = '2px 10px';
+  partMoveBtn.style.fontSize = '12px';
+  partMoveBtn.style.color = 'rgb(20, 20, 20)';
+  partMoveBtn.style.borderRadius = '12px';
+  partMoveBtn.style.borderStyle = 'none';
+  partMoveBtn.style.backgroundColor = 'rgb(255, 255, 255)';
+  partMoveBtn.appendChild(document.createTextNode('이동'));
+  dataControlDiv.appendChild(partMoveBtn);
+  dataControlDiv.appendChild(document.createElement('br'));
+  var nativeText = document.createElement('strong');
+  nativeText.style.width = '35%';
+  nativeText.style.padding = '2px';
+  nativeText.style.verticalAlign = 'middle';
+  nativeText.style.display = 'inline-block';
+  nativeText.style.textAlign = 'justify';
+  nativeText.style.fontSize = '13.33333px';
+  nativeText.appendChild(document.createTextNode('원시 모델 부분'));
+  dataControlDiv.appendChild(nativeText);
+  var nativeSelectBtn = document.createElement('button');
+  nativeSelectBtn.setAttribute('type', 'button');
+  nativeSelectBtn.dataset.type = DataType.NATIVE;
+  nativeSelectBtn.dataset["function"] = 'select';
+  nativeSelectBtn.dataset.active = 'off';
+  nativeSelectBtn.className = 'mago3d-tools-select';
+  nativeSelectBtn.name = 'btn-' + DataType.NATIVE;
+  nativeSelectBtn.style.display = 'inline-block';
+  nativeSelectBtn.style.verticalAlign = 'middle';
+  nativeSelectBtn.style.padding = '2px 10px';
+  nativeSelectBtn.style.fontSize = '12px';
+  nativeSelectBtn.style.color = 'rgb(20, 20, 20)';
+  nativeSelectBtn.style.borderRadius = '12px';
+  nativeSelectBtn.style.borderStyle = 'none';
+  nativeSelectBtn.style.backgroundColor = 'rgb(255, 255, 255)';
+  nativeSelectBtn.appendChild(document.createTextNode('선택'));
+  dataControlDiv.appendChild(nativeSelectBtn);
+  var nativeMoveBtn = document.createElement('button');
+  nativeMoveBtn.setAttribute('type', 'button');
+  nativeMoveBtn.dataset.type = DataType.NATIVE;
+  nativeMoveBtn.dataset["function"] = 'translate';
+  nativeMoveBtn.dataset.active = 'off';
+  nativeMoveBtn.className = 'mago3d-tools-translate';
+  nativeMoveBtn.name = 'btn-' + DataType.NATIVE;
+  nativeMoveBtn.style.display = 'inline-block';
+  nativeMoveBtn.style.verticalAlign = 'middle';
+  nativeMoveBtn.style.marginLeft = '5px';
+  nativeMoveBtn.style.padding = '2px 10px';
+  nativeMoveBtn.style.fontSize = '12px';
+  nativeMoveBtn.style.color = 'rgb(20, 20, 20)';
+  nativeMoveBtn.style.borderRadius = '12px';
+  nativeMoveBtn.style.borderStyle = 'none';
+  nativeMoveBtn.style.backgroundColor = 'rgb(255, 255, 255)';
+  nativeMoveBtn.appendChild(document.createTextNode('이동'));
+  dataControlDiv.appendChild(nativeMoveBtn);
+  var selectBtns = magoManager.defaultContentContainer.getElementsByClassName('mago3d-tools-select');
+  var selectInteraction = magoManager.defaultSelectInteraction;
+  var translateBtns = magoManager.defaultContentContainer.getElementsByClassName('mago3d-tools-translate');
+  var translateInteraction = magoManager.defaultTranslateInteraction;
+  var names = [DataType.NATIVE, DataType.OBJECT, DataType.F4D];
+
+  for (var i = 0, sLength = selectBtns.length; i < sLength; i++) {
+    (function (idx) {
+      var sBtn = selectBtns.item(idx);
+      sBtn.addEventListener('click', function () {
+        var type = sBtn.dataset.type;
+
+        if (!selectInteraction.getActive()) {
+          selectInteraction.setTargetType(type);
+          selectInteraction.setActive(true);
+          sBtn.dataset.active = 'on';
+        } else {
+          var nowTargetType = selectInteraction.getTargetType();
+
+          if (type === nowTargetType) {
+            selectInteraction.setActive(false);
+            sBtn.dataset.active = 'off';
+          } else {
+            var nowBtn = selectBtns.namedItem('btn-' + nowTargetType);
+            nowBtn.dataset.active = 'off';
+            btnActiveStyle(nowBtn);
+            selectInteraction.setTargetType(type);
+            sBtn.dataset.active = 'on';
+          }
+        }
+
+        btnActiveStyle(sBtn);
+      }, false);
+    })(i);
+  }
+
+  for (var i = 0, tLength = translateBtns.length; i < tLength; i++) {
+    (function (idx) {
+      var tBtn = translateBtns.item(idx);
+      tBtn.addEventListener('click', function () {
+        var type = tBtn.dataset.type;
+
+        if (!translateInteraction.getActive()) {
+          translateInteraction.setTargetType(type);
+          translateInteraction.setActive(true);
+          tBtn.dataset.active = 'on';
+        } else {
+          var nowTargetType = translateInteraction.getTargetType();
+
+          if (type === nowTargetType) {
+            translateInteraction.setActive(false);
+            tBtn.dataset.active = 'off';
+          } else {
+            var nowBtn = translateBtns.namedItem('btn-' + nowTargetType);
+            nowBtn.dataset.active = 'off';
+            btnActiveStyle(nowBtn);
+            translateInteraction.setTargetType(type);
+            tBtn.dataset.active = 'on';
+          }
+        }
+
+        btnActiveStyle(tBtn);
+      }, false);
+    })(i);
+  }
+
+  function btnActiveStyle(b) {
+    if (b.dataset.active === 'on') {
+      b.style.backgroundColor = 'rgb(160, 160, 160)';
+      b.style.color = 'rgb(230, 230, 230)';
+    } else {
+      b.style.backgroundColor = 'rgb(255, 255, 255)';
+      b.style.color = 'rgb(20, 20, 20)';
+    }
+  }
+
+  function getBasicButtonObject(type, title, text, runtype, action) {
+    var btn = document.createElement('button');
+    btn.setAttribute('type', 'button');
+    btn.dataset.type = type;
+    btn.dataset.status = 'off';
+    btn.title = title;
+    btn.appendChild(document.createTextNode(text));
+    btn.style.display = 'inline-block';
+    btn.style.margin = '1px 1px 1px 5px';
+    btn.style.padding = '0';
+    btn.style.color = 'rgb(136, 136, 136)';
+    btn.style.fontWeight = 'bold';
+    btn.style.height = '33px';
+    btn.style.width = '66px';
+    btn.style.backgroundColor = '#f3f3f3';
+    btn.style.borderRadius = '12px';
+    btn.style.borderStyle = 'none';
+    return {
+      runType: runtype,
+      element: btn,
+      action: action
+    };
+  }
+
+  function getGroupDiv(category) {
+    var div = document.createElement('div');
+    div.style.padding = '5px 10px';
+    div.style.margin = '0 0 20px 0';
+    div.style.outline = '0px';
+    div.style.verticalAlign = 'top';
+    div.style.fontSize = '16PX';
+    div.style.fontWeight = 'bold';
+    div.style.color = '#888';
+    var strong = document.createElement('strong');
+    strong.style.display = 'block';
+    strong.style.padding = '10px 6px';
+    strong.style.borderBottom = '1px solid #e2e2e2';
+    strong.appendChild(document.createTextNode(category));
+    div.appendChild(strong);
+    return div;
+  }
+};
+
+Tools.prototype.handleMouseOver = function () {
+  this.element.getElementsByTagName('button')[0].style.backgroundColor = 'rgba(148,216,246, 0.8)';
+};
+
+Tools.prototype.handleMouseOut = function () {
+  if (this.element.className !== 'on') {
+    this.element.getElementsByTagName('button')[0].style.backgroundColor = 'rgba(217, 217, 217, 0.8)';
+  }
+};
+
+Tools.prototype.handleToolClick = function (tool) {
+  if (tool.runType === 'toggle') {
+    var element = tool.element;
+    element.dataset.status = element.dataset.status === 'on' ? 'off' : 'on';
+    var status = element.dataset.status;
+    var boolStatus = status === 'on' ? true : false;
+    tool.action.call(this, boolStatus);
+
+    if (boolStatus) {
+      tool.element.style.backgroundColor = 'rgba(148,216,246, 0.8)';
+    } else {
+      tool.element.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
+    }
+  }
+};
+'use strict';
+/**
+ * 줌 컨트롤
+ * @exception {Error} Messages.CONSTRUCT_ERROR
+ * 
+ * @constructor
+ * @class Zoom
+ * @param {Zoom~Options} options position info. coordinate. required.
+ *  
+ * @extends AbsControl
+ * 
+ */
+
+var Zoom = function Zoom(options) {
+  if (!(this instanceof Zoom)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  var element = document.createElement('div');
+  options = options ? options : {};
+  options.element = element;
+  AbsControl.call(this, options);
+  element.style.position = 'absolute';
+  element.style.pointerEvents = 'auto';
+  element.style.backgroundColor = 'rgba(255,255,255,0.4)';
+  element.style.borderRadius = '4px';
+  element.style.padding = '2px';
+  element.style.bottom = '0.5em';
+  element.style.right = '9.5em';
+  var that = this;
+  var upButton = document.createElement('button');
+  upButton.setAttribute('type', 'button');
+  upButton.title = 'zoom in';
+  var imageSpan = document.createElement('span');
+  imageSpan.appendChild(document.createTextNode('+'));
+  imageSpan.style.verticalAlign = 'super';
+  imageSpan.style.lineHeight = '0.6em';
+  upButton.appendChild(imageSpan);
+  /*upButton.appendChild(document.createElement('br'));
+  	var textSpan = document.createElement('span');
+  textSpan.appendChild(document.createTextNode('줌인'));
+  textSpan.style.fontSize = '10px';
+  textSpan.style.verticalAlign = 'baseline';
+  textSpan.style.lineHeight = '0.6em';
+  upButton.appendChild(textSpan);*/
+
+  this.setBtnStyle(upButton);
+  upButton.style.width = '25px';
+  upButton.style.height = '25px';
+  upButton.style.display = 'inline-block';
+  upButton.addEventListener('click', that.handleClick.bind(that, 1), false);
+  var downButton = document.createElement('button');
+  downButton.setAttribute('type', 'button');
+  downButton.title = 'zoom out';
+  var downImageSpan = document.createElement('span');
+  downImageSpan.appendChild(document.createTextNode("\u2212"));
+  downImageSpan.style.verticalAlign = 'super';
+  downImageSpan.style.lineHeight = '0.6em';
+  downButton.appendChild(downImageSpan);
+  /*downButton.appendChild(document.createElement('br'));
+  	var downTextSpan = document.createElement('span');
+  downTextSpan.appendChild(document.createTextNode('줌아웃'));
+  downTextSpan.style.fontSize = '10px';
+  downTextSpan.style.verticalAlign = 'baseline';
+  downTextSpan.style.lineHeight = '0.6em';
+  downButton.appendChild(downTextSpan);*/
+
+  this.setBtnStyle(downButton);
+  downButton.style.width = '25px';
+  downButton.style.height = '25px';
+  downButton.style.display = 'inline-block';
+  downButton.addEventListener('click', that.handleClick.bind(that, 0), false);
+  this.element.appendChild(upButton);
+  this.element.appendChild(downButton);
+};
+
+Zoom.prototype = Object.create(AbsControl.prototype);
+Zoom.prototype.constructor = Zoom;
+
+Zoom.prototype.handleClick = function (type) {
+  if (this.magoManager.isCesiumGlobe()) {
+    var scene = this.magoManager.scene;
+    var camera = scene.camera;
+    var cartographicPosition = Cesium.Cartographic.fromCartesian(camera.position);
+    var alt = cartographicPosition.height;
+
+    if (type) {
+      scene.camera.zoomIn(alt * 0.1);
+    } else {
+      scene.camera.zoomOut(alt * 0.1);
+    }
+  }
+};
+'use strict';
+/**
  * 버퍼 안의 데이터를 어떻게 읽어야 할지 키가 되는 객체
  * @deprecated NeoSimpleBuilding에서 인스턴스 생성하는 부분이 있으나 NeoSimpleBuilding도 사용하지 않고 있음
  * 
@@ -48149,11 +48549,39 @@ Lego.prototype.render = function (magoManager, renderType, renderTexture, shader
     return false;
   }
 
-  if (renderType === 0 || renderType === 2) // depth or colorSelection.
+  if (renderType === 0) // depth or colorSelection.
+    {
+      shader.disableVertexAttribArray(shader.texCoord2_loc);
+      shader.enableVertexAttribArray(shader.normal3_loc);
+      shader.disableVertexAttribArray(shader.color4_loc);
+      gl.uniform1i(shader.bHasTexture_loc, false); // textures like png with alpha component.***
+      // 1) Position.
+
+      if (!vbo_vicky.bindDataPosition(shader, magoManager.vboMemoryManager)) {
+        return false;
+      } // 2) Normal.
+
+
+      if (shader.normal3_loc >= 0) // check if shader has normal attributte.***
+        {
+          // There are depth renders that needs normal or not.
+          // General depth render needs normals if MRT, but sunDepthOfView-shader no has normal attributtes.
+          if (!vbo_vicky.bindDataNormal(shader, magoManager.vboMemoryManager)) {
+            return false;
+          }
+        }
+
+      gl.drawArrays(gl.TRIANGLES, 0, vertices_count);
+      rendered = true;
+    }
+
+  if (renderType === 2) // depth or colorSelection.
     {
       shader.disableVertexAttribArray(shader.texCoord2_loc);
       shader.disableVertexAttribArray(shader.normal3_loc);
-      shader.disableVertexAttribArray(shader.color4_loc); // 1) Position.
+      shader.disableVertexAttribArray(shader.color4_loc);
+      gl.uniform1i(shader.bHasTexture_loc, false); // textures like png with alpha component.***
+      // 1) Position.
 
       if (!vbo_vicky.bindDataPosition(shader, magoManager.vboMemoryManager)) {
         return false;
@@ -50878,7 +51306,7 @@ NeoBuilding.prototype.render = function (magoManager, shader, renderType, refMat
             this.renderSkin(magoManager, shader, renderType);
           }
         } else {
-          if (octreesRenderedCount < (lowestOctreesCount0 + lowestOctreesCount1 + lowestOctreesCount2) * 0.4) {
+          if (octreesRenderedCount < (lowestOctreesCount0 + lowestOctreesCount1 + lowestOctreesCount2) * 0.3) {
             this.renderSkin(magoManager, shader, renderType);
           }
         }
@@ -51514,7 +51942,10 @@ NeoReference.prototype.solveReferencePngTextureForDepthRender = function (magoMa
       }
 
       return true;
-    }
+    } else {
+    gl.uniform1i(shader.bHasTexture_loc, false);
+    return false;
+  }
 
   return false;
 };
@@ -51847,6 +52278,16 @@ NeoReference.prototype.render = function (magoManager, neoBuilding, renderType, 
     }
 
     if (renderType === 0) {
+      // Normals.
+      if (shader.normal3_loc >= 0) // check if shader has normal attributte.***
+        {
+          // There are depth renders that needs normal or not.
+          // General depth render needs normals if MRT, but sunDepthOfView-shader no has normal attributtes.
+          if (!vboKey.bindDataNormal(shader, magoManager.vboMemoryManager)) {
+            return false;
+          }
+        }
+
       if (bDepthRenderWithTexture && neoReference.vBOVertexIdxCacheKeysContainer) {
         shader.enableVertexAttribArray(shader.texCoord2_loc);
         var refVboData = neoReference.vBOVertexIdxCacheKeysContainer.vboCacheKeysArray[n];
@@ -60190,11 +60631,9 @@ TinTerrain.prototype.mergeTexturesToTextureMaster = function (gl, shader, textur
     externalAlphaLayers[i] = texture.opacity;
 
     if (texture.activeTextureType === 2) {
-      if (texture.temp_clampToTerrainTexCoord === undefined) {
-        var hola = 0;
-      } // custom image.
-
-
+      //if (texture.temp_clampToTerrainTexCoord === undefined)
+      //{ var hola = 0; }
+      // custom image.
       if (externalTexCoordsArray === undefined) {
         externalTexCoordsArray = new Float32Array([0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1]);
       }
@@ -61042,6 +61481,8 @@ TinTerrain.prototype.renderForward = function (currentShader, magoManager, bDept
         gl.viewport(0, 0, magoManager.sceneState.drawingBufferWidth[0], magoManager.sceneState.drawingBufferHeight[0]);
         var bApplySsao = true;
         gl.uniform1i(currentShader.bApplySsao_loc, bApplySsao); // apply ssao default.***
+        // Note: after make texture-master, there are a fbo.bindFramebuffer and changes activeTexture & bindTexture,
+        // so, must restore the textures activated of initial tinTerrainRendering frameBuffer-textures.***
 
         if (bApplySsao) {
           gl.uniform1f(currentShader.aspectRatio_loc, magoManager.sceneState.camera.frustum.aspectRatio[0]);
@@ -61055,7 +61496,31 @@ TinTerrain.prototype.renderForward = function (currentShader, magoManager, bDept
 
           gl.activeTexture(gl.TEXTURE3);
           gl.bindTexture(gl.TEXTURE_2D, noiseTexture);
-        }
+        } //if (bApplyShadow)
+
+
+        {
+          // Set sunMatrix uniform.***
+          var sunSystem = this.tinTerrainManager.magoManager.sceneState.sunSystem;
+          var sunLight = sunSystem.getLight(0);
+
+          if (sunLight) {
+            var sunLight = sunSystem.getLight(0);
+
+            if (sunLight.depthFbo) {
+              gl.activeTexture(gl.TEXTURE0);
+              gl.bindTexture(gl.TEXTURE_2D, sunLight.depthFbo.colorBuffer);
+            }
+
+            sunLight = sunSystem.getLight(1);
+
+            if (sunLight.depthFbo) {
+              gl.activeTexture(gl.TEXTURE1);
+              gl.bindTexture(gl.TEXTURE_2D, sunLight.depthFbo.colorBuffer);
+            }
+          }
+        } // End restoring active textures of initial renderingTinTerrain framebuffer.***
+        //-------------------------------------------------------------------------------------------------------------------
       }
 
       gl.uniform1i(currentShader.colorType_loc, 2); // 0= oneColor, 1= attribColor, 2= texture.
@@ -61176,21 +61641,25 @@ TinTerrain.prototype.renderForward = function (currentShader, magoManager, bDept
 
     this.intersectionType = Constant.INTERSECTION_OUTSIDE; // Test Render wireframe if selected.*************************************************************
 
-    if (renderType === 1) {
-      gl.uniform1i(currentShader.colorType_loc, 2); // 0= oneColor, 1= attribColor, 2= texture.
-
-      if (selectionManager) {
-        gl.uniform1i(currentShader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
-
-        gl.uniform4fv(currentShader.oneColor4_loc, [0.0, 0.9, 0.9, 1.0]);
-        gl.drawElements(gl.LINES, indicesCount - 1, gl.UNSIGNED_SHORT, 0);
-        this.drawTerrainName(magoManager);
-      }
-    } // End test.--------------------------------------------------------------------------------------
+    /*
+    if (renderType === 1)
+    {
+    	gl.uniform1i(currentShader.colorType_loc, 2); // 0= oneColor, 1= attribColor, 2= texture.
+    
+    	if (selectionManager)
+    	{
+    		gl.uniform1i(currentShader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
+    		gl.uniform4fv(currentShader.oneColor4_loc, [0.0, 0.9, 0.9, 1.0]);
+    			
+    		gl.drawElements(gl.LINES, indicesCount-1, gl.UNSIGNED_SHORT, 0); 
+    			this.drawTerrainName(magoManager);
+    	}
+    }
+    */
+    // End test.--------------------------------------------------------------------------------------
     // Render skirt if exist.
     //if (this.depth === 8 && this.X === 217 && this.Y === 99)
     //{ var hola = 0; }
-
 
     var vboKey = this.vboKeyContainer.vboCacheKeysArray[1]; // the idx = 0 is the terrain. idx = 1 is the skirt.
 
@@ -61217,13 +61686,12 @@ TinTerrain.prototype.renderForward = function (currentShader, magoManager, bDept
 
     currentShader.disableVertexAttribArray(currentShader.normal3_loc);
     gl.uniform1i(currentShader.bApplySsao_loc, false); // no apply ssao on skirt.***
+    //var currSelObject = magoManager.selectionManager.getSelectedGeneral();
+    //if (currSelObject === this)
 
-    var currSelObject = magoManager.selectionManager.getSelectedGeneral();
-
-    if (currSelObject !== this) {
+    {
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, vboKey.vertexCount);
     }
-
     this.renderingFase = this.tinTerrainManager.renderingFase;
   }
 
@@ -63564,8 +64032,9 @@ TinTerrainManager.prototype.render = function (magoManager, bDepth, renderType, 
   currentShader.bindUniformGenerals();
   magoManager.test__makingTerrainByAltitudesImage = 0;
 
-  for (var i = 0; i < 8; i++) {
-    gl.activeTexture(gl.TEXTURE0 + i);
+  if (renderType === 0) {
+    //var tex = magoManager.texturesStore.getTextureAux1x1(); // provisional.
+    gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, null);
   }
 
@@ -63585,7 +64054,7 @@ TinTerrainManager.prototype.render = function (magoManager, bDepth, renderType, 
     var tex = magoManager.texturesStore.getTextureAux1x1(); // provisional.
 
     gl.activeTexture(gl.TEXTURE2);
-    gl.bindTexture(gl.TEXTURE_2D, tex.texId);
+    gl.bindTexture(gl.TEXTURE_2D, null);
     var textureAux1x1 = magoManager.texturesStore.getTextureAux1x1();
     var noiseTexture = magoManager.texturesStore.getNoiseTexture4x4();
     gl.uniform1i(currentShader.colorType_loc, 2); // 0= oneColor, 1= attribColor, 2= texture. Initially set as texture color type.***
@@ -63627,18 +64096,18 @@ TinTerrainManager.prototype.render = function (magoManager, bDepth, renderType, 
       }
 
       gl.activeTexture(gl.TEXTURE0);
+      var sunLight = sunSystem.getLight(0);
 
-      if (bApplyShadow && sunLight.depthFbo) {
-        var sunLight = sunSystem.getLight(0);
+      if (sunLight.depthFbo) {
         gl.bindTexture(gl.TEXTURE_2D, sunLight.depthFbo.colorBuffer);
       } else {
         gl.bindTexture(gl.TEXTURE_2D, textureAux1x1);
       }
 
       gl.activeTexture(gl.TEXTURE1);
+      sunLight = sunSystem.getLight(1);
 
-      if (bApplyShadow && sunLight.depthFbo) {
-        var sunLight = sunSystem.getLight(1);
+      if (sunLight.depthFbo) {
         gl.bindTexture(gl.TEXTURE_2D, sunLight.depthFbo.colorBuffer);
       } else {
         gl.bindTexture(gl.TEXTURE_2D, textureAux1x1);
@@ -63809,6 +64278,2152 @@ TinTerrainManager.prototype.clearMap = function (id) {
   }
 
   this.imageryLayersChanged();
+};
+'use strict';
+/**
+ * This is the interaction for draw geometry.
+ * @constructor
+ * @class AbsClickInteraction
+ * 
+ * @abstract
+ * @param {object} option layer object.
+ */
+
+var AbsClickInteraction = function AbsClickInteraction(option) {
+  if (!(this instanceof AbsClickInteraction)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  option = option ? option : {};
+  Interaction.call(this);
+
+  if (option.handleDownEvent) {
+    this.handleDownEvent = option.handleDownEvent;
+  }
+
+  if (option.handleUpEvent) {
+    this.handleUpEvent = option.handleUpEvent;
+  }
+
+  if (option.handleMoveEvent) {
+    this.handleMoveEvent = option.handleMoveEvent;
+  }
+
+  this.begin = false;
+  this.startPoint = undefined;
+  this.startTime;
+  this.endPoint = undefined;
+  this.tolerance = 0;
+};
+
+AbsClickInteraction.prototype = Object.create(Interaction.prototype);
+AbsClickInteraction.prototype.constructor = AbsClickInteraction;
+/**
+ * interaction init
+ */
+
+AbsClickInteraction.prototype.init = function () {
+  this.begin = false;
+  this.startPoint = undefined;
+  this.endPoint = undefined;
+};
+/**
+ * set active. set true, this interaction active, another interaction deactive.
+ * @param {boolean} active
+ * @fires AbsClickInteraction#ACTIVE
+ * @fires AbsClickInteraction#DEACTIVE
+ */
+
+
+AbsClickInteraction.prototype.setActive = function (active) {
+  if (!this.manager || !(this.manager instanceof MagoManager)) {
+    throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
+  }
+
+  if (this.active === active) {
+    return;
+  }
+
+  this.active = active;
+
+  if (active) {
+    //this.manager.interactionCollection.emit(InteractionCollection.EVENT_TYPE.ACTIVE, that);
+    this.emit(InteractionActiveType.ACTIVE, this);
+  } else {
+    //this.manager.interactionCollection.emit(InteractionCollection.EVENT_TYPE.DEACTIVE);
+    this.emit(InteractionActiveType.DEACTIVE);
+  }
+};
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+
+
+AbsClickInteraction.prototype.handle = function (browserEvent) {
+  var type = browserEvent.type;
+
+  if (!(type === MagoManager.EVENT_TYPE.MOUSEMOVE || type === MagoManager.EVENT_TYPE.LEFTDOWN || type === MagoManager.EVENT_TYPE.RIGHTDOWN || type === MagoManager.EVENT_TYPE.MIDDLEDOWN || type === MagoManager.EVENT_TYPE.LEFTUP || type === MagoManager.EVENT_TYPE.RIGHTUP || type === MagoManager.EVENT_TYPE.MIDDLEUP)) {
+    return false;
+  }
+
+  if (this.begin && type !== MagoManager.EVENT_TYPE.MOUSEMOVE) {
+    this.begin = false;
+    this.dragtype = undefined;
+    this.endPoint = browserEvent.point;
+
+    if (browserEvent.timestamp - this.startTime < 1500) {
+      var startScreenCoordinate = this.startPoint.screenCoordinate;
+      var endScreenCoordinate = this.endPoint.screenCoordinate;
+      var diffX = Math.abs(startScreenCoordinate.x - endScreenCoordinate.x);
+      var diffY = Math.abs(startScreenCoordinate.y - endScreenCoordinate.y);
+
+      if (diffX <= this.tolerance && diffY <= this.tolerance) {
+        var that = this;
+        this.manager.once('lastFrustum', function () {
+          that.handleUpEvent.call(that, browserEvent);
+        });
+      }
+    }
+  } else {
+    if (type === MagoManager.EVENT_TYPE.MOUSEMOVE) {
+      this.handleMoveEvent.call(this, browserEvent);
+    } else {
+      this.begin = true;
+      this.startPoint = browserEvent.point;
+      this.startTime = browserEvent.timestamp;
+      this.handleDownEvent.call(this, browserEvent);
+    }
+  }
+};
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+
+
+AbsClickInteraction.prototype.handleDownEvent = function (browserEvent) {
+  return throwAbstractError();
+};
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+
+
+AbsClickInteraction.prototype.handleUpEvent = function (browserEvent) {
+  return throwAbstractError();
+};
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+
+
+AbsClickInteraction.prototype.handleMoveEvent = function (browserEvent) {
+  return throwAbstractError();
+};
+'use strict';
+/**
+ * This is the interaction for draw geometry.
+ * @constructor
+ * @class AbsPointerInteraction
+ * 
+ * @abstract
+ * @param {object} option layer object.
+ */
+
+var AbsPointerInteraction = function AbsPointerInteraction(option) {
+  if (!(this instanceof AbsPointerInteraction)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  option = option ? option : {};
+  Interaction.call(this);
+
+  if (option.handleDownEvent) {
+    this.handleDownEvent = option.handleDownEvent;
+  }
+
+  if (option.handleDragEvent) {
+    this.handleDragEvent = option.handleDragEvent;
+  }
+
+  if (option.handleMoveEvent) {
+    this.handleMoveEvent = option.handleMoveEvent;
+  }
+
+  if (option.handleUpEvent) {
+    this.handleUpEvent = option.handleUpEvent;
+  }
+
+  this.begin = false;
+  this.dragging = false;
+  this.mouseBtn = undefined;
+  this.startPoint = undefined;
+  this.endPoint = undefined;
+};
+
+AbsPointerInteraction.prototype = Object.create(Interaction.prototype);
+AbsPointerInteraction.prototype.constructor = AbsPointerInteraction;
+/**
+ * interaction init
+ */
+
+AbsPointerInteraction.prototype.init = function () {
+  this.begin = false;
+  this.dragging = false;
+  this.mouseBtn = undefined;
+  this.startPoint = undefined;
+  this.endPoint = undefined;
+};
+/**
+ * set active. set true, this interaction active, another interaction deactive.
+ * @param {boolean} active
+ * @fires AbsPointInteraction#ACTIVE
+ * @fires AbsPointInteraction#DEACTIVE
+ */
+
+
+AbsPointerInteraction.prototype.setActive = function (active) {
+  if (!this.manager || !(this.manager instanceof MagoManager)) {
+    throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
+  }
+
+  if (this.active === active) {
+    return;
+  }
+
+  var that = this;
+  this.active = active;
+
+  if (active) {
+    //this.manager.interactionCollection.emit(InteractionCollection.EVENT_TYPE.ACTIVE, that);
+    this.emit(InteractionActiveType.ACTIVE, this);
+  } else {
+    //this.manager.interactionCollection.emit(InteractionCollection.EVENT_TYPE.DEACTIVE);
+    this.emit(InteractionActiveType.DEACTIVE);
+  }
+};
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+
+
+AbsPointerInteraction.prototype.handle = function (browserEvent) {
+  var type = browserEvent.type;
+
+  if (this.dragging) {
+    if (type === MagoManager.EVENT_TYPE.LEFTUP || type === MagoManager.EVENT_TYPE.RIGHTUP || type === MagoManager.EVENT_TYPE.MIDDLEUP) {
+      this.dragging = false;
+      this.mouseBtn = undefined;
+      this.endPoint = browserEvent.point;
+      this.handleUpEvent.call(this, browserEvent);
+    } else if (type === MagoManager.EVENT_TYPE.MOUSEMOVE) {
+      this.handleDragEvent.call(this, browserEvent);
+    }
+  } else {
+    if (type === MagoManager.EVENT_TYPE.LEFTDOWN || type === MagoManager.EVENT_TYPE.RIGHTDOWN || type === MagoManager.EVENT_TYPE.MIDDLEDOWN) {
+      this.dragging = true;
+      this.mouseBtn = type;
+      this.endPoint = undefined;
+      this.startPoint = browserEvent.point;
+      this.handleDownEvent.call(this, browserEvent);
+    } else if (type === MagoManager.EVENT_TYPE.MOUSEMOVE) {
+      this.handleMoveEvent.call(this, browserEvent);
+    }
+  }
+};
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+
+
+AbsPointerInteraction.prototype.handleDownEvent = function (browserEvent) {
+  return abstract();
+};
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+
+
+AbsPointerInteraction.prototype.handleDragEvent = function (browserEvent) {
+  return abstract();
+};
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+
+
+AbsPointerInteraction.prototype.handleMoveEvent = function (browserEvent) {
+  return abstract();
+};
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+
+
+AbsPointerInteraction.prototype.handleUpEvent = function (browserEvent) {
+  return abstract();
+};
+'use strict';
+/**
+ * This is the interaction for draw geometry.
+ * @constructor
+ * @class ClickInteraction
+ * 
+ * @abstract
+ * @param {object} option layer object.
+ */
+
+var ClickInteraction = function ClickInteraction(option) {
+  if (!(this instanceof ClickInteraction)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  option = option ? option : {};
+  AbsClickInteraction.call(this, option);
+};
+
+ClickInteraction.prototype = Object.create(AbsClickInteraction.prototype);
+ClickInteraction.prototype.constructor = ClickInteraction;
+/**
+ * interaction init
+ */
+
+ClickInteraction.prototype.init = function () {
+  this.begin = false;
+  this.startPoint = undefined;
+  this.endPoint = undefined;
+};
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+
+
+ClickInteraction.prototype.handleDownEvent = function (browserEvent) {
+  return;
+};
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+
+
+ClickInteraction.prototype.handleUpEvent = function (browserEvent) {
+  return;
+};
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+
+
+ClickInteraction.prototype.handleMoveEvent = function (browserEvent) {
+  return;
+};
+'use strict';
+/**
+ * This is the interaction for draw geometry.
+ * @constructor
+ * @class DrawGeometryInteraction
+ * 
+ * @abstract
+ * @param {object} layer layer object.
+ */
+
+var DrawGeometryInteraction = function DrawGeometryInteraction(style) {
+  if (!(this instanceof DrawGeometryInteraction)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  Interaction.call(this);
+  /**
+   * geometry style
+   * @type {Object}
+   * @default {}
+   */
+
+  this.style;
+
+  if (style) {
+    this.setStyle(style);
+  } else {
+    this.style = {};
+  }
+
+  this.collection;
+  this.result = [];
+};
+
+DrawGeometryInteraction.prototype = Object.create(Interaction.prototype);
+DrawGeometryInteraction.prototype.constructor = DrawGeometryInteraction;
+/**
+ * get style
+ * @return {object}
+ */
+
+DrawGeometryInteraction.prototype.getStyle = function () {
+  return this.style;
+};
+/**
+ * set style
+ * @param {object} style
+ */
+
+
+DrawGeometryInteraction.prototype.setStyle = function (style) {
+  this.style = style;
+};
+/**
+ * set active. set true, this interaction active, another interaction deactive.
+ * @param {boolean} active
+ * @fires DrawGeometryInteraction#ACTIVE
+ * @fires DrawGeometryInteraction#DEACTIVE
+ */
+
+
+DrawGeometryInteraction.prototype.setActive = function (active) {
+  if (!this.manager || !(this.manager instanceof MagoManager)) {
+    throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
+  }
+
+  if (this.active === active) {
+    return;
+  }
+
+  if (!this.collection) {
+    this.collection = this.manager.interactionCollection;
+  }
+
+  var that = this;
+
+  if (active) {
+    this.collection.emit(InteractionActiveType.ACTIVE, that);
+    this.emit(this.constructor.EVENT_TYPE.ACTIVE, this);
+  } else {
+    this.collection.emit(InteractionActiveType.DEACTIVE);
+    this.emit(this.constructor.EVENT_TYPE.DEACTIVE);
+  }
+};
+/**
+ * make DrawGeometryInteraction. PointDrawer, LineDrawer, RectangleDrawer
+ * @static
+ * @param {string} type point, line, polygon, rectangle. polygon is not  ready.
+ * @return {DrawGeometryInteraction}
+ */
+
+
+DrawGeometryInteraction.createDrawGeometryInteraction = function (type) {
+  if (!type) {
+    throw new Error(Messages.REQUIRED_EMPTY_ERROR('geometry type'));
+  }
+
+  var interaction;
+
+  switch (type) {
+    case CODE.drawGeometryType.POINT:
+      {
+        interaction = new PointDrawer();
+        break;
+      }
+
+    case CODE.drawGeometryType.LINE:
+      {
+        interaction = new LineDrawer();
+        break;
+      }
+
+    case CODE.drawGeometryType.POLYGON:
+      {
+        interaction = new PolygonDrawer();
+        break;
+      }
+
+    case CODE.drawGeometryType.RECTANGLE:
+      {
+        interaction = new RectangleDrawer();
+        break;
+      }
+  }
+
+  return interaction;
+};
+'use strict';
+/**
+ * @enum
+ * Interaction target type enum
+ */
+
+var InteractionActiveType = {
+  'ACTIVE': 'active',
+  'DEACTIVE': 'deactive'
+};
+'use strict';
+/**
+ * @enum
+ * Interaction event type enum
+ */
+
+var InteractionEventType = {
+  'LEFTMOUSEUP': 'leftmouseup',
+  'LEFTMOUSEDOWN': 'leftmousedown',
+  'MOUSEMOVE': 'mousemove',
+  'DRAG': 'drag'
+};
+'use strict';
+/**
+ * This is the interaction for draw polyline.
+ * Last point use 'right click'
+ * @class LineDrawer
+ * 
+ * @param {MagoPolyline~MagoPolylineStyle} style line style object.
+ * 
+ * @extends {DrawGeometryInteraction}
+ */
+
+var LineDrawer = function LineDrawer(style) {
+  if (!(this instanceof LineDrawer)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  DrawGeometryInteraction.call(this, style);
+  this.points = [];
+  this.height = 200;
+  this.clickTime;
+  this.clickPoint;
+  this.tempLine; //OTL
+
+  this.added = false;
+  this.result = [];
+};
+
+LineDrawer.prototype = Object.create(DrawGeometryInteraction.prototype);
+LineDrawer.prototype.constructor = LineDrawer;
+LineDrawer.EVENT_TYPE = {
+  'DRAWEND': 'drawend'
+};
+/**
+ * @private
+ */
+
+LineDrawer.prototype.setHeight = function (height) {
+  this.height = height;
+};
+/**
+ * @private
+ */
+
+
+LineDrawer.prototype.getHeight = function () {
+  return this.height;
+};
+/**
+ * @private
+ */
+
+
+LineDrawer.prototype.init = function () {
+  this.points = [];
+  this.tempLine = undefined;
+  this.clickTime = undefined;
+  this.clickPoint = undefined;
+  clearTimeout(this.timeout);
+};
+/**
+ * @private
+ */
+
+
+LineDrawer.prototype.clear = function () {
+  this.init();
+  var modeler = this.manager.modeler;
+  var result = this.result;
+
+  for (var i = 0, len = result.length; i < len; i++) {
+    var rec = result[i];
+    modeler.removeObject(rec);
+  }
+
+  this.result.length = 0;
+};
+/**
+ * @private
+ */
+
+
+LineDrawer.prototype.start = function () {
+  if (!this.manager || !(this.manager instanceof MagoManager)) {
+    throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
+  }
+
+  var that = this;
+  var manager = that.manager;
+
+  if (!this.added) {
+    this.added = true;
+    manager.on(MagoManager.EVENT_TYPE.LEFTUP, function (e) {
+      if (!that.getActive()) {
+        return;
+      }
+
+      if (that.points.length === 0) {
+        that.points.push(e.point.geographicCoordinate);
+
+        if (!that.clickTime) {
+          that.clickTime = new Date().getTime();
+        }
+
+        if (!that.clickPoint) {
+          that.clickPoint = e.point.screenCoordinate;
+        }
+      } else {
+        var thisTime = new Date().getTime();
+        var thisPoint = e.point.screenCoordinate;
+        var dbclick = false;
+
+        if (thisTime - that.clickTime < 500 && Math.abs(thisPoint.x - that.clickPoint.x) < 2 && Math.abs(thisPoint.y - that.clickPoint.y) < 2) {
+          dbclick = true;
+        }
+
+        if (!dbclick) {
+          that.points.push(e.point.geographicCoordinate);
+          that.clickTime = new Date().getTime();
+          that.clickPoint = e.point.screenCoordinate;
+        } else {
+          if (that.tempLine) {
+            var position = {
+              coordinates: that.points
+            };
+            that.tempLine.init(manager);
+            that.tempLine.setPosition(position);
+            that.end();
+          }
+        }
+      }
+    });
+    manager.on(MagoManager.EVENT_TYPE.MOUSEMOVE, function (e) {
+      if (!that.getActive()) {
+        return;
+      }
+
+      if (that.points.length > 0) {
+        var clonePoints = that.points.slice();
+        var auxPoint = e.endEvent.geographicCoordinate;
+        clonePoints.push(auxPoint);
+        var position = {
+          coordinates: clonePoints
+        };
+
+        if (!that.tempLine) {
+          if (Object.keys(that.style).length < 1) {
+            that.style = {
+              color: '#ff0000',
+              thickness: 2.0
+            };
+          }
+
+          that.tempLine = new MagoPolyline(position, that.style);
+          manager.modeler.magoRectangle = that.tempLine;
+        } else {
+          that.tempLine.init(manager);
+          that.tempLine.setPosition(position);
+        }
+      }
+    });
+    /*
+    manager.on(MagoManager.EVENT_TYPE.RIGHTCLICK, function(e)
+    {
+    	if (!that.getActive() || !that.tempLine) { return; }
+    	that.points.push(e.clickCoordinate.geographicCoordinate);
+    		var position = {coordinates: that.points};
+    	that.tempLine.init(manager);
+    	that.tempLine.setPosition(position);
+    	
+    	that.end();
+    });
+    */
+  }
+};
+/**
+ * @private
+ */
+
+
+LineDrawer.prototype.end = function () {
+  this.result.push(this.tempLine);
+  this.manager.modeler.addObject(this.tempLine, 1);
+  this.emit(LineDrawer.EVENT_TYPE.DRAWEND, this.tempLine);
+  this.init();
+};
+'use strict';
+/**
+ * This is the interaction for draw geometry.
+ * @constructor
+ * @class NativeUpDownInteraction
+ * 
+ * 
+ * @param {object} option layer object.
+ */
+
+var NativeUpDownInteraction = function NativeUpDownInteraction(option) {
+  if (!(this instanceof NativeUpDownInteraction)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  option = option ? option : {};
+  AbsPointerInteraction.call(this, option);
+  this.targetType = DataType.NATIVE;
+  this.filter = defaultValue(option.filter, 'selected');
+  this.filter_;
+  this.offset = defaultValue(option.filter, 3.3);
+  this.target = undefined;
+  this.selObjMovePlaneCC = undefined;
+  this.lineCC = new Line();
+  this.startPixel = undefined;
+};
+
+NativeUpDownInteraction.prototype = Object.create(AbsPointerInteraction.prototype);
+NativeUpDownInteraction.prototype.constructor = NativeUpDownInteraction;
+NativeUpDownInteraction.EVENT_TYPE = {
+  'ACTIVE': 'active',
+  'DEACTIVE': 'deactive',
+  'CHANGEHEIGHT': 'changeheight'
+};
+/**
+ * interaction init
+ * @override
+ */
+
+NativeUpDownInteraction.prototype.init = function () {
+  this.dragging = false;
+  this.mouseBtn = undefined;
+  this.startPoint = undefined;
+  this.endPoint = undefined;
+  this.selObjMovePlaneCC = undefined;
+  this.startPixel = undefined;
+  this.target = undefined;
+};
+/**
+ * set TargetType
+ * @param {string} filter 
+ */
+
+
+NativeUpDownInteraction.prototype.setFilter = function (filter) {
+  var oldFilter = this.filter;
+  this.filter = filter;
+
+  if (oldFilter !== filter) {
+    this.setFilterFunction();
+  }
+};
+/**
+ * get TargetType
+ * @return {boolean}
+ */
+
+
+NativeUpDownInteraction.prototype.getFilter = function () {
+  return this.filter;
+};
+
+NativeUpDownInteraction.prototype.handleDownEvent = function (browserEvent) {
+  var manager = this.manager;
+
+  if (browserEvent.type !== "leftdown") {
+    return;
+  }
+
+  var selectManager = manager.selectionManager;
+
+  if (manager.selectionFbo === undefined) {
+    manager.selectionFbo = new FBO(gl, manager.sceneState.drawingBufferWidth[0], manager.sceneState.drawingBufferHeight[0], {
+      matchCanvasSize: true
+    });
+  }
+
+  var gl = manager.getGl();
+  selectManager.selectProvisionalObjectByPixel(gl, browserEvent.point.screenCoordinate.x, browserEvent.point.screenCoordinate.y);
+
+  if (!this.filter_) {
+    this.setFilterFunction();
+  }
+
+  var filterProvisional = selectManager.filterProvisional(this.targetType, this.filter_);
+
+  if (!isEmpty(filterProvisional)) {
+    this.target = filterProvisional[this.targetType][0];
+  } else {
+    this.init();
+  }
+};
+
+NativeUpDownInteraction.prototype.handleDragEvent = function (browserEvent) {
+  if (this.target && this.dragging) {
+    this.manager.setCameraMotion(false);
+    var object = this.target;
+
+    if (object instanceof ObjectMarker) {
+      return;
+    }
+
+    object = object.getRootOwner();
+    var attributes = object.attributes;
+
+    if (attributes === undefined) {
+      return;
+    }
+
+    var geoLocDataManager = object.getGeoLocDataManager();
+
+    if (geoLocDataManager === undefined) {
+      return;
+    }
+
+    var geoLocationData = geoLocDataManager.getCurrentGeoLocationData();
+    var manager = this.manager;
+    var gl = manager.getGl();
+    var sceneState = manager.sceneState;
+
+    if (this.selObjMovePlaneCC === undefined) {
+      this.selObjMovePlaneCC = new Plane(); // calculate the pixelPos in camCoord.
+
+      var geoLocMatrix = geoLocationData.geoLocMatrix;
+      var mvMat = sceneState.modelViewMatrix;
+      var mvMatRelToEye = sceneState.modelViewRelToEyeMatrix;
+      var sc = this.startPoint.screenCoordinate;
+      var magoWC = ManagerUtils.calculatePixelPositionWorldCoord(gl, sc.x, sc.y, magoWC, undefined, undefined, undefined, manager); //var pixelPosCC = mvMat.transformPoint3D(magoWC, undefined);
+
+      var pixelPosCC = mvMat.transformPoint3D(this.startPoint.worldCoordinate, undefined); // movement in plane XZ.
+      //var globeYaxisWC = new Point3D(geoLocMatrix._floatArrays[4], geoLocMatrix._floatArrays[5], geoLocMatrix._floatArrays[6]);
+
+      var globeZaxisWC = new Point3D(geoLocMatrix._floatArrays[8], geoLocMatrix._floatArrays[9], geoLocMatrix._floatArrays[10]);
+      var camDirection = sceneState.camera.direction;
+      var dot = globeZaxisWC.scalarProduct(camDirection);
+
+      if (Math.abs(dot) > 0.9) {
+        var right = sceneState.camera.right;
+        var mat = new Matrix4();
+        mat.rotationAxisAngDeg(45, right.x, right.y, right.z);
+        var newPosition = mat.transformPoint3D(sceneState.camera.position);
+        /*
+                    var cesiumCam = manager.scene.camera;
+                    cesiumCam.flyTo({
+                        destination: new Cesium.Cartesian3(newPosition.x,newPosition.y,newPosition.z),
+                        orientation : {
+                            heading : Cesium.Math.toRadians(-45),
+                            pitch : 0,
+                            roll : 0.0
+                        },
+                        duration: 2
+                    });
+                    */
+        //this.handleUpEvent();
+        // alert('카메라를 스리디로 바꿉니다(문구 추천좀)');
+        //return;
+      }
+
+      var globeRightWC = globeZaxisWC.crossProduct(camDirection);
+      var globeP = globeRightWC.crossProduct(globeZaxisWC);
+      globeP.unitary();
+      var globeYaxisCC = mvMatRelToEye.transformPoint3D(globeP, undefined);
+      this.selObjMovePlaneCC.setPointAndNormal(pixelPosCC.x, pixelPosCC.y, pixelPosCC.z, globeYaxisCC.x, globeYaxisCC.y, globeYaxisCC.z);
+    }
+
+    var screenCoordinate = browserEvent.endEvent.screenCoordinate;
+    var camRay = ManagerUtils.getRayCamSpace(screenCoordinate.x, screenCoordinate.y, camRay, manager);
+    this.lineCC.setPointAndDir(0, 0, 0, camRay[0], camRay[1], camRay[2]); // Calculate intersection cameraRay with planeCC.
+
+    var intersectionPointCC = new Point3D();
+    intersectionPointCC = this.selObjMovePlaneCC.intersectionLine(this.lineCC, intersectionPointCC);
+    var mvMat = sceneState.getModelViewMatrixInv();
+    var intersectionWC = mvMat.transformPoint3D(intersectionPointCC, intersectionWC);
+    var intersectionScreenCoord = ManagerUtils.calculateWorldPositionToScreenCoord(undefined, intersectionWC.x, intersectionWC.y, intersectionWC.z, intersectionScreenCoord, manager);
+
+    if (!this.startPixel) {
+      var geoCoord = geoLocationData.geographicCoord;
+      var wc = ManagerUtils.geographicCoordToWorldPoint(geoCoord.longitude, geoCoord.latitude, geoCoord.altitude);
+      this.startPixel = ManagerUtils.calculateWorldPositionToScreenCoord(undefined, wc.x, wc.y, wc.z, this.startPixel, manager);
+    }
+
+    var diff = intersectionScreenCoord.y - this.startPixel.y;
+    var up = diff < 0 ? true : false;
+    var gijun = Math.abs(diff);
+
+    if (gijun > this.offset) {
+      var currentbuilding = this.target;
+      var height = currentbuilding.height;
+      var prevHeight = height;
+
+      if (up) {
+        height = height + this.offset;
+      } else {
+        height = height - this.offset;
+      }
+      /*var model = currentbuilding.geographicCoordList.getExtrudedMeshRenderableObject(height, undefined, undefined, undefined, undefined, {color: currentbuilding.color4.getHexCode(), height: this.offset});
+               
+      currentbuilding.height = height;
+      currentbuilding.objectsArray = model.objectsArray;*/
+
+
+      currentbuilding.setHeight(height);
+      this.emit(NativeUpDownInteraction.EVENT_TYPE.CHANGEHEIGHT, {
+        type: NativeUpDownInteraction.EVENT_TYPE.CHANGEHEIGHT,
+        timestamp: new Date().getTime(),
+        prevHeight: prevHeight,
+        changedHeight: height
+      });
+      this.startPixel.set(screenCoordinate.x, screenCoordinate.y, screenCoordinate.z);
+    } //geoLocationData = ManagerUtils.calculateGeoLocationData(undefined, undefined, difZ, undefined, undefined, undefined, geoLocationData, this);
+
+  }
+};
+
+NativeUpDownInteraction.prototype.handleMoveEvent = function () {
+  return;
+};
+
+NativeUpDownInteraction.prototype.handleUpEvent = function () {
+  this.init();
+  this.manager.setCameraMotion(true);
+  this.manager.isCameraMoved = true;
+  return;
+};
+
+NativeUpDownInteraction.prototype.setFilterFunction = function () {
+  var manager = this.manager;
+
+  if (this.filter === 'selected') {
+    this.filter_ = function (prov) {
+      return prov === manager.defaultSelectInteraction.getSelected();
+    };
+  } else {
+    this.filter_ = function () {
+      return true;
+    };
+  }
+};
+'use strict';
+/**
+ * This is the interaction for draw point.
+ * @class PointDrawer
+ * 
+ * @param {MagoPoint~MagoPointStyle} style layer object.
+ * 
+ * @extends {DrawGeometryInteraction}
+ */
+
+var PointDrawer = function PointDrawer(style) {
+  if (!(this instanceof PointDrawer)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  DrawGeometryInteraction.call(this, style);
+  this.startDraw = false;
+  this.startTime = undefined;
+  this.startPoint = undefined;
+  this.added = false;
+  this.result = [];
+};
+
+PointDrawer.prototype = Object.create(DrawGeometryInteraction.prototype);
+PointDrawer.prototype.constructor = PointDrawer;
+PointDrawer.EVENT_TYPE = {
+  'DRAWEND': 'drawend'
+};
+/**
+ * @private
+ */
+
+PointDrawer.prototype.init = function () {
+  this.startDraw = false;
+  this.startTime = undefined;
+  this.startPoint = undefined;
+};
+/**
+ * @private
+ */
+
+
+PointDrawer.prototype.clear = function () {
+  this.init();
+  var modeler = this.manager.modeler;
+  var result = this.result;
+
+  for (var i = 0, len = result.length; i < len; i++) {
+    var rec = result[i];
+    modeler.removeObject(rec);
+  }
+
+  this.result.length = 0;
+};
+/**
+ * @private
+ */
+
+
+PointDrawer.prototype.start = function () {
+  if (!this.manager || !(this.manager instanceof MagoManager)) {
+    throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
+  }
+
+  var that = this;
+  var manager = that.manager;
+
+  if (!this.added) {
+    this.added = true;
+    manager.on(MagoManager.EVENT_TYPE.LEFTDOWN, function (e) {
+      if (!that.getActive()) {
+        return;
+      }
+
+      if (!that.startDraw) {
+        that.startDraw = true;
+        that.startTime = e.timestamp;
+        that.startPoint = e.point.screenCoordinate;
+      }
+    });
+    manager.on(MagoManager.EVENT_TYPE.LEFTUP, function (e) {
+      if (!that.getActive()) {
+        return;
+      }
+
+      if (that.startDraw) {
+        var moveless = false;
+
+        if (e.timestamp - that.startTime < 1500) {
+          var startScreenCoordinate = that.startPoint;
+          var endScreenCoordinate = e.point.screenCoordinate;
+          var diffX = Math.abs(startScreenCoordinate.x - endScreenCoordinate.x);
+          var diffY = Math.abs(startScreenCoordinate.y - endScreenCoordinate.y);
+
+          if (diffX <= 0 && diffY <= 0) {
+            moveless = true;
+          }
+        }
+
+        if (!moveless) {
+          that.init();
+          return;
+        }
+
+        var position = e.point.geographicCoordinate;
+
+        if (Object.keys(that.style).length < 1) {
+          that.style = {
+            size: 10,
+            color: '#00FF00'
+          };
+        }
+
+        that.end(new MagoPoint(position, that.style));
+      }
+    });
+  }
+};
+/**
+ * @private
+ */
+
+
+PointDrawer.prototype.end = function (point) {
+  this.result.push(point);
+  this.manager.modeler.addObject(point, 1);
+  this.emit(PointDrawer.EVENT_TYPE.DRAWEND, point);
+  this.init();
+};
+'use strict';
+/**
+ * This is the interaction for draw geometry.
+ * @constructor
+ * @class GeometrySelectInteraction
+ * 
+ * 
+ * @param {object} option layer object.
+ */
+
+var PointSelectInteraction = function PointSelectInteraction(option) {
+  if (!(this instanceof PointSelectInteraction)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  option = option ? option : {};
+  AbsClickInteraction.call(this, option);
+  this.selected = undefined;
+  this.targetType = defaultValue(option.targetType, DataType.F4D);
+  this.targetHighlight = defaultValue(option.targetHighlight, true);
+  this.filter = undefined;
+  var that = this;
+  this.on(PointSelectInteraction.EVENT_TYPE.DEACTIVE, function () {
+    that.init();
+    that.selected = undefined;
+    that.manager.selectionManager.clearCurrents();
+  });
+};
+
+PointSelectInteraction.prototype = Object.create(AbsClickInteraction.prototype);
+PointSelectInteraction.prototype.constructor = PointSelectInteraction;
+PointSelectInteraction.EVENT_TYPE = {
+  'ACTIVE': 'active',
+  'DEACTIVE': 'deactive'
+};
+/**
+ * interaction init
+ */
+
+PointSelectInteraction.prototype.init = function () {
+  this.begin = false;
+  this.startPoint = undefined;
+  this.endPoint = undefined;
+};
+/**
+ * set TargetType
+ * @param {boolean} type 
+ */
+
+
+PointSelectInteraction.prototype.setTargetType = function (type) {
+  var oldType = this.targetType;
+
+  if (oldType !== type) {
+    this.init();
+    this.selected = undefined;
+    this.manager.isCameraMoved = true;
+    this.manager.selectionManager.clearCurrents();
+    this.filter = undefined;
+  }
+
+  this.targetType = type;
+};
+/**
+ * get TargetType
+ * @return {boolean}
+ */
+
+
+PointSelectInteraction.prototype.getTargetType = function () {
+  return this.targetType;
+};
+/**
+ * set filter function
+ * @param {function} filterFunction
+ */
+
+
+PointSelectInteraction.prototype.setFilter = function (filterFunction) {
+  if (filterFunction && typeof filterFunction === 'function') {
+    this.filter = filterFunction;
+  }
+};
+/**
+ * set filter function
+ * @param {function} filterFunction
+ */
+
+
+PointSelectInteraction.prototype.getFilter = function (filterFunction) {
+  return this.filter;
+};
+/**
+ * set TargetHighlight
+ * @param {boolean} highlight 
+ */
+
+
+PointSelectInteraction.prototype.setTargetHighlight = function (highlight) {
+  if (!highlight) {
+    this.init();
+    this.manager.selectionManager.clearCurrents();
+  }
+
+  this.targetHighlight = highlight;
+};
+/**
+ * get selected object
+ * @return {Object}
+ */
+
+
+PointSelectInteraction.prototype.getSelected = function () {
+  return this.selected;
+};
+/**
+ * get TargetHighlight
+ * @return {boolean}
+ */
+
+
+PointSelectInteraction.prototype.getTargetHighlight = function () {
+  return this.targetHighlight;
+};
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+
+
+PointSelectInteraction.prototype.handleDownEvent = function (browserEvent) {
+  return;
+};
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+
+
+PointSelectInteraction.prototype.handleUpEvent = function (browserEvent) {
+  var selectionManager = this.manager.selectionManager;
+  selectionManager.clearCurrents();
+  this.select(browserEvent.point.screenCoordinate);
+  var oldSelected = this.selected;
+
+  switch (this.targetType) {
+    case DataType.F4D:
+      {
+        this.selected = selectionManager.getSelectedF4dNode();
+        break;
+      }
+
+    case DataType.OBJECT:
+      {
+        this.selected = selectionManager.getSelectedF4dObject();
+        break;
+      }
+
+    case DataType.NATIVE:
+      {
+        this.selected = selectionManager.getSelectedGeneral();
+        break;
+      }
+  }
+
+  if (oldSelected) {
+    this.emitEvent(oldSelected, false);
+  }
+
+  this.emitEvent(this.selected, true);
+};
+
+PointSelectInteraction.prototype.emitEvent = function (selectedObj, selected) {
+  if (selectedObj) {
+    var type = PointSelectInteraction.getEventType(this.targetType, selected);
+    var eventObj = {
+      type: type,
+      timestamp: new Date()
+    };
+    selected ? eventObj.selected = selectedObj : eventObj.deselected = selectedObj;
+    this.manager.emit(type, eventObj);
+  }
+};
+
+PointSelectInteraction.getEventType = function (target, selected) {
+  var eventType;
+
+  switch (target) {
+    case DataType.F4D:
+      {
+        eventType = selected ? MagoManager.EVENT_TYPE.SELECTEDF4D : MagoManager.EVENT_TYPE.DESELECTEDF4D;
+        break;
+      }
+
+    case DataType.OBJECT:
+      {
+        eventType = selected ? MagoManager.EVENT_TYPE.SELECTEDF4DOBJECT : MagoManager.EVENT_TYPE.DESELECTEDF4DOBJECT;
+        break;
+      }
+
+    case DataType.NATIVE:
+      {
+        eventType = selected ? MagoManager.EVENT_TYPE.SELECTEDGENERALOBJECT : MagoManager.EVENT_TYPE.DESELECTEDGENERALOBJECT;
+        break;
+      }
+  }
+
+  return eventType;
+};
+/**
+ * handle event
+ * @param {BrowserEvent} browserEvent
+ */
+
+
+PointSelectInteraction.prototype.handleMoveEvent = function (browserEvent) {
+  if (this.targetHighlight && !this.selected) {
+    this.select(browserEvent.endEvent.screenCoordinate);
+  }
+};
+/**
+ * select 
+ * @param {Point2D} screenCoordinate
+ * @param {boolean} bObject
+ */
+
+
+PointSelectInteraction.prototype.select = function (screenCoordinate) {
+  var manager = this.manager;
+  var selectManager = manager.selectionManager;
+
+  if (manager.selectionFbo === undefined) {
+    manager.selectionFbo = new FBO(gl, manager.sceneState.drawingBufferWidth[0], manager.sceneState.drawingBufferHeight[0], {
+      matchCanvasSize: true
+    });
+  }
+
+  var gl = manager.getGl();
+  selectManager.selectProvisionalObjectByPixel(gl, screenCoordinate.x, screenCoordinate.y);
+  selectManager.provisionalToCurrent(this.targetType, this.filter); //selectManager.selectObjectByPixel(gl, screenCoordinate.x, screenCoordinate.y, bObject);
+};
+/**
+ * clear 
+ */
+
+
+PointSelectInteraction.prototype.clear = function () {
+  this.emitEvent(this.selected, false);
+  this.manager.selectionManager.clearCurrents();
+  this.init();
+  this.selected = undefined;
+};
+'use strict';
+/**
+ * This is the interaction for draw rectangle.
+ * @class RectangleDrawer
+ * 
+ * @param {MagoRectangle~MagoRectangleStyle} style style object.
+ * @extends {DrawGeometryInteraction}
+ */
+
+var RectangleDrawer = function RectangleDrawer(style) {
+  if (!(this instanceof RectangleDrawer)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  DrawGeometryInteraction.call(this, style);
+  this.startDraw = false;
+  this.dragging = false;
+  this.startPoint;
+  this.endPoint;
+  this.height = 200;
+  this.added = false;
+  this.tempRectangle;
+  this.result = [];
+};
+
+RectangleDrawer.prototype = Object.create(DrawGeometryInteraction.prototype);
+RectangleDrawer.prototype.constructor = RectangleDrawer;
+RectangleDrawer.EVENT_TYPE = {
+  'DRAWEND': 'drawend',
+  'ACTIVE': 'active',
+  'DEACTIVE': 'deactive'
+};
+/**
+ * @private
+ */
+
+RectangleDrawer.prototype.setHeight = function (height) {
+  this.height = height;
+};
+/**
+ * @private
+ */
+
+
+RectangleDrawer.prototype.getHeight = function () {
+  return this.height;
+};
+/**
+ * @private
+ */
+
+
+RectangleDrawer.prototype.init = function () {
+  this.startDraw = false;
+  this.dragging = false;
+  this.startPoint = undefined;
+  this.endPoint = undefined;
+  this.tempRectangle = undefined;
+  this.manager.magoWorld.cameraMovable = true;
+
+  if (this.manager.modeler.magoRectangle) {
+    this.manager.modeler.magoRectangle.deleteObjects(this.manager.vboMemoryManager);
+    this.manager.modeler.magoRectangle = undefined;
+  }
+};
+/**
+ * @private
+ */
+
+
+RectangleDrawer.prototype.clear = function () {
+  this.init();
+  var modeler = this.manager.modeler;
+  var result = this.result;
+
+  for (var i = 0, len = result.length; i < len; i++) {
+    var rec = result[i];
+    modeler.removeObject(rec);
+  }
+
+  this.result.length = 0;
+};
+/**
+ * @private
+ */
+
+
+RectangleDrawer.prototype.start = function () {
+  if (!this.manager || !(this.manager instanceof MagoManager)) {
+    throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
+  }
+
+  var that = this;
+  var manager = that.manager;
+
+  if (!this.added) {
+    this.added = true;
+    manager.on(MagoManager.EVENT_TYPE.LEFTDOWN, function (e) {
+      if (!that.getActive()) {
+        return;
+      }
+
+      if (!that.startDraw) {
+        manager.magoWorld.cameraMovable = false;
+        that.startDraw = true;
+        that.startPoint = e.point.geographicCoordinate;
+      }
+    });
+    manager.on(MagoManager.EVENT_TYPE.MOUSEMOVE, function (e) {
+      if (!that.getActive()) {
+        return;
+      }
+
+      if (that.startDraw && that.startPoint) {
+        that.dragging = true;
+        var auxPoint = e.endEvent.geographicCoordinate;
+        var minLon = that.startPoint.longitude < auxPoint.longitude ? that.startPoint.longitude : auxPoint.longitude;
+        var minLat = that.startPoint.latitude < auxPoint.latitude ? that.startPoint.latitude : auxPoint.latitude;
+        var maxLon = that.startPoint.longitude < auxPoint.longitude ? auxPoint.longitude : that.startPoint.longitude;
+        var maxLat = that.startPoint.latitude < auxPoint.latitude ? auxPoint.latitude : that.startPoint.latitude;
+        var position = {
+          minLongitude: minLon,
+          minLatitude: minLat,
+          maxLongitude: maxLon,
+          maxLatitude: maxLat,
+          altitude: -3000
+        };
+
+        if (!that.tempRectangle) {
+          if (Object.keys(that.style).length < 1) {
+            that.style = {
+              fillColor: '#ff0000'
+            };
+          }
+
+          that.tempRectangle = new MagoRectangleGround(position, that.style);
+          manager.modeler.magoRectangle = that.tempRectangle;
+        } else {
+          that.tempRectangle.init(manager);
+          that.tempRectangle.setPosition(position);
+        }
+      }
+    });
+    manager.on(MagoManager.EVENT_TYPE.LEFTUP, function (e) {
+      if (!that.getActive()) {
+        return;
+      }
+
+      if (that.dragging) {
+        that.endPoint = e.point;
+        that.end();
+      }
+    });
+  }
+};
+/**
+ * @private
+ */
+
+
+RectangleDrawer.prototype.end = function () {
+  this.manager.magoWorld.cameraMovable = true;
+  this.result.push(this.tempRectangle);
+  this.manager.modeler.addObject(this.tempRectangle, 1);
+  this.emit(RectangleDrawer.EVENT_TYPE.DRAWEND, this.tempRectangle);
+  this.init();
+};
+/**
+ * remove last drawed rectangle
+ */
+
+
+RectangleDrawer.prototype.cancle = function () {
+  var idx = this.result.length - 1;
+  var removalRectangle = this.result[idx];
+  this.manager.modeler.removeObject(removalRectangle);
+  this.result = this.result.slice(0, idx);
+};
+'use strict';
+/**
+ * This is the interaction for draw geometry.
+ * @constructor
+ * @class RotateInteraction
+ * 
+ * 
+ * @param {object} option layer object.
+ */
+
+var RotateInteraction = function RotateInteraction(option) {
+  if (!(this instanceof RotateInteraction)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  option = option ? option : {};
+  AbsPointerInteraction.call(this, option);
+  this.targetType = defaultValue(option.targetType, DataType.F4D);
+  this.filter = defaultValue(option.filter, 'selected');
+  this.filter_;
+  this.target = undefined;
+  this.parentNode = undefined;
+  this.centerScreenCoord = undefined;
+  this.clickDeg = undefined;
+};
+
+RotateInteraction.prototype = Object.create(AbsPointerInteraction.prototype);
+RotateInteraction.prototype.constructor = RotateInteraction;
+RotateInteraction.EVENT_TYPE = {
+  'ACTIVE': 'active',
+  'DEACTIVE': 'deactive'
+};
+/**
+ * interaction init
+ * @override
+ */
+
+RotateInteraction.prototype.init = function () {
+  this.dragging = false;
+  this.mouseBtn = undefined;
+  this.startPoint = undefined;
+  this.endPoint = undefined;
+  this.target = undefined;
+  this.parentNode = undefined;
+  this.centerScreenCoord = undefined;
+  this.clickDeg = undefined;
+};
+/**
+ * set TargetType
+ * @param {boolean} type 
+ */
+
+
+RotateInteraction.prototype.setTargetType = function (type) {
+  this.targetType = type;
+};
+/**
+ * get TargetType
+ * @return {boolean}
+ */
+
+
+RotateInteraction.prototype.getTargetType = function () {
+  return this.targetType;
+};
+/**
+ * set TargetType
+ * @param {string} filter 
+ */
+
+
+RotateInteraction.prototype.setFilter = function (filter) {
+  var oldFilter = this.filter;
+  this.filter = filter;
+
+  if (oldFilter !== filter) {
+    this.setFilterFunction();
+  }
+};
+/**
+ * get TargetType
+ * @return {boolean}
+ */
+
+
+RotateInteraction.prototype.getFilter = function () {
+  return this.filter;
+};
+
+RotateInteraction.prototype.handleDownEvent = function (browserEvent) {
+  var manager = this.manager;
+
+  if (browserEvent.type !== "leftdown") {
+    return;
+  }
+
+  var selectManager = manager.selectionManager;
+
+  if (manager.selectionFbo === undefined) {
+    manager.selectionFbo = new FBO(gl, manager.sceneState.drawingBufferWidth[0], manager.sceneState.drawingBufferHeight[0], {
+      matchCanvasSize: true
+    });
+  }
+
+  var gl = manager.getGl();
+  var clickScreenCoord = browserEvent.point.screenCoordinate;
+  selectManager.selectProvisionalObjectByPixel(gl, clickScreenCoord.x, clickScreenCoord.y);
+
+  if (!this.filter_) {
+    this.setFilterFunction();
+  }
+
+  var filterProvisional = selectManager.filterProvisional(this.targetType, this.filter_);
+
+  if (!isEmpty(filterProvisional)) {
+    this.target = filterProvisional[this.targetType][0];
+
+    if (this.targetType === DataType.OBJECT) {
+      this.parentNode = filterProvisional[DataType.F4D][0];
+    }
+
+    var currentGeoLocData = this.target.getCurrentGeoLocationData();
+    var currentGeoCoord = currentGeoLocData.geographicCoord;
+    var wc = ManagerUtils.geographicCoordToWorldPoint(currentGeoCoord.longitude, currentGeoCoord.latitude, currentGeoCoord.altitude);
+    this.centerScreenCoord = ManagerUtils.calculateWorldPositionToScreenCoord(undefined, wc.x, wc.y, wc.z, this.centerScreenCoord, manager);
+    var rad = Math.atan2(clickScreenCoord.x - this.centerScreenCoord.x, clickScreenCoord.y - this.centerScreenCoord.y);
+    this.clickDeg = Math.round(rad * (180 / Math.PI) * -1 + 100);
+    this.manager.setCameraMotion(false);
+  } else {
+    this.init();
+  }
+};
+
+RotateInteraction.prototype.handleDragEvent = function (browserEvent) {
+  if (this.target && this.dragging) {
+    var screenCoordinate = browserEvent.endEvent.screenCoordinate;
+    var rad = Math.atan2(screenCoordinate.x - this.centerScreenCoord.x, screenCoordinate.y - this.centerScreenCoord.y);
+    var deg = Math.round(rad * (180 / Math.PI) * -1 + 100);
+    var rdeg = deg - this.clickDeg;
+    var currentGeoLocData = this.target.getCurrentGeoLocationData();
+    var currentGeoCoord = currentGeoLocData.geographicCoord;
+    var currentLon = currentGeoCoord.longtitude;
+    var currentLat = currentGeoCoord.longtitude;
+    var currentAlt = currentGeoCoord.altitude;
+    var currentRoll = currentGeoLocData.roll;
+    var currentPitch = currentGeoLocData.pitch;
+    this.target.changeLocationAndRotation(currentLon, currentLat, currentAlt, -rdeg, currentRoll, currentPitch);
+  }
+};
+
+RotateInteraction.prototype.handleUpEvent = function () {
+  this.init();
+  this.manager.setCameraMotion(true);
+  this.manager.isCameraMoved = true;
+  return;
+};
+
+RotateInteraction.prototype.handleMoveEvent = function () {
+  return;
+};
+
+RotateInteraction.prototype.setFilterFunction = function () {
+  var manager = this.manager;
+
+  if (this.filter === 'selected') {
+    this.filter_ = function (prov) {
+      return prov === manager.defaultSelectInteraction.getSelected();
+    };
+  } else {
+    this.filter_ = function () {
+      return true;
+    };
+  }
+};
+'use strict';
+/**
+ * This is the interaction for draw geometry.
+ * @constructor
+ * @class TranslateInteraction
+ * 
+ * 
+ * @param {object} option layer object.
+ */
+
+var TranslateInteraction = function TranslateInteraction(option) {
+  if (!(this instanceof TranslateInteraction)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  option = option ? option : {};
+  AbsPointerInteraction.call(this, option);
+  this.targetType = defaultValue(option.targetType, DataType.F4D);
+  this.filter = defaultValue(option.filter, 'selected');
+  this.filter_;
+  this.target = undefined;
+  this.parentNode = undefined;
+  this.selObjMovePlaneCC = undefined;
+  this.selObjMovePlane = undefined;
+  this.lineCC = new Line();
+  this.lineSC = new Line();
+  this.startGeoCoordDif = undefined;
+  this.startMovPoint = undefined;
+};
+
+TranslateInteraction.prototype = Object.create(AbsPointerInteraction.prototype);
+TranslateInteraction.prototype.constructor = TranslateInteraction;
+TranslateInteraction.EVENT_TYPE = {
+  'ACTIVE': 'active',
+  'DEACTIVE': 'deactive'
+};
+/**
+ * interaction init
+ * @override
+ */
+
+TranslateInteraction.prototype.init = function () {
+  this.begin = false;
+  this.dragging = false;
+  this.mouseBtn = undefined;
+  this.startPoint = undefined;
+  this.endPoint = undefined;
+  this.selObjMovePlaneCC = undefined;
+  this.selObjMovePlane = undefined;
+  this.startGeoCoordDif = undefined;
+  this.startMovPoint = undefined;
+  this.target = undefined;
+  this.parentNode = undefined;
+};
+/**
+ * set TargetType
+ * @param {boolean} type 
+ */
+
+
+TranslateInteraction.prototype.setTargetType = function (type) {
+  this.targetType = type;
+};
+/**
+ * get TargetType
+ * @return {boolean}
+ */
+
+
+TranslateInteraction.prototype.getTargetType = function () {
+  return this.targetType;
+};
+/**
+ * set TargetType
+ * @param {string} filter 
+ */
+
+
+TranslateInteraction.prototype.setFilter = function (filter) {
+  var oldFilter = this.filter;
+  this.filter = filter;
+
+  if (oldFilter !== filter) {
+    this.setFilterFunction();
+  }
+};
+/**
+ * get TargetType
+ * @return {boolean}
+ */
+
+
+TranslateInteraction.prototype.getFilter = function () {
+  return this.filter;
+};
+
+TranslateInteraction.prototype.handleDownEvent = function (browserEvent) {
+  var manager = this.manager;
+
+  if (browserEvent.type !== "leftdown") {
+    return;
+  }
+
+  var selectManager = manager.selectionManager;
+
+  if (manager.selectionFbo === undefined) {
+    manager.selectionFbo = new FBO(gl, manager.sceneState.drawingBufferWidth[0], manager.sceneState.drawingBufferHeight[0], {
+      matchCanvasSize: true
+    });
+  }
+
+  var gl = manager.getGl();
+  selectManager.selectProvisionalObjectByPixel(gl, browserEvent.point.screenCoordinate.x, browserEvent.point.screenCoordinate.y);
+
+  if (!this.filter_) {
+    this.setFilterFunction();
+  }
+
+  var filterProvisional = selectManager.filterProvisional(this.targetType, this.filter_);
+
+  if (!isEmpty(filterProvisional)) {
+    this.target = filterProvisional[this.targetType][0];
+
+    if (this.targetType === DataType.OBJECT) {
+      this.parentNode = filterProvisional[DataType.F4D][0];
+    }
+  } else {
+    this.init();
+  }
+};
+
+TranslateInteraction.prototype.handleDragEvent = function (browserEvent) {
+  if (this.target && this.dragging) {
+    this.manager.setCameraMotion(false);
+
+    switch (this.targetType) {
+      case DataType.F4D:
+        {
+          this.handleF4dDrag(browserEvent);
+          break;
+        }
+
+      case DataType.OBJECT:
+        {
+          this.handleObjectDrag(browserEvent);
+          break;
+        }
+
+      case DataType.NATIVE:
+        {
+          this.handleNativeDrag(browserEvent);
+          break;
+        }
+    }
+  }
+};
+
+TranslateInteraction.prototype.handleF4dDrag = function (browserEvent) {
+  var manager = this.manager;
+  var geoLocDataManager = this.target.getNodeGeoLocDataManager();
+  var geoLocationData = geoLocDataManager.getCurrentGeoLocationData();
+  var attributes = this.target.data.attributes;
+
+  if (!this.selObjMovePlaneCC) {
+    this.selObjMovePlaneCC = new Plane();
+    var geoLocMatrix = geoLocationData.geoLocMatrix;
+    var mvMat = manager.sceneState.modelViewMatrix;
+    var mvMatRelToEye = manager.sceneState.modelViewRelToEyeMatrix;
+    var sc = this.startPoint.screenCoordinate;
+    var magoWC = ManagerUtils.calculatePixelPositionWorldCoord(manager.getGl(), sc.x, sc.y, magoWC, undefined, undefined, undefined, manager);
+    var pixelPosCC = mvMat.transformPoint3D(this.startPoint.worldCoordinate, pixelPosCC);
+
+    if (attributes.movementInAxisZ) {
+      // movement in plane XZ.
+      var globeYaxisWC = new Point3D(geoLocMatrix._floatArrays[4], geoLocMatrix._floatArrays[5], geoLocMatrix._floatArrays[6]);
+      var globeYaxisCC = mvMatRelToEye.transformPoint3D(globeYaxisWC, undefined);
+      this.selObjMovePlaneCC.setPointAndNormal(pixelPosCC.x, pixelPosCC.y, pixelPosCC.z, globeYaxisCC.x, globeYaxisCC.y, globeYaxisCC.z);
+    } else {
+      // movement in plane XY.
+      var globeZaxisWC = new Point3D(geoLocMatrix._floatArrays[8], geoLocMatrix._floatArrays[9], geoLocMatrix._floatArrays[10]);
+      var globeZaxisCC = mvMatRelToEye.transformPoint3D(globeZaxisWC, undefined);
+      this.selObjMovePlaneCC.setPointAndNormal(pixelPosCC.x, pixelPosCC.y, pixelPosCC.z, globeZaxisCC.x, globeZaxisCC.y, globeZaxisCC.z);
+    }
+  }
+
+  var screenCoordinate = browserEvent.endEvent.screenCoordinate;
+  var camRay = ManagerUtils.getRayCamSpace(screenCoordinate.x, screenCoordinate.y, camRay, manager);
+  this.lineCC.setPointAndDir(0, 0, 0, camRay[0], camRay[1], camRay[2]);
+  var intersectionPointCC = new Point3D();
+  intersectionPointCC = this.selObjMovePlaneCC.intersectionLine(this.lineCC, intersectionPointCC);
+  var mvMat = manager.sceneState.getModelViewMatrixInv();
+  var intersectionPointWC = mvMat.transformPoint3D(intersectionPointCC, intersectionPointWC);
+  var cartographic = ManagerUtils.pointToGeographicCoord(intersectionPointWC, cartographic, this);
+
+  if (!this.startGeoCoordDif) {
+    var buildingGeoCoord = geoLocationData.geographicCoord;
+    this.startGeoCoordDif = new GeographicCoord(cartographic.longitude - buildingGeoCoord.longitude, cartographic.latitude - buildingGeoCoord.latitude, cartographic.altitude - buildingGeoCoord.altitude);
+  }
+
+  var difX = cartographic.longitude - this.startGeoCoordDif.longitude;
+  var difY = cartographic.latitude - this.startGeoCoordDif.latitude;
+  var difZ = cartographic.altitude - this.startGeoCoordDif.altitude;
+
+  if (attributes.movementInAxisZ) {
+    //geoLocationData = ManagerUtils.calculateGeoLocationData(undefined, undefined, newAltitude, undefined, undefined, undefined, geoLocationData, this);
+    manager.changeLocationAndRotationNode(this.target, undefined, undefined, difZ, undefined, undefined, undefined);
+  } else {
+    //geoLocationData = ManagerUtils.calculateGeoLocationData(newLongitude, newlatitude, undefined, undefined, undefined, undefined, geoLocationData, this);
+    manager.changeLocationAndRotationNode(this.target, difY, difX, undefined, undefined, undefined, undefined);
+  }
+};
+
+TranslateInteraction.prototype.handleObjectDrag = function (browserEvent) {
+  var selectedObjtect = this.target;
+  var geoLocDataManager = this.parentNode.getNodeGeoLocDataManager();
+  var buildingGeoLocation = geoLocDataManager.getCurrentGeoLocationData();
+  var tMatrixInv = buildingGeoLocation.getTMatrixInv();
+  var gl = this.manager.getGl();
+
+  if (this.selObjMovePlane === undefined) {
+    this.selObjMovePlane = new Plane();
+    var sc = this.startPoint.screenCoordinate;
+    var magoWC = ManagerUtils.calculatePixelPositionWorldCoord(gl, sc.x, sc.y, magoWC, undefined, undefined, undefined, this.manager); //var lc = tMatrixInv.transformPoint3D(magoWC, lc);
+
+    var lc = tMatrixInv.transformPoint3D(this.startPoint.worldCoordinate, lc); // the plane is in local coord.***
+
+    this.selObjMovePlane.setPointAndNormal(lc.x, lc.y, lc.z, 0.0, 0.0, 1.0);
+  }
+
+  var screenCoordinate = browserEvent.endEvent.screenCoordinate;
+  this.lineSC = ManagerUtils.getRayWorldSpace(gl, screenCoordinate.x, screenCoordinate.y, this.lineSC, this.manager); // rayWorldSpace.***
+
+  var camPosBuilding = new Point3D();
+  var camDirBuilding = new Point3D();
+  camPosBuilding = tMatrixInv.transformPoint3D(this.lineSC.point, camPosBuilding);
+  camDirBuilding = tMatrixInv.rotatePoint3D(this.lineSC.direction, camDirBuilding); // now, intersect building_ray with the selObjMovePlane.***
+
+  var line = new Line();
+  line.setPointAndDir(camPosBuilding.x, camPosBuilding.y, camPosBuilding.z, camDirBuilding.x, camDirBuilding.y, camDirBuilding.z); // original.***
+
+  var intersectionPoint = new Point3D();
+  intersectionPoint = this.selObjMovePlane.intersectionLine(line, intersectionPoint); //the movement of an object must multiply by buildingRotMatrix.***
+
+  if (selectedObjtect.moveVectorRelToBuilding === undefined) {
+    selectedObjtect.moveVectorRelToBuilding = new Point3D();
+  }
+
+  if (!this.startMovPoint) {
+    this.startMovPoint = intersectionPoint;
+    this.startMovPoint.add(-selectedObjtect.moveVectorRelToBuilding.x, -selectedObjtect.moveVectorRelToBuilding.y, -selectedObjtect.moveVectorRelToBuilding.z);
+  }
+
+  var difX = intersectionPoint.x - this.startMovPoint.x;
+  var difY = intersectionPoint.y - this.startMovPoint.y;
+  var difZ = intersectionPoint.z - this.startMovPoint.z;
+  selectedObjtect.moveVectorRelToBuilding.set(difX, difY, difZ);
+  selectedObjtect.moveVector = buildingGeoLocation.tMatrix.rotatePoint3D(selectedObjtect.moveVectorRelToBuilding, selectedObjtect.moveVector);
+  var projectId = this.parentNode.data.projectId;
+  var data_key = this.parentNode.data.nodeId;
+  var objectIndexOrder = selectedObjtect._id;
+  this.manager.config.deleteMovingHistoryObject(projectId, data_key, objectIndexOrder);
+  this.manager.objectMoved = true; // this provoques that on leftMouseUp -> saveHistoryObjectMovement
+};
+
+TranslateInteraction.prototype.handleNativeDrag = function (browserEvent) {
+  var object = this.target;
+
+  if (object instanceof ObjectMarker) {
+    return;
+  }
+
+  object = object.getRootOwner();
+  var attributes = object.attributes;
+
+  if (attributes === undefined) {
+    return;
+  }
+
+  var isMovable = attributes.isMovable;
+
+  if (isMovable === undefined || isMovable === false) {
+    return;
+  }
+
+  var geoLocDataManager = object.getGeoLocDataManager();
+
+  if (geoLocDataManager === undefined) {
+    return;
+  }
+
+  var geoLocationData = geoLocDataManager.getCurrentGeoLocationData();
+  var manager = this.manager;
+  var gl = manager.getGl();
+  var sceneState = manager.sceneState;
+
+  if (this.selObjMovePlaneCC === undefined) {
+    this.selObjMovePlaneCC = new Plane(); // calculate the pixelPos in camCoord.
+
+    var geoLocMatrix = geoLocationData.geoLocMatrix;
+    var mvMat = sceneState.modelViewMatrix;
+    var mvMatRelToEye = sceneState.modelViewRelToEyeMatrix;
+    var sc = this.startPoint.screenCoordinate;
+    var magoWC = ManagerUtils.calculatePixelPositionWorldCoord(gl, sc.x, sc.y, magoWC, undefined, undefined, undefined, manager); //var pixelPosCC = mvMat.transformPoint3D(magoWC, undefined);
+
+    var pixelPosCC = mvMat.transformPoint3D(this.startPoint.worldCoordinate, undefined);
+
+    if (attributes.movementInAxisZ) {
+      // movement in plane XZ.
+      var globeYaxisWC = new Point3D(geoLocMatrix._floatArrays[4], geoLocMatrix._floatArrays[5], geoLocMatrix._floatArrays[6]);
+      var globeYaxisCC = mvMatRelToEye.transformPoint3D(globeYaxisWC, undefined);
+      this.selObjMovePlaneCC.setPointAndNormal(pixelPosCC.x, pixelPosCC.y, pixelPosCC.z, globeYaxisCC.x, globeYaxisCC.y, globeYaxisCC.z);
+    } else {
+      // movement in plane XY.
+      var globeZaxisWC = new Point3D(geoLocMatrix._floatArrays[8], geoLocMatrix._floatArrays[9], geoLocMatrix._floatArrays[10]);
+      var globeZaxisCC = mvMatRelToEye.transformPoint3D(globeZaxisWC, undefined);
+      this.selObjMovePlaneCC.setPointAndNormal(pixelPosCC.x, pixelPosCC.y, pixelPosCC.z, globeZaxisCC.x, globeZaxisCC.y, globeZaxisCC.z);
+    }
+  }
+
+  var screenCoordinate = browserEvent.endEvent.screenCoordinate;
+  var camRay = ManagerUtils.getRayCamSpace(screenCoordinate.x, screenCoordinate.y, camRay, manager);
+  this.lineCC.setPointAndDir(0, 0, 0, camRay[0], camRay[1], camRay[2]); // Calculate intersection cameraRay with planeCC.
+
+  var intersectionPointCC = new Point3D();
+  intersectionPointCC = this.selObjMovePlaneCC.intersectionLine(this.lineCC, intersectionPointCC);
+  var mvMat = sceneState.getModelViewMatrixInv();
+  var intersectionPointWC = mvMat.transformPoint3D(intersectionPointCC, intersectionPointWC);
+  var cartographic = ManagerUtils.pointToGeographicCoord(intersectionPointWC, cartographic, manager);
+
+  if (!this.startGeoCoordDif) {
+    var buildingGeoCoord = geoLocationData.geographicCoord;
+    this.startGeoCoordDif = new GeographicCoord(cartographic.longitude - buildingGeoCoord.longitude, cartographic.latitude - buildingGeoCoord.latitude, cartographic.altitude - buildingGeoCoord.altitude);
+  }
+
+  var difX = cartographic.longitude - this.startGeoCoordDif.longitude;
+  var difY = cartographic.latitude - this.startGeoCoordDif.latitude;
+  var difZ = cartographic.altitude - this.startGeoCoordDif.altitude;
+  var attributes = object.attributes;
+
+  if (attributes.minAltitude !== undefined) {
+    if (difZ < attributes.minAltitude) {
+      difZ = attributes.minAltitude;
+    }
+  }
+
+  if (attributes.maxAltitude !== undefined) {
+    if (difZ > attributes.maxAltitude) {
+      difZ = attributes.maxAltitude;
+    }
+  }
+
+  if (attributes && attributes.movementRestriction) {
+    var movementRestriction = attributes.movementRestriction;
+
+    if (movementRestriction) {
+      var movementRestrictionType = movementRestriction.restrictionType;
+      var movRestrictionElem = movementRestriction.element;
+
+      if (movRestrictionElem && movRestrictionElem.constructor.name === "GeographicCoordSegment") {
+        // restriction.***
+        var geoCoordSegment = movRestrictionElem;
+        var newGeoCoord = new GeographicCoord(difX, difY, 0.0);
+        var projectedCoord = GeographicCoordSegment.getProjectedCoordToLine(geoCoordSegment, newGeoCoord, undefined); // check if is inside.***
+
+        if (!GeographicCoordSegment.intersectionWithGeoCoord(geoCoordSegment, projectedCoord)) {
+          var nearestGeoCoord = GeographicCoordSegment.getNearestGeoCoord(geoCoordSegment, projectedCoord);
+          difX = nearestGeoCoord.longitude;
+          difY = nearestGeoCoord.latitude;
+        } else {
+          difX = projectedCoord.longitude;
+          difY = projectedCoord.latitude;
+        }
+      }
+    }
+  }
+
+  if (attributes && attributes.hasStaticModel) {
+    var projectId = attributes.projectId;
+    var dataKey = attributes.instanceId;
+
+    if (!defined(projectId)) {
+      return false;
+    }
+
+    if (!defined(dataKey)) {
+      return false;
+    }
+
+    var node = manager.hierarchyManager.getNodeByDataKey(projectId, dataKey);
+
+    if (node !== undefined) {
+      node.changeLocationAndRotation(difY, difX, 0, attributes.f4dHeading, 0, 0, this);
+    }
+  }
+
+  if (attributes.movementInAxisZ) {
+    geoLocationData = ManagerUtils.calculateGeoLocationData(undefined, undefined, difZ, undefined, undefined, undefined, geoLocationData, this);
+  } else {
+    geoLocationData = ManagerUtils.calculateGeoLocationData(difX, difY, undefined, undefined, undefined, undefined, geoLocationData, this);
+
+    if (object.localCoordListArray && object.geographicCoordListsArray) {
+      var geographicCoordListsArray = [];
+      var tmat = geoLocationData.tMatrix;
+
+      for (var i = 0, len = object.localCoordListArray.length; i < len; i++) {
+        var localCoordList = object.localCoordListArray[i];
+        var geographicCoordArray = [];
+
+        for (var j = 0, localCoordListLen = localCoordList.length; j < localCoordListLen; j++) {
+          var lc = localCoordList[j];
+          var wc = tmat.transformPoint3D(lc);
+          var gc = ManagerUtils.pointToGeographicCoord(wc);
+          geographicCoordArray.push(gc);
+        }
+
+        geographicCoordListsArray.push(new GeographicCoordsList(geographicCoordArray));
+      }
+
+      object.geographicCoordListsArray = geographicCoordListsArray;
+    }
+
+    if (object.options.limitationGeographicCoords) {
+      object.makeUniformPoints2dArray();
+    }
+  }
+
+  object.moved();
+};
+
+TranslateInteraction.prototype.handleMoveEvent = function () {
+  return;
+};
+
+TranslateInteraction.prototype.handleUpEvent = function () {
+  this.init();
+  this.manager.setCameraMotion(true);
+  this.manager.isCameraMoved = true;
+  return;
+};
+
+TranslateInteraction.prototype.setFilterFunction = function () {
+  var manager = this.manager;
+
+  if (this.filter === 'selected') {
+    this.filter_ = function (prov) {
+      return prov === manager.defaultSelectInteraction.getSelected();
+    };
+  } else {
+    this.filter_ = function () {
+      return true;
+    };
+  }
+};
+'use strict';
+/**
+ * Geoserver for mago3Djs object.
+ * @class Geoserver
+ */
+
+var GeoServer = function GeoServer() {
+  this.serverInfo = {};
+};
+
+GeoServer.prototype.setServerInfo = function (info) {
+  this.serverInfo = info;
+};
+
+GeoServer.prototype.getDataUrl = function () {
+  return this.serverInfo.dataUrl;
+};
+
+GeoServer.prototype.getDataWorkspace = function () {
+  return this.serverInfo.dataWorkspace;
+};
+
+GeoServer.prototype.getDataRequestUrl = function () {
+  return this.getDataUrl() + '/' + this.getDataWorkspace();
+};
+
+GeoServer.prototype.getWmsVersion = function () {
+  return this.serverInfo.wmsVersion;
 };
 'use strict';
 /**
@@ -71255,6 +73870,17 @@ Mesh.prototype.render = function (magoManager, shader, renderType, glPrimitive, 
 
     if (!vboKey.bindDataPosition(shader, vboMemManager)) {
       return false;
+    }
+
+    if (renderType === 0) {
+      // Normals.
+      if (vboKey.vboBufferNor && shader.normal3_loc >= 0) {
+        if (!vboKey.bindDataNormal(shader, vboMemManager)) {
+          return false;
+        }
+      } else {
+        shader.disableVertexAttribArray(shader.normal3_loc);
+      }
     }
 
     if (renderType === 1) {
@@ -84468,2245 +87094,6 @@ VtxSegment.prototype.intersectionWithPoint = function (point, error) {
 };
 'use strict';
 /**
- * This is the interaction for draw geometry.
- * @constructor
- * @class AbsClickInteraction
- * 
- * @abstract
- * @param {object} option layer object.
- */
-
-var AbsClickInteraction = function AbsClickInteraction(option) {
-  if (!(this instanceof AbsClickInteraction)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  option = option ? option : {};
-  Interaction.call(this);
-
-  if (option.handleDownEvent) {
-    this.handleDownEvent = option.handleDownEvent;
-  }
-
-  if (option.handleUpEvent) {
-    this.handleUpEvent = option.handleUpEvent;
-  }
-
-  if (option.handleMoveEvent) {
-    this.handleMoveEvent = option.handleMoveEvent;
-  }
-
-  this.begin = false;
-  this.startPoint = undefined;
-  this.startTime;
-  this.endPoint = undefined;
-  this.tolerance = 0;
-};
-
-AbsClickInteraction.prototype = Object.create(Interaction.prototype);
-AbsClickInteraction.prototype.constructor = AbsClickInteraction;
-/**
- * interaction init
- */
-
-AbsClickInteraction.prototype.init = function () {
-  this.begin = false;
-  this.startPoint = undefined;
-  this.endPoint = undefined;
-};
-/**
- * set active. set true, this interaction active, another interaction deactive.
- * @param {boolean} active
- * @fires AbsClickInteraction#ACTIVE
- * @fires AbsClickInteraction#DEACTIVE
- */
-
-
-AbsClickInteraction.prototype.setActive = function (active) {
-  if (!this.manager || !(this.manager instanceof MagoManager)) {
-    throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
-  }
-
-  if (this.active === active) {
-    return;
-  }
-
-  this.active = active;
-
-  if (active) {
-    //this.manager.interactionCollection.emit(InteractionCollection.EVENT_TYPE.ACTIVE, that);
-    this.emit(InteractionActiveType.ACTIVE, this);
-  } else {
-    //this.manager.interactionCollection.emit(InteractionCollection.EVENT_TYPE.DEACTIVE);
-    this.emit(InteractionActiveType.DEACTIVE);
-  }
-};
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-
-
-AbsClickInteraction.prototype.handle = function (browserEvent) {
-  var type = browserEvent.type;
-
-  if (!(type === MagoManager.EVENT_TYPE.MOUSEMOVE || type === MagoManager.EVENT_TYPE.LEFTDOWN || type === MagoManager.EVENT_TYPE.RIGHTDOWN || type === MagoManager.EVENT_TYPE.MIDDLEDOWN || type === MagoManager.EVENT_TYPE.LEFTUP || type === MagoManager.EVENT_TYPE.RIGHTUP || type === MagoManager.EVENT_TYPE.MIDDLEUP)) {
-    return false;
-  }
-
-  if (this.begin && type !== MagoManager.EVENT_TYPE.MOUSEMOVE) {
-    this.begin = false;
-    this.dragtype = undefined;
-    this.endPoint = browserEvent.point;
-
-    if (browserEvent.timestamp - this.startTime < 1500) {
-      var startScreenCoordinate = this.startPoint.screenCoordinate;
-      var endScreenCoordinate = this.endPoint.screenCoordinate;
-      var diffX = Math.abs(startScreenCoordinate.x - endScreenCoordinate.x);
-      var diffY = Math.abs(startScreenCoordinate.y - endScreenCoordinate.y);
-
-      if (diffX <= this.tolerance && diffY <= this.tolerance) {
-        var that = this;
-        this.manager.once('lastFrustum', function () {
-          that.handleUpEvent.call(that, browserEvent);
-        });
-      }
-    }
-  } else {
-    if (type === MagoManager.EVENT_TYPE.MOUSEMOVE) {
-      this.handleMoveEvent.call(this, browserEvent);
-    } else {
-      this.begin = true;
-      this.startPoint = browserEvent.point;
-      this.startTime = browserEvent.timestamp;
-      this.handleDownEvent.call(this, browserEvent);
-    }
-  }
-};
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-
-
-AbsClickInteraction.prototype.handleDownEvent = function (browserEvent) {
-  return throwAbstractError();
-};
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-
-
-AbsClickInteraction.prototype.handleUpEvent = function (browserEvent) {
-  return throwAbstractError();
-};
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-
-
-AbsClickInteraction.prototype.handleMoveEvent = function (browserEvent) {
-  return throwAbstractError();
-};
-'use strict';
-/**
- * This is the interaction for draw geometry.
- * @constructor
- * @class AbsPointerInteraction
- * 
- * @abstract
- * @param {object} option layer object.
- */
-
-var AbsPointerInteraction = function AbsPointerInteraction(option) {
-  if (!(this instanceof AbsPointerInteraction)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  option = option ? option : {};
-  Interaction.call(this);
-
-  if (option.handleDownEvent) {
-    this.handleDownEvent = option.handleDownEvent;
-  }
-
-  if (option.handleDragEvent) {
-    this.handleDragEvent = option.handleDragEvent;
-  }
-
-  if (option.handleMoveEvent) {
-    this.handleMoveEvent = option.handleMoveEvent;
-  }
-
-  if (option.handleUpEvent) {
-    this.handleUpEvent = option.handleUpEvent;
-  }
-
-  this.begin = false;
-  this.dragging = false;
-  this.mouseBtn = undefined;
-  this.startPoint = undefined;
-  this.endPoint = undefined;
-};
-
-AbsPointerInteraction.prototype = Object.create(Interaction.prototype);
-AbsPointerInteraction.prototype.constructor = AbsPointerInteraction;
-/**
- * interaction init
- */
-
-AbsPointerInteraction.prototype.init = function () {
-  this.begin = false;
-  this.dragging = false;
-  this.mouseBtn = undefined;
-  this.startPoint = undefined;
-  this.endPoint = undefined;
-};
-/**
- * set active. set true, this interaction active, another interaction deactive.
- * @param {boolean} active
- * @fires AbsPointInteraction#ACTIVE
- * @fires AbsPointInteraction#DEACTIVE
- */
-
-
-AbsPointerInteraction.prototype.setActive = function (active) {
-  if (!this.manager || !(this.manager instanceof MagoManager)) {
-    throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
-  }
-
-  if (this.active === active) {
-    return;
-  }
-
-  var that = this;
-  this.active = active;
-
-  if (active) {
-    //this.manager.interactionCollection.emit(InteractionCollection.EVENT_TYPE.ACTIVE, that);
-    this.emit(InteractionActiveType.ACTIVE, this);
-  } else {
-    //this.manager.interactionCollection.emit(InteractionCollection.EVENT_TYPE.DEACTIVE);
-    this.emit(InteractionActiveType.DEACTIVE);
-  }
-};
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-
-
-AbsPointerInteraction.prototype.handle = function (browserEvent) {
-  var type = browserEvent.type;
-
-  if (this.dragging) {
-    if (type === MagoManager.EVENT_TYPE.LEFTUP || type === MagoManager.EVENT_TYPE.RIGHTUP || type === MagoManager.EVENT_TYPE.MIDDLEUP) {
-      this.dragging = false;
-      this.mouseBtn = undefined;
-      this.endPoint = browserEvent.point;
-      this.handleUpEvent.call(this, browserEvent);
-    } else if (type === MagoManager.EVENT_TYPE.MOUSEMOVE) {
-      this.handleDragEvent.call(this, browserEvent);
-    }
-  } else {
-    if (type === MagoManager.EVENT_TYPE.LEFTDOWN || type === MagoManager.EVENT_TYPE.RIGHTDOWN || type === MagoManager.EVENT_TYPE.MIDDLEDOWN) {
-      this.dragging = true;
-      this.mouseBtn = type;
-      this.endPoint = undefined;
-      this.startPoint = browserEvent.point;
-      this.handleDownEvent.call(this, browserEvent);
-    } else if (type === MagoManager.EVENT_TYPE.MOUSEMOVE) {
-      this.handleMoveEvent.call(this, browserEvent);
-    }
-  }
-};
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-
-
-AbsPointerInteraction.prototype.handleDownEvent = function (browserEvent) {
-  return abstract();
-};
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-
-
-AbsPointerInteraction.prototype.handleDragEvent = function (browserEvent) {
-  return abstract();
-};
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-
-
-AbsPointerInteraction.prototype.handleMoveEvent = function (browserEvent) {
-  return abstract();
-};
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-
-
-AbsPointerInteraction.prototype.handleUpEvent = function (browserEvent) {
-  return abstract();
-};
-'use strict';
-/**
- * This is the interaction for draw geometry.
- * @constructor
- * @class ClickInteraction
- * 
- * @abstract
- * @param {object} option layer object.
- */
-
-var ClickInteraction = function ClickInteraction(option) {
-  if (!(this instanceof ClickInteraction)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  option = option ? option : {};
-  AbsClickInteraction.call(this, option);
-};
-
-ClickInteraction.prototype = Object.create(AbsClickInteraction.prototype);
-ClickInteraction.prototype.constructor = ClickInteraction;
-/**
- * interaction init
- */
-
-ClickInteraction.prototype.init = function () {
-  this.begin = false;
-  this.startPoint = undefined;
-  this.endPoint = undefined;
-};
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-
-
-ClickInteraction.prototype.handleDownEvent = function (browserEvent) {
-  return;
-};
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-
-
-ClickInteraction.prototype.handleUpEvent = function (browserEvent) {
-  return;
-};
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-
-
-ClickInteraction.prototype.handleMoveEvent = function (browserEvent) {
-  return;
-};
-'use strict';
-/**
- * This is the interaction for draw geometry.
- * @constructor
- * @class DrawGeometryInteraction
- * 
- * @abstract
- * @param {object} layer layer object.
- */
-
-var DrawGeometryInteraction = function DrawGeometryInteraction(style) {
-  if (!(this instanceof DrawGeometryInteraction)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  Interaction.call(this);
-  /**
-   * geometry style
-   * @type {Object}
-   * @default {}
-   */
-
-  this.style;
-
-  if (style) {
-    this.setStyle(style);
-  } else {
-    this.style = {};
-  }
-
-  this.collection;
-  this.result = [];
-};
-
-DrawGeometryInteraction.prototype = Object.create(Interaction.prototype);
-DrawGeometryInteraction.prototype.constructor = DrawGeometryInteraction;
-/**
- * get style
- * @return {object}
- */
-
-DrawGeometryInteraction.prototype.getStyle = function () {
-  return this.style;
-};
-/**
- * set style
- * @param {object} style
- */
-
-
-DrawGeometryInteraction.prototype.setStyle = function (style) {
-  this.style = style;
-};
-/**
- * set active. set true, this interaction active, another interaction deactive.
- * @param {boolean} active
- * @fires DrawGeometryInteraction#ACTIVE
- * @fires DrawGeometryInteraction#DEACTIVE
- */
-
-
-DrawGeometryInteraction.prototype.setActive = function (active) {
-  if (!this.manager || !(this.manager instanceof MagoManager)) {
-    throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
-  }
-
-  if (this.active === active) {
-    return;
-  }
-
-  if (!this.collection) {
-    this.collection = this.manager.interactionCollection;
-  }
-
-  var that = this;
-
-  if (active) {
-    this.collection.emit(InteractionActiveType.ACTIVE, that);
-    this.emit(this.constructor.EVENT_TYPE.ACTIVE, this);
-  } else {
-    this.collection.emit(InteractionActiveType.DEACTIVE);
-    this.emit(this.constructor.EVENT_TYPE.DEACTIVE);
-  }
-};
-/**
- * make DrawGeometryInteraction. PointDrawer, LineDrawer, RectangleDrawer
- * @static
- * @param {string} type point, line, polygon, rectangle. polygon is not  ready.
- * @return {DrawGeometryInteraction}
- */
-
-
-DrawGeometryInteraction.createDrawGeometryInteraction = function (type) {
-  if (!type) {
-    throw new Error(Messages.REQUIRED_EMPTY_ERROR('geometry type'));
-  }
-
-  var interaction;
-
-  switch (type) {
-    case CODE.drawGeometryType.POINT:
-      {
-        interaction = new PointDrawer();
-        break;
-      }
-
-    case CODE.drawGeometryType.LINE:
-      {
-        interaction = new LineDrawer();
-        break;
-      }
-
-    case CODE.drawGeometryType.POLYGON:
-      {
-        interaction = new PolygonDrawer();
-        break;
-      }
-
-    case CODE.drawGeometryType.RECTANGLE:
-      {
-        interaction = new RectangleDrawer();
-        break;
-      }
-  }
-
-  return interaction;
-};
-'use strict';
-/**
- * @enum
- * Interaction target type enum
- */
-
-var InteractionActiveType = {
-  'ACTIVE': 'active',
-  'DEACTIVE': 'deactive'
-};
-'use strict';
-/**
- * @enum
- * Interaction event type enum
- */
-
-var InteractionEventType = {
-  'LEFTMOUSEUP': 'leftmouseup',
-  'LEFTMOUSEDOWN': 'leftmousedown',
-  'MOUSEMOVE': 'mousemove',
-  'DRAG': 'drag'
-};
-'use strict';
-/**
- * This is the interaction for draw polyline.
- * Last point use 'right click'
- * @class LineDrawer
- * 
- * @param {MagoPolyline~MagoPolylineStyle} style line style object.
- * 
- * @extends {DrawGeometryInteraction}
- */
-
-var LineDrawer = function LineDrawer(style) {
-  if (!(this instanceof LineDrawer)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  DrawGeometryInteraction.call(this, style);
-  this.points = [];
-  this.height = 200;
-  this.clickTime;
-  this.clickPoint;
-  this.tempLine; //OTL
-
-  this.added = false;
-  this.result = [];
-};
-
-LineDrawer.prototype = Object.create(DrawGeometryInteraction.prototype);
-LineDrawer.prototype.constructor = LineDrawer;
-LineDrawer.EVENT_TYPE = {
-  'DRAWEND': 'drawend'
-};
-/**
- * @private
- */
-
-LineDrawer.prototype.setHeight = function (height) {
-  this.height = height;
-};
-/**
- * @private
- */
-
-
-LineDrawer.prototype.getHeight = function () {
-  return this.height;
-};
-/**
- * @private
- */
-
-
-LineDrawer.prototype.init = function () {
-  this.points = [];
-  this.tempLine = undefined;
-  this.clickTime = undefined;
-  this.clickPoint = undefined;
-  clearTimeout(this.timeout);
-};
-/**
- * @private
- */
-
-
-LineDrawer.prototype.clear = function () {
-  this.init();
-  var modeler = this.manager.modeler;
-  var result = this.result;
-
-  for (var i = 0, len = result.length; i < len; i++) {
-    var rec = result[i];
-    modeler.removeObject(rec);
-  }
-
-  this.result.length = 0;
-};
-/**
- * @private
- */
-
-
-LineDrawer.prototype.start = function () {
-  if (!this.manager || !(this.manager instanceof MagoManager)) {
-    throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
-  }
-
-  var that = this;
-  var manager = that.manager;
-
-  if (!this.added) {
-    this.added = true;
-    manager.on(MagoManager.EVENT_TYPE.LEFTUP, function (e) {
-      if (!that.getActive()) {
-        return;
-      }
-
-      if (that.points.length === 0) {
-        that.points.push(e.point.geographicCoordinate);
-
-        if (!that.clickTime) {
-          that.clickTime = new Date().getTime();
-        }
-
-        if (!that.clickPoint) {
-          that.clickPoint = e.point.screenCoordinate;
-        }
-      } else {
-        var thisTime = new Date().getTime();
-        var thisPoint = e.point.screenCoordinate;
-        var dbclick = false;
-
-        if (thisTime - that.clickTime < 500 && Math.abs(thisPoint.x - that.clickPoint.x) < 2 && Math.abs(thisPoint.y - that.clickPoint.y) < 2) {
-          dbclick = true;
-        }
-
-        if (!dbclick) {
-          that.points.push(e.point.geographicCoordinate);
-          that.clickTime = new Date().getTime();
-          that.clickPoint = e.point.screenCoordinate;
-        } else {
-          if (that.tempLine) {
-            var position = {
-              coordinates: that.points
-            };
-            that.tempLine.init(manager);
-            that.tempLine.setPosition(position);
-            that.end();
-          }
-        }
-      }
-    });
-    manager.on(MagoManager.EVENT_TYPE.MOUSEMOVE, function (e) {
-      if (!that.getActive()) {
-        return;
-      }
-
-      if (that.points.length > 0) {
-        var clonePoints = that.points.slice();
-        var auxPoint = e.endEvent.geographicCoordinate;
-        clonePoints.push(auxPoint);
-        var position = {
-          coordinates: clonePoints
-        };
-
-        if (!that.tempLine) {
-          if (Object.keys(that.style).length < 1) {
-            that.style = {
-              color: '#ff0000',
-              thickness: 2.0
-            };
-          }
-
-          that.tempLine = new MagoPolyline(position, that.style);
-          manager.modeler.magoRectangle = that.tempLine;
-        } else {
-          that.tempLine.init(manager);
-          that.tempLine.setPosition(position);
-        }
-      }
-    });
-    /*
-    manager.on(MagoManager.EVENT_TYPE.RIGHTCLICK, function(e)
-    {
-    	if (!that.getActive() || !that.tempLine) { return; }
-    	that.points.push(e.clickCoordinate.geographicCoordinate);
-    		var position = {coordinates: that.points};
-    	that.tempLine.init(manager);
-    	that.tempLine.setPosition(position);
-    	
-    	that.end();
-    });
-    */
-  }
-};
-/**
- * @private
- */
-
-
-LineDrawer.prototype.end = function () {
-  this.result.push(this.tempLine);
-  this.manager.modeler.addObject(this.tempLine, 1);
-  this.emit(LineDrawer.EVENT_TYPE.DRAWEND, this.tempLine);
-  this.init();
-};
-'use strict';
-/**
- * This is the interaction for draw geometry.
- * @constructor
- * @class NativeUpDownInteraction
- * 
- * 
- * @param {object} option layer object.
- */
-
-var NativeUpDownInteraction = function NativeUpDownInteraction(option) {
-  if (!(this instanceof NativeUpDownInteraction)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  option = option ? option : {};
-  AbsPointerInteraction.call(this, option);
-  this.targetType = DataType.NATIVE;
-  this.filter = defaultValue(option.filter, 'selected');
-  this.filter_;
-  this.offset = defaultValue(option.filter, 3.3);
-  this.target = undefined;
-  this.selObjMovePlaneCC = undefined;
-  this.lineCC = new Line();
-  this.startPixel = undefined;
-};
-
-NativeUpDownInteraction.prototype = Object.create(AbsPointerInteraction.prototype);
-NativeUpDownInteraction.prototype.constructor = NativeUpDownInteraction;
-NativeUpDownInteraction.EVENT_TYPE = {
-  'ACTIVE': 'active',
-  'DEACTIVE': 'deactive',
-  'CHANGEHEIGHT': 'changeheight'
-};
-/**
- * interaction init
- * @override
- */
-
-NativeUpDownInteraction.prototype.init = function () {
-  this.dragging = false;
-  this.mouseBtn = undefined;
-  this.startPoint = undefined;
-  this.endPoint = undefined;
-  this.selObjMovePlaneCC = undefined;
-  this.startPixel = undefined;
-  this.target = undefined;
-};
-/**
- * set TargetType
- * @param {string} filter 
- */
-
-
-NativeUpDownInteraction.prototype.setFilter = function (filter) {
-  var oldFilter = this.filter;
-  this.filter = filter;
-
-  if (oldFilter !== filter) {
-    this.setFilterFunction();
-  }
-};
-/**
- * get TargetType
- * @return {boolean}
- */
-
-
-NativeUpDownInteraction.prototype.getFilter = function () {
-  return this.filter;
-};
-
-NativeUpDownInteraction.prototype.handleDownEvent = function (browserEvent) {
-  var manager = this.manager;
-
-  if (browserEvent.type !== "leftdown") {
-    return;
-  }
-
-  var selectManager = manager.selectionManager;
-
-  if (manager.selectionFbo === undefined) {
-    manager.selectionFbo = new FBO(gl, manager.sceneState.drawingBufferWidth[0], manager.sceneState.drawingBufferHeight[0], {
-      matchCanvasSize: true
-    });
-  }
-
-  var gl = manager.getGl();
-  selectManager.selectProvisionalObjectByPixel(gl, browserEvent.point.screenCoordinate.x, browserEvent.point.screenCoordinate.y);
-
-  if (!this.filter_) {
-    this.setFilterFunction();
-  }
-
-  var filterProvisional = selectManager.filterProvisional(this.targetType, this.filter_);
-
-  if (!isEmpty(filterProvisional)) {
-    this.target = filterProvisional[this.targetType][0];
-  } else {
-    this.init();
-  }
-};
-
-NativeUpDownInteraction.prototype.handleDragEvent = function (browserEvent) {
-  if (this.target && this.dragging) {
-    this.manager.setCameraMotion(false);
-    var object = this.target;
-
-    if (object instanceof ObjectMarker) {
-      return;
-    }
-
-    object = object.getRootOwner();
-    var attributes = object.attributes;
-
-    if (attributes === undefined) {
-      return;
-    }
-
-    var geoLocDataManager = object.getGeoLocDataManager();
-
-    if (geoLocDataManager === undefined) {
-      return;
-    }
-
-    var geoLocationData = geoLocDataManager.getCurrentGeoLocationData();
-    var manager = this.manager;
-    var gl = manager.getGl();
-    var sceneState = manager.sceneState;
-
-    if (this.selObjMovePlaneCC === undefined) {
-      this.selObjMovePlaneCC = new Plane(); // calculate the pixelPos in camCoord.
-
-      var geoLocMatrix = geoLocationData.geoLocMatrix;
-      var mvMat = sceneState.modelViewMatrix;
-      var mvMatRelToEye = sceneState.modelViewRelToEyeMatrix;
-      var sc = this.startPoint.screenCoordinate;
-      var magoWC = ManagerUtils.calculatePixelPositionWorldCoord(gl, sc.x, sc.y, magoWC, undefined, undefined, undefined, manager); //var pixelPosCC = mvMat.transformPoint3D(magoWC, undefined);
-
-      var pixelPosCC = mvMat.transformPoint3D(this.startPoint.worldCoordinate, undefined); // movement in plane XZ.
-      //var globeYaxisWC = new Point3D(geoLocMatrix._floatArrays[4], geoLocMatrix._floatArrays[5], geoLocMatrix._floatArrays[6]);
-
-      var globeZaxisWC = new Point3D(geoLocMatrix._floatArrays[8], geoLocMatrix._floatArrays[9], geoLocMatrix._floatArrays[10]);
-      var camDirection = sceneState.camera.direction;
-      var dot = globeZaxisWC.scalarProduct(camDirection);
-
-      if (Math.abs(dot) > 0.9) {
-        var right = sceneState.camera.right;
-        var mat = new Matrix4();
-        mat.rotationAxisAngDeg(45, right.x, right.y, right.z);
-        var newPosition = mat.transformPoint3D(sceneState.camera.position);
-        /*
-                    var cesiumCam = manager.scene.camera;
-                    cesiumCam.flyTo({
-                        destination: new Cesium.Cartesian3(newPosition.x,newPosition.y,newPosition.z),
-                        orientation : {
-                            heading : Cesium.Math.toRadians(-45),
-                            pitch : 0,
-                            roll : 0.0
-                        },
-                        duration: 2
-                    });
-                    */
-        //this.handleUpEvent();
-        // alert('카메라를 스리디로 바꿉니다(문구 추천좀)');
-        //return;
-      }
-
-      var globeRightWC = globeZaxisWC.crossProduct(camDirection);
-      var globeP = globeRightWC.crossProduct(globeZaxisWC);
-      globeP.unitary();
-      var globeYaxisCC = mvMatRelToEye.transformPoint3D(globeP, undefined);
-      this.selObjMovePlaneCC.setPointAndNormal(pixelPosCC.x, pixelPosCC.y, pixelPosCC.z, globeYaxisCC.x, globeYaxisCC.y, globeYaxisCC.z);
-    }
-
-    var screenCoordinate = browserEvent.endEvent.screenCoordinate;
-    var camRay = ManagerUtils.getRayCamSpace(screenCoordinate.x, screenCoordinate.y, camRay, manager);
-    this.lineCC.setPointAndDir(0, 0, 0, camRay[0], camRay[1], camRay[2]); // Calculate intersection cameraRay with planeCC.
-
-    var intersectionPointCC = new Point3D();
-    intersectionPointCC = this.selObjMovePlaneCC.intersectionLine(this.lineCC, intersectionPointCC);
-    var mvMat = sceneState.getModelViewMatrixInv();
-    var intersectionWC = mvMat.transformPoint3D(intersectionPointCC, intersectionWC);
-    var intersectionScreenCoord = ManagerUtils.calculateWorldPositionToScreenCoord(undefined, intersectionWC.x, intersectionWC.y, intersectionWC.z, intersectionScreenCoord, manager);
-
-    if (!this.startPixel) {
-      var geoCoord = geoLocationData.geographicCoord;
-      var wc = ManagerUtils.geographicCoordToWorldPoint(geoCoord.longitude, geoCoord.latitude, geoCoord.altitude);
-      this.startPixel = ManagerUtils.calculateWorldPositionToScreenCoord(undefined, wc.x, wc.y, wc.z, this.startPixel, manager);
-    }
-
-    var diff = intersectionScreenCoord.y - this.startPixel.y;
-    var up = diff < 0 ? true : false;
-    var gijun = Math.abs(diff);
-
-    if (gijun > this.offset) {
-      var currentbuilding = this.target;
-      var height = currentbuilding.height;
-      var prevHeight = height;
-
-      if (up) {
-        height = height + this.offset;
-      } else {
-        height = height - this.offset;
-      }
-      /*var model = currentbuilding.geographicCoordList.getExtrudedMeshRenderableObject(height, undefined, undefined, undefined, undefined, {color: currentbuilding.color4.getHexCode(), height: this.offset});
-               
-      currentbuilding.height = height;
-      currentbuilding.objectsArray = model.objectsArray;*/
-
-
-      currentbuilding.setHeight(height);
-      this.emit(NativeUpDownInteraction.EVENT_TYPE.CHANGEHEIGHT, {
-        type: NativeUpDownInteraction.EVENT_TYPE.CHANGEHEIGHT,
-        timestamp: new Date().getTime(),
-        prevHeight: prevHeight,
-        changedHeight: height
-      });
-      this.startPixel.set(screenCoordinate.x, screenCoordinate.y, screenCoordinate.z);
-    } //geoLocationData = ManagerUtils.calculateGeoLocationData(undefined, undefined, difZ, undefined, undefined, undefined, geoLocationData, this);
-
-  }
-};
-
-NativeUpDownInteraction.prototype.handleMoveEvent = function () {
-  return;
-};
-
-NativeUpDownInteraction.prototype.handleUpEvent = function () {
-  this.init();
-  this.manager.setCameraMotion(true);
-  this.manager.isCameraMoved = true;
-  return;
-};
-
-NativeUpDownInteraction.prototype.setFilterFunction = function () {
-  var manager = this.manager;
-
-  if (this.filter === 'selected') {
-    this.filter_ = function (prov) {
-      return prov === manager.defaultSelectInteraction.getSelected();
-    };
-  } else {
-    this.filter_ = function () {
-      return true;
-    };
-  }
-};
-'use strict';
-/**
- * This is the interaction for draw point.
- * @class PointDrawer
- * 
- * @param {MagoPoint~MagoPointStyle} style layer object.
- * 
- * @extends {DrawGeometryInteraction}
- */
-
-var PointDrawer = function PointDrawer(style) {
-  if (!(this instanceof PointDrawer)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  DrawGeometryInteraction.call(this, style);
-  this.startDraw = false;
-  this.startTime = undefined;
-  this.startPoint = undefined;
-  this.added = false;
-  this.result = [];
-};
-
-PointDrawer.prototype = Object.create(DrawGeometryInteraction.prototype);
-PointDrawer.prototype.constructor = PointDrawer;
-PointDrawer.EVENT_TYPE = {
-  'DRAWEND': 'drawend'
-};
-/**
- * @private
- */
-
-PointDrawer.prototype.init = function () {
-  this.startDraw = false;
-  this.startTime = undefined;
-  this.startPoint = undefined;
-};
-/**
- * @private
- */
-
-
-PointDrawer.prototype.clear = function () {
-  this.init();
-  var modeler = this.manager.modeler;
-  var result = this.result;
-
-  for (var i = 0, len = result.length; i < len; i++) {
-    var rec = result[i];
-    modeler.removeObject(rec);
-  }
-
-  this.result.length = 0;
-};
-/**
- * @private
- */
-
-
-PointDrawer.prototype.start = function () {
-  if (!this.manager || !(this.manager instanceof MagoManager)) {
-    throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
-  }
-
-  var that = this;
-  var manager = that.manager;
-
-  if (!this.added) {
-    this.added = true;
-    manager.on(MagoManager.EVENT_TYPE.LEFTDOWN, function (e) {
-      if (!that.getActive()) {
-        return;
-      }
-
-      if (!that.startDraw) {
-        that.startDraw = true;
-        that.startTime = e.timestamp;
-        that.startPoint = e.point.screenCoordinate;
-      }
-    });
-    manager.on(MagoManager.EVENT_TYPE.LEFTUP, function (e) {
-      if (!that.getActive()) {
-        return;
-      }
-
-      if (that.startDraw) {
-        var moveless = false;
-
-        if (e.timestamp - that.startTime < 1500) {
-          var startScreenCoordinate = that.startPoint;
-          var endScreenCoordinate = e.point.screenCoordinate;
-          var diffX = Math.abs(startScreenCoordinate.x - endScreenCoordinate.x);
-          var diffY = Math.abs(startScreenCoordinate.y - endScreenCoordinate.y);
-
-          if (diffX <= 0 && diffY <= 0) {
-            moveless = true;
-          }
-        }
-
-        if (!moveless) {
-          that.init();
-          return;
-        }
-
-        var position = e.point.geographicCoordinate;
-
-        if (Object.keys(that.style).length < 1) {
-          that.style = {
-            size: 10,
-            color: '#00FF00'
-          };
-        }
-
-        that.end(new MagoPoint(position, that.style));
-      }
-    });
-  }
-};
-/**
- * @private
- */
-
-
-PointDrawer.prototype.end = function (point) {
-  this.result.push(point);
-  this.manager.modeler.addObject(point, 1);
-  this.emit(PointDrawer.EVENT_TYPE.DRAWEND, point);
-  this.init();
-};
-'use strict';
-/**
- * This is the interaction for draw geometry.
- * @constructor
- * @class GeometrySelectInteraction
- * 
- * 
- * @param {object} option layer object.
- */
-
-var PointSelectInteraction = function PointSelectInteraction(option) {
-  if (!(this instanceof PointSelectInteraction)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  option = option ? option : {};
-  AbsClickInteraction.call(this, option);
-  this.selected = undefined;
-  this.targetType = defaultValue(option.targetType, DataType.F4D);
-  this.targetHighlight = defaultValue(option.targetHighlight, true);
-  this.filter = undefined;
-  var that = this;
-  this.on(PointSelectInteraction.EVENT_TYPE.DEACTIVE, function () {
-    that.init();
-    that.selected = undefined;
-    that.manager.selectionManager.clearCurrents();
-  });
-};
-
-PointSelectInteraction.prototype = Object.create(AbsClickInteraction.prototype);
-PointSelectInteraction.prototype.constructor = PointSelectInteraction;
-PointSelectInteraction.EVENT_TYPE = {
-  'ACTIVE': 'active',
-  'DEACTIVE': 'deactive'
-};
-/**
- * interaction init
- */
-
-PointSelectInteraction.prototype.init = function () {
-  this.begin = false;
-  this.startPoint = undefined;
-  this.endPoint = undefined;
-};
-/**
- * set TargetType
- * @param {boolean} type 
- */
-
-
-PointSelectInteraction.prototype.setTargetType = function (type) {
-  var oldType = this.targetType;
-
-  if (oldType !== type) {
-    this.init();
-    this.selected = undefined;
-    this.manager.isCameraMoved = true;
-    this.manager.selectionManager.clearCurrents();
-    this.filter = undefined;
-  }
-
-  this.targetType = type;
-};
-/**
- * get TargetType
- * @return {boolean}
- */
-
-
-PointSelectInteraction.prototype.getTargetType = function () {
-  return this.targetType;
-};
-/**
- * set filter function
- * @param {function} filterFunction
- */
-
-
-PointSelectInteraction.prototype.setFilter = function (filterFunction) {
-  if (filterFunction && typeof filterFunction === 'function') {
-    this.filter = filterFunction;
-  }
-};
-/**
- * set filter function
- * @param {function} filterFunction
- */
-
-
-PointSelectInteraction.prototype.getFilter = function (filterFunction) {
-  return this.filter;
-};
-/**
- * set TargetHighlight
- * @param {boolean} highlight 
- */
-
-
-PointSelectInteraction.prototype.setTargetHighlight = function (highlight) {
-  if (!highlight) {
-    this.init();
-    this.manager.selectionManager.clearCurrents();
-  }
-
-  this.targetHighlight = highlight;
-};
-/**
- * get selected object
- * @return {Object}
- */
-
-
-PointSelectInteraction.prototype.getSelected = function () {
-  return this.selected;
-};
-/**
- * get TargetHighlight
- * @return {boolean}
- */
-
-
-PointSelectInteraction.prototype.getTargetHighlight = function () {
-  return this.targetHighlight;
-};
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-
-
-PointSelectInteraction.prototype.handleDownEvent = function (browserEvent) {
-  return;
-};
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-
-
-PointSelectInteraction.prototype.handleUpEvent = function (browserEvent) {
-  var selectionManager = this.manager.selectionManager;
-  selectionManager.clearCurrents();
-  this.select(browserEvent.point.screenCoordinate);
-  var oldSelected = this.selected;
-
-  switch (this.targetType) {
-    case DataType.F4D:
-      {
-        this.selected = selectionManager.getSelectedF4dNode();
-        break;
-      }
-
-    case DataType.OBJECT:
-      {
-        this.selected = selectionManager.getSelectedF4dObject();
-        break;
-      }
-
-    case DataType.NATIVE:
-      {
-        this.selected = selectionManager.getSelectedGeneral();
-        break;
-      }
-  }
-
-  if (oldSelected) {
-    this.emitEvent(oldSelected, false);
-  }
-
-  this.emitEvent(this.selected, true);
-};
-
-PointSelectInteraction.prototype.emitEvent = function (selectedObj, selected) {
-  if (selectedObj) {
-    var type = PointSelectInteraction.getEventType(this.targetType, selected);
-    var eventObj = {
-      type: type,
-      timestamp: new Date()
-    };
-    selected ? eventObj.selected = selectedObj : eventObj.deselected = selectedObj;
-    this.manager.emit(type, eventObj);
-  }
-};
-
-PointSelectInteraction.getEventType = function (target, selected) {
-  var eventType;
-
-  switch (target) {
-    case DataType.F4D:
-      {
-        eventType = selected ? MagoManager.EVENT_TYPE.SELECTEDF4D : MagoManager.EVENT_TYPE.DESELECTEDF4D;
-        break;
-      }
-
-    case DataType.OBJECT:
-      {
-        eventType = selected ? MagoManager.EVENT_TYPE.SELECTEDF4DOBJECT : MagoManager.EVENT_TYPE.DESELECTEDF4DOBJECT;
-        break;
-      }
-
-    case DataType.NATIVE:
-      {
-        eventType = selected ? MagoManager.EVENT_TYPE.SELECTEDGENERALOBJECT : MagoManager.EVENT_TYPE.DESELECTEDGENERALOBJECT;
-        break;
-      }
-  }
-
-  return eventType;
-};
-/**
- * handle event
- * @param {BrowserEvent} browserEvent
- */
-
-
-PointSelectInteraction.prototype.handleMoveEvent = function (browserEvent) {
-  if (this.targetHighlight && !this.selected) {
-    this.select(browserEvent.endEvent.screenCoordinate);
-  }
-};
-/**
- * select 
- * @param {Point2D} screenCoordinate
- * @param {boolean} bObject
- */
-
-
-PointSelectInteraction.prototype.select = function (screenCoordinate) {
-  var manager = this.manager;
-  var selectManager = manager.selectionManager;
-
-  if (manager.selectionFbo === undefined) {
-    manager.selectionFbo = new FBO(gl, manager.sceneState.drawingBufferWidth[0], manager.sceneState.drawingBufferHeight[0], {
-      matchCanvasSize: true
-    });
-  }
-
-  var gl = manager.getGl();
-  selectManager.selectProvisionalObjectByPixel(gl, screenCoordinate.x, screenCoordinate.y);
-  selectManager.provisionalToCurrent(this.targetType, this.filter); //selectManager.selectObjectByPixel(gl, screenCoordinate.x, screenCoordinate.y, bObject);
-};
-/**
- * clear 
- */
-
-
-PointSelectInteraction.prototype.clear = function () {
-  this.emitEvent(this.selected, false);
-  this.manager.selectionManager.clearCurrents();
-  this.init();
-  this.selected = undefined;
-};
-'use strict';
-/**
- * This is the interaction for draw rectangle.
- * @class RectangleDrawer
- * 
- * @param {MagoRectangle~MagoRectangleStyle} style style object.
- * @extends {DrawGeometryInteraction}
- */
-
-var RectangleDrawer = function RectangleDrawer(style) {
-  if (!(this instanceof RectangleDrawer)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  DrawGeometryInteraction.call(this, style);
-  this.startDraw = false;
-  this.dragging = false;
-  this.startPoint;
-  this.endPoint;
-  this.height = 200;
-  this.added = false;
-  this.tempRectangle;
-  this.result = [];
-};
-
-RectangleDrawer.prototype = Object.create(DrawGeometryInteraction.prototype);
-RectangleDrawer.prototype.constructor = RectangleDrawer;
-RectangleDrawer.EVENT_TYPE = {
-  'DRAWEND': 'drawend',
-  'ACTIVE': 'active',
-  'DEACTIVE': 'deactive'
-};
-/**
- * @private
- */
-
-RectangleDrawer.prototype.setHeight = function (height) {
-  this.height = height;
-};
-/**
- * @private
- */
-
-
-RectangleDrawer.prototype.getHeight = function () {
-  return this.height;
-};
-/**
- * @private
- */
-
-
-RectangleDrawer.prototype.init = function () {
-  this.startDraw = false;
-  this.dragging = false;
-  this.startPoint = undefined;
-  this.endPoint = undefined;
-  this.tempRectangle = undefined;
-  this.manager.magoWorld.cameraMovable = true;
-
-  if (this.manager.modeler.magoRectangle) {
-    this.manager.modeler.magoRectangle.deleteObjects(this.manager.vboMemoryManager);
-    this.manager.modeler.magoRectangle = undefined;
-  }
-};
-/**
- * @private
- */
-
-
-RectangleDrawer.prototype.clear = function () {
-  this.init();
-  var modeler = this.manager.modeler;
-  var result = this.result;
-
-  for (var i = 0, len = result.length; i < len; i++) {
-    var rec = result[i];
-    modeler.removeObject(rec);
-  }
-
-  this.result.length = 0;
-};
-/**
- * @private
- */
-
-
-RectangleDrawer.prototype.start = function () {
-  if (!this.manager || !(this.manager instanceof MagoManager)) {
-    throw new Error(Messages.REQUIRED_EMPTY_ERROR('MagoManager'));
-  }
-
-  var that = this;
-  var manager = that.manager;
-
-  if (!this.added) {
-    this.added = true;
-    manager.on(MagoManager.EVENT_TYPE.LEFTDOWN, function (e) {
-      if (!that.getActive()) {
-        return;
-      }
-
-      if (!that.startDraw) {
-        manager.magoWorld.cameraMovable = false;
-        that.startDraw = true;
-        that.startPoint = e.point.geographicCoordinate;
-      }
-    });
-    manager.on(MagoManager.EVENT_TYPE.MOUSEMOVE, function (e) {
-      if (!that.getActive()) {
-        return;
-      }
-
-      if (that.startDraw && that.startPoint) {
-        that.dragging = true;
-        var auxPoint = e.endEvent.geographicCoordinate;
-        var minLon = that.startPoint.longitude < auxPoint.longitude ? that.startPoint.longitude : auxPoint.longitude;
-        var minLat = that.startPoint.latitude < auxPoint.latitude ? that.startPoint.latitude : auxPoint.latitude;
-        var maxLon = that.startPoint.longitude < auxPoint.longitude ? auxPoint.longitude : that.startPoint.longitude;
-        var maxLat = that.startPoint.latitude < auxPoint.latitude ? auxPoint.latitude : that.startPoint.latitude;
-        var position = {
-          minLongitude: minLon,
-          minLatitude: minLat,
-          maxLongitude: maxLon,
-          maxLatitude: maxLat,
-          altitude: -3000
-        };
-
-        if (!that.tempRectangle) {
-          if (Object.keys(that.style).length < 1) {
-            that.style = {
-              fillColor: '#ff0000'
-            };
-          }
-
-          that.tempRectangle = new MagoRectangleGround(position, that.style);
-          manager.modeler.magoRectangle = that.tempRectangle;
-        } else {
-          that.tempRectangle.init(manager);
-          that.tempRectangle.setPosition(position);
-        }
-      }
-    });
-    manager.on(MagoManager.EVENT_TYPE.LEFTUP, function (e) {
-      if (!that.getActive()) {
-        return;
-      }
-
-      if (that.dragging) {
-        that.endPoint = e.point;
-        that.end();
-      }
-    });
-  }
-};
-/**
- * @private
- */
-
-
-RectangleDrawer.prototype.end = function () {
-  this.manager.magoWorld.cameraMovable = true;
-  this.result.push(this.tempRectangle);
-  this.manager.modeler.addObject(this.tempRectangle, 1);
-  this.emit(RectangleDrawer.EVENT_TYPE.DRAWEND, this.tempRectangle);
-  this.init();
-};
-/**
- * remove last drawed rectangle
- */
-
-
-RectangleDrawer.prototype.cancle = function () {
-  var idx = this.result.length - 1;
-  var removalRectangle = this.result[idx];
-  this.manager.modeler.removeObject(removalRectangle);
-  this.result = this.result.slice(0, idx);
-};
-'use strict';
-/**
- * This is the interaction for draw geometry.
- * @constructor
- * @class RotateInteraction
- * 
- * 
- * @param {object} option layer object.
- */
-
-var RotateInteraction = function RotateInteraction(option) {
-  if (!(this instanceof RotateInteraction)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  option = option ? option : {};
-  AbsPointerInteraction.call(this, option);
-  this.targetType = defaultValue(option.targetType, DataType.F4D);
-  this.filter = defaultValue(option.filter, 'selected');
-  this.filter_;
-  this.target = undefined;
-  this.parentNode = undefined;
-  this.centerScreenCoord = undefined;
-  this.clickDeg = undefined;
-};
-
-RotateInteraction.prototype = Object.create(AbsPointerInteraction.prototype);
-RotateInteraction.prototype.constructor = RotateInteraction;
-RotateInteraction.EVENT_TYPE = {
-  'ACTIVE': 'active',
-  'DEACTIVE': 'deactive'
-};
-/**
- * interaction init
- * @override
- */
-
-RotateInteraction.prototype.init = function () {
-  this.dragging = false;
-  this.mouseBtn = undefined;
-  this.startPoint = undefined;
-  this.endPoint = undefined;
-  this.target = undefined;
-  this.parentNode = undefined;
-  this.centerScreenCoord = undefined;
-  this.clickDeg = undefined;
-};
-/**
- * set TargetType
- * @param {boolean} type 
- */
-
-
-RotateInteraction.prototype.setTargetType = function (type) {
-  this.targetType = type;
-};
-/**
- * get TargetType
- * @return {boolean}
- */
-
-
-RotateInteraction.prototype.getTargetType = function () {
-  return this.targetType;
-};
-/**
- * set TargetType
- * @param {string} filter 
- */
-
-
-RotateInteraction.prototype.setFilter = function (filter) {
-  var oldFilter = this.filter;
-  this.filter = filter;
-
-  if (oldFilter !== filter) {
-    this.setFilterFunction();
-  }
-};
-/**
- * get TargetType
- * @return {boolean}
- */
-
-
-RotateInteraction.prototype.getFilter = function () {
-  return this.filter;
-};
-
-RotateInteraction.prototype.handleDownEvent = function (browserEvent) {
-  var manager = this.manager;
-
-  if (browserEvent.type !== "leftdown") {
-    return;
-  }
-
-  var selectManager = manager.selectionManager;
-
-  if (manager.selectionFbo === undefined) {
-    manager.selectionFbo = new FBO(gl, manager.sceneState.drawingBufferWidth[0], manager.sceneState.drawingBufferHeight[0], {
-      matchCanvasSize: true
-    });
-  }
-
-  var gl = manager.getGl();
-  var clickScreenCoord = browserEvent.point.screenCoordinate;
-  selectManager.selectProvisionalObjectByPixel(gl, clickScreenCoord.x, clickScreenCoord.y);
-
-  if (!this.filter_) {
-    this.setFilterFunction();
-  }
-
-  var filterProvisional = selectManager.filterProvisional(this.targetType, this.filter_);
-
-  if (!isEmpty(filterProvisional)) {
-    this.target = filterProvisional[this.targetType][0];
-
-    if (this.targetType === DataType.OBJECT) {
-      this.parentNode = filterProvisional[DataType.F4D][0];
-    }
-
-    var currentGeoLocData = this.target.getCurrentGeoLocationData();
-    var currentGeoCoord = currentGeoLocData.geographicCoord;
-    var wc = ManagerUtils.geographicCoordToWorldPoint(currentGeoCoord.longitude, currentGeoCoord.latitude, currentGeoCoord.altitude);
-    this.centerScreenCoord = ManagerUtils.calculateWorldPositionToScreenCoord(undefined, wc.x, wc.y, wc.z, this.centerScreenCoord, manager);
-    var rad = Math.atan2(clickScreenCoord.x - this.centerScreenCoord.x, clickScreenCoord.y - this.centerScreenCoord.y);
-    this.clickDeg = Math.round(rad * (180 / Math.PI) * -1 + 100);
-    this.manager.setCameraMotion(false);
-  } else {
-    this.init();
-  }
-};
-
-RotateInteraction.prototype.handleDragEvent = function (browserEvent) {
-  if (this.target && this.dragging) {
-    var screenCoordinate = browserEvent.endEvent.screenCoordinate;
-    var rad = Math.atan2(screenCoordinate.x - this.centerScreenCoord.x, screenCoordinate.y - this.centerScreenCoord.y);
-    var deg = Math.round(rad * (180 / Math.PI) * -1 + 100);
-    var rdeg = deg - this.clickDeg;
-    var currentGeoLocData = this.target.getCurrentGeoLocationData();
-    var currentGeoCoord = currentGeoLocData.geographicCoord;
-    var currentLon = currentGeoCoord.longtitude;
-    var currentLat = currentGeoCoord.longtitude;
-    var currentAlt = currentGeoCoord.altitude;
-    var currentRoll = currentGeoLocData.roll;
-    var currentPitch = currentGeoLocData.pitch;
-    this.target.changeLocationAndRotation(currentLon, currentLat, currentAlt, -rdeg, currentRoll, currentPitch);
-  }
-};
-
-RotateInteraction.prototype.handleUpEvent = function () {
-  this.init();
-  this.manager.setCameraMotion(true);
-  this.manager.isCameraMoved = true;
-  return;
-};
-
-RotateInteraction.prototype.handleMoveEvent = function () {
-  return;
-};
-
-RotateInteraction.prototype.setFilterFunction = function () {
-  var manager = this.manager;
-
-  if (this.filter === 'selected') {
-    this.filter_ = function (prov) {
-      return prov === manager.defaultSelectInteraction.getSelected();
-    };
-  } else {
-    this.filter_ = function () {
-      return true;
-    };
-  }
-};
-'use strict';
-/**
- * This is the interaction for draw geometry.
- * @constructor
- * @class TranslateInteraction
- * 
- * 
- * @param {object} option layer object.
- */
-
-var TranslateInteraction = function TranslateInteraction(option) {
-  if (!(this instanceof TranslateInteraction)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  option = option ? option : {};
-  AbsPointerInteraction.call(this, option);
-  this.targetType = defaultValue(option.targetType, DataType.F4D);
-  this.filter = defaultValue(option.filter, 'selected');
-  this.filter_;
-  this.target = undefined;
-  this.parentNode = undefined;
-  this.selObjMovePlaneCC = undefined;
-  this.selObjMovePlane = undefined;
-  this.lineCC = new Line();
-  this.lineSC = new Line();
-  this.startGeoCoordDif = undefined;
-  this.startMovPoint = undefined;
-};
-
-TranslateInteraction.prototype = Object.create(AbsPointerInteraction.prototype);
-TranslateInteraction.prototype.constructor = TranslateInteraction;
-TranslateInteraction.EVENT_TYPE = {
-  'ACTIVE': 'active',
-  'DEACTIVE': 'deactive'
-};
-/**
- * interaction init
- * @override
- */
-
-TranslateInteraction.prototype.init = function () {
-  this.begin = false;
-  this.dragging = false;
-  this.mouseBtn = undefined;
-  this.startPoint = undefined;
-  this.endPoint = undefined;
-  this.selObjMovePlaneCC = undefined;
-  this.selObjMovePlane = undefined;
-  this.startGeoCoordDif = undefined;
-  this.startMovPoint = undefined;
-  this.target = undefined;
-  this.parentNode = undefined;
-};
-/**
- * set TargetType
- * @param {boolean} type 
- */
-
-
-TranslateInteraction.prototype.setTargetType = function (type) {
-  this.targetType = type;
-};
-/**
- * get TargetType
- * @return {boolean}
- */
-
-
-TranslateInteraction.prototype.getTargetType = function () {
-  return this.targetType;
-};
-/**
- * set TargetType
- * @param {string} filter 
- */
-
-
-TranslateInteraction.prototype.setFilter = function (filter) {
-  var oldFilter = this.filter;
-  this.filter = filter;
-
-  if (oldFilter !== filter) {
-    this.setFilterFunction();
-  }
-};
-/**
- * get TargetType
- * @return {boolean}
- */
-
-
-TranslateInteraction.prototype.getFilter = function () {
-  return this.filter;
-};
-
-TranslateInteraction.prototype.handleDownEvent = function (browserEvent) {
-  var manager = this.manager;
-
-  if (browserEvent.type !== "leftdown") {
-    return;
-  }
-
-  var selectManager = manager.selectionManager;
-
-  if (manager.selectionFbo === undefined) {
-    manager.selectionFbo = new FBO(gl, manager.sceneState.drawingBufferWidth[0], manager.sceneState.drawingBufferHeight[0], {
-      matchCanvasSize: true
-    });
-  }
-
-  var gl = manager.getGl();
-  selectManager.selectProvisionalObjectByPixel(gl, browserEvent.point.screenCoordinate.x, browserEvent.point.screenCoordinate.y);
-
-  if (!this.filter_) {
-    this.setFilterFunction();
-  }
-
-  var filterProvisional = selectManager.filterProvisional(this.targetType, this.filter_);
-
-  if (!isEmpty(filterProvisional)) {
-    this.target = filterProvisional[this.targetType][0];
-
-    if (this.targetType === DataType.OBJECT) {
-      this.parentNode = filterProvisional[DataType.F4D][0];
-    }
-  } else {
-    this.init();
-  }
-};
-
-TranslateInteraction.prototype.handleDragEvent = function (browserEvent) {
-  if (this.target && this.dragging) {
-    this.manager.setCameraMotion(false);
-
-    switch (this.targetType) {
-      case DataType.F4D:
-        {
-          this.handleF4dDrag(browserEvent);
-          break;
-        }
-
-      case DataType.OBJECT:
-        {
-          this.handleObjectDrag(browserEvent);
-          break;
-        }
-
-      case DataType.NATIVE:
-        {
-          this.handleNativeDrag(browserEvent);
-          break;
-        }
-    }
-  }
-};
-
-TranslateInteraction.prototype.handleF4dDrag = function (browserEvent) {
-  var manager = this.manager;
-  var geoLocDataManager = this.target.getNodeGeoLocDataManager();
-  var geoLocationData = geoLocDataManager.getCurrentGeoLocationData();
-  var attributes = this.target.data.attributes;
-
-  if (!this.selObjMovePlaneCC) {
-    this.selObjMovePlaneCC = new Plane();
-    var geoLocMatrix = geoLocationData.geoLocMatrix;
-    var mvMat = manager.sceneState.modelViewMatrix;
-    var mvMatRelToEye = manager.sceneState.modelViewRelToEyeMatrix;
-    var sc = this.startPoint.screenCoordinate;
-    var magoWC = ManagerUtils.calculatePixelPositionWorldCoord(manager.getGl(), sc.x, sc.y, magoWC, undefined, undefined, undefined, manager);
-    var pixelPosCC = mvMat.transformPoint3D(this.startPoint.worldCoordinate, pixelPosCC);
-
-    if (attributes.movementInAxisZ) {
-      // movement in plane XZ.
-      var globeYaxisWC = new Point3D(geoLocMatrix._floatArrays[4], geoLocMatrix._floatArrays[5], geoLocMatrix._floatArrays[6]);
-      var globeYaxisCC = mvMatRelToEye.transformPoint3D(globeYaxisWC, undefined);
-      this.selObjMovePlaneCC.setPointAndNormal(pixelPosCC.x, pixelPosCC.y, pixelPosCC.z, globeYaxisCC.x, globeYaxisCC.y, globeYaxisCC.z);
-    } else {
-      // movement in plane XY.
-      var globeZaxisWC = new Point3D(geoLocMatrix._floatArrays[8], geoLocMatrix._floatArrays[9], geoLocMatrix._floatArrays[10]);
-      var globeZaxisCC = mvMatRelToEye.transformPoint3D(globeZaxisWC, undefined);
-      this.selObjMovePlaneCC.setPointAndNormal(pixelPosCC.x, pixelPosCC.y, pixelPosCC.z, globeZaxisCC.x, globeZaxisCC.y, globeZaxisCC.z);
-    }
-  }
-
-  var screenCoordinate = browserEvent.endEvent.screenCoordinate;
-  var camRay = ManagerUtils.getRayCamSpace(screenCoordinate.x, screenCoordinate.y, camRay, manager);
-  this.lineCC.setPointAndDir(0, 0, 0, camRay[0], camRay[1], camRay[2]);
-  var intersectionPointCC = new Point3D();
-  intersectionPointCC = this.selObjMovePlaneCC.intersectionLine(this.lineCC, intersectionPointCC);
-  var mvMat = manager.sceneState.getModelViewMatrixInv();
-  var intersectionPointWC = mvMat.transformPoint3D(intersectionPointCC, intersectionPointWC);
-  var cartographic = ManagerUtils.pointToGeographicCoord(intersectionPointWC, cartographic, this);
-
-  if (!this.startGeoCoordDif) {
-    var buildingGeoCoord = geoLocationData.geographicCoord;
-    this.startGeoCoordDif = new GeographicCoord(cartographic.longitude - buildingGeoCoord.longitude, cartographic.latitude - buildingGeoCoord.latitude, cartographic.altitude - buildingGeoCoord.altitude);
-  }
-
-  var difX = cartographic.longitude - this.startGeoCoordDif.longitude;
-  var difY = cartographic.latitude - this.startGeoCoordDif.latitude;
-  var difZ = cartographic.altitude - this.startGeoCoordDif.altitude;
-
-  if (attributes.movementInAxisZ) {
-    //geoLocationData = ManagerUtils.calculateGeoLocationData(undefined, undefined, newAltitude, undefined, undefined, undefined, geoLocationData, this);
-    manager.changeLocationAndRotationNode(this.target, undefined, undefined, difZ, undefined, undefined, undefined);
-  } else {
-    //geoLocationData = ManagerUtils.calculateGeoLocationData(newLongitude, newlatitude, undefined, undefined, undefined, undefined, geoLocationData, this);
-    manager.changeLocationAndRotationNode(this.target, difY, difX, undefined, undefined, undefined, undefined);
-  }
-};
-
-TranslateInteraction.prototype.handleObjectDrag = function (browserEvent) {
-  var selectedObjtect = this.target;
-  var geoLocDataManager = this.parentNode.getNodeGeoLocDataManager();
-  var buildingGeoLocation = geoLocDataManager.getCurrentGeoLocationData();
-  var tMatrixInv = buildingGeoLocation.getTMatrixInv();
-  var gl = this.manager.getGl();
-
-  if (this.selObjMovePlane === undefined) {
-    this.selObjMovePlane = new Plane();
-    var sc = this.startPoint.screenCoordinate;
-    var magoWC = ManagerUtils.calculatePixelPositionWorldCoord(gl, sc.x, sc.y, magoWC, undefined, undefined, undefined, this.manager); //var lc = tMatrixInv.transformPoint3D(magoWC, lc);
-
-    var lc = tMatrixInv.transformPoint3D(this.startPoint.worldCoordinate, lc); // the plane is in local coord.***
-
-    this.selObjMovePlane.setPointAndNormal(lc.x, lc.y, lc.z, 0.0, 0.0, 1.0);
-  }
-
-  var screenCoordinate = browserEvent.endEvent.screenCoordinate;
-  this.lineSC = ManagerUtils.getRayWorldSpace(gl, screenCoordinate.x, screenCoordinate.y, this.lineSC, this.manager); // rayWorldSpace.***
-
-  var camPosBuilding = new Point3D();
-  var camDirBuilding = new Point3D();
-  camPosBuilding = tMatrixInv.transformPoint3D(this.lineSC.point, camPosBuilding);
-  camDirBuilding = tMatrixInv.rotatePoint3D(this.lineSC.direction, camDirBuilding); // now, intersect building_ray with the selObjMovePlane.***
-
-  var line = new Line();
-  line.setPointAndDir(camPosBuilding.x, camPosBuilding.y, camPosBuilding.z, camDirBuilding.x, camDirBuilding.y, camDirBuilding.z); // original.***
-
-  var intersectionPoint = new Point3D();
-  intersectionPoint = this.selObjMovePlane.intersectionLine(line, intersectionPoint); //the movement of an object must multiply by buildingRotMatrix.***
-
-  if (selectedObjtect.moveVectorRelToBuilding === undefined) {
-    selectedObjtect.moveVectorRelToBuilding = new Point3D();
-  }
-
-  if (!this.startMovPoint) {
-    this.startMovPoint = intersectionPoint;
-    this.startMovPoint.add(-selectedObjtect.moveVectorRelToBuilding.x, -selectedObjtect.moveVectorRelToBuilding.y, -selectedObjtect.moveVectorRelToBuilding.z);
-  }
-
-  var difX = intersectionPoint.x - this.startMovPoint.x;
-  var difY = intersectionPoint.y - this.startMovPoint.y;
-  var difZ = intersectionPoint.z - this.startMovPoint.z;
-  selectedObjtect.moveVectorRelToBuilding.set(difX, difY, difZ);
-  selectedObjtect.moveVector = buildingGeoLocation.tMatrix.rotatePoint3D(selectedObjtect.moveVectorRelToBuilding, selectedObjtect.moveVector);
-  var projectId = this.parentNode.data.projectId;
-  var data_key = this.parentNode.data.nodeId;
-  var objectIndexOrder = selectedObjtect._id;
-  this.manager.config.deleteMovingHistoryObject(projectId, data_key, objectIndexOrder);
-  this.manager.objectMoved = true; // this provoques that on leftMouseUp -> saveHistoryObjectMovement
-};
-
-TranslateInteraction.prototype.handleNativeDrag = function (browserEvent) {
-  var object = this.target;
-
-  if (object instanceof ObjectMarker) {
-    return;
-  }
-
-  object = object.getRootOwner();
-  var attributes = object.attributes;
-
-  if (attributes === undefined) {
-    return;
-  }
-
-  var isMovable = attributes.isMovable;
-
-  if (isMovable === undefined || isMovable === false) {
-    return;
-  }
-
-  var geoLocDataManager = object.getGeoLocDataManager();
-
-  if (geoLocDataManager === undefined) {
-    return;
-  }
-
-  var geoLocationData = geoLocDataManager.getCurrentGeoLocationData();
-  var manager = this.manager;
-  var gl = manager.getGl();
-  var sceneState = manager.sceneState;
-
-  if (this.selObjMovePlaneCC === undefined) {
-    this.selObjMovePlaneCC = new Plane(); // calculate the pixelPos in camCoord.
-
-    var geoLocMatrix = geoLocationData.geoLocMatrix;
-    var mvMat = sceneState.modelViewMatrix;
-    var mvMatRelToEye = sceneState.modelViewRelToEyeMatrix;
-    var sc = this.startPoint.screenCoordinate;
-    var magoWC = ManagerUtils.calculatePixelPositionWorldCoord(gl, sc.x, sc.y, magoWC, undefined, undefined, undefined, manager); //var pixelPosCC = mvMat.transformPoint3D(magoWC, undefined);
-
-    var pixelPosCC = mvMat.transformPoint3D(this.startPoint.worldCoordinate, undefined);
-
-    if (attributes.movementInAxisZ) {
-      // movement in plane XZ.
-      var globeYaxisWC = new Point3D(geoLocMatrix._floatArrays[4], geoLocMatrix._floatArrays[5], geoLocMatrix._floatArrays[6]);
-      var globeYaxisCC = mvMatRelToEye.transformPoint3D(globeYaxisWC, undefined);
-      this.selObjMovePlaneCC.setPointAndNormal(pixelPosCC.x, pixelPosCC.y, pixelPosCC.z, globeYaxisCC.x, globeYaxisCC.y, globeYaxisCC.z);
-    } else {
-      // movement in plane XY.
-      var globeZaxisWC = new Point3D(geoLocMatrix._floatArrays[8], geoLocMatrix._floatArrays[9], geoLocMatrix._floatArrays[10]);
-      var globeZaxisCC = mvMatRelToEye.transformPoint3D(globeZaxisWC, undefined);
-      this.selObjMovePlaneCC.setPointAndNormal(pixelPosCC.x, pixelPosCC.y, pixelPosCC.z, globeZaxisCC.x, globeZaxisCC.y, globeZaxisCC.z);
-    }
-  }
-
-  var screenCoordinate = browserEvent.endEvent.screenCoordinate;
-  var camRay = ManagerUtils.getRayCamSpace(screenCoordinate.x, screenCoordinate.y, camRay, manager);
-  this.lineCC.setPointAndDir(0, 0, 0, camRay[0], camRay[1], camRay[2]); // Calculate intersection cameraRay with planeCC.
-
-  var intersectionPointCC = new Point3D();
-  intersectionPointCC = this.selObjMovePlaneCC.intersectionLine(this.lineCC, intersectionPointCC);
-  var mvMat = sceneState.getModelViewMatrixInv();
-  var intersectionPointWC = mvMat.transformPoint3D(intersectionPointCC, intersectionPointWC);
-  var cartographic = ManagerUtils.pointToGeographicCoord(intersectionPointWC, cartographic, manager);
-
-  if (!this.startGeoCoordDif) {
-    var buildingGeoCoord = geoLocationData.geographicCoord;
-    this.startGeoCoordDif = new GeographicCoord(cartographic.longitude - buildingGeoCoord.longitude, cartographic.latitude - buildingGeoCoord.latitude, cartographic.altitude - buildingGeoCoord.altitude);
-  }
-
-  var difX = cartographic.longitude - this.startGeoCoordDif.longitude;
-  var difY = cartographic.latitude - this.startGeoCoordDif.latitude;
-  var difZ = cartographic.altitude - this.startGeoCoordDif.altitude;
-  var attributes = object.attributes;
-
-  if (attributes.minAltitude !== undefined) {
-    if (difZ < attributes.minAltitude) {
-      difZ = attributes.minAltitude;
-    }
-  }
-
-  if (attributes.maxAltitude !== undefined) {
-    if (difZ > attributes.maxAltitude) {
-      difZ = attributes.maxAltitude;
-    }
-  }
-
-  if (attributes && attributes.movementRestriction) {
-    var movementRestriction = attributes.movementRestriction;
-
-    if (movementRestriction) {
-      var movementRestrictionType = movementRestriction.restrictionType;
-      var movRestrictionElem = movementRestriction.element;
-
-      if (movRestrictionElem && movRestrictionElem.constructor.name === "GeographicCoordSegment") {
-        // restriction.***
-        var geoCoordSegment = movRestrictionElem;
-        var newGeoCoord = new GeographicCoord(difX, difY, 0.0);
-        var projectedCoord = GeographicCoordSegment.getProjectedCoordToLine(geoCoordSegment, newGeoCoord, undefined); // check if is inside.***
-
-        if (!GeographicCoordSegment.intersectionWithGeoCoord(geoCoordSegment, projectedCoord)) {
-          var nearestGeoCoord = GeographicCoordSegment.getNearestGeoCoord(geoCoordSegment, projectedCoord);
-          difX = nearestGeoCoord.longitude;
-          difY = nearestGeoCoord.latitude;
-        } else {
-          difX = projectedCoord.longitude;
-          difY = projectedCoord.latitude;
-        }
-      }
-    }
-  }
-
-  if (attributes && attributes.hasStaticModel) {
-    var projectId = attributes.projectId;
-    var dataKey = attributes.instanceId;
-
-    if (!defined(projectId)) {
-      return false;
-    }
-
-    if (!defined(dataKey)) {
-      return false;
-    }
-
-    var node = manager.hierarchyManager.getNodeByDataKey(projectId, dataKey);
-
-    if (node !== undefined) {
-      node.changeLocationAndRotation(difY, difX, 0, attributes.f4dHeading, 0, 0, this);
-    }
-  }
-
-  if (attributes.movementInAxisZ) {
-    geoLocationData = ManagerUtils.calculateGeoLocationData(undefined, undefined, difZ, undefined, undefined, undefined, geoLocationData, this);
-  } else {
-    geoLocationData = ManagerUtils.calculateGeoLocationData(difX, difY, undefined, undefined, undefined, undefined, geoLocationData, this);
-
-    if (object.localCoordListArray && object.geographicCoordListsArray) {
-      var geographicCoordListsArray = [];
-      var tmat = geoLocationData.tMatrix;
-
-      for (var i = 0, len = object.localCoordListArray.length; i < len; i++) {
-        var localCoordList = object.localCoordListArray[i];
-        var geographicCoordArray = [];
-
-        for (var j = 0, localCoordListLen = localCoordList.length; j < localCoordListLen; j++) {
-          var lc = localCoordList[j];
-          var wc = tmat.transformPoint3D(lc);
-          var gc = ManagerUtils.pointToGeographicCoord(wc);
-          geographicCoordArray.push(gc);
-        }
-
-        geographicCoordListsArray.push(new GeographicCoordsList(geographicCoordArray));
-      }
-
-      object.geographicCoordListsArray = geographicCoordListsArray;
-    }
-
-    if (object.options.limitationGeographicCoords) {
-      object.makeUniformPoints2dArray();
-    }
-  }
-
-  object.moved();
-};
-
-TranslateInteraction.prototype.handleMoveEvent = function () {
-  return;
-};
-
-TranslateInteraction.prototype.handleUpEvent = function () {
-  this.init();
-  this.manager.setCameraMotion(true);
-  this.manager.isCameraMoved = true;
-  return;
-};
-
-TranslateInteraction.prototype.setFilterFunction = function () {
-  var manager = this.manager;
-
-  if (this.filter === 'selected') {
-    this.filter_ = function (prov) {
-      return prov === manager.defaultSelectInteraction.getSelected();
-    };
-  } else {
-    this.filter_ = function () {
-      return true;
-    };
-  }
-};
-'use strict';
-/**
- * Geoserver for mago3Djs object.
- * @class Geoserver
- */
-
-var GeoServer = function GeoServer() {
-  this.serverInfo = {};
-};
-
-GeoServer.prototype.setServerInfo = function (info) {
-  this.serverInfo = info;
-};
-
-GeoServer.prototype.getDataUrl = function () {
-  return this.serverInfo.dataUrl;
-};
-
-GeoServer.prototype.getDataWorkspace = function () {
-  return this.serverInfo.dataWorkspace;
-};
-
-GeoServer.prototype.getDataRequestUrl = function () {
-  return this.getDataUrl() + '/' + this.getDataWorkspace();
-};
-
-GeoServer.prototype.getWmsVersion = function () {
-  return this.serverInfo.wmsVersion;
-};
-'use strict';
-/**
- * 메세지
- * 
- * @class
- */
-
-var Message = function Message(i18next, message) {
-  this.handle = i18next;
-  this.message = message || MessageSource;
-};
-/**
- * 메세지 클래스 초기화
- *
- * @param {Function} callback
- */
-
-
-Message.prototype.init = function (callback) {
-  var h = this.handle;
-  this.handle.use(i18nextXHRBackend).use(i18nextBrowserLanguageDetector).init({
-    // Useful for debuging, displays which key is missing
-    debug: false,
-    detection: {
-      // keys or params to lookup language from
-      lookupQuerystring: 'lang',
-      lookupCookie: 'i18nextLang',
-      lookupLocalStorage: 'i18nextLang'
-    },
-    // If translation key is missing, which lang use instead
-    fallbackLng: 'en',
-    resources: this.message,
-    // all, languageOnly
-    load: "languageOnly",
-    ns: ['common'],
-    // Namespace to use by default, when not indicated
-    defaultNS: 'common',
-    keySeparator: ".",
-    nsSeparator: ":",
-    pluralSeparator: "_",
-    contextSeparator: "_"
-  }, function (err, t) {
-    console.log("detected user language: " + h.language);
-    console.log("loaded languages: " + h.languages.join(', '));
-    h.changeLanguage(h.languages[0]);
-    callback(err, t);
-  });
-};
-/**
- * 메세지 핸들러를 가져온다.
- *
- * @returns {i18next} message handler
- */
-
-
-Message.prototype.getHandle = function () {
-  return this.handle;
-};
-/**
- * 메세지를 가져온다.
- *
- * @returns {Object} message
- */
-
-
-Message.prototype.getMessage = function () {
-  return this.message;
-};
-'use strict';
-
-var MessageSource = {};
-MessageSource.en = {
-  "common": {
-    "welcome": "Welcome",
-    "error": {
-      "title": "Error",
-      "construct": {
-        "create": "This object should be created using new."
-      }
-    }
-  }
-};
-MessageSource.ko = {
-  "common": {
-    "welcome": "환영합니다.",
-    "error": {
-      "title": "오류",
-      "construct": {
-        "create": "이 객체는 new 를 사용하여 생성해야 합니다."
-      }
-    }
-  }
-};
-'use strict';
-/**
  * AnimatedPerson is a class object.
  * 
  * @class AnimatedPerson
@@ -91640,6 +92027,646 @@ Wheel.prototype.renderAsChild = function (magoManager, shader, renderType, glPri
 };
 'use strict';
 /**
+ * 메세지
+ * 
+ * @class
+ */
+
+var Message = function Message(i18next, message) {
+  this.handle = i18next;
+  this.message = message || MessageSource;
+};
+/**
+ * 메세지 클래스 초기화
+ *
+ * @param {Function} callback
+ */
+
+
+Message.prototype.init = function (callback) {
+  var h = this.handle;
+  this.handle.use(i18nextXHRBackend).use(i18nextBrowserLanguageDetector).init({
+    // Useful for debuging, displays which key is missing
+    debug: false,
+    detection: {
+      // keys or params to lookup language from
+      lookupQuerystring: 'lang',
+      lookupCookie: 'i18nextLang',
+      lookupLocalStorage: 'i18nextLang'
+    },
+    // If translation key is missing, which lang use instead
+    fallbackLng: 'en',
+    resources: this.message,
+    // all, languageOnly
+    load: "languageOnly",
+    ns: ['common'],
+    // Namespace to use by default, when not indicated
+    defaultNS: 'common',
+    keySeparator: ".",
+    nsSeparator: ":",
+    pluralSeparator: "_",
+    contextSeparator: "_"
+  }, function (err, t) {
+    console.log("detected user language: " + h.language);
+    console.log("loaded languages: " + h.languages.join(', '));
+    h.changeLanguage(h.languages[0]);
+    callback(err, t);
+  });
+};
+/**
+ * 메세지 핸들러를 가져온다.
+ *
+ * @returns {i18next} message handler
+ */
+
+
+Message.prototype.getHandle = function () {
+  return this.handle;
+};
+/**
+ * 메세지를 가져온다.
+ *
+ * @returns {Object} message
+ */
+
+
+Message.prototype.getMessage = function () {
+  return this.message;
+};
+'use strict';
+
+var MessageSource = {};
+MessageSource.en = {
+  "common": {
+    "welcome": "Welcome",
+    "error": {
+      "title": "Error",
+      "construct": {
+        "create": "This object should be created using new."
+      }
+    }
+  }
+};
+MessageSource.ko = {
+  "common": {
+    "welcome": "환영합니다.",
+    "error": {
+      "title": "오류",
+      "construct": {
+        "create": "이 객체는 new 를 사용하여 생성해야 합니다."
+      }
+    }
+  }
+};
+'use strict';
+/**
+ * Network.
+ * IndoorGML의 네트워크를 파싱하고 그리는 데 사용합니다.
+ * @alias Network
+ * @class Network
+ */
+
+var Network = function Network(owner) {
+  if (!(this instanceof Network)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  this.nodeOwner;
+
+  if (owner) {
+    this.nodeOwner = owner;
+  }
+
+  this.id; // network id.
+
+  this.nodesArray;
+  this.edgesArray;
+  this.spacesArray;
+  this.attributes;
+  this.edgesVboKeysContainer; // to draw edges with an unique vbo.
+
+  this.nodesVboKeysContainer; // to draw nodes with an unique vbo.
+
+  this.renderSpaces = true;
+  this.spacesAlpha = 0.2;
+};
+/**
+ * 
+ */
+
+
+Network.prototype.newNode = function () {
+  if (this.nodesArray === undefined) {
+    this.nodesArray = [];
+  }
+
+  var networkNode = new NetworkNode(this);
+  this.nodesArray.push(networkNode);
+  return networkNode;
+};
+/**
+ * 
+ */
+
+
+Network.prototype.newEdge = function () {
+  if (this.edgesArray === undefined) {
+    this.edgesArray = [];
+  }
+
+  var networkEdge = new NetworkEdge(this);
+  this.edgesArray.push(networkEdge);
+  return networkEdge;
+};
+/**
+ * 
+ */
+
+
+Network.prototype.newSpace = function () {
+  if (this.spacesArray === undefined) {
+    this.spacesArray = [];
+  }
+
+  var networkSpace = new NetworkSpace(this);
+  this.spacesArray.push(networkSpace);
+  return networkSpace;
+};
+/**
+ * 
+ */
+
+
+Network.prototype.test__makeVbos = function (magoManager) {
+  // Here makes meshes and vbos.
+  // For edges, make an unique vbo for faster rendering.
+  var edgesCount = 0;
+
+  if (this.edgesArray) {
+    edgesCount = this.edgesArray.length;
+  }
+
+  var pointsArray = [];
+
+  for (var i = 0; i < edgesCount; i++) {
+    var edge = this.edgesArray[i];
+    var vtxSegment = edge.vtxSegment;
+    var point1 = vtxSegment.startVertex.point3d;
+    var point2 = vtxSegment.endVertex.point3d;
+    pointsArray.push(point1.x);
+    pointsArray.push(point1.y);
+    pointsArray.push(point1.z);
+    pointsArray.push(point2.x);
+    pointsArray.push(point2.y);
+    pointsArray.push(point2.z);
+  }
+
+  if (this.edgesVboKeysContainer === undefined) {
+    this.edgesVboKeysContainer = new VBOVertexIdxCacheKeysContainer();
+  }
+
+  var vboKey = this.edgesVboKeysContainer.newVBOVertexIdxCacheKey();
+  var vboMemManager = magoManager.vboMemoryManager;
+  var pointsCount = edgesCount * 2;
+  var posByteSize = pointsCount * 3;
+  var classifiedPosByteSize = vboMemManager.getClassifiedBufferSize(posByteSize);
+  vboKey.posVboDataArray = new Float32Array(classifiedPosByteSize);
+  vboKey.posVboDataArray.set(pointsArray);
+  vboKey.posArrayByteSize = pointsArray.length;
+  vboKey.segmentsCount = edgesCount;
+};
+/**
+ * Make triangle from IndoorGML data
+ * @param magoManager
+ * @param gmlDataContainer 
+ * 
+ */
+
+
+Network.prototype.parseTopologyData = function (magoManager, gmlDataContainer) {
+  // gmlDataContainer.cellSpaceMembers
+  // gmlDataContainer.edges
+  // gmlDataContainer.nodes
+  // cityGML Lower point (78.02094, -82.801873, 18).
+  // cityGML Upper point (152.17466, 19.03087, 39).
+  // cityGML Center point {x=115.09780549999999 y=-31.885501999999999 z=28.500000000000000 ...}
+  var bbox = new BoundingBox();
+  bbox.minX = gmlDataContainer.min_X;
+  bbox.minY = gmlDataContainer.min_Y;
+  bbox.minZ = gmlDataContainer.min_Z;
+  bbox.maxX = gmlDataContainer.max_X;
+  bbox.maxY = gmlDataContainer.max_Y;
+  bbox.maxZ = gmlDataContainer.max_Z; //bbox.maxX = 56.19070816040039;
+  //bbox.maxY = 71.51078033447266;
+  //bbox.maxZ = 10.5;
+  //bbox.minX = -379.18280029296875;
+  //bbox.minY = -142.4878387451172;
+  //bbox.minZ = -46.5;
+
+  var offsetVector = new Point3D();
+  var zOffset = 0.1;
+  offsetVector.set(-115.0978055, 31.885502, -28.5); // cityGML ORIGINAL Center point inversed.
+
+  var nodesMap = {};
+  var nodesCount = gmlDataContainer.nodes.length;
+
+  for (var i = 0; i < nodesCount; i++) {
+    var node = gmlDataContainer.nodes[i];
+    var networkNode = this.newNode();
+    networkNode.id = "#" + node.id;
+    networkNode.position = new Point3D(node.coordinates[0], node.coordinates[1], node.coordinates[2]);
+    networkNode.position.addPoint(offsetVector); // rest bbox centerPoint.
+
+    networkNode.position.add(0.0, 0.0, zOffset); // aditional pos.
+
+    networkNode.box = new Box(0.6, 0.6, 0.6);
+    nodesMap[networkNode.id] = networkNode;
+  }
+
+  var cellSpaceMap = {};
+  var cellSpacesCount = gmlDataContainer.cellSpaceMembers.length;
+
+  for (var i = 0; i < cellSpacesCount; i++) {
+    var cellSpace = gmlDataContainer.cellSpaceMembers[i];
+    var id = cellSpace.href;
+    var networkSpace = this.newSpace();
+    var mesh = new Mesh();
+    networkSpace.mesh = mesh; // assign mesh to networkSpace provisionally.
+
+    var vertexList = mesh.getVertexList();
+    var surfacesMembersCount = cellSpace.surfaceMember.length;
+
+    for (var j = 0; j < surfacesMembersCount; j++) {
+      var surface = mesh.newSurface();
+      var face = surface.newFace();
+      var coordinates = cellSpace.surfaceMember[j].coordinates;
+      var coordinatedCount = coordinates.length;
+      var pointsCount = coordinatedCount / 3;
+
+      for (var k = 0; k < pointsCount; k++) {
+        var x = coordinates[k * 3];
+        var y = coordinates[k * 3 + 1];
+        var z = coordinates[k * 3 + 2];
+        var vertex = vertexList.newVertex();
+        vertex.setPosition(x, y, z);
+        vertex.point3d.addPoint(offsetVector); // rest bbox centerPoint.
+
+        face.addVertex(vertex);
+      }
+
+      face.solveUroborus(); // Check & solve if the last point is coincident with the 1rst point.
+
+      face.calculateVerticesNormals();
+    }
+
+    cellSpaceMap[cellSpace.href] = cellSpace;
+  }
+
+  var edgesCount = gmlDataContainer.edges.length;
+
+  for (var i = 0; i < edgesCount; i++) {
+    var edge = gmlDataContainer.edges[i];
+    var networkEdge = this.newEdge();
+    var point1 = edge.stateMembers[0].coordinates;
+    var point2 = edge.stateMembers[1].coordinates;
+    var vertex1 = new Vertex();
+    var vertex2 = new Vertex();
+    vertex1.setPosition(point1[0], point1[1], point1[2]);
+    vertex2.setPosition(point2[0], point2[1], point2[2]);
+    vertex1.point3d.addPoint(offsetVector); // rest bbox centerPoint.
+
+    vertex1.point3d.add(0.0, 0.0, zOffset); // aditional pos.
+
+    vertex2.point3d.addPoint(offsetVector); // rest bbox centerPoint.
+
+    vertex2.point3d.add(0.0, 0.0, zOffset); // aditional pos.
+
+    var vtxSegment = new VtxSegment(vertex1, vertex2);
+    networkEdge.vtxSegment = vtxSegment; // assign vtxSegment to networkEdge provisionally.
+
+    var connect_1_id = edge.connects[0];
+    var connect_2_id = edge.connects[1];
+    networkEdge.strNodeId = connect_1_id;
+    networkEdge.endNodeId = connect_2_id;
+  }
+
+  this.test__makeVbos(magoManager);
+};
+/**
+ * 
+ */
+
+
+Network.prototype.renderColorCoding = function (magoManager, shader, renderType) {
+  // Provisional function.
+  // render nodes & edges.
+  var selectionColor = magoManager.selectionColor; //selectionColor.init(); 
+  // Check if exist selectionFamilies.
+
+  var selFamilyNameNodes = "networkNodes";
+  var selManager = magoManager.selectionManager;
+  var selCandidateNodes = selManager.getSelectionCandidatesFamily(selFamilyNameNodes);
+
+  if (selCandidateNodes === undefined) {
+    selCandidateNodes = selManager.newCandidatesFamily(selFamilyNameNodes);
+  }
+
+  var selFamilyNameEdges = "networkEdges";
+  var selManager = magoManager.selectionManager;
+  var selCandidateEdges = selManager.getSelectionCandidatesFamily(selFamilyNameEdges);
+
+  if (selCandidateEdges === undefined) {
+    selCandidateEdges = selManager.newCandidatesFamily(selFamilyNameEdges);
+  }
+
+  var vboMemManager = magoManager.vboMemoryManager;
+  var gl = magoManager.sceneState.gl;
+  var vboKey;
+  shader.disableVertexAttribArray(shader.texCoord2_loc);
+  shader.enableVertexAttribArray(shader.normal3_loc);
+  gl.uniform1i(shader.hasTexture_loc, false); //.
+
+  gl.uniform4fv(shader.oneColor4_loc, [0.8, 0.8, 0.8, 1.0]);
+
+  if (!shader.last_isAditionalMovedZero) {
+    gl.uniform1i(shader.hasAditionalMov_loc, false);
+    gl.uniform3fv(shader.aditionalMov_loc, [0.0, 0.0, 0.0]); //.
+
+    shader.last_isAditionalMovedZero = true;
+  } // Nodes.**
+
+
+  var nodesCount = 0;
+
+  if (this.nodesArray) {
+    nodesCount = this.nodesArray.length;
+  }
+
+  if (nodesCount > 0) //&& !magoManager.isCameraMoving)
+    {
+      var refMatrixType = 1; // translation-type.
+
+      gl.uniform1i(shader.refMatrixType_loc, refMatrixType); //gl.uniform4fv(shader.oneColor4_loc, [0.3, 0.3, 0.9, 1.0]);
+
+      var nodeMaster = this.nodesArray[0]; // render all with an unique box.
+
+      for (var i = 0; i < nodesCount; i++) {
+        var node = this.nodesArray[i]; // nodes has a position, so render a point or a box.
+
+        gl.uniform3fv(shader.refTranslationVec_loc, [node.position.x, node.position.y, node.position.z]);
+        var selColor4 = selectionColor.getAvailableColor(undefined); // new.
+
+        var idxKey = selectionColor.decodeColor3(selColor4.r, selColor4.g, selColor4.b);
+        selManager.setCandidateCustom(idxKey, selFamilyNameNodes, node);
+        gl.uniform4fv(shader.oneColor4_loc, [selColor4.r / 255.0, selColor4.g / 255.0, selColor4.b / 255.0, 1.0]);
+        nodeMaster.box.render(magoManager, shader, renderType);
+      }
+    } // Edges.**
+  // Render with a unique vbo.
+
+
+  if (this.edgesVboKeysContainer) {
+    var vboKey = this.edgesVboKeysContainer.vboCacheKeysArray[0];
+
+    if (vboKey.isReadyPositions(gl, vboMemManager)) {
+      shader.disableVertexAttribArray(shader.texCoord2_loc);
+      shader.disableVertexAttribArray(shader.normal3_loc);
+      refMatrixType = 0;
+      gl.uniform1i(shader.refMatrixType_loc, refMatrixType); // Positions.
+
+      if (vboKey.meshVertexCacheKey !== shader.lastVboKeyBindedMap[shader.position3_loc]) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, vboKey.meshVertexCacheKey);
+        gl.vertexAttribPointer(shader.position3_loc, 3, gl.FLOAT, false, 0, 0);
+        shader.lastVboKeyBindedMap[shader.position3_loc] = vboKey.meshVertexCacheKey;
+      }
+
+      var edgesCount = this.edgesArray.length;
+
+      for (var i = 0; i < edgesCount; i++) {
+        var edge = this.edgesArray[i];
+        var selColor4 = selectionColor.getAvailableColor(undefined); // new.
+
+        var idxKey = selectionColor.decodeColor3(selColor4.r, selColor4.g, selColor4.b);
+        selManager.setCandidateCustom(idxKey, selFamilyNameEdges, edge);
+        gl.uniform4fv(shader.oneColor4_loc, [selColor4.r / 255.0, selColor4.g / 255.0, selColor4.b / 255.0, 1.0]);
+        gl.drawArrays(gl.LINES, i * 2, 2);
+      }
+    }
+  }
+};
+/**
+ * 
+ */
+
+
+Network.prototype.render = function (magoManager, shader, renderType) {
+  if (renderType === 2) {
+    this.renderColorCoding(magoManager, shader, renderType);
+    return;
+  } // Check if ready smallBox and bigBox.
+
+
+  var selectionColor = magoManager.selectionColor;
+  selectionColor.init(); // Check if exist selectionFamilies.
+
+  var selFamilyNameNodes = "networkNodes";
+  var selManager = magoManager.selectionManager;
+  var selCandidateNodes = selManager.getSelectionCandidatesFamily(selFamilyNameNodes);
+
+  if (selCandidateNodes === undefined) {
+    selCandidateNodes = selManager.newCandidatesFamily(selFamilyNameNodes);
+  }
+
+  var selFamilyNameEdges = "networkEdges";
+  var selManager = magoManager.selectionManager;
+  var selCandidateEdges = selManager.getSelectionCandidatesFamily(selFamilyNameEdges);
+
+  if (selCandidateEdges === undefined) {
+    selCandidateEdges = selManager.newCandidatesFamily(selFamilyNameEdges);
+  } // Provisional function.
+  // render nodes & edges.
+
+
+  var vboMemManager = magoManager.vboMemoryManager;
+  var gl = magoManager.sceneState.gl;
+  var vboKey;
+  shader.disableVertexAttribArray(shader.texCoord2_loc);
+  shader.enableVertexAttribArray(shader.normal3_loc);
+  gl.uniform1i(shader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
+
+  gl.uniform4fv(shader.oneColor4_loc, [0.8, 0.8, 0.8, 1.0]);
+
+  if (!shader.last_isAditionalMovedZero) {
+    gl.uniform1i(shader.hasAditionalMov_loc, false);
+    gl.uniform3fv(shader.aditionalMov_loc, [0.0, 0.0, 0.0]); //.
+
+    shader.last_isAditionalMovedZero = true;
+  } // Nodes.**
+
+
+  var nodesCount = 0;
+
+  if (this.nodesArray) {
+    nodesCount = this.nodesArray.length;
+  }
+
+  if (nodesCount > 0) //&& !magoManager.isCameraMoving)
+    {
+      gl.uniform1i(shader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
+
+      var refMatrixType = 1; // translation-type.
+
+      gl.uniform1i(shader.refMatrixType_loc, refMatrixType);
+      gl.uniform4fv(shader.oneColor4_loc, [0.3, 0.3, 0.9, 1.0]);
+      var nodeMaster = this.nodesArray[0]; // render all with an unique box.
+
+      for (var i = 0; i < nodesCount; i++) {
+        var node = this.nodesArray[i]; // check if is selected.
+
+        if (node === selCandidateNodes.currentSelected) {
+          gl.uniform4fv(shader.oneColor4_loc, [0.9, 0.5, 0.1, 1.0]);
+        } // nodes has a position, so render a point or a box.
+
+
+        gl.uniform3fv(shader.refTranslationVec_loc, [node.position.x, node.position.y, node.position.z]);
+        nodeMaster.box.render(magoManager, shader, renderType); // restore defaultColor.
+
+        if (node === selCandidateNodes.currentSelected) {
+          gl.uniform4fv(shader.oneColor4_loc, [0.3, 0.3, 0.9, 1.0]);
+        }
+      }
+    } // Edges.**
+  // Render with a unique vbo.
+
+
+  if (this.edgesVboKeysContainer) {
+    var vboKey = this.edgesVboKeysContainer.vboCacheKeysArray[0];
+
+    if (vboKey.isReadyPositions(gl, vboMemManager)) {
+      shader.disableVertexAttribArray(shader.texCoord2_loc);
+      shader.disableVertexAttribArray(shader.normal3_loc);
+      gl.uniform1i(shader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
+
+      refMatrixType = 0;
+      gl.uniform1i(shader.refMatrixType_loc, refMatrixType);
+      gl.uniform4fv(shader.oneColor4_loc, [0.1, 0.1, 0.6, 1.0]); // Positions.
+
+      if (vboKey.meshVertexCacheKey !== shader.lastVboKeyBindedMap[shader.position3_loc]) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, vboKey.meshVertexCacheKey);
+        gl.vertexAttribPointer(shader.position3_loc, 3, gl.FLOAT, false, 0, 0);
+        shader.lastVboKeyBindedMap[shader.position3_loc] = vboKey.meshVertexCacheKey;
+      } //gl.drawArrays(gl.LINES, 0, vboKey.segmentsCount*2);
+
+
+      var edgesCount = this.edgesArray.length;
+
+      for (var i = 0; i < edgesCount; i++) {
+        var edge = this.edgesArray[i];
+
+        if (edge === selCandidateEdges.currentSelected) {
+          gl.uniform4fv(shader.oneColor4_loc, [0.0, 1.0, 0.0, 1.0]);
+        }
+
+        gl.drawArrays(gl.LINES, i * 2, 2); // restore default color.
+
+        if (edge === selCandidateEdges.currentSelected) {
+          gl.uniform4fv(shader.oneColor4_loc, [0.1, 0.1, 0.6, 1.0]);
+        }
+      }
+    }
+  } // Spaces.
+
+
+  this.renderSpaces = magoManager.tempSettings.renderSpaces;
+  this.spacesAlpha = magoManager.tempSettings.spacesAlpha;
+
+  if (renderType === 1) {
+    shader.enableVertexAttribArray(shader.normal3_loc);
+  }
+
+  if (this.renderSpaces) {
+    gl.uniform1i(shader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
+
+    refMatrixType = 0;
+    gl.uniform1i(shader.refMatrixType_loc, refMatrixType);
+    gl.uniform4fv(shader.oneColor4_loc, [0.8, 0.8, 0.8, this.spacesAlpha]);
+    gl.enable(gl.BLEND);
+    var spacesCount = 0;
+
+    if (this.spacesArray) {
+      spacesCount = this.spacesArray.length;
+    }
+
+    for (var i = 0; i < spacesCount; i++) {
+      var space = this.spacesArray[i];
+      space.mesh.render(magoManager, shader);
+    }
+
+    gl.disable(gl.BLEND);
+  }
+};
+'use strict';
+/**
+ * NetworkEdge.
+ * 
+ * @alias NetworkEdge
+ * @class NetworkEdge
+ */
+
+var NetworkEdge = function NetworkEdge(owner) {
+  if (!(this instanceof NetworkEdge)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  this.networkOwner = owner;
+  this.id;
+  this.strNode;
+  this.endNode;
+  this.sense;
+  this.attributes; // provisionally:
+
+  this.strNodeId;
+  this.endNodeId;
+};
+'use strict';
+/**
+ * NetworkNode.
+ * 
+ * @alias NetworkNode
+ * @class NetworkNode
+ */
+
+var NetworkNode = function NetworkNode(owner) {
+  if (!(this instanceof NetworkNode)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  this.networkOwner = owner;
+  this.id;
+  this.edgesArray;
+  this.attributes;
+  this.box; //this.mesh; // if display as a box, cilinder, etc.
+};
+'use strict';
+/**
+ * NetworkSpace.
+ * 
+ * @alias NetworkSpace
+ * @class NetworkSpace
+ */
+
+var NetworkSpace = function NetworkSpace(owner) {
+  if (!(this instanceof NetworkSpace)) {
+    throw new Error(Messages.CONSTRUCT_ERROR);
+  }
+
+  this.networkOwner = owner;
+  this.id;
+  this.mesh;
+  this.attributes;
+};
+'use strict';
+/**
  * 어떤 일을 하고 있습니까?
  * @class AttribLocationState
  */
@@ -93293,6 +94320,133 @@ void main()\n\
     gl_Position = ModelViewProjectionMatrixRelToEye * pos;\n\
 }\n\
 ";
+ShaderSource.depthTexturesMergerFS = "#ifdef GL_ES\n\
+    precision highp float;\n\
+#endif\n\
+\n\
+#define %USE_MULTI_RENDER_TARGET%\n\
+#ifdef USE_MULTI_RENDER_TARGET\n\
+#extension GL_EXT_draw_buffers : require\n\
+#endif\n\
+\n\
+uniform sampler2D depthTexture_0;  \n\
+uniform sampler2D normalTexture_0;\n\
+uniform sampler2D depthTexture_1;  \n\
+uniform sampler2D normalTexture_1;\n\
+uniform sampler2D depthTexture_2;  \n\
+uniform sampler2D normalTexture_2;\n\
+uniform sampler2D depthTexture_3;  \n\
+uniform sampler2D normalTexture_3;\n\
+\n\
+uniform int uNumFrustums;\n\
+\n\
+varying vec2 v_tex_pos;\n\
+\n\
+float getMinValue(float a, float b, float c)\n\
+{\n\
+    float x = min(a, b);\n\
+    return min(x, c);\n\
+}\n\
+\n\
+float getMaxValue(float a, float b, float c)\n\
+{\n\
+    float x = max(a, b);\n\
+    return max(x, c);\n\
+}\n\
+\n\
+bool isNan(float val)\n\
+{\n\
+  return (val <= 0.0 || 0.0 <= val) ? false : true;\n\
+}\n\
+\n\
+vec4 getDepth(in int frustumIdx, in vec2 texCoord)\n\
+{\n\
+    vec4 color4;\n\
+\n\
+    if(frustumIdx == 0)\n\
+    {\n\
+        color4 = texture2D(depthTexture_0, texCoord);\n\
+    }\n\
+    else if(frustumIdx == 1)\n\
+    {\n\
+        color4 = texture2D(depthTexture_1, texCoord);\n\
+    }\n\
+    else if(frustumIdx == 2)\n\
+    {\n\
+        color4 = texture2D(depthTexture_2, texCoord);\n\
+    }\n\
+    else if(frustumIdx == 3)\n\
+    {\n\
+        color4 = texture2D(depthTexture_3, texCoord);\n\
+    }\n\
+\n\
+    return color4;\n\
+}\n\
+\n\
+vec4 getNormal(in int frustumIdx, in vec2 texCoord)\n\
+{\n\
+    vec4 color4;\n\
+\n\
+    if(frustumIdx == 0)\n\
+    {\n\
+        color4 = texture2D(normalTexture_0, texCoord);\n\
+    }\n\
+    else if(frustumIdx == 1)\n\
+    {\n\
+        color4 = texture2D(normalTexture_1, texCoord);\n\
+    }\n\
+    else if(frustumIdx == 2)\n\
+    {\n\
+        color4 = texture2D(normalTexture_2, texCoord);\n\
+    }\n\
+    else if(frustumIdx == 3)\n\
+    {\n\
+        color4 = texture2D(normalTexture_3, texCoord);\n\
+    }\n\
+\n\
+    return color4;\n\
+}\n\
+\n\
+void main()\n\
+{           \n\
+    vec2 texCoord = vec2(1.0 - v_tex_pos.x, 1.0 - v_tex_pos.y);\n\
+\n\
+    // Take the base color.\n\
+    vec4 textureColor = vec4(0.0, 0.0, 0.0, 0.0);\n\
+    vec4 normalColor = vec4(0.0, 0.0, 0.0, 0.0);\n\
+    bool isValid = false;\n\
+\n\
+    for(int i=0; i<4; i++)\n\
+    {\n\
+        if(i < uNumFrustums)\n\
+        {\n\
+            vec4 normal4 = getNormal(i, texCoord);\n\
+            \n\
+            // check the depth value.***\n\
+            if((abs(normal4.x) + abs(normal4.y) + abs(normal4.z)) > 0.1)\n\
+            {\n\
+                // is valid depth value.***\n\
+                vec4 depthColor4 = getDepth(i, texCoord);\n\
+\n\
+                textureColor = depthColor4;\n\
+                normalColor = normal4;\n\
+                isValid = true;\n\
+                break;\n\
+            }\n\
+        }\n\
+    }\n\
+\n\
+    if(!isValid)\n\
+    discard;\n\
+\n\
+    \n\
+    gl_FragData[0] = textureColor;\n\
+\n\
+    #ifdef USE_MULTI_RENDER_TARGET\n\
+    gl_FragData[1] = normalColor;\n\
+    #endif\n\
+	\n\
+}";
 ShaderSource.draw_frag = "precision mediump float;\n\
 \n\
 uniform sampler2D u_wind;\n\
@@ -94868,6 +96022,7 @@ void main()\n\
 	//vec3 normalFromDepth = normal_from_depth(linearDepth, screenPos); // normal from depthTex.***\n\
 	//normal2 = normalFromDepth;\n\
 	//float edgeOccl = 1.0;\n\
+	/*\n\
 	if(bApplySsao)\n\
 	{   \n\
 		//if(linearDepth<0.996 && linearDepth>0.001005)\n\
@@ -94878,19 +96033,18 @@ void main()\n\
 			\n\
 			//Test.********************************************************************************************\n\
 			// NDC : the center of the screen is 0.0.0.***\n\
-			float depthRange_near = 0.0;\n\
-			float depthRange_far = 1.0;\n\
-			float x_ndc = 2.0 * screenPos.x - 1.0;\n\
-			float y_ndc = 2.0 * screenPos.y - 1.0;\n\
-			float z_ndc = (2.0 * linearDepth - depthRange_near - depthRange_far) / (depthRange_far - depthRange_near);\n\
+			////float depthRange_near = 0.0;\n\
+			////float depthRange_far = 1.0;\n\
+			////float x_ndc = 2.0 * screenPos.x - 1.0;\n\
+			////float y_ndc = 2.0 * screenPos.y - 1.0;\n\
+			////float z_ndc = (2.0 * linearDepth - depthRange_near - depthRange_far) / (depthRange_far - depthRange_near);\n\
 			\n\
-			vec4 viewPosH = projectionMatrixInv * vec4(x_ndc, y_ndc, z_ndc, 1.0);\n\
-			vec3 posCC = viewPosH.xyz/viewPosH.w;\n\
-			//vec4 posWC = modelViewMatrixRelToEyeInv * vec4(posCC.xyz, 1.0) + vec4((encodedCameraPositionMCHigh + encodedCameraPositionMCLow).xyz, 1.0);\n\
-			vec3 origin = vec3(posCC.xyz);  \n\
+			////vec4 viewPosH = projectionMatrixInv * vec4(x_ndc, y_ndc, z_ndc, 1.0);\n\
+			////vec3 posCC = viewPosH.xyz/viewPosH.w;\n\
+			////vec3 origin = vec3(posCC.xyz);  \n\
 			// EndTest.----------------------------------------------------------------------------------------\n\
 \n\
-			//vec3 origin = ray * linearDepth;  // original.***\n\
+			vec3 origin = ray * linearDepth;  // original.***\n\
 			float distToCam = -origin.z*0.01;\n\
 			if(distToCam < 1.0)\n\
 			distToCam = 1.0;\n\
@@ -94925,20 +96079,20 @@ void main()\n\
 \n\
 				float depthBufferValue = getDepth(offset.xy);\n\
 				\n\
-				/*\n\
-				if(depthBufferValue > 0.00391 && depthBufferValue < 0.00393)\n\
-				{\n\
-					if (depthBufferValue < sampleDepth-tolerance*1000.0)\n\
-					{\n\
-						occlusion +=  0.5;\n\
-					}\n\
-					\n\
-					continue;\n\
-				}			\n\
-				*/\n\
+				\n\
+				////if(depthBufferValue > 0.00391 && depthBufferValue < 0.00393)\n\
+				////{\n\
+				////	if (depthBufferValue < sampleDepth-tolerance*1000.0)\n\
+				////	{\n\
+				////		occlusion +=  0.5;\n\
+				////	}\n\
+				////	\n\
+				////	continue;\n\
+				////}			\n\
+				\n\
 				if (depthBufferValue < sampleDepth-tolerance)\n\
 				{\n\
-					occlusion +=  1.0/distToCam;\n\
+					occlusion +=  1.0;\n\
 				}\n\
 			} \n\
 		}\n\
@@ -94972,6 +96126,9 @@ void main()\n\
 \n\
 		\n\
 	}\n\
+	*/\n\
+\n\
+	occlusion = 1.0;\n\
 \n\
 	vec4 textureColor;\n\
     if(colorType == 2)\n\
@@ -95083,21 +96240,6 @@ void main()\n\
 			}\n\
 		}\n\
 	}\n\
-	\n\
-\n\
-    \n\
-	\n\
-	//textureColor = vec4(0.85, 0.85, 0.85, 1.0);\n\
-	/*\n\
-	if(linearDepth>0.95)\n\
-	{\n\
-		textureColor = vec4(1.0, 0.0, 0.0, 1.0); \n\
-	}\n\
-	else if(linearDepth<0.0079)\n\
-	{\n\
-		textureColor = vec4(0.0, 1.0, 0.0, 1.0); \n\
-	}\n\
-	*/\n\
 	\n\
 	//vec3 ambientColorAux = vec3(textureColor.x*ambientColor.x, textureColor.y*ambientColor.y, textureColor.z*ambientColor.z); // original.***\n\
 	vec3 ambientColorAux = vec3(textureColor.xyz);\n\
@@ -96187,6 +97329,11 @@ precision highp float;\n\
 #extension GL_EXT_frag_depth : enable\n\
 #endif\n\
 \n\
+#define %USE_MULTI_RENDER_TARGET%\n\
+#ifdef USE_MULTI_RENDER_TARGET\n\
+#extension GL_EXT_draw_buffers : require\n\
+#endif\n\
+\n\
 uniform sampler2D diffuseTex; // used only if texture is PNG, that has pixels with alpha = 0.0.***\n\
 uniform bool bHasTexture; // indicates if texture is PNG, that has pixels with alpha = 0.0.***\n\
 varying vec2 vTexCoord; // used only if texture is PNG, that has pixels with alpha = 0.0.***\n\
@@ -96200,11 +97347,14 @@ uniform bool bApplyClippingPlanes;\n\
 uniform int clippingPlanesCount;\n\
 uniform vec4 clippingPlanes[6];\n\
 uniform bool bUseLogarithmicDepth;\n\
+uniform int uFrustumIdx;\n\
 \n\
 varying float depth;  \n\
 varying vec3 vertexPos;\n\
+varying vec3 vNormal;\n\
 varying float flogz;\n\
 varying float Fcoef_half;\n\
+varying float vFrustumIdx;\n\
 \n\
 vec4 packDepth(const in float depth)\n\
 {\n\
@@ -96215,6 +97365,16 @@ vec4 packDepth(const in float depth)\n\
 	vec4 res = mod(depth * bit_shift * vec4(255), vec4(256) ) / vec4(255); // Is better.\n\
     res -= res.xxyz * bit_mask;\n\
     return res;  \n\
+}\n\
+\n\
+vec3 encodeNormal(in vec3 normal)\n\
+{\n\
+	return normal*0.5 + 0.5;\n\
+}\n\
+\n\
+vec3 decodeNormal(in vec3 normal)\n\
+{\n\
+	return normal * 2.0 - 1.0;\n\
 }\n\
 /*\n\
 vec4 packDepth_A( float v ) {\n\
@@ -96284,9 +97444,28 @@ void main()\n\
 		if(textureColor.a < 0.4)\n\
 		discard;\n\
 	}\n\
+	\n\
 \n\
 	if(!bUseLogarithmicDepth)\n\
+	{\n\
     	gl_FragData[0] = packDepth(-depth);\n\
+	}\n\
+\n\
+	float frustumIdx = 1.0;\n\
+	if(uFrustumIdx == 0)\n\
+	frustumIdx = 0.05;\n\
+	else if(uFrustumIdx == 1)\n\
+	frustumIdx = 0.15;\n\
+	else if(uFrustumIdx == 2)\n\
+	frustumIdx = 0.25;\n\
+	else if(uFrustumIdx == 3)\n\
+	frustumIdx = 0.35;\n\
+\n\
+	#ifdef USE_MULTI_RENDER_TARGET\n\
+	vec3 encodedNormal = encodeNormal(vNormal);\n\
+	gl_FragData[1] = vec4(encodedNormal, frustumIdx); // save normal.***\n\
+	#endif\n\
+	\n\
 \n\
 	#ifdef USE_LOGARITHMIC_DEPTH\n\
 	if(bUseLogarithmicDepth)\n\
@@ -96297,6 +97476,7 @@ void main()\n\
 	#endif\n\
 }";
 ShaderSource.RenderShowDepthVS = "attribute vec3 position;\n\
+attribute vec3 normal;\n\
 attribute vec2 texCoord;\n\
 \n\
 uniform mat4 buildingRotMatrix; \n\
@@ -96304,6 +97484,7 @@ uniform mat4 modelViewMatrix;\n\
 uniform mat4 modelViewMatrixRelToEye; \n\
 uniform mat4 RefTransfMatrix;\n\
 uniform mat4 ModelViewProjectionMatrixRelToEye;\n\
+uniform mat4 normalMatrix4;\n\
 uniform vec3 buildingPosHIGH;\n\
 uniform vec3 buildingPosLOW;\n\
 uniform vec3 scaleLC;\n\
@@ -96325,23 +97506,29 @@ varying float Fcoef_half;\n\
 varying float depth;\n\
 varying vec3 vertexPos;\n\
 varying vec2 vTexCoord; // used only if texture is PNG, that has pixels with alpha = 0.0.***\n\
+varying vec3 vNormal;\n\
   \n\
 void main()\n\
 {	\n\
 	vec4 scaledPos = vec4(position.x * scaleLC.x, position.y * scaleLC.y, position.z * scaleLC.z, 1.0);\n\
 	vec4 rotatedPos;\n\
 \n\
+	mat3 currentTMat;\n\
+\n\
 	if(refMatrixType == 0)\n\
 	{\n\
 		rotatedPos = buildingRotMatrix * vec4(scaledPos.xyz, 1.0) + vec4(aditionalPosition.xyz, 0.0);\n\
+		currentTMat = mat3(buildingRotMatrix);\n\
 	}\n\
 	else if(refMatrixType == 1)\n\
 	{\n\
 		rotatedPos = buildingRotMatrix * vec4(scaledPos.xyz + refTranslationVec.xyz, 1.0) + vec4(aditionalPosition.xyz, 0.0);\n\
+		currentTMat = mat3(buildingRotMatrix);\n\
 	}\n\
 	else if(refMatrixType == 2)\n\
 	{\n\
 		rotatedPos = RefTransfMatrix * vec4(scaledPos.xyz, 1.0) + vec4(aditionalPosition.xyz, 0.0);\n\
+		currentTMat = mat3(RefTransfMatrix);\n\
 	}\n\
 \n\
     vec3 objPosHigh = buildingPosHIGH;\n\
@@ -96353,15 +97540,18 @@ void main()\n\
     //linear depth in camera space (0..far)\n\
 	vec4 orthoPos = modelViewMatrixRelToEye * pos4;\n\
     depth = orthoPos.z/far; // original.***\n\
+	//depth = (orthoPos.z-near)/(far-near); // test.***\n\
 	\n\
+	// Calculate normalCC.***\n\
+	vec3 rotatedNormal = currentTMat * normal;\n\
+	vNormal = normalize((normalMatrix4 * vec4(rotatedNormal, 1.0)).xyz); // original.***\n\
 \n\
 	/*\n\
 	float z_ndc = (2.0 * z_window - depthRange_near - depthRange_far) / (depthRange_far - depthRange_near);\n\
-		\n\
-		vec4 viewPosH = projectionMatrixInv * vec4(x_ndc, y_ndc, z_ndc, 1.0);\n\
-		vec3 posCC = viewPosH.xyz/viewPosH.w;\n\
-		vec4 posWC = modelViewMatrixRelToEyeInv * vec4(posCC.xyz, 1.0) + vec4((encodedCameraPositionMCHigh + encodedCameraPositionMCLow).xyz, 1.0);\n\
-		*/\n\
+	vec4 viewPosH = projectionMatrixInv * vec4(x_ndc, y_ndc, z_ndc, 1.0);\n\
+	vec3 posCC = viewPosH.xyz/viewPosH.w;\n\
+	vec4 posWC = modelViewMatrixRelToEyeInv * vec4(posCC.xyz, 1.0) + vec4((encodedCameraPositionMCHigh + encodedCameraPositionMCLow).xyz, 1.0);\n\
+	*/\n\
 \n\
 \n\
     gl_Position = ModelViewProjectionMatrixRelToEye * pos4;\n\
@@ -96393,6 +97583,8 @@ ShaderSource.ScreenQuadFS = "#ifdef GL_ES\n\
 uniform sampler2D depthTex;\n\
 uniform sampler2D shadowMapTex;\n\
 uniform sampler2D shadowMapTex2;\n\
+uniform sampler2D ssaoTex;\n\
+uniform sampler2D normalTex;\n\
 uniform mat4 modelViewMatrixRelToEyeInv;\n\
 uniform mat4 projectionMatrixInv;\n\
 uniform vec3 encodedCameraPositionMCHigh;\n\
@@ -96406,13 +97598,15 @@ uniform float aspectRatio;    \n\
 uniform bool bApplyShadow;\n\
 uniform bool bSilhouette;\n\
 uniform bool bFxaa;\n\
+uniform bool bApplySsao;\n\
 \n\
 uniform mat4 sunMatrix[2]; \n\
 uniform vec3 sunPosHIGH[2];\n\
 uniform vec3 sunPosLOW[2];\n\
 uniform int sunIdx;\n\
 uniform float screenWidth;    \n\
-uniform float screenHeight;   \n\
+uniform float screenHeight;  \n\
+  \n\
 \n\
 \n\
 float unpackDepth(vec4 packedDepth)\n\
@@ -96448,6 +97642,17 @@ float UnpackDepth32( in vec4 pack )\n\
 	float depth = dot( pack, vec4(1.0, 0.00390625, 0.000015258789, 0.000000059605) );\n\
     return depth * 1.000000059605;// 1.000000059605 = (16777216.0) / (16777216.0 - 1.0);\n\
 }  \n\
+\n\
+vec4 decodeNormal(in vec4 normal)\n\
+{\n\
+	return vec4(normal.xyz * 2.0 - 1.0, normal.w);\n\
+}\n\
+\n\
+vec4 getNormal(in vec2 texCoord)\n\
+{\n\
+    vec4 encodedNormal = texture2D(normalTex, texCoord);\n\
+    return decodeNormal(encodedNormal);\n\
+}\n\
 \n\
 float getDepthShadowMap(vec2 coord)\n\
 {\n\
@@ -96549,6 +97754,8 @@ void make_kernel(inout vec4 n[9], vec2 coord)\n\
 \n\
 void main()\n\
 {\n\
+	vec2 screenPos = vec2(gl_FragCoord.x / screenWidth, gl_FragCoord.y / screenHeight);\n\
+\n\
 	// 1rst, check if this is silhouette rendering.\n\
 	if(bSilhouette)\n\
 	{\n\
@@ -96561,7 +97768,6 @@ void main()\n\
 		float tolerance = 0.9963;\n\
 		tolerance = 0.9963;\n\
 		\n\
-		vec2 screenPos = vec2(gl_FragCoord.x / screenWidth, gl_FragCoord.y / screenHeight); // centerPos.\n\
 		vec2 screenPos_LD = vec2(screenPos.x - pixelSizeW*2.5, screenPos.y - pixelSizeH*2.5); // left-down corner.\n\
 		\n\
 		for(int w = 0; w<5; w++)\n\
@@ -96603,13 +97809,7 @@ void main()\n\
 	{\n\
 		// the sun lights count are 2.\n\
 		// 1rst, calculate the pixelPosWC.\n\
-		vec2 screenPos = vec2(gl_FragCoord.x / screenWidth, gl_FragCoord.y / screenHeight);\n\
 		float z_window  = unpackDepth(texture2D(depthTex, screenPos.xy)); // z_window  is [0.0, 1.0] range depth.\n\
-		if(z_window < 0.001)\n\
-		discard;\n\
-\n\
-		//vec3 ray = getViewRay(screenPos);\n\
-		//vec4 posWC = vec4(ray * z_window, 1.0);\n\
 		\n\
 		// https://stackoverflow.com/questions/11277501/how-to-recover-view-space-position-given-view-space-depth-value-and-ndc-xy\n\
 		float depthRange_near = 0.0;\n\
@@ -96642,13 +97842,103 @@ void main()\n\
 		\n\
 	}\n\
 \n\
+	if(bApplySsao)\n\
+	{\n\
+		vec3 normal = getNormal(screenPos).xyz;\n\
+		if(length(normal) > 0.1)\n\
+		{\n\
+			//ssaoFromDepthTex\n\
+			float pixelSize_x = 1.0/screenWidth;\n\
+			float pixelSize_y = 1.0/screenHeight;\n\
+			vec4 occlFromDepth = vec4(0.0);\n\
+			for(int i=0; i<4; i++)\n\
+			{\n\
+				for(int j=0; j<4; j++)\n\
+				{\n\
+					vec2 texCoord = vec2(screenPos.x + pixelSize_x*float(i-2), screenPos.y + pixelSize_y*float(j-2));\n\
+					vec4 color = texture2D(ssaoTex, texCoord);\n\
+					occlFromDepth += color;\n\
+				}\n\
+			}\n\
+\n\
+			occlFromDepth /= 16.0;\n\
+			occlFromDepth *= 0.45;\n\
+\n\
+			float occlusion = occlFromDepth.r + occlFromDepth.g + occlFromDepth.b + occlFromDepth.a; // original.***\n\
+\n\
+			if(occlusion < 0.0)\n\
+			occlusion = 0.0;\n\
+\n\
+			gl_FragColor = vec4(0.0, 0.0, 0.0, occlusion);\n\
+			//gl_FragColor = vec4(1.0, 0.0, 0.0, 0.2);\n\
+\n\
+			// Provisionally render edges here.****************************************************************\n\
+			vec3 normal_up = getNormal(vec2(screenPos.x, screenPos.y + pixelSize_y)).xyz;\n\
+			vec3 normal_right = getNormal(vec2(screenPos.x + pixelSize_x, screenPos.y)).xyz;\n\
+			vec3 normal_down = getNormal(vec2(screenPos.x, screenPos.y - pixelSize_y)).xyz;\n\
+			vec3 normal_left = getNormal(vec2(screenPos.x - pixelSize_x, screenPos.y)).xyz;\n\
+\n\
+			//vec3 normal_ur = getNormal(vec2(screenPos.x + pixelSize_x, screenPos.y + pixelSize_y)).xyz;\n\
+			//vec3 normal_rd = getNormal(vec2(screenPos.x + pixelSize_x, screenPos.y - pixelSize_y)).xyz;\n\
+			//vec3 normal_ld = getNormal(vec2(screenPos.x - pixelSize_x, screenPos.y - pixelSize_y)).xyz;\n\
+			//vec3 normal_lu = getNormal(vec2(screenPos.x - pixelSize_x, screenPos.y + pixelSize_y)).xyz;\n\
+\n\
+			float factor = 0.0;\n\
+			float increF = 0.07 * 2.0;\n\
+\n\
+			if(dot(normal, normal_up) < 0.3)\n\
+			{ factor += increF; }\n\
+\n\
+			if(dot(normal, normal_right) < 0.3)\n\
+			{ factor += increF; }\n\
+\n\
+			if(dot(normal, normal_down) < 0.3)\n\
+			{ factor += increF; }\n\
+\n\
+			if(dot(normal, normal_left) < 0.3)\n\
+			{ factor += increF; }\n\
+\n\
+			/*\n\
+			if(dot(normal, normal_ur) < 0.3)\n\
+			{ factor += increF; }\n\
+\n\
+			if(dot(normal, normal_rd) < 0.3)\n\
+			{ factor += increF; }\n\
+\n\
+			if(dot(normal, normal_ld) < 0.3)\n\
+			{ factor += increF; }\n\
+\n\
+			if(dot(normal, normal_lu) < 0.3)\n\
+			{ factor += increF; }\n\
+			*/\n\
+\n\
+			if(factor > increF*0.9)\n\
+			{\n\
+				gl_FragColor = vec4(0.0, 0.0, 0.0, factor+occlusion);\n\
+				return;\n\
+			}\n\
+\n\
+		}\n\
+	}\n\
+\n\
 	// check if is fastAntiAlias.***\n\
 	if(bFxaa)\n\
 	{\n\
-		vec4 color = texture2D(depthTex, vec2(gl_FragCoord.x / screenWidth, gl_FragCoord.y / screenHeight));\n\
+		vec4 color = texture2D(depthTex, screenPos);\n\
 \n\
-		if(color.r < 0.0001 && color.g < 0.0001 && color.b < 0.0001)\n\
-		discard;\n\
+		float pixelSize_x = 1.0/screenWidth;\n\
+		float pixelSize_y = 1.0/screenHeight;\n\
+		vec3 normal = getNormal(screenPos).xyz;\n\
+		vec3 normal_up = getNormal(vec2(screenPos.x, screenPos.y + pixelSize_y)).xyz;\n\
+		vec3 normal_right = getNormal(vec2(screenPos.x + pixelSize_x, screenPos.y)).xyz;\n\
+\n\
+		if(dot(normal, normal_up) < 0.5 || dot(normal, normal_right) < 0.5)\n\
+		{\n\
+			gl_FragColor = vec4(0.0, 0.0, 1.0, 0.5);\n\
+			return;\n\
+		}\n\
+		//if(color.r < 0.0001 && color.g < 0.0001 && color.b < 0.0001)\n\
+		//discard;\n\
 		/*/\n\
 		vec4 n[9];\n\
 		make_kernel( n, vec2(gl_FragCoord.x / screenWidth, gl_FragCoord.y / screenHeight) );\n\
@@ -96660,7 +97950,7 @@ void main()\n\
 		gl_FragColor = vec4( 1.0 - sobel.rgb, 1.0 );\n\
 		//gl_FragColor = vec4(sobel.rgb, 1.0 );\n\
 		*/\n\
-		gl_FragColor = color;\n\
+		//gl_FragColor = color;\n\
 	}\n\
     \n\
 }";
@@ -96745,21 +98035,23 @@ ShaderSource.ssaoFromDepthFS = "\n\
 \n\
 uniform sampler2D depthTex;\n\
 uniform sampler2D noiseTex;  \n\
+uniform sampler2D normalTex;\n\
 \n\
 uniform mat4 projectionMatrix;\n\
 uniform mat4 projectionMatrixInv;\n\
 \n\
 uniform float near;\n\
-uniform float far;            \n\
+uniform float far;         \n\
 uniform float fov;\n\
 uniform float tangentOfHalfFovy;\n\
 uniform float aspectRatio;    \n\
 uniform float screenWidth;    \n\
 uniform float screenHeight; \n\
 uniform vec2 noiseScale;\n\
+uniform vec2 uNearFarArray[4];\n\
+\n\
 \n\
 uniform bool bApplySsao;\n\
-uniform float radius; \n\
 uniform vec3 kernel[16]; \n\
 \n\
 const int kernelSize = 16; \n\
@@ -96776,6 +98068,17 @@ float unpackDepth(const in vec4 rgba_depth)\n\
     return depth;\n\
 }  \n\
 \n\
+vec4 decodeNormal(in vec4 normal)\n\
+{\n\
+	return vec4(normal.xyz * 2.0 - 1.0, normal.w);\n\
+}\n\
+\n\
+vec4 getNormal(in vec2 texCoord)\n\
+{\n\
+    vec4 encodedNormal = texture2D(normalTex, texCoord);\n\
+    return decodeNormal(encodedNormal);\n\
+}\n\
+\n\
 /*\n\
 float unpackDepth_A(vec4 packedDepth)\n\
 {\n\
@@ -96791,22 +98094,15 @@ float UnpackDepth32( in vec4 pack )\n\
     return depth * 1.000000059605;// 1.000000059605 = (16777216.0) / (16777216.0 - 1.0);\n\
 }             \n\
 \n\
-vec3 getViewRay(vec2 tc)\n\
+vec3 getViewRay(vec2 tc, in float relFar)\n\
 {\n\
-	float hfar = 2.0 * tangentOfHalfFovy * far;\n\
+	float hfar = 2.0 * tangentOfHalfFovy * relFar;\n\
     float wfar = hfar * aspectRatio;    \n\
-    vec3 ray = vec3(wfar * (tc.x - 0.5), hfar * (tc.y - 0.5), -far);    \n\
+    vec3 ray = vec3(wfar * (tc.x - 0.5), hfar * (tc.y - 0.5), -relFar);    \n\
 	\n\
     return ray;                      \n\
 }         \n\
             \n\
-//linear view space depth\n\
-/*\n\
-float getDepth(vec2 coord)\n\
-{\n\
-	return unpackDepth(texture2D(depthTex, coord.xy));\n\
-} \n\
-*/\n\
 float getDepth(vec2 coord)\n\
 {\n\
 	if(bUseLogarithmicDepth)\n\
@@ -96825,6 +98121,29 @@ float getDepth(vec2 coord)\n\
 	}\n\
 }\n\
 \n\
+vec2 getNearFar_byFrustumIdx(in int frustumIdx)\n\
+{\n\
+    vec2 nearFar;\n\
+    if(frustumIdx == 0)\n\
+    {\n\
+        nearFar = uNearFarArray[0];\n\
+    }\n\
+    else if(frustumIdx == 1)\n\
+    {\n\
+        nearFar = uNearFarArray[1];\n\
+    }\n\
+    else if(frustumIdx == 2)\n\
+    {\n\
+        nearFar = uNearFarArray[2];\n\
+    }\n\
+    else if(frustumIdx == 3)\n\
+    {\n\
+        nearFar = uNearFarArray[3];\n\
+    }\n\
+\n\
+    return nearFar;\n\
+}\n\
+\n\
 vec3 reconstructPosition(vec2 texCoord, float depth)\n\
 {\n\
     // https://wickedengine.net/2019/09/22/improved-normal-reconstruction-from-depth/\n\
@@ -96837,7 +98156,7 @@ vec3 reconstructPosition(vec2 texCoord, float depth)\n\
     return pos_CC.xyz / pos_CC.w;\n\
 }\n\
 \n\
-vec3 normal_from_depth(float depth, vec2 texCoord) {\n\
+vec3 normal_from_depth(float depth, vec2 texCoord, inout bool isValid) {\n\
     // http://theorangeduck.com/page/pure-depth-ssao\n\
     float pixelSizeX = 1.0/screenWidth;\n\
     float pixelSizeY = 1.0/screenHeight;\n\
@@ -96849,29 +98168,43 @@ vec3 normal_from_depth(float depth, vec2 texCoord) {\n\
 	float depthB = 0.0;\n\
 	for(float i=0.0; i<2.0; i++)\n\
 	{\n\
-		depthA += getDepth(texCoord + offset1*(1.0+i));\n\
-		depthB += getDepth(texCoord + offset2*(1.0+i));\n\
-	}\n\
+        float depthAux = getDepth(texCoord + offset1*(1.0+i));\n\
+        if(depthAux > 0.996)\n\
+        {\n\
+            depthAux = depth;\n\
+            isValid = false;\n\
+        }\n\
+		depthA += depthAux;\n\
 \n\
+        depthAux = getDepth(texCoord + offset2*(1.0+i));\n\
+        if(depthAux > 0.996)\n\
+        {\n\
+            depthAux = depth;\n\
+            isValid = false;\n\
+        }\n\
+		depthB += depth;\n\
+	}\n\
+    \n\
 	//vec3 posA = reconstructPosition(texCoord + offset1*2.0, depthA/2.0);\n\
 	//vec3 posB = reconstructPosition(texCoord + offset2*2.0, depthB/2.0);\n\
     //vec3 pos0 = reconstructPosition(texCoord, depth);\n\
-\n\
-    vec3 posA = getViewRay(texCoord + offset1*2.0)* depthA/2.0;\n\
-	vec3 posB = getViewRay(texCoord + offset2*2.0)* depthB/2.0;\n\
-    vec3 pos0 = getViewRay(texCoord)* depth;\n\
+    \n\
+    vec3 posA = getViewRay(texCoord + offset1*2.0, far)* depthA/2.0;\n\
+	vec3 posB = getViewRay(texCoord + offset2*2.0, far)* depthB/2.0;\n\
+    vec3 pos0 = getViewRay(texCoord, far)* depth;\n\
 \n\
     posA.z *= -1.0;\n\
     posB.z *= -1.0;\n\
     pos0.z *= -1.0;\n\
-\n\
+    \n\
     vec3 normal = cross(posA - pos0, posB - pos0);\n\
     normal.z = -normal.z;\n\
+    isValid = true;\n\
 \n\
     return normalize(normal);\n\
 }\n\
 \n\
-float getOcclusion(vec3 origin, vec3 rotatedKernel, float radius)\n\
+float getOcclusion(vec3 origin, vec3 rotatedKernel, float radius, vec2 origin_nearFar)\n\
 {\n\
     float result_occlusion = 0.0;\n\
     vec3 sample = origin + rotatedKernel * radius;\n\
@@ -96880,60 +98213,107 @@ float getOcclusion(vec3 origin, vec3 rotatedKernel, float radius)\n\
     offsetCoord.xyz /= offset.w;\n\
     offsetCoord.xyz = offsetCoord.xyz * 0.5 + 0.5;  	\n\
 \n\
-    //if(abs(offsetCoord.x * screenWidth - gl_FragCoord.x) < 1.5 && abs(offsetCoord.y * screenHeight - gl_FragCoord.y) < 1.5)\n\
-	//	return 0.0;\n\
+    vec4 normalRGBA = getNormal(offsetCoord.xy);\n\
+    int currFrustumIdx = int(floor(10.0*normalRGBA.w));\n\
+    vec2 nearFar = getNearFar_byFrustumIdx(currFrustumIdx);\n\
+    float currNear = nearFar.x;\n\
+    float currFar = nearFar.y;\n\
 \n\
-    float sampleDepth = -sample.z/far;// original.***\n\
-\n\
+    float originFar = origin_nearFar.y;\n\
+    float originNear = origin_nearFar.x;\n\
+    float sampleDepth = -sample.z/currFar;// original.***\n\
     float depthBufferValue = getDepth(offsetCoord.xy);\n\
-\n\
-    // For multiFrustum ssao problem.***\n\
-    //if(depthBufferValue > 0.1)\n\
-    //return 0.0;\n\
     //------------------------------------\n\
-\n\
-    float depthDiff = abs(depthBufferValue - sampleDepth);\n\
-    if(depthDiff < radius/far)\n\
+    /*\n\
+    float sampleZ = -sample.z;\n\
+    float bufferZ = currNear + depthBufferValue * (currFar - currNear);\n\
+    float zDiff = abs(bufferZ - sampleZ);\n\
+    if(zDiff < radius)\n\
     {\n\
-        float rangeCheck = smoothstep(0.0, 1.0, radius / (depthDiff*far));\n\
+        float rangeCheck = smoothstep(0.0, 1.0, radius/zDiff);\n\
+        if (bufferZ < sampleZ)//-tolerance*1.0)\n\
+        {\n\
+            result_occlusion = 1.0 * rangeCheck;\n\
+        }\n\
+    }\n\
+    */\n\
+    \n\
+    float depthDiff = abs(depthBufferValue - sampleDepth);\n\
+    if(depthDiff < radius/currFar)\n\
+    {\n\
+        float rangeCheck = smoothstep(0.0, 1.0, radius / (depthDiff*currFar));\n\
         if (depthBufferValue < sampleDepth)//-tolerance*1.0)\n\
         {\n\
             result_occlusion = 1.0 * rangeCheck;\n\
         }\n\
     }\n\
-\n\
+    \n\
     return result_occlusion;\n\
 }\n\
 \n\
+float getFactorByDist(in float radius, in float realDist)\n\
+{\n\
+    float factorByDist = 1.0;\n\
+    if(realDist < radius*5.0)\n\
+    {\n\
+        factorByDist = smoothstep(0.0, 1.0, realDist/(radius*5.0));\n\
+    }\n\
+    return factorByDist;\n\
+}\n\
+\n\
+\n\
+\n\
 void main()\n\
 {\n\
-    float occlusion = 0.0;\n\
-    float smallOcclusion = 0.0;\n\
+    float occlusion_C = 0.0;\n\
+    float occlusion_B = 0.0;\n\
     float occlusion_A = 0.0;\n\
-    float occlusion_veryBig = 0.0;\n\
+    float occlusion_D = 0.0;\n\
+\n\
+    //float occlusion_CC = 0.0;\n\
+    //float occlusion_BB = 0.0;\n\
+    //float occlusion_AA = 0.0;\n\
+    //float occlusion_DD = 0.0;\n\
+\n\
     vec3 normal = vec3(0.0);\n\
     vec2 screenPos = vec2(gl_FragCoord.x / screenWidth, gl_FragCoord.y / screenHeight);\n\
-    vec3 ray = getViewRay(screenPos); // The \"far\" for depthTextures if fixed in \"RenderShowDepthVS\" shader.\n\
+    vec4 normalRGBA = getNormal(screenPos);\n\
+    vec3 normal2 = normalRGBA.xyz; // original.***\n\
+    int currFrustumIdx = int(floor(10.0*normalRGBA.w));\n\
+\n\
+    vec2 nearFar = getNearFar_byFrustumIdx(currFrustumIdx);\n\
+    float currNear = nearFar.x;\n\
+    float currFar = nearFar.y;\n\
+\n\
+    vec3 ray = getViewRay(screenPos, (currFar)); // The \"far\" for depthTextures if fixed in \"RenderShowDepthVS\" shader.\n\
+    vec3 rayNear = getViewRay(screenPos, currNear);\n\
     float linearDepth = getDepth(screenPos);  \n\
-    bool isAlmostOutOfFrustum = false;\n\
-    //if(linearDepth>0.996 || linearDepth<0.001005)\n\
-    //if(linearDepth>0.996 || linearDepth<0.001005)\n\
+\n\
+    float radius_D = 20.0;\n\
+    float radius_C = 12.0;\n\
+    float radius_B = 5.0;\n\
+    float radius_A = 0.5;\n\
+\n\
+    //float radius_DD = 26.0;\n\
+    //float radius_CC = 15.0;\n\
+    //float radius_BB = 5.0;\n\
+    //float radius_AA = 0.5;\n\
+\n\
+    float factorByDist = 1.0;\n\
+    //vec3 posCC = reconstructPosition(screenPos, linearDepth);\n\
+    vec3 posCC = ray * linearDepth + rayNear; \n\
+    //float realDist = near + linearDepth * far;\n\
+    float realDist = -posCC.z;\n\
+\n\
+    //if(realDist < bigRadius*5.0)\n\
     //{\n\
-    //    isAlmostOutOfFrustum = true;\n\
+    //    factorByDist = smoothstep(0.0, 1.0, realDist/(bigRadius*5.0));\n\
     //}\n\
 \n\
-    \n\
-\n\
-    float veryBigRadius = 20.0;\n\
-    float bigRadius = 12.0;\n\
-    float smallRadius = 6.0;\n\
-    float radius_A = 2.0;\n\
-    float factorByDist = 1.0;\n\
-    float realDist = linearDepth * far;\n\
-\n\
-    if(realDist < bigRadius*5.0)\n\
+    float aux = 30.0;\n\
+    if(realDist < aux)\n\
     {\n\
-        factorByDist = smoothstep(0.0, 1.0, realDist/(bigRadius*5.0));\n\
+        factorByDist = smoothstep(0.0, 1.0, realDist/(aux));\n\
     }\n\
 \n\
     //if(factorByDist < 0.05)\n\
@@ -96941,10 +98321,19 @@ void main()\n\
 \n\
     if(bApplySsao)// && !isAlmostOutOfFrustum)\n\
 	{        \n\
-		vec3 origin = ray * linearDepth; \n\
-        //origin = reconstructPosition(screenPos, linearDepth);\n\
-\n\
-        vec3 normal2 = normal_from_depth(linearDepth, screenPos); // normal from depthTex.***\n\
+		vec3 origin = ray * linearDepth;// + rayNear; \n\
+        //vec3 origin = reconstructPosition(screenPos, linearDepth);\n\
+        bool isValid = true;\n\
+        //vec3 normal2 = normal_from_depth(linearDepth, screenPos, isValid); // normal from depthTex.***\n\
+        \n\
+        if(length(normal2) < 0.1)\n\
+        isValid = false;\n\
+        if(!isValid)\n\
+        {\n\
+            //gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);\n\
+            //return;\n\
+            discard;\n\
+        }\n\
         normal = normal2;\n\
         \n\
 		vec3 rvec = texture2D(noiseTex, screenPos.xy * noiseScale).xyz * 2.0 - 1.0;\n\
@@ -96957,35 +98346,47 @@ void main()\n\
             vec3 rotatedKernel = tbn * vec3(kernel[i].x*1.0, kernel[i].y*1.0, kernel[i].z);\n\
 \n\
             // Big radius.***\n\
-            occlusion += getOcclusion(origin, rotatedKernel, bigRadius) * factorByDist;\n\
+            occlusion_C += getOcclusion(origin, rotatedKernel, radius_C, nearFar) * factorByDist;\n\
+            //occlusion_C += getOcclusion(origin, rotatedKernel, radius_CC, nearFar) * factorByDist;\n\
 \n\
             // small occl.***\n\
-            smallOcclusion += getOcclusion(origin, rotatedKernel, smallRadius) * factorByDist;\n\
+            occlusion_B += getOcclusion(origin, rotatedKernel, radius_B, nearFar) * factorByDist;\n\
+            //occlusion_B += getOcclusion(origin, rotatedKernel, radius_BB, nearFar) * factorByDist;\n\
 \n\
             // radius A.***\n\
-            occlusion_A += getOcclusion(origin, rotatedKernel, radius_A) * factorByDist;\n\
+            occlusion_A += getOcclusion(origin, rotatedKernel, radius_A, nearFar) * factorByDist;\n\
+            //occlusion_A += getOcclusion(origin, rotatedKernel, radius_AA, nearFar) * factorByDist;\n\
 \n\
             // veryBigRadius.***\n\
-            occlusion_veryBig += getOcclusion(origin, rotatedKernel, veryBigRadius) * factorByDist;\n\
+            occlusion_D += getOcclusion(origin, rotatedKernel, radius_D, nearFar) * factorByDist;\n\
+            //occlusion_D += getOcclusion(origin, rotatedKernel, radius_DD, nearFar) * factorByDist;\n\
 		} \n\
 \n\
-        \n\
+        float fKernelSize = float(kernelSize);\n\
 \n\
-		occlusion = occlusion / float(kernelSize);	\n\
-        if(occlusion < 0.0)\n\
-        occlusion = 0.0;\n\
+		occlusion_C = occlusion_C / fKernelSize;	\n\
+        if(occlusion_C < 0.0)\n\
+        occlusion_C = 0.0;\n\
+        else if(occlusion_C > 1.0)\n\
+        occlusion_C = 1.0;\n\
 \n\
-        smallOcclusion = smallOcclusion / float(kernelSize);	\n\
-        if(smallOcclusion < 0.0)\n\
-        smallOcclusion = 0.0;\n\
+        occlusion_B = occlusion_B / fKernelSize;	\n\
+        if(occlusion_B < 0.0)\n\
+        occlusion_B = 0.0;\n\
+        else if(occlusion_B > 1.0)\n\
+        occlusion_B = 1.0;\n\
 \n\
-        occlusion_A = occlusion_A / float(kernelSize);	\n\
+        occlusion_A = occlusion_A / fKernelSize;	\n\
         if(occlusion_A < 0.0)\n\
         occlusion_A = 0.0;\n\
+        else if(occlusion_A > 1.0)\n\
+        occlusion_A = 1.0;\n\
 \n\
-        occlusion_veryBig = occlusion_veryBig / float(kernelSize);	\n\
-        if(occlusion_veryBig < 0.0)\n\
-        occlusion_veryBig = 0.0;\n\
+        occlusion_D = occlusion_D / fKernelSize;	\n\
+        if(occlusion_D < 0.0)\n\
+        occlusion_D = 0.0;\n\
+        else if(occlusion_D > 1.0)\n\
+        occlusion_D = 1.0;\n\
 	}\n\
     else\n\
     {\n\
@@ -96999,7 +98400,7 @@ void main()\n\
 	//scalarProd += 0.666;\n\
     //gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0 - scalarProd);\n\
 \n\
-	gl_FragColor = vec4(occlusion_veryBig, occlusion_A, smallOcclusion, occlusion);\n\
+	gl_FragColor = vec4(occlusion_A, occlusion_B, occlusion_C, occlusion_D);\n\
     //gl_FragColor = vec4(normal.xyz, 1.0);\n\
 }";
 ShaderSource.StandardFS = "precision lowp float;\n\
@@ -98880,17 +100281,20 @@ ShaderSource.TinTerrainFS = "#ifdef GL_ES\n\
 #ifdef USE_LOGARITHMIC_DEPTH\n\
 #extension GL_EXT_frag_depth : enable\n\
 #endif\n\
+\n\
+#define %USE_MULTI_RENDER_TARGET%\n\
+#ifdef USE_MULTI_RENDER_TARGET\n\
+#extension GL_EXT_draw_buffers : require\n\
+#endif\n\
   \n\
 uniform sampler2D shadowMapTex;// 0\n\
 uniform sampler2D shadowMapTex2;// 1\n\
-//uniform sampler2D depthTex;//2\n\
-//uniform sampler2D noiseTex;//3\n\
-uniform sampler2D diffuseTex;  // 4\n\
-uniform sampler2D diffuseTex_1;// 5\n\
-uniform sampler2D diffuseTex_2;// 6\n\
-uniform sampler2D diffuseTex_3;// 7\n\
-uniform sampler2D diffuseTex_4;// 8\n\
-uniform sampler2D diffuseTex_5;// 9\n\
+uniform sampler2D diffuseTex;  // 2\n\
+uniform sampler2D diffuseTex_1;// 3\n\
+uniform sampler2D diffuseTex_2;// 4\n\
+uniform sampler2D diffuseTex_3;// 5\n\
+uniform sampler2D diffuseTex_4;// 6\n\
+uniform sampler2D diffuseTex_5;// 7\n\
 uniform bool textureFlipYAxis;\n\
 uniform bool bIsMakingDepth;\n\
 uniform bool bExistAltitudes;\n\
@@ -98912,10 +100316,6 @@ uniform vec2 uMinMaxAltitudes;\n\
 // int uTileDepth;\n\
 uniform int uSeaOrTerrainType;\n\
 uniform int uRenderType;\n\
-\n\
-\n\
-uniform vec4 uGeoRectangles[3];\n\
-uniform int uGeoRectanglesCount;\n\
 \n\
 uniform vec4 oneColor4;\n\
 uniform highp int colorType; // 0= oneColor, 1= attribColor, 2= texture.\n\
@@ -98941,26 +100341,18 @@ uniform float shadowMapWidth;    \n\
 uniform float shadowMapHeight;\n\
 uniform bool bUseLogarithmicDepth;\n\
 \n\
-varying vec3 v3Pos;\n\
 varying float vFogAmount;\n\
 \n\
-varying float applySpecLighting;\n\
 varying vec4 vPosRelToLight; \n\
-varying vec3 vLightDir; \n\
 varying vec3 vNormal;\n\
-varying vec3 vNormalWC;\n\
 varying float currSunIdx;\n\
-varying float vAltitude;\n\
 \n\
 varying float flogz;\n\
 varying float Fcoef_half;\n\
 \n\
 // Texture's vars.***\n\
 varying float vTileDepth;\n\
-varying float vTexTileDepth;\n\
 \n\
-const float equatorialRadius = 6378137.0;\n\
-const float polarRadius = 6356752.3142;\n\
 \n\
 // water caustics: https://catlikecoding.com/unity/tutorials/flow/texture-distortion/\n\
 \n\
@@ -99146,6 +100538,7 @@ float getDepthShadowMap(vec2 coord)\n\
 	}\n\
 	else\n\
 		return 1000.0;\n\
+	\n\
 } \n\
 \n\
 float getGridLineWidth(int depth)\n\
@@ -99276,19 +100669,20 @@ void main()\n\
 \n\
 	if(bIsMakingDepth)\n\
 	{\n\
-		gl_FragColor = packDepth(depthAux);\n\
+		gl_FragData[0] = packDepth(depthAux);\n\
+		return;\n\
 	}\n\
 	else\n\
 	{\n\
 		if(uRenderType == 2)\n\
 		{\n\
-			gl_FragColor = oneColor4; \n\
+			gl_FragData[0] = oneColor4; \n\
 			return;\n\
 		}\n\
 \n\
 		if(uSeaOrTerrainType == 1)\n\
 		{\n\
-			gl_FragColor = vec4(oneColor4.xyz, 0.5); // original.***\n\
+			gl_FragData[0] = vec4(oneColor4.xyz, 0.5); // original.***\n\
 			// Render a dot matrix in the sea surface. TODO.***\n\
 \n\
 			return;\n\
@@ -99537,13 +100931,12 @@ void main()\n\
 			////float tolerance = radius/(far-near);// test.***\n\
 			////float tolerance = radius/farForDepth;\n\
 \n\
-			// in this shader noiseTex is \"diffusse_1\".\n\
+			// in this shader noiseTex is \"diffusse_1\" in channel 3.\n\
 			vec3 rvec = texture2D(diffuseTex_1, screenPos.xy * noiseScale).xyz * 2.0 - 1.0;\n\
 			vec3 tangent = normalize(rvec - normal2 * dot(rvec, normal2));\n\
 			vec3 bitangent = cross(normal2, tangent);\n\
 			mat3 tbn = mat3(tangent, bitangent, normal2);   \n\
-			//float minDepthBuffer;\n\
-			//float maxDepthBuffer;\n\
+\n\
 			for(int i = 0; i < kernelSize; ++i)\n\
 			{    	 \n\
 				vec3 sample = origin + (tbn * vec3(kernel[i].x*3.0, kernel[i].y*3.0, kernel[i].z)) * ssaoRadius*2.0; // original.***\n\
@@ -99553,17 +100946,6 @@ void main()\n\
 				float sampleDepth = -sample.z/far;// original.***\n\
 \n\
 				float depthBufferValue = getDepth(offset.xy);\n\
-				/*\n\
-				if(depthBufferValue > 0.00391 && depthBufferValue < 0.00393)\n\
-				{\n\
-					if (depthBufferValue < sampleDepth-tolerance*1000.0)\n\
-					{\n\
-						occlusion +=  0.5;\n\
-					}\n\
-					\n\
-					continue;\n\
-				}			\n\
-				*/\n\
 				if (depthBufferValue < sampleDepth)//-tolerance)\n\
 				{\n\
 					occlusion +=  1.0;\n\
@@ -99658,14 +101040,14 @@ void main()\n\
 			float specularReflectionCoef = 0.6;\n\
 			vec3 specularColor = vec3(0.8, 0.8, 0.8);\n\
 			//textureColor = mix(textureColor, fogColor, 0.2); \n\
-			//gl_FragColor = vec4(finalColor.xyz * shadow_occlusion * lambertian + specularReflectionCoef * specular * specularColor * shadow_occlusion, 1.0); // with specular.***\n\
-			gl_FragColor = vec4(textureColor.xyz * shadow_occlusion * lambertian * scalarProd, 1.0); // original.***\n\
+			//gl_FragData[0] = vec4(finalColor.xyz * shadow_occlusion * lambertian + specularReflectionCoef * specular * specularColor * shadow_occlusion, 1.0); // with specular.***\n\
+			gl_FragData[0] = vec4(textureColor.xyz * shadow_occlusion * lambertian * scalarProd, 1.0); // original.***\n\
 \n\
 			// test contrast.***\n\
 			//float Contrast = 2.0;\n\
-			//vec3 pixelColor = vec3(gl_FragColor.r, gl_FragColor.g, gl_FragColor.b);\n\
+			//vec3 pixelColor = vec3(gl_FragData[0].r, gl_FragData[0].g, gl_FragData[0].b);\n\
 			//pixelColor.rgb = ((pixelColor.rgb - 0.5) * max(Contrast, 0.0)) + 0.5;\n\
-			//gl_FragColor = vec4(pixelColor, 1.0);\n\
+			//gl_FragData[0] = vec4(pixelColor, 1.0);\n\
 \n\
 			return;\n\
 		}\n\
@@ -99676,9 +101058,14 @@ void main()\n\
 		}\n\
 		\n\
 		vec4 finalColor = mix(textureColor, fogColor, vFogAmount); \n\
-		gl_FragColor = vec4(finalColor.xyz * shadow_occlusion * lambertian * scalarProd, 1.0); // original.***\n\
-		//gl_FragColor = textureColor; // test.***\n\
-		//gl_FragColor = vec4(vNormal.xyz, 1.0); // test.***\n\
+\n\
+		gl_FragData[0] = vec4(finalColor.xyz * shadow_occlusion * lambertian * scalarProd, 1.0); // original.***\n\
+		//gl_FragData[0] = textureColor; // test.***\n\
+		//gl_FragData[0] = vec4(vNormal.xyz, 1.0); // test.***\n\
+\n\
+		#ifdef USE_MULTI_RENDER_TARGET\n\
+		gl_FragData[1] = vec4(0); // save normal.***\n\
+		#endif\n\
 	}\n\
 }";
 ShaderSource.TinTerrainVS = "\n\
@@ -99803,6 +101190,7 @@ void main()\n\
 		vec3 currSunPosLOW;\n\
 		vec3 currSunPosHIGH;\n\
 		mat4 currSunMatrix;\n\
+\n\
 		if(sunIdx == 0)\n\
 		{\n\
 			currSunPosLOW = sunPosLOW[0];\n\
@@ -99825,7 +101213,7 @@ void main()\n\
 		vec4 posRelToLightAux = currSunMatrix * pos4Sun;\n\
 		\n\
 		// now, check if \"posRelToLightAux\" is inside of the lightVolume (inside of the depthTexture of the light).\n\
-		vec3 posRelToLightNDC = posRelToLightAux.xyz / posRelToLightAux.w;\n\
+		//vec3 posRelToLightNDC = posRelToLightAux.xyz / posRelToLightAux.w;\n\
 		vPosRelToLight = posRelToLightAux;\n\
 	}\n\
 	\n\
@@ -99880,7 +101268,6 @@ void main()\n\
 			float newT = minT + texCoord.y * scaleT;\n\
 \n\
 			vTexCoord = vec2(newS, newT);\n\
-			\n\
 			\n\
 \n\
 			/*\n\
@@ -101136,553 +102523,6 @@ UniformVec4fvDataPair.prototype.bindUniform = function () {
 };
 'use strict';
 /**
- * Network.
- * IndoorGML의 네트워크를 파싱하고 그리는 데 사용합니다.
- * @alias Network
- * @class Network
- */
-
-var Network = function Network(owner) {
-  if (!(this instanceof Network)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  this.nodeOwner;
-
-  if (owner) {
-    this.nodeOwner = owner;
-  }
-
-  this.id; // network id.
-
-  this.nodesArray;
-  this.edgesArray;
-  this.spacesArray;
-  this.attributes;
-  this.edgesVboKeysContainer; // to draw edges with an unique vbo.
-
-  this.nodesVboKeysContainer; // to draw nodes with an unique vbo.
-
-  this.renderSpaces = true;
-  this.spacesAlpha = 0.2;
-};
-/**
- * 
- */
-
-
-Network.prototype.newNode = function () {
-  if (this.nodesArray === undefined) {
-    this.nodesArray = [];
-  }
-
-  var networkNode = new NetworkNode(this);
-  this.nodesArray.push(networkNode);
-  return networkNode;
-};
-/**
- * 
- */
-
-
-Network.prototype.newEdge = function () {
-  if (this.edgesArray === undefined) {
-    this.edgesArray = [];
-  }
-
-  var networkEdge = new NetworkEdge(this);
-  this.edgesArray.push(networkEdge);
-  return networkEdge;
-};
-/**
- * 
- */
-
-
-Network.prototype.newSpace = function () {
-  if (this.spacesArray === undefined) {
-    this.spacesArray = [];
-  }
-
-  var networkSpace = new NetworkSpace(this);
-  this.spacesArray.push(networkSpace);
-  return networkSpace;
-};
-/**
- * 
- */
-
-
-Network.prototype.test__makeVbos = function (magoManager) {
-  // Here makes meshes and vbos.
-  // For edges, make an unique vbo for faster rendering.
-  var edgesCount = 0;
-
-  if (this.edgesArray) {
-    edgesCount = this.edgesArray.length;
-  }
-
-  var pointsArray = [];
-
-  for (var i = 0; i < edgesCount; i++) {
-    var edge = this.edgesArray[i];
-    var vtxSegment = edge.vtxSegment;
-    var point1 = vtxSegment.startVertex.point3d;
-    var point2 = vtxSegment.endVertex.point3d;
-    pointsArray.push(point1.x);
-    pointsArray.push(point1.y);
-    pointsArray.push(point1.z);
-    pointsArray.push(point2.x);
-    pointsArray.push(point2.y);
-    pointsArray.push(point2.z);
-  }
-
-  if (this.edgesVboKeysContainer === undefined) {
-    this.edgesVboKeysContainer = new VBOVertexIdxCacheKeysContainer();
-  }
-
-  var vboKey = this.edgesVboKeysContainer.newVBOVertexIdxCacheKey();
-  var vboMemManager = magoManager.vboMemoryManager;
-  var pointsCount = edgesCount * 2;
-  var posByteSize = pointsCount * 3;
-  var classifiedPosByteSize = vboMemManager.getClassifiedBufferSize(posByteSize);
-  vboKey.posVboDataArray = new Float32Array(classifiedPosByteSize);
-  vboKey.posVboDataArray.set(pointsArray);
-  vboKey.posArrayByteSize = pointsArray.length;
-  vboKey.segmentsCount = edgesCount;
-};
-/**
- * Make triangle from IndoorGML data
- * @param magoManager
- * @param gmlDataContainer 
- * 
- */
-
-
-Network.prototype.parseTopologyData = function (magoManager, gmlDataContainer) {
-  // gmlDataContainer.cellSpaceMembers
-  // gmlDataContainer.edges
-  // gmlDataContainer.nodes
-  // cityGML Lower point (78.02094, -82.801873, 18).
-  // cityGML Upper point (152.17466, 19.03087, 39).
-  // cityGML Center point {x=115.09780549999999 y=-31.885501999999999 z=28.500000000000000 ...}
-  var bbox = new BoundingBox();
-  bbox.minX = gmlDataContainer.min_X;
-  bbox.minY = gmlDataContainer.min_Y;
-  bbox.minZ = gmlDataContainer.min_Z;
-  bbox.maxX = gmlDataContainer.max_X;
-  bbox.maxY = gmlDataContainer.max_Y;
-  bbox.maxZ = gmlDataContainer.max_Z; //bbox.maxX = 56.19070816040039;
-  //bbox.maxY = 71.51078033447266;
-  //bbox.maxZ = 10.5;
-  //bbox.minX = -379.18280029296875;
-  //bbox.minY = -142.4878387451172;
-  //bbox.minZ = -46.5;
-
-  var offsetVector = new Point3D();
-  var zOffset = 0.1;
-  offsetVector.set(-115.0978055, 31.885502, -28.5); // cityGML ORIGINAL Center point inversed.
-
-  var nodesMap = {};
-  var nodesCount = gmlDataContainer.nodes.length;
-
-  for (var i = 0; i < nodesCount; i++) {
-    var node = gmlDataContainer.nodes[i];
-    var networkNode = this.newNode();
-    networkNode.id = "#" + node.id;
-    networkNode.position = new Point3D(node.coordinates[0], node.coordinates[1], node.coordinates[2]);
-    networkNode.position.addPoint(offsetVector); // rest bbox centerPoint.
-
-    networkNode.position.add(0.0, 0.0, zOffset); // aditional pos.
-
-    networkNode.box = new Box(0.6, 0.6, 0.6);
-    nodesMap[networkNode.id] = networkNode;
-  }
-
-  var cellSpaceMap = {};
-  var cellSpacesCount = gmlDataContainer.cellSpaceMembers.length;
-
-  for (var i = 0; i < cellSpacesCount; i++) {
-    var cellSpace = gmlDataContainer.cellSpaceMembers[i];
-    var id = cellSpace.href;
-    var networkSpace = this.newSpace();
-    var mesh = new Mesh();
-    networkSpace.mesh = mesh; // assign mesh to networkSpace provisionally.
-
-    var vertexList = mesh.getVertexList();
-    var surfacesMembersCount = cellSpace.surfaceMember.length;
-
-    for (var j = 0; j < surfacesMembersCount; j++) {
-      var surface = mesh.newSurface();
-      var face = surface.newFace();
-      var coordinates = cellSpace.surfaceMember[j].coordinates;
-      var coordinatedCount = coordinates.length;
-      var pointsCount = coordinatedCount / 3;
-
-      for (var k = 0; k < pointsCount; k++) {
-        var x = coordinates[k * 3];
-        var y = coordinates[k * 3 + 1];
-        var z = coordinates[k * 3 + 2];
-        var vertex = vertexList.newVertex();
-        vertex.setPosition(x, y, z);
-        vertex.point3d.addPoint(offsetVector); // rest bbox centerPoint.
-
-        face.addVertex(vertex);
-      }
-
-      face.solveUroborus(); // Check & solve if the last point is coincident with the 1rst point.
-
-      face.calculateVerticesNormals();
-    }
-
-    cellSpaceMap[cellSpace.href] = cellSpace;
-  }
-
-  var edgesCount = gmlDataContainer.edges.length;
-
-  for (var i = 0; i < edgesCount; i++) {
-    var edge = gmlDataContainer.edges[i];
-    var networkEdge = this.newEdge();
-    var point1 = edge.stateMembers[0].coordinates;
-    var point2 = edge.stateMembers[1].coordinates;
-    var vertex1 = new Vertex();
-    var vertex2 = new Vertex();
-    vertex1.setPosition(point1[0], point1[1], point1[2]);
-    vertex2.setPosition(point2[0], point2[1], point2[2]);
-    vertex1.point3d.addPoint(offsetVector); // rest bbox centerPoint.
-
-    vertex1.point3d.add(0.0, 0.0, zOffset); // aditional pos.
-
-    vertex2.point3d.addPoint(offsetVector); // rest bbox centerPoint.
-
-    vertex2.point3d.add(0.0, 0.0, zOffset); // aditional pos.
-
-    var vtxSegment = new VtxSegment(vertex1, vertex2);
-    networkEdge.vtxSegment = vtxSegment; // assign vtxSegment to networkEdge provisionally.
-
-    var connect_1_id = edge.connects[0];
-    var connect_2_id = edge.connects[1];
-    networkEdge.strNodeId = connect_1_id;
-    networkEdge.endNodeId = connect_2_id;
-  }
-
-  this.test__makeVbos(magoManager);
-};
-/**
- * 
- */
-
-
-Network.prototype.renderColorCoding = function (magoManager, shader, renderType) {
-  // Provisional function.
-  // render nodes & edges.
-  var selectionColor = magoManager.selectionColor; //selectionColor.init(); 
-  // Check if exist selectionFamilies.
-
-  var selFamilyNameNodes = "networkNodes";
-  var selManager = magoManager.selectionManager;
-  var selCandidateNodes = selManager.getSelectionCandidatesFamily(selFamilyNameNodes);
-
-  if (selCandidateNodes === undefined) {
-    selCandidateNodes = selManager.newCandidatesFamily(selFamilyNameNodes);
-  }
-
-  var selFamilyNameEdges = "networkEdges";
-  var selManager = magoManager.selectionManager;
-  var selCandidateEdges = selManager.getSelectionCandidatesFamily(selFamilyNameEdges);
-
-  if (selCandidateEdges === undefined) {
-    selCandidateEdges = selManager.newCandidatesFamily(selFamilyNameEdges);
-  }
-
-  var vboMemManager = magoManager.vboMemoryManager;
-  var gl = magoManager.sceneState.gl;
-  var vboKey;
-  shader.disableVertexAttribArray(shader.texCoord2_loc);
-  shader.enableVertexAttribArray(shader.normal3_loc);
-  gl.uniform1i(shader.hasTexture_loc, false); //.
-
-  gl.uniform4fv(shader.oneColor4_loc, [0.8, 0.8, 0.8, 1.0]);
-
-  if (!shader.last_isAditionalMovedZero) {
-    gl.uniform1i(shader.hasAditionalMov_loc, false);
-    gl.uniform3fv(shader.aditionalMov_loc, [0.0, 0.0, 0.0]); //.
-
-    shader.last_isAditionalMovedZero = true;
-  } // Nodes.**
-
-
-  var nodesCount = 0;
-
-  if (this.nodesArray) {
-    nodesCount = this.nodesArray.length;
-  }
-
-  if (nodesCount > 0) //&& !magoManager.isCameraMoving)
-    {
-      var refMatrixType = 1; // translation-type.
-
-      gl.uniform1i(shader.refMatrixType_loc, refMatrixType); //gl.uniform4fv(shader.oneColor4_loc, [0.3, 0.3, 0.9, 1.0]);
-
-      var nodeMaster = this.nodesArray[0]; // render all with an unique box.
-
-      for (var i = 0; i < nodesCount; i++) {
-        var node = this.nodesArray[i]; // nodes has a position, so render a point or a box.
-
-        gl.uniform3fv(shader.refTranslationVec_loc, [node.position.x, node.position.y, node.position.z]);
-        var selColor4 = selectionColor.getAvailableColor(undefined); // new.
-
-        var idxKey = selectionColor.decodeColor3(selColor4.r, selColor4.g, selColor4.b);
-        selManager.setCandidateCustom(idxKey, selFamilyNameNodes, node);
-        gl.uniform4fv(shader.oneColor4_loc, [selColor4.r / 255.0, selColor4.g / 255.0, selColor4.b / 255.0, 1.0]);
-        nodeMaster.box.render(magoManager, shader, renderType);
-      }
-    } // Edges.**
-  // Render with a unique vbo.
-
-
-  if (this.edgesVboKeysContainer) {
-    var vboKey = this.edgesVboKeysContainer.vboCacheKeysArray[0];
-
-    if (vboKey.isReadyPositions(gl, vboMemManager)) {
-      shader.disableVertexAttribArray(shader.texCoord2_loc);
-      shader.disableVertexAttribArray(shader.normal3_loc);
-      refMatrixType = 0;
-      gl.uniform1i(shader.refMatrixType_loc, refMatrixType); // Positions.
-
-      if (vboKey.meshVertexCacheKey !== shader.lastVboKeyBindedMap[shader.position3_loc]) {
-        gl.bindBuffer(gl.ARRAY_BUFFER, vboKey.meshVertexCacheKey);
-        gl.vertexAttribPointer(shader.position3_loc, 3, gl.FLOAT, false, 0, 0);
-        shader.lastVboKeyBindedMap[shader.position3_loc] = vboKey.meshVertexCacheKey;
-      }
-
-      var edgesCount = this.edgesArray.length;
-
-      for (var i = 0; i < edgesCount; i++) {
-        var edge = this.edgesArray[i];
-        var selColor4 = selectionColor.getAvailableColor(undefined); // new.
-
-        var idxKey = selectionColor.decodeColor3(selColor4.r, selColor4.g, selColor4.b);
-        selManager.setCandidateCustom(idxKey, selFamilyNameEdges, edge);
-        gl.uniform4fv(shader.oneColor4_loc, [selColor4.r / 255.0, selColor4.g / 255.0, selColor4.b / 255.0, 1.0]);
-        gl.drawArrays(gl.LINES, i * 2, 2);
-      }
-    }
-  }
-};
-/**
- * 
- */
-
-
-Network.prototype.render = function (magoManager, shader, renderType) {
-  if (renderType === 2) {
-    this.renderColorCoding(magoManager, shader, renderType);
-    return;
-  } // Check if ready smallBox and bigBox.
-
-
-  var selectionColor = magoManager.selectionColor;
-  selectionColor.init(); // Check if exist selectionFamilies.
-
-  var selFamilyNameNodes = "networkNodes";
-  var selManager = magoManager.selectionManager;
-  var selCandidateNodes = selManager.getSelectionCandidatesFamily(selFamilyNameNodes);
-
-  if (selCandidateNodes === undefined) {
-    selCandidateNodes = selManager.newCandidatesFamily(selFamilyNameNodes);
-  }
-
-  var selFamilyNameEdges = "networkEdges";
-  var selManager = magoManager.selectionManager;
-  var selCandidateEdges = selManager.getSelectionCandidatesFamily(selFamilyNameEdges);
-
-  if (selCandidateEdges === undefined) {
-    selCandidateEdges = selManager.newCandidatesFamily(selFamilyNameEdges);
-  } // Provisional function.
-  // render nodes & edges.
-
-
-  var vboMemManager = magoManager.vboMemoryManager;
-  var gl = magoManager.sceneState.gl;
-  var vboKey;
-  shader.disableVertexAttribArray(shader.texCoord2_loc);
-  shader.enableVertexAttribArray(shader.normal3_loc);
-  gl.uniform1i(shader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
-
-  gl.uniform4fv(shader.oneColor4_loc, [0.8, 0.8, 0.8, 1.0]);
-
-  if (!shader.last_isAditionalMovedZero) {
-    gl.uniform1i(shader.hasAditionalMov_loc, false);
-    gl.uniform3fv(shader.aditionalMov_loc, [0.0, 0.0, 0.0]); //.
-
-    shader.last_isAditionalMovedZero = true;
-  } // Nodes.**
-
-
-  var nodesCount = 0;
-
-  if (this.nodesArray) {
-    nodesCount = this.nodesArray.length;
-  }
-
-  if (nodesCount > 0) //&& !magoManager.isCameraMoving)
-    {
-      gl.uniform1i(shader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
-
-      var refMatrixType = 1; // translation-type.
-
-      gl.uniform1i(shader.refMatrixType_loc, refMatrixType);
-      gl.uniform4fv(shader.oneColor4_loc, [0.3, 0.3, 0.9, 1.0]);
-      var nodeMaster = this.nodesArray[0]; // render all with an unique box.
-
-      for (var i = 0; i < nodesCount; i++) {
-        var node = this.nodesArray[i]; // check if is selected.
-
-        if (node === selCandidateNodes.currentSelected) {
-          gl.uniform4fv(shader.oneColor4_loc, [0.9, 0.5, 0.1, 1.0]);
-        } // nodes has a position, so render a point or a box.
-
-
-        gl.uniform3fv(shader.refTranslationVec_loc, [node.position.x, node.position.y, node.position.z]);
-        nodeMaster.box.render(magoManager, shader, renderType); // restore defaultColor.
-
-        if (node === selCandidateNodes.currentSelected) {
-          gl.uniform4fv(shader.oneColor4_loc, [0.3, 0.3, 0.9, 1.0]);
-        }
-      }
-    } // Edges.**
-  // Render with a unique vbo.
-
-
-  if (this.edgesVboKeysContainer) {
-    var vboKey = this.edgesVboKeysContainer.vboCacheKeysArray[0];
-
-    if (vboKey.isReadyPositions(gl, vboMemManager)) {
-      shader.disableVertexAttribArray(shader.texCoord2_loc);
-      shader.disableVertexAttribArray(shader.normal3_loc);
-      gl.uniform1i(shader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
-
-      refMatrixType = 0;
-      gl.uniform1i(shader.refMatrixType_loc, refMatrixType);
-      gl.uniform4fv(shader.oneColor4_loc, [0.1, 0.1, 0.6, 1.0]); // Positions.
-
-      if (vboKey.meshVertexCacheKey !== shader.lastVboKeyBindedMap[shader.position3_loc]) {
-        gl.bindBuffer(gl.ARRAY_BUFFER, vboKey.meshVertexCacheKey);
-        gl.vertexAttribPointer(shader.position3_loc, 3, gl.FLOAT, false, 0, 0);
-        shader.lastVboKeyBindedMap[shader.position3_loc] = vboKey.meshVertexCacheKey;
-      } //gl.drawArrays(gl.LINES, 0, vboKey.segmentsCount*2);
-
-
-      var edgesCount = this.edgesArray.length;
-
-      for (var i = 0; i < edgesCount; i++) {
-        var edge = this.edgesArray[i];
-
-        if (edge === selCandidateEdges.currentSelected) {
-          gl.uniform4fv(shader.oneColor4_loc, [0.0, 1.0, 0.0, 1.0]);
-        }
-
-        gl.drawArrays(gl.LINES, i * 2, 2); // restore default color.
-
-        if (edge === selCandidateEdges.currentSelected) {
-          gl.uniform4fv(shader.oneColor4_loc, [0.1, 0.1, 0.6, 1.0]);
-        }
-      }
-    }
-  } // Spaces.
-
-
-  this.renderSpaces = magoManager.tempSettings.renderSpaces;
-  this.spacesAlpha = magoManager.tempSettings.spacesAlpha;
-
-  if (renderType === 1) {
-    shader.enableVertexAttribArray(shader.normal3_loc);
-  }
-
-  if (this.renderSpaces) {
-    gl.uniform1i(shader.colorType_loc, 0); // 0= oneColor, 1= attribColor, 2= texture.
-
-    refMatrixType = 0;
-    gl.uniform1i(shader.refMatrixType_loc, refMatrixType);
-    gl.uniform4fv(shader.oneColor4_loc, [0.8, 0.8, 0.8, this.spacesAlpha]);
-    gl.enable(gl.BLEND);
-    var spacesCount = 0;
-
-    if (this.spacesArray) {
-      spacesCount = this.spacesArray.length;
-    }
-
-    for (var i = 0; i < spacesCount; i++) {
-      var space = this.spacesArray[i];
-      space.mesh.render(magoManager, shader);
-    }
-
-    gl.disable(gl.BLEND);
-  }
-};
-'use strict';
-/**
- * NetworkEdge.
- * 
- * @alias NetworkEdge
- * @class NetworkEdge
- */
-
-var NetworkEdge = function NetworkEdge(owner) {
-  if (!(this instanceof NetworkEdge)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  this.networkOwner = owner;
-  this.id;
-  this.strNode;
-  this.endNode;
-  this.sense;
-  this.attributes; // provisionally:
-
-  this.strNodeId;
-  this.endNodeId;
-};
-'use strict';
-/**
- * NetworkNode.
- * 
- * @alias NetworkNode
- * @class NetworkNode
- */
-
-var NetworkNode = function NetworkNode(owner) {
-  if (!(this instanceof NetworkNode)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  this.networkOwner = owner;
-  this.id;
-  this.edgesArray;
-  this.attributes;
-  this.box; //this.mesh; // if display as a box, cilinder, etc.
-};
-'use strict';
-/**
- * NetworkSpace.
- * 
- * @alias NetworkSpace
- * @class NetworkSpace
- */
-
-var NetworkSpace = function NetworkSpace(owner) {
-  if (!(this instanceof NetworkSpace)) {
-    throw new Error(Messages.CONSTRUCT_ERROR);
-  }
-
-  this.networkOwner = owner;
-  this.id;
-  this.mesh;
-  this.attributes;
-};
-'use strict';
-/**
  * This class contains the current objects that are rendering. 
  * @class CurrentObjectsRendering
  * @constructor
@@ -101807,8 +102647,9 @@ Renderer.prototype.renderNodes = function (gl, visibleNodesArray, magoManager, s
         var radiusAprox = bbox.getRadiusAprox();
         var distToLight0 = light0CenterPoint.distToPoint(bboxAbsoluteCenterPos); //+radiusAprox;
 
-        if (distToLight0 < light0Radius) {
-          gl.uniform1i(shader.sunIdx_loc, 0);
+        if (distToLight0 < light0Radius * 0.5) {
+          gl.uniform1i(shader.sunIdx_loc, 0); // original.***
+          //gl.uniform1i(shader.sunIdx_loc, 1);
         } else {
           gl.uniform1i(shader.sunIdx_loc, 1);
         }
@@ -102117,6 +102958,7 @@ Renderer.prototype.renderGeometryDepth = function (gl, renderType, visibleObjCon
     gl.uniform1i(currentShader.bUseLogarithmicDepth_loc, magoManager.postFxShadersManager.bUseLogarithmicDepth);
     gl.uniform1f(currentShader.uFCoef_logDepth_loc, sceneState.fCoef_logDepth[0]);
     gl.uniform1i(currentShader.bHasTexture_loc, false);
+    gl.uniform1i(currentShader.uFrustumIdx_loc, magoManager.currentFrustumIdx);
     currentShader.bindUniformGenerals();
     gl.uniform3fv(currentShader.scaleLC_loc, [1.0, 1.0, 1.0]); // init referencesMatrix.
 
@@ -102144,7 +102986,8 @@ Renderer.prototype.renderGeometryDepth = function (gl, renderType, visibleObjCon
     gl.uniform3fv(currentShader.scaleLC_loc, [1.0, 1.0, 1.0]); // init referencesMatrix.
 
     gl.uniform3fv(currentShader.aditionalMov_loc, [0.0, 0.0, 0.0]); //.***
-    // check if exist clippingPlanes.
+
+    gl.uniform1i(currentShader.uFrustumIdx_loc, magoManager.currentFrustumIdx); // check if exist clippingPlanes.
 
     if (magoManager.modeler.clippingBox !== undefined) {
       var planesVec4Array = magoManager.modeler.clippingBox.getPlanesRelToEyevec4Array(magoManager);
@@ -102771,6 +103614,114 @@ Renderer.prototype.renderEdgesFromDepth = function (gl) {
   gl.enable(gl.DEPTH_TEST);
 };
 /**
+ * This function renders the shadows of the scene on terrain.
+ * @param {WebGLRenderingContext} gl WebGL Rendering Context.
+ */
+
+
+Renderer.prototype.renderScreenQuadSsao = function (gl) {
+  // This function renders shadows on terrain in cesium.***
+  // We are using a quadScreen.***
+  var currentShader;
+  var magoManager = this.magoManager;
+  var sceneState = magoManager.sceneState;
+  var bufferWidth = sceneState.drawingBufferWidth[0];
+  var bufferHeight = sceneState.drawingBufferHeight[0];
+  var bApplySsao = true;
+  var bApplyShadow = false;
+  var bSilhouette = false;
+  var bFxaa = false;
+
+  if (!bApplySsao) {
+    return;
+  }
+
+  var postFxShadersManager = magoManager.postFxShadersManager;
+  currentShader = postFxShadersManager.getShader("screenQuad");
+  postFxShadersManager.useProgram(currentShader);
+  currentShader.bindUniformGenerals();
+  var projectionMatrixInv = sceneState.getProjectionMatrixInv();
+  gl.uniformMatrix4fv(currentShader.projectionMatrixInv_loc, false, projectionMatrixInv._floatArrays);
+  var modelViewMatrixRelToEyeInv = sceneState.getModelViewRelToEyeMatrixInv();
+  gl.uniformMatrix4fv(currentShader.modelViewMatrixRelToEyeInv_loc, false, modelViewMatrixRelToEyeInv._floatArrays);
+  gl.uniform1i(currentShader.bApplyShadow_loc, bApplyShadow);
+  gl.uniform1i(currentShader.bSilhouette_loc, bSilhouette);
+  gl.uniform1i(currentShader.bFxaa_loc, bFxaa);
+  gl.uniform1i(currentShader.bApplySsao_loc, bApplySsao);
+  var sunSystem = sceneState.sunSystem;
+  var sunLight = sunSystem.getLight(0);
+  var textureAux1x1 = magoManager.texturesStore.getTextureAux1x1(); // Bind textures.***
+
+  for (var i = 0; i < 8; i++) {
+    gl.activeTexture(gl.TEXTURE0 + i);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+  }
+  /*
+  gl.bindTexture(gl.TEXTURE_2D, null);  // cesium globeDepthTexture.***
+  gl.activeTexture(gl.TEXTURE3); 
+  if (bApplyShadow && sunLight.depthFbo)
+  {
+  	var sunSystem = sceneState.sunSystem;
+  	var sunLight = sunSystem.getLight(0);
+  	gl.bindTexture(gl.TEXTURE_2D, sunLight.depthFbo.colorBuffer);
+  }
+  else 
+  {
+  	gl.bindTexture(gl.TEXTURE_2D, textureAux1x1);
+  }
+  
+  gl.activeTexture(gl.TEXTURE4); 
+  if (bApplyShadow && sunLight.depthFbo)
+  {
+  	var sunSystem = sceneState.sunSystem;
+  	var sunLight = sunSystem.getLight(1);
+  	gl.bindTexture(gl.TEXTURE_2D, sunLight.depthFbo.colorBuffer);
+  }
+  else 
+  {
+  	gl.bindTexture(gl.TEXTURE_2D, textureAux1x1);
+  }
+  currentShader.last_tex_id = textureAux1x1;
+  */
+
+
+  var texManager = magoManager.texturesManager;
+  var texturesMergerFbo = texManager.texturesMergerFbo;
+  var normalTex = texturesMergerFbo.colorBuffer1;
+
+  if (bApplySsao) {
+    var ssaoFromDepthFbo = magoManager.ssaoFromDepthFbo;
+    gl.activeTexture(gl.TEXTURE5); // ssaoTex.***
+
+    gl.bindTexture(gl.TEXTURE_2D, ssaoFromDepthFbo.colorBuffer);
+    gl.activeTexture(gl.TEXTURE6); // normalTex.***
+
+    gl.bindTexture(gl.TEXTURE_2D, normalTex);
+  } //gl.disable(gl.POLYGON_OFFSET_FILL);
+
+
+  gl.depthMask(false);
+  gl.disable(gl.DEPTH_TEST);
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); // Original.***
+
+  if (this.screenQuad === undefined) {
+    this.screenQuad = new ScreenQuad(magoManager.vboMemoryManager);
+  }
+
+  this.screenQuad.render(magoManager, currentShader); // Restore settings.***
+
+  gl.depthMask(true);
+  gl.disable(gl.BLEND);
+  gl.enable(gl.DEPTH_TEST); //gl.enable(gl.POLYGON_OFFSET_FILL);
+
+  for (var i = 0; i < 8; i++) {
+    gl.activeTexture(gl.TEXTURE0 + i); // ssaoTex.***
+
+    gl.bindTexture(gl.TEXTURE_2D, null);
+  }
+};
+/**
  * This function renders the ssao by depthBuffer.
  * @param {WebGLRenderingContext} gl WebGL Rendering Context.
  */
@@ -102779,20 +103730,25 @@ Renderer.prototype.renderEdgesFromDepth = function (gl) {
 Renderer.prototype.renderSsaoFromDepth = function (gl) {
   // render the ssao to texture, and then apply blur.
   var magoManager = this.magoManager;
+  var texManager = magoManager.texturesManager;
+  if (!texManager) return;
   var sceneState = magoManager.sceneState;
+  var bufferWidth = sceneState.drawingBufferWidth[0];
+  var bufferHeight = sceneState.drawingBufferHeight[0];
   var ssaoFromDepthFbo = magoManager.ssaoFromDepthFbo; // bind ssaoFromDepthBuffer.***
 
-  ssaoFromDepthFbo.bind();
+  ssaoFromDepthFbo.bind(); //if (magoManager.isFarestFrustum())
 
-  if (magoManager.isFarestFrustum()) {
+  {
     gl.clearColor(0, 0, 0, 0);
     gl.clearDepth(1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.clearColor(0, 0, 0, 1);
   }
-
   var currentShader = magoManager.postFxShadersManager.getShader("ssaoFromDepth");
   currentShader.useProgram();
-  currentShader.bindUniformGenerals(); //gl.viewport(0, 0, ssaoFromDepthFbo.width, ssaoFromDepthFbo.height);
+  currentShader.bindUniformGenerals();
+  gl.viewport(0, 0, bufferWidth, bufferHeight);
 
   if (magoManager.isCesiumGlobe()) {
     gl.uniform1f(currentShader.frustumFar_loc, 40000.0); // only in cesium.***
@@ -102803,17 +103759,25 @@ Renderer.prototype.renderSsaoFromDepth = function (gl) {
 
   var projectionMatrixInv = sceneState.getProjectionMatrixInv();
   gl.uniformMatrix4fv(currentShader.projectionMatrixInv_loc, false, projectionMatrixInv._floatArrays);
-  gl.uniform1i(currentShader.bUseLogarithmicDepth_loc, magoManager.postFxShadersManager.bUseLogarithmicDepth); //gl.uniform1i(currentShader.bApplySsao_loc, bApplySsao); // apply ssao default.***
-  //gl.uniform1i(currentShader.bApplyShadow_loc, bApplyShadow);
-  //gl.uniform1i(currentShader.bApplySpecularLighting_loc, true);
-
+  gl.uniform1i(currentShader.bUseLogarithmicDepth_loc, magoManager.postFxShadersManager.bUseLogarithmicDepth);
   gl.uniform1f(currentShader.uFCoef_logDepth_loc, sceneState.fCoef_logDepth[0]);
-  var noiseTexture = magoManager.texturesStore.getNoiseTexture4x4();
+  gl.uniform2fv(currentShader.uNearFarArray_loc, magoManager.frustumVolumeControl.nearFarArray);
+  var texManager = magoManager.texturesManager;
+  var texturesMergerFbo = texManager.texturesMergerFbo;
+  var noiseTexture = magoManager.texturesStore.getNoiseTexture4x4(); //var depthTex = magoManager.depthFboNeo.colorBuffer;
+  //var normalTex = texManager.generalNormalTexture;
+
+  var depthTex = texturesMergerFbo.colorBuffer;
+  var normalTex = texturesMergerFbo.colorBuffer1; //var depthTex = magoManager.depthFboNeo.colorBuffer;
+  //var normalTex = magoManager.depthFboNeo.colorBuffer1;
+
   gl.activeTexture(gl.TEXTURE0);
-  gl.bindTexture(gl.TEXTURE_2D, magoManager.depthFboNeo.colorBuffer); // original.***
+  gl.bindTexture(gl.TEXTURE_2D, depthTex); // original.***
 
   gl.activeTexture(gl.TEXTURE1);
   gl.bindTexture(gl.TEXTURE_2D, noiseTexture);
+  gl.activeTexture(gl.TEXTURE3);
+  gl.bindTexture(gl.TEXTURE_2D, normalTex);
 
   if (this.screenQuad === undefined) {
     this.screenQuad = new ScreenQuad(magoManager.vboMemoryManager);
@@ -102824,8 +103788,14 @@ Renderer.prototype.renderSsaoFromDepth = function (gl) {
 
   this.screenQuad.render(magoManager, currentShader); // unbind the ssaoFromDepthBuffer.***
 
-  ssaoFromDepthFbo.unbind(); //gl.viewport(0, 0, magoManager.sceneState.drawingBufferWidth[0], magoManager.sceneState.drawingBufferHeight[0]);
+  ssaoFromDepthFbo.unbind();
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, null); // original.***
 
+  gl.activeTexture(gl.TEXTURE1);
+  gl.bindTexture(gl.TEXTURE_2D, null);
+  gl.activeTexture(gl.TEXTURE3);
+  gl.bindTexture(gl.TEXTURE_2D, null);
   gl.depthMask(true);
   gl.enable(gl.DEPTH_TEST);
 };
@@ -102924,9 +103894,11 @@ Renderer.prototype.renderTerrainShadow = function (gl) {
   gl.uniformMatrix4fv(currentShader.modelViewMatrixRelToEyeInv_loc, false, modelViewMatrixRelToEyeInv._floatArrays);
   var bSilhouette = false;
   var bFxaa = false;
+  var bApplySsao = false;
   gl.uniform1i(currentShader.bApplyShadow_loc, bApplyShadow);
   gl.uniform1i(currentShader.bSilhouette_loc, bSilhouette);
   gl.uniform1i(currentShader.bFxaa_loc, bFxaa);
+  gl.uniform1i(currentShader.bApplySsao_loc, bApplySsao);
   var sunSystem = sceneState.sunSystem;
   var sunLight = sunSystem.getLight(0);
   var textureAux1x1 = magoManager.texturesStore.getTextureAux1x1();
@@ -102990,8 +103962,9 @@ Renderer.prototype.renderTerrainShadow = function (gl) {
 
   gl.colorMask(true, true, true, true);
   gl.depthMask(true);
-  gl.disable(gl.BLEND);
-  gl.depthRange(0.0, 1.0);
+  gl.disable(gl.BLEND); //gl.depthRange(0.0, 1.0);	
+
+  gl.enable(gl.DEPTH_TEST);
 };
 /**
  * This function renders the stencil shadows meshes of the scene.
@@ -103002,6 +103975,10 @@ Renderer.prototype.renderTerrainShadow = function (gl) {
 
 
 Renderer.prototype.renderScreenQuadShadow = function (gl, depthTex) {
+  // Function no used yet.***
+  // Function no used yet.***
+  // Function no used yet.***
+  //------------------------------------------------
   var currentShader;
   var shaderProgram;
   var neoBuilding;
@@ -103369,6 +104346,7 @@ Renderer.prototype.renderGeometry = function (gl, renderType, visibleObjControle
 
         if (magoManager.isFarestFrustum()) {
           gl.clearColor(1, 1, 1, 1);
+          gl.clearDepth(1);
           gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         }
 
@@ -103379,7 +104357,7 @@ Renderer.prototype.renderGeometry = function (gl, renderType, visibleObjControle
 
       magoManager.depthFboNeo.bind();
       gl.viewport(0, 0, sceneState.drawingBufferWidth[0], sceneState.drawingBufferHeight[0]);
-      gl.clearColor(0, 0, 0, 1);
+      gl.clearColor(0, 0, 0, 1); // alpha must be 1 in preMultiplied gl.***
     }
   }
 
@@ -107250,335 +108228,6 @@ var throwAbstractError = function throwAbstractError() {
     throw new Error('Unimplemented abstract method.');
   }();
 };
-"use strict";
-
-"function" != typeof Promise.prototype.done && (Promise.prototype.done = function (t, n) {
-  var o = arguments.length ? this.then.apply(this, arguments) : this;
-  o.then(null, function (t) {
-    setTimeout(function () {
-      throw t;
-    }, 0);
-  });
-});
-"use strict";
-
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-(function (global, factory) {
-  (typeof exports === "undefined" ? "undefined" : _typeof(exports)) === 'object' && typeof module !== 'undefined' ? factory() : typeof define === 'function' && define.amd ? define(factory) : factory();
-})(void 0, function () {
-  'use strict';
-  /**
-   * @this {Promise}
-   */
-
-  function finallyConstructor(callback) {
-    var constructor = this.constructor;
-    return this.then(function (value) {
-      // @ts-ignore
-      return constructor.resolve(callback()).then(function () {
-        return value;
-      });
-    }, function (reason) {
-      // @ts-ignore
-      return constructor.resolve(callback()).then(function () {
-        // @ts-ignore
-        return constructor.reject(reason);
-      });
-    });
-  } // Store setTimeout reference so promise-polyfill will be unaffected by
-  // other code modifying setTimeout (like sinon.useFakeTimers())
-
-
-  var setTimeoutFunc = setTimeout;
-
-  function isArray(x) {
-    return Boolean(x && typeof x.length !== 'undefined');
-  }
-
-  function noop() {} // Polyfill for Function.prototype.bind
-
-
-  function bind(fn, thisArg) {
-    return function () {
-      fn.apply(thisArg, arguments);
-    };
-  }
-  /**
-   * @constructor
-   * @param {Function} fn
-   */
-
-
-  function Promise(fn) {
-    if (!(this instanceof Promise)) throw new TypeError('Promises must be constructed via new');
-    if (typeof fn !== 'function') throw new TypeError('not a function');
-    /** @type {!number} */
-
-    this._state = 0;
-    /** @type {!boolean} */
-
-    this._handled = false;
-    /** @type {Promise|undefined} */
-
-    this._value = undefined;
-    /** @type {!Array<!Function>} */
-
-    this._deferreds = [];
-    doResolve(fn, this);
-  }
-
-  function handle(self, deferred) {
-    while (self._state === 3) {
-      self = self._value;
-    }
-
-    if (self._state === 0) {
-      self._deferreds.push(deferred);
-
-      return;
-    }
-
-    self._handled = true;
-
-    Promise._immediateFn(function () {
-      var cb = self._state === 1 ? deferred.onFulfilled : deferred.onRejected;
-
-      if (cb === null) {
-        (self._state === 1 ? resolve : reject)(deferred.promise, self._value);
-        return;
-      }
-
-      var ret;
-
-      try {
-        ret = cb(self._value);
-      } catch (e) {
-        reject(deferred.promise, e);
-        return;
-      }
-
-      resolve(deferred.promise, ret);
-    });
-  }
-
-  function resolve(self, newValue) {
-    try {
-      // Promise Resolution Procedure: https://github.com/promises-aplus/promises-spec#the-promise-resolution-procedure
-      if (newValue === self) throw new TypeError('A promise cannot be resolved with itself.');
-
-      if (newValue && (_typeof(newValue) === 'object' || typeof newValue === 'function')) {
-        var then = newValue.then;
-
-        if (newValue instanceof Promise) {
-          self._state = 3;
-          self._value = newValue;
-          finale(self);
-          return;
-        } else if (typeof then === 'function') {
-          doResolve(bind(then, newValue), self);
-          return;
-        }
-      }
-
-      self._state = 1;
-      self._value = newValue;
-      finale(self);
-    } catch (e) {
-      reject(self, e);
-    }
-  }
-
-  function reject(self, newValue) {
-    self._state = 2;
-    self._value = newValue;
-    finale(self);
-  }
-
-  function finale(self) {
-    if (self._state === 2 && self._deferreds.length === 0) {
-      Promise._immediateFn(function () {
-        if (!self._handled) {
-          Promise._unhandledRejectionFn(self._value);
-        }
-      });
-    }
-
-    for (var i = 0, len = self._deferreds.length; i < len; i++) {
-      handle(self, self._deferreds[i]);
-    }
-
-    self._deferreds = null;
-  }
-  /**
-   * @constructor
-   */
-
-
-  function Handler(onFulfilled, onRejected, promise) {
-    this.onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : null;
-    this.onRejected = typeof onRejected === 'function' ? onRejected : null;
-    this.promise = promise;
-  }
-  /**
-   * Take a potentially misbehaving resolver function and make sure
-   * onFulfilled and onRejected are only called once.
-   *
-   * Makes no guarantees about asynchrony.
-   */
-
-
-  function doResolve(fn, self) {
-    var done = false;
-
-    try {
-      fn(function (value) {
-        if (done) return;
-        done = true;
-        resolve(self, value);
-      }, function (reason) {
-        if (done) return;
-        done = true;
-        reject(self, reason);
-      });
-    } catch (ex) {
-      if (done) return;
-      done = true;
-      reject(self, ex);
-    }
-  }
-
-  Promise.prototype['catch'] = function (onRejected) {
-    return this.then(null, onRejected);
-  };
-
-  Promise.prototype.then = function (onFulfilled, onRejected) {
-    // @ts-ignore
-    var prom = new this.constructor(noop);
-    handle(this, new Handler(onFulfilled, onRejected, prom));
-    return prom;
-  };
-
-  Promise.prototype['finally'] = finallyConstructor;
-
-  Promise.prototype.done = function (t, n) {
-    var o = arguments.length ? this.then.apply(this, arguments) : this;
-    o.then(null, function (t) {
-      setTimeout(function () {
-        throw t;
-      }, 0);
-    });
-  };
-
-  Promise.all = function (arr) {
-    return new Promise(function (resolve, reject) {
-      if (!isArray(arr)) {
-        return reject(new TypeError('Promise.all accepts an array'));
-      }
-
-      var args = Array.prototype.slice.call(arr);
-      if (args.length === 0) return resolve([]);
-      var remaining = args.length;
-
-      function res(i, val) {
-        try {
-          if (val && (_typeof(val) === 'object' || typeof val === 'function')) {
-            var then = val.then;
-
-            if (typeof then === 'function') {
-              then.call(val, function (val) {
-                res(i, val);
-              }, reject);
-              return;
-            }
-          }
-
-          args[i] = val;
-
-          if (--remaining === 0) {
-            resolve(args);
-          }
-        } catch (ex) {
-          reject(ex);
-        }
-      }
-
-      for (var i = 0; i < args.length; i++) {
-        res(i, args[i]);
-      }
-    });
-  };
-
-  Promise.resolve = function (value) {
-    if (value && _typeof(value) === 'object' && value.constructor === Promise) {
-      return value;
-    }
-
-    return new Promise(function (resolve) {
-      resolve(value);
-    });
-  };
-
-  Promise.reject = function (value) {
-    return new Promise(function (resolve, reject) {
-      reject(value);
-    });
-  };
-
-  Promise.race = function (arr) {
-    return new Promise(function (resolve, reject) {
-      if (!isArray(arr)) {
-        return reject(new TypeError('Promise.race accepts an array'));
-      }
-
-      for (var i = 0, len = arr.length; i < len; i++) {
-        Promise.resolve(arr[i]).then(resolve, reject);
-      }
-    });
-  }; // Use polyfill for setImmediate for performance gains
-
-
-  Promise._immediateFn = // @ts-ignore
-  typeof setImmediate === 'function' && function (fn) {
-    // @ts-ignore
-    setImmediate(fn);
-  } || function (fn) {
-    setTimeoutFunc(fn, 0);
-  };
-
-  Promise._unhandledRejectionFn = function _unhandledRejectionFn(err) {
-    if (typeof console !== 'undefined' && console) {
-      console.warn('Possible Unhandled Promise Rejection:', err); // eslint-disable-line no-console
-    }
-  };
-  /** @suppress {undefinedVars} */
-
-
-  var globalNS = function () {
-    // the only reliable means to get the global object is
-    // `Function('return this')()`
-    // However, this causes CSP violations in Chrome apps.
-    if (typeof self !== 'undefined') {
-      return self;
-    }
-
-    if (typeof window !== 'undefined') {
-      return window;
-    }
-
-    if (typeof global !== 'undefined') {
-      return global;
-    }
-
-    throw new Error('unable to locate global object');
-  }();
-
-  if (typeof globalNS['Promise'] !== 'function') {
-    globalNS['Promise'] = Promise;
-  } else if (!globalNS.Promise.prototype['finally']) {
-    globalNS.Promise.prototype['finally'] = finallyConstructor;
-  }
-});
 "use strict";
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -118299,6 +118948,335 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
       Pl.Map = Xs, Pl.View = qn, Pl.Feature = kh, Pl.geom = {}, Pl.geom.Polygon = {}, Pl.geom.Polygon.fromExtent = Bn, Pl.layer = {}, Pl.layer.TileLayer = ia, Pl.layer.VectorLayer = gh, Pl.source = {}, Pl.source.XYZ = Sl, Pl.source.TileWMS = Ol, Pl.source.VectorSource = Ah, Pl.proj = {}, Pl.proj.getTransform = Yi, Pl.interaction = {}, Pl.interaction.DragRotate = ao, Pl.interaction.DragPan = oo, Pl.interaction.MouseWheelZoom = Lo, Pl.interaction.defaults = Go, Pl.control = {}, Pl.control.defaults = jr;
     }
   });
+});
+"use strict";
+
+"function" != typeof Promise.prototype.done && (Promise.prototype.done = function (t, n) {
+  var o = arguments.length ? this.then.apply(this, arguments) : this;
+  o.then(null, function (t) {
+    setTimeout(function () {
+      throw t;
+    }, 0);
+  });
+});
+"use strict";
+
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+(function (global, factory) {
+  (typeof exports === "undefined" ? "undefined" : _typeof(exports)) === 'object' && typeof module !== 'undefined' ? factory() : typeof define === 'function' && define.amd ? define(factory) : factory();
+})(void 0, function () {
+  'use strict';
+  /**
+   * @this {Promise}
+   */
+
+  function finallyConstructor(callback) {
+    var constructor = this.constructor;
+    return this.then(function (value) {
+      // @ts-ignore
+      return constructor.resolve(callback()).then(function () {
+        return value;
+      });
+    }, function (reason) {
+      // @ts-ignore
+      return constructor.resolve(callback()).then(function () {
+        // @ts-ignore
+        return constructor.reject(reason);
+      });
+    });
+  } // Store setTimeout reference so promise-polyfill will be unaffected by
+  // other code modifying setTimeout (like sinon.useFakeTimers())
+
+
+  var setTimeoutFunc = setTimeout;
+
+  function isArray(x) {
+    return Boolean(x && typeof x.length !== 'undefined');
+  }
+
+  function noop() {} // Polyfill for Function.prototype.bind
+
+
+  function bind(fn, thisArg) {
+    return function () {
+      fn.apply(thisArg, arguments);
+    };
+  }
+  /**
+   * @constructor
+   * @param {Function} fn
+   */
+
+
+  function Promise(fn) {
+    if (!(this instanceof Promise)) throw new TypeError('Promises must be constructed via new');
+    if (typeof fn !== 'function') throw new TypeError('not a function');
+    /** @type {!number} */
+
+    this._state = 0;
+    /** @type {!boolean} */
+
+    this._handled = false;
+    /** @type {Promise|undefined} */
+
+    this._value = undefined;
+    /** @type {!Array<!Function>} */
+
+    this._deferreds = [];
+    doResolve(fn, this);
+  }
+
+  function handle(self, deferred) {
+    while (self._state === 3) {
+      self = self._value;
+    }
+
+    if (self._state === 0) {
+      self._deferreds.push(deferred);
+
+      return;
+    }
+
+    self._handled = true;
+
+    Promise._immediateFn(function () {
+      var cb = self._state === 1 ? deferred.onFulfilled : deferred.onRejected;
+
+      if (cb === null) {
+        (self._state === 1 ? resolve : reject)(deferred.promise, self._value);
+        return;
+      }
+
+      var ret;
+
+      try {
+        ret = cb(self._value);
+      } catch (e) {
+        reject(deferred.promise, e);
+        return;
+      }
+
+      resolve(deferred.promise, ret);
+    });
+  }
+
+  function resolve(self, newValue) {
+    try {
+      // Promise Resolution Procedure: https://github.com/promises-aplus/promises-spec#the-promise-resolution-procedure
+      if (newValue === self) throw new TypeError('A promise cannot be resolved with itself.');
+
+      if (newValue && (_typeof(newValue) === 'object' || typeof newValue === 'function')) {
+        var then = newValue.then;
+
+        if (newValue instanceof Promise) {
+          self._state = 3;
+          self._value = newValue;
+          finale(self);
+          return;
+        } else if (typeof then === 'function') {
+          doResolve(bind(then, newValue), self);
+          return;
+        }
+      }
+
+      self._state = 1;
+      self._value = newValue;
+      finale(self);
+    } catch (e) {
+      reject(self, e);
+    }
+  }
+
+  function reject(self, newValue) {
+    self._state = 2;
+    self._value = newValue;
+    finale(self);
+  }
+
+  function finale(self) {
+    if (self._state === 2 && self._deferreds.length === 0) {
+      Promise._immediateFn(function () {
+        if (!self._handled) {
+          Promise._unhandledRejectionFn(self._value);
+        }
+      });
+    }
+
+    for (var i = 0, len = self._deferreds.length; i < len; i++) {
+      handle(self, self._deferreds[i]);
+    }
+
+    self._deferreds = null;
+  }
+  /**
+   * @constructor
+   */
+
+
+  function Handler(onFulfilled, onRejected, promise) {
+    this.onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : null;
+    this.onRejected = typeof onRejected === 'function' ? onRejected : null;
+    this.promise = promise;
+  }
+  /**
+   * Take a potentially misbehaving resolver function and make sure
+   * onFulfilled and onRejected are only called once.
+   *
+   * Makes no guarantees about asynchrony.
+   */
+
+
+  function doResolve(fn, self) {
+    var done = false;
+
+    try {
+      fn(function (value) {
+        if (done) return;
+        done = true;
+        resolve(self, value);
+      }, function (reason) {
+        if (done) return;
+        done = true;
+        reject(self, reason);
+      });
+    } catch (ex) {
+      if (done) return;
+      done = true;
+      reject(self, ex);
+    }
+  }
+
+  Promise.prototype['catch'] = function (onRejected) {
+    return this.then(null, onRejected);
+  };
+
+  Promise.prototype.then = function (onFulfilled, onRejected) {
+    // @ts-ignore
+    var prom = new this.constructor(noop);
+    handle(this, new Handler(onFulfilled, onRejected, prom));
+    return prom;
+  };
+
+  Promise.prototype['finally'] = finallyConstructor;
+
+  Promise.prototype.done = function (t, n) {
+    var o = arguments.length ? this.then.apply(this, arguments) : this;
+    o.then(null, function (t) {
+      setTimeout(function () {
+        throw t;
+      }, 0);
+    });
+  };
+
+  Promise.all = function (arr) {
+    return new Promise(function (resolve, reject) {
+      if (!isArray(arr)) {
+        return reject(new TypeError('Promise.all accepts an array'));
+      }
+
+      var args = Array.prototype.slice.call(arr);
+      if (args.length === 0) return resolve([]);
+      var remaining = args.length;
+
+      function res(i, val) {
+        try {
+          if (val && (_typeof(val) === 'object' || typeof val === 'function')) {
+            var then = val.then;
+
+            if (typeof then === 'function') {
+              then.call(val, function (val) {
+                res(i, val);
+              }, reject);
+              return;
+            }
+          }
+
+          args[i] = val;
+
+          if (--remaining === 0) {
+            resolve(args);
+          }
+        } catch (ex) {
+          reject(ex);
+        }
+      }
+
+      for (var i = 0; i < args.length; i++) {
+        res(i, args[i]);
+      }
+    });
+  };
+
+  Promise.resolve = function (value) {
+    if (value && _typeof(value) === 'object' && value.constructor === Promise) {
+      return value;
+    }
+
+    return new Promise(function (resolve) {
+      resolve(value);
+    });
+  };
+
+  Promise.reject = function (value) {
+    return new Promise(function (resolve, reject) {
+      reject(value);
+    });
+  };
+
+  Promise.race = function (arr) {
+    return new Promise(function (resolve, reject) {
+      if (!isArray(arr)) {
+        return reject(new TypeError('Promise.race accepts an array'));
+      }
+
+      for (var i = 0, len = arr.length; i < len; i++) {
+        Promise.resolve(arr[i]).then(resolve, reject);
+      }
+    });
+  }; // Use polyfill for setImmediate for performance gains
+
+
+  Promise._immediateFn = // @ts-ignore
+  typeof setImmediate === 'function' && function (fn) {
+    // @ts-ignore
+    setImmediate(fn);
+  } || function (fn) {
+    setTimeoutFunc(fn, 0);
+  };
+
+  Promise._unhandledRejectionFn = function _unhandledRejectionFn(err) {
+    if (typeof console !== 'undefined' && console) {
+      console.warn('Possible Unhandled Promise Rejection:', err); // eslint-disable-line no-console
+    }
+  };
+  /** @suppress {undefinedVars} */
+
+
+  var globalNS = function () {
+    // the only reliable means to get the global object is
+    // `Function('return this')()`
+    // However, this causes CSP violations in Chrome apps.
+    if (typeof self !== 'undefined') {
+      return self;
+    }
+
+    if (typeof window !== 'undefined') {
+      return window;
+    }
+
+    if (typeof global !== 'undefined') {
+      return global;
+    }
+
+    throw new Error('unable to locate global object');
+  }();
+
+  if (typeof globalNS['Promise'] !== 'function') {
+    globalNS['Promise'] = Promise;
+  } else if (!globalNS.Promise.prototype['finally']) {
+    globalNS.Promise.prototype['finally'] = finallyConstructor;
+  }
 });
 /**
   * A module containing Data from IndoorGML.</br>

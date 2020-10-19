@@ -1788,37 +1788,7 @@ DesignLayerObj.prototype.getDesignLayers = function(){
         if(Pp.isNotEmpty(res._embedded) && Pp.isNotEmpty(res._embedded.designLayers)){
             _this.datas = res._embedded.designLayers;
         }
-        
-        var gara = {
-    		available: true,
-    		cacheAvailable: false,
-    		coordinate: "EPSG:4326",
-    		description: "",
-    		designLayerGroupId: 4,
-    		designLayerGroupName: "과천 도시계획 제한",
-    		designLayerGroupType: "building_limit_line",
-    		designLayerId: 63,
-    		designLayerKey: "limit_line",
-    		designLayerName: "벽면한계선",
-    		designLayerType: null,
-    		geometryType: "Polygon",
-    		insertDate: "2020-09-17T21:42:25.969804",
-    		labelDisplay: null,
-    		layerAlphaStyle: 1,
-    		layerFillColor: "#000000",
-    		layerLineColor: "#000000",
-    		layerLineStyle: 1,
-    		ogcWebServices: "wfs",
-    		sharing: null,
-    		styleFileContent: null,
-    		updateDate: "2020-09-17T21:45:33.604132",
-    		urbanGroupId: 7,
-    		userId: "admin",
-    		viewOrder: 1,
-    		viewZIndex: 0,
-    		zindex: 0
-        }
-        _this.datas.push(gara);
+
         return _this.datas;
     }, {'async':false});
 };
@@ -1982,11 +1952,15 @@ DesignLayerObj.prototype.renderDesignLayersByUrbanGroupId = function(urbanGroupI
 			if(b){
                 $tr.find('input.toggle-extrusion-model-height')
                     .prop('disabled', false);
-				
+                $tr.find('input.toggle-extrusion-model-label')
+                	.prop('disabled', false);
 			}else{
                 $tr.find('input.toggle-extrusion-model-height')
                     .prop('disabled', true)
-					.prop('checked', false);				
+					.prop('checked', false);
+                $tr.find('input.toggle-extrusion-model-label')
+	                .prop('disabled', true)
+					.prop('checked', false);
             }
             
             //
@@ -2011,7 +1985,24 @@ DesignLayerObj.prototype.renderDesignLayersByUrbanGroupId = function(urbanGroupI
 			let b = $(this).prop('checked');
             _this.toggleExtrusionBuilding({'data':data, 'layer':imageryLayer}, b);			
 		});
+	
+	//라벨 checkbox 클릭 이벤트
+	$('input.toggle-extrusion-model-label').unbind('click')
+		.click(function(){
+            let designLayerId = $(this).val();
+            let imageryLayer = _this.getImageryLayer(designLayerId);
+            let data = _this.getDataById(designLayerId);
 
+			let b = $(this).prop('checked');
+
+		    let model = {
+		        'id': designLayerId,
+		        'layername': data.designLayerKey,
+		        'ogctype': 'wfs',
+		    };
+			
+            _this.extrusionModelWMSLabelToggle(model, b);			
+		});
 };
 
 
@@ -2044,11 +2035,167 @@ DesignLayerObj.prototype.showDesignLayer = function(designLayerId, isShow){
     }
 
     if(DesignLayerObj.OgcType.WFS['text'] === model.ogctype){
-    	if(model.layername === 'limit_line') {
-    		this.extrusionGaraLine(model, isShow);
+    	this.extrusionModelBuildingToggle(model, isShow);
+    }
+};
+
+/**
+ * 레이어 라벨 토글, 속도때문에 최초 로드 시 에만 LABEL 객체 생성
+ * @param {object} model 
+ * @param {boolean} isShow 화면 표시 여부
+ */
+DesignLayerObj.prototype.extrusionModelWMSLabelToggle = function(model, isShow){
+    let url = [LHDT.policy.geoserverDataUrl, LHDT.policy.geoserverDataStore, model.ogctype].join('/');
+    //
+    let imageryLayers = Ppmap.getViewer().imageryLayers;
+    let labelLayerId = model.id;
+    let labelDS = _findLabelDataSource(labelLayerId);
+    if(isShow) {
+    	
+    	var viewer = Ppmap.getViewer();
+    	
+    	if(labelDS) {
+    		labelDS.show = true;
     	} else {
-    		this.extrusionModelBuildingToggle(model, isShow);
+    		var currentCqlFilter = `design_layer_id=${model.id} AND enable_yn='Y'`;
+            
+            /**
+             * wms labeling 
+             */
+            $.ajax({
+    			url : `/api/design-layers/${model.id}`,
+    			type: "GET",
+                headers: {"X-Requested-With": "XMLHttpRequest"},
+                dataType: "json",
+                success: function(json){
+                	var req = new Cesium.Resource({
+          				url : url,
+          				queryParameters : {
+          					service : model.ogctype,
+          					version : '1.0.0',
+          					request : 'GetFeature',
+          					typeNames : model.layername,
+          					srsName : 'EPSG:3857',
+          					outputFormat : 'application/json',
+          					cql_filter : currentCqlFilter
+          				}
+          			});
+                	
+                	
+                	var designLayerGroupType = json.designLayerGroupType;
+                	startLoading();
+                	new Cesium.GeoJsonDataSource().load(req).then(function(e) {
+          				var entities = e.entities.values;
+          				var ds = new Cesium.CustomDataSource();
+          				ds.labelLayerId = labelLayerId;
+          				
+          				if(designLayerGroupType === 'land') {
+          					for(var i in entities) {
+                   	 			var entity = entities[i];
+                   	 			var properties = entity.properties;
+                   	 			
+                   	 			var cRatio = properties.building_coverage_ratio.getValue();
+                   	 			var fRatio = properties.floor_area_ratio.getValue();
+                   	 			var labelText;
+                   	 			if(!fRatio || !cRatio) {
+                   	 				labelText = `${properties.landuse_zoning.getValue()}`;
+                   	 			} else {
+                   	 				labelText = `${properties.lot_code.getValue()}\n건폐율 : ${cRatio}\n용적률 : ${fRatio}`;
+                   	 			}
+               	 			
+                   	 			ds.entities.add({
+    	               	 			position :  _getPolygonEntityBoundingSphereCenter(entity),
+    	               	 			label :  _defaultLabelOption(labelText)
+    	          				});
+                   	 		}
+                   	 		ds.clustering.enabled = true;
+                   	 		ds.clustering.pixelRange = 40;
+                   	 		ds.clustering.minimumClusterSize = 5;
+                   	 		ds.clustering.clusterPoints = false;
+                   	 		ds.clustering.clusterBillboards = false; 
+                   	 		
+                   	 		ds.clustering.clusterEvent.addEventListener(function (clusteredEntities, cluster, e) {
+                   	 			if(cluster.label.id.length > 5) {
+                   	 				cluster.label.show = false;
+                   	 			} else {
+                   	 				cluster.label.show = true;
+                   	 			}
+                   	        });
+          				} else if(designLayerGroupType === 'building_height') {
+          					var designLayerName = json.designLayerName;
+                   	 		for(var i in entities) {
+                   	 			var entity = entities[i];
+                   	 			var properties = entity.properties;
+                   	 			
+                   	 			var labelText = designLayerName;
+                   	 			var maxFloor = properties.build_maximum_floors.getValue();
+                   	 			if(maxFloor) labelText += `\n층수 제한 : ${maxFloor}`;  
+                   	 			
+    	               	 		ds.entities.add({
+    	               	 			position : _getPolygonEntityBoundingSphereCenter(entity),
+    	               	 			label : _defaultLabelOption(labelText)
+    	          				});
+                   	 		}
+          				}
+
+          				/**
+          				 * @fire stopLoading()
+          				 */
+          				viewer.dataSources.add(ds);
+          			});
+                }
+    		});
     	}
+
+        function _getPolygonEntityBoundingSphereCenter(cEntity) {
+        	if(!cEntity || !(cEntity instanceof Cesium.Entity)) {
+        		return;
+        	}
+        	
+        	var positions = cEntity.polygon.hierarchy.getValue().positions;
+ 			var center = Cesium.BoundingSphere.fromPoints(positions).center;
+ 			Cesium.Ellipsoid.WGS84.scaleToGeodeticSurface(center, center);
+ 			
+ 			return center
+        }
+        
+        function _defaultLabelOption(lText) {
+        	return {
+   	 			text: lText,
+				scale :0.5,
+				font: "normal normal bolder 22px Helvetica",
+				fillColor: Cesium.Color.BLACK,
+				outlineColor: Cesium.Color.WHITE,
+				outlineWidth: 1,
+				//scaleByDistance : new Cesium.NearFarScalar(500, 1.2, 1200, 0.0),
+				heightReference : Cesium.HeightReference.CLAMP_TO_GROUND,
+				style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+				//translucencyByDistance : new Cesium.NearFarScalar(1200, 1.0, 2000, 0.0),
+				distanceDisplayCondition : new Cesium.DistanceDisplayCondition(0.0, 800)
+ 			}
+        }
+    } else {
+        //라벨 제거
+    	if(labelDS) {
+    		labelDS.show = false;
+    	}
+    	/*	
+        let dataSources = Ppmap.getViewer().dataSources;
+        let filter = dataSources._dataSources.filter(function(ds) {
+			return ds.labelLayerId  === model.id; 
+		})[0];
+		
+		dataSources.remove(filter, true);*/
+    }
+    
+    function _findLabelDataSource(id)
+    {
+    	let dataSources = Ppmap.getViewer().dataSources;
+        let filter = dataSources._dataSources.filter(function(ds) {
+			return ds.labelLayerId  === id; 
+		})[0];
+        
+    	return filter;
     }
 };
 
@@ -2082,118 +2229,6 @@ DesignLayerObj.prototype.extrusionModelWMSToggle = function(model, isShow){
 
         //show된 레이어 목록
         this.landLayer[model.id] = imageryLayer;
-        
-        /**
-         * wms labeling 
-         */
-        $.ajax({
-			url : `/api/design-layers/${model.id}`,
-			type: "GET",
-            headers: {"X-Requested-With": "XMLHttpRequest"},
-            dataType: "json",
-            success: function(json){
-            	var req = new Cesium.Resource({
-      				url : [LHDT.policy.geoserverDataUrl, LHDT.policy.geoserverDataStore, 'wfs'].join('/'),
-      				queryParameters : {
-      					service : 'wfs',
-      					version : '1.0.0',
-      					request : 'GetFeature',
-      					typeNames : model.layername,
-      					srsName : 'EPSG:3857',
-      					outputFormat : 'application/json',
-      					cql_filter : currentCqlFilter
-      				}
-      			});
-            	
-            	var viewer = Ppmap.getViewer();
-            	var designLayerGroupType = json.designLayerGroupType;
-            	startLoading();
-            	new Cesium.GeoJsonDataSource().load(req).then(function(e) {
-      				var entities = e.entities.values;
-      				var ds = new Cesium.CustomDataSource();
-      				ds.labelLayerId = model.id;
-      				
-      				if(designLayerGroupType === 'land') {
-      					for(var i in entities) {
-               	 			var entity = entities[i];
-               	 			var properties = entity.properties;
-               	 			
-               	 			var cRatio = properties.building_coverage_ratio.getValue();
-               	 			var fRatio = properties.floor_area_ratio.getValue();
-               	 			var labelText;
-               	 			if(!fRatio || !cRatio) {
-               	 				labelText = `${properties.landuse_zoning.getValue()}`;
-               	 			} else {
-               	 				labelText = `${properties.lot_code.getValue()}\n건폐율 : ${cRatio}\n용적률 : ${fRatio}`;
-               	 			}
-           	 			
-               	 			ds.entities.add({
-	               	 			position :  _getPolygonEntityBoundingSphereCenter(entity),
-	               	 			label :  _defaultLabelOption(labelText)
-	          				});
-               	 		}
-               	 		ds.clustering.enabled = true;
-               	 		ds.clustering.pixelRange = 40;
-               	 		ds.clustering.minimumClusterSize = 5;
-               	 		ds.clustering.clusterPoints = false;
-               	 		ds.clustering.clusterBillboards = false; 
-               	 		
-               	 		ds.clustering.clusterEvent.addEventListener(function (clusteredEntities, cluster, e) {
-               	 			if(cluster.label.id.length > 5) {
-               	 				cluster.label.show = false;
-               	 			} else {
-               	 				cluster.label.show = true;
-               	 			}
-               	        });
-      				} else if(designLayerGroupType === 'building_height') {
-      					var designLayerName = json.designLayerName;
-               	 		for(var i in entities) {
-               	 			var entity = entities[i];
-               	 			var properties = entity.properties;
-               	 			
-               	 			var labelText = designLayerName;
-               	 			var maxFloor = properties.build_maximum_floors.getValue();
-               	 			if(maxFloor) labelText += `\n층수 제한 : ${maxFloor}`;  
-               	 			
-	               	 		ds.entities.add({
-	               	 			position : _getPolygonEntityBoundingSphereCenter(entity),
-	               	 			label : _defaultLabelOption(labelText)
-	          				});
-               	 		}
-      				}
-      				
-      				viewer.dataSources.add(ds);
-      			});
-            }
-		});
-        
-        function _getPolygonEntityBoundingSphereCenter(cEntity) {
-        	if(!cEntity || !(cEntity instanceof Cesium.Entity)) {
-        		return;
-        	}
-        	
-        	var positions = cEntity.polygon.hierarchy.getValue().positions;
- 			var center = Cesium.BoundingSphere.fromPoints(positions).center;
- 			Cesium.Ellipsoid.WGS84.scaleToGeodeticSurface(center, center);
- 			
- 			return center
-        }
-        
-        function _defaultLabelOption(lText) {
-        	return {
-   	 			text: lText,
-				scale :0.5,
-				font: "normal normal bolder 22px Helvetica",
-				fillColor: Cesium.Color.BLACK,
-				outlineColor: Cesium.Color.WHITE,
-				outlineWidth: 1,
-				//scaleByDistance : new Cesium.NearFarScalar(500, 1.2, 1200, 0.0),
-				heightReference : Cesium.HeightReference.CLAMP_TO_GROUND,
-				style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-				//translucencyByDistance : new Cesium.NearFarScalar(1200, 1.0, 2000, 0.0),
-				distanceDisplayCondition : new Cesium.DistanceDisplayCondition(0.0, 800)
- 			}
-        }
     } else {
         var target = imageryLayers._layers.filter(function(layer){return layer.layerId === model.id});
         if(target.length === 1)
@@ -2206,14 +2241,6 @@ DesignLayerObj.prototype.extrusionModelWMSToggle = function(model, isShow){
 
         //
         this.offExtrusionModel(model.id);
-        
-        //라벨 제거
-        var dataSources = Ppmap.getViewer().dataSources;
-		var filter = dataSources._dataSources.filter(function(ds) {
-			return ds.labelLayerId  === model.id; 
-		})[0];
-		
-		dataSources.remove(filter, true);
     }
 };
 
@@ -2251,7 +2278,6 @@ DesignLayerObj.prototype.offExtrusionModel = function(designLayerId){
  */
 DesignLayerObj.prototype.extrusionModelBuildingToggle = function(model, isShow) {
     let _this = this;
-
 
     if(isShow) {
       
@@ -2330,75 +2356,6 @@ DesignLayerObj.prototype.extrusionModelBuildingToggle = function(model, isShow) 
         // }
     }
 }
-
-/**
- * 가라 선 올리기
- * @param {object} model 
- * @param {bool} isShow
- */
-DesignLayerObj.prototype.extrusionGaraLine = function(model, isShow) {
-    let _this = this;
-
-
-    if(isShow) {
-      
-        let opt = {
-            'typeNames': model.layername,
-            'cql_filter': 'design_layer_id=' + model.id
-        };
-        //this.getFeatures(opt, function(e){
-        var loader = new Cesium.GeoJsonDataSource().load('http://localhost/sample/json/limit_line.geojson').then(function(e){
-            var entities = e.entities.values;
-            for(var i in entities) {
-                var entity = entities[i];       
-                
-                var polyline = entity.polyline.positions.getValue();
-                var properties = entity.properties;
-                var maxHeight = properties.max_height.getValue();
-                var gcl = Mago3D.GeographicCoordsList.fromCartesians(polyline);
-                
-                var manager = Ppmap.getManager();
-                var options= {};
-                options.doubleFace = true;
-                var resultRenderableObject = gcl.getExtrudedWallRenderableObject(parseFloat(maxHeight) * 3.3 , undefined, manager, undefined, options, undefined);
-                resultRenderableObject.layerId = model.id;
-                resultRenderableObject.type = 'land';
-                resultRenderableObject.setDirty(false);
-                resultRenderableObject.color4 = new Mago3D.Color(0, 170/ 255, 224 / 255, 0.8);
-                resultRenderableObject.options = {};
-                resultRenderableObject.options.renderWireframe = true;
-                
-                resultRenderableObject.makeMesh = function(){
-                	this.setDirty(false);
-                	this.validTerrainHeight();
-                	return true;
-                }
-                
-                manager.modeler.addObject(resultRenderableObject, 10);
-            }
-        });
-    } else {
-        this.offExtrusionModel(model.id);
-        // var modeler = Ppmap.getManager().modeler;
-        
-        // var models = modeler.objectsArray;
-        // if(Pp.isEmpty(models)){
-        //     return;
-        // }
-        // //
-        // for(let i=0; i<models.length; i++){
-        //     let building = models[i];
-
-        //     if(building.layerId == model.id) {
-        //         /**
-        //              * modeler 인스턴스의 removeObject 메소드를 통해 모델 삭제
-        //              */
-        //         modeler.removeObject(building);
-        //     }
-        // }
-    }
-}
-
 
 /**
  * geoserver에 요청

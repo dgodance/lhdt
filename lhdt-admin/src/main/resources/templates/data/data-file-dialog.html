@@ -42,38 +42,37 @@
 					<col class="col-data"></col>
 				</colgroup>
 				<tbody></tbody>
+				<script id="templateDataFileUploadLog" type="text/x-handlebars-template">
+					<tr>
+						<td colspan="2" style="text-align: center;">Result of parsing</td>
+					</tr>
+					<tr>
+						<td> 총 건 수</td>
+						<td>{{totalCount}}</td>
+					</tr>
+					<tr>
+						<td> 성공 건수 </td>
+						<td>{{parseSuccessCount}}</td>
+					</tr>
+					<tr>
+						<td> 실패 건수 </td>
+						<td> {{parseErrorCount}}</td>
+					</tr>
+					<tr>
+						<td> DB 등록 건수 </td>
+						<td> {{insertSuccessCount}} </td>
+					</tr>
+					<tr>
+						<td> DB 수정 건수 </td>
+						<td> {{updateSuccessCount}} </td>
+					</tr>
+					<tr>
+						<td> DB 실패 건수 </td>"
+						<td> {{insertErrorCount}}</td>
+					</tr>
+				</script>
 			</table>
 		</form>
 	</div>
-
-	<script id="templateDataFileUploadLog" type="text/x-handlebars-template">
-		<tr>
-			<td colspan="2" style="text-align: center;">Result of parsing</td>
-		</tr>
-		<tr>
-			<td> 총 건 수</td>
-			<td>{{totalCount}}</td>
-		</tr>
-		<tr>
-			<td> 성공 건수 </td>
-			<td>{{parseSuccessCount}}</td>
-		</tr>
-		<tr>
-			<td> 실패 건수 </td>
-			<td> {{parseErrorCount}}</td>
-		</tr>
-		<tr>
-			<td> DB 등록 건수 </td>
-			<td> {{insertSuccessCount}} </td>
-		</tr>
-		<tr>
-			<td> DB 수정 건수 </td>
-			<td> {{updateSuccessCount}} </td>
-		</tr>
-		<tr>
-			<td> DB 실패 건수 </td>"
-			<td> {{insertErrorCount}}</td>
-		</tr>
-	</script>
 </body>
 </html>
