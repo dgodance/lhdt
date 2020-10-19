@@ -190,7 +190,7 @@
 	</thead>
 	<tbody>
 		{{#each datas}}
-			<tr>
+			<tr class="selected-data-library-item" data-project-id="{{projectId}}" data-node-id="{{nodeId}}">
 				<td>
 					{{dataLibraryName}}
 				</td>
@@ -207,6 +207,15 @@
 			</tr>
 		{{/unless}}
 	</tbody>
+	<tfoot>
+		<tr>
+			<td colspan="2" class="text-right">
+				{{#if datas}}
+				<button type="button" class="btn btn-xs del-all">전체삭제</button>
+				{{/if}}
+			</td>
+		</tr>
+	</tfoot>
 </table>
 </script>
 
