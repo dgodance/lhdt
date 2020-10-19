@@ -1,4 +1,84 @@
 @charset "UTF-8";
+
+
+.btn {
+	display: inline-block;
+    font-weight: 400;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    border: 1px solid transparent;
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border-radius: .25rem;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+
+.btn.active {
+	color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-primary {
+	color: #fff;
+    background-color: #0062cc;
+    border-color: #005cbf;
+}
+
+
+.btn-default{
+	color: #333;
+    background-color: #fff;
+    border-color: #ccc;
+}
+
+
+.btn-warning{
+	color: #212529;
+    background-color: #ffc107;
+    border-color: #ffc107;
+}
+
+
+.btn-outline-primary {
+    color: #007bff;
+    background-color: transparent;
+    background-image: none;
+    border-color: #007bff;
+}
+
+
+.btn-sm {
+	padding: .25rem .5rem;
+    font-size: .875rem;
+    line-height: 1.5;
+    border-radius: .2rem;
+}
+
+.btn-xs{
+	padding: 1px 5px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 3px;
+}
+
+
+
+
+.border{	
+	border: 1px solid #dee2e6!important;
+}
+
+
+
+
 /*ds*/
 .col-width-10 {width:10% !important;}
 .col-width-15 {width:15% !important;}
@@ -9,6 +89,35 @@
 .col-width-40 {width:40% !important;}
 .col-width-45 {width:45% !important;}
 .col-width-50 {width:50% !important;}
+
+
+
+.float-left {
+	float: left!important;
+}
+
+
+.float-right {
+	float: right!important;
+}
+
+
+.label{
+	display: inline;
+    padding: .2em .6em .3em;
+    font-size: 75%;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: .25em;
+}
+
+.label-default {
+	background-color: #777;
+}
 
 .text-left {text-align:left  !important;}
 .text-center {text-align:center  !important;}
@@ -30,16 +139,13 @@
 .ml-15 {margin-left:10px !important;}
 
 
-.float-left {float:left !important;}
-.float-right {float:left !important;}
-.float-none {float:left !important;}
-
 
 .cursor-pointer {cursor:pointer !important;}
 .cursor-default {cursor:default !important;}
 
 .display-none {display:none !important;}
 .d-none {display:none !important;}
+.d-inline {display: inline!important}
 
 .p-7 {padding: 7px !important;}
 
@@ -52,6 +158,61 @@
 .w-49 {width:49% !important;}
 .w-50 {width:50% !important;}
 
+
+
+.table{
+	width: 100%;
+    max-width: 100%;
+    margin-bottom: 1rem;
+    background-color: transparent;	
+    
+    border-collapse: collapse;
+    
+    display: table;
+    border-spacing: 2px;
+    border-color: grey;
+}
+
+.table > thead {
+    display: table-header-group;
+    vertical-align: middle;
+    border-color: inherit;
+}
+
+.table > thead > tr {
+	display: table-row;
+    vertical-align: inherit;
+    border-color: inherit;
+}
+
+.table > thead > tr > th {
+	vertical-align: bottom;
+    border-bottom: 2px solid #dee2e6;
+    display: table-cell;
+}
+
+
+.table > tbody {
+	display: table-row-group;
+    vertical-align: middle;
+    border-color: inherit;
+}
+
+.table > tbody > tr {
+	display: table-row;
+    vertical-align: inherit;
+    border-color: inherit;
+}
+
+.table > tbody > tr > td{
+	padding: .75rem;
+    vertical-align: top;
+    border-top: 1px solid #dee2e6;
+    display: table-cell;
+}
+
+
+
 .ui-dialog { z-index: 1000 !important ;}
 
 .fw-bold {font-weight: bold !important;}
@@ -59,6 +220,23 @@
 .color-red {color:red !important;}
 .color-normal { color: #3f48cc !important}
 .color-exceed { color: #cc3f3f !important}
+
+
+.form-control {
+	display: block;
+	width: 100%;
+	padding: .375rem .75rem;
+	font-size: 1rem;
+	line-height: 1.5;
+	color: #495057;
+	background-color: #fff;
+	background-clip: padding-box;
+	border: 1px solid #ced4da;
+	border-radius: .25rem;
+	transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+	overflow: visible;
+}
+
 
 button.textBtnSub.active {background-color:#258FFF; color:white; font-weight:bold;background-image: url('../../images/ico_checked.png') !important; background-repeat: no-repeat; background-size: 32px;}
 button[class*=ds-tool], button[class*=design-layer-tool] {width:23% !important; margin-bottom:2px;}
