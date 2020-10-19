@@ -166,7 +166,7 @@
         INSERT INTO design_layer (
             design_layer_id, urban_group_id, design_layer_group_id, design_layer_name, design_layer_key, design_Layer_type, sharing, ogc_web_services, geometry_type,
             layer_line_color, layer_line_style, layer_fill_color, layer_alpha_style, available, label_display,
-            coordinate, description, z_index, user_id, cache_available, design_layer_group_type,
+            coordinate, description, z_index, user_id, cache_available, design_layer_group_type
             <if test="viewOrder != null and viewOrder gt 0">
 				, view_order
 			</if>
