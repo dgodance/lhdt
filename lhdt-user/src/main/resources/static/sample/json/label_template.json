@@ -8,7 +8,7 @@
               "font" : "11px Arial",
               "textOffset" : [0, -5]
 	},
-	
+
 	"보라네글자" : {
 		  "background" : true,
 		  "backgroundSize" : [60,20],
