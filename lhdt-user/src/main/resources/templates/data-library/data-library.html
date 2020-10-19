@@ -12,6 +12,17 @@
        
 	
 	
+	<div class="border mt-10 p-7">
+		<h3>나의 데이터 관리</h3>
+		<div>
+			<button type="button" class="btn btn-default get-my-data-library" >불러오기</button>
+			<button type="button" class="btn btn-default save-my-data-library" >저장하기</button>
+			<button type="button" class="btn btn-default new-my-data-library" >신규</button>
+		</div>
+	</div>
+	
+	
+	
 	
 	<div class="mt-10 border p-7">
 		<h3>
@@ -88,7 +99,43 @@
 		</div>
 	</div>
 	
+	
+	
+	
+<div class="my-data-library-modal" style="display:none">
+	<div class="list-container">
+		<!-- by js -->
+	</div>
+	
+</div>	
 
+
+<script id="my-data-library-list-template" type="text/x-handlebars-template">
+	<table class="table">
+		<thead>
+			<tr>
+				<th>번호</th>
+				<th>나의 xxx 명</th>
+				<th>삭제</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{#each datas}}
+			<tr>
+				<td>{{@index}}</td>
+				<td><a href="javascript:;" class="select-my-data-library">todo</a></td>
+				<td><button type="button" class="btn btn-xs delete-my-data-library">삭제</button></td>
+			</tr>
+			{{/each}}
+
+			{{#unless datas}}
+			<tr>
+				<td colspan="3">데이터가 없습니다.</td>
+			</tr>
+			{{/unless}}
+		</tbody>
+	</table>
+</script>
 
 <!-- 
 데이터 라이브러리 선택 모달 

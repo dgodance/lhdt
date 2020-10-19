@@ -24,6 +24,9 @@ let DataLibrary2Obj = function(){
 	
 	//caching 데이터 라이브러리 정보
 	this.cacheDataLibraries = [];
+	
+	//나의 데이터 모달 인스턴스
+	this.dataLibrary2MyObjRef = null;
 };
 
 /**
@@ -79,8 +82,10 @@ DataLibrary2Obj.prototype.getToolById = function(toolId){
 /**
  * 초기화
  */
-DataLibrary2Obj.prototype.init = function(){
+DataLibrary2Obj.prototype.init = function(dataLibrary2MyObjRef){
 	this.$container = $('.modelerContent');
+	
+	this.dataLibrary2MyObjRef = dataLibrary2MyObjRef;
 	
 	
 	//회전 instance
@@ -210,8 +215,44 @@ DataLibrary2Obj.prototype.setEventHandler = function(){
 	});
 	
 	
+	//나의 데이터 관리 > 신규
+	this.$container.find('.new-my-data-library').click(function(){
+		if(!confirm('지도상의 데이터 라이브러리를 삭제한 후 신규로 작업하시겠습니까?')){
+			return;	
+		}
+		
+		
+		//지도상의 모든 데이터 라이브러리 정보 삭제
+		
+		
+		//컨텐트 영역의 정보 초기화
+	});	
+	
+	
+	
+	
+	//나의 데이터 관리 > 불러오기
+	this.$container.find('.get-my-data-library').click(function(){
+		self.dataLibrary2MyObjRef.open();
+	});
+	
+	
+	
+	//나의 데이터 관리 > 저장하기
+	this.$container.find('.save-my-data-library').click(function(){
+		if(!confirm('저장하시겠습니까?')){
+			return;
+		}
+		
+		//지도위의 데이터 라이브러리 정보 추출
+		
+		//db에 저장하기 위해 api 호출
+	});
+	
+	
 	
 };
+
 
 
 /**
@@ -954,6 +995,15 @@ DataLibrary2Obj.prototype.getDataLibrary = function(dataLibraryId){
 
 
 
+/**
+ * DataLibrary2MyObj에서 호출함
+ */
+DataLibrary2Obj.prototype.myDataLibrarySelected = function(data){
+	
+};
+
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -1236,10 +1286,153 @@ DataLibrary2SelectDataObj.prototype.getDataLibraryByDataLibraryId = function(dat
 };
 
 
+/////////////////////////////////
+/////////////////////////////////
+/////////////////////////////////
+/////////////////////////////////
+/////////////////////////////////
+
+
+
+/**
+ * 나의 데이터 모달
+ * @since 20201019 init
+ */
+DataLibrary2MyObj = function(){
+	this.$container = null;
+	
+	//데이터 라이브러리2 인스턴스
+	this.dataLibrary2ObjRef = null;
+};
+
+
+/**
+ * 초기화
+ */
+DataLibrary2MyObj.prototype.init = function(dataLibrary2ObjRef){
+	this.$container = $('.my-data-library-modal');
+	
+	this.dataLibrary2ObjRef = dataLibrary2ObjRef;
+	
+	
+	this.setEventHandler();
+};
+
+
+/**
+ * 이벤트 등록
+ */
+DataLibrary2MyObj.prototype.setEventHandler = function(){
+	let self = this;
+	
+	
+	
+	//나의 데이터 라이브러리 선택 클릭
+	self.$container.find('.select-my-data-library').click(function(){
+		//모달창 닫기
+		self.$container.dialog('close');
+		
+		//데이터 조회 api
+		let data = 'todo';
+		
+		
+		dataLibrary2ObjRef.myDataLibrarySelected(data);
+			
+	});
+	
+	
+	
+	//나의 데이터 라이브러리 삭제 클릭
+	self.$container.find('.delete-my-data-library').click(function(){
+		if(!confirm('삭제하시겠습니까?')){
+			return;
+		}
+		
+		//삭제 by api
+		
+		
+		//성공이면 
+		$(this).closest('tr').remove();
+	});
+	
+};
+
+
+/**
+ * 모달창 표시
+ */
+DataLibrary2MyObj.prototype.open = function(){
+	let self = this;
+	
+	
+	//모달창 실행
+	self.$container.dialog({
+		title: '나의 데이터 불러오기',
+		width: 800,
+		height: 600,
+		position: {my:'left top', at:'left top', of:'.cesium-viewer'},
+		buttons:[
+		{
+			text: '닫기',
+			click: function(){
+				$(this).dialog('close');
+			}
+		}]
+	}).dialog('open');
+	
+	//데이터 목록 조회
+	self.getMyDataLibrariesAsync(function(res){
+		//화면에 표시
+		self.renderMyDataLibraries(res);			
+	});
+	
+};
+
+
+
+/**
+ * 나의 데이터 라이브러리 목록 조회 by api
+ */
+DataLibrary2MyObj.prototype.getMyDataLibrariesAsync = function(callbackFn){
+	//$.get('todo url', callbackFn);
+	
+	callbackFn({});
+};
+
+
+/**
+ * 데이터를 화면에 표시
+ */
+DataLibrary2MyObj.prototype.renderMyDataLibraries = function(res){	
+	
+	let source = $('#my-data-library-list-template').html();
+	let template = Handlebars.compile(source);
+	let datas = [];
+	
+	if(!Pp.isEmpty(res) && !Pp.isEmpty(res._embedded)){
+		datas = res._embedded.todo;		
+	}
+	
+		
+	let html = template({datas: datas});
+	this.$container.find('.list-container').html(html);
+	
+	
+	
+	//
+	this.setEventHandler();
+	
+};
+
+
+
+
 let dataLibrary2Obj = new DataLibrary2Obj();
 let dataLibrary2SelectDataObj = new DataLibrary2SelectDataObj();
+let dataLibrary2MyObj = new DataLibrary2MyObj();
 
 $(document).ready(function(){
-	dataLibrary2Obj.init();
+	dataLibrary2Obj.init(dataLibrary2MyObj);
 	dataLibrary2SelectDataObj.init();	
+	dataLibrary2MyObj.init(dataLibrary2Obj);	
 });
