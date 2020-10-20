@@ -1017,7 +1017,7 @@ DesignLayerObj.prototype.setLimitInfoByPolygon = function(polygonHierarchy, h) {
     for(let i in buildings) {
     	let building = buildings[i];
     	building.setLimitationGeographicCoords(geographicCoordsList.geographicCoordsArray);
-    	building.setLimitationHeight(h+building.terrainHeight);
+    	building.setLimitationHeight(h);
     }
 }
 
@@ -2096,13 +2096,13 @@ DesignLayerObj.prototype.extrusionModelWMSLabelToggle = function(model, isShow){
           						var entity = entities[0];
           						var label;
           						if(designLayerName === '주거생활결합존') {
-          							label = _defaultLabelOption('주거ㆍ생활 Complex Zone');
+          							label = _defaultLabelOption('주거ㆍ생활 컴플렉스존');
           							label.backgroundColor = Cesium.Color.fromCssColorString('#f1b531');
           						} else if( designLayerName === '도심형마켓존') {
-          							label = _defaultLabelOption('도심형 마켓 Zone');
+          							label = _defaultLabelOption('도심형 마켓 존');
           							label.backgroundColor = Cesium.Color.fromCssColorString('#f0575a');
           						} else if(designLayerName === '창의혁신클러스터존') {
-          							label = _defaultLabelOption('창의혁신 클러스터 Zone');
+          							label = _defaultLabelOption('창의혁신ㆍ산업 클러스터 존');
           							label.backgroundColor = Cesium.Color.fromCssColorString('#8c5a99');
           							label.pixelOffset = new Cesium.Cartesian2(120,0);
           						}
