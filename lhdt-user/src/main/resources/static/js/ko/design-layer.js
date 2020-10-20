@@ -2096,7 +2096,7 @@ DesignLayerObj.prototype.extrusionModelWMSLabelToggle = function(model, isShow){
           						var entity = entities[0];
           						var label;
           						if(designLayerName === '주거생활결합존') {
-          							label = _defaultLabelOption('주거ㆍ생활 Complex Zone');
+          							label = _defaultLabelOption('주거ㆍ생활 컴플렉스존');
           							label.backgroundColor = Cesium.Color.fromCssColorString('#f1b531');
           						} else if( designLayerName === '도심형마켓존') {
           							label = _defaultLabelOption('도심형 마켓 Zone');
