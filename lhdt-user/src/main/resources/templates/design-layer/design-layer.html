@@ -68,16 +68,6 @@
 		</div>
 	</div>
 
-	<div class=" marT10" style="border: 1px solid #efefef;padding:5px;">
-		<h3 class="">라벨</h3>
-		<div class="">
-			<div class="form-group form-group-policy">
-				<input type="checkbox" id="show-label" class="w-30">
-				<label for="show-label" class="w-50">라벨을 표시합니다.</label>
-			</div>
-		</div>
-	</div>
-
 
 	<div class="ds-design-layer-building-updown mt-10" style="display: none;border: 1px solid #efefef;padding:5px;">
 		<h3>건물 높이 변경</h3>
@@ -117,6 +107,7 @@
 .text-left {text-align:left !important;}
 </style>	
 
+
 <!--  -->
 <script id="design-layer-template" type="text/x-handlebars-template">
 <table class="table-word-break design-layers" summary="디자인 레이어 목록">
@@ -125,14 +116,12 @@
 		<col width="35">
 		<col width="auto">
 		<col width="35">
-		<col width="35">
 	</colgroup>
 	<thead>
 		<tr>
 			<th scope="col" class="col-number">선택</th>
 			<th scope="col" class="col-number"><!--디자인-->레이어명</th>
 			<th scope="col" class="col-number">높이</th>
-			<th scope="col" class="col-number"><!--디자인-->라벨</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -140,8 +129,8 @@
 			{{#each datas}}
 			<tr data-design-layer-group-type="{{designLayerGroupType}}">
 				<td class="toggle-design-layer"><input type="checkbox" name="design-layer-id" value="{{designLayerId}}"></td>
-				<td class="toggle-design-layer text-left cursor-pointer">{{designLayerName}}</td>
-				<td>
+				<td class="toggle-design-layer text-left cursor-pointer p-7">{{designLayerName}}</td>
+				<td >
 					{{#ifMatch designLayerGroupType 'land'}}
 						<input type="checkbox" class="toggle-extrusion-model-height" value="{{designLayerId}}" disabled="disabled"/>
 					{{/ifMatch}}
@@ -150,16 +139,11 @@
 					{{/ifMatch}}
 					<!-- building은 checkbox 없음 -->
 				</td>
-				<td>
-					{{#ifMatch labelDisplay true}}
-						<input type="checkbox" class="toggle-extrusion-model-label" value="{{designLayerId}}" disabled="disabled"/>
-					{{/ifMatch}}
-				</td>
 			</tr>
 			{{/each}}
 		{{else}}
 			<tr>
-				<td colspan="4">데이터가 없습니다.</td>
+				<td colspan="3">데이터가 없습니다.</td>
 			</tr>
 		{{/if}}
 	</tbody>

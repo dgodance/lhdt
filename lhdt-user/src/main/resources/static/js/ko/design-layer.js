@@ -2602,18 +2602,14 @@ DesignLayerObj.prototype.xxx = function(){
             modal: false,
             resizable: false,
             title : '정보',
+			position: {'my':'right top', 'at': 'right top', 'of': '.cesium-viewer'},
             buttons:{
                 '닫기':function(){
                     $(this).dialog('close')
                 }
             }
         };
-        if(Pp.isNotNull(left)){
-            option.position = {'my':'left top',
-                'at': 'left+' + parseFloat(left) + ' top+' + parseFloat(top),
-                'of': window
-            };
-        }
+        
         //
         $('div.design-layer-land-modal').dialog(option).dialog('open');
     };
@@ -2762,7 +2758,7 @@ DesignLayerObj.prototype.showUrbanInfo = function(urbanGroupId){
             autoOpen: false,
             width: 500,
             height: 250,
-            position: {my:'center', at:'right top+' + top, of:'.cesium-viewer'},
+            position: {my:'right top', at:'right top', of:'.cesium-viewer'},
             resizable: false,
             title : '정보',
             buttons:{

@@ -1,5 +1,8 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
 <div id="dataLibraryContent" class="modelerContent contents yScroll fullHeight" style="display:none;">
+
+
+
 <ul class="listDrop">
 
 	<li class="on">
@@ -7,73 +10,253 @@
     </li>
 </ul>
        
-	<div class="ds-modeler" style="border: 1px solid #efefef;padding:5px;">
-		<h3 class="">데이터 라이브러리 </h3>
-		
-		<div class="form-group form-group-data">
-			<label for="data-library-group">그룹</label> 
-			<select id="data-library-group" >
-				<option value="">전체</option>
-				<!-- by js -->
-			</select>
-		</div>
-
-		<div class="list">
-			<div class="ds-modeler-list dataGroupSummary table-data-group-summary">
-				<!-- by js -->
-			</div>
-
-			<div class="pagination"></div>
-
+	
+	
+	<div class="border mt-10 p-7">
+		<h3>나의 데이터 관리</h3>
+		<div>
+			<button type="button" class="btn btn-default get-my-data-library" >불러오기</button>
+			<button type="button" class="btn btn-default save-my-data-library" >저장하기</button>
+			<button type="button" class="btn btn-default new-my-data-library" >신규</button>
 		</div>
 	</div>
+	
+	
+	
+	
+	<div class="mt-10 border p-7">
+		<h3>
+			데이터 라이브러리
+		</h3>
+		<div>
+			<div>
+				<span class="label label-default">데이터 라이브러리 그룹 명</span>
+				<span class="selected-data-library-group-name"></span>
+			</div>
+			<div>
+				<span class="label label-default">데이터 라이브러리 명</span>
+				<span class="selected-data-library-name"></span>
+			</div>
+			<div>
+				<span class="label label-default">썸네일 이미지</span>
+				<img src="" class="selected-data-library-thumbnail"/>
+			</div>
+		</div>
+		<div style="height:25px;">
+			<button type="button" class="btn btn-outline-primary btn-xs float-right ml-10 delete-selected-data-library">삭제</button>
+			<button type="button" class="btn btn-outline-primary btn-xs float-right ml-10 open-select-data-library-modal">선택...</button>
+		</div>
+	</div>
+	
+	<div class="mt-10 border p-7">
+		<h3>생성 방법</h3>
+		<div>
+			<button type="button" class="btn btn-default ds-tool-point" data-id="point">점으로</button>
+			<button type="button" class="btn btn-default ds-tool-line" data-id="line">선으로</button>
+		</div>
+	</div>
+	
+	<div class="mt-10 border p-7">
+		<h3>처리 도구</h3>
+		<div>
+			<button type="button" class="btn btn-default ds-tool-none d-none" data-id="none">none</button>
+			<button type="button" class="btn btn-default ds-tool-select" data-id="select">선택</button>
+			<button type="button" class="btn btn-default ds-tool-selectbypolygon" data-id="selectbypolygon">영역선택</button>
+			<button type="button" class="btn btn-default ds-tool-move" data-id="move">이동</button>
+			<button type="button" class="btn btn-default ds-tool-rotate" data-id="rotate">회전</button>
+			<button type="button" class="btn btn-default ds-tool-delete" data-id="delete">삭제</button>
+		</div>
+	</div>
+	
+	
+	
 
-	<div class="ds-tool marT10" style="border: 1px solid #efefef;padding:5px;">
-		<h3 class="">도구</h3>
-		<div class="">
-			<button class="textBtnSub  ds-tool-select">선택</button>
-			<button class="textBtnSub  ds-tool-delete">삭제</button>
-			<button class="textBtnSub  ds-tool-move">이동</button>
-			<button class="textBtnSub  ds-tool-rotate">회전</button>
+
+	<div class="mt-10 border p-7" >
+		<h3>선택된 데이터 라이브러리</h3>
+		<div class="selected-data-library-list"><!-- by js --></div>		
+	</div>
+	
+	
+	<div class="mt-10 border p-7">
+		<h3>변경</h3>
+		<div>
+			<span class="label label-default">데이터 라이브러리 그룹 명</span>
+			<span class="selected-tobe-data-library-group-name"></span>
 		</div>
 		<div>
-			<button class="textBtnSub  ds-tool-point" style="width:32% !important;">점으로생성</button>
-			<button class="textBtnSub  ds-tool-line" style="width:32% !important;">선으로생성</button>
-			<button class="textBtnSub  ds-tool-selectbypolygon" style="width:32% !important;">범위로선택</button>
+			<span class="label label-default">데이터 라이브러리 명</span>
+			<span class="selected-tobe-data-library-name"></span>
+		</div>
+		<div>
+			<span class="label label-default">썸네일 이미지</span>
+			<img class="selected-tobe-data-library-thumbnail"/>
+		</div>
+		<div style="height:25px;">
+			<button type="button" class="btn btn-warning btn-xs float-right ml-10 change-data-library">변경</button>
+			<button type="button" class="btn btn-outline-primary btn-xs float-right ml-10 delete-tobe-data-library">삭제</button>
+			<button type="button" class="btn btn-outline-primary btn-xs float-right ml-10 open-select-tobe-data-library">선택...</button>
 		</div>
 	</div>
-
-
-	<div class="mt-10" style="border: 1px solid #efefef;padding:5px;">
-		<h3>선택된</h3>
-		<div class="ds-selected-list"></div>
-		
-		<h3 class="mt-10">변경할</h3>
-		<div class="ds-tobe"></div>
-		<button class="textBtnSub">선택...</button>
-		<button class="textBtnSub ds-change-data-library">변경</button>
+	
+	
+	
+	
+<div class="my-data-library-modal" style="display:none">
+	<div class="list-container">
+		<!-- by js -->
 	</div>
+	
+</div>	
 
-	<!--
 
-		<div class="ds-category marT10" style="border: 1px solid #efefef;padding:5px;">
-			<h3 class=" marT10">카테고리</h3>
-			<div class="form-group form-group-data">
-				<label for="before-category">변경전</label> 
-				<input type="text" name="selectedDataLibrary" class="ds-selected-data-library" readonlye="readonly"/>
-			</div>
-			<div class="form-group form-group-data">
-				<label for="after-category">변경후</label> <select id="after-category" name="searchDataGroup">
-					<option value="">선택</option>
-				</select>
-			</div>
-			
-			<div class="form-group button-group-center">
-				<button type="button" class="btnTextF ds-change-category" title="검색">변경</button>
-			</div>
-			
-		</div>
-	-->
+<script id="my-data-library-list-template" type="text/x-handlebars-template">
+	<table class="table">
+		<thead>
+			<tr>
+				<th>번호</th>
+				<th>나의 xxx 명</th>
+				<th>삭제</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{#each datas}}
+			<tr>
+				<td>{{@index}}</td>
+				<td><a href="javascript:;" class="select-my-data-library">todo</a></td>
+				<td><button type="button" class="btn btn-xs delete-my-data-library">삭제</button></td>
+			</tr>
+			{{/each}}
+
+			{{#unless datas}}
+			<tr>
+				<td colspan="3">데이터가 없습니다.</td>
+			</tr>
+			{{/unless}}
+		</tbody>
+	</table>
+</script>
+
+<!-- 
+데이터 라이브러리 선택 모달 
+1015
+-->
+<style>
+.data-library2-select-data-modal > .header {height:32px; padding:5px;}
+</style>
+<div class="data-library2-select-data-modal" style="display:none;">
+	<div class="header text-right">
+		<label>
+			데이터 라이브러리 명 :
+			<input type="search" name="searchDataLibraryName" class="form-control d-inline w-30">
+		</label>
+		<button type="button" class="btn btn-primary search" >검색</button>
+	</div>
+    <div id="mainSplitter">
+        <div id="leftPane" style="background-color:#F5FFF2;">
+        	그룹
+        	<div class="jstree-container">
+        	</div>
+        </div>
+        <div id="rightPane" style="background-color:#F5FFF2;">
+        	<div class="list"></div>
+        </div>
+    </div>
+
+</div>
+
+
+<link rel="stylesheet" type="text/css" th:href="@{/externlib/splitter/jquery.splitter.css}" ></link>
+<script th:src="@{/externlib/splitter/jquery.splitter.js}" defer></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js" defer></script>
+
+<script th:src="@{/js/ko/data-library2.js}" defer></script>
+
+
+<!-- 
+지도상에서 선택된 데이터 라이브러리 목록 템플릿
+ -->
+<script id="selected-data-library-list-template" type="text/x-handlebars-template">
+<span class="label label-default">갯수: </span>
+<span class="totcnt">0</span>
+<table class="table">
+	<thead>
+		<tr>
+			<th>데이터 라이브러리 명</th>
+			<th>기능</th>
+		</tr>
+	</thead>
+	<tbody>
+		{{#each datas}}
+			<tr class="selected-data-library-item" data-project-id="{{projectId}}" data-node-id="{{nodeId}}">
+				<td>
+					{{dataLibraryName}}
+				</td>
+				<td>
+					<button type="button" class="btn btn-xs deselect" >선택해제</button>
+					<button type="button" class="btn btn-xs del" >삭제</button>
+				</td>
+			</tr>	
+		{{/each}}
+
+		{{#unless datas}}
+			<tr class="no-data-found">
+				<td colspan="2" class="text-center">데이터가 없습니다.</td>
+			</tr>
+		{{/unless}}
+	</tbody>
+	<tfoot>
+		<tr>
+			<td colspan="2" class="text-right">
+				{{#if datas}}
+				<button type="button" class="btn btn-xs del-all">전체삭제</button>
+				{{/if}}
+			</td>
+		</tr>
+	</tfoot>
+</table>
+</script>
+
+
+<!-- 
+모달 > 데이터 라이브러리 목록
+핸들바 템플릿
+1015
+ -->
+<script id="data-library-list-template" type="text/x-handlebars-template">
+<table class="table">
+	<thead>
+		<tr>
+			<th>번호</th>
+			<th>데이터 라이브러리 명</th>
+			<th>썸네일</th>
+		</tr>
+	</thead>
+	<tbody>
+		{{#each datas}}
+			<tr>
+				<td>{{@index}}</td>
+				<td>
+					<a href="javascript:;" class="link" data-data-library-id="{{dataLibraryId}}">
+						{{dataLibraryName}}
+					</a>
+				</td>
+				<td><img src="{{dataLibraryThumbnail}}"/></td>
+			</tr>	
+		{{/each}}
+
+		{{#unless datas}}
+			<tr>
+				<td colspan="3">데이터가 없습니다.</td>
+			</tr>
+		{{/unless}}
+	</tbody>
+</table>
+</script>
+
+
 
 <style>
 .text-left {text-align:left !important;}
