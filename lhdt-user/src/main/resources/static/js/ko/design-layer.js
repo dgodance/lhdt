@@ -2092,16 +2092,16 @@ DesignLayerObj.prototype.extrusionModelWMSLabelToggle = function(model, isShow){
           				
           				if(designLayerGroupType === 'land') {
           					var designLayerName = json.designLayerName;
-          					if(designLayerName === '주거생활결합존' || designLayerName === '도심형마켓존' || designLayerName === '창의혁신클러스터존') {
+          					if(designLayerName.includes("주거생활") || designLayerName.includes("도심형") || designLayerName.includes("창의혁신")) {
           						var entity = entities[0];
           						var label;
-          						if(designLayerName === '주거생활결합존') {
+          						if(designLayerName.includes("주거생활")) {
           							label = _defaultLabelOption('주거ㆍ생활 컴플렉스존');
-          							label.backgroundColor = Cesium.Color.fromCssColorString('#f1b531');
-          						} else if( designLayerName === '도심형마켓존') {
+          							label.backgroundColor = Cesium.Color.fromCssColorString('#f1eb37');
+          						} else if( designLayerName.includes("도심형")) {
           							label = _defaultLabelOption('도심형 마켓 존');
           							label.backgroundColor = Cesium.Color.fromCssColorString('#f0575a');
-          						} else if(designLayerName === '창의혁신클러스터존') {
+          						} else if(designLayerName.includes("창의혁신")) {
           							label = _defaultLabelOption('창의혁신ㆍ산업 클러스터 존');
           							label.backgroundColor = Cesium.Color.fromCssColorString('#8c5a99');
           							label.pixelOffset = new Cesium.Cartesian2(120,0);

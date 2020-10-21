@@ -189,9 +189,9 @@ DataLibrary2Obj.prototype.setEventHandler = function(){
 		}
 		
 		
-		let totcnt = self.$container.find('.selected-data-library-list .totcnt').html();
+		let totcnt = self.$container.find('.selected-data-library-list .selected-data-library-item').length;
 		
-		if('0' == totcnt){
+		if(0 == totcnt){
 			toastr.warning('선택된 데이터 라이브러리가 없습니다. 변경을 취소합니다.');
 			return;
 		}
@@ -203,15 +203,31 @@ DataLibrary2Obj.prototype.setEventHandler = function(){
 		}
 		
 		
-		let msg = '[' + self.selectedDataLibrary.dataLibraryName + ']';
-		msg += '을(를) ';
-		msg += '[' + self.selectedTobeDataLibrary.dataLibraryName + ']';
+		let msg = '[' + self.selectedTobeDataLibrary.dataLibraryName + ']';
 		msg += '(으)로 변경하시겠습니까?';
 		if(!confirm(msg)){
 			reutrn;
 		}
 		
-		//TODO 변경
+		//변경 처리
+		self.$container.find('.selected-data-library-item').each(function(i,item){
+			let projectId = $(item).data('project-id');
+			let nodeId = $(item).data('node-id');
+			
+			let node = MAGO3D_INSTANCE.getF4dController().getF4d(projectId, nodeId);
+			if(!node){
+				return;
+			}
+			
+			//console.log(node, data.attributes.longitude, data.attributes.latitude);
+			
+			//위치 추출
+			let lonLat = {'lon': node.data.attributes.longitude, 'lat': node.data.attributes.latitude};
+			//삭제
+			MAGO3D_INSTANCE.getF4dController().deleteF4dMember(projectId, nodeId);
+			//추가
+			self.addStaticModel(self.selectedTobeDataLibrary, lonLat);
+		});
 	});
 	
 	
@@ -245,6 +261,7 @@ DataLibrary2Obj.prototype.setEventHandler = function(){
 		}
 		
 		//지도위의 데이터 라이브러리 정보 추출
+		//추출내용 : 데이터 라이브러리 종류, 좌표(xyz), 회전정도?
 		
 		//db에 저장하기 위해 api 호출
 	});
@@ -723,9 +740,11 @@ DataLibrary2Obj.prototype.showDataLibraryAtMap = function(lonLat){
 	 }
 	 //console.log(lonLat);
 	 
+
+	this.addStaticModel(this.selectedDataLibrary, lonLat);
 	 
 	 //
-	 if(!Ppmap.getManager().isExistStaticModel(this.selectedDataLibrary.dataLibraryId)) {
+	 /*if(!Ppmap.getManager().isExistStaticModel(this.selectedDataLibrary.dataLibraryId)) {
 		let model = {};
 		model.projectId = this.selectedDataLibrary.dataLibraryId;
 		model.projectFolderName = this.selectedDataLibrary.dataLibraryPath;
@@ -748,7 +767,50 @@ DataLibrary2Obj.prototype.showDataLibraryAtMap = function(lonLat){
 		instanceId : uid,
 		longitude : lonLat.lon,
 		latitude : lonLat.lat,
-		height : 0
+		height : 0,
+		heightReference:Mago3D.HeightReference.CLAMP_TO_GROUND,
+	});*/
+}
+
+
+/**
+ * data-library 지도상에 추가하기
+ * @param {object} dataLibrary
+ * @param {LonLat} lonLat
+ */
+DataLibrary2Obj.prototype.addStaticModel = function(dataLibrary, lonLat){
+	if(Pp.isNull(dataLibrary)){
+		 return;
+	 }
+	 //console.log(lonLat);
+	 
+	 
+	 //
+	 if(!Ppmap.getManager().isExistStaticModel(dataLibrary.dataLibraryId)) {
+		let model = {};
+		model.projectId = dataLibrary.dataLibraryId;
+		model.projectFolderName = dataLibrary.dataLibraryPath;
+		
+		
+		//to fix
+		model.projectFolderName = model.projectFolderName.split(dataLibrary.dataLibraryKey)[0];
+		model.projectFolderName = model.projectFolderName.replace(/\/+$/, '');
+		model.buildingFolderName = 'F4D_'+dataLibrary.dataLibraryKey;
+
+		//
+		Ppmap.getManager().addStaticModel(model);
+	}
+	
+	//uid는 pk값은 역할을 함. 이 값이 중복되면 해당 데이터는 추가되지 않음
+	let uid = Pp.createUid('' + parseInt(Math.random() * 1000));
+	//
+	Ppmap.getManager().instantiateStaticModel({
+		projectId : dataLibrary.dataLibraryId,
+		instanceId : uid,
+		longitude : lonLat.lon,
+		latitude : lonLat.lat,
+		height : 0,
+		heightReference:Mago3D.HeightReference.CLAMP_TO_GROUND,
 	});
 }
 
@@ -793,8 +855,6 @@ DataLibrary2Obj.prototype.selectedf4dCallback = function(){
 
 		//
 		MAGO3D_INSTANCE.getF4dController().deleteF4dMember(selected.data.projectId, selected.data.nodeId);
-		Ppmap.getManager().defaultSelectInteraction.clear();
-		selectionManager.clearCurrents();
 		return;
 	}
 	
@@ -813,6 +873,7 @@ DataLibrary2Obj.prototype.selectedf4dCallback = function(){
 		//렌더링 선택된 데이터 라이브러리 목록
 		dataLibrary2Obj.renderSelectedDataLibraries(datas);
 	}
+	
 };
 
 
@@ -854,49 +915,94 @@ DataLibrary2Obj.prototype.selectByPolygonCallback = function(cartesians){
  * 지도상에서 선택된 데이터 라이브러리 목록을 화면에 목록으로 표시
  */
 DataLibrary2Obj.prototype.renderSelectedDataLibraries = function(datas){
+	
+	
+	let self = this;	
+	
+	
+	
+	//
 	let _totcnt = function(){
-		let totcnt = dataLibrary2Obj.$container.find('.selected-data-library-list table tbody tr').not('tr.no-data-found').length
-		dataLibrary2Obj.$container.find('.selected-data-library-list .totcnt').html(totcnt);
+		let totcnt = self.$container.find('.selected-data-library-list table tbody tr').not('tr.no-data-found').length
+		self.$container.find('.selected-data-library-list .totcnt').html(totcnt);
 		
 		if(0 == totcnt){
 			let s = '<tr class="no-data-found"><td colspan="2" class="text-center">데이터가 없습니다.</td></tr>';
-			dataLibrary2Obj.$container.find('.selected-data-library-list table tbody').html(s);
+			self.$container.find('.selected-data-library-list table tbody').html(s);
+			
+			self.$container.find('.selected-data-library-list .del-all').remove();
 		}
 	};
+	
 	
 	let source = $('#selected-data-library-list-template').html();
 	let template = Handlebars.compile(source);
 	let html = template({datas: datas});
-	dataLibrary2Obj.$container.find('.selected-data-library-list').html(html);
-	
-	//선택해제 클릭 이벤트
-	dataLibrary2Obj.$container.find('.selected-data-library-list .deselect').click(function(){
-		let projectId = $(this).data('project-id');
-		let nodeId = $(this).data('node-id');
-		
-		//TODO
-	});
+	this.$container.find('.selected-data-library-list').html(html);
+
 	
 	_totcnt();
+
+
+	
+	//선택해제 클릭 이벤트
+	this.$container.find('.selected-data-library-list .deselect').click(function(){
+		let $tr = $(this).closest('tr');
+		
+		let projectId = $tr.data('project-id');
+		let nodeId = $tr.data('node-id');
+		
+		//
+		let node = MAGO3D_INSTANCE.getF4dController().getF4d(projectId, nodeId);
+		if(node){
+			MAGO3D_INSTANCE.getMagoManager().selectionManager.removeF4d(node);
+			
+			$tr.remove();
+			_totcnt();
+		}
+	});
+	
 	
 	
 	
 	//삭제 클릭 이벤트
-	dataLibrary2Obj.$container.find('.selected-data-library-list .del').click(function(){
+	this.$container.find('.selected-data-library-list .del').click(function(){
+		if(!confirm('삭제하시겠습니까?')){
+			return;
+		}
+		
+		let $tr = $(this).closest('tr');
+		let projectId = $tr.data('project-id');
+		let nodeId = $tr.data('node-id');
+		
+		
+		MAGO3D_INSTANCE.getF4dController().deleteF4dMember(projectId, nodeId);
+		
+		
+		$tr.remove();		
+		_totcnt();
+	});
+	
+	
+	
+	//전체삭제 클릭 이벤트
+	this.$container.find('.selected-data-library-list .del-all').click(function(){
 		if(!confirm('삭제하시겠습니까?')){
 			return;
 		}
 		
 		
-		let projectId = $(this).data('project-id');
-		let nodeId = $(this).data('node-id');
+		self.$container.find('.selected-data-library-list .selected-data-library-item').each(function(i,item){
+			let projectId = $(this).data('project-id');
+			let nodeId = $(this).data('node-id');
+			
+			
+			MAGO3D_INSTANCE.getF4dController().deleteF4dMember(projectId, nodeId);
+			
+			
+			$(item).closest('tr').remove();		
+		});
 		
-		
-		MAGO3D_INSTANCE.getF4dController().deleteF4dMember(projectId, nodeId);
-		//TODO 선택 표시 잔상은 아직 남아 있음. 이거 제거해야 함
-		
-		
-		$(this).closest('tr').remove();
 		
 		_totcnt();
 	});

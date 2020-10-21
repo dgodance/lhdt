@@ -99,7 +99,7 @@
 		<!-- E: CONTENTS WRAP -->
 
 		<!-- S: CONTENTS BTN -->
-		<div class="contentsBtn">
+		<div class="contentsBtn" style="display:none;">
 			<button type="button" id="closeLeftBtn" th:title="#{common.close}" style="display:none;">Close</button>
 		</div>
 		<!-- E: CONTENTS BTN -->
@@ -489,6 +489,8 @@
    			} else if(f4d.data.nodeId === 'bridge_1'){
    				color = '49,161,208';
    			} else if(f4d.data.nodeId === 'block_27'){
+   				color = '0,176,80';
+   			} else if(f4d.data.nodeId === 'block_12'){
    				color = '0,176,80';
    			} else if(f4d.data.nodeId.indexOf('block') > -1 || f4d.data.nodeId.indexOf('bridge') > -1){
    				color = '190,190,190';
