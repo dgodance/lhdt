@@ -41,17 +41,30 @@ var AnalsLandScapeDirection = function(viewer, magoInstance) {
         const statusChecked = $("#landscapeDirectToggle").is(":checked");
         if(statusChecked) {
             workingMode = 'landscapedirect';
-            viewer.camera.lookAt(viewer.scene.camera.position,
-                new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-90.0),
-                    viewer.scene.camera.positionCartographic.height));
-            viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+
+            const heading = viewer.scene.camera.heading;
+            const roll = viewer.scene.camera.roll;
+            let totalPitch = Cesium.Math.toDegrees(viewer.scene.camera.pitch);
+            const p = setInterval(function() {
+                if(totalPitch <= -90) {
+                    clearInterval(p)
+                }
+                totalPitch = totalPitch - 1;
+                viewer.scene.camera.setView({
+                    orientation: {
+                        heading : heading,
+                        pitch : Cesium.Math.toRadians(totalPitch),
+                        roll : roll
+                    }
+                });
+            },10);
         } else {
             workingMode = undefined;
         }
 
 		if(statusChecked){
 			toastr.info('마우스 더블클릭을 이용하여 지도상에서 세곳을 선택하시기 바랍니다.');
-			
+
 			init();
 			landscapeDirectionEvt();
 		}
@@ -75,10 +88,6 @@ var AnalsLandScapeDirection = function(viewer, magoInstance) {
 		//지도위 entity 삭제
 		Ppmap.removeAll();
 	};
-	
-	
-
-    landscapeDirectionEvt();
 
 	//마우스 이벤트 등록
     function landscapeDirectionEvt() {
@@ -236,6 +245,7 @@ var AnalsLandScapeDirection = function(viewer, magoInstance) {
         //const handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
         self._handler.setInputAction( (click) => {
                 if(workingMode === 'landscapedirect') {
+                    debugger;
                     const pos = getPositionByCesiumEvt(click.position);
                     switch (landScapeDirectType) {
                         case LandsacpeDirectEnum.WAIT:
