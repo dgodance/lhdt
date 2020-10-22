@@ -26,8 +26,8 @@ import lombok.ToString;
 @AllArgsConstructor
 public class Board extends Search implements Serializable {
 	
-	private static final long serialVersionUID = -6379435382043677979L;
-	
+	private static final long serialVersionUID = -3757317100688176871L;
+
 	// validation
 		private String error_code;
 		

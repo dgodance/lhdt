@@ -254,40 +254,6 @@ function initJqueryCalendar() {
 	});
 }
 
-// 저장
-var insertBoardFlag = true;
-function insertBoard() {
-	if (check() == false) {
-		return false;
-	}
-	if(insertBoardFlag) {
-		insertBoardFlag = false;
-		var info = $("#board").serialize();
-		$.ajax({
-			url: "/board/insert-board",
-			type: "POST",
-			headers: {"X-Requested-With": "XMLHttpRequest"},
-	        data: info,
-			success: function(msg){
-				if(msg.statusCode <= 200) {
-					alert(JS_MESSAGE["insert"]);
-				} else {
-					alert(JS_MESSAGE[msg.errorCode]);
-					console.log("---- " + msg.message);
-				}
-				insertBoardFlag = true;
-			},
-			error:function(request,status,error){
-		        alert(JS_MESSAGE["ajax.error.message"]);
-		        insertBoardFlag = true;
-			}
-		});
-	} else {
-		alert("진행 중입니다.");
-		return;
-	}	
-}
-
 var fileUploadDialog = $( ".spinner-dialog" ).dialog({
 	autoOpen: false,
 	width: 250,
@@ -301,7 +267,7 @@ var uploadFileCount = 0;
 // dropzone 업로딩 결과(n개 파일을 올리면 n개 리턴이 옴)
 var uploadFileResultCount = 0;
 Dropzone.options.myDropzone = {
-    url: "/board/insert-board",
+    url: "/boards/insert-board",
     //paramName: "file",
     // Prevents Dropzone from uploading dropped files immediately
     timeout: 3600000,
@@ -376,6 +342,8 @@ Dropzone.options.myDropzone = {
         	 formData.append("end_hour", $("#end_hour").val());
         	 formData.append("end_minute", $("#end_minute").val());
         	 formData.append("use_yn", $("input[name='use_yn']:checked").val());
+        	 formData.append("CSRFToken", $('input[name=CSRFToken]').val());
+        	 
         	 
 		});
 

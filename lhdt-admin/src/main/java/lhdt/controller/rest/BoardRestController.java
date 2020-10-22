@@ -39,7 +39,7 @@ import java.util.zip.ZipFile;
 
 @Slf4j
 @RestController
-@RequestMapping("/board")
+@RequestMapping("/boards")
 public class BoardRestController implements AuthorizationController {
 
 	@Autowired
@@ -55,17 +55,41 @@ public class BoardRestController implements AuthorizationController {
     
     
     /**
-	 * 게시물 삭제 삭제
+	 * 게시물 삭제
 	 * @param boardNoticeId
 	 * @return
 	 */
-	@DeleteMapping(value = "/delete/{boardNoticeId:[0-9]+}")
+	@DeleteMapping(value = "/{boardNoticeId:[0-9]+}")
 	public Map<String, Object> delete(@PathVariable Long boardNoticeId) {
 		Map<String, Object> result = new HashMap<>();
 		String errorCode = null;
 		String message = null;
 		
 		boardService.deleteBoard(boardNoticeId);
+		int statusCode = HttpStatus.OK.value();
+
+		result.put("statusCode", statusCode);
+		result.put("errorCode", errorCode);
+		result.put("message", message);
+		return result;
+	}
+	
+	/**
+	 * 게시물 파일 삭제
+	 * @param boardNoticeFileId
+	 * @return
+	 */
+	@DeleteMapping(value = "/file/{boardNoticeFileId:[0-9]+}")
+	public Map<String, Object> deleteFile(@PathVariable Long boardNoticeFileId) {
+		Map<String, Object> result = new HashMap<>();
+		String errorCode = null;
+		String message = null;
+		try {
+			boardService.deleteBoardNoticeFile(boardNoticeFileId);
+		}catch(Exception e) {
+			//FileUtils.deleteFileReculsive();
+		}
+		
 		int statusCode = HttpStatus.OK.value();
 
 		result.put("statusCode", statusCode);

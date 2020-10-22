@@ -74,7 +74,7 @@ public class ServletConfig implements WebMvcConfigurer {
 				.addPathPatterns("/**")
 				.excludePathPatterns("/f4d/**",
 					"/sign/**", "/cache/reload", "/data-groups/view-order/*", "/design-layer-groups/view-order/*", "/layer-groups/view-order/*", "/layer/insert",
-					"/layer/update/**", "/layer/**/layer-file-infos/**","/board/**", "/board/insert/**", "/board/update/**", "/board/update/**",
+					"/layer/update/**", "/layer/**/layer-file-infos/**",
 					"/design-layers/insert", "/design-layers/update/**", "/design-layers/**/layer-file-infos/**",
 					"/data-library-uploads",
 					"/upload-datas", "/users/status", "/user-groups/role", "/guide/**", "/css/**", "/externlib/**", "favicon*", "/images/**", "/js/**");

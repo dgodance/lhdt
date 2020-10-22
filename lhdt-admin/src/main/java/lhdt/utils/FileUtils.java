@@ -388,13 +388,11 @@ public class FileUtils {
 					
 			for (int j = 0; j < folder_list.length; j++) {
 				folder_list[j].delete(); //파일 삭제 
-				System.out.println("파일이 삭제되었습니다.");
 						
 			}
 					
 			if(folder_list.length == 0 && folder.isDirectory()){ 
 				folder.delete(); //대상폴더 삭제
-				System.out.println("폴더가 삭제되었습니다.");
 			}
 	            }
 		 } catch (Exception e) {

@@ -166,6 +166,17 @@ public class BoardServiceImpl implements BoardService {
 	public int deleteBoard(Long board_id) {
 		return boardMapper.deleteBoard(board_id);
 	}
+	
+	/**
+	 * 게시물 파일 삭제
+	 * 
+	 * @param board_id
+	 * @return
+	 */
+	@Transactional
+	public int deleteBoardNoticeFile(Long board_notice_file_id) {
+		return boardMapper.deleteBoardNoticeFile(board_notice_file_id);
+	}
 
 	/**
 	 * 게시물 Comment 삭제

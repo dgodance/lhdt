@@ -191,7 +191,7 @@ function deleteBoard(boardId) {
 		if(confirm(JS_MESSAGE["delete.confirm"])) {
 			deleteBoardFlag = false;
 			$.ajax({
-				url: "/board/delete/" + boardId,
+				url: "/board/" + boardId,
 				type: "DELETE",
 				headers: {"X-Requested-With": "XMLHttpRequest"},
 				dataType: "json",
