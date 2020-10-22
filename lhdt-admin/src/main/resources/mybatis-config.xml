@@ -51,6 +51,7 @@
     	<typeAlias type="lhdt.domain.layer.LayerGroup" alias="layerGroup" />
     	<typeAlias type="lhdt.domain.layer.LayerFileInfo" alias="layerFileInfo" />
     	<typeAlias type="lhdt.domain.menu.Menu" alias="menu" />
+		<typeAlias type="lhdt.domain.microservice.MicroService" alias="microService" />
 		<typeAlias type="lhdt.domain.urban.UrbanGroup" alias="urbanGroup" />
 		<typeAlias type="lhdt.domain.policy.Policy" alias="policy" />
     	<typeAlias type="lhdt.domain.role.Role" alias="role" />
