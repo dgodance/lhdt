@@ -58,9 +58,60 @@
                 </ul>
             </div>
         </li>
+
+        <li class="on">
+            <p th:text="성절토"><span class="collapse-icon">icon</span></p>
+            <div id="cutFillProcess" class="listContents">
+                <ul>
+                    <li>
+                        <label for="cutFillProcessToggle" th:text="활성화"></label>
+                        <input type="checkbox" id="cutFillProcessToggle" value="" placeholder=""/>
+                        <button type="button" id="cutFillProcessBtn" th:text="작동"></button>
+                        <button type="button" id="initcutFillProcess" th:text="초기화"></button>
+                    </li>
+                </ul>
+            </div>
+        </li>
+
+        <li class="on">
+            <p th:text="가시권"><span class="collapse-icon">icon</span></p>
+            <div id="visibleProcess" class="listContents">
+                <ul>
+                    <li>
+                        <label for="visibleProcessToggle" th:text="활성화"></label>
+                        <input type="checkbox" id="visibleProcessToggle" value="" placeholder=""/>
+                        <button type="button" id="visibleProcessBtn" th:text="작동"></button>
+                        <button type="button" id="initVisibleProcess" th:text="초기화"></button>
+                    </li>
+                </ul>
+            </div>
+        </li>
     </ul>
- 
- 
-	
+
+    <div class="dialog" role="dialog" id="cutFillModal" style="display:none; width: 100%">
+        <table class="table-word-break design-layer-urban" summary="레이어 목록">
+            <caption class="hiddenTag">차폐 정보</caption>
+            <thead>
+                <tr>
+                    <th scope="col" style="width: 20%">종류</th>
+                    <th scope="col">절토</th>
+                    <th scope="col">성토</th>
+                </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td style="text-align: center">면적</td>
+                <td class="fw-bold text-right" id="cut-area"></td>
+                <td class="fw-bold text-right" id="fill-area" style="color: darkgoldenrod"></td>
+            </tr>
+            <tr>
+                <td style="text-align: center">절토량</td>
+                <td class="fw-bold text-right" id="cut-volume"></td>
+                <td class="fw-bold text-right" id="fill-volume" style="color: darkgoldenrod"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- //skylineModal -->
 </div>
 </html>
