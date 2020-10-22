@@ -160,4 +160,14 @@ public class MenuServiceImpl implements MenuService {
 		}
 		return menuMapper.deleteMenu(menuId);
 	}
+	
+	/**
+	 * 메뉴 아이콘
+	 * @return
+	 */
+	public List<Menu> getMenuIcon() {
+		return menuMapper.getMenuIcon();
+	}
+	
+	
 }
