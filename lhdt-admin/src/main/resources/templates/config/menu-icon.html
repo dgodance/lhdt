@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html th:lang="${accessibility}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="/layouts/default">
+<head>
+	<meta charset="utf-8">
+	<title>Board 목록</title>
+	<th:block layout:fragment="pageCustomStyle">
+		<link rel="stylesheet" th:href="@{/css/{lang}/font/font.css(lang=${lang},cacheVersion=${contentCacheVersion})}" />
+		<link rel="stylesheet" th:href="@{/images/{lang}/icon/glyph/glyphicon.css(lang=${lang},cacheVersion=${contentCacheVersion})}" />
+		<link rel="stylesheet" th:href="@{/externlib/normalize/normalize.min.css(cacheVersion=${contentCacheVersion})}" />
+		<link rel="stylesheet" th:href="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.css(cacheVersion=${contentCacheVersion})}" />
+		<link rel="stylesheet" th:href="@{/css/fontawesome-free-5.2.0-web/css/all.min.css(cacheVersion=${contentCacheVersion})}">
+		<link rel="stylesheet" th:href="@{/css/{lang}/admin-style.css(lang=${lang},cacheVersion=${contentCacheVersion})}" />
+	</th:block>
+</head>
+<body>
+<th:block layout:fragment="pageCustomContent">
+	<div class="site-body">
+		<div class="container">
+			<div class="page-content">
+						<div class="list">
+							<table class="list-table scope-col" summary="메뉴 아이콘 목록 테이블">
+							<caption class="hiddenTag">메뉴 아이콘 목록</caption>
+								<col class="col-number"></col>
+								<col class="col-name" />
+								<col class="col-id" />
+								<col class="col-toggle" />
+								<col class="col-toggle" />
+								<col class="col-functions" />
+								<col class="col-functions" />
+								<col class="col-date" />
+								<thead>
+									<tr>
+										<th scope="col" class="col-number" th:text="#{number}"></th>
+										<th scope="col">제목</th>
+					                    <th scope="col">CSS</th>
+					                    <th scope="col">이미지</th>
+									</tr>
+								</thead>
+								<tbody>
+<th:block th:if="${menuList.empty}">
+									<tr>
+										<td colspan="8" class="col-none">Board 가 존재하지 않습니다.</td>
+									</tr>
+</th:block>
+<th:block th:unless="${menuList.empty}" th:each="menu : ${menuList}">
+									<tr>
+										<td class="col-number" th:text="${menuStat.index+1}"></td>
+										<td class="col-type" th:text="${menu.name}"></td>
+										<td class="col-type" th:text="${menu.cssClass}"></td>
+					                    <td class="col-type">
+					                    	<span th:class="|icon-glyph ${menu.cssClass }|"></span>
+					                    </td>
+										
+					                </tr>
+</th:block>
+								</tbody>
+							</table>
+						</div>
+					</div>
+		</div>
+	</div>
+</th:block>
+
+<th:block layout:fragment="pageCustomScript">
+<script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/common.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/message.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/navigation.js(cacheVersion=${contentCacheVersion})}"></script>
+</th:block>
+</body>
+</html>
