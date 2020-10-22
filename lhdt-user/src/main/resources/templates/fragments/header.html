@@ -6,29 +6,17 @@
         	LHDT Digital Twin Platform        	
         </h1>
         <span class="select-urban-group-container"></span>
-        <div class="gnb">
-            <th:block th:if="${session.USER_SESSION}">
-                <ul>
-                    <li class="user">
-                        <span th:text="${session.USER_SESSION.userName}"><th:block th:text="#{common.sir}"></th:block></span>
-                        <a href="/guide/help" class="api" th:title="#{common.api.document}" onclick="goMagoAPIGuide(this.href);return false;">
-                            <th:block th:text="#{common.api.document}"></th:block></a>
-                        <a href="/sign/signout" class="sign" title="Sign out">Sign out</a>
-                    </li>
-                </ul>
-            </th:block>
-            <th:block th:unless="${session.USER_SESSION}">
-                <ul>
-                    <li>
-                        <a href="/guide/help" class="api" th:title="#{common.api.document}" onclick="goMagoAPIGuide(this.href);return false;">
-                            <th:block th:text="#{common.api.document}"></th:block></a>
-                    </li>
-                    <li class="user">
-                        <a href="/sign/signin" class="sign">Sign in</a>
-                    </li>
-                </ul>
-            </th:block>
+         <div id="baseMapToggle" style="position: absolute;right: 10px;z-index: 1000;margin: 3px 0px;cursor:pointer;">
+        <div id="baseMapType-base" data-type="base" style="width:60px;height:40px;display: inline-block;border-radius: 5px;border: 2px solid #C6C6C6;">
+        	<img th:src="@{/images/{lang}/ic_map_sat.png(lang=${lang},cacheVersion=${contentCacheVersion})}" style="border-radius: 5px;">
         </div>
+        <div id="baseMapType-normal" data-type="normal" style="width:60px;height:40px;display: inline-block;border-radius: 5px;border: 2px solid #C6C6C6">
+        	<img th:src="@{/images/{lang}/ic_map_line.png(lang=${lang},cacheVersion=${contentCacheVersion})}" style="border-radius: 5px;">
+        </div>
+        <div id="baseMapType-cadstral" data-type="cadstral" style="width:60px;height:40px;display: inline-block;border-radius: 5px;border: 2px solid #C6C6C6">
+        	<img th:src="@{/images/{lang}/ic_map_land.png(lang=${lang},cacheVersion=${contentCacheVersion})}" style="border-radius: 5px;">
+        </div>
+    </div>
 
 		<script>
         window.addEventListener('load', function() {

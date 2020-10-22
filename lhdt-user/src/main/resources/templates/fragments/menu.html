@@ -1,11 +1,43 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
 <body>
-	<ul id="navWrap" class="nav">
+	<div id="navWrap">
+	
+	<ul class="nav">
 	<th:block th:each="userGroupMenu : ${cacheUserGroupMenuList}">
 		<li th:id="${userGroupMenu.htmlId}" th:class="${userGroupMenu.cssClass}" th:data-nav="${userGroupMenu.htmlContentId}"
 			th:title="${#strings.equals(lang,'ko')} ? ${userGroupMenu.name} : ${userGroupMenu.nameEn}" th:text="${#strings.equals(lang,'ko')} ? ${userGroupMenu.name} : ${userGroupMenu.nameEn}"></li>
 	</th:block>
 	</ul>
+		<div class="gnb">
+            <th:block th:if="${session.USER_SESSION}">
+                <ul>
+                  <li class="user">
+                      <span th:text="${session.USER_SESSION.userName}"><th:block th:text="#{common.sir}"></th:block></span>
+                      </li>
+                   <li> <a href="/sign/signout" class="sign" title="Sign out">Sign out</a></li>
+                   <li><a href="" class="help">도움말</a></li>
+                   <li>
+                 	 <a href="/guide/help" class="api" th:title="#{common.api.document}" onclick="goMagoAPIGuide(this.href);return false;">
+                      <th:block th:text="#{common.api.document}"></th:block></a>
+                   </li>
+                   <li><a href="" class="more">더보기</a></li>
+                </ul>
+            </th:block>
+            <th:block th:unless="${session.USER_SESSION}">
+                <ul>
+                    <li>
+                        <a href="/guide/help" class="api" th:title="#{common.api.document}" onclick="goMagoAPIGuide(this.href);return false;">
+                            <th:block th:text="#{common.api.document}"></th:block></a>
+                    </li>
+                    <li class="user">
+                        <a href="/sign/signin" class="sign">Sign in</a>
+                    </li>
+                </ul>
+            </th:block>
+        </div>
+	
+	</div>
+	
 </body>
 </html>
 	
