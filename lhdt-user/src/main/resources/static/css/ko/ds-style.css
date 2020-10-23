@@ -90,6 +90,13 @@
 .col-width-45 {width:45% !important;}
 .col-width-50 {width:50% !important;}
 
+.col {width: 100%;}
+.col-1 {width: 8%;}
+.col-2 {width: 16%;}
+.col-3 {width: 25%;}
+.col-6 {width: 50%;}
+.col-9 {width: 75%;}
+
 
 
 .float-left {
