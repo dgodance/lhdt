@@ -44,20 +44,16 @@
         <script>
         window.addEventListener('load', function(){
 			//메뉴 클릭 이벤트 등록
-			let nodeList = document.querySelectorAll('ul.nav > li');
-			if(null == nodeList || undefined == nodeList){
-				return;
-			}
-			
-			for(let i=0; i<nodeList.length; i++){
-				let node = nodeList[i];
-				
-				//TODO 모든 서비스의 초기화 함수 실행
-				node.addEventListener('click', function(){
-					console.log(node);					
+			$('ul.nav > li').each(function(i,item){
+				$(item).click(function(){
+					
+					//TODO 모든 서비스의 초기화 함수 호출
+					
+					//메뉴 클릭되면 show 지도, hide 인트로 
+					$('#magoContainer').show();
+					$('#introContainer').hide();
 				});
-			}
-			
+			});			
         });
         </script>
 	
