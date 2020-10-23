@@ -2,6 +2,7 @@ package lhdt.domain.cache;
 
 import lhdt.domain.data.DataInfoSimple;
 import lhdt.domain.menu.Menu;
+import lhdt.domain.microservice.MicroService;
 import lhdt.domain.policy.GeoPolicy;
 import lhdt.domain.policy.Policy;
 import lhdt.domain.user.UserGroupMenu;
@@ -37,10 +38,13 @@ public class CacheManager {
     private Map<Integer, List<UserGroupMenu>> userGroupMenuMap = null;
     // 사용자 그룹별 Role 목록
     private Map<Integer, List<String>> userGroupRoleMap = null;
- 	
+
     // Smart Tiling 데이터 정보
   	private Map<Integer, List<DataInfoSimple>> smartTilingDataMap = null;
-  	
+
+	// 디지털 트윈 서비스 설정 정보
+	private Map<String, MicroService> microServiceMap = null;
+
   	public static GeoPolicy getGeoPolicy() {
 		return cacheManager.geoPolicy;
 	}
@@ -116,5 +120,22 @@ public class CacheManager {
 
 	public static void setSmartTilingDataMap(Map<Integer, List<DataInfoSimple>> smartTilingDataMap) {
 		cacheManager.smartTilingDataMap = smartTilingDataMap;
+	}
+
+	/**
+	 * 디지털 트윈 서비스 설정 정보
+	 * @return
+	 */
+	public static MicroService getMicroService(String microServiceKey) {
+		return cacheManager.microServiceMap.get(microServiceKey);
+	}
+	public static Map<String, MicroService> getMicroServiceMap() {
+		if(cacheManager.microServiceMap == null) {
+			return new HashMap<>();
+		}
+		return cacheManager.microServiceMap;
+	}
+	public static void setMicroServiceMap(Map<String, MicroService> microServiceMap) {
+		cacheManager.microServiceMap = microServiceMap;
 	}
 }

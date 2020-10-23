@@ -64,6 +64,16 @@ public class MicroServiceServiceImpl implements MicroServiceService {
 	}
 
 	/**
+	 * 마이크로 서비스 Health Check 결과 수정
+	 * @param microService
+	 * @return
+	 */
+	@Transactional
+	public int updateMicroServiceStatus(MicroService microService) {
+		return microServiceMapper.updateMicroServiceStatus(microService);
+	}
+
+	/**
 	 * 마이크로 서비스 삭제
 	 * @param microServiceId
 	 * @return

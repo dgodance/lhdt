@@ -17,6 +17,7 @@ create table micro_service (
 	status						        varchar(20)			default 'use',
 	available					        boolean				default true,
 	description					        varchar(256),
+	last_health_date                    timestamp with time zone,
 	update_date				            timestamp with time zone,
 	insert_date				            timestamp with time zone			default now(),
 	constraint micro_service_pk primary key (micro_service_id)
@@ -36,5 +37,6 @@ comment on column micro_service.url_path is '경로, 리소스 위치';
 comment on column micro_service.status is '상태. up : 실행, down : 정지, unknown : 알수 없음';
 comment on column micro_service.available is 'true : 사용, false : 사용안함';
 comment on column micro_service.description is '설명';
+comment on column micro_service.last_health_date is '마지막 Health Check 시간';
 comment on column micro_service.update_date is '수정일';
 comment on column micro_service.insert_date is '등록일';
