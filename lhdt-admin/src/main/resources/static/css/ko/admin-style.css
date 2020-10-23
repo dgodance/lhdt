@@ -1756,6 +1756,8 @@ tr:hover td {
 
 /* Table Cols
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
+
+.scope-col td.col-view-count,
 .scope-col td.col-checkbox,
 .scope-col td.col-number,
 .scope-col th.col-number,
