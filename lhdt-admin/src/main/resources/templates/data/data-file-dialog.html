@@ -15,7 +15,7 @@
 						</th>
 						<td>
 							<select id="dataGroupId" name="dataGroupId" class="selectBoxClass">
-	<th:block th:unless="${dataGroupList.empty}" th:each="dataGroup : ${dataGroupList}">
+	<th:block th:unless="${#lists.isEmpty(dataGroupList)}" th:each="dataGroup : ${dataGroupList}">
 								<option th:value="${dataGroup.dataGroupId}" th:text="${dataGroup.dataGroupName}"></option>
 	</th:block>
 							</select>

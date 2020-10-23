@@ -31,7 +31,7 @@
 						<form id="widget" th:object="${widget}" method="post" th:action="@{#}" onsubmit="return false;">
 							<input type="hidden" id="widgetOrder" name="widgetOrder" th:field="*{widgetOrder}" />
 							<div id="sortable" class="widgets row">
-								<th:block th:unless="${widgetList.empty}" th:each="dbWidget : ${widgetList}">
+								<th:block th:unless="${#lists.isEmpty(widgetList)}" th:each="dbWidget : ${widgetList}">
 									<th:block th:if="${#strings.equals(dbWidget.widgetKey, 'userWidget')}">
 										<!-- 위젯 1: 사용자 현황-->
 										<div th:id="${dbWidget.widgetId}" class="widget one-third column" style="font-size: 16px;">

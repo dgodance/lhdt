@@ -98,12 +98,12 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-<th:block th:if="${converterJobFileList.empty}">
+<th:block th:if="${#lists.isEmpty(converterJobFileList)}">
                                         <tr>
                                             <td colspan="9" class="col-none">Converter Job이 존재하지 않습니다.</td>
                                         </tr>
 </th:block>
-<th:block th:unless="${converterJobFileList.empty}" th:each="converterJobFile: ${converterJobFileList}">
+<th:block th:unless="${#lists.isEmpty(converterJobFileList)}" th:each="converterJobFile: ${converterJobFileList}">
                                         <tr>
                                             <td class="col-number" th:text="${converterJobFile.count}"></td>
                                             <td class="col-type" th:text="${converterJobFile.dataType}"></td>

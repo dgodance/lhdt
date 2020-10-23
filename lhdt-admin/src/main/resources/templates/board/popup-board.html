@@ -76,12 +76,12 @@
 						</tr>
 					</thead>
 					<tbody id="boardFileInfoListArea">
-						<th:block th:if="${boardNoticeFileList.empty}">
+						<th:block th:if="${#lists.isEmpty(boardNoticeFileList)}">
 							<tr style="height: 50px;">
 								<td colspan="9" style="padding-top: 15px; text-align: center;">첨부 파일이 존재하지 않습니다.</td>
 							</tr>
 						</th:block>
-						<th:block th:unless="${boardNoticeFileList.empty}" th:each="boardNoticeFile, status : ${boardNoticeFileList}">
+						<th:block th:unless="${#lists.isEmpty(boardNoticeFileList)}" th:each="boardNoticeFile, status : ${boardNoticeFileList}">
 						<tr>
 								<td class="col-key" th:text="${boardNoticeFile.fileName}" style="max-width: 315px; word-wrap: break-word;"></td>
 								

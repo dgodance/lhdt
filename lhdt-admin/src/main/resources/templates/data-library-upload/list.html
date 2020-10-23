@@ -121,12 +121,12 @@
 										</tr>
 									</thead>
 									<tbody>
-<th:block th:if="${dataLibraryUploadList.empty}">
+<th:block th:if="${#lists.isEmpty(dataLibraryUploadList)}">
 										<tr>
 											<td colspan="11" class="col-none">파일 업로딩 이력이 존재하지 않습니다.</td>
 										</tr>
 </th:block>
-<th:block th:unless="${dataLibraryUploadList.empty}" th:each="dataLibraryUpload : ${dataLibraryUploadList}">
+<th:block th:unless="${#lists.isEmpty(dataLibraryUploadList)}" th:each="dataLibraryUpload : ${dataLibraryUploadList}">
 										<tr>
 											<td class="col-checkbox">
 												<input type="checkbox" th:id="|dataLibraryUploadId_${dataLibraryUpload.dataLibraryUploadId}|" name="dataLibraryUploadId"

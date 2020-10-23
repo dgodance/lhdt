@@ -90,7 +90,6 @@
 								<tr>
 									<th scope="col">번호</th>
 									<th scope="col">서비스명</th>
-									<th scope="col">서비스 유형</th>
 									<th scope="col">서버 IP</th>
 									<th scope="col">프로토콜</th>
 									<th scope="col">호스트</th>
@@ -103,18 +102,17 @@
 									<th scope="col">등록일</th>
 								</tr>
 								</thead>
-<th:block th:if="${microServiceList.empty}">
+<th:block th:if="${#lists.isEmpty(microServiceList)}">
 									<tr>
-										<td colspan="13" class="col-none">디지털 트윈 서비스가 존재하지 않습니다.</td>
+										<td colspan="12" class="col-none">디지털 트윈 서비스가 존재하지 않습니다.</td>
 									</tr>
 </th:block>
-<th:block th:unless="${microServiceList.empty}" th:each="microService : ${microServiceList}">
+<th:block th:unless="${#lists.isEmpty(microServiceList)}" th:each="microService : ${microServiceList}">
 									<tr>
 										<td class="col-number" th:text="${microServiceStat.count}"></td>
 										<td class="col-name" style="text-align: left;">
 											<th:block th:text="${microService.microServiceName}"></th:block>
 										</td>
-										<td class="col-type"><th:block th:text="${microService.microServiceType}"></th:block></td>
 										<td class="col-name"><th:block th:text="${microService.serverIp}"></th:block></td>
 										<td class="col-name"><th:block th:text="${microService.urlScheme}"></th:block></td>
 										<td class="col-name"><th:block th:text="${microService.urlHost}"></th:block></td>

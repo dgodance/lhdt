@@ -37,12 +37,12 @@
 									</tr>
 								</thead>
 								<tbody>
-<th:block th:if="${menuList.empty}">
+<th:block th:if="${#lists.isEmpty(menuList)}">
 									<tr>
 										<td colspan="8" class="col-none">Board 가 존재하지 않습니다.</td>
 									</tr>
 </th:block>
-<th:block th:unless="${menuList.empty}" th:each="menu : ${menuList}">
+<th:block th:unless="${#lists.isEmpty(menuList)}" th:each="menu : ${menuList}">
 									<tr>
 										<td class="col-number" th:text="${menuStat.index+1}"></td>
 										<td class="col-type" th:text="${menu.name}"></td>
