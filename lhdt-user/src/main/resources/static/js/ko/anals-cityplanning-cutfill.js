@@ -191,7 +191,7 @@ var AnalsCutFill = function(viewer, magoInstance) {
         }
     }
 
-    function startDrawPolyLine() {
+    function clearEvent() {
         if(handler.getInputAction(2) !== undefined) {
             handler.removeInputAction(2);
             console.log('remove');
@@ -199,7 +199,11 @@ var AnalsCutFill = function(viewer, magoInstance) {
             handler.removeInputAction(7);
             console.log('remove');
         }
-        debugger;
+    }
+
+    function startDrawPolyLine() {
+        clearEvent();
+
         var dynamicPositions = new Cesium.CallbackProperty(function () {
             if(drawingMode === 'cutFillAvgAnals') {
                 return new Cesium.PolygonHierarchy(activeShapePoints);

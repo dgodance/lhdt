@@ -221,6 +221,7 @@
 <script type="text/javascript" th:src="@{/js/{lang}/anals-sunshine.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 
 <script type="text/javascript" th:src="@{/js/{lang}/anals-cityplanning-cutfill.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/anals-cityplanning-visibility.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 
 <script type="text/javascript" th:src="@{/js/{lang}/anals-buildheight.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <!--<script type="text/javascript" th:src="@{/js/{lang}/anals-landscape.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>-->
@@ -393,6 +394,7 @@
 			AnalsLandScape();
 			AnalsHeightLandScapeView(viewer, magoInstance);
 			AnalsCutFill(viewer, magoInstance);
+			AnalsVisibility(viewer, magoInstance);
         	cesiumCreditAlt(); //웹접근성
         }, geoPolicyJson.initDuration * 1000);
 
