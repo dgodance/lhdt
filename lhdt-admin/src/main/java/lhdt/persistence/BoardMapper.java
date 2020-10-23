@@ -142,9 +142,15 @@ public interface BoardMapper {
 	 */
 	int deleteBoardCommentByBoardId(Long board_id);
 	
-	
 	/**
 	 * 게시물 file 불러오기
+	 * @param board_id
+	 * @return
+	 */
+	BoardNoticeFile getBoardNoticeFile(Long boardNoticeFileId);
+	
+	/**
+	 * 게시물 fileList 불러오기
 	 * @param board_id
 	 * @return
 	 */

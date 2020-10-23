@@ -42,6 +42,14 @@ public interface BoardService {
 	Board getBoard(Long board_id);
 	
 	/**
+	 * 게시물 정보(수정용)
+	 * @param board_id
+	 * @return
+	 */
+	Board getBoardForModify(Long board_id);
+	
+	
+	/**
 	 * 게시물 Comment 정보
 	 * @param board_comment_id
 	 * @return
@@ -106,6 +114,13 @@ public interface BoardService {
 	
 	/**
 	 * 게시물 file 불러오기
+	 * @param board_id
+	 * @return
+	 */
+	BoardNoticeFile getBoardNoticeFile(Long boardNoticeFileId);
+	
+	/**
+	 * 게시물 fileList 불러오기
 	 * @param board_id
 	 * @return
 	 */

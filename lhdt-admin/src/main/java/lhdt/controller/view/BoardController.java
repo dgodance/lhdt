@@ -115,7 +115,7 @@ public class BoardController implements AuthorizationController {
         if(roleCheckResult != null) return roleCheckResult;
 
         Policy policy = policyService.getPolicy();
-        Board board = boardService.getBoard(boardNoticeId);
+        Board board = boardService.getBoardForModify(boardNoticeId);
 
         Timestamp timestamp_start = java.sql.Timestamp.valueOf(board.getStartDate().substring(0, 19));
         Timestamp timestamp_end = java.sql.Timestamp.valueOf(board.getEndDate().substring(0, 19));

@@ -208,6 +208,12 @@
 		DELETE FROM board_notice WHERE board_notice_id = #{boardNoticeId}
 	</delete>
 	
+	<!-- 게시물 파일 삭제 -->
+	<delete id="deleteBoardNoticeFile" parameterType="long">
+		/* deleteBoard */
+		DELETE FROM board_notice_file WHERE board_notice_file_id = #{boardNoticeFileId}
+	</delete>
+	
 	<!-- 게시물 상세 삭제 -->
 	<delete id="deleteBoardDetail" parameterType="long">
 		/* deleteBoardDetail */
@@ -225,6 +231,14 @@
 		/* deleteBoardCommentByBoardId */
 		DELETE FROM board_notice_comment WHERE board_notice_id = #{boardNoticeId}
 	</delete>
+	
+	<!-- 업로딩한 파일  -->
+	<select id="getBoardNoticeFile" parameterType="Long" resultType="boardNoticeFile">
+		/* getBoardNoticeFile */
+		SELECT A.*
+		FROM board_notice_file A
+		WHERE A.board_notice_file_id = #{boardNoticeFileId};
+	</select>
 	
 	<!-- 업로딩한 파일 목록 -->
 	<select id="getBoardNoticeFiles" parameterType="Long" resultType="boardNoticeFile">

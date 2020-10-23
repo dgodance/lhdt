@@ -86,10 +86,10 @@
 								<td class="col-key" th:text="${boardNoticeFile.fileName}" style="max-width: 315px; word-wrap: break-word;"></td>
 								
 								<td class="col-type">
-									<a class="linkButton">다운로드</a>
+									<a th:href="@{/boards/{boardNoticeFileId}/board-notice-file-info/download(boardNoticeFileId=${boardNoticeFile.boardNoticeFileId})}" class="linkButton">다운로드</a>
 								</td>
 								<td>
-									<th:block th:text="${#temporals.format(board.insertDate, 'yyyy-MM-dd HH:mm:ss')}"></th:block>
+									<th:block th:text="${#temporals.format(boardNoticeFile.insertDate, 'yyyy-MM-dd HH:mm:ss')}"></th:block>
 								</td>
 								</tr>
 						</th:block>

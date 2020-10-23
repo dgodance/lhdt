@@ -165,10 +165,10 @@
 									</th:block>
 								</td>
 								<td class="col-type">
-									<a href="#" th:onclick="deleteBoardNoticeFile([[${boardNoticeFile.boardNoticeFileId}]]); return false;" class="image-button button-delete" th:text="#{delete}"></a>
+									<a href="#" th:onclick="deleteBoardNoticeFile([[${boardNoticeFile.boardNoticeFileId}]],[[${boardNoticeFile.filePath}]]); return false;" class="image-button button-delete" th:text="#{delete}"></a>
 								</td>
 								<td>
-									<th:block th:text="${#temporals.format(board.insertDate, 'yyyy-MM-dd HH:mm:ss')}"></th:block>
+									<th:block th:text="${#temporals.format(boardNoticeFile.insertDate, 'yyyy-MM-dd HH:mm:ss')}"></th:block>
 								</td>
 								</tr>
 						</th:block>
@@ -297,8 +297,8 @@ function initJqueryCalendar() {
 
 
 var deleteBoardNoticeFileFlag = true;
-function deleteBoardNoticeFile(boardNoticeFileId) {
-	if(deleteBoardFlag) {
+function deleteBoardNoticeFile(boardNoticeFileId, filePath) {
+	if(deleteBoardNoticeFileFlag) {
 		if(confirm(JS_MESSAGE["delete.confirm"])) {
 			deleteBoardNoticeFileFlag = false;
 			$.ajax({

@@ -1,6 +1,10 @@
 package lhdt.domain.board;
 
 
+import java.time.LocalDateTime;
+
+import org.springframework.format.annotation.DateTimeFormat;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,6 +43,9 @@ public class BoardNoticeFile {
 	private String fileSize;
 	// 파일 확장자
 	private String fileExt;
+	
+	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+	private LocalDateTime insertDate;
 	
 	// 오류 메시지
 	private String errorMessage;
