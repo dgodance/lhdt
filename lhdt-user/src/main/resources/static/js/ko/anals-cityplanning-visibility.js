@@ -5,15 +5,18 @@ var AnalsVisibility = function (viewer, magoInstance) {
     var handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
     this._xyz1 = {};
     this._xyz2 = {};
+    this.drawingMode = undefined;
 
     $('#visibleProcessToggle').change(function() {
+        const that = this;
         initEvent();
         if($('#visibleProcessToggle').is(':checked')) {
             toastr.info('지도상에서 두점을 선택(클릭)하시기 바랍니다.');
-            // drawingMode = 'cutFillAvgAnals';
+            that.drawingMode = 'visibility';
             analsVisiblity();
         } else {
-            // drawingMode = "";
+            that.drawingMode = "";
+            Ppmap.restoreCursor();
         }
     });
 
@@ -52,6 +55,7 @@ var AnalsVisibility = function (viewer, magoInstance) {
                 if(Pp.isEmpty(self._xyz1.lon)){
                     self._xyz1 = Ppmap.cartesian2ToLonLatAlt(click.position);
                     self._xyz1.alt = self._xyz1.alt + new lsAnalsMoveInputBox().getHeight();
+                    self._xyz2 = {};
                     const point1 = Pp.extend({}, self._xyz1);
                     //
                     Ppmap.createPointAndAlt('ls-anals-auto-xyz1', point1.lon, point1.lat, point1.alt);
@@ -64,6 +68,8 @@ var AnalsVisibility = function (viewer, magoInstance) {
                     self._xyz2 = Ppmap.cartesian2ToLonLatAlt(click.position);
                     self._xyz2.alt = self._xyz2.alt + new lsAnalsMoveInputBox().getHeight();
                     const point2 = Pp.extend({}, self._xyz2);
+                    $("#visibleProcessToggle").prop("checked", false);
+
                     //
                     Ppmap.createPointAndAlt('ls-anals-auto-xyz2', point2.lon, point2.lat, point2.alt);
                 }
@@ -74,7 +80,6 @@ var AnalsVisibility = function (viewer, magoInstance) {
                     //
                     Ppmap.restoreCursor();
 
-                    self._xyz1 = {};
                     //
                     // Ppui.find('.ds-create-two-points').disabled = false;
 
@@ -105,15 +110,19 @@ var AnalsVisibility = function (viewer, magoInstance) {
                     return;
                 }
 
-
                 //
                 Ppmap.removeEntity(window['entity']);
 
                 //
                 let entity = MAGO3D_INSTANCE.getViewer().entities.add({
                     polyline: {
-                        // This callback updates positions each frame.
-                        positions: Cesium.Cartesian3.fromDegreesArray([self._xyz1.lon, self._xyz1.lat, xyz.lon, xyz.lat]),
+                        positions: new Cesium.CallbackProperty(function() {
+                                if(Pp.isNotEmpty(self._xyz1.lon) && Pp.isNotEmpty(self._xyz2.lon)){
+                                    return Cesium.Cartesian3.fromDegreesArray([self._xyz1.lon, self._xyz1.lat, self._xyz2.lon, self._xyz2.lat])
+                                } else {
+                                    return Cesium.Cartesian3.fromDegreesArray([self._xyz1.lon, self._xyz1.lat, xyz.lon, xyz.lat]);
+                                }
+                        }, false),
                         width: 10,
                         clampToGround: true,
                         material: new Cesium.PolylineOutlineMaterialProperty({
