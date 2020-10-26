@@ -114,12 +114,12 @@
 										</tr>
 									</thead>
 									<tbody>
-<th:block th:if="${dataInfoLogList.empty}">
+<th:block th:if="${#lists.isEmpty(dataInfoLogList)}">
 										<tr>
 											<td colspan="10" class="col-none">데이터 변경 이력이 존재하지 않습니다.</td>
 										</tr>
 </th:block>
-<th:block th:unless="${dataInfoLogList.empty}" th:each="dataInfoLog : ${dataInfoLogList}">
+<th:block th:unless="${#lists.isEmpty(dataInfoLogList)}" th:each="dataInfoLog : ${dataInfoLogList}">
 										<tr>
 											<td class="col-checkbox">
 												<input type="checkbox" id="dataInfoLogId_${dataInfoLog.dataLogId}" name="dataLogId" th:value="${dataInfoLog.dataLogId}" />

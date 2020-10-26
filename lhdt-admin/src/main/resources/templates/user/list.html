@@ -132,12 +132,12 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-<th:block th:if="${userList.empty}">
+<th:block th:if="${#lists.isEmpty(userList)}">
                                         <tr>
                                             <td colspan="9" class="col-none">사용자 목록이 존재하지 않습니다.</td>
                                         </tr>
 </th:block>
-<th:block th:unless="${userList.empty}" th:each="user : ${userList}">
+<th:block th:unless="${#lists.isEmpty(userList)}" th:each="user : ${userList}">
                                         <tr>
                                             <td class="col-checkbox">
                                                 <label th:for="|userId_${user.userId}|" class="hiddenTag"></label>

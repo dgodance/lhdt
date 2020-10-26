@@ -99,12 +99,12 @@
 									<th scope="col">등록일</th>
 								</tr>
 								</thead>
-<th:block th:if="${roleList.empty}">
+<th:block th:if="${#lists.isEmpty(roleList)}">
 									<tr>
 										<td colspan="9" class="col-none">Role 이 존재하지 않습니다.</td>
 									</tr>
 </th:block>
-<th:block th:unless="${roleList.empty}" th:each="role : ${roleList}">
+<th:block th:unless="${#lists.isEmpty(roleList)}" th:each="role : ${roleList}">
 									<tr>
 										<td class="col-number" th:text="${pagination.rowNumber - roleStat.index}"></td>
 										<td class="col-name" th:text="${role.roleName}" style="text-align: left;"></td>

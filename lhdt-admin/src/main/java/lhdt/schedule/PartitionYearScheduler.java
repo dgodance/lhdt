@@ -24,7 +24,6 @@ public class PartitionYearScheduler {
     @Autowired
     private DataLogService dataLogService;
 
-
     @Scheduled(cron = "${lhdt.schedule.year.partition}")
     public void yearPartition() throws Exception {
         // create table access_log_2021 partition of access_log for values from ('2021-01-01 00:00:00.000000') to ('2022-01-01 00:00:00.000000');

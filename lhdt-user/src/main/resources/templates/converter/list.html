@@ -127,12 +127,12 @@
                         </tr>
                     </thead>
                     <tbody>
-<th:block th:if="${converterJobList.empty}">
+<th:block th:if="${#lists.isEmpty(converterJobList)}">
                         <tr>
                             <td colspan="9" class="col-none"><th:block th:text="#{converter.job.does.not.exist}"></th:block></td>
                         </tr>
 </th:block>
-<th:block th:unless="${converterJobList.empty}" th:each="converterJob: ${converterJobList}">
+<th:block th:unless="${#lists.isEmpty(converterJobList)}" th:each="converterJob: ${converterJobList}">
                         <tr>
                             <td class="col-number" th:text="${pagination.rowNumber - converterJobStat.index}"></td>
 

@@ -35,6 +35,13 @@ public interface MicroServiceService {
     int updateMicroService(MicroService microService);
 
     /**
+     * 마이크로 서비스 Health Check 결과 수정
+     * @param microService
+     * @return
+     */
+    int updateMicroServiceStatus(MicroService microService);
+
+    /**
      * 마이크로 서비스 삭제
      * @param microServiceId
      * @return

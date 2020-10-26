@@ -69,12 +69,12 @@
 									</tr>
 								</thead>
 								<tbody>
-<th:block th:if="${dataLibraryGroupList.empty}">
+<th:block th:if="${#lists.isEmpty(dataLibraryGroupList)}">
 									<tr>
 										<td colspan="9" class="col-none">데이터 라이브러리 그룹이 존재하지 않습니다.</td>
                                     </tr>
 </th:block>
-<th:block th:unless="${dataLibraryGroupList.empty}" th:each="dataLibraryGroup : ${dataLibraryGroupList}">
+<th:block th:unless="${#lists.isEmpty(dataLibraryGroupList)}" th:each="dataLibraryGroup : ${dataLibraryGroupList}">
 									<tr th:class="|rowId-${dataLibraryGroup.dataLibraryGroupId} rowDepth-${dataLibraryGroup.depth} rowAncestor-${dataLibraryGroup.ancestor} rowParent-${dataLibraryGroup.parent}|">
 										<td class="col-key ellipsis" style="max-width: 300px;">
 	<th:block th:with="paddingLeftValue = ${(dataLibraryGroup.depth -1)  * 40}">

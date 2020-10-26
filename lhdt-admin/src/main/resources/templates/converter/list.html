@@ -109,12 +109,12 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-<th:block th:if="${converterJobList.empty}">
+<th:block th:if="${#lists.isEmpty(converterJobList)}">
                                         <tr>
                                             <td colspan="9" class="col-none">Converter Job이 존재하지 않습니다.</td>
                                         </tr>
 </th:block>
-<th:block th:unless="${converterJobList.empty}" th:each="converterJob: ${converterJobList}">
+<th:block th:unless="${#lists.isEmpty(converterJobList)}" th:each="converterJob: ${converterJobList}">
                                         <tr>
                                             <td class="col-number" th:text="${pagination.rowNumber - converterJobStat.index}"></td>
                                             <td class="col-type" th:if="${#strings.equals(converterJob.converterTemplate, 'basic')}" th:text="'기본'"></td>

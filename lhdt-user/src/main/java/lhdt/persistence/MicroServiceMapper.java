@@ -1,7 +1,6 @@
 package lhdt.persistence;
 
 import lhdt.domain.microservice.MicroService;
-import lhdt.domain.role.Role;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

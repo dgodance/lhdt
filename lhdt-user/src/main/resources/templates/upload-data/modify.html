@@ -207,7 +207,7 @@
 				
 				<td colspan="3" class="col-input">
 					<ul style="list-style: none; margin-bottom: 20px;">
-	<th:block th:unless="${uploadDataFileList.empty}" th:each="uploadDataFile : ${uploadDataFileList}">
+	<th:block th:unless="${#lists.isEmpty(uploadDataFileList)}" th:each="uploadDataFile : ${uploadDataFileList}">
 		<th:block th:with="paddingLeftValue = ${(uploadDataFile.depth -1)  * 50}">
 			<th:block th:if="${#strings.equals(uploadDataFile.fileType, 'DIRECTORY')}">
 						<li th:style="|padding-left: ${paddingLeftValue}px; height: 25px;|" th:text="|[ ${uploadDataFile.fileType} ] ${uploadDataFile.fileSubPath}|"></li>

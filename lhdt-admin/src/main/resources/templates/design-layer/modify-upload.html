@@ -326,12 +326,12 @@
 									</tr>
 								</thead>
 								<tbody id="layerFileInfoListArea">
-<th:block th:if="${designLayerFileInfoList.empty}">
+<th:block th:if="${#lists.isEmpty(designLayerFileInfoList)}">
 									<tr style="height:50px;">
 										<td colspan="9" style="padding-top:15px; text-align:center;">첨부 파일이 존재하지 않습니다.</td>
 									</tr>
 </th:block>
-<th:block th:unless="${designLayerFileInfoList.empty}" th:each="designLayerFileInfo, status : ${designLayerFileInfoList}">
+<th:block th:unless="${#lists.isEmpty(designLayerFileInfoList)}" th:each="designLayerFileInfo, status : ${designLayerFileInfoList}">
 									<tr th:classappend="${#strings.equals(designLayerFileInfo.enableYn, 'Y')} ? selected">
 										<td class="col-key" th:text="${designLayerFileInfoListSize - status.index}"></td>
 										<td class="col-key" th:text="${designLayerFileInfo.fileName}" style="max-width:315px; word-wrap:break-word;"></td>
