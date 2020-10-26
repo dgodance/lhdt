@@ -12,6 +12,7 @@ import lhdt.domain.board.BoardNoticeFile;
 import lhdt.domain.uploaddata.UploadDataFile;
 import lhdt.persistence.BoardMapper;
 import lhdt.service.BoardService;
+import lhdt.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -70,6 +71,18 @@ public class BoardServiceImpl implements BoardService {
 	public Board getBoard(Long board_id) {
 		Board board = boardMapper.getBoard(board_id);
 		boardMapper.updateBoardViewCount(board_id);
+		return board;
+	}
+	
+	/**
+	 * 게시물 정보(수정용)
+	 * 
+	 * @param board_id
+	 * @return
+	 */
+	@Transactional
+	public Board getBoardForModify(Long board_id) {
+		Board board = boardMapper.getBoard(board_id);
 		return board;
 	}
 
@@ -166,6 +179,20 @@ public class BoardServiceImpl implements BoardService {
 	public int deleteBoard(Long board_id) {
 		return boardMapper.deleteBoard(board_id);
 	}
+	
+	/**
+	 * 게시물 파일 삭제
+	 * 
+	 * @param board_id
+	 * @return
+	 */
+	@Transactional
+	public int deleteBoardNoticeFile(Long boardNoticeFileId) {
+		BoardNoticeFile boardNoticeFile = boardMapper.getBoardNoticeFile(boardNoticeFileId);
+		log.info(boardNoticeFile.getFilePath()+boardNoticeFile.getFileRealName());
+		FileUtils.deleteFileReculsive(boardNoticeFile.getFilePath()+boardNoticeFile.getFileRealName());
+		return boardMapper.deleteBoardNoticeFile(boardNoticeFileId);
+	}
 
 	/**
 	 * 게시물 Comment 삭제
@@ -188,9 +215,21 @@ public class BoardServiceImpl implements BoardService {
 	public int deleteBoardCommentByBoardId(Long board_id) {
 		return boardMapper.deleteBoardCommentByBoardId(board_id);
 	}
-
+	
 	/**
 	 * 게시물 file 불러오기
+	 * 
+	 * @param board_id
+	 * @return
+	 */
+	@Transactional
+	public BoardNoticeFile getBoardNoticeFile(Long boardNoticeFileId) {
+		
+		return boardMapper.getBoardNoticeFile(boardNoticeFileId);
+	}
+
+	/**
+	 * 게시물 fileList 불러오기
 	 * 
 	 * @param board_id
 	 * @return

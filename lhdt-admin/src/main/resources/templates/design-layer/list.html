@@ -116,12 +116,12 @@
 									</tr>
 								</thead>
 								<tbody>
-<th:block th:if="${designLayerList.empty}">
+<th:block th:if="${#lists.isEmpty(designLayerList)}">
 									<tr>
 										<td colspan="8" class="col-none">디자인 레이어가 존재하지 않습니다.</td>
 									</tr>
 </th:block>
-<th:block th:unless="${designLayerList.empty}" th:each="designLayer : ${designLayerList}">
+<th:block th:unless="${#lists.isEmpty(designLayerList)}" th:each="designLayer : ${designLayerList}">
 									<tr>
 										<td class="col-number" th:text="${pagination.rowNumber - designLayerStat.index}"></td>
 										<td class="col-key" th:text="${designLayer.designLayerName}"></td>

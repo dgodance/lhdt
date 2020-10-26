@@ -27,10 +27,7 @@ public class ConfigController implements AuthorizationController {
      * menu-icon
      */
     @GetMapping(value = "/menu/icon")
-    public String list(HttpServletRequest request, Model model) {
-    	
-    	List<Menu> menuList = menuService.getMenuIcon();
-    	model.addAttribute("menuList", menuList);
+    public String list(HttpServletRequest request) {
 
         return "/config/menu-icon";
     }

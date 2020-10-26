@@ -107,12 +107,12 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-<th:block th:if="${dataLibraryConverterJobList.empty}">
+<th:block th:if="${#lists.isEmpty(dataLibraryConverterJobList)}">
                                         <tr>
                                             <td colspan="9" class="col-none">데이터 라이브러리 변환 결과가 존재하지 않습니다.</td>
                                         </tr>
 </th:block>
-<th:block th:unless="${dataLibraryConverterJobList.empty}" th:each="dataLibraryConverterJob: ${dataLibraryConverterJobList}">
+<th:block th:unless="${#lists.isEmpty(dataLibraryConverterJobList)}" th:each="dataLibraryConverterJob: ${dataLibraryConverterJobList}">
                                         <tr>
                                             <td class="col-number" th:text="${pagination.rowNumber - dataLibraryConverterJobStat.index}"></td>
                                             <td class="col-type">

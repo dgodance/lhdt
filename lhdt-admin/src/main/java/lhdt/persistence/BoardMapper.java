@@ -114,6 +114,13 @@ public interface BoardMapper {
 	int deleteBoard(Long board_id);
 	
 	/**
+	 * 게시물 파일 삭제
+	 * @param board_notice_file_id
+	 * @return
+	 */
+	int deleteBoardNoticeFile(Long board_notice_file_id);
+	
+	/**
 	 * 게시물 상세 삭제
 	 * @param board_id
 	 * @return
@@ -127,6 +134,7 @@ public interface BoardMapper {
 	 */
 	int deleteBoardComment(Long board_comment_id);
 	
+	
 	/**
 	 * 게시물 Comment 일괄 삭제
 	 * @param board_id
@@ -134,9 +142,15 @@ public interface BoardMapper {
 	 */
 	int deleteBoardCommentByBoardId(Long board_id);
 	
-	
 	/**
 	 * 게시물 file 불러오기
+	 * @param board_id
+	 * @return
+	 */
+	BoardNoticeFile getBoardNoticeFile(Long boardNoticeFileId);
+	
+	/**
+	 * 게시물 fileList 불러오기
 	 * @param board_id
 	 * @return
 	 */

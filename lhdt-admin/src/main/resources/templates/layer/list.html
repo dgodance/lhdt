@@ -116,12 +116,12 @@
 									</tr>
 								</thead>
 								<tbody>
-<th:block th:if="${layerList.empty}">
+<th:block th:if="${#lists.isEmpty(layerList)}">
 									<tr>
 										<td colspan="8" class="col-none">Layer 가 존재하지 않습니다.</td>
 									</tr>
 </th:block>
-<th:block th:unless="${layerList.empty}" th:each="layer : ${layerList}">
+<th:block th:unless="${#lists.isEmpty(layerList)}" th:each="layer : ${layerList}">
 									<tr>
 										<td class="col-number" th:text="${pagination.rowNumber - layerStat.index}"></td>
 										<td class="col-key" th:text="${layer.layerName}"></td>

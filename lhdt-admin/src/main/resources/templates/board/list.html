@@ -110,12 +110,12 @@
 									</tr>
 								</thead>
 								<tbody>
-<th:block th:if="${boardList.empty}">
+<th:block th:if="${#lists.isEmpty(boardList)}">
 									<tr>
 										<td colspan="8" class="col-none">Board 가 존재하지 않습니다.</td>
 									</tr>
 </th:block>
-<th:block th:unless="${boardList.empty}" th:each="board : ${boardList}">
+<th:block th:unless="${#lists.isEmpty(boardList)}" th:each="board : ${boardList}">
 									<tr>
 										<td class="col-number" th:text="${pagination.rowNumber - boardStat.index}"></td>
 										<td class="col-type">
@@ -191,7 +191,7 @@ function deleteBoard(boardId) {
 		if(confirm(JS_MESSAGE["delete.confirm"])) {
 			deleteBoardFlag = false;
 			$.ajax({
-				url: "/board/delete/" + boardId,
+				url: "/board/" + boardId,
 				type: "DELETE",
 				headers: {"X-Requested-With": "XMLHttpRequest"},
 				dataType: "json",

@@ -60,9 +60,4 @@ public interface MenuService {
 	 */
 	int deleteMenu(Integer menuId);
 	
-	/**
-	 * 메뉴 아이콘
-	 * @return
-	 */
-	List<Menu> getMenuIcon();
 }

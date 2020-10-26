@@ -65,7 +65,8 @@
 				</tr>
 
 			</table>
-			<div class="list">
+			<div class="file-list">
+			<div class="table-label"><span>첨부파일</span></div>
 				<table class="list-table scope-col" summary="공지사항 첨부파일 테이블">
 					<caption class="hiddenTag">첨부파일</caption>
 					<thead>
@@ -73,6 +74,38 @@
 							<th scope="col">파일명</th>
 							<th scope="col">다운로드</th>
 							<th scope="col">등록일</th>
+						</tr>
+					</thead>
+					<tbody id="boardFileInfoListArea">
+						<th:block th:if="${#lists.isEmpty(boardNoticeFileList)}">
+							<tr style="height: 50px;">
+								<td colspan="9" style="padding-top: 15px; text-align: center;">첨부 파일이 존재하지 않습니다.</td>
+							</tr>
+						</th:block>
+						<th:block th:unless="${#lists.isEmpty(boardNoticeFileList)}" th:each="boardNoticeFile, status : ${boardNoticeFileList}">
+						<tr>
+								<td class="col-key" th:text="${boardNoticeFile.fileName}" style="max-width: 315px; word-wrap: break-word;"></td>
+								
+								<td class="col-type">
+									<a th:href="@{/boards/{boardNoticeFileId}/board-notice-file-info/download(boardNoticeFileId=${boardNoticeFile.boardNoticeFileId})}" class="linkButton">다운로드</a>
+								</td>
+								<td>
+									<th:block th:text="${#temporals.format(boardNoticeFile.insertDate, 'yyyy-MM-dd HH:mm:ss')}"></th:block>
+								</td>
+								</tr>
+						</th:block>
+					</tbody>
+				</table>
+			</div>
+			<div class="comment-list">
+			<div class="table-label"><span>의견</span></div>
+				<table class="list-table scope-col" summary="공지사항 첨부파일 테이블">
+					<caption class="hiddenTag">의견</caption>
+					<thead>
+						<tr>
+							<th scope="col">작성자</th>
+							<th scope="col">내용</th>
+							<th scope="col">추천</th>
 						</tr>
 					</thead>
 					<tbody id="boardFileInfoListArea">
@@ -86,10 +119,10 @@
 								<td class="col-key" th:text="${boardNoticeFile.fileName}" style="max-width: 315px; word-wrap: break-word;"></td>
 								
 								<td class="col-type">
-									<a class="linkButton">다운로드</a>
+									<a th:href="@{/boards/{boardNoticeFileId}/board-notice-file-info/download(boardNoticeFileId=${boardNoticeFile.boardNoticeFileId})}" class="linkButton">다운로드</a>
 								</td>
 								<td>
-									<th:block th:text="${#temporals.format(board.insertDate, 'yyyy-MM-dd HH:mm:ss')}"></th:block>
+									<th:block th:text="${#temporals.format(boardNoticeFile.insertDate, 'yyyy-MM-dd HH:mm:ss')}"></th:block>
 								</td>
 								</tr>
 						</th:block>

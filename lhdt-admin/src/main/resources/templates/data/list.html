@@ -127,12 +127,12 @@
 										</tr>
 									</thead> 
 									<tbody>
-<th:block th:if="${dataList.empty}">
+<th:block th:if="${#lists.isEmpty(dataList)}">
 										<tr>
 											<td colspan="14" class="col-none" th:text="#{data.does.not.exist}"></td>
 										</tr>
 </th:block>
-<th:block th:unless="${dataList.empty}" th:each="dataInfo : ${dataList}">
+<th:block th:unless="${#lists.isEmpty(dataList)}" th:each="dataInfo : ${dataList}">
 										<tr>
 											<td class="col-checkbox">
 												<label class="hiddenTag">선택 체크박스</label>

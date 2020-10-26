@@ -162,7 +162,7 @@
             </table>
             <div class="button-group">
                 <div class="center-buttons">
-                    <input type="submit" th:value="#{common.update}" onclick="updatedataGroup();" />
+                    <input type="submit" th:value="#{common.update}" onclick="updateDataGroup();" />
                     <a href="/data-group/list" class="button"><th:block th:text="#{common.list}"></th:block></a>
                 </div>
             </div>
@@ -205,13 +205,13 @@
 	}
 	
 	// 수정
-	var updatedataGroupFlag = true;
-	function updatedataGroup() {
+	var updateDataGroupFlag = true;
+	function updateDataGroup() {
 		if (validate() == false) {
 			return false;
 		}
-		if(updatedataGroupFlag) {
-			updatedataGroupFlag = false;
+		if(updateDataGroupFlag) {
+			updateDataGroupFlag = false;
 			var formData = $("#dataGroup").serialize();		
 			$.ajax({
 				url: "/data-groups/[[${dataGroup.dataGroupId}]]",
@@ -226,11 +226,11 @@
 						alert(JS_MESSAGE[msg.errorCode]);
 						console.log("---- " + msg.message);
 					}
-					updatedataGroupFlag = true;
+					updateDataGroupFlag = true;
 				},
 				error:function(request, status, error){
 			        alert(JS_MESSAGE["ajax.error.message"]);
-			        updatedataGroupFlag = true;
+			        updateDataGroupFlag = true;
 				}
 			});
 		} else {

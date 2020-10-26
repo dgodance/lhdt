@@ -151,12 +151,12 @@
 						</tr>
 					</thead>
 					<tbody id="boardFileInfoListArea">
-						<th:block th:if="${boardNoticeFileList.empty}">
+						<th:block th:if="${#lists.isEmpty(boardNoticeFileList)}">
 							<tr style="height: 50px;">
 								<td colspan="9" style="padding-top: 15px; text-align: center;">첨부 파일이 존재하지 않습니다.</td>
 							</tr>
 						</th:block>
-						<th:block th:unless="${boardNoticeFileList.empty}" th:each="boardNoticeFile, status : ${boardNoticeFileList}">
+						<th:block th:unless="${#lists.isEmpty(boardNoticeFileList)}" th:each="boardNoticeFile, status : ${boardNoticeFileList}">
 						<tr>
 								<td class="col-key" th:text="${boardNoticeFile.fileName}" style="max-width: 315px; word-wrap: break-word;"></td>
 								<td class="col-type">
@@ -165,10 +165,10 @@
 									</th:block>
 								</td>
 								<td class="col-type">
-									<a class="linkButton">다운로드</a>
+									<a href="#" th:onclick="deleteBoardNoticeFile([[${boardNoticeFile.boardNoticeFileId}]],[[${boardNoticeFile.filePath}]]); return false;" class="image-button button-delete" th:text="#{delete}"></a>
 								</td>
 								<td>
-									<th:block th:text="${#temporals.format(board.insertDate, 'yyyy-MM-dd HH:mm:ss')}"></th:block>
+									<th:block th:text="${#temporals.format(boardNoticeFile.insertDate, 'yyyy-MM-dd HH:mm:ss')}"></th:block>
 								</td>
 								</tr>
 						</th:block>
@@ -295,41 +295,33 @@ function initJqueryCalendar() {
 	});
 }
 
-// 저장
-var updateBoardFlag = true;
-function updateBoard() {
-	if (check() == false) {
-		return false;
-	}
-	if(updateBoardFlag) {
-		updateBoardFlag = false;
-		
-		var info = $("#board").serialize();
-		console.log("@@@@@@@@@@@@@@@@@@@@@@@@"+info);
-		$.ajax({
-			url: "/board/update-board",
-			type: "POST",
-			headers: {"X-Requested-With": "XMLHttpRequest"},
-	        data: info,
-			success: function(msg){
-				if(msg.statusCode <= 200) {
-					alert(JS_MESSAGE["update"]);
-					console.log("------------------------------------------------------------------"+JS_MESSAGE["update"]);
-				} else {
-					alert(JS_MESSAGE[msg.errorCode]);
-					console.log("---- " + msg.message);
-				}
-				updateBoardFlag = true;
-			},
-			error:function(request,status,error){
-		        alert(JS_MESSAGE["ajax.error.message"]);
-		        updateBoardFlag = true;
-			}
-		});
+
+var deleteBoardNoticeFileFlag = true;
+function deleteBoardNoticeFile(boardNoticeFileId, filePath) {
+	if(deleteBoardNoticeFileFlag) {
+		if(confirm(JS_MESSAGE["delete.confirm"])) {
+			deleteBoardNoticeFileFlag = false;
+			$.ajax({
+				url: "/boards/file/" + boardNoticeFileId,
+				type: "DELETE",
+				headers: {"X-Requested-With": "XMLHttpRequest"},
+				dataType: "json",
+				success: function(msg) {
+					alert(JS_MESSAGE["delete"]);
+					location.reload();
+				},
+		        error: function(request, status, error) {
+		        	// alert message, 세션이 없는 경우 로그인 페이지로 이동 - common.js
+		        	ajaxErrorHandler(request);
+		        	deleteBoardNoticeFileFlag = true;
+		        }
+			});
+		} else {
+			deleteBoardNoticeFileFlag = true;
+		}
 	} else {
-		alert("진행 중입니다.");
-		return;
-	}	
+		alert(JS_MESSAGE["button.dobule.click"]);
+	}
 }
 
 var fileUploadDialog = $( ".spinner-dialog" ).dialog({
@@ -345,7 +337,7 @@ var uploadFileCount = 0;
 // dropzone 업로딩 결과(n개 파일을 올리면 n개 리턴이 옴)
 var uploadFileResultCount = 0;
 Dropzone.options.myDropzone = {
-    url: "/board/update-board",
+    url: "/boards/update-board",
     //paramName: "file",
     // Prevents Dropzone from uploading dropped files immediately
     timeout: 3600000,
@@ -422,6 +414,7 @@ Dropzone.options.myDropzone = {
         	 formData.append("end_hour", $("#end_hour").val());
         	 formData.append("end_minute", $("#end_minute").val());
         	 formData.append("use_yn", $("input[name='use_yn']:checked").val());
+        	 formData.append("CSRFToken", $('input[name=CSRFToken]').val());
         	 
 		});
 
@@ -461,6 +454,8 @@ Dropzone.options.myDropzone = {
         });
     }
 };
+
+
 
 
 </script>
