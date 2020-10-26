@@ -59,26 +59,42 @@ h1 {
 
 
 
+/*header-3기신도시 select-box*/
 
-
+.urban-group{
+    background:none;
+    border:1px solid #fff;
+    color:#fff;
+    
+}
 
 
 
 
 
 .gnb {
-	position: absolute;
-	right: 0;
-	margin: 5px;
-	font-size: 15px;
+	margin: 20px 0;
+	font-size: 12px;
 	color: #fff;
+	bottom: 0;
 }
-.gnb li > * {
+.gnb ul{
+	
+}
+.gnb ul li.user{
+    background-image: url(/images/ko/global_ico.png);
+    background-position: 0 0px;
+    padding-top: 50px;
+}
+.gnb ul li{
+
+}
+.gnb ul li > * {
 	display: inline-block;
 	vertical-align: middle;
 }
-.gnb li:last-child {
-	margin-left: 10px;
+.gnb ul li:last-child {
+	margin-left: 0;
 }
 .user > span {
 	/* border-bottom: 1px solid #fff; */
@@ -87,17 +103,27 @@ h1 {
 	vertical-align: middle;
 }
 .gnb li > a {
-	padding: 10px 30px;
+	padding: 50px 0 0;
 	letter-spacing: -1px;
-	text-indent: -9999px;
-	background-image: url(/images/ko/icon.png);
+	background-image: url(/images/ko/global_ico.png);
 	background-repeat: no-repeat;
+	box-sizing: border-box;
+	text-indent: inherit;
+	color: #fff;
+	display: block;
+	text-align: center;
 }
 .gnb li > a.api {
-	background-position: -62px -67px;
+	background-position: 0px -200px;
 }
 .gnb li> a.sign {
-	background-position: -140px -68px;
+	background-position: 0px -70px;
+}
+.gnb li > a.help {
+	background-position: 0px -140px;
+}
+.gnb li> a.more {
+	background-position: 0px -260px;
 }
 /*
 .gnb li > button {
@@ -2806,9 +2832,10 @@ ul.listDefault li.on > ul li > button {
 .mapCtrl > div.controlWrap {
 	width: 40px;
 	margin-bottom: 5px;
-	border: 1px solid #ccc;
+	border: none;
 	box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.4);
-	background-color: #fff;
+	background-color: #303235;
+	border-radius: 20px;
 }
 .mapCtrl > div.controlMeasureWrap {
 	position: absolute;
@@ -2823,14 +2850,14 @@ ul.listDefault li.on > ul li > button {
 }
 .mapCtrl button {
 	width: 40px;
-	height: 50px;
+	height: 40px;
 	padding: 0;
 	border: none;
 	cursor: pointer;
-	border-bottom: 1px solid #eee;
+	border-bottom: none;
 	background-image: url(/images/ko/ico_mapctrl.png);
 	background-color: transparent;
-
+	text-indent: -9999px;
 }
 .mapCtrl button:last-child {
 	border-bottom: none;
@@ -2847,35 +2874,35 @@ ul.listDefault li.on > ul li > button {
 }
 /* /// DEFAULT /// */
 .mapCtrl button.go {
-	background-position: 8px 5px ;
+	background-position: 9px -93px;
 }
 .mapCtrl button.fs {
-	background-position: -40px 5px ;
+	background-position: -40px -93px;
 }
 .mapCtrl button.st {
-	background-position: -93px 5px ;
+	background-position: -93px -93px;
 }
 .mapCtrl button.ge {
-    background-position: -442px 5px ;
+    background-position: -442px -93px;
 }
 .mapCtrl button.pf {
-    background-position: -490px 5px ;
+    background-position: -490px -93px;
 }
 .mapCtrl button.li {
-    background-position: -538px 5px ;
+    background-position: -538px -93px;
 }
 .mapCtrl button.zi {
 	width: 40px;
 	height: 40px;
-	background-position: -138px 12px ;
+	background-position: -138px -85px;
 }
 .mapCtrl button.zo {
 	width: 40px;
 	height: 40px;
-	background-position: -187px 15px ;
+	background-position: -187px -85px;
 }
 .mapCtrl button.ms {
-	background-position: -243px 8px ;
+	background-position: -243px -93px;
 }
 .mapCtrl button.ms_di {
 	background-position: -293px 8px ;
@@ -2886,51 +2913,6 @@ ul.listDefault li.on > ul li > button {
 .mapCtrl button.ms_hi {
 	background-position: -393px 8px ;
 }
-
-/* /// HOVER /// */
-/* .mapCtrl button:hover > span {
-	color: #0066a2;
-}
-.mapCtrl button.go:hover {
-	background-position: 8px -45px ;
-}
-.mapCtrl button.fs:hover {
-	background-position: -40px -45px ;
-}
-.mapCtrl button.st:hover {
-	background-position: -93px -45px ;
-}
-.mapCtrl button.ge:hover {
-    background-position: -442px -45px ;
-}
-.mapCtrl button.pf:hover {
-    background-position: -490px -45px ;
-}
-.mapCtrl button.li:hover {
-    background-position: -538px -45px ;
-}
-.mapCtrl button.zi:hover {
-	width: 40px;
-	height: 40px;
-	background-position: -138px -38px ;
-}
-.mapCtrl button.zo:hover {
-	width: 40px;
-	height: 40px;
-	background-position: -187px -35px ;
-}
-.mapCtrl button.ms:hover {
-	background-position: -243px -42px ;
-}
-.mapCtrl button.ms_di:hover {
-	background-position: -293px -42px ;
-}
-.mapCtrl button.ms_ar:hover {
-	background-position: -343px -42px ;
-}
-.mapCtrl button.ms_hi:hover {
-	background-position: -393px -42px ;
-} */
 
 /* /// ON /// */
 .mapCtrl button.on {

@@ -13,6 +13,7 @@
 	<link rel="stylesheet" th:href="@{/externlib/kotSlider/range.css(cacheVersion=${contentCacheVersion})}" />
 	<link rel="stylesheet" th:href="@{/externlib/tuidatepicker-4.0.3/tui-date-picker.min.css(cacheVersion=${contentCacheVersion})}" />
 	<link rel="stylesheet" th:href="@{/css/{lang}/user-style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}" />
+	<link rel="stylesheet" th:href="@{/css/{lang}/user-style2.css(lang=${lang}, cacheVersion=${contentCacheVersion})}" />
 	<link rel="stylesheet" th:href="@{/externlib/json-viewer/json-viewer.css(cacheVersion=${contentCacheVersion})}" />
 	<link rel="stylesheet" th:href="@{/externlib/css-toggle-switch/toggle-switch.css(cacheVersion=${contentCacheVersion})}" />
 	<link rel="stylesheet" th:href="@{/css/fontawesome-free-5.2.0-web/css/all.css(cacheVersion=${contentCacheVersion})}" />
@@ -33,7 +34,7 @@
 		}
 		#baseMapToggle div.on,#terrainToggle div.on {
 			border-color : #0475F4 !important;
-			border-width : 2px !important;
+			border-width: 2px !important;
 		}
 		#baseMapToggle div.on img,#terrainToggle div.on img {
 			border-color : #0475F4 !important;
@@ -156,8 +157,13 @@
 	<div id="magoDivideContainer" class="mapWrap2">
 	</div>
 
+	<!-- intro -->
+	<div th:replace="~{/data/intro :: #introContainer}"></div>
+	
 	<!-- E: MAP -->
 	</div>
+	
+	
 </div>
 <!-- E: WRAP -->
 
@@ -432,8 +438,12 @@
         var promises = [];
         var garaJsonCnt = 28;
         //아래 url은 원래 localhost로 되어있으나, IP를 명시할 때는 user로 들어가는 post도 같이 명시해야 CROS문제가 발생하지 않음
+//        for(var i=0;i<garaJsonCnt;i++) {
+//			promises.push($.ajax({url: `http://118.42.112.206:180/sample/json/temp_json/${i}.geojson`, dataType: "json"}));
+//        }
+        
         for(var i=0;i<garaJsonCnt;i++) {
-			promises.push($.ajax({url: `http://118.42.112.206:180/sample/json/temp_json/${i}.geojson`, dataType: "json"}));
+			promises.push($.ajax({url: `http://localhost/sample/json/temp_json/${i}.geojson`, dataType: "json"}));
         }
         
         $.when.apply($,promises).then(function(){
