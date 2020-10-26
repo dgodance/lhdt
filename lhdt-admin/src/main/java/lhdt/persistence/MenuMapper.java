@@ -84,10 +84,4 @@ public interface MenuMapper {
 	 * @return
 	 */
 	int deleteMenu(Integer menuId);
-	
-	/**
-	 * 메뉴 아이콘 불러오기
-	 * @return
-	 */
-	List<Menu> getMenuIcon();
 }

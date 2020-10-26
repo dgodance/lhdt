@@ -37,22 +37,69 @@
 									</tr>
 								</thead>
 								<tbody>
-<th:block th:if="${menuList.empty}">
-									<tr>
-										<td colspan="8" class="col-none">Board 가 존재하지 않습니다.</td>
-									</tr>
-</th:block>
-<th:block th:unless="${menuList.empty}" th:each="menu : ${menuList}">
-									<tr>
-										<td class="col-number" th:text="${menuStat.index+1}"></td>
-										<td class="col-type" th:text="${menu.name}"></td>
-										<td class="col-type" th:text="${menu.cssClass}"></td>
+					                <tr>
+										<td class="col-number" th:text="1"></td>
+										<td class="col-type" th:text="홈"></td>
+										<td class="col-type" th:text="glyph-home"></td>
 					                    <td class="col-type">
-					                    	<span th:class="|icon-glyph ${menu.cssClass }|"></span>
+					                    	<span th:class="|icon-glyph glyph-home|"></span>
 					                    </td>
 										
 					                </tr>
-</th:block>
+					                <tr>
+										<td class="col-number" th:text="2"></td>
+										<td class="col-type" th:text="사용자"></td>
+										<td class="col-type" th:text="glyph-users"></td>
+					                    <td class="col-type">
+					                    	<span th:class="|icon-glyph glyph-users|"></span>
+					                    </td>
+										
+					                </tr>
+					                <tr>
+										<td class="col-number" th:text="3"></td>
+										<td class="col-type" th:text="데이터"></td>
+										<td class="col-type" th:text="glyph-monitor"></td>
+					                    <td class="col-type">
+					                    	<span th:class="|icon-glyph glyph-monitor|"></span>
+					                    </td>
+										
+					                </tr>
+					                <tr>
+										<td class="col-number" th:text="4"></td>
+										<td class="col-type" th:text="레이어"></td>
+										<td class="col-type" th:text="glyph-check"></td>
+					                    <td class="col-type">
+					                    	<span th:class="|icon-glyph glyph-check|"></span>
+					                    </td>
+										
+					                </tr>
+					                <tr>
+										<td class="col-number" th:text="5"></td>
+										<td class="col-type" th:text="ExtrusionModel"></td>
+										<td class="col-type" th:text="glyph-desktop"></td>
+					                    <td class="col-type">
+					                    	<span th:class="|icon-glyph glyph-desktop|"></span>
+					                    </td>
+										
+					                </tr>
+					                <tr>
+										<td class="col-number" th:text="6"></td>
+										<td class="col-type" th:text="환경설정"></td>
+										<td class="col-type" th:text="userPolicy"></td>
+					                    <td class="col-type">
+					                    	<span th:class="|icon-glyph glyph-settings|"></span>
+					                    </td>
+										
+					                </tr>
+					                <tr>
+										<td class="col-number" th:text="7"></td>
+										<td class="col-type" th:text="공지사항"></td>
+										<td class="col-type" th:text="glyph-check"></td>
+					                    <td class="col-type">
+					                    	<span th:class="|icon-glyph glyph-check|"></span>
+					                    </td>
+										
+					                </tr>
 								</tbody>
 							</table>
 						</div>

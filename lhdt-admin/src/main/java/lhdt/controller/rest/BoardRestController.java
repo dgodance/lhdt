@@ -3,23 +3,16 @@ package lhdt.controller.rest;
 
 import lhdt.config.PropertiesConfig;
 import lhdt.controller.AuthorizationController;
-import lhdt.domain.FileType;
 import lhdt.domain.Key;
-import lhdt.domain.ShapeFileExt;
 import lhdt.domain.UploadDirectoryType;
 import lhdt.domain.board.Board;
 import lhdt.domain.board.BoardNoticeFile;
-import lhdt.domain.common.FileInfo;
-import lhdt.domain.layer.Layer;
-import lhdt.domain.layer.LayerFileInfo;
 import lhdt.domain.policy.Policy;
 import lhdt.domain.uploaddata.UploadData;
-import lhdt.domain.uploaddata.UploadDataFile;
 import lhdt.domain.user.UserSession;
 import lhdt.service.BoardService;
 import lhdt.service.PolicyService;
 import lhdt.support.LogMessageSupport;
-import lhdt.support.ZipSupport;
 import lhdt.utils.DateUtils;
 import lhdt.utils.FileUtils;
 import lhdt.utils.FormatUtils;
@@ -465,8 +458,6 @@ public Map<String, Object> upadte(MultipartHttpServletRequest request) throws Ex
 			}
 		}
 		
-		Long boardId = Long.getLong(request.getParameter("boardId"));
-		
 		log.info("@@@@@@@@@@@@ ======================");
 		//boardService.insertFile(boardId, boardNoticeFileList);    
 		
@@ -548,7 +539,6 @@ public Map<String, Object> upadte(MultipartHttpServletRequest request) throws Ex
 	            	
 	            	ZipEntry entry = entries.nextElement();
 	            	String unzipfileName = targetDirectory + entry.getName();
-	            	boolean converterTarget = false;
 	            	
 	            	if( entry.isDirectory() ) {
 	            		// 디렉토리인 경우
@@ -602,7 +592,6 @@ public Map<String, Object> upadte(MultipartHttpServletRequest request) throws Ex
 
 	            						// 변환 대상 파일만 이름을 변경하고 나머지 파일은 그대로 이름 유지
 	            						saveFileName = userId + "_" + today + "_" + System.nanoTime() + "." + extension;
-	            						converterTarget = true;
 										converterTargetCount++;
 	            					}
 		        				}
@@ -628,7 +617,6 @@ public Map<String, Object> upadte(MultipartHttpServletRequest request) throws Ex
 	            						
 	            						// 변환 대상 파일만 이름을 변경하고 나머지 파일은 그대로 이름 유지
 	            						saveFileName = userId + "_" + today + "_" + System.nanoTime() + "." + extension;
-										converterTarget = true;
 										converterTargetCount++;
 	            					}
 		        				} else {
@@ -677,7 +665,6 @@ public Map<String, Object> upadte(MultipartHttpServletRequest request) throws Ex
 			}
 			
 			// 3 파일 확장자
-			String[] fileNameValues = fileName.split("\\.");
 //			if(fileNameValues.length != 2) {
 //				log.info("@@ fileNameValues.length = {}, fileName = {}", fileNameValues.length, fileName);
 //				uploadLog.setError_code("fileinfo.name.invalid");
@@ -689,7 +676,6 @@ public Map<String, Object> upadte(MultipartHttpServletRequest request) throws Ex
 //				return uploadLog;
 //			}
 			// LowerCase로 비교
-			String extension = fileNameValues[fileNameValues.length - 1];
 			
 			/*
 			 * if(!extList.contains(extension.toLowerCase())) {
