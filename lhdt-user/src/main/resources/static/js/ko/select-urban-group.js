@@ -150,7 +150,7 @@ SelectUrbanGroupObj.prototype.getLonLatByCityName = function(cityName){
 	let lon=0, lat=0;
 	
 	$('select.urban-group option').each(function(i,item){
-		if(-1 != $(item).text.indexOf(cityName)){
+		if(-1 != $(item).text().indexOf(cityName)){
 			lon = $(item).data('lon');
 			lat = $(item).data('lat');
 		}

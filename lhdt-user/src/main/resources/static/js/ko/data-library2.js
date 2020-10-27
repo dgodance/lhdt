@@ -2,6 +2,7 @@
 
 /**
  * 데이터 라이브러리
+ * @since 20201023
  */
 let DataLibrary2Obj = function(){
 	//jquery instance
@@ -26,19 +27,19 @@ let DataLibrary2Obj = function(){
 	this.cacheDataLibraries = [];
 	
 	//나의 데이터 모달 인스턴스
-	this.dataLibrary2MyObjRef = null;
+	this.myDataLibrary2ObjRef = null;
 };
 
 /**
  * static
  */
 DataLibrary2Obj.Tool = {
-	NONE : {text: '없음', id: 'none'},
+	NONE : 	{text: '없음', id: 'none'},
 	SELECT : {text: '선택', id: 'select'},
 	POINT : {text: '점', id: 'point'},
-	LINE : {text: '선', id: 'line'},
+	LINE : 	{text: '선', id: 'line'},
 	DELETE : {text: '삭제', id: 'delete'},
-	MOVE : {text: '이동', id: 'move'},
+	MOVE : 	{text: '이동', id: 'move'},
 	ROTATE : {text: '회전', id: 'rotate'},
 	SELECTBYPOLYGON : {text: '영역선택', id: 'selectbypolygon'},
 };
@@ -82,10 +83,10 @@ DataLibrary2Obj.prototype.getToolById = function(toolId){
 /**
  * 초기화
  */
-DataLibrary2Obj.prototype.init = function(dataLibrary2MyObjRef){
+DataLibrary2Obj.prototype.init = function(myDataLibrary2ObjRef){
 	this.$container = $('.modelerContent');
 	
-	this.dataLibrary2MyObjRef = dataLibrary2MyObjRef;
+	this.myDataLibrary2ObjRef = myDataLibrary2ObjRef;
 	
 	
 	//회전 instance
@@ -233,15 +234,31 @@ DataLibrary2Obj.prototype.setEventHandler = function(){
 	
 	//나의 데이터 관리 > 신규
 	this.$container.find('.new-my-data-library').click(function(){
-		if(!confirm('지도상의 데이터 라이브러리를 삭제한 후 신규로 작업하시겠습니까?')){
+		if(!confirm('지도상의 모든 데이터 라이브러리를 삭제하시겠습니까?')){
 			return;	
 		}
 		
 		
 		//지도상의 모든 데이터 라이브러리 정보 삭제
+		let  arr = Ppmap.getAllDataLibraries();
+		for(let i=0; i<arr.length; i++){
+			let item = arr[i];
+			MAGO3D_INSTANCE.getF4dController().deleteF4dMember(item.projectId, item.nodeId);				
+		}
 		
 		
 		//컨텐트 영역의 정보 초기화
+		//1. 데이터 라이브러리
+		self.dataLibrarySelected(null, 'asis');
+		
+		//2. 선택된 데이터 라이브러리
+		self.renderSelectedDataLibraries([]);
+				
+		//3. 변경
+		self.dataLibrarySelected(null, 'tobe');
+		
+		//4.
+		$('.ds-tool-none').click();
 	});	
 	
 	
@@ -249,21 +266,54 @@ DataLibrary2Obj.prototype.setEventHandler = function(){
 	
 	//나의 데이터 관리 > 불러오기
 	this.$container.find('.get-my-data-library').click(function(){
-		self.dataLibrary2MyObjRef.open();
+		self.myDataLibrary2ObjRef.open();
 	});
 	
 	
 	
 	//나의 데이터 관리 > 저장하기
 	this.$container.find('.save-my-data-library').click(function(){
-		if(!confirm('저장하시겠습니까?')){
+		let staticModelObject = MAGO3D_INSTANCE.getF4dController().getStaticModelObject();
+		if(!staticModelObject){
+			toastr.warning('저장할 데이터 라이브러리가 없습니다.');
 			return;
 		}
 		
-		//지도위의 데이터 라이브러리 정보 추출
-		//추출내용 : 데이터 라이브러리 종류, 좌표(xyz), 회전정도?
+		if(!confirm('저장하시겠습니까?')){
+			return;
+		}
+
+		let arr = [];
+				
 		
-		//db에 저장하기 위해 api 호출
+		//지도위의 데이터 라이브러리 정보 추출
+		for(let projectId in staticModelObject){
+			let json = {};
+			json['projectId'] = projectId;
+			let staticModelGroup = staticModelObject[projectId];
+
+			for(let instanceId in staticModelGroup){
+				let node = staticModelGroup[instanceId];
+				
+				let geoLocationData = node.getCurrentGeoLocationData();
+				let geographicCoord = geoLocationData.geographicCoord;
+				
+				json['geoLocationData'] = geoLocationData;
+				json['geographicCoord'] = geographicCoord;
+				arr.push(json);
+						
+				//추출내용 : 데이터 라이브러리 종류, 좌표(xyz), 회전정도?
+				//console.info(`longitude : ${geographicCoord.longitude}, latitude : ${geographicCoord.latitude}, altitude :${geographicCoord.latitude}`);
+				//console.info(`heading : ${geoLocationData.heading}, pitch : ${geoLocationData.pitch}, roll : ${geoLocationData.roll}`);
+            
+			}			
+		}
+		
+		console.log(arr);
+		
+		
+		
+		//todo db에 저장하기 위해 api 호출
 	});
 	
 	
@@ -1102,7 +1152,7 @@ DataLibrary2Obj.prototype.getDataLibrary = function(dataLibraryId){
 
 
 /**
- * DataLibrary2MyObj에서 호출함
+ * MyDataLibrary2Obj에서 호출함
  */
 DataLibrary2Obj.prototype.myDataLibrarySelected = function(data){
 	
@@ -1404,18 +1454,20 @@ DataLibrary2SelectDataObj.prototype.getDataLibraryByDataLibraryId = function(dat
  * 나의 데이터 모달
  * @since 20201019 init
  */
-DataLibrary2MyObj = function(){
+MyDataLibrary2Obj = function(){
 	this.$container = null;
 	
 	//데이터 라이브러리2 인스턴스
 	this.dataLibrary2ObjRef = null;
+	
+	this.datas = [];
 };
 
 
 /**
  * 초기화
  */
-DataLibrary2MyObj.prototype.init = function(dataLibrary2ObjRef){
+MyDataLibrary2Obj.prototype.init = function(dataLibrary2ObjRef){
 	this.$container = $('.my-data-library-modal');
 	
 	this.dataLibrary2ObjRef = dataLibrary2ObjRef;
@@ -1428,7 +1480,7 @@ DataLibrary2MyObj.prototype.init = function(dataLibrary2ObjRef){
 /**
  * 이벤트 등록
  */
-DataLibrary2MyObj.prototype.setEventHandler = function(){
+MyDataLibrary2Obj.prototype.setEventHandler = function(){
 	let self = this;
 	
 	
@@ -1467,7 +1519,7 @@ DataLibrary2MyObj.prototype.setEventHandler = function(){
 /**
  * 모달창 표시
  */
-DataLibrary2MyObj.prototype.open = function(){
+MyDataLibrary2Obj.prototype.open = function(){
 	let self = this;
 	
 	
@@ -1486,10 +1538,17 @@ DataLibrary2MyObj.prototype.open = function(){
 		}]
 	}).dialog('open');
 	
+	
 	//데이터 목록 조회
 	self.getMyDataLibrariesAsync(function(res){
+		self.datas = [];
+		
+		if(!res && !res._embedded && !res._embedded.datas){
+			self.datas = res._embedded.datas;
+		}
+		
 		//화면에 표시
-		self.renderMyDataLibraries(res);			
+		self.renderMyDataLibraries();			
 	});
 	
 };
@@ -1497,9 +1556,9 @@ DataLibrary2MyObj.prototype.open = function(){
 
 
 /**
- * 나의 데이터 라이브러리 목록 조회 by api
+ * todo 나의 데이터 라이브러리 목록 조회 by api
  */
-DataLibrary2MyObj.prototype.getMyDataLibrariesAsync = function(callbackFn){
+MyDataLibrary2Obj.prototype.getMyDataLibrariesAsync = function(callbackFn){
 	//$.get('todo url', callbackFn);
 	
 	callbackFn({});
@@ -1509,18 +1568,11 @@ DataLibrary2MyObj.prototype.getMyDataLibrariesAsync = function(callbackFn){
 /**
  * 데이터를 화면에 표시
  */
-DataLibrary2MyObj.prototype.renderMyDataLibraries = function(res){	
+MyDataLibrary2Obj.prototype.renderMyDataLibraries = function(){	
 	
 	let source = $('#my-data-library-list-template').html();
 	let template = Handlebars.compile(source);
-	let datas = [];
-	
-	if(!Pp.isEmpty(res) && !Pp.isEmpty(res._embedded)){
-		datas = res._embedded.todo;		
-	}
-	
-		
-	let html = template({datas: datas});
+	let html = template({datas: this.datas});
 	this.$container.find('.list-container').html(html);
 	
 	
@@ -1535,10 +1587,16 @@ DataLibrary2MyObj.prototype.renderMyDataLibraries = function(res){
 
 let dataLibrary2Obj = new DataLibrary2Obj();
 let dataLibrary2SelectDataObj = new DataLibrary2SelectDataObj();
-let dataLibrary2MyObj = new DataLibrary2MyObj();
+let myDataLibrary2Obj = new MyDataLibrary2Obj();
 
 $(document).ready(function(){
-	dataLibrary2Obj.init(dataLibrary2MyObj);
-	dataLibrary2SelectDataObj.init();	
-	dataLibrary2MyObj.init(dataLibrary2Obj);	
+	let interval = setInterval(function(){
+		if(MAGO3D_INSTANCE){
+			clearInterval(interval);
+			
+			dataLibrary2Obj.init(myDataLibrary2Obj);
+			dataLibrary2SelectDataObj.init();	
+			myDataLibrary2Obj.init(dataLibrary2Obj);	
+		}
+	}, 500);
 });

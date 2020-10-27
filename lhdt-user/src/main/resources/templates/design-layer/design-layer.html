@@ -101,10 +101,81 @@
 		</div>
 	-->
 
-<style>
-.text-left {text-align:left !important;}
-</style>	
 
+
+
+
+
+
+
+
+<!--  -->
+<!--  -->
+<!--  -->
+<!--  -->
+<!--  -->
+<!--  -->
+<!--  -->
+<!--  -->
+<!--  -->
+<!--  -->
+<style>
+table.design-layer-list > tbody > tr[data-design-layer-id].on {
+	font-weight: bold;
+	background-color: lightyellow;
+}
+</style>
+
+<div class="design-layer-container">
+	<div class="design-layer-list-container">
+		<!-- by js -->
+	</div>
+</div>
+
+
+<script th:src="@{/js/ko/design-layer2.js}"></script>
+
+<script>
+window.addEventListener('load', function(){
+	designLayer2Obj.init();
+	designLayer2Obj.showDatas('todo');
+});
+</script>
+
+<script id="design-layer-list-template" type="text/x-handlebars-template">
+<table class="table design-layer-list">
+	<thead>
+		<tr>
+			<th class="col-2">선택</th>
+			<th class="col">레이어</th>
+			<th class="col-2">높이</th>
+			<th class="col-2">라벨</th>
+		</tr>
+	</thead>
+
+	<tbody>
+	{{#each datas}}
+		<tr data-design-layer-id="{{designLayerId}}">
+			<td><input type="checkbox" class="design-layer-cbx"></td>
+			<td class="text-left">
+				<a href="javascript:;" class="design-layer-name">{{designLayerName}}</a>
+			</td>
+			<td>
+				<!-- building은 checkbox 없음 -->
+
+				{{#ifMatch designLayerGroupType 'land'}}
+					<input type="checkbox" class="design-layer-height" value="{{designLayerId}}" disabled="disabled"/>
+				{{/ifMatch}}
+				{{#ifMatch designLayerGroupType 'building_height'}}
+					<input type="checkbox" class="design-layer-height" value="{{designLayerId}}" disabled="disabled"/>
+				{{/ifMatch}}
+			</td>
+			<td><input type="checkbox" class="design-layer-label" disabled="disabled"></td>
+		</tr>
+	{{/each}}
+	</tbody>
+</table>
+</script>
 
 <!--  -->
 <script id="design-layer-template" type="text/x-handlebars-template">
@@ -114,18 +185,20 @@
 		<col width="35">
 		<col width="auto">
 		<col width="35">
+		<col width="35">
 	</colgroup>
 	<thead>
 		<tr>
 			<th scope="col" class="col-number">선택</th>
 			<th scope="col" class="col-number"><!--디자인-->레이어명</th>
 			<th scope="col" class="col-number">높이</th>
+			<th scope="col" class="col-number">라벨</th>
 		</tr>
 	</thead>
 	<tbody>
 		{{#if datas}}
 			{{#each datas}}
-			<tr data-design-layer-group-type="{{designLayerGroupType}}">
+			<tr data-design-layer-group-type="{{designLayerGroupType}}" data-design-layer-id="{{designLayerId}}">
 				<td class="toggle-design-layer"><input type="checkbox" name="design-layer-id" value="{{designLayerId}}"></td>
 				<td class="toggle-design-layer text-left cursor-pointer p-7">{{designLayerName}}</td>
 				<td >
@@ -137,11 +210,14 @@
 					{{/ifMatch}}
 					<!-- building은 checkbox 없음 -->
 				</td>
+				<td>
+					<input type="checkbox" class="design-layer-label" disabled="disabled" />
+				</td>
 			</tr>
 			{{/each}}
 		{{else}}
 			<tr>
-				<td colspan="3">데이터가 없습니다.</td>
+				<td colspan="4">데이터가 없습니다.</td>
 			</tr>
 		{{/if}}
 	</tbody>

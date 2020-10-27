@@ -460,7 +460,7 @@ table[class*=design-layer] > tbody > tr > td:last-child {
 
 #introContainer{
 	background: url(/images/ko/intro_bg.jpg)no-repeat;
-	/* z-index:999999999999; */
+	z-index: 1000;
 	display:block;
 	position: absolute;
 	right: 0;

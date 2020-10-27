@@ -15,7 +15,7 @@
 		</div>
 		<div class="new_town">
 			<div class="ntn_box wangsuk">
-				<a href="#">
+				<a href="#" class="link" data-city-name="남양주">
 					<h3>남양주 왕숙</h3>
 					<p>남양주왕숙 신도시는 GTX-B를 <br>중심으로한 경제도시</p>
 					<span>more</span>
@@ -23,7 +23,7 @@
 			</div>
 			
 			<div class="ntn_box hanam">
-				<a href="#">
+				<a href="#" class="link" data-city-name="하남">
 					<h3>하남 교산</h3>
 					<p>하남 교산 신도시는 덕풍천을 <br>중심으로 한 친환경 주거 단지</p>
 					<span>more</span>
@@ -31,7 +31,7 @@
 			</div>
 			
 			<div class="ntn_box inchon">
-				<a href="#">
+				<a href="#" class="link" data-city-name="인천">
 					<h3>인천 계양</h3>
 					<p>인천계양 신도시는 정보통신·컨텐츠 <br>산업 중심의 도시첨단산업단지</p>
 					<span>more</span>
@@ -39,7 +39,7 @@
 			</div>
 			
 			<div class="ntn_box goyang">
-				<a href="#">
+				<a href="#" class="link" data-city-name="고양">
 					<h3>고양 창릉</h3>
 					<p>고양창릉 신도시는 교통이 편리한<br>수도권 서북부 일자리 거점도시</p>
 					<span>more</span>
@@ -47,7 +47,7 @@
 			</div>
 			
 			<div class="ntn_box buchun">
-				<a href="#">
+				<a href="#" class="link" data-city-name="부천">
 					<h3>부천 대장</h3>
 					<p>부천대장 신도시는<br>지능형 로봇, 항공·드론 등 신산업</p>
 					<span>more</span>
@@ -55,7 +55,7 @@
 			</div>
 			
 			<div class="ntn_box gachun">
-				<a href="#">
+				<a href="#" class="link" data-city-name="과천">
 					<h3>과천 과천</h3>
 					<p>과천과천 지구는 사람과 주택<br>모든 요소가 어우러진 소통의 공유도시</p>
 					<span>more</span>
@@ -63,7 +63,7 @@
 			</div>
 			
 			<div class="ntn_box ansan">
-				<a href="#">
+				<a href="#" class="link" data-city-name="안산">
 					<h3>안산 장상</h3>
 					<p>안산 장상 지구는 신안산선 중심<br>역사테마거리 등 문화예술도시로 조성</p>
 					<span>more</span>
@@ -71,13 +71,83 @@
 			</div>
 			
 			<div class="ntn_box sejong">
-				<a href="">
+				<a href="" class="link" data-city-name="세종">
 					<h3>세종</h3>
 					<p>세종 지구는 교통이 편리하며,<br>초록지구로 어우러져 조성</p>
 					<span>more</span>
 				</a>
 			</div>
 		</div>
+		
+		
+		
+		<script>
+		/**
+		 * 인트로 페이지
+		 * @since 20201027
+		 */
+		let IntroObj = function(){
+			//
+		};
+
+		
+		/**
+		 * 초기
+		 */
+		IntroObj.prototype.init = function(){
+			this.setEventHandler();
+			
+			console.log(this, '<<.init');
+		};
+		
+		/**
+		 * 이벤트 등록
+		 */
+		IntroObj.prototype.setEventHandler = function(){
+			let self = this;
+			
+			
+			//바로가기 클릭 
+			$('#introContainer a.link').click(function(){
+				let cityName = $(this).data('city-name');
+				
+				
+				//
+				let lonLat = selectUrbanGroupObj.getLonLatByCityName(cityName);
+				
+
+				//
+				self.hide();
+				
+				//해당 위치로 이동
+				Ppmap.getManager().flyTo(lonLat.lon, lonLat.lat, 3000, 1);
+				
+			});
+		};
+
+		
+		/**
+		 * hide intro 페이지 & show 나머지 맵관련 도구들 
+		 */
+		IntroObj.prototype.hide = function(){
+			$('#introContainer').hide();
+			
+			$('select.urban-group').show();
+			$('div.search_box').show();
+			
+			$('#baseMapToggle').show();
+			$('#mapCtrlWrap').show();
+			$('#mapCtrlCompassOut').show();
+			$('#mago3dOlMap').show();
+		};
+		
+		//
+		let introObj = new IntroObj();
+		window.addEventListener('load', function(){
+			introObj.init();
+		});
+		</script>
+		
 	</div>
 </body>
 </html>

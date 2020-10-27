@@ -34,6 +34,13 @@ $(function() {
         $(this).removeClass("on");
         $("#" + $(this).attr("data-nav")).hide();
     });
+
+
+	//1027 초기에는 아무 메뉴도 선택되지 않음
+	if(1===1){
+		return;		
+	}
+
 	
 	if(currentUrl === undefined || currentUrl === null || currentUrl === "") {
 		// default 활성화
