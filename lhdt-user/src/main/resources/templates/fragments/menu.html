@@ -48,11 +48,12 @@
 				$(item).click(function(){
 					
 					//TODO 모든 서비스의 초기화 함수 호출
+
 					
-					//메뉴 클릭되면 show 지도, hide 인트로 
-					$('#magoContainer').show();
-					$('#baseMapToggle').show();
-					$('#introContainer').hide();
+					//
+					if(introObj){
+						introObj.hide();			
+					}
 				});
 			});			
         });
