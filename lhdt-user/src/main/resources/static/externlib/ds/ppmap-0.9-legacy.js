@@ -183,9 +183,9 @@ Ppmap.getAllDataLibraries = function(){
 			json['projectId'] = projectId;
 			json['nodeId'] = nodeId;
 			json['node'] = staticModelGroup[nodeId];				
+			arr.push(json);
 		}			
 		
-		arr.push(json);
 	}
 
 
