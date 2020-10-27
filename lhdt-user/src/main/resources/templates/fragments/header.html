@@ -32,48 +32,31 @@
 		</div>
 
 		<script>
-			window
-					.addEventListener(
-							'load',
-							function() {
-								let _hamMenuClick = function() {
-									Ppui
-											.click(
-													'.HamMenu',
-													function() {
-														if (Ppui.hasClass(this,
-																'on')) {
-															Ppui
-																	.hide([
-																			'.navWrap',
-																			'#gnbWrap' ]);
-															document
-																	.querySelector('#magoContainer').style.width = '100%';
-														} else {
-															Ppui
-																	.show([
-																			'.navWrap',
-																			'#gnbWrap' ]);
-															document
-																	.querySelector('#magoContainer').style.width = 'calc(100% - 430px)';
-														}
+			window.addEventListener('load',	function() {
+				let _hamMenuClick = function() {
+					Ppui.click('.HamMenu', function() {
+						if (Ppui.hasClass(this, 'on')) {
+							Ppui.hide([	'.navWrap',	'#gnbWrap' ]);
+							document.querySelector('#magoContainer').style.width = '100%';
+						} else {
+							Ppui.show([	'.navWrap',	'#gnbWrap' ]);
+							document.querySelector('#magoContainer').style.width = 'calc(100% - 430px)';
+						}
 
-														//
-														Ppui.toggleClass(this,
-																'on');
-													});
-								};
+						//
+						Ppui.toggleClass(this,	'on');
+					});
+				};
 
-								//
-								let interval = setInterval(function() {
-									if (MAGO3D_INSTANCE) {
-										clearInterval(interval);
-										//
-										_hamMenuClick();
-									}
-								}, 500);
-
-							});
+				//
+				let interval = setInterval(function() {
+					if (MAGO3D_INSTANCE) {
+						clearInterval(interval);
+						//
+						_hamMenuClick();
+					}
+				}, 500);
+			});
 		</script>
 
 
