@@ -7,24 +7,15 @@
 <meta name="viewport" content="width=device-width">
 <meta name="robots" content="index,nofollow" />
 <title>공지사항 | LHDT</title>
-<link rel="stylesheet"
-	th:href="@{/css/{lang}/font/font.css(lang=${lang}, cacheVersion=${contentCacheVersion})}" />
-<link rel="stylesheet"
-	th:href="@{/images/{lang}/icon/glyph/glyphicon.css(lang=${lang}, cacheVersion=${contentCacheVersion})}" />
-<link rel="stylesheet"
-	th:href="@{/externlib/normalize/normalize.min.css(cacheVersion=${contentCacheVersion})}" />
-<link rel="stylesheet"
-	th:href="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.css(cacheVersion=${contentCacheVersion})}" />
-<link rel="stylesheet"
-	th:href="@{/css/{lang}/admin-style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}" />
-<script type="text/javascript"
-	th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript"
-	th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript"
-	th:src="@{/externlib/ol45/ol.js(cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript"
-	th:src="@{/js/{lang}/map-view.js(lang=${lang}, cacheVersion=${contentCacheVersion})}"></script>
+<link rel="stylesheet" th:href="@{/css/{lang}/font/font.css(lang=${lang}, cacheVersion=${contentCacheVersion})}" />
+<link rel="stylesheet" th:href="@{/images/{lang}/icon/glyph/glyphicon.css(lang=${lang}, cacheVersion=${contentCacheVersion})}" />
+<link rel="stylesheet" th:href="@{/externlib/normalize/normalize.min.css(cacheVersion=${contentCacheVersion})}" />
+<link rel="stylesheet" th:href="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.css(cacheVersion=${contentCacheVersion})}" />
+<link rel="stylesheet" th:href="@{/css/{lang}/admin-style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}" />
+<script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/externlib/ol45/ol.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/map-view.js(lang=${lang}, cacheVersion=${contentCacheVersion})}"></script>
 
 <style>
 #boardButtonArea {
@@ -38,32 +29,37 @@
 		<table class="input-table scope-row">
 			<col class="col-label" />
 			<tr>
-				<th class="col-label" scope="row"><label for="title">제목</label></th>
+				<th class="col-label" scope="row">
+					<label for="title">제목</label>
+				</th>
 				<td class="col-key" th:text="${boardNotice.title}"></td>
 			</tr>
 			<tr>
-				<th class="col-label" scope="row"><label for="userName">작성자</label>
+				<th class="col-label" scope="row">
+					<label for="userName">작성자</label>
 				</th>
 				<td class="col-key" th:text="${boardNotice.userName}"></td>
 			</tr>
 			<tr>
-				<th class="col-label" scope="row"><label for="insertDate">작성일</label>
+				<th class="col-label" scope="row">
+					<label for="insertDate">작성일</label>
 				</th>
-				<td class="col-key"
-					th:text="${#temporals.format(boardNotice.insertDate, 'yyyy-MM-dd HH:mm')}"></td>
+				<td class="col-key" th:text="${#temporals.format(boardNotice.insertDate, 'yyyy-MM-dd HH:mm')}"></td>
 			</tr>
 		</table>
 		<div class="board-contents">
 			<table class="input-table scope-row">
 				<col class="col-label" />
 				<tr>
-					<th class="col-label" scope="row"><label>내용</label></th>
+					<th class="col-label" scope="row">
+						<label>내용</label>
+					</th>
 				</tr>
 				<tr>
-					<td class="col-key"><textarea name="contents" cols="30"
-							rows="5" readonly>[[${boardNotice.contents}]]</textarea></td>
+					<td class="col-key">
+						<textarea name="contents" cols="30" rows="5" readonly>[[${boardNotice.contents}]]</textarea>
+					</td>
 				</tr>
-
 			</table>
 			<div class="file-list">
 				<div class="table-label">
@@ -81,20 +77,17 @@
 					<tbody id="boardFileInfoListArea">
 						<th:block th:if="${#lists.isEmpty(boardNoticeFileList)}">
 							<tr style="height: 50px;">
-								<td colspan="9" style="padding-top: 15px; text-align: center;">첨부
-									파일이 존재하지 않습니다.</td>
+								<td colspan="9" style="padding-top: 15px; text-align: center;">첨부 파일이 존재하지 않습니다.</td>
 							</tr>
 						</th:block>
-						<th:block th:unless="${#lists.isEmpty(boardNoticeFileList)}"
-							th:each="boardNoticeFile, status : ${boardNoticeFileList}">
+						<th:block th:unless="${#lists.isEmpty(boardNoticeFileList)}" th:each="boardNoticeFile, status : ${boardNoticeFileList}">
 							<tr>
-								<td class="col-key" th:text="${boardNoticeFile.fileName}"
-									style="max-width: 315px; word-wrap: break-word;"></td>
+								<td class="col-key" th:text="${boardNoticeFile.fileName}" style="max-width: 315px; word-wrap: break-word;"></td>
 								<td class="col-type">
 									<!-- <a th:href="@{/boardNotices/{boardNoticeFileId}/board-notice-file-info/download(boardNoticeFileId=${boardNoticeFile.boardNoticeFileId})}" class="linkButton">다운로드</a> -->다운로드
 								</td>
-								<td><th:block
-										th:text="${#temporals.format(boardNoticeFile.insertDate, 'yyyy-MM-dd HH:mm:ss')}"></th:block>
+								<td>
+									<th:block th:text="${#temporals.format(boardNoticeFile.insertDate, 'yyyy-MM-dd HH:mm:ss')}"></th:block>
 								</td>
 							</tr>
 						</th:block>
@@ -105,26 +98,24 @@
 				<div class="table-label">
 					<span>의견</span>
 				</div>
-				<form id="comment" th:object="${comment}" method="post"
-					th:action="@{#}" onsubmit="return false;">
-					<input type="hidden" id="boardNoticeId" name="boardNoticeId"
-						th:value="${boardNotice.boardNoticeId}" />
-
+				<form id="comment" th:object="${comment}" method="post" th:action="@{#}" onsubmit="return false;">
+					<input type="hidden" id="boardNoticeId" name="boardNoticeId" th:value="${boardNotice.boardNoticeId}" />
 					<th:block th:if="${boardNoticeComment==null}">
-						<input type="hidden" id="boardNoticeCommentId"
-							name="boardNoticeCommentId" value="0" />
+						<input type="hidden" id="boardNoticeCommentId" name="boardNoticeCommentId" value="0" />
 					</th:block>
 
 					<table class="input-table scope-row">
 						<col class="col-label" />
 						<tr>
-							<th class="col-label" scope="row"><label>내용</label><input
-								type="submit" onClick="insertComment(); return false;"
-								value="의견등록" /></th>
+							<th class="col-label" scope="row">
+								<label>내용</label>
+								<input type="submit" onClick="insertComment(); return false;" value="의견등록" />
+							</th>
 						</tr>
 						<tr>
-							<td class="col-key"><textarea class="input-comment"
-									id=content name="content" placeholder="자신의 의견을 간단히 적어주세요."></textarea></td>
+							<td class="col-key">
+								<textarea class="input-comment" id=content name="content" placeholder="자신의 의견을 간단히 적어주세요."></textarea>
+							</td>
 						</tr>
 					</table>
 				</form>
@@ -142,28 +133,22 @@
 					<tbody id="boardFileInfoListArea">
 						<th:block th:if="${boardNoticeCommentList.empty}">
 							<tr style="height: 50px;">
-								<td colspan="9" style="padding-top: 15px; text-align: center;">의견이
-									존재하지 않습니다.</td>
+								<td colspan="9" style="padding-top: 15px; text-align: center;">의견이 존재하지 않습니다.</td>
 							</tr>
 						</th:block>
 						<th:block th:unless="${boardNoticeCommentList.empty}"
 							th:each="boardNoticeComment, status : ${boardNoticeCommentList}">
 							<tr>
-								<td class="col-key" th:text="${boardNoticeComment.userName}"
-									style="max-width: 315px; word-wrap: break-word;"></td>
-								<td class="col-key" th:text="${boardNoticeComment.content}"
-									style="max-width: 315px; word-wrap: break-word;"></td>
-								<td><th:block
-										th:text="${#temporals.format(boardNoticeComment.insertDate, 'yyyy-MM-dd HH:mm:ss')}"></th:block></td>
-								<td class="col-key" th:text="${boardNoticeComment.likeCount}"
-									style="max-width: 315px; word-wrap: break-word;"></td>
-								<td><a type="button" href="#"
-									th:onClick="viewInsertMoreComment([[${boardNoticeComment.boardNoticeCommentId}]]); return false;"
-									class="linkButton">의견등록</a> <input type="button"
-									th:onClick="viewMoreComment([[${boardNoticeComment.boardNoticeCommentId}]]); return false;"
-									value="의견보기" /> <input type="button"
-									onClick="likeComment([[$(boardNoticeComment.boardNoticeCommentId)]]); return false;"
-									value="추천" /></td>
+								<td class="col-key" th:text="${boardNoticeComment.userName}" style="max-width: 315px; word-wrap: break-word;"></td>
+								<td class="col-key" th:text="${boardNoticeComment.content}" style="max-width: 315px; word-wrap: break-word;"></td>
+								<td>
+									<th:block th:text="${#temporals.format(boardNoticeComment.insertDate, 'yyyy-MM-dd HH:mm:ss')}"></th:block>
+								</td>
+								<td class="col-key" th:text="${boardNoticeComment.likeCount}" style="max-width: 315px; word-wrap: break-word;"></td>
+								<td><input type="button" th:onClick="viewInsertMoreComment([[${boardNoticeComment.boardNoticeCommentId}]]); return false;" value="의견등록"/> 
+									<input type="button" th:onClick="viewMoreComment([[${boardNoticeComment.boardNoticeCommentId}]]); return false;" value="의견보기" /> 
+									<input type="button" onClick="likeComment([[$(boardNoticeComment.boardNoticeCommentId)]]); return false;" value="추천" />
+								</td>
 							</tr>
 						</th:block>
 					</tbody>

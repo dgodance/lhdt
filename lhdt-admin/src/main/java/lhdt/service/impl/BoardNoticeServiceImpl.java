@@ -10,8 +10,8 @@ import lhdt.domain.board.BoardNotice;
 import lhdt.domain.board.BoardNoticeComment;
 import lhdt.domain.board.BoardNoticeFile;
 import lhdt.domain.uploaddata.UploadDataFile;
-import lhdt.persistence.BoardMapper;
-import lhdt.service.BoardService;
+import lhdt.persistence.BoardNoticeMapper;
+import lhdt.service.BoardNoticeService;
 import lhdt.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,10 +23,10 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Service
 @Slf4j
-public class BoardServiceImpl implements BoardService {
+public class BoardNoticeServiceImpl implements BoardNoticeService {
 
 	@Autowired
-	private BoardMapper boardMapper;
+	private BoardNoticeMapper boardNoticeMapper;
 
 	/**
 	 * 게시물 총 건수
@@ -36,7 +36,7 @@ public class BoardServiceImpl implements BoardService {
 	 */
 	@Transactional(readOnly = true)
 	public Long getBoardTotalCount(BoardNotice boardNotice) {
-		return boardMapper.getBoardTotalCount(boardNotice);
+		return boardNoticeMapper.getBoardTotalCount(boardNotice);
 	}
 
 	/**
@@ -47,7 +47,7 @@ public class BoardServiceImpl implements BoardService {
 	 */
 	@Transactional(readOnly = true)
 	public List<BoardNotice> getListBoard(BoardNotice boardNotice) {
-		return boardMapper.getListBoard(boardNotice);
+		return boardNoticeMapper.getListBoard(boardNotice);
 	}
 
 	/**
@@ -58,7 +58,7 @@ public class BoardServiceImpl implements BoardService {
 	 */
 	@Transactional(readOnly = true)
 	public List<BoardNoticeComment> getListBoardNoticeComment(Long boardNoticeId) {
-		return boardMapper.getListBoardNoticeComment(boardNoticeId);
+		return boardNoticeMapper.getListBoardNoticeComment(boardNoticeId);
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class BoardServiceImpl implements BoardService {
 	 */
 	@Transactional(readOnly = true)
 	public List<BoardNoticeComment> getListBoardNoticeCommentByDepth(BoardNoticeComment boardNoticeComment) {
-		return boardMapper.getListBoardNoticeCommentByDepth(boardNoticeComment);
+		return boardNoticeMapper.getListBoardNoticeCommentByDepth(boardNoticeComment);
 	}
 
 	/**
@@ -80,7 +80,7 @@ public class BoardServiceImpl implements BoardService {
 	 */
 	@Transactional(readOnly = true)
 	public List<BoardNoticeComment> getListBoardNoticeCommentByParent(Long boardNoticeCommentId) {
-		return boardMapper.getListBoardNoticeCommentByParent(boardNoticeCommentId);
+		return boardNoticeMapper.getListBoardNoticeCommentByParent(boardNoticeCommentId);
 	}
 
 	/**
@@ -91,8 +91,8 @@ public class BoardServiceImpl implements BoardService {
 	 */
 	@Transactional
 	public BoardNotice getBoard(Long boardNoticeId) {
-		BoardNotice board = boardMapper.getBoard(boardNoticeId);
-		boardMapper.updateBoardViewCount(boardNoticeId);
+		BoardNotice board = boardNoticeMapper.getBoard(boardNoticeId);
+		boardNoticeMapper.updateBoardViewCount(boardNoticeId);
 		return board;
 	}
 
@@ -104,7 +104,7 @@ public class BoardServiceImpl implements BoardService {
 	 */
 	@Transactional
 	public BoardNotice getBoardForModify(Long boardNoticeId) {
-		BoardNotice boardNotice = boardMapper.getBoard(boardNoticeId);
+		BoardNotice boardNotice = boardNoticeMapper.getBoard(boardNoticeId);
 		return boardNotice;
 	}
 
@@ -116,7 +116,7 @@ public class BoardServiceImpl implements BoardService {
 	 */
 	@Transactional(readOnly = true)
 	public BoardNoticeComment getBoardNoticeComment(Long boardNoticeCommentId) {
-		return boardMapper.getBoardNoticeComment(boardNoticeCommentId);
+		return boardNoticeMapper.getBoardNoticeComment(boardNoticeCommentId);
 	}
 
 	/**
@@ -129,7 +129,7 @@ public class BoardServiceImpl implements BoardService {
 	public int insertBoard(BoardNotice boardNotice, List<BoardNoticeFile> boardNoticeFileList, Boolean fileExist) {
 
 		log.info("board =============== {} ", boardNotice);
-		int result = boardMapper.insertBoard(boardNotice);
+		int result = boardNoticeMapper.insertBoard(boardNotice);
 
 		if (fileExist) {
 			Long boardNoticeId = boardNotice.getBoardNoticeId();
@@ -137,11 +137,11 @@ public class BoardServiceImpl implements BoardService {
 			for (BoardNoticeFile boardNoticeFile : boardNoticeFileList) {
 				boardNoticeFile.setBoardNoticeId(boardNoticeId);
 				boardNoticeFile.setUserId(userId);
-				boardMapper.insertFile(boardNoticeFile);
+				boardNoticeMapper.insertFile(boardNoticeFile);
 				result++;
 			}
 		}
-		return boardMapper.insertBoardDetail(boardNotice);
+		return boardNoticeMapper.insertBoardDetail(boardNotice);
 	}
 
 	/**
@@ -152,7 +152,7 @@ public class BoardServiceImpl implements BoardService {
 	 */
 	@Transactional
 	public int insertBoardNoticeComment(BoardNoticeComment boardNoticeComment) {
-		return boardMapper.insertBoardNoticeComment(boardNoticeComment);
+		return boardNoticeMapper.insertBoardNoticeComment(boardNoticeComment);
 	}
 
 	/**
@@ -163,7 +163,7 @@ public class BoardServiceImpl implements BoardService {
 	 */
 	@Transactional
 	public int insertBoardNoticeMoreComment(BoardNoticeComment boardNoticeComment) {
-		return boardMapper.insertBoardNoticeMoreComment(boardNoticeComment);
+		return boardNoticeMapper.insertBoardNoticeMoreComment(boardNoticeComment);
 	}
 
 	/**
@@ -175,7 +175,7 @@ public class BoardServiceImpl implements BoardService {
 	@Transactional
 	public int updateBoard(BoardNotice boardNotice, List<BoardNoticeFile> boardNoticeFileList, Boolean fileExist) {
 
-		int result = boardMapper.updateBoard(boardNotice);
+		int result = boardNoticeMapper.updateBoard(boardNotice);
 
 		log.info("board =============== {} ", boardNotice);
 		if (fileExist) {
@@ -184,11 +184,11 @@ public class BoardServiceImpl implements BoardService {
 			for (BoardNoticeFile boardNoticeFile : boardNoticeFileList) {
 				boardNoticeFile.setBoardNoticeId(boardNoticeId);
 				boardNoticeFile.setUserId(userId);
-				boardMapper.insertFile(boardNoticeFile);
+				boardNoticeMapper.insertFile(boardNoticeFile);
 				result++;
 			}
 		}
-		return boardMapper.updateBoardDetail(boardNotice);
+		return boardNoticeMapper.updateBoardDetail(boardNotice);
 	}
 
 	/**
@@ -199,7 +199,7 @@ public class BoardServiceImpl implements BoardService {
 	 */
 	@Transactional
 	public int updateBoardComment(BoardNoticeComment boardNoticeComment) {
-		return boardMapper.updateBoardComment(boardNoticeComment);
+		return boardNoticeMapper.updateBoardComment(boardNoticeComment);
 	}
 
 	/**
@@ -210,7 +210,7 @@ public class BoardServiceImpl implements BoardService {
 	 */
 	@Transactional
 	public int deleteBoard(Long boardNoticeId) {
-		return boardMapper.deleteBoard(boardNoticeId);
+		return boardNoticeMapper.deleteBoard(boardNoticeId);
 	}
 
 	/**
@@ -221,10 +221,10 @@ public class BoardServiceImpl implements BoardService {
 	 */
 	@Transactional
 	public int deleteBoardNoticeFile(Long boardNoticeFileId) {
-		BoardNoticeFile boardNoticeFile = boardMapper.getBoardNoticeFile(boardNoticeFileId);
+		BoardNoticeFile boardNoticeFile = boardNoticeMapper.getBoardNoticeFile(boardNoticeFileId);
 		log.info(boardNoticeFile.getFilePath() + boardNoticeFile.getFileRealName());
 		FileUtils.deleteFileReculsive(boardNoticeFile.getFilePath() + boardNoticeFile.getFileRealName());
-		return boardMapper.deleteBoardNoticeFile(boardNoticeFileId);
+		return boardNoticeMapper.deleteBoardNoticeFile(boardNoticeFileId);
 	}
 
 	/**
@@ -235,7 +235,7 @@ public class BoardServiceImpl implements BoardService {
 	 */
 	@Transactional
 	public int deleteBoardComment(Long boardNoticeCommentId) {
-		return boardMapper.deleteBoardComment(boardNoticeCommentId);
+		return boardNoticeMapper.deleteBoardComment(boardNoticeCommentId);
 	}
 
 	/**
@@ -246,7 +246,7 @@ public class BoardServiceImpl implements BoardService {
 	 */
 	@Transactional
 	public int deleteBoardCommentByBoardId(Long boardNoticeId) {
-		return boardMapper.deleteBoardCommentByBoardId(boardNoticeId);
+		return boardNoticeMapper.deleteBoardCommentByBoardId(boardNoticeId);
 	}
 
 	/**
@@ -258,7 +258,7 @@ public class BoardServiceImpl implements BoardService {
 	@Transactional
 	public BoardNoticeFile getBoardNoticeFile(Long boardNoticeFileId) {
 
-		return boardMapper.getBoardNoticeFile(boardNoticeFileId);
+		return boardNoticeMapper.getBoardNoticeFile(boardNoticeFileId);
 	}
 
 	/**
@@ -270,6 +270,6 @@ public class BoardServiceImpl implements BoardService {
 	@Transactional
 	public List<BoardNoticeFile> getBoardNoticeFiles(Long boardNoticeId) {
 
-		return boardMapper.getBoardNoticeFiles(boardNoticeId);
+		return boardNoticeMapper.getBoardNoticeFiles(boardNoticeId);
 	}
 }

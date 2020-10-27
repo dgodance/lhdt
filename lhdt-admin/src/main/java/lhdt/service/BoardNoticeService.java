@@ -12,7 +12,7 @@ import lhdt.domain.board.BoardNoticeFile;
  * @author jeongdae
  *
  */
-public interface BoardService {
+public interface BoardNoticeService {
 
 	/**
 	 * 게시물 총 건수

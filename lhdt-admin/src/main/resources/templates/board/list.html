@@ -6,18 +6,12 @@
 <meta charset="utf-8">
 <title>Board 목록</title>
 <th:block layout:fragment="pageCustomStyle">
-	<link rel="stylesheet"
-		th:href="@{/css/{lang}/font/font.css(lang=${lang},cacheVersion=${contentCacheVersion})}" />
-	<link rel="stylesheet"
-		th:href="@{/images/{lang}/icon/glyph/glyphicon.css(lang=${lang},cacheVersion=${contentCacheVersion})}" />
-	<link rel="stylesheet"
-		th:href="@{/externlib/normalize/normalize.min.css(cacheVersion=${contentCacheVersion})}" />
-	<link rel="stylesheet"
-		th:href="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.css(cacheVersion=${contentCacheVersion})}" />
-	<link rel="stylesheet"
-		th:href="@{/css/fontawesome-free-5.2.0-web/css/all.min.css(cacheVersion=${contentCacheVersion})}">
-	<link rel="stylesheet"
-		th:href="@{/css/{lang}/admin-style.css(lang=${lang},cacheVersion=${contentCacheVersion})}" />
+	<link rel="stylesheet" th:href="@{/css/{lang}/font/font.css(lang=${lang},cacheVersion=${contentCacheVersion})}" />
+	<link rel="stylesheet" th:href="@{/images/{lang}/icon/glyph/glyphicon.css(lang=${lang},cacheVersion=${contentCacheVersion})}" />
+	<link rel="stylesheet" th:href="@{/externlib/normalize/normalize.min.css(cacheVersion=${contentCacheVersion})}" />
+	<link rel="stylesheet" th:href="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.css(cacheVersion=${contentCacheVersion})}" />
+	<link rel="stylesheet" th:href="@{/css/fontawesome-free-5.2.0-web/css/all.min.css(cacheVersion=${contentCacheVersion})}">
+	<link rel="stylesheet" th:href="@{/css/{lang}/admin-style.css(lang=${lang},cacheVersion=${contentCacheVersion})}" />
 </th:block>
 </head>
 <body>
@@ -30,48 +24,44 @@
 						<div th:replace="~{/fragments/page-header :: #pageHeaderWrap}"></div>
 						<div class="page-content">
 							<div class="filters">
-								<form id="boardNotice" th:object="${boardNotice}" method="get"
-									th:action="@{/boardNotice/list}" onsubmit="return searchCheck();">
+								<form id="boardNotice" th:object="${boardNotice}" method="get" th:action="@{/boardNotice/list}" onsubmit="return searchCheck();">
 									<div class="input-group row">
 										<div class="input-set">
-											<label for="search_word" class="hiddenTag">검색유형</label> <select
-												id="search_word" name="search_word" class="select"
-												title="검색유형" style="height: 30px;">
+											<label for="search_word" class="hiddenTag">검색유형</label> 
+											<select id="search_word" name="search_word" class="select" title="검색유형" style="height: 30px;">
 												<option value="" th:text="#{select}"></option>
 												<option value="title">제목</option>
-											</select> <label for="search_option" class="hiddenTag">검색옵션</label> <select
-												id="search_option" name="search_option" class="select"
-												title="검색옵션" style="height: 30px;">
+											</select>
+											<label for="search_option" class="hiddenTag">검색옵션</label>
+											<select id="search_option" name="search_option" class="select" title="검색옵션" style="height: 30px;">
 												<option value="0" th:text="#{search.same}"></option>
 												<option value="1" th:text="#{search.include}"></option>
-											</select> <label for="search_value" th:text="#{search.word}"></label>
-											<input type="search" id="search_value" name="search_value"
-												class="m" style="float: right;" />
+											</select>
+											<label for="search_value" th:text="#{search.word}"></label>
+											<input type="search" id="search_value" name="search_value" class="m" style="float: right;" />
 										</div>
 										<div class="input-set">
-											<label for="startDate" th:text="#{search.date}"></label> <input
-												type="text" id="startDate" name="startDate" class="s date"
-												autocomplete="off" /> <span class="delimeter tilde">~</span>
-											<label for="endDate" class="hiddenTag">종료일</label> <input
-												type="text" id="endDate" name="endDate" class="s date"
-												autocomplete="off" />
+											<label for="startDate" th:text="#{search.date}"></label>
+											<input type="text" id="startDate" name="startDate" class="s date" autocomplete="off" />
+											<span class="delimeter tilde">~</span>
+											<label for="endDate" class="hiddenTag">종료일</label>
+											<input type="text" id="endDate" name="endDate" class="s date" autocomplete="off" />
 										</div>
 										<div class="input-set">
-											<label for="orderWord" th:text="#{search.order}"></label> <select
-												id="orderWord" name="orderWord" class="select"
-												style="height: 30px;">
+											<label for="orderWord" th:text="#{search.order}"></label>
+											<select id="orderWord" name="orderWord" class="select" style="height: 30px;">
 												<option value="" th:text="#{search.basic}"></option>
 												<option value="title">게시물 명</option>
 												<option value="insert_date" th:text="#{search.insert.date}"></option>
-											</select> <label for="orderValue" class="hiddenTag">정렬기준</label> <select
-												id="orderValue" name="orderValue" class="select"
-												title="정렬기준" style="height: 30px;">
+											</select>
+											<label for="orderValue" class="hiddenTag">정렬기준</label>
+											<select id="orderValue" name="orderValue" class="select" title="정렬기준" style="height: 30px;">
 												<option value="" th:text="#{search.basic}"></option>
 												<option value="ASC" th:text="#{search.ascending}"></option>
 												<option value="DESC" th:text="#{search.descending.order}"></option>
-											</select> <label for="listCounter" class="hiddenTag">리스트건수</label> <select
-												id="listCounter" name="listCounter" class="select"
-												title="리스트건수" style="height: 30px;">
+											</select>
+											<label for="listCounter" class="hiddenTag">리스트건수</label>
+											<select id="listCounter" name="listCounter" class="select" title="리스트건수" style="height: 30px;">
 												<option value="10" th:text="#{search.ten.count}"></option>
 												<option value="50" th:text="#{search.fifty.count}"></option>
 												<option value="100" th:text="#{search.hundred.count}"></option>
@@ -84,8 +74,7 @@
 								</form>
 							</div>
 							<div class="list">
-								<form id="listForm" th:object="${boardNotice}" th:action="@{#}"
-									method="post">
+								<form id="listForm" th:object="${boardNotice}" th:action="@{#}" method="post">
 									<div class="list-header row">
 										<div class="list-desc u-pull-left">
 											<th:block th:text="#{all.d}"></th:block>
@@ -128,27 +117,23 @@
 													<td colspan="8" class="col-none">게시물이 존재하지 않습니다.</td>
 												</tr>
 											</th:block>
-											<th:block th:unless="${#lists.isEmpty(boardNoticeList)}"
-												th:each="boardNotice : ${boardNoticeList}">
+											<th:block th:unless="${#lists.isEmpty(boardNoticeList)}" th:each="boardNotice : ${boardNoticeList}">
 												<tr>
-													<td class="col-number"
-														th:text="${pagination.rowNumber - boardNoticeStat.index}"></td>
-													<td class="col-type"><a href="#"
-														th:onclick="viewBoard([[${boardNotice.boardNoticeId}]], [[${boardNotice.title}]]); return false;"
-														class="linkButton">[[${boardNotice.title}]]</a></td>
+													<td class="col-number" th:text="${pagination.rowNumber - boardNoticeStat.index}"></td>
+													<td class="col-type">
+														<a href="#" th:onclick="viewBoard([[${boardNotice.boardNoticeId}]], [[${boardNotice.title}]]); return false;" class="linkButton">[[${boardNotice.title}]]</a>
+													</td>
 													<td class="col-key" th:text="${boardNotice.userName}"></td>
-													<td class="col-type"><a
-														th:href="@{/boardNotice/modify(boardNoticeId=${boardNotice.boardNoticeId})}"
-														class="image-button button-edit" th:text="#{modified}"></a>&nbsp;&nbsp;
-														<a href="#"
-														th:onclick="deleteBoard([[${boardNotice.boardNoticeId}]]); return false;"
-														class="image-button button-delete" th:text="#{delete}"></a>
+													<td class="col-type">
+														<a th:href="@{/boardNotice/modify(boardNoticeId=${boardNotice.boardNoticeId})}" class="image-button button-edit" th:text="#{modified}"></a>&nbsp;&nbsp;
+														<a href="#" th:onclick="deleteBoard([[${boardNotice.boardNoticeId}]]); return false;" class="image-button button-delete" th:text="#{delete}"></a>
 													</td>
-													<td class="col-date"><th:block
-															th:text="${#temporals.format(boardNotice.insertDate, 'yyyy-MM-dd HH:mm')}"></th:block>
+													<td class="col-date">
+														<th:block th:text="${#temporals.format(boardNotice.insertDate, 'yyyy-MM-dd HH:mm')}"></th:block>
 													</td>
-													<td class="col-view-count"><th:block
-															th:text="${boardNotice.viewCount}"></th:block></td>
+													<td class="col-view-count">
+														<th:block th:text="${boardNotice.viewCount}"></th:block>
+													</td>
 												</tr>
 											</th:block>
 										</tbody>
@@ -164,16 +149,11 @@
 	</th:block>
 
 	<th:block layout:fragment="pageCustomScript">
-		<script type="text/javascript"
-			th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
-		<script type="text/javascript"
-			th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
-		<script type="text/javascript"
-			th:src="@{/js/{lang}/common.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-		<script type="text/javascript"
-			th:src="@{/js/{lang}/message.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-		<script type="text/javascript"
-			th:src="@{/js/navigation.js(cacheVersion=${contentCacheVersion})}"></script>
+		<script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
+		<script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
+		<script type="text/javascript" th:src="@{/js/{lang}/common.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+		<script type="text/javascript" th:src="@{/js/{lang}/message.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+		<script type="text/javascript" th:src="@{/js/navigation.js(cacheVersion=${contentCacheVersion})}"></script>
 		<script th:inline="javascript">
 $(document).ready(function() {
 	initDatePicker();
@@ -213,7 +193,7 @@ function deleteBoard(boardNoticeId) {
 		if(confirm(JS_MESSAGE["delete.confirm"])) {
 			deleteBoardFlag = false;
 			$.ajax({
-				url: "/boardNotice/" + boardNoticeId,
+				url: "/boardNotices/" + boardNoticeId,
 				type: "DELETE",
 				headers: {"X-Requested-With": "XMLHttpRequest"},
 				dataType: "json",

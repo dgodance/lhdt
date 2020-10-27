@@ -6,22 +6,14 @@
 <meta charset="utf-8">
 <title>공지사항 등록</title>
 <th:block layout:fragment="pageCustomStyle">
-	<link rel="stylesheet"
-		th:href="@{/css/{lang}/font/font.css(lang=${lang},cacheVersion=${contentCacheVersion})}" />
-	<link rel="stylesheet"
-		th:href="@{/images/{lang}/icon/glyph/glyphicon.css(lang=${lang},cacheVersion=${contentCacheVersion})}" />
-	<link rel="stylesheet"
-		th:href="@{/externlib/normalize/normalize.min.css(cacheVersion=${contentCacheVersion})}" />
-	<link rel="stylesheet"
-		th:href="@{/css/fontawesome-free-5.2.0-web/css/all.min.css(cacheVersion=${contentCacheVersion})}">
-	<link rel="stylesheet"
-		th:href="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.css(cacheVersion=${contentCacheVersion})}" />
-	<link rel="stylesheet"
-		th:href="@{/externlib/dropzone-5.7.0/dropzone.min.css(cacheVersion=${contentCacheVersion})}">
-	<link rel="stylesheet"
-		th:href="@{/css/{lang}/admin-style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}" />
-	<script type="text/javascript"
-		th:src="@{/externlib/dropzone-5.7.0/dropzone.min.js(cacheVersion=${contentCacheVersion})}"></script>
+	<link rel="stylesheet" th:href="@{/css/{lang}/font/font.css(lang=${lang},cacheVersion=${contentCacheVersion})}" />
+	<link rel="stylesheet" th:href="@{/images/{lang}/icon/glyph/glyphicon.css(lang=${lang},cacheVersion=${contentCacheVersion})}" />
+	<link rel="stylesheet" th:href="@{/externlib/normalize/normalize.min.css(cacheVersion=${contentCacheVersion})}" />
+	<link rel="stylesheet" th:href="@{/css/fontawesome-free-5.2.0-web/css/all.min.css(cacheVersion=${contentCacheVersion})}">
+	<link rel="stylesheet" th:href="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.css(cacheVersion=${contentCacheVersion})}" />
+	<link rel="stylesheet" th:href="@{/externlib/dropzone-5.7.0/dropzone.min.css(cacheVersion=${contentCacheVersion})}">
+	<link rel="stylesheet" th:href="@{/css/{lang}/admin-style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}" />
+	<script type="text/javascript" th:src="@{/externlib/dropzone-5.7.0/dropzone.min.js(cacheVersion=${contentCacheVersion})}"></script>
 	<style type="text/css">
 .dropzone .dz-preview.lp-preview {
 	width: 150px;
@@ -84,54 +76,56 @@ keyframes spin {to { -webkit-transform:rotate(360deg);
 						<div class="page-content">
 							<div class="input-header row">
 								<div class="content-desc u-pull-right">
-									<span class="icon-glyph glyph-emark-dot color-warning"></span>체크표시는
-									필수입력 항목입니다.
+									<span class="icon-glyph glyph-emark-dot color-warning"></span>체크표시는 필수입력 항목입니다.
 								</div>
 							</div>
-							<form id="boardNotice" th:object="${boardNotice}" method="post"
-								th:action="@{#}" onsubmit="return false;">
+							<form id="boardNotice" th:object="${boardNotice}" method="post" th:action="@{#}" onsubmit="return false;">
 								<table class="input-table scope-row">
 									<col class="col-label" />
 									<col class="col-input" />
 									<tr>
-										<th class="col-label" scope="row"><label for="title">제목</label>
+										<th class="col-label" scope="row">
+											<label for="title">제목</label>
 											<span class="icon-glyph glyph-emark-dot color-warning"></span>
 										</th>
-										<td class="col-input"><input type="text" id="title"
-											name="title" class="m" maxlength="256" /></td>
+										<td class="col-input"><input type="text" id="title" name="title" class="m" maxlength="256" /></td>
 									</tr>
 									<tr>
-										<th class="col-label" scope="row"><label for="contents">내용</label>
+										<th class="col-label" scope="row">
+											<label for="contents">내용</label>
 											<span class="icon-glyph glyph-emark-dot color-warning"></span>
 										</th>
-										<td class="col-input"><textarea id="contents"
-												name="contents"></textarea></td>
+										<td class="col-input"><textarea id="contents" name="contents"></textarea></td>
 									</tr>
 									<tr>
-										<th class="col-label" scope="row"><span>사용유무</span> <span
-											class="icon-glyph glyph-emark-dot color-warning"></span></th>
-										<td class="col-input radio-set"><input type="radio"
-											id="use_y" name="available" value="Y" /> <label for="use_y">사용</label>
-											<input type="radio" id="use_n" name="available" value="N" /> <label
-											for="use_n">사용안함</label></td>
+										<th class="col-label" scope="row">
+											<span>사용유무</span>
+											<span class="icon-glyph glyph-emark-dot color-warning"></span>
+										</th>
+										<td class="col-input radio-set">
+											<input type="radio" id="use_y" name="available" value="Y" /> 
+											<label for="use_y">사용</label>
+											<input type="radio" id="use_n" name="available" value="N" />
+											<label for="use_n">사용안함</label>
+										</td>
 									</tr>
 									<tr>
-										<th class="col-label" scope="row"><label for="start_date">게시기간</label></th>
-										<td class="col-input radio-set"><input type="hidden"
-											id="start_date" name="start_date" /> <input type="hidden"
-											id="end_date" name="end_date" /> <input type="text"
-											id="start_day" name="start_day" class="s date"
-											placeholder="날짜" /> <input type="text" id="start_hour"
-											name="start_hour" class="s" placeholder="시간" maxlength="2" />
-											<span class="delimeter">:</span> <input type="text"
-											id="start_minute" name="start_minute" class="s"
-											placeholder="분" maxlength="2" /> <span
-											class="delimeter tilde">~</span> <input type="text"
-											id="end_day" name="end_day" class="s date" placeholder="날짜" />
-											<input type="text" id="end_hour" name="end_hour" class="s"
-											placeholder="시간" maxlength="2" /> <span class="delimeter">:</span>
-											<input type="text" id="end_minute" name="end_minute"
-											class="s" placeholder="분" maxlength="2" /></td>
+										<th class="col-label" scope="row">
+											<label for="start_date">게시기간</label>
+										</th>
+										<td class="col-input radio-set">
+											<input type="hidden" id="start_date" name="start_date" />
+											<input type="hidden" id="end_date" name="end_date" />
+											<input type="text" id="start_day" name="start_day" class="s date" placeholder="날짜" />
+											<input type="text" id="start_hour" name="start_hour" class="s" placeholder="시간" maxlength="2" />
+											<span class="delimeter">:</span>
+											<input type="text" id="start_minute" name="start_minute" class="s" placeholder="분" maxlength="2" />
+											<span class="delimeter tilde">~</span>
+											<input type="text" id="end_day" name="end_day" class="s date" placeholder="날짜" />
+											<input type="text" id="end_hour" name="end_hour" class="s" placeholder="시간" maxlength="2" />
+											<span class="delimeter">:</span>
+											<input type="text" id="end_minute" name="end_minute" class="s" placeholder="분" maxlength="2" />
+										</td>
 									</tr>
 								</table>
 							</form>
@@ -146,8 +140,8 @@ keyframes spin {to { -webkit-transform:rotate(360deg);
 									<div class="button-group">
 										<div class="center-buttons">
 											<input type="submit" id="allFileUpload" th:value="#{save}" />
-											<input type="submit" id="allFileClear" value="파일 초기화" /> <a
-												href="/board/list" class="button">목록</a>
+											<input type="submit" id="allFileClear" value="파일 초기화" />
+											<a href="/boardNotice/list" class="button">목록</a>
 										</div>
 									</div>
 								</li>
@@ -163,18 +157,12 @@ keyframes spin {to { -webkit-transform:rotate(360deg);
 	</th:block>
 
 	<th:block layout:fragment="pageCustomScript">
-		<script type="text/javascript"
-			th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
-		<script type="text/javascript"
-			th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
-		<script type="text/javascript"
-			th:src="@{/externlib/jquery-3.3.1/jquery-migrate-1.2.1.min.js(cacheVersion=${contentCacheVersion})}"></script>
-		<script type="text/javascript"
-			th:src="@{/js/{lang}/common.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-		<script type="text/javascript"
-			th:src="@{/js/{lang}/message.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-		<script type="text/javascript"
-			th:src="@{/js/navigation.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+		<script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
+		<script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
+		<script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery-migrate-1.2.1.min.js(cacheVersion=${contentCacheVersion})}"></script>
+		<script type="text/javascript" th:src="@{/js/{lang}/common.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+		<script type="text/javascript" th:src="@{/js/{lang}/message.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+		<script type="text/javascript" th:src="@{/js/navigation.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 
 		<script th:inline="javascript">
 		
@@ -359,7 +347,6 @@ Dropzone.options.myDropzone = {
         	 formData.append("end_minute", $("#end_minute").val());
         	 formData.append("available", $("input[name='available']:checked").val());
         	 formData.append("CSRFToken", $('input[name=CSRFToken]').val());
-        	 
         	 
 		});
 

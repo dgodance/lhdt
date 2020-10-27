@@ -35,10 +35,10 @@ import java.util.Map;
 @Slf4j
 @Controller
 @RequestMapping("/boardNotice")
-public class BoardController implements AuthorizationController {
+public class BoardNoticeController implements AuthorizationController {
 
 	@Autowired
-	private BoardService boardService;
+	private BoardNoticeService boardNoticeService;
 
 	@Autowired
 	private PolicyService policyService;
@@ -63,7 +63,7 @@ public class BoardController implements AuthorizationController {
 		if (StringUtil.isNotEmpty(boardNotice.getEndDate())) {
 			boardNotice.setEndDate(boardNotice.getEndDate().substring(0, 8) + DateUtils.END_TIME);
 		}
-		long totalCount = boardService.getBoardTotalCount(boardNotice);
+		long totalCount = boardNoticeService.getBoardTotalCount(boardNotice);
 
 		Pagination pagination = new Pagination(request.getRequestURI(), boardNotice.getParameters(), totalCount,
 				Long.parseLong(pageNo), boardNotice.getListCounter());
@@ -73,7 +73,7 @@ public class BoardController implements AuthorizationController {
 		boardNotice.setLimit(pagination.getPageRows());
 		List<BoardNotice> boardNoticeList = new ArrayList<BoardNotice>();
 		if (totalCount > 0l) {
-			boardNoticeList = boardService.getListBoard(boardNotice);
+			boardNoticeList = boardNoticeService.getListBoard(boardNotice);
 		}
 
 		model.addAttribute(pagination);
@@ -117,7 +117,7 @@ public class BoardController implements AuthorizationController {
 			return roleCheckResult;
 
 		Policy policy = policyService.getPolicy();
-		BoardNotice boardNotice = boardService.getBoardForModify(boardNoticeIdL);
+		BoardNotice boardNotice = boardNoticeService.getBoardForModify(boardNoticeIdL);
 
 		Timestamp timestamp_start = java.sql.Timestamp.valueOf(boardNotice.getStartDate().substring(0, 19));
 		Timestamp timestamp_end = java.sql.Timestamp.valueOf(boardNotice.getEndDate().substring(0, 19));
@@ -132,7 +132,7 @@ public class BoardController implements AuthorizationController {
 		boardNotice.setStart_minute(startDate.substring(10, 12));
 		boardNotice.setEnd_minute(endDate.substring(10, 12));
 
-		List<BoardNoticeFile> boardNoticeFileList = boardService.getBoardNoticeFiles(boardNoticeIdL);
+		List<BoardNoticeFile> boardNoticeFileList = boardNoticeService.getBoardNoticeFiles(boardNoticeIdL);
 
 		model.addAttribute("policy", policy);
 		model.addAttribute("boardNotice", boardNotice);
@@ -150,14 +150,14 @@ public class BoardController implements AuthorizationController {
 	@GetMapping(value = "/{boardNoticeId}")
 	public String viewBoardNotice(HttpServletRequest request, @PathVariable Long boardNoticeId, Model model) {
 
-		BoardNotice boardNotice = boardService.getBoard(boardNoticeId);
+		BoardNotice boardNotice = boardNoticeService.getBoard(boardNoticeId);
 		BoardNoticeComment boardNoticeComment = new BoardNoticeComment();
 		boardNoticeComment.setBoardNoticeId(boardNoticeId);
 		boardNoticeComment.setDepth(1L);
 		boardNoticeComment.setParent(1L);
-		List<BoardNoticeComment> boardNoticeCommentList = boardService
+		List<BoardNoticeComment> boardNoticeCommentList = boardNoticeService
 				.getListBoardNoticeCommentByDepth(boardNoticeComment);
-		List<BoardNoticeFile> boardNoticeFileList = boardService.getBoardNoticeFiles(boardNoticeId);
+		List<BoardNoticeFile> boardNoticeFileList = boardNoticeService.getBoardNoticeFiles(boardNoticeId);
 
 		model.addAttribute("boardNotice", boardNotice);
 		model.addAttribute("boardNoticeCommentList", boardNoticeCommentList);
@@ -176,7 +176,7 @@ public class BoardController implements AuthorizationController {
 	public String viewInsertMoreComment(HttpServletRequest request, @PathVariable Long boardNoticeCommentId,
 			Model model) {
 
-		BoardNoticeComment boardNoticeComment = boardService.getBoardNoticeComment(boardNoticeCommentId);
+		BoardNoticeComment boardNoticeComment = boardNoticeService.getBoardNoticeComment(boardNoticeCommentId);
 
 		model.addAttribute("boardNoticeComment", boardNoticeComment);
 
@@ -196,12 +196,12 @@ public class BoardController implements AuthorizationController {
 		String errorCode = null;
 		String message = null;
 
-		BoardNoticeComment boardNoticeComment = boardService.getBoardNoticeComment(boardNoticeCommentId);
+		BoardNoticeComment boardNoticeComment = boardNoticeService.getBoardNoticeComment(boardNoticeCommentId);
 
 		boardNoticeComment.setDepth(boardNoticeComment.getDepth() + 1L);
 		boardNoticeComment.setParent(boardNoticeCommentId);
 
-		List<BoardNoticeComment> boarNoticeCommentList = boardService
+		List<BoardNoticeComment> boarNoticeCommentList = boardNoticeService
 				.getListBoardNoticeCommentByDepth(boardNoticeComment);
 
 		result.put("boarNoticeMoreCommentList", boarNoticeCommentList);

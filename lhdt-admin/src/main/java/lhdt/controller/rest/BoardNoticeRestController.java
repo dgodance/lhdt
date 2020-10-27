@@ -10,7 +10,7 @@ import lhdt.domain.board.BoardNoticeFile;
 import lhdt.domain.policy.Policy;
 import lhdt.domain.uploaddata.UploadData;
 import lhdt.domain.user.UserSession;
-import lhdt.service.BoardService;
+import lhdt.service.BoardNoticeService;
 import lhdt.service.PolicyService;
 import lhdt.support.LogMessageSupport;
 import lhdt.utils.DateUtils;
@@ -54,10 +54,10 @@ import java.util.zip.ZipFile;
 @Slf4j
 @RestController
 @RequestMapping("/boardNotices")
-public class BoardRestController implements AuthorizationController {
+public class BoardNoticeRestController implements AuthorizationController {
 
 	@Autowired
-	private BoardService boardService;
+	private BoardNoticeService boardNoticeService;
 	@Autowired
 	private PolicyService policyService;
 	@Autowired
@@ -78,7 +78,7 @@ public class BoardRestController implements AuthorizationController {
 		String errorCode = null;
 		String message = null;
 
-		boardService.deleteBoard(boardNoticeId);
+		boardNoticeService.deleteBoard(boardNoticeId);
 		int statusCode = HttpStatus.OK.value();
 
 		result.put("statusCode", statusCode);
@@ -98,7 +98,7 @@ public class BoardRestController implements AuthorizationController {
 		Map<String, Object> result = new HashMap<>();
 		String errorCode = null;
 		String message = null;
-		boardService.deleteBoardNoticeFile(boardNoticeFileId);
+		boardNoticeService.deleteBoardNoticeFile(boardNoticeFileId);
 
 		int statusCode = HttpStatus.OK.value();
 
@@ -134,7 +134,7 @@ public class BoardRestController implements AuthorizationController {
 		boardNoticeComment.setUserName(userSession.getUserName());
 
 		try {
-			boardService.insertBoardNoticeMoreComment(boardNoticeComment);
+			boardNoticeService.insertBoardNoticeMoreComment(boardNoticeComment);
 		} catch (Exception e) {
 
 		}
@@ -184,7 +184,7 @@ public class BoardRestController implements AuthorizationController {
 			fileExist = true;
 
 		} else {
-			boardService.insertBoard(boardNotice, boardNoticeFileList, fileExist);
+			boardNoticeService.insertBoard(boardNotice, boardNoticeFileList, fileExist);
 			int statusCode = HttpStatus.OK.value();
 			result.put("statusCode", statusCode);
 			return result;
@@ -295,7 +295,7 @@ public class BoardRestController implements AuthorizationController {
 					boardNoticeFileList.add(boardNoticeFile);
 
 					if (fileCount == fileIndex) {
-						boardService.insertBoard(boardNotice, boardNoticeFileList, fileExist);
+						boardNoticeService.insertBoard(boardNotice, boardNoticeFileList, fileExist);
 					}
 
 				} catch (IOException e) {
@@ -342,7 +342,7 @@ public class BoardRestController implements AuthorizationController {
 		boardNoticeComment.setUserName(userSession.getUserName());
 
 		try {
-			boardService.insertBoardNoticeComment(boardNoticeComment);
+			boardNoticeService.insertBoardNoticeComment(boardNoticeComment);
 		} catch (Exception e) {
 
 		}
@@ -391,7 +391,7 @@ public class BoardRestController implements AuthorizationController {
 			fileExist = true;
 
 		} else {
-			boardService.updateBoard(boardNotice, boardNoticeFileList, fileExist);
+			boardNoticeService.updateBoard(boardNotice, boardNoticeFileList, fileExist);
 			int statusCode = HttpStatus.OK.value();
 			result.put("statusCode", statusCode);
 			return result;
@@ -495,7 +495,7 @@ public class BoardRestController implements AuthorizationController {
 					boardNoticeFileList.add(boardNoticeFile);
 
 					if (fileCount == fileIndex)
-						boardService.updateBoard(boardNotice, boardNoticeFileList, fileExist);
+						boardNoticeService.updateBoard(boardNotice, boardNoticeFileList, fileExist);
 
 				} catch (IOException e) {
 					log.info("@@@@@@@@@@@@ io exception. message = {}",
@@ -678,7 +678,7 @@ public class BoardRestController implements AuthorizationController {
 				boardNoticeFile.setFileSize(String.valueOf(entry.getSize()));
 				boardNoticeFileList.add(boardNoticeFile);
 				if (fileCount == fileIndex)
-					boardService.updateBoard(boardNotice, boardNoticeFileList, fileExist);
+					boardNoticeService.updateBoard(boardNotice, boardNoticeFileList, fileExist);
 			}
 		} catch (RuntimeException ex) {
 			log.info("@@@@@@@@@@@@ RuntimeException. message = {}",
@@ -799,7 +799,7 @@ public class BoardRestController implements AuthorizationController {
 		// layerFileInfoTeamId);
 		try {
 
-			BoardNoticeFile boardNoticeFile = boardService.getBoardNoticeFile(boardNoticeFileId);
+			BoardNoticeFile boardNoticeFile = boardNoticeService.getBoardNoticeFile(boardNoticeFileId);
 			String today = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
 			String filePath = propertiesConfig.getLayerExportDir() + today.substring(0, 6) + File.separator;
 			String fileRealName = boardNoticeFile.getFileRealName();
@@ -966,7 +966,7 @@ public class BoardRestController implements AuthorizationController {
 			Model model) {
 		Map<String, Object> result = new HashMap<>();
 
-		List<BoardNoticeComment> boardNoticeCommentList = boardService
+		List<BoardNoticeComment> boardNoticeCommentList = boardNoticeService
 				.getListBoardNoticeCommentByParent(boardNoticeCommentId);
 
 		result.put("boardNoticeCommentList", boardNoticeCommentList);

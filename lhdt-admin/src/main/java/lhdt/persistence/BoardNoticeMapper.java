@@ -15,7 +15,7 @@ import org.springframework.stereotype.Repository;
  *
  */
 @Repository
-public interface BoardMapper {
+public interface BoardNoticeMapper {
 
 	/**
 	 * 게시물 총 건수
