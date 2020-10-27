@@ -36,18 +36,23 @@
 	<div style="height: 100%;"></div>
 	<div class="page-content">
 		<div class="board-contents">
-			<form id="comment" th:object="${comment}" method="post" th:action="@{#}" onsubmit="return false;">
-				<input type="hidden" name="boardNoticeId" th:value="${boardNoticeComment.boardNoticeId}"/>
-				<input type="hidden" name="ancestor" th:value="${boardNoticeComment.ancestor}"/>
-				<input type="hidden" name="depth" th:value="${boardNoticeComment.depth}"/>
-				<input type="hidden" name="boardNoticeCommentId" th:value="${boardNoticeComment.boardNoticeCommentId}"/>
+			<form id="comment" th:object="${comment}" method="post"
+				th:action="@{#}" onsubmit="return false;">
+				<input type="hidden" name="boardNoticeId"
+					th:value="${boardNoticeComment.boardNoticeId}" /> <input
+					type="hidden" name="ancestor"
+					th:value="${boardNoticeComment.ancestor}" /> <input type="hidden"
+					name="depth" th:value="${boardNoticeComment.depth}" /> <input
+					type="hidden" name="boardNoticeCommentId"
+					th:value="${boardNoticeComment.boardNoticeCommentId}" />
 				<table class="input-table scope-row">
 					<col class="col-label" />
 					<tr>
 						<th class="col-label" scope="row"><label>내용</label></th>
 					</tr>
 					<tr>
-						<td class="col-key"><textarea name="content" cols="30" rows="5"></textarea></td>
+						<td class="col-key"><textarea name="content" cols="30"
+								rows="5"></textarea></td>
 					</tr>
 				</table>
 			</form>
@@ -57,34 +62,36 @@
 		<li id="uploadBoardButton" class="onArea">
 			<div class="button-group">
 				<div class="center-buttons">
-					<a class="button" th:onclick="insertMoreComment()">등록</a>
-					<a class="button" onclick="closeWindow()">닫기</a>
+					<a class="button" th:onclick="insertMoreComment()">등록</a> <a
+						class="button" onclick="closeWindow()">닫기</a>
 				</div>
 			</div>
 		</li>
 	</ul>
 </body>
 <script th:inline="javascript">
-	function insertMoreComment(){
+	function insertMoreComment() {
 		/* if($("#content").val()==null || $("#content").val()==""){
 			alert("내용을입력해주세요!");
 			return;
 		} */
-	        var formData = $('#comment').serialize();
-				$.ajax({
-					url: "/boards/insert-moreComment/",
-					type: "POST",
-					data:formData,
-					headers: {"X-Requested-With": "XMLHttpRequest"},
-					dataType: "json",
-					success: function(msg) {
-						alert("등록되었습니다.");
-						window.close();
-					},
-			        error: function(request, status, error) {
-			        	ajaxErrorHandler(request);
-			        }
-				});
+		var formData = $('#comment').serialize();
+		$.ajax({
+			url : "/boardNotices/insert-moreComment/",
+			type : "POST",
+			data : formData,
+			headers : {
+				"X-Requested-With" : "XMLHttpRequest"
+			},
+			dataType : "json",
+			success : function(msg) {
+				alert("등록되었습니다.");
+				window.close();
+			},
+			error : function(request, status, error) {
+				ajaxErrorHandler(request);
+			}
+		});
 	}
 
 	function closeWindow() {

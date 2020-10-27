@@ -79,7 +79,11 @@ values
 	(95, '0', '1', '위젯', 'WIDGET', 9, 9, 2, 2, 5, '/widget/modify', null, null, 'glyph-settings', 'Y', 'Y', 'Y'),
 	(96, '0', '1', '권한', 'ROLE', 9, 9, 2, 2, 6, '/role/list', null, null, 'glyph-settings', 'Y', 'Y', 'Y'),
 	(97, '0', '1', '권한 등록', 'ROLE', 9, 9, 2, 2, 7, '/role/input', '/role/list', null, 'glyph-settings', 'N', 'Y', 'N'),
-	(98, '0', '1', '권한 수정', 'ROLE', 9, 9, 2, 2, 8, '/role/modify', '/role/list', null, 'glyph-settings', 'N', 'Y', 'N');
+	(98, '0', '1', '권한 수정', 'ROLE', 9, 9, 2, 2, 8, '/role/modify', '/role/list', null, 'glyph-settings', 'N', 'Y', 'N'),
+	(10, '0', '1', '공지사항', 'BOARD', 10, 0, 1, 2, 10, '/boardNotice/list', null, null, 'glyph-check', 'Y', 'Y', 'Y'),
+	(101, '0', '1', '공지사항 목록', 'BOARD', 10, 10, 2, 1, 1, '/boardNotice/list', '/boardNotice/list', null, 'glyph-check', 'Y', 'Y', 'Y'),
+	(102, '0', '1', '공지사항 등록', 'BOARD', 10, 10, 2, 2, 2, '/boardNotice/input', '/boardNotice/list', null, 'glyph-check', 'N', 'Y', 'N'),
+	(103, '0', '1', '공지사항 수정', 'BOARD', 10, 10, 2, 2, 3, '/boardNotice/modify', '/boardNotice/list', null, 'glyph-check', 'N', 'Y', 'N');
 
 -- 사용자 메뉴
 insert into menu(menu_id, menu_type, menu_target, name, name_en, ancestor, parent, depth, previous_depth, view_order, url, url_alias, html_id, html_content_id,
@@ -168,6 +172,10 @@ values
 	(96, 1, 96, 'Y'),
 	(97, 1, 97, 'Y'),
 	(98, 1, 98, 'Y'),
+	(10, 1, 10, 'Y'),
+	(101, 1, 101, 'Y'),
+	(102, 1, 102, 'Y'),
+	(103, 1, 103, 'Y'),
 	--(NEXTVAL('user_group_menu_seq'), 1, 1001, 'Y'),
 	(NEXTVAL('user_group_menu_seq'), 1, 1001, 'Y'),
 	(NEXTVAL('user_group_menu_seq'), 1, 1002, 'Y'),
@@ -270,22 +278,6 @@ VALUES
     (10, 'j', '안산 신길2지구', 'admin', 1, 1, 2, 10, 0, ST_GeomFromText('POINT(126.767990 37.337669)', 4326), 3000, 3, true, true),
     (11, 'k', '수원 당수2지구', 'admin', 1, 1, 2, 11, 0, ST_GeomFromText('POINT(126.935322 37.289428)', 4326), 3000, 3, true, true)
 ;
-
--- 공지사항 게시판
-
-insert into menu(menu_id, menu_type, menu_target, name, name_en, ancestor, parent, depth, previous_depth, view_order, url, url_alias, html_id, css_class, default_yn, use_yn, display_yn)
-values
-(9, '0', '1', '공지사항', 'BOARD', 9, 0, 1, 2, 9, '/board/list', null, null, 'glyph-check', 'Y', 'Y', 'Y'),
-(91, '0', '1', '공지사항 목록', 'BOARD', 9, 9, 2, 1, 1, '/board/list', '/board/list', null, 'glyph-check', 'Y', 'Y', 'Y'),
-(92, '0', '1', '공지사항 등록', 'BOARD', 9, 9, 2, 2, 2, '/board/input', '/board/list', null, 'glyph-check', 'N', 'Y', 'N'),
-(93, '0', '1', '공지사항 수정', 'BOARD', 9, 9, 2, 2, 3, '/board/modify', '/board/list', null, 'glyph-check', 'N', 'Y', 'N');
-
-insert into user_group_menu(user_group_menu_id, user_group_id, menu_id, all_yn, read_yn, write_yn, update_yn, delete_yn)
-values
-(9, 1, 9, 'Y', 'N', 'N', 'N', 'N'),
-(91, 1, 91, 'Y', 'N', 'N', 'N', 'N'),
-(92, 1, 92, 'Y', 'N', 'N', 'N', 'N'),
-(93, 1, 93, 'Y', 'N', 'N', 'N', 'N');
 
 
 -- 건축한계선

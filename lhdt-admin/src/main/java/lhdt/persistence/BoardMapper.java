@@ -2,173 +2,201 @@ package lhdt.persistence;
 
 import java.util.List;
 
-import lhdt.domain.board.Board;
+import lhdt.domain.board.BoardNotice;
 import lhdt.domain.board.BoardNoticeComment;
 import lhdt.domain.board.BoardNoticeFile;
 
 import org.springframework.stereotype.Repository;
 
-
 /**
  * 게시판
+ * 
  * @author hansang
  *
  */
 @Repository
 public interface BoardMapper {
-	
+
 	/**
 	 * 게시물 총 건수
-	 * @param board
+	 * 
+	 * @param boardNotice
 	 * @return
 	 */
-	Long getBoardTotalCount(Board board);
-	
+	Long getBoardTotalCount(BoardNotice boardNotice);
+
 	/**
 	 * 게시물 목록
-	 * @param board
+	 * 
+	 * @param boardNotice
 	 * @return
 	 */
-	List<Board> getListBoard(Board board);
-	
+	List<BoardNotice> getListBoard(BoardNotice boardNotice);
+
 	/**
 	 * 게시물 Comment 목록
-	 * @param boardId
+	 * 
+	 * @param boardNoticeId
 	 * @return
 	 */
-	List<BoardNoticeComment> getListBoardNoticeComment(Long boardId);
-	
+	List<BoardNoticeComment> getListBoardNoticeComment(Long boardNoticeId);
+
 	/**
 	 * 게시물 Comment 목록
+	 * 
+	 * @param boardNoticeComment
+	 * @return
+	 */
+	List<BoardNoticeComment> getListBoardNoticeCommentByDepth(BoardNoticeComment boardNoticeComment);
+
+	/**
+	 * 게시물 Comment 목록
+	 * 
 	 * @param boardNoticeCommentId
 	 * @return
 	 */
 	List<BoardNoticeComment> getListBoardNoticeCommentByParent(Long boardNoticeCommentId);
-	
+
 	/**
 	 * 게시물 정보
-	 * @param board_id
+	 * 
+	 * @param boardNoticeId
 	 * @return
 	 */
-	Board getBoard(Long board_id);
-	
+	BoardNotice getBoard(Long boardNoticeId);
+
 	/**
 	 * 게시물 Comment 정보
-	 * @param board_comment_id
+	 * 
+	 * @param boardNoticeCommentId
 	 * @return
 	 */
 	BoardNoticeComment getBoardNoticeComment(Long boardNoticeCommentId);
-	
+
 	/**
 	 * 게시물 등록
-	 * @param board
+	 * 
+	 * @param boardNotice
 	 * @return
 	 */
-	int insertBoard(Board board);
-	
+	int insertBoard(BoardNotice boardNotice);
+
 	/**
 	 * 게시물 파일 등록
-	 * @param board
+	 * 
+	 * @param boardNoticeFile
 	 * @return
 	 */
 	int insertFile(BoardNoticeFile boardNoticeFile);
-	
+
 	/**
 	 * 게시물 상세 등록
-	 * @param board
+	 * 
+	 * @param boardNotice
 	 */
-	int insertBoardDetail(Board board);
-	
+	int insertBoardDetail(BoardNotice boardNotice);
+
 	/**
 	 * 게시물 Comment 등록
-	 * @param boardComment
+	 * 
+	 * @param boardNoticeComment
 	 * @return
 	 */
 	int insertBoardNoticeComment(BoardNoticeComment boardNoticeComment);
-	
+
 	/**
 	 * 게시물 more Comment 등록
-	 * @param boardComment
+	 * 
+	 * @param boardNoticeComment
 	 * @return
 	 */
 	int insertBoardNoticeMoreComment(BoardNoticeComment boardNoticeComment);
-	
+
 	/**
 	 * 게시물 수정
-	 * @param board
+	 * 
+	 * @param boardNotice
 	 * @return
 	 */
-	int updateBoard(Board board);
-	
+	int updateBoard(BoardNotice boardNotice);
+
 	/**
 	 * 게시물 조회 건수를 +1
-	 * @param board_id
+	 * 
+	 * @param boardNoticeId
 	 */
-	void updateBoardViewCount(Long board_id);
-	
+	void updateBoardViewCount(Long boardNoticeId);
+
 	/**
 	 * 게시물 상세 수정
-	 * @param board
+	 * 
+	 * @param boardNotice
 	 * @return
 	 */
-	int updateBoardDetail(Board board);
-	
+	int updateBoardDetail(BoardNotice boardNotice);
+
 	/**
 	 * 게시물 Comment 수정
-	 * @param boardComment
+	 * 
+	 * @param boardNoticeComment
 	 * @return
 	 */
-	int updateBoardComment(BoardNoticeComment boardComment);
-	
+	int updateBoardComment(BoardNoticeComment boardNoticeComment);
+
 	/**
 	 * 게시물 삭제
-	 * @param board_id
+	 * 
+	 * @param boardNoticeId
 	 * @return
 	 */
-	int deleteBoard(Long board_id);
-	
+	int deleteBoard(Long boardNoticeId);
+
 	/**
 	 * 게시물 파일 삭제
-	 * @param board_notice_file_id
+	 * 
+	 * @param boardNoticeFileId
 	 * @return
 	 */
-	int deleteBoardNoticeFile(Long board_notice_file_id);
-	
+	int deleteBoardNoticeFile(Long boardNoticeFileId);
+
 	/**
 	 * 게시물 상세 삭제
-	 * @param board_id
+	 * 
+	 * @param boardNoticeId
 	 * @return
 	 */
-	int deleteBoardDetail(Long board_id);
-	
+	int deleteBoardDetail(Long boardNoticeId);
+
 	/**
 	 * 게시물 Comment 삭제
-	 * @param board_comment_id
+	 * 
+	 * @param boardNoticeCommentId
 	 * @return
 	 */
-	int deleteBoardComment(Long board_comment_id);
-	
-	
+	int deleteBoardComment(Long boardNoticeCommentId);
+
 	/**
 	 * 게시물 Comment 일괄 삭제
-	 * @param board_id
+	 * 
+	 * @param boardNoticeId
 	 * @return
 	 */
-	int deleteBoardCommentByBoardId(Long board_id);
-	
+	int deleteBoardCommentByBoardId(Long boardNoticeId);
+
 	/**
 	 * 게시물 file 불러오기
-	 * @param board_id
+	 * 
+	 * @param boardNoticeFileId
 	 * @return
 	 */
 	BoardNoticeFile getBoardNoticeFile(Long boardNoticeFileId);
-	
+
 	/**
 	 * 게시물 fileList 불러오기
-	 * @param board_id
+	 * 
+	 * @param boardNoticeId
 	 * @return
 	 */
-	List<BoardNoticeFile> getBoardNoticeFiles(Long board_id);
-	
-	
+	List<BoardNoticeFile> getBoardNoticeFiles(Long boardNoticeId);
+
 }

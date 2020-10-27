@@ -22,7 +22,7 @@ public class BoardFileInfo extends FileInfo {
 	// 고유 번호
 	private Integer boardFileInfoId;
 	// 레이어 고유번호
-	private Integer boardId;
+	private Integer boardNoticeId;
 	// shape 파일을 같은 파일명으로 그룹핑 한것. shp 파일의 board_file_id 가 team_id가 됨
 	private Integer boardFileInfoTeamId;
 	// 레이어명

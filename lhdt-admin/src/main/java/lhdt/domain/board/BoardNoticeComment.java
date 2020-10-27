@@ -14,6 +14,7 @@ import lombok.ToString;
 
 /**
  * 게시판 댓글(Comment)
+ * 
  * @author hansang
  *
  */
@@ -24,7 +25,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BoardNoticeComment {
-	
+
 	// 사용자 이름
 	private String userName;
 	// 고유번호
@@ -46,18 +47,18 @@ public class BoardNoticeComment {
 	// 추천수
 	private String likeCount;
 	// 등록일
-	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime insertDate;
-	
+
 	public String getViewComment() {
-		if(this.content == null || "".equals(this.content)) {
+		if (this.content == null || "".equals(this.content)) {
 			return "";
 		}
-		
+
 		String str = StringUtil.getStringConvertForHtml(this.content);
 		str = StringUtil.getStringNewLineConvertForHtml(str);
-		
+
 		return str;
 	}
-	
+
 }

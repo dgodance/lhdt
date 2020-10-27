@@ -1,3 +1,5 @@
+/* https://glyphicons.bootstrapcheatsheets.com/ */
+
 @font-face {
 	font-family: 'glyphicon';
 	src:url('glyphicon.eot');
@@ -304,4 +306,12 @@
 .glyph-users:before {
 	content: "\e953";
 }
-
+/* .glyph-board-circle:before {
+	content:"\e218";
+}
+.glyph-board-dot:before {
+	content:"\e218";
+}
+.glyph-board:before {
+	content:"\e218";
+} */

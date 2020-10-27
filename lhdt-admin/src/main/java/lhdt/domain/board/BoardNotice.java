@@ -15,6 +15,7 @@ import lombok.ToString;
 
 /**
  * 게시판
+ * 
  * @author hansang
  *
  */
@@ -24,35 +25,31 @@ import lombok.ToString;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Board extends Search implements Serializable {
-	
+public class BoardNotice extends Search implements Serializable {
+
 	private static final long serialVersionUID = -3757317100688176871L;
 
 	// validation
-		private String error_code;
-		
-//		// 페이징 처리를 위한 시작 ROWNUM
-//		private long startRownum;
-//		// 페이징 처리를 위한 종료 ROWNUM
-//		private long endRownum;
-		// 페이지 처리를 위한 시작
-		private Long offset;
-		// 페이지별 표시할 건수
-		private Long limit;
-			
-		/********** 검색 조건 ************/
-		private String search_word;
-		// 검색 옵션. 0 : 일치, 1 : 포함
-		private String search_option;
-		private String search_value;
-		private String order_word;
-		private String order_value;
-		
-		/****** validator ********/
-		private String method_mode;
+	private String error_code;
+
+	// 페이지 처리를 위한 시작
+	private Long offset;
+	// 페이지별 표시할 건수
+	private Long limit;
+
+	/********** 검색 조건 ************/
+	private String search_word;
+	// 검색 옵션. 0 : 일치, 1 : 포함
+	private String search_option;
+	private String search_value;
+	private String order_word;
+	private String order_value;
+
+	/****** validator ********/
+	private String method_mode;
 	// 댓글 개수
 	private Integer commentCount;
-	
+
 	/*********** 테이블 *************/
 	// 게시물 상세 고유번호
 	private Long boardNoticeDetailId;
@@ -62,7 +59,7 @@ public class Board extends Search implements Serializable {
 	private Long boardNoticeCommentId;
 	// comment
 	private String comment;
-	
+
 	// 고유번호
 	private Long boardNoticeId;
 	// 제목
@@ -80,30 +77,29 @@ public class Board extends Search implements Serializable {
 	private String end_date;
 	private String end_day;
 	private String end_hour;
-	private String end_minute;	
-	
+	private String end_minute;
+
 	// 사용유무, Y : 사용, N : 사용안함
-	private String useYn;
+	private String available;
 	// 요청 IP
 	private String clientIp;
 	// 조회수
 	private Long viewCount;
-	
-	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime updateDate;
 
-	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime insertDate;
-	
+
 	public String validate() {
-		if(this.title == null || "".equals( title)) {
+		if (this.title == null || "".equals(title)) {
 			return "comment.invalid";
 		}
-		if(this.contents == null || "".equals( contents)) {
+		if (this.contents == null || "".equals(contents)) {
 			return "comment.invalid";
 		}
 		return null;
 	}
 
-	
 }

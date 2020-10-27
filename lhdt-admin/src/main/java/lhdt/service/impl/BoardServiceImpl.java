@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lhdt.domain.board.Board;
+import lhdt.domain.board.BoardNotice;
 import lhdt.domain.board.BoardNoticeComment;
 import lhdt.domain.board.BoardNoticeFile;
 import lhdt.domain.uploaddata.UploadDataFile;
@@ -31,36 +31,47 @@ public class BoardServiceImpl implements BoardService {
 	/**
 	 * 게시물 총 건수
 	 * 
-	 * @param board
+	 * @param boardNotice
 	 * @return
 	 */
 	@Transactional(readOnly = true)
-	public Long getBoardTotalCount(Board board) {
-		return boardMapper.getBoardTotalCount(board);
+	public Long getBoardTotalCount(BoardNotice boardNotice) {
+		return boardMapper.getBoardTotalCount(boardNotice);
 	}
 
 	/**
 	 * 게시물 목록
 	 * 
-	 * @param board
+	 * @param boardNotice
 	 * @return
 	 */
 	@Transactional(readOnly = true)
-	public List<Board> getListBoard(Board board) {
-		return boardMapper.getListBoard(board);
+	public List<BoardNotice> getListBoard(BoardNotice boardNotice) {
+		return boardMapper.getListBoard(boardNotice);
 	}
 
 	/**
 	 * 게시물 Comment 목록
 	 * 
-	 * @param board_id
+	 * @param boardNoticeId
 	 * @return
 	 */
 	@Transactional(readOnly = true)
-	public List<BoardNoticeComment> getListBoardNoticeComment(Long boardId) {
-		return boardMapper.getListBoardNoticeComment(boardId);
+	public List<BoardNoticeComment> getListBoardNoticeComment(Long boardNoticeId) {
+		return boardMapper.getListBoardNoticeComment(boardNoticeId);
 	}
-	
+
+	/**
+	 * 게시물 Comment 목록
+	 * 
+	 * @param boardNoticeComment
+	 * @return
+	 */
+	@Transactional(readOnly = true)
+	public List<BoardNoticeComment> getListBoardNoticeCommentByDepth(BoardNoticeComment boardNoticeComment) {
+		return boardMapper.getListBoardNoticeCommentByDepth(boardNoticeComment);
+	}
+
 	/**
 	 * 게시물 Comment 목록
 	 * 
@@ -75,32 +86,32 @@ public class BoardServiceImpl implements BoardService {
 	/**
 	 * 게시물 정보
 	 * 
-	 * @param board_id
+	 * @param boardNoticeId
 	 * @return
 	 */
 	@Transactional
-	public Board getBoard(Long board_id) {
-		Board board = boardMapper.getBoard(board_id);
-		boardMapper.updateBoardViewCount(board_id);
+	public BoardNotice getBoard(Long boardNoticeId) {
+		BoardNotice board = boardMapper.getBoard(boardNoticeId);
+		boardMapper.updateBoardViewCount(boardNoticeId);
 		return board;
 	}
-	
+
 	/**
 	 * 게시물 정보(수정용)
 	 * 
-	 * @param board_id
+	 * @param boardNoticeId
 	 * @return
 	 */
 	@Transactional
-	public Board getBoardForModify(Long board_id) {
-		Board board = boardMapper.getBoard(board_id);
-		return board;
+	public BoardNotice getBoardForModify(Long boardNoticeId) {
+		BoardNotice boardNotice = boardMapper.getBoard(boardNoticeId);
+		return boardNotice;
 	}
 
 	/**
 	 * 게시물 Comment 정보
 	 * 
-	 * @param board_comment_id
+	 * @param boardNoticeCommentId
 	 * @return
 	 */
 	@Transactional(readOnly = true)
@@ -115,14 +126,14 @@ public class BoardServiceImpl implements BoardService {
 	 * @return
 	 */
 	@Transactional
-	public int insertBoard(Board board, List<BoardNoticeFile> boardNoticeFileList, Boolean fileExist) {
+	public int insertBoard(BoardNotice boardNotice, List<BoardNoticeFile> boardNoticeFileList, Boolean fileExist) {
 
-		log.info("board =============== {} " , board);
-		int result = boardMapper.insertBoard(board);
-		
+		log.info("board =============== {} ", boardNotice);
+		int result = boardMapper.insertBoard(boardNotice);
+
 		if (fileExist) {
-			Long boardNoticeId = board.getBoardNoticeId();
-			String userId = board.getUserId();
+			Long boardNoticeId = boardNotice.getBoardNoticeId();
+			String userId = boardNotice.getUserId();
 			for (BoardNoticeFile boardNoticeFile : boardNoticeFileList) {
 				boardNoticeFile.setBoardNoticeId(boardNoticeId);
 				boardNoticeFile.setUserId(userId);
@@ -130,31 +141,30 @@ public class BoardServiceImpl implements BoardService {
 				result++;
 			}
 		}
-		return boardMapper.insertBoardDetail(board);
+		return boardMapper.insertBoardDetail(boardNotice);
 	}
 
 	/**
 	 * 게시물 Comment 등록
 	 * 
-	 * @param boardComment
+	 * @param boardNoticeComment
 	 * @return
 	 */
 	@Transactional
 	public int insertBoardNoticeComment(BoardNoticeComment boardNoticeComment) {
 		return boardMapper.insertBoardNoticeComment(boardNoticeComment);
 	}
-	
+
 	/**
 	 * 게시물 more Comment 등록
 	 * 
-	 * @param boardComment
+	 * @param boardNoticeComment
 	 * @return
 	 */
 	@Transactional
 	public int insertBoardNoticeMoreComment(BoardNoticeComment boardNoticeComment) {
 		return boardMapper.insertBoardNoticeMoreComment(boardNoticeComment);
 	}
-	
 
 	/**
 	 * 게시물 수정
@@ -163,14 +173,14 @@ public class BoardServiceImpl implements BoardService {
 	 * @return
 	 */
 	@Transactional
-	public int updateBoard(Board board, List<BoardNoticeFile> boardNoticeFileList, Boolean fileExist) {
-					
-		int result = boardMapper.updateBoard(board);
-		
-		log.info("board =============== {} " , board);
+	public int updateBoard(BoardNotice boardNotice, List<BoardNoticeFile> boardNoticeFileList, Boolean fileExist) {
+
+		int result = boardMapper.updateBoard(boardNotice);
+
+		log.info("board =============== {} ", boardNotice);
 		if (fileExist) {
-			Long boardNoticeId = board.getBoardNoticeId();
-			String userId = board.getUserId();
+			Long boardNoticeId = boardNotice.getBoardNoticeId();
+			String userId = boardNotice.getUserId();
 			for (BoardNoticeFile boardNoticeFile : boardNoticeFileList) {
 				boardNoticeFile.setBoardNoticeId(boardNoticeId);
 				boardNoticeFile.setUserId(userId);
@@ -178,88 +188,88 @@ public class BoardServiceImpl implements BoardService {
 				result++;
 			}
 		}
-		return boardMapper.updateBoardDetail(board);
+		return boardMapper.updateBoardDetail(boardNotice);
 	}
 
 	/**
 	 * 게시물 Comment 수정
 	 * 
-	 * @param boardComment
+	 * @param boardNoticeComment
 	 * @return
 	 */
 	@Transactional
-	public int updateBoardComment(BoardNoticeComment boardComment) {
-		return boardMapper.updateBoardComment(boardComment);
+	public int updateBoardComment(BoardNoticeComment boardNoticeComment) {
+		return boardMapper.updateBoardComment(boardNoticeComment);
 	}
 
 	/**
 	 * 게시물 삭제
 	 * 
-	 * @param board_id
+	 * @param boardNoticeId
 	 * @return
 	 */
 	@Transactional
-	public int deleteBoard(Long board_id) {
-		return boardMapper.deleteBoard(board_id);
+	public int deleteBoard(Long boardNoticeId) {
+		return boardMapper.deleteBoard(boardNoticeId);
 	}
-	
+
 	/**
 	 * 게시물 파일 삭제
 	 * 
-	 * @param board_id
+	 * @param boardNoticeFileId
 	 * @return
 	 */
 	@Transactional
 	public int deleteBoardNoticeFile(Long boardNoticeFileId) {
 		BoardNoticeFile boardNoticeFile = boardMapper.getBoardNoticeFile(boardNoticeFileId);
-		log.info(boardNoticeFile.getFilePath()+boardNoticeFile.getFileRealName());
-		FileUtils.deleteFileReculsive(boardNoticeFile.getFilePath()+boardNoticeFile.getFileRealName());
+		log.info(boardNoticeFile.getFilePath() + boardNoticeFile.getFileRealName());
+		FileUtils.deleteFileReculsive(boardNoticeFile.getFilePath() + boardNoticeFile.getFileRealName());
 		return boardMapper.deleteBoardNoticeFile(boardNoticeFileId);
 	}
 
 	/**
 	 * 게시물 Comment 삭제
 	 * 
-	 * @param board_comment_id
+	 * @param boardNoticeCommentId
 	 * @return
 	 */
 	@Transactional
-	public int deleteBoardComment(Long board_comment_id) {
-		return boardMapper.deleteBoardComment(board_comment_id);
+	public int deleteBoardComment(Long boardNoticeCommentId) {
+		return boardMapper.deleteBoardComment(boardNoticeCommentId);
 	}
 
 	/**
 	 * 게시물 Comment 일괄 삭제
 	 * 
-	 * @param board_id
+	 * @param boardNoticeId
 	 * @return
 	 */
 	@Transactional
-	public int deleteBoardCommentByBoardId(Long board_id) {
-		return boardMapper.deleteBoardCommentByBoardId(board_id);
+	public int deleteBoardCommentByBoardId(Long boardNoticeId) {
+		return boardMapper.deleteBoardCommentByBoardId(boardNoticeId);
 	}
-	
+
 	/**
 	 * 게시물 file 불러오기
 	 * 
-	 * @param board_id
+	 * @param boardNoticeFileId
 	 * @return
 	 */
 	@Transactional
 	public BoardNoticeFile getBoardNoticeFile(Long boardNoticeFileId) {
-		
+
 		return boardMapper.getBoardNoticeFile(boardNoticeFileId);
 	}
 
 	/**
 	 * 게시물 fileList 불러오기
 	 * 
-	 * @param board_id
+	 * @param boardNoticeId
 	 * @return
 	 */
 	@Transactional
-	public List<BoardNoticeFile> getBoardNoticeFiles(Long board_id) {
-		
-		return boardMapper.getBoardNoticeFiles(board_id);
+	public List<BoardNoticeFile> getBoardNoticeFiles(Long boardNoticeId) {
+
+		return boardMapper.getBoardNoticeFiles(boardNoticeId);
 	}
 }

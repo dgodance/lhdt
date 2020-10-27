@@ -1,10 +1,8 @@
 package lhdt.controller.view;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lhdt.controller.AuthorizationController;
 import lhdt.domain.*;
-import lhdt.domain.board.Board;
-import lhdt.domain.board.BoardFileInfo;
+import lhdt.domain.board.BoardNotice;
 import lhdt.domain.board.BoardNoticeComment;
 import lhdt.domain.board.BoardNoticeFile;
 import lhdt.domain.common.Pagination;
@@ -17,6 +15,7 @@ import lhdt.utils.DateUtils;
 import lhdt.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,164 +28,203 @@ import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Controller
-@RequestMapping("/board")
+@RequestMapping("/boardNotice")
 public class BoardController implements AuthorizationController {
 
-	
 	@Autowired
 	private BoardService boardService;
 
-    @Autowired
-    private PolicyService policyService;
+	@Autowired
+	private PolicyService policyService;
 
-    // 파일 copy 시 버퍼 사이즈
-    public static final int BUFFER_SIZE = 8192;
+	// 파일 copy 시 버퍼 사이즈
+	public static final int BUFFER_SIZE = 8192;
 
-    /**
-     * board 목록
-     */
-    @GetMapping(value = "/list")
-    public String list(HttpServletRequest request, Board board, @RequestParam(defaultValue="1") String pageNo, Model model) {
-    	board.setSearchWord(SQLInjectSupport.replaceSqlInection(board.getSearchWord()));
-    	board.setOrderWord(SQLInjectSupport.replaceSqlInection(board.getOrderWord()));
+	/**
+	 * board 목록
+	 */
+	@GetMapping(value = "/list")
+	public String list(HttpServletRequest request, BoardNotice boardNotice, @RequestParam(defaultValue = "1") String pageNo,
+			Model model) {
+		boardNotice.setSearchWord(SQLInjectSupport.replaceSqlInection(boardNotice.getSearchWord()));
+		boardNotice.setOrderWord(SQLInjectSupport.replaceSqlInection(boardNotice.getOrderWord()));
 
-    	log.info("@@ board = {}", board);
+		log.info("@@ board = {}", boardNotice);
 
-    	if(StringUtil.isNotEmpty(board.getStartDate())) {
-			board.setStartDate(board.getStartDate().substring(0, 8) + DateUtils.START_TIME);
+		if (StringUtil.isNotEmpty(boardNotice.getStartDate())) {
+			boardNotice.setStartDate(boardNotice.getStartDate().substring(0, 8) + DateUtils.START_TIME);
 		}
-		if(StringUtil.isNotEmpty(board.getEndDate())) {
-			board.setEndDate(board.getEndDate().substring(0, 8) + DateUtils.END_TIME);
+		if (StringUtil.isNotEmpty(boardNotice.getEndDate())) {
+			boardNotice.setEndDate(boardNotice.getEndDate().substring(0, 8) + DateUtils.END_TIME);
 		}
-		long totalCount = boardService.getBoardTotalCount(board);
-		
-		Pagination pagination = new Pagination(request.getRequestURI(), board.getParameters(),
-                totalCount, Long.parseLong(pageNo), board.getListCounter());
+		long totalCount = boardService.getBoardTotalCount(boardNotice);
+
+		Pagination pagination = new Pagination(request.getRequestURI(), boardNotice.getParameters(), totalCount,
+				Long.parseLong(pageNo), boardNotice.getListCounter());
 		log.info("@@ pagination = {}", pagination);
-		
-		board.setOffset(pagination.getOffset());
-		board.setLimit(pagination.getPageRows());
-		List<Board> boardList = new ArrayList<Board>();
-		if(totalCount > 0l) {
-			boardList = boardService.getListBoard(board);
+
+		boardNotice.setOffset(pagination.getOffset());
+		boardNotice.setLimit(pagination.getPageRows());
+		List<BoardNotice> boardNoticeList = new ArrayList<BoardNotice>();
+		if (totalCount > 0l) {
+			boardNoticeList = boardService.getListBoard(boardNotice);
 		}
-		
-		log.info("@@ boardList = {}", boardList);
-		
+
 		model.addAttribute(pagination);
-        model.addAttribute("totalCount", totalCount);
-		model.addAttribute("boardList", boardList);
+		model.addAttribute("totalCount", totalCount);
+		model.addAttribute("boardNoticeList", boardNoticeList);
 
-        return "/board/list";
-    }
+		return "/board/list";
+	}
 
-    /**
-     * board 등록
-     *
-     * @param model
-     * @return
-     */
-    @GetMapping(value = "/input")
-    public String input(HttpServletRequest request, Model model) {
-        String roleCheckResult = roleValidate(request);
-        if(roleCheckResult != null) return roleCheckResult;
+	/**
+	 * board 등록
+	 *
+	 * @param model
+	 * @return
+	 */
+	@GetMapping(value = "/input")
+	public String input(HttpServletRequest request, Model model) {
+		String roleCheckResult = roleValidate(request);
+		if (roleCheckResult != null)
+			return roleCheckResult;
 
-        Policy policy = policyService.getPolicy();
+		Policy policy = policyService.getPolicy();
 
-        model.addAttribute("policy", policy);
-        model.addAttribute("board", new Board());
+		model.addAttribute("policy", policy);
+		model.addAttribute("boardNotice", new BoardNotice());
 
-        return "/board/input";
-    }
+		return "/board/input";
+	}
 
-    /**
-     * board 수정
-     *
-     * @param model
-     * @return
-     */
-    @GetMapping(value = "/modify")
-    public String modify(HttpServletRequest request, @RequestParam Integer boardId, Model model) {
-    	Long boardNoticeId = Long.valueOf(boardId);
-    	String roleCheckResult = roleValidate(request);
-        if(roleCheckResult != null) return roleCheckResult;
+	/**
+	 * board 수정
+	 *
+	 * @param model
+	 * @return
+	 */
+	@GetMapping(value = "/modify")
+	public String modify(HttpServletRequest request, @RequestParam Integer boardNoticeId, Model model) {
+		Long boardNoticeIdL = Long.valueOf(boardNoticeId);
+		String roleCheckResult = roleValidate(request);
+		if (roleCheckResult != null)
+			return roleCheckResult;
 
-        Policy policy = policyService.getPolicy();
-        Board board = boardService.getBoardForModify(boardNoticeId);
+		Policy policy = policyService.getPolicy();
+		BoardNotice boardNotice = boardService.getBoardForModify(boardNoticeIdL);
 
-        Timestamp timestamp_start = java.sql.Timestamp.valueOf(board.getStartDate().substring(0, 19));
-        Timestamp timestamp_end = java.sql.Timestamp.valueOf(board.getEndDate().substring(0, 19));
-        
-        String startDate = new SimpleDateFormat("yyyyMMddHHmmss").format(timestamp_start);
-        String endDate = new SimpleDateFormat("yyyyMMddHHmmss").format(timestamp_end);
-        
-        board.setStart_day(startDate.substring(0, 8));
-        board.setEnd_day(endDate.substring(0, 8));
-        board.setStart_hour(startDate.substring(8, 10));
-        board.setEnd_hour(endDate.substring(8, 10));
-        board.setStart_minute(startDate.substring(10, 12));
-        board.setEnd_minute(endDate.substring(10, 12));
-        
-        List<BoardNoticeFile> boardNoticeFileList = boardService.getBoardNoticeFiles(boardNoticeId);
+		Timestamp timestamp_start = java.sql.Timestamp.valueOf(boardNotice.getStartDate().substring(0, 19));
+		Timestamp timestamp_end = java.sql.Timestamp.valueOf(boardNotice.getEndDate().substring(0, 19));
 
-        log.info("@@ board = {}", board);
-        model.addAttribute("policy", policy);
-        model.addAttribute("board", board);
-        model.addAttribute("boardNoticeFileList", boardNoticeFileList);
+		String startDate = new SimpleDateFormat("yyyyMMddHHmmss").format(timestamp_start);
+		String endDate = new SimpleDateFormat("yyyyMMddHHmmss").format(timestamp_end);
 
-        return "/board/modify";
-    }
+		boardNotice.setStart_day(startDate.substring(0, 8));
+		boardNotice.setEnd_day(endDate.substring(0, 8));
+		boardNotice.setStart_hour(startDate.substring(8, 10));
+		boardNotice.setEnd_hour(endDate.substring(8, 10));
+		boardNotice.setStart_minute(startDate.substring(10, 12));
+		boardNotice.setEnd_minute(endDate.substring(10, 12));
 
-    /**
-     * 게시물 보기
-     *
-     * @param model
-     * @return
-     */
-    @GetMapping(value = "/{boardId}")
-    public String viewBoardNotice(HttpServletRequest request, @PathVariable Long boardId, Model model) {
-        log.info("@@ boardId = {}", boardId);
+		List<BoardNoticeFile> boardNoticeFileList = boardService.getBoardNoticeFiles(boardNoticeIdL);
 
-        Board board = boardService.getBoard(boardId);
-        List<BoardNoticeComment> boardNoticeCommentList = boardService.getListBoardNoticeComment(boardId);
-        List<BoardNoticeFile> boardNoticeFileList = boardService.getBoardNoticeFiles(boardId);
+		model.addAttribute("policy", policy);
+		model.addAttribute("boardNotice", boardNotice);
+		model.addAttribute("boardNoticeFileList", boardNoticeFileList);
 
-        model.addAttribute("board", board);
-        model.addAttribute("boardNoticeCommentList", boardNoticeCommentList);
-        model.addAttribute("boardNoticeFileList", boardNoticeFileList);
+		return "/board/modify";
+	}
 
-        return "/board/popup-board";
-    }
-    
-    /**
-     * 게시물 추가 댓글
-     *
-     * @param model
-     * @return
-     */
-    @GetMapping(value = "/comment/{boardNoticeCommentId}")
-    public String viewInsertMoreComment(HttpServletRequest request, @PathVariable Long boardNoticeCommentId, Model model) {
+	/**
+	 * 게시물 보기
+	 *
+	 * @param model
+	 * @return
+	 */
+	@GetMapping(value = "/{boardNoticeId}")
+	public String viewBoardNotice(HttpServletRequest request, @PathVariable Long boardNoticeId, Model model) {
 
-    	BoardNoticeComment boardNoticeComment = boardService.getBoardNoticeComment(boardNoticeCommentId);
-    	
-        model.addAttribute("boardNoticeComment", boardNoticeComment);
+		BoardNotice boardNotice = boardService.getBoard(boardNoticeId);
+		BoardNoticeComment boardNoticeComment = new BoardNoticeComment();
+		boardNoticeComment.setBoardNoticeId(boardNoticeId);
+		boardNoticeComment.setDepth(1L);
+		boardNoticeComment.setParent(1L);
+		List<BoardNoticeComment> boardNoticeCommentList = boardService
+				.getListBoardNoticeCommentByDepth(boardNoticeComment);
+		List<BoardNoticeFile> boardNoticeFileList = boardService.getBoardNoticeFiles(boardNoticeId);
 
-        return "/board/popup-board-comment";
-    }
+		model.addAttribute("boardNotice", boardNotice);
+		model.addAttribute("boardNoticeCommentList", boardNoticeCommentList);
+		model.addAttribute("boardNoticeFileList", boardNoticeFileList);
 
-    private String roleValidate(HttpServletRequest request) {
-        UserSession userSession = (UserSession) request.getSession().getAttribute(Key.USER_SESSION.name());
-        int httpStatusCode = getRoleStatusCode(userSession.getUserGroupId(), RoleKey.ADMIN_LAYER_MANAGE.name());
-        if (httpStatusCode > 200) {
-            log.info("@@ httpStatusCode = {}", httpStatusCode);
-            request.setAttribute("httpStatusCode", httpStatusCode);
-            return "/error/error";
-        }
+		return "/board/popup-board";
+	}
 
-        return null;
-    }
+	/**
+	 * 게시물 추가 댓글
+	 *
+	 * @param model
+	 * @return
+	 */
+	@GetMapping(value = "/comment/{boardNoticeCommentId}")
+	public String viewInsertMoreComment(HttpServletRequest request, @PathVariable Long boardNoticeCommentId,
+			Model model) {
+
+		BoardNoticeComment boardNoticeComment = boardService.getBoardNoticeComment(boardNoticeCommentId);
+
+		model.addAttribute("boardNoticeComment", boardNoticeComment);
+
+		return "/board/popup-board-comment";
+	}
+
+	/**
+	 * 게시물 추가 댓글
+	 *
+	 * @param model
+	 * @return
+	 */
+	@GetMapping(value = "/comment/view-more-comment/{boardNoticeCommentId}")
+	public String viewMoreComment(HttpServletRequest request, @PathVariable Long boardNoticeCommentId, Model model) {
+
+		Map<String, Object> result = new HashMap<>();
+		String errorCode = null;
+		String message = null;
+
+		BoardNoticeComment boardNoticeComment = boardService.getBoardNoticeComment(boardNoticeCommentId);
+
+		boardNoticeComment.setDepth(boardNoticeComment.getDepth() + 1L);
+		boardNoticeComment.setParent(boardNoticeCommentId);
+
+		List<BoardNoticeComment> boarNoticeCommentList = boardService
+				.getListBoardNoticeCommentByDepth(boardNoticeComment);
+
+		result.put("boarNoticeMoreCommentList", boarNoticeCommentList);
+
+		int statusCode = HttpStatus.OK.value();
+
+		log.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  " + boarNoticeCommentList);
+		result.put("statusCode", statusCode);
+		result.put("errorCode", errorCode);
+		result.put("message", message);
+		return "/board/popup-board";
+
+	}
+
+	private String roleValidate(HttpServletRequest request) {
+		UserSession userSession = (UserSession) request.getSession().getAttribute(Key.USER_SESSION.name());
+		int httpStatusCode = getRoleStatusCode(userSession.getUserGroupId(), RoleKey.ADMIN_LAYER_MANAGE.name());
+		if (httpStatusCode > 200) {
+			log.info("@@ httpStatusCode = {}", httpStatusCode);
+			request.setAttribute("httpStatusCode", httpStatusCode);
+			return "/error/error";
+		}
+
+		return null;
+	}
 }

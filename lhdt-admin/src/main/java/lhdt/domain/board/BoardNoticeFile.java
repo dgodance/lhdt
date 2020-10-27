@@ -1,6 +1,5 @@
 package lhdt.domain.board;
 
-
 import java.time.LocalDateTime;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -19,10 +18,10 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BoardNoticeFile {
-	
+
 	private String sharing;
 	private String dataType;
-	
+
 	// 고유번호
 	private Long boardNoticeFileId;
 	// 사용자 업로드 정보 고유번호
@@ -43,20 +42,20 @@ public class BoardNoticeFile {
 	private String fileSize;
 	// 파일 확장자
 	private String fileExt;
-	
-	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime insertDate;
-	
+
 	// 오류 메시지
 	private String errorMessage;
-	
+
 	public String validate() {
 		// TODO 구현해야 한다.
 		return null;
 	}
-	
+
 	public Long getViewFileSizeUnitKB() {
-		if(this.fileSize == null || "".equals(this.fileSize)) {
+		if (this.fileSize == null || "".equals(this.fileSize)) {
 			return 0L;
 		} else {
 			long size = Long.parseLong(this.fileSize);

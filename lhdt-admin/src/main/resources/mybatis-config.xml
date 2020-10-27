@@ -11,7 +11,7 @@
 
     <typeAliases>
     	<typeAlias type="lhdt.domain.accesslog.AccessLog" alias="accessLog" />
-    	<typeAlias type="lhdt.domain.board.Board" alias="board"/>
+    	<typeAlias type="lhdt.domain.board.BoardNotice" alias="boardNotice"/>
     	<typeAlias type="lhdt.domain.board.BoardNoticeFile" alias="boardNoticeFile"/>
 		<typeAlias type="lhdt.domain.board.BoardNoticeComment" alias="boardNoticeComment"/>
     	<typeAlias type="lhdt.domain.converter.ConverterJob" alias="converterJob" />
