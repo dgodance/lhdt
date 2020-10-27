@@ -157,6 +157,43 @@ Ppmap.getManager = function(){
 };
 
 
+
+/**
+ * 지도상에 존재하는 모든 data library(static model) 목록 리턴
+ * @returns {Array<object>} [{'projectId':string, 'nodeId':string, 'node':Node},...]
+ */
+Ppmap.getAllDataLibraries = function(){
+	let arr = [];
+	
+	
+	let staticModelObject = MAGO3D_INSTANCE.getF4dController().getStaticModelObject();
+	if(!staticModelObject){
+		return arr;
+	}
+	
+	
+	for(let projectId in staticModelObject){
+		let json = {};			
+		json['projectId'] = projectId;
+		let staticModelGroup = staticModelObject[projectId];
+		if(!staticModelGroup){
+			continue;
+		}
+
+		for(let nodeId in staticModelGroup){				
+			json['nodeId'] = nodeId;
+			json['node'] = staticModelGroup[nodeId];				
+		}			
+		
+		arr.push(json);
+	}
+
+
+	//
+	return arr;
+};
+
+
 /**
  * @param {Cartesian3|LonLatAlt} ctsnOrXyz
  * @param {Cartesian3} direction
