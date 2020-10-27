@@ -130,7 +130,7 @@
 		 * hide intro 페이지 & show 나머지 맵관련 도구들 
 		 */
 		IntroObj.prototype.hide = function(){
-			$('#introContainer').hide();
+			$('#introContainer').hide(500);
 			
 			$('select.urban-group').show();
 			$('div.search_box').show();
@@ -139,6 +139,16 @@
 			$('#mapCtrlWrap').show();
 			$('#mapCtrlCompassOut').show();
 			$('#mago3dOlMap').show();
+		};
+		
+		
+		
+		/**
+		 *
+		 */
+		IntroObj.prototype.isShow = function(){
+			return $('#introContainer').is(':visible');
+			
 		};
 		
 		//
