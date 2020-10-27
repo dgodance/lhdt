@@ -11,6 +11,9 @@
 
     <typeAliases>
     	<typeAlias type="lhdt.domain.accesslog.AccessLog" alias="accessLog" />
+    	<typeAlias type="lhdt.domain.board.Board" alias="board"/>
+    	<typeAlias type="lhdt.domain.board.BoardNoticeFile" alias="boardNoticeFile"/>
+		<typeAlias type="lhdt.domain.board.BoardComment" alias="boardComment"/>
     	<typeAlias type="lhdt.domain.converter.ConverterJob" alias="converterJob" />
     	<typeAlias type="lhdt.domain.converter.ConverterJobFile" alias="converterJobFile" />
 		<typeAlias type="lhdt.domain.common.PartitionTable" alias="partitionTable" />
@@ -48,6 +51,7 @@
     	<typeAlias type="lhdt.domain.layer.LayerGroup" alias="layerGroup" />
     	<typeAlias type="lhdt.domain.layer.LayerFileInfo" alias="layerFileInfo" />
     	<typeAlias type="lhdt.domain.menu.Menu" alias="menu" />
+		<typeAlias type="lhdt.domain.microservice.MicroService" alias="microService" />
 		<typeAlias type="lhdt.domain.urban.UrbanGroup" alias="urbanGroup" />
 		<typeAlias type="lhdt.domain.policy.Policy" alias="policy" />
     	<typeAlias type="lhdt.domain.role.Role" alias="role" />

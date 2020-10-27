@@ -51,12 +51,12 @@
 													<th scope="col">설명</th>
 												</tr>
 											</thead>
-<th:block th:if="${roleList.empty}">
+<th:block th:if="${#lists.isEmpty(roleList)}">
 											<tr>
 												<td colspan="8" class="col-none">Role이 존재하지 않습니다.</td>
 											</tr>
 </th:block>
-<th:block th:unless="${roleList.empty}" th:each="role : ${roleList}">
+<th:block th:unless="${#lists.isEmpty(roleList)}" th:each="role : ${roleList}">
 											<tr>
 												<td class="col-checkbox">
 													<input type="checkbox" th:id="|roleId${role.roleId}|" name="roleId" th:value="${role.roleId}" />

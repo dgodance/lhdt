@@ -59,4 +59,5 @@ public interface MenuService {
 	 * @return
 	 */
 	int deleteMenu(Integer menuId);
+	
 }

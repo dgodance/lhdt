@@ -21,12 +21,12 @@
                 </tr>
             </thead>
             <tbody>
-<th:block th:if="${dataGroupList.empty}">
+<th:block th:if="${#lists.isEmpty(dataGroupList)}">
                 <tr>
                     <td colspan="6" class="col-none"><th:block th:text="#{data.group.does.not.exist}"></th:block></td>
                 </tr>
 </th:block>
-<th:block th:unless="${dataGroupList.empty}" th:each="dataGroup : ${dataGroupList}">
+<th:block th:unless="${#lists.isEmpty(dataGroupList)}" th:each="dataGroup : ${dataGroupList}">
                 <tr>
                     <td class="col-name ellipsis" style="max-width:300px; text-align: left;" nowrap="nowrap">
     <th:block th:with="paddingLeftValue = ${(dataGroup.depth -1)  * 40}">

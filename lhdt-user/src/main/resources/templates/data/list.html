@@ -135,12 +135,12 @@
 						</tr>
 					</thead>
 					<tbody>
-<th:block th:if="${dataInfoList.empty}">
+<th:block th:if="${#lists.isEmpty(dataInfoList)}">
 						<tr>
 							<td colspan="12" class="col-none"><th:block th:text="#{data.does.not.exist}"></th:block></td>
 						</tr>
 </th:block>
-<th:block th:unless="${dataInfoList.empty}" th:each="dataInfo : ${dataInfoList}">
+<th:block th:unless="${#lists.isEmpty(dataInfoList)}" th:each="dataInfo : ${dataInfoList}">
 						<tr>
 							<td class="col-number" th:text="${pagination.rowNumber - dataInfoStat.index}"></td>
 							<td class="col-name ellipsis" th:text="${dataInfo.dataGroupName}" style="min-width:100px;max-width:100px;"></td>

@@ -57,32 +57,26 @@
 												<th scope="col">HTML ID</th>
 											</tr>
 										</thead>
-<th:block th:if="${menuList.empty}">
+<th:block th:if="${#lists.isEmpty(menuList)}">
 										<tr>
 											<td colspan="6" class="col-none">메뉴가 존재하지 않습니다.</td>
 										</tr>
 </th:block>
-<th:block th:unless="${menuList.empty}" th:each="menu : ${menuList}">
-											<th:block  th:if="${menu.depth == 0}">
-												<tr style="background: #ededed;">
-													<td class="col-name" th:text="${menu.name}" style="text-align: left; padding-left: 15px"></td>
-											</th:block>
-											<th:block  th:if="${menu.depth == 1}">
-												<tr>
-													<td class="col-name" th:text="|+${menu.name}|" style="text-align: left; padding-left: 15px"></td>
-											</th:block>
-											<th:block  th:if="${menu.depth == 2}">
-												<tr>
-													<td class="col-name" th:text="${menu.name}" style="text-align: left; padding-left: 45px"></td>
-											</th:block>
-
+<th:block th:unless="${#lists.isEmpty(menuList)}" th:each="menu : ${menuList}">
+										<tr>
+	<th:block  th:if="${menu.depth == 1}">
+											<td class="col-name" th:text="|+${menu.name}|" style="text-align: left; padding-left: 15px"></td>
+	</th:block>
+	<th:block  th:if="${menu.depth == 2}">
+											<td class="col-name" th:text="${menu.name}" style="text-align: left; padding-left: 45px"></td>
+	</th:block>
 											<td style="text-align: center;">
 												<th:block th:if="${menu.depth > 0 }">
-													<input type="checkbox" th:id="|menuAllYn${menu.menuId}|" name="menuAllYn" class="all_yn" th:value="|${menu.menuId}_${menu.allYn}|" th:onclick="checkAllYn([[${menu.menuId}]]);" />
+													<input type="checkbox" th:id="|menuAllYn${menu.menuId}|" name="menuAllYn" class="all_yn" th:value="|${menu.menuId}_${menu.allYn}|"
+														   th:onclick="checkAllYn([[${menu.menuId}]]);" />
 													<label>권한 있음</label>&nbsp;&nbsp;
 												</th:block>
 											</td>
-
 											<td th:if="${menu.depth > 0}" style="padding-left:20px; text-align: left;">
 												<input type="checkbox" th:id="|menuReadYn${menu.menuId}|" name="menuReadYn" th:value="|${menu.menuId }_${menu.readYn}|" th:onclick="checkReadYn([[${menu.menuId}]]);" />
 												<label>읽기</label>&nbsp;&nbsp;
@@ -93,9 +87,9 @@
 												<input type="checkbox" th:id="|menuDeleteYn${menu.menuId}|" name="menuDeleteYn" th:value="|${menu.menuId }_${menu.deleteYn}|" th:onclick="checkDeleteYn([[${menu.menuId}]]);" />
 												<label>삭제</label>&nbsp;&nbsp;
 											</td>
-											<td class="col-name">
-												<th:block th:if="${#strings.equals(menu.menuType, '0')}" text="URL"></th:block>
-												<th:block th:if="${#strings.equals(menu.menuType, '1')}" text="HTML ID"></th:block>
+											<td class="col-type">
+												<th:block th:if="${#strings.equals(menu.menuType, '0')}">URL</th:block>
+												<th:block th:if="${#strings.equals(menu.menuType, '1')}">HTML ID</th:block>
 											</td>
 											<td class="col-name" th:text="${menu.url}" style="text-align: left;"></td>
 											<td class="col-name" th:text="${menu.htmlId}" style="text-align: left;"></td>

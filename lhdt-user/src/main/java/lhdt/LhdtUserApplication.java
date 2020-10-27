@@ -9,12 +9,14 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.servlet.http.HttpSessionBindingListener;
 import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
+@EnableScheduling
 @SpringBootApplication
 public class LhdtUserApplication extends SpringBootServletInitializer {
 
