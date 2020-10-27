@@ -31,6 +31,13 @@
 			return;
 		}
 		
+		
+		//
+		if(introObj){
+			introObj.hide();			
+		}
+		
+		
 		//해당 위치로 이동
 		Ppmap.getManager().flyTo(lon, lat, 3000, 1);
 		
@@ -133,6 +140,24 @@ SelectUrbanGroupObj.prototype.createSelectHtml = function(parent0List){
 	
 };
 
+
+/**
+ * 도시명으로 lonlat 값 구하기
+ * @param {string} cityName
+ * @returns {object} {'lon':number, 'lat':number}
+ */
+SelectUrbanGroupObj.prototype.getLonLatByCityName = function(cityName){
+	let lon=0, lat=0;
+	
+	$('select.urban-group option').each(function(i,item){
+		if(-1 != $(item).text.indexOf(cityName)){
+			lon = $(item).data('lon');
+			lat = $(item).data('lat');
+		}
+	});
+	
+	return {'lon': lon, 'lat': lat};
+}
 
  
 //인스턴스 생성
