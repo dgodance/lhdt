@@ -173,14 +173,14 @@ Ppmap.getAllDataLibraries = function(){
 	
 	
 	for(let projectId in staticModelObject){
-		let json = {};			
-		json['projectId'] = projectId;
 		let staticModelGroup = staticModelObject[projectId];
 		if(!staticModelGroup){
 			continue;
 		}
 
 		for(let nodeId in staticModelGroup){				
+			let json = {};			
+			json['projectId'] = projectId;
 			json['nodeId'] = nodeId;
 			json['node'] = staticModelGroup[nodeId];				
 		}			
