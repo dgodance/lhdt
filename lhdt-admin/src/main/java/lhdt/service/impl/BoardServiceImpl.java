@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lhdt.domain.board.Board;
-import lhdt.domain.board.BoardComment;
+import lhdt.domain.board.BoardNoticeComment;
 import lhdt.domain.board.BoardNoticeFile;
 import lhdt.domain.uploaddata.UploadDataFile;
 import lhdt.persistence.BoardMapper;
@@ -57,8 +57,19 @@ public class BoardServiceImpl implements BoardService {
 	 * @return
 	 */
 	@Transactional(readOnly = true)
-	public List<BoardComment> getListBoardComment(Long board_id) {
-		return boardMapper.getListBoardComment(board_id);
+	public List<BoardNoticeComment> getListBoardNoticeComment(Long boardId) {
+		return boardMapper.getListBoardNoticeComment(boardId);
+	}
+	
+	/**
+	 * 게시물 Comment 목록
+	 * 
+	 * @param boardNoticeCommentId
+	 * @return
+	 */
+	@Transactional(readOnly = true)
+	public List<BoardNoticeComment> getListBoardNoticeCommentByParent(Long boardNoticeCommentId) {
+		return boardMapper.getListBoardNoticeCommentByParent(boardNoticeCommentId);
 	}
 
 	/**
@@ -93,8 +104,8 @@ public class BoardServiceImpl implements BoardService {
 	 * @return
 	 */
 	@Transactional(readOnly = true)
-	public BoardComment getBoardComment(Long board_comment_id) {
-		return boardMapper.getBoardComment(board_comment_id);
+	public BoardNoticeComment getBoardNoticeComment(Long boardNoticeCommentId) {
+		return boardMapper.getBoardNoticeComment(boardNoticeCommentId);
 	}
 
 	/**
@@ -129,9 +140,21 @@ public class BoardServiceImpl implements BoardService {
 	 * @return
 	 */
 	@Transactional
-	public int insertBoardComment(BoardComment boardComment) {
-		return boardMapper.insertBoardComment(boardComment);
+	public int insertBoardNoticeComment(BoardNoticeComment boardNoticeComment) {
+		return boardMapper.insertBoardNoticeComment(boardNoticeComment);
 	}
+	
+	/**
+	 * 게시물 more Comment 등록
+	 * 
+	 * @param boardComment
+	 * @return
+	 */
+	@Transactional
+	public int insertBoardNoticeMoreComment(BoardNoticeComment boardNoticeComment) {
+		return boardMapper.insertBoardNoticeMoreComment(boardNoticeComment);
+	}
+	
 
 	/**
 	 * 게시물 수정
@@ -165,7 +188,7 @@ public class BoardServiceImpl implements BoardService {
 	 * @return
 	 */
 	@Transactional
-	public int updateBoardComment(BoardComment boardComment) {
+	public int updateBoardComment(BoardNoticeComment boardComment) {
 		return boardMapper.updateBoardComment(boardComment);
 	}
 

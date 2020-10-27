@@ -74,11 +74,20 @@
 	</select>
 	
 	<!-- 게시물 Comment 목록 -->
-	<select id="getListBoardComment" parameterType="long" resultType="boardComment">
-		/* getListBoardComment */
+	<select id="getListBoardNoticeComment" parameterType="long" resultType="boardNoticeComment">
+		/* getListBoardNoticeComment */
 		SELECT A.*, (SELECT user_name FROM user_info WHERE user_id = A.user_id) 
 		FROM board_notice_comment A 
-		WHERE board_notice_id = #{boardNoticeId} 
+		WHERE board_notice_id = #{boardId} 
+		ORDER BY insert_date DESC
+	</select>
+	
+	<!-- 게시물 Comment 목록 -->
+	<select id="getListBoardNoticeCommentByParent" parameterType="long" resultType="boardNoticeComment">
+		/* getListBoardNoticeCommentByParent */
+		SELECT A.*, (SELECT user_name FROM user_info WHERE user_id = A.user_id) 
+		FROM board_notice_comment A 
+		WHERE board_notice_comment_id = #{boardNoticeCommentId} 
 		ORDER BY insert_date DESC
 	</select>
 	
@@ -93,10 +102,10 @@
 	</select>
 	
 	<!-- 게시물 Comment 정보 -->
-	<select id="getBoardComment" parameterType="long" resultType="boardComment">
-		/* getBoardComment */
+	<select id="getBoardNoticeComment" parameterType="long" resultType="boardNoticeComment">
+		/* getBoardNoticeComment */
 		SELECT * 
-		FROM board_comment
+		FROM board_notice_comment
 		WHERE board_notice_comment_id = #{boardNoticeCommentId}
 	</select>
 	
@@ -155,15 +164,28 @@
 	</insert>
 	
 	<!-- 게시물 Comment 등록 -->
-	<insert id="insertBoardComment" parameterType="boardComment">
-		/* insertBoardComment */
+	<insert id="insertBoardNoticeComment" parameterType="boardNoticeComment">
+		/* insertBoardNoticeComment */
 		<selectKey keyProperty="boardNoticeCommentId" resultType="long" order="BEFORE">
     		SELECT nextval('board_notice_comment_seq')
   		</selectKey>
-		INSERT INTO board_comment(
-			board_notice_comment_id, board_notice_id, user_id, comment, client_ip
+		INSERT INTO board_notice_comment(
+			board_notice_comment_id, board_notice_id, user_id, content, client_ip
 		) values(
-			#{boardNoticeCommentId}, #{boardNoticeId}, #{userId}, #{comment}, #{clientIp}
+			#{boardNoticeCommentId}, #{boardNoticeId}, #{userId}, #{content}, #{clientIp}
+		)
+	</insert>
+	
+	<!-- 게시물  more Comment 등록 -->
+	<insert id="insertBoardNoticeMoreComment" parameterType="boardNoticeComment">
+		/* insertBoardNoticeMoreComment */
+		<selectKey keyProperty="boardNoticeCommentId" resultType="long" order="BEFORE">
+    		SELECT nextval('board_notice_comment_seq')
+  		</selectKey>
+		INSERT INTO board_notice_comment(
+			board_notice_comment_id, board_notice_id, user_id, content, client_ip, ancestor, parent, depth
+		) values(
+			#{boardNoticeCommentId}, #{boardNoticeId}, #{userId}, #{content}, #{clientIp}, #{ancestor}, #{parent}, #{depth}
 		)
 	</insert>
 	
@@ -195,7 +217,7 @@
 	</select>
 	
 	<!-- 게시물 Comment 수정 -->	
-	<update id="updateBoardComment" parameterType="boardComment">
+	<update id="updateBoardNoticeComment" parameterType="boardNoticeComment">
 		/* updateBoard */
 		UPDATE board_notice
 		SET comment = #{comment}
@@ -221,14 +243,14 @@
 	</delete>
 	
 	<!-- 게시물 Comment 삭제 -->
-	<delete id="deleteBoardComment" parameterType="long">
-		/* deleteBoardComment */
+	<delete id="deleteBoardNoticeComment" parameterType="long">
+		/* deleteBoardNoticeComment */
 		DELETE FROM board_notice_comment WHERE board_notice_comment_id = #{boardNoticeCommentId}
 	</delete>
 	
 	<!-- 게시물 Comment 일괄 삭제 -->
-	<delete id="deleteBoardCommentByBoardId" parameterType="long">
-		/* deleteBoardCommentByBoardId */
+	<delete id="deleteBoardNoticeCommentByBoardId" parameterType="long">
+		/* deleteBoardNoticeCommentByBoardId */
 		DELETE FROM board_notice_comment WHERE board_notice_id = #{boardNoticeId}
 	</delete>
 	

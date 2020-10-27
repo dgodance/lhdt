@@ -3,7 +3,7 @@ package lhdt.service;
 import java.util.List;
 
 import lhdt.domain.board.Board;
-import lhdt.domain.board.BoardComment;
+import lhdt.domain.board.BoardNoticeComment;
 import lhdt.domain.board.BoardNoticeFile;
 
 /**
@@ -29,10 +29,17 @@ public interface BoardService {
 	
 	/**
 	 * 게시물 Comment 목록
-	 * @param board_id
+	 * @param boardId
 	 * @return
 	 */
-	List<BoardComment> getListBoardComment(Long board_id);
+	List<BoardNoticeComment> getListBoardNoticeComment(Long boardId);
+	
+	/**
+	 * 게시물 Comment 목록
+	 * @param boardNoticeCommentId
+	 * @return
+	 */
+	List<BoardNoticeComment> getListBoardNoticeCommentByParent(Long boardNoticeCommentId);
 	
 	/**
 	 * 게시물 정보
@@ -54,7 +61,7 @@ public interface BoardService {
 	 * @param board_comment_id
 	 * @return
 	 */
-	BoardComment getBoardComment(Long board_comment_id);
+	BoardNoticeComment getBoardNoticeComment(Long boardCommentNoticeId);
 	
 	/**
 	 * 게시물 등록
@@ -68,7 +75,14 @@ public interface BoardService {
 	 * @param boardComment
 	 * @return
 	 */
-	int insertBoardComment(BoardComment boardComment);
+	int insertBoardNoticeComment(BoardNoticeComment boardNoticeComment);
+	
+	/**
+	 * 게시물 more Comment 등록
+	 * @param boardComment
+	 * @return
+	 */
+	int insertBoardNoticeMoreComment(BoardNoticeComment boardNoticeComment);
 	
 	/**
 	 * 게시물 수정
@@ -82,7 +96,7 @@ public interface BoardService {
 	 * @param boardComment
 	 * @return
 	 */
-	int updateBoardComment(BoardComment boardComment);
+	int updateBoardComment(BoardNoticeComment boardNoticeComment);
 	
 	/**
 	 * 게시물 삭제
@@ -125,4 +139,6 @@ public interface BoardService {
 	 * @return
 	 */
 	List<BoardNoticeFile> getBoardNoticeFiles(Long board_id);
+	
+	
 }

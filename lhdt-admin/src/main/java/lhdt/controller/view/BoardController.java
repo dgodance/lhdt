@@ -5,6 +5,7 @@ import lhdt.controller.AuthorizationController;
 import lhdt.domain.*;
 import lhdt.domain.board.Board;
 import lhdt.domain.board.BoardFileInfo;
+import lhdt.domain.board.BoardNoticeComment;
 import lhdt.domain.board.BoardNoticeFile;
 import lhdt.domain.common.Pagination;
 import lhdt.domain.policy.Policy;
@@ -137,43 +138,44 @@ public class BoardController implements AuthorizationController {
         model.addAttribute("board", board);
         model.addAttribute("boardNoticeFileList", boardNoticeFileList);
 
-        // 파일업로드로 레이어를 등록한 경우
-		/*
-		 * if (LayerInsertType.UPLOAD ==
-		 * LayerInsertType.valueOf(layer.getLayerInsertType().toUpperCase())) {
-		 * List<LayerFileInfo> layerFileInfoList =
-		 * layerFileInfoService.getListLayerFileInfo(layerId); LayerFileInfo
-		 * layerFileInfo = new LayerFileInfo(); for (LayerFileInfo fileInfo :
-		 * layerFileInfoList) { if (ShapeFileExt.SHP ==
-		 * ShapeFileExt.valueOf(fileInfo.getFileExt().toUpperCase())) { layerFileInfo =
-		 * fileInfo; } } model.addAttribute("layerFileInfo", layerFileInfo);
-		 * model.addAttribute("layerFileInfoList", layerFileInfoList);
-		 * model.addAttribute("layerFileInfoListSize", layerFileInfoList.size());
-		 * 
-		 * return "/board/modify-upload"; } else { //geoserver 레이어를 등록한 경우 return
-		 * "/board/modify-geoserver"; }
-		 */
-        
         return "/board/modify";
     }
 
     /**
-     * layer 지도 보기
+     * 게시물 보기
      *
      * @param model
      * @return
      */
     @GetMapping(value = "/{boardId}")
-    public String viewLayerMap(HttpServletRequest request, @PathVariable Long boardId, Model model) {
+    public String viewBoardNotice(HttpServletRequest request, @PathVariable Long boardId, Model model) {
         log.info("@@ boardId = {}", boardId);
 
         Board board = boardService.getBoard(boardId);
+        List<BoardNoticeComment> boardNoticeCommentList = boardService.getListBoardNoticeComment(boardId);
         List<BoardNoticeFile> boardNoticeFileList = boardService.getBoardNoticeFiles(boardId);
 
         model.addAttribute("board", board);
+        model.addAttribute("boardNoticeCommentList", boardNoticeCommentList);
         model.addAttribute("boardNoticeFileList", boardNoticeFileList);
 
         return "/board/popup-board";
+    }
+    
+    /**
+     * 게시물 추가 댓글
+     *
+     * @param model
+     * @return
+     */
+    @GetMapping(value = "/comment/{boardNoticeCommentId}")
+    public String viewInsertMoreComment(HttpServletRequest request, @PathVariable Long boardNoticeCommentId, Model model) {
+
+    	BoardNoticeComment boardNoticeComment = boardService.getBoardNoticeComment(boardNoticeCommentId);
+    	
+        model.addAttribute("boardNoticeComment", boardNoticeComment);
+
+        return "/board/popup-board-comment";
     }
 
     private String roleValidate(HttpServletRequest request) {

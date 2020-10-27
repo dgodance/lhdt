@@ -6,6 +6,7 @@ import lhdt.controller.AuthorizationController;
 import lhdt.domain.Key;
 import lhdt.domain.UploadDirectoryType;
 import lhdt.domain.board.Board;
+import lhdt.domain.board.BoardNoticeComment;
 import lhdt.domain.board.BoardNoticeFile;
 import lhdt.domain.policy.Policy;
 import lhdt.domain.uploaddata.UploadData;
@@ -24,6 +25,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -106,31 +108,46 @@ public class BoardRestController implements AuthorizationController {
 		result.put("message", message);
 		return result;
 	}
+
+	@PostMapping(value = "/insert-moreComment")
+    public Map<String, Object> insertMoreComment(HttpServletRequest request, HttpServletResponse response) {
+    	
+    	int statusCode = HttpStatus.OK.value();
+    	Map<String, Object> result = new HashMap<>();
+		String errorCode = null;
+		String message = null;
+
+		BoardNoticeComment boardNoticeComment = new BoardNoticeComment();
+		
+		UserSession userSession = (UserSession) request.getSession().getAttribute(Key.USER_SESSION.name());
+		
+		boardNoticeComment.setBoardNoticeId(Long.valueOf(request.getParameter("boardNoticeId")));
+		boardNoticeComment.setParent(Long.valueOf(request.getParameter("boardNoticeCommentId")));
+		log.info("@@@@@@@@@@@@@@@@@@@@@"+request.getParameter("ancestor"));
+		if(Long.valueOf(request.getParameter("ancestor"))==1L) {
+			boardNoticeComment.setAncestor(Long.valueOf(request.getParameter("boardNoticeCommentId")));
+		}else {
+			boardNoticeComment.setAncestor(Long.valueOf(request.getParameter("ancestor")));
+		}
+		boardNoticeComment.setDepth(Long.valueOf(request.getParameter("depth"))+1);
+		boardNoticeComment.setClientIp(WebUtils.getClientIp(request));
+		boardNoticeComment.setContent(request.getParameter("content"));
+		boardNoticeComment.setUserId(userSession.getUserId());
+		boardNoticeComment.setUserName(userSession.getUserName());
+		
+		try {
+			boardService.insertBoardNoticeMoreComment(boardNoticeComment);
+		}catch(Exception e) {
+			
+		}
+    	
+    	
+		result.put("statusCode", statusCode);
+		result.put("errorCode", errorCode);
+		result.put("message", message);
+		return result;
+    }
 	
-	/*
-	 * @PostMapping(value = "/update-board") public Map<String, Object>
-	 * updateBoard(HttpServletRequest request, Board board) throws Exception {
-	 * Map<String, Object> result = new HashMap<>(); String errorCode = null; String
-	 * message = null;
-	 * 
-	 * UserSession userSession = (UserSession)
-	 * request.getSession().getAttribute(Key.USER_SESSION.name()); String userId =
-	 * userSession.getUserId(); board.setUserId(userId);
-	 * boardService.updateBoard(board);
-	 * 
-	 * int statusCode = HttpStatus.OK.value();
-	 * 
-	 * result.put("statusCode", statusCode); result.put("errorCode", errorCode);
-	 * result.put("message", message); return result; }
-	 */
-	
-	/**
-	 * shape 파일 변환 TODO dropzone 이 파일 갯수만큼 form data를 전송해 버려서 command 패턴을(Layer
-	 * layer) 사용할 수 없음 dropzone 이 예외 처리가 이상해서 BAD_REQUEST 를 던지지 않고 OK 를 넣짐
-	 *
-	 * @param request
-	 * @return
-	 */
 	@SuppressWarnings("unchecked")
 	@PostMapping(value = "/insert-board")
 public Map<String, Object> insert(MultipartHttpServletRequest request) throws Exception {
@@ -303,6 +320,39 @@ public Map<String, Object> insert(MultipartHttpServletRequest request) throws Ex
 		result.put("message", message);
 		return result;
 	}
+	
+	
+    @PostMapping(value = "/insert-comment")
+    public Map<String, Object> insertComment(HttpServletRequest request, HttpServletResponse response) {
+    	
+    	int statusCode = HttpStatus.OK.value();
+    	Map<String, Object> result = new HashMap<>();
+		String errorCode = null;
+		String message = null;
+
+		BoardNoticeComment boardNoticeComment = new BoardNoticeComment();
+		
+		UserSession userSession = (UserSession) request.getSession().getAttribute(Key.USER_SESSION.name());
+		
+		boardNoticeComment.setBoardNoticeId(Long.valueOf(request.getParameter("boardNoticeId")));
+		//boardNoticeComment.setBoardNoticeCommentId(Long.valueOf(request.getParameter("boardNoticeCommentId")));
+		boardNoticeComment.setClientIp(WebUtils.getClientIp(request));
+		boardNoticeComment.setContent(request.getParameter("content"));
+		boardNoticeComment.setUserId(userSession.getUserId());
+		boardNoticeComment.setUserName(userSession.getUserName());
+		
+		try {
+			boardService.insertBoardNoticeComment(boardNoticeComment);
+		}catch(Exception e) {
+			
+		}
+    	
+    	
+		result.put("statusCode", statusCode);
+		result.put("errorCode", errorCode);
+		result.put("message", message);
+		return result;
+    }
 	
 	@SuppressWarnings("unchecked")
 	@PostMapping(value = "/update-board")
@@ -734,7 +784,7 @@ public Map<String, Object> upadte(MultipartHttpServletRequest request) throws Ex
 		}
 		
 		/**
-		 * shape 파일 다운 로드
+		 * 파일 다운 로드
 		 * @param request
 		 * @param response
 		 * @param layerId
@@ -841,6 +891,8 @@ public Map<String, Object> upadte(MultipartHttpServletRequest request) throws Ex
 			}
 	    }
 	    
+	    
+	    
 	    /**
 		 *
 		 * @param targetDirectory
@@ -895,7 +947,22 @@ public Map<String, Object> upadte(MultipartHttpServletRequest request) throws Ex
 		        }
 		    }
 		
-		
+		    
+		    /**
+		     * 댓글불러오기
+		     *
+		     * @param model
+		     * @return
+		     */
+		    @GetMapping(value = "/load-comment/{boardNoticeCommentId:[0-9]+}")
+		    public Map<String, Object> viewLayerMap(HttpServletRequest request, @PathVariable Long boardNoticeCommentId, Model model) {
+		    	Map<String, Object> result = new HashMap<>();
+		    	
+		        List<BoardNoticeComment> boardNoticeCommentList = boardService.getListBoardNoticeCommentByParent(boardNoticeCommentId);
+		        
+		    	result.put("boardNoticeCommentList", boardNoticeCommentList);
+		    	
+		    	return result;
+		    }
 }
-
 

@@ -13,7 +13,7 @@
     	<typeAlias type="lhdt.domain.accesslog.AccessLog" alias="accessLog" />
     	<typeAlias type="lhdt.domain.board.Board" alias="board"/>
     	<typeAlias type="lhdt.domain.board.BoardNoticeFile" alias="boardNoticeFile"/>
-		<typeAlias type="lhdt.domain.board.BoardComment" alias="boardComment"/>
+		<typeAlias type="lhdt.domain.board.BoardNoticeComment" alias="boardNoticeComment"/>
     	<typeAlias type="lhdt.domain.converter.ConverterJob" alias="converterJob" />
     	<typeAlias type="lhdt.domain.converter.ConverterJobFile" alias="converterJobFile" />
 		<typeAlias type="lhdt.domain.common.PartitionTable" alias="partitionTable" />

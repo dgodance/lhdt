@@ -25,10 +25,10 @@
 	th:src="@{/externlib/ol45/ol.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript"
 	th:src="@{/js/{lang}/map-view.js(lang=${lang}, cacheVersion=${contentCacheVersion})}"></script>
-	
+
 <style>
-	#boardButtonArea {
-  padding-top: 20px;
+#boardButtonArea {
+	padding-top: 20px;
 }
 </style>
 </head>
@@ -60,13 +60,14 @@
 					<th class="col-label" scope="row"><label>내용</label></th>
 				</tr>
 				<tr>
-					<td class="col-key"><textarea name="contents" cols="30"
-							rows="5" readonly>[[${board.contents}]]</textarea></td>
+					<td class="col-key"><textarea name="contents" cols="30" rows="5" readonly>[[${board.contents}]]</textarea></td>
 				</tr>
 
 			</table>
 			<div class="file-list">
-			<div class="table-label"><span>첨부파일</span></div>
+				<div class="table-label">
+					<span>첨부파일</span>
+				</div>
 				<table class="list-table scope-col" summary="공지사항 첨부파일 테이블">
 					<caption class="hiddenTag">첨부파일</caption>
 					<thead>
@@ -83,48 +84,67 @@
 							</tr>
 						</th:block>
 						<th:block th:unless="${#lists.isEmpty(boardNoticeFileList)}" th:each="boardNoticeFile, status : ${boardNoticeFileList}">
-						<tr>
+							<tr>
 								<td class="col-key" th:text="${boardNoticeFile.fileName}" style="max-width: 315px; word-wrap: break-word;"></td>
-								
-								<td class="col-type">
-									<a th:href="@{/boards/{boardNoticeFileId}/board-notice-file-info/download(boardNoticeFileId=${boardNoticeFile.boardNoticeFileId})}" class="linkButton">다운로드</a>
+								<td class="col-type"><!-- <a th:href="@{/boards/{boardNoticeFileId}/board-notice-file-info/download(boardNoticeFileId=${boardNoticeFile.boardNoticeFileId})}" class="linkButton">다운로드</a> -->다운로드</td>
+								<td><th:block th:text="${#temporals.format(boardNoticeFile.insertDate, 'yyyy-MM-dd HH:mm:ss')}"></th:block>
 								</td>
-								<td>
-									<th:block th:text="${#temporals.format(boardNoticeFile.insertDate, 'yyyy-MM-dd HH:mm:ss')}"></th:block>
-								</td>
-								</tr>
+							</tr>
 						</th:block>
 					</tbody>
 				</table>
 			</div>
 			<div class="comment-list">
-			<div class="table-label"><span>의견</span></div>
+				<div class="table-label">
+					<span>의견</span>
+				</div>
+				<form id="comment" th:object="${comment}" method="post" th:action="@{#}" onsubmit="return false;">
+					<input type="hidden" id="boardNoticeId" name="boardNoticeId" th:value="${board.boardNoticeId}"/>
+					
+					<th:block th:if="${boardNoticeComment==null}">
+						<input type="hidden" id="boardNoticeCommentId" name="boardNoticeCommentId" value="0"/>
+					</th:block>
+					
+					<table class="input-table scope-row">
+						<col class="col-label" />
+						<tr>
+							<th class="col-label" scope="row"><label>내용</label><input type="submit" onClick="insertComment(); return false;" value="의견등록"/></th>
+						</tr>
+						<tr>
+							<td class="col-key"><textarea class="input-comment" id=content name="content" placeholder="자신의 의견을 간단히 적어주세요."></textarea></td>
+						</tr>
+					</table>
+				</form>
 				<table class="list-table scope-col" summary="공지사항 첨부파일 테이블">
 					<caption class="hiddenTag">의견</caption>
 					<thead>
 						<tr>
 							<th scope="col">작성자</th>
 							<th scope="col">내용</th>
+							<th scope="col">작성시간</th>
 							<th scope="col">추천</th>
+							<th scope="col">대댓글보기</th>
 						</tr>
 					</thead>
 					<tbody id="boardFileInfoListArea">
-						<th:block th:if="${boardNoticeFileList.empty}">
+						<th:block th:if="${boardNoticeCommentList.empty}">
 							<tr style="height: 50px;">
-								<td colspan="9" style="padding-top: 15px; text-align: center;">첨부 파일이 존재하지 않습니다.</td>
+								<td colspan="9" style="padding-top: 15px; text-align: center;">의견이 존재하지 않습니다.</td>
 							</tr>
 						</th:block>
-						<th:block th:unless="${boardNoticeFileList.empty}" th:each="boardNoticeFile, status : ${boardNoticeFileList}">
-						<tr>
-								<td class="col-key" th:text="${boardNoticeFile.fileName}" style="max-width: 315px; word-wrap: break-word;"></td>
-								
-								<td class="col-type">
-									<a th:href="@{/boards/{boardNoticeFileId}/board-notice-file-info/download(boardNoticeFileId=${boardNoticeFile.boardNoticeFileId})}" class="linkButton">다운로드</a>
-								</td>
+						<th:block th:unless="${boardNoticeCommentList.empty}"
+							th:each="boardNoticeComment, status : ${boardNoticeCommentList}">
+							<tr>
+								<td class="col-key" th:text="${boardNoticeComment.userName}" style="max-width: 315px; word-wrap: break-word;"></td>
+								<td class="col-key" th:text="${boardNoticeComment.content}" style="max-width: 315px; word-wrap: break-word;"></td>
+								<td><th:block th:text="${#temporals.format(boardNoticeComment.insertDate, 'yyyy-MM-dd HH:mm:ss')}"></th:block></td>
+								<td class="col-key" th:text="${boardNoticeComment.likeCount}" style="max-width: 315px; word-wrap: break-word;"></td>
 								<td>
-									<th:block th:text="${#temporals.format(boardNoticeFile.insertDate, 'yyyy-MM-dd HH:mm:ss')}"></th:block>
+									<a type="button" href="#" th:onClick="viewInsertMoreComment([[${boardNoticeComment.boardNoticeCommentId}]]); return false;"  class="linkButton" >의견등록</a>
+									<input type="button" onClick="viewMoreComment([[$(boardNoticeComment.boardNoticeCommentId)]]); return false;" value="의견보기"/>
+									<input type="button" onClick="likeComment([[$(boardNoticeComment.boardNoticeCommentId)]]); return false;" value="추천"/>
 								</td>
-								</tr>
+							</tr>
 						</th:block>
 					</tbody>
 				</table>
@@ -142,6 +162,57 @@
 	</ul>
 </body>
 <script th:inline="javascript">
+	function insertComment(){
+		if($("#content").val()==null || $("#content").val()==""){
+			alert("내용을입력해주세요!");
+			return;
+		}
+	        var formData = $('#comment').serialize();
+				$.ajax({
+					url: "/boards/insert-comment/",
+					type: "POST",
+					data:formData,
+					headers: {"X-Requested-With": "XMLHttpRequest"},
+					dataType: "json",
+					success: function(msg) {
+						alert("등록되었습니다.");
+						location.reload();
+					},
+			        error: function(request, status, error) {
+			        	ajaxErrorHandler(request);
+			        }
+				});
+		}
+	
+	function viewMoreComment(boardNoticeCommentId){
+		$.ajax({
+			url: "/boards/insert-comment/",
+			type: "GET",
+			data:{
+				"boardNoticeCommentId":boardNoticeCommentId
+			},
+			headers: {"X-Requested-With": "XMLHttpRequest"},
+			dataType: "json",
+			success: function(data) {
+				console.log(data);
+				location.reload();
+			},
+	        error: function(request, status, error) {
+	        	ajaxErrorHandler(request);
+	        }
+		});
+	}
+
+	// 게시물 보기
+	function viewInsertMoreComment(boardNoticeCommentId) {
+	    var url = "/board/comment/" + boardNoticeCommentId;
+	    var width = 500;
+	    var height = 300;
+
+	    var popWin = window.open(url, "","toolbar=no ,width=" + width + " ,height=" + height + ", directories=no,status=yes,scrollbars=no,menubar=no,location=no");
+	    popWin.document.title = "추가의견등록";
+	}
+
 	function closeWindow() {
 		setTimeout(function() {
 			window.close();

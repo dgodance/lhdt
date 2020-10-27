@@ -2,11 +2,11 @@ package lhdt.domain.board;
 
 import java.time.LocalDateTime;
 
-import lhdt.domain.board.Board.BoardBuilder;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import lhdt.utils.StringUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,39 +23,41 @@ import lombok.ToString;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class BoardComment {
+public class BoardNoticeComment {
 	
 	// 사용자 이름
-	private String user_name;
-	
+	private String userName;
 	// 고유번호
-	private Long board_notice_comment_id;
+	private Long boardNoticeCommentId;
 	// 게시판 고유번호
-	private Long board_notice_id;
+	private Long boardNoticeId;
+	// 조상
+	private Long ancestor;
+	// 부모
+	private Long parent;
+	// 깊이
+	private Long depth;
 	// 사용자 아이디
-	private String user_id;
+	private String userId;
 	// 댓글(Comment)
-	private String comment;
+	private String content;
 	// 요청 IP
-	private String client_ip;
+	private String clientIp;
+	// 추천수
+	private String likeCount;
 	// 등록일
-	private String register_date;
+	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+	private LocalDateTime insertDate;
 	
 	public String getViewComment() {
-		if(this.comment == null || "".equals(this.comment)) {
+		if(this.content == null || "".equals(this.content)) {
 			return "";
 		}
 		
-		String str = StringUtil.getStringConvertForHtml(this.comment);
+		String str = StringUtil.getStringConvertForHtml(this.content);
 		str = StringUtil.getStringNewLineConvertForHtml(str);
 		
 		return str;
 	}
 	
-	public String getViewRegisterDate() {
-		if(this.register_date == null || "".equals( register_date)) {
-			return "";
-		}
-		return register_date.substring(0, 19);
-	}
 }
