@@ -8,7 +8,7 @@ a {vertical-align:top; text-decoration:none; color:#000; }
 table { border-collapse:collapse; border-spacing:0; }
 input, select { vertical-align:middle; }
 html, body { margin:0; padding:0; height:100%; }
-body, th, td, input, select, textarea { color:#444; font-family:'Malgun Gothic','돋움',dotum, sans-serif; font-size:13px; line-height:1.5em;}
+body, th, td, input, select, textarea {color:#444;font-family:'Malgun Gothic','돋움',dotum, sans-serif;font-size:13px;line-height:1.5em;}
 button { cursor:pointer; font-family:'Malgun Gothic','돋움'; }
 
 /* ////////// LAYOUT ////////// */
@@ -38,7 +38,7 @@ header {
 	text-indent: -9999px;
 }
 .HamMenu.on {
-	background-color: #0066a2;
+	background-color: #003351;
 }
 
 h1 {
@@ -54,8 +54,8 @@ h1 {
 	background-size: 110px;
 }
 
-.HamMenu > a{display:inline-block; height: 100%; width: 60px;background: url(/images/ko/icon.png)no-repeat;background-position: 13px -60px;text-indent: -9999px;}
-#headerWrap .on {background-color: #0066a2;}
+.HamMenu > a{display:inline-block;height: 100%;width: 77px;background: url(/images/ko/icon.png)no-repeat;background-position: 23px -60px;text-indent: -9999px;}
+#headerWrap .on {background-color: #003351;}
 
 
 
@@ -67,13 +67,15 @@ h1 {
     color:#fff;
     
 }
-
+.urban-group option{
+	color:#828282;
+}
 
 
 
 
 .gnb {
-	margin: 20px 0;
+	margin: 20px 8px;
 	font-size: 12px;
 	color: #fff;
 	bottom: 0;
@@ -155,21 +157,20 @@ background-color: #262b3f;
 ul.nav {
 	float: left;
 	height: 100%;
-	width: 60px;
+	width: 77px;
 }
 ul.nav li {
-	padding: 50px 0 5px 0;
+	padding: 50px 0 20px 0;
 	font-size: 13px;
 	color: #fff;
 	cursor: pointer;
 	text-align: center;
-	border-bottom: 1px dotted #444a61;
 	background-image: url(/images/ko/icon.png);
 	background-repeat: no-repeat;
+	margin-bottom: 10px;
 }
 ul.nav li.on {
 	/*background-color: #258fff;*/
-	background-color: #262b3f;
 }
 ul.nav li.search {
 	/*background-position: -445px 10px;*/
@@ -180,12 +181,13 @@ ul.nav li.data {
 	background-position: -62px 13px;
 }
 ul.nav li.converter {
-	/*background-position: -445px -190px;*/
-	background-position: -138px 8px;
+	background: url(/images/ko/change.png)no-repeat center top;
 }
 ul.nav li.extrusion {
-	/*background-position: -445px -190px;*/
-	background-position: -289px 5px;
+	background: url(/images/ko/simul.png)no-repeat center top;
+}
+ul.nav li.mydata {
+	background: url(/images/ko/mydata.png)no-repeat center top;
 }
 ul.nav li.spatial {
 	background-position: -445px -290px;
@@ -215,8 +217,7 @@ ul.nav li.userPolicy {
 	background-position: -440px 5px;
 }
 ul.nav li.layer {
-	/*background-position: -360px -190px;*/
-	background-position: -364px 5px;
+	background: #003351 url(/images/ko/layer_icon.png) no-repeat center 15px;
 }
 
 /* CONTENTSBTN */
@@ -245,18 +246,7 @@ background-color: #ccc;
 }
 
 /* CONTENTSWRAP */
-.contentsWrap {
-position:absolute;
-float: left;
-overflow-y: auto;
-height: 100%;
-width: 370px;
-/*padding-top: 50px;*/
-box-sizing: border-box;
-background-color: #eaeaea;
-margin-left:60px;
-z-index:10;
-}
+.contentsWrap {position:absolute;float: left;overflow-y: auto;height: 100%;width: 370px;/*padding-top: 50px;*/box-sizing: border-box;background-color: #eaeaea;margin-left: 77px;z-index: 99999;}
 .contents {
 margin: 7px;
 padding: 10px;
@@ -459,7 +449,7 @@ color: #258fff;
 .dataGroupSummary > table tr td {
 	padding: 7px 5px;
 	border-right: 1px solid #ccc;
-	font-size: 14px;
+	font-size: 13px;
 	border-bottom: 1px solid #ccc;
 	text-align: center;
 	cursor: default;
@@ -468,7 +458,7 @@ color: #258fff;
     border-right: none;
 }
 .dataGroupSummary > table tr:nth-child(4n+0) td {
-	padding: 0;
+	/* padding: 0; */
 }
 .dataGroupSummary > table tr td a {
 	border-bottom: 1px solid #000;
@@ -550,13 +540,7 @@ text-align: left;
 text-align: center;
 }
 
-button.goto {
-width: 30px;
-height: 30px;
-border:none;
-text-indent: -999em;
-background: url(/images/ko/ico.png) no-repeat -462px -697px;
-}
+button.goto {width: 30px;height: 30px;border:none;text-indent: -999em;background: url(/images/ko/ico_btn.png) no-repeat -295px -167px;}
 button.goto:hover {
 /*transform: scale(1.1);*/
 }
@@ -898,15 +882,7 @@ border: 1px solid #477cdb;
 background-color: #fff;
 background-image: none;
 }
-.btnTextF {
-padding: 2px 10px;
-font-size: 0.9em;
-color: #fff;
-border-radius: 2px;
-border: 1px solid #727272;
-background-color: #636363;
-background-image: none;
-}
+.btnTextF {padding: 2px 10px;font-size: 0.9em;color: #fff;border-radius: 2px;border: 1px solid #727272;background-color: #4f585d;background-image: none;border-radius: 5px;}
 .btnTextF:hover {
 color: #477cdb;
 border: 1px solid #477cdb;
@@ -980,12 +956,7 @@ background-color: #fff;
 ul.listDrop li > div.listContents {
 display: none;
 }
-ul.listDrop li.on > div.listContents {
-display: block;
-padding: 10px;
-border:1px solid #e0e0e0;
-background-color: #fff;
-}
+ul.listDrop li.on > div.listContents {display: block;padding: 10px;border:1px solid #e0e0e0;background-color: #fff;border-bottom-right-radius: 5px;border-bottom-left-radius: 5px;margin-bottom: 5px;}
 /*  CONTENTS / 분석 */
 .analysisGroup {
 /* margin: 10px 0;
@@ -1530,14 +1501,7 @@ background:url(/images/ko/ico_layer.png) no-repeat 5px -198px;
 .btnGroup {
 text-align:center;
 }
-button.textBtnSub {
-padding: 8px;
-border-radius: 3px;
-color: #333;
-font-size: 14px;
-border: 1px solid #555;
-background-color: #fff;
-}
+button.textBtnSub {padding: 6px;border-radius: 3px;color: #333;font-size: 13px;border: 1px solid #555;background-color: #fff;}
 button.textBtnSub:hover {
 color: #fff;
 border: 1px solid #555;
@@ -1792,40 +1756,56 @@ ul.listDrop li.list-drop-button-none > p {
 .form-group {
 	margin-bottom: 5px;
 	padding: 5px;
-	background-color: #f3f3f3;
+	background-color: #fff;
 }
 .form-group-data {
 	margin: 0;
 	padding: 2px;
-    border: 1px solid #ccc;
-    border-top: none;
+	border: none;
+	border-top: none;
 }
 .form-group-data:first-of-type {
-	border-top: 1px solid #ccc;
+	border-top: none;
+	width: 100%;
+	display: inline-block;
+	box-sizing: border-box;
 }
-.form-group > label {
+.form-group > .form_input{
+	width:64%;
+}
+.form-group label {
     width: 20%;
-	padding: 7px;
+    padding: 5px 0;
     vertical-align: middle;
     display: inline-block;
-  	text-align: justify;
+    text-align: justify;
+    letter-spacing: -0.9px;
+    font-size: 12px;
+    box-sizing: border-box;
+    float: left;
 }
-.form-group > input {
-	width: 65%;
+.form-group input {
 	padding: 5px;
 	border: none;
 	font-size: small;
+	border: 1px solid #d5d5d5;
+	border-radius: 5px;
 }
-.form-group > select {
-	width: 65%;
+.form-group input::placeholder{
+	font-size:12px;
+	letter-spacing:-1.2px;
+}
+.form-group select {
 	padding: 5px;
 	border-color: #d5d5d5;
 	color: #7d7d7d;
 	font-size: small;
 	line-height: 1.5em;
+	background: #fff;
+	border-radius: 5px;
+	float: left;
 }
-.form-group > button {
-	width: 100%;
+.form-group button {
 	padding: 5px;
 	line-height: 1.5em;
 	font-size: small;
@@ -1835,11 +1815,10 @@ ul.listDrop li.list-drop-button-none > p {
 	margin-bottom: 4px;
 	padding: 4px;
 }
-.form-group-policy > label {
+.form-group-policy label {
 	width: 30%;
 }
-.form-group-policy > input {
-	width: 45%;
+.form-group-policy input {
 	margin-right: 5px;
 }
 
@@ -1874,9 +1853,11 @@ ul.listDrop li > p {
 }
 ul.listDrop li.on > p {
 	background: none;
-	background-color: #258fff;
+	background-color: #4280a5;
 	border: none;
-    border-bottom: 3px solid #eaeaea;
+	border-bottom: none;
+	border-top-right-radius: 7px;
+	border-top-left-radius: 7px;
 }
 ul.listDrop li > p > span.collapse-icon {
 	width: 15px;
@@ -2031,9 +2012,24 @@ z-index:100;
 
 .border-none{border:none}
 
+/*float*/
+.fl{float:left;}
+.fr{float:right;}
 
+/*width*/
+.w_10{width:10%;}
+.w_20{width:20%;}
+.w_30{width:30%;}
+.w_40{width:40%;}
+.w_50{width:50%;}
+.w_60{width:60%;}
+.w_70{width:70%;}
+.w_80{width:80%;}
+.w_90{width:90%;}
+.w_100{width:100%;}
 
-
+/*box-sizing*/
+.box_sig{box-sizing:border-box;}
 /* 데이터 목록 / 범례 */
 /*
 .legendWrap {
@@ -2135,18 +2131,9 @@ position: absolute;
 top: 3px;
 right: 3px;
 }
-button.showHideButton {
-width: 30px;
-height: 30px;
-text-indent: -999em;
-border: none;
-background-image: url(/images/ko/ico.png);
-background-repeat: no-repeat;
-background-color: transparent;
-}
-button.show {
-background-position: -97px -345px;
-}
+button.showHideButton {width: 30px;height: 30px;text-indent: -999em;border: none;background: url(/images/ko/ico_btn.png) no-repeat -100px -250px;background-repeat: no-repeat;background-color: transparent;}
+button.delete{width: 30px;height: 30px;text-indent: -999em;border: none;background: url(/images/ko/ico_btn.png) no-repeat -295px -125px;background-repeat: no-repeat;background-color: transparent;}
+button.show {}
 button.hide {
 background-position: -147px -345px;
 }
@@ -2751,7 +2738,7 @@ ul.listDefault li.on > ul li > button {
 	border: 1px solid #ccc;
 	border-bottom: none;
 	cursor: pointer;
-	min-height: 100px;
+	min-height: 70px;
 }
 .listElement:hover {
 	background-color: #eff7ff;
@@ -2793,6 +2780,7 @@ ul.listDefault li.on > ul li > button {
 .infoWrap > p {
 	/*margin-top: 5px;*/
 	/*font-size: 14px;*/
+	display: inline-block;
 }
 .moreWrap {
 	text-align: center;
@@ -3098,3 +3086,118 @@ user-select: none; /* Standard syntax */
 .tabSetup li.shadow.on {
 	background-position: center -472px;
 }
+
+/*201022 추가*/
+.sch_btn_01{
+	display: inline-block;
+	width: 10%;
+}
+.sch_btn_01 button{
+	text-indent: -9999px;
+	padding: 5px;
+}
+
+.con_bx{
+	 display: block;
+	 padding: 10px;
+	 border: 1px solid #e0e0e0;
+	 background-color: #fff;
+	 overflow:hidden;
+	 border-bottom-right-radius: 5px;
+	 border-bottom-left-radius: 5px;
+	 margin-bottom: 5px;
+}
+.con_bx_top{
+	padding-bottom: 10px;
+	overflow: hidden;
+}
+.hidden{
+	overflow:hidden;
+}
+/*btn*/
+
+.btn_box{
+	display:inline-block;
+	
+}
+.btn_st{
+	background: #797979 url(/images/ko/ico_btn.png)no-repeat;
+	border: none;
+	float: left;
+	text-indent: -9999px;
+	width: 30px;
+	height: 30px;
+	border-radius: 5px;
+}
+.btn_st:hover{
+	background-color: #262b3f ;
+    transition: all ease 0.8s;
+}
+.btn_sts{
+	background: url(/images/ko/ico_btn.png)no-repeat;
+	float: left;
+	text-indent: -9999px;
+	width: 30px;
+	height: 30px;
+	border-radius: 3px;
+	border: 1px solid #b3b3b3;
+}
+.btn_sts:hover{
+	background-color: #262b3f ;
+    transition: all ease 0.8s;
+    background-position:-193px -288px
+}
+.btn_scn{
+	background-size: 400px;
+	background-position: 4px 4px;
+}
+
+.btn_reset{
+	
+}
+.btn_ret{
+		/* background-size: 400px; */
+		background-position: -296px -288px;
+}
+.btn_stl{
+	background: url(/images/ko/ico_btn.png)no-repeat;
+	border-radius: 3px;
+	border: 1px solid #b3b3b3;
+	padding: 5px 0;
+	width: 23.8% !important;
+	text-indent: -9999px;
+}
+.btn_sel{
+	background-position: -57px -66px;
+	background-size: 430px;
+}
+.btn_close{
+	background-position: -58px -102px;
+	background-size: 430px;
+}
+.btn_move{
+	background-position: -60px -137px;
+	background-size: 430px;
+}
+.btn_rota{
+	background-position: -60px -33px;
+	background-size: 430px;
+}
+.btn_save{
+	background-position: -322px 5px;
+	background-size: 430px;
+}
+.co_con{
+	overflow:hidden;
+}
+.co_con select {
+	padding: 5px;
+	border-color: #d5d5d5;
+	color: #7d7d7d;
+	font-size: small;
+	line-height: 1.5em;
+	background: #fff;
+	border-radius: 5px;
+	float: left;
+}
+.input_btn{width: 15px;height: 15px;}

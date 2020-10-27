@@ -1,12 +1,6 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
 <div id="landScapeContent" class="contents yScroll fullHeight" style="display:none;">
 <style>
-    button.delete {
-        background-image: url(/images/ko/icon/image/image.png);
-        background-repeat: no-repeat;
-        background-color: transparent;
-        background-position: -120px 0px;
-    }
 
     .text-left {text-align: left !important;}
     .text-center {text-align: center !important;}
@@ -31,21 +25,15 @@
         <!-- 경관보기는 필요없을꺼같음.. 경관 분석에 옵션을 주면 해결될 것으로 보임. -->
         <li class="on">
             <p th:text="경관보기"><span class="collapse-icon">icon</span></p>
-            <div style="display: block;
-                padding: 10px;
-                border: 1px solid #e0e0e0;
-                background-color: #fff;">
+            <div class="con_bx">
                 <div id="lsHeightViewContent">
                 </div>
             </div>
         </li>
         <li class="on">
             <p th:text="조망점비교"><span class="collapse-icon">icon</span></p>
-            <div style="display: block;
-                padding: 10px;
-                border: 1px solid #e0e0e0;
-                background-color: #fff;">
-                <div id="landscapeDiffDataDiv">
+            <div class="con_bx">
+                <div id="landscapeDiffDataDiv"  class="con_bx_top">
                 </div>
                 <div id="landscapeDiffDetDataDiv">
                 </div>
@@ -59,34 +47,39 @@
                 border: 1px solid #e0e0e0;
                 background-color: #fff;">
                 <div class="form-group form-group-data">
-                    <label for="lsAnalsMoveTypeGroup">분석높이</label>
-                    <select id="lsAnalsMoveTypeGroup" name="lsAnalsMoveTypeGroup" style="width: 90px;">
-                        <option value="0">
-                            보행자
-                        </option>
-                        <option value="1">
-                            자동차
-                        </option>
-                        <option value="2">
-                            사용자
-                        </option>
-                    </select>
-                    <input type="number" id="landscapeMoveTypeName" name="landscapeMoveTypeName"
-                           style="width: 95px;"
-                           placeholder="분석높이" size="5" step="0.5">
-                    <label for="lsAnalsActionGroup">작업 방식</label>
-                    <select id="lsAnalsActionGroup" name="lsAnalsActionGroup">
-                        <option value="0">
-                            자율분석
-                        </option>
-                        <option value="1">
-                            저장된데이터기반분석
-                        </option>
-                    </select>
-                </div>
-                <div id="lsAnalsContent">
+                     <div class="co_con">
+	                    <label for="lsAnalsMoveTypeGroup" >분석높이</label>
+	                    <select id="lsAnalsMoveTypeGroup" name="lsAnalsMoveTypeGroup" class="w_30">
+	                        <option value="0">
+	                            보행자
+	                        </option>
+	                        <option value="1">
+	                            자동차
+	                        </option>
+	                        <option value="2">
+	                            사용자
+	                        </option>
+	                    </select>
+	                    <input type="number" id="landscapeMoveTypeName" name="landscapeMoveTypeName"
+	                           style="width: 45%;"
+	                           placeholder="분석높이" size="5" step="0.5">
+                     </div>
+                    <div class="co_con marT10">
+	                    <label for="lsAnalsActionGroup">작업 방식</label>
+	                    <select id="lsAnalsActionGroup" name="lsAnalsActionGroup" class="w_70">
+	                        <option value="0">
+	                            자율분석
+	                        </option>
+	                        <option value="1">
+	                            저장된데이터기반분석
+	                        </option>
+	                    </select>
+	                     <div id="lsAnalsContent">
 
+               			 </div>
+                    </div>
                 </div>
+               
             </div>
         </li>
         <!-- 경관보기는 필요없을꺼같음.. 경관 분석에 옵션을 주면 해결될 것으로 보임. -->

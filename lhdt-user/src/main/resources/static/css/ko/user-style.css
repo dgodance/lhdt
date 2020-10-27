@@ -136,13 +136,12 @@ ul.nav li {
 	font-size: 13px;
 	color: #fff;
 	cursor: pointer;
-	text-align: center;
-	border-bottom: 1px dotted #444a61;
+	text-align: center;/* 
+	border-bottom: 1px dotted #444a61; */
 	background-image: url(/images/ko/icon.png);
 	background-repeat: no-repeat;
 }
 ul.nav li.on {
-	/*background-color: #258fff;*/
 	background-color: #262b3f;
 }
 ul.nav li.search {
@@ -441,9 +440,9 @@ color: #258fff;
 .dataGroupSummary > table tr td:last-child{
     border-right: none;
 }
-.dataGroupSummary > table tr:nth-child(4n+0) td {
+/* .dataGroupSummary > table tr:nth-child(4n+0) td {
 	padding: 0;
-}
+} */
 .dataGroupSummary > table tr td a {
 	border-bottom: 1px solid #000;
 }
@@ -1785,13 +1784,13 @@ ul.listDrop li.list-drop-button-none > p {
   	text-align: justify;
 }
 .form-group > input {
-	width: 65%;
+/* 	width: 65%; */
 	padding: 5px;
 	border: none;
 	font-size: small;
 }
 .form-group > select {
-	width: 65%;
+	/* width: 65%; */
 	padding: 5px;
 	border-color: #d5d5d5;
 	color: #7d7d7d;
@@ -1810,10 +1809,10 @@ ul.listDrop li.list-drop-button-none > p {
 	padding: 4px;
 }
 .form-group-policy > label {
-	width: 30%;
+	/* width: 30%; */
 }
 .form-group-policy > input {
-	width: 45%;
+	/* width: 45%; */
 	margin-right: 5px;
 }
 

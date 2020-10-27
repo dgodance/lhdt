@@ -7,24 +7,24 @@
     </li>
 </ul> -->
        
-	<div class="ds-modeler" style="border: 1px solid #efefef;padding:5px;">
+	<div class="ds-modeler" >
 		<!-- <h3 class="">디자인 레이어</h3> -->
-		
-		<div class="form-group form-group-data">
-			<label for="urban-group1">신도시</label> 
-			<select id="urban-group1" >
-				<option value="">전체</option>
-				<!-- by js -->
-			</select>
+		<div class="hidden">
+			<div class="form-group form-group-data">
+				<label for="urban-group1">신도시</label> 
+				<select id="urban-group1" class="w_80">
+					<option value="">전체</option>
+					<!-- by js -->
+				</select>
+			</div>
+			<div class="form-group form-group-data">
+				<label for="urban-group2">사업지구</label>
+				<select id="urban-group2" class="w_80">
+					<option value="">전체</option>
+					<!-- by js -->
+				</select>
+			</div>
 		</div>
-		<div class="form-group form-group-data">
-			<label for="urban-group2">사업지구</label>
-			<select id="urban-group2" >
-				<option value="">전체</option>
-				<!-- by js -->
-			</select>
-		</div>
-
 		<div class="list">
 			<div class="design-layers dataGroupSummary table-data-group-summary">
 				<!-- by js -->
@@ -40,30 +40,28 @@
 		<input type="checkbox" class="ds-toggle-land-updown">
 		전체 필지높이 조절		
 	</div> -->
-	<div style="margin-top:8px; margin-left:8px;">
-		<button type="button" class="textBtnSub reset-xxx">전체 초기화</button>		
+	<div class="fr btn_box marT10 marB10">
+		<button type="button" class="btn_sts btn_ret ">전체 초기화</button>		
 	</div>
 
-	<div class="ds-tool marT10" style="border: 1px solid #efefef;padding:5px;">
-		<h3 class="">도구</h3>
+	<div class="ds-tool marT10 hidden w_100 box_sig">
 		<div class="">
 			<button class="textBtnSub  design-layer-tool-none" style="display:none;">없음</button>
-			<button class="textBtnSub  design-layer-tool-select">선택</button>
-			<button class="textBtnSub  design-layer-tool-delete">삭제</button>
-			<button class="textBtnSub  design-layer-tool-move">이동</button>
-			<button class="textBtnSub  design-layer-tool-rotate">회전</button>
+			<button class="btn_sel btn_stl design-layer-tool-select">선택</button>
+			<button class="btn_close btn_stl design-layer-tool-delete">삭제</button>
+			<button class="btn_move btn_stl design-layer-tool-move">이동</button>
+			<button class="btn_rota btn_stl design-layer-tool-rotate">회전</button>
 			<!-- <button class="textBtnSub  design-layer-tool-updown">건물높이조절</button> -->
 			<!-- <button class="textBtnSub  design-layer-tool-intersection">필지정보조회</button> -->
 			<!-- <button class="textBtnSub  design-layer-tool-landupdown">필지높이조절</button> -->
 		</div>
 	</div>
 
-	<div class=" marT10" style="border: 1px solid #efefef;padding:5px;">
-		<h3 class="">속성</h3>
+	<div class=" marT10 hidden " style="border: 1px solid #efefef;padding:5px;">
 		<div class="">
-			<div class="form-group form-group-policy">
-				<input type="checkbox" id="show-property" class="w-30">
-				<label for="show-property" class="w-50">속성을 표시합니다.</label>
+			<div class="form-group form-group-policy hidden">
+				<input type="checkbox" id="show-property" class="fr input_btn">
+				<label for="show-property" class="w-50" style="padding:0 0;">속성을 표시합니다.</label>
 			</div>
 		</div>
 	</div>
