@@ -33,29 +33,31 @@
 
 		<script>
 			window.addEventListener('load',	function() {
-				let _hamMenuClick = function() {
-					Ppui.click('.HamMenu', function() {
-						if (Ppui.hasClass(this, 'on')) {
-							Ppui.hide([	'.navWrap',	'#gnbWrap' ]);
-							document.querySelector('#magoContainer').style.width = '100%';
-						} else {
-							Ppui.show([	'.navWrap',	'#gnbWrap' ]);
-							document.querySelector('#magoContainer').style.width = 'calc(100% - 430px)';
+				//햄버거 메뉴 클릭
+				$('.HamMenu').click(function(){
+					introObj.hide();
+						
+					if($(this).hasClass('on')){
+						$('.navWrap,.gnbWrap').hide();
+						$('#magoContainer').css('width', '100%');
+					}else{
+						$('.navWrap,.gnbWrap').show();
+						$('#magoContainer').css('width', 'calc(100% - 430px)');		
+						
+						//선택된 메뉴 없으면 show 레이어 메뉴
+						let b = $('#navWrap .nav li').hasClass('on');
+						if(b){
+							return;
 						}
-
-						//
-						Ppui.toggleClass(this,	'on');
-					});
-				};
-
-				//
-				let interval = setInterval(function() {
-					if (MAGO3D_INSTANCE) {
-						clearInterval(interval);
-						//
-						_hamMenuClick();
+						
+						$('#navWrap .nav li:first').click();
+						
 					}
-				}, 500);
+					
+					$(this).toggleClass('on');
+					
+				});
+				
 			});
 		</script>
 
