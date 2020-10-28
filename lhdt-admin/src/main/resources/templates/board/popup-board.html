@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html th:lang="${accessibility}" xmlns:th="http://www.thymeleaf.org"
-	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<html th:lang="${accessibility}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <head>
 <meta charset="utf-8">
 <meta name="referrer" content="origin">
@@ -103,7 +102,6 @@
 					<th:block th:if="${boardNoticeComment==null}">
 						<input type="hidden" id="boardNoticeCommentId" name="boardNoticeCommentId" value="0" />
 					</th:block>
-
 					<table class="input-table scope-row">
 						<col class="col-label" />
 						<tr>
@@ -145,9 +143,10 @@
 									<th:block th:text="${#temporals.format(boardNoticeComment.insertDate, 'yyyy-MM-dd HH:mm:ss')}"></th:block>
 								</td>
 								<td class="col-key" th:text="${boardNoticeComment.likeCount}" style="max-width: 315px; word-wrap: break-word;"></td>
-								<td><input type="button" th:onClick="viewInsertMoreComment([[${boardNoticeComment.boardNoticeCommentId}]]); return false;" value="의견등록"/> 
+								<td>
+									<input type="button" th:onClick="viewInsertMoreComment([[${boardNoticeComment.boardNoticeCommentId}]]); return false;" value="의견등록"/> 
 									<input type="button" th:onClick="viewMoreComment([[${boardNoticeComment.boardNoticeCommentId}]]); return false;" value="의견보기" /> 
-									<input type="button" onClick="likeComment([[$(boardNoticeComment.boardNoticeCommentId)]]); return false;" value="추천" />
+									<input type="button" th:onClick="likeComment([[${boardNoticeComment.boardNoticeCommentId}]]); return false;" value="추천" />
 								</td>
 							</tr>
 						</th:block>
@@ -194,6 +193,24 @@
 	function viewMoreComment(boardNoticeCommentId) {
 		$.ajax({
 			url : "/boardNotice/comment/view-more-comment/" + boardNoticeCommentId,
+			type : "GET",
+			headers : {
+				"X-Requested-With" : "XMLHttpRequest"
+			},
+			dataType : "json",
+			success : function(data) {
+				alert("success");
+				location.reload();
+			},
+			error : function(request, status, error) {
+				ajaxErrorHandler(request);
+			}
+		});
+	}
+	
+	function likeComment(boardNoticeCommentId) {
+		$.ajax({
+			url : "/boardNotices/comment/like/" + boardNoticeCommentId,
 			type : "GET",
 			headers : {
 				"X-Requested-With" : "XMLHttpRequest"

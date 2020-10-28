@@ -142,6 +142,8 @@ public class Policy {
  	private String userUploadType;
  	// 변환 가능 확장자. 3ds,obj,dae,collada,ifc,las,gml,citygml,indoorgml
   	private String userConverterType;
+  	// 업로딩 가능 확장자. txt,pdf,hwp,xlsx,docs,zip,png,jpg,jpeg
+  	private String boardUploadType;
  	// 최대 업로딩 사이즈(단위M). 기본값 10000M
  	private Long userUploadMaxFilesize;
  	// 1회, 최대 업로딩 파일 수. 기본값 500개

@@ -178,8 +178,6 @@ public class BoardNoticeRestController implements AuthorizationController {
 
 		boolean fileExist = false;
 
-		//
-
 		if (fileCount > 0) {
 			fileExist = true;
 
@@ -190,128 +188,90 @@ public class BoardNoticeRestController implements AuthorizationController {
 			return result;
 		}
 
-		//
-
 		Policy policy = policyService.getPolicy();
 		// 여긴 null 체크를 안 하는게 맞음. 없음 장애가 나야 함
 		// 업로딩 가능한 파일 타입
 		String[] uploadTypes = policy.getUserUploadType().toLowerCase().split(",");
 		// 변환 가능한 파일 타입
-		String[] converterTypes = policy.getUserConverterType().split(",");
 		List<String> uploadTypeList = Arrays.asList(uploadTypes);
-		List<String> converterTypeList = Arrays.asList(converterTypes);
-		log.info("@@@@@@@@@@@@ converterTypes = {}", converterTypeList);
+		log.info("uploadTypeList : "+uploadTypeList);
 		if (!StringUtils.isEmpty(errorCode))
 			return getResultMap(result, HttpStatus.BAD_REQUEST.value(), errorCode, message);
 
 		String userId = userSession.getUserId();
 
-		Map<String, Object> uploadMap = null;
 		String today = DateUtils.getToday(FormatUtils.YEAR_MONTH_DAY_TIME14);
 
 		// 1 directory 생성
-		String makedDirectory = FileUtils.makeDirectory(userId, UploadDirectoryType.YEAR_MONTH,
-				propertiesConfig.getDataUploadDir());
+		String makedDirectory = FileUtils.makeDirectory(userId, UploadDirectoryType.YEAR_MONTH, propertiesConfig.getDataUploadDir());
 		log.info("@@@@@@@ = {}", makedDirectory);
 
-		// 2 한건이면서 zip 의 경우
-		boolean isZipFile = false;
+		String tempDirectory = userId + "_" + System.nanoTime();
+		// 파일을 upload 디렉토리로 복사
+		FileUtils.makeDirectory(makedDirectory + tempDirectory);
+		// 3 그 외의 경우는 재귀적으로 파일 복사
 
-		if (fileCount == 1) {
-			// processAsync(policy, userId, fileMap, makedDirectory);
-			int fileIndex = 0;
-			for (MultipartFile multipartFile : fileMap.values()) {
-				fileIndex++;
-				String[] divideNames = multipartFile.getOriginalFilename().split("\\.");
-				String fileExtension = divideNames[divideNames.length - 1];
-				if (UploadData.ZIP_EXTENSION.equalsIgnoreCase(fileExtension)) {
-					isZipFile = true;
-					// zip 파일
-					uploadMap = unzip(policy, boardNotice, uploadTypeList, converterTypeList, today, userId, multipartFile,
-							makedDirectory, fileIndex, fileCount, fileExist);
-					log.info("@@@@@@@ uploadMap = {}", uploadMap);
+		int fileIndex = 0;
 
-					// validation 체크
-					if (uploadMap.containsKey("errorCode")) {
-						errorCode = (String) uploadMap.get("errorCode");
-						return getResultMap(result, HttpStatus.BAD_REQUEST.value(), errorCode, message);
-					}
+		for (MultipartFile multipartFile : fileMap.values()) {
 
-					boardNoticeFileList = (List<BoardNoticeFile>) uploadMap.get("boardNoticeFileList");
-				}
+			fileIndex++;
+
+			log.info("@@@@@@@@@@@@@@@ name = {}, originalName = {}", multipartFile.getName(),
+					multipartFile.getOriginalFilename());
+
+			// 파일 기본 validation 체크
+			errorCode = fileValidate(policy, uploadTypeList, multipartFile);
+			if (!StringUtils.isEmpty(errorCode)) {
+				return getResultMap(result, HttpStatus.BAD_REQUEST.value(), errorCode, message);
 			}
-		}
 
-		if (!isZipFile) {
-			// zip 파일이 아니면 기본적으로 한 폴더에 넣어야 함
+			String originalName = multipartFile.getOriginalFilename();
+			String[] divideFileName = originalName.split("\\.");
+			String saveFileName = originalName;
+			String extension = divideFileName[divideFileName.length - 1];
 
-			String tempDirectory = userId + "_" + System.nanoTime();
-			// 파일을 upload 디렉토리로 복사
-			FileUtils.makeDirectory(makedDirectory + tempDirectory);
-			// 3 그 외의 경우는 재귀적으로 파일 복사
+			saveFileName = userId + "_" + today + "_" + System.nanoTime() + "." + extension;
 
-			int fileIndex = 0;
+			long size = 0L;
 
-			for (MultipartFile multipartFile : fileMap.values()) {
+			try (InputStream inputStream = multipartFile.getInputStream();
+					OutputStream outputStream = new FileOutputStream(
+							makedDirectory + tempDirectory + File.separator + saveFileName)) {
 
-				fileIndex++;
+				int bytesRead;
+				byte[] buffer = new byte[BUFFER_SIZE];
+				while ((bytesRead = inputStream.read(buffer, 0, BUFFER_SIZE)) != -1) {
+					size += bytesRead;
+					outputStream.write(buffer, 0, bytesRead);
+				}
+				BoardNoticeFile boardNoticeFile = new BoardNoticeFile();
+				boardNoticeFile.setFileExt(extension);
+				boardNoticeFile.setFileName(multipartFile.getOriginalFilename());
+				boardNoticeFile.setFileRealName(saveFileName);
+				boardNoticeFile.setFilePath(makedDirectory + tempDirectory + File.separator);
+				boardNoticeFile.setFileSubPath(tempDirectory);
+				boardNoticeFile.setFileSize(String.valueOf(size));
 
-				log.info("@@@@@@@@@@@@@@@ name = {}, originalName = {}", multipartFile.getName(),
-						multipartFile.getOriginalFilename());
+				boardNoticeFileList.add(boardNoticeFile);
 
-				// 파일 기본 validation 체크
-				errorCode = fileValidate(policy, uploadTypeList, multipartFile);
-				if (!StringUtils.isEmpty(errorCode)) {
-					return getResultMap(result, HttpStatus.BAD_REQUEST.value(), errorCode, message);
+				if (fileCount == fileIndex) {
+					boardNoticeService.insertBoard(boardNotice, boardNoticeFileList, fileExist);
 				}
 
-				String originalName = multipartFile.getOriginalFilename();
-				String[] divideFileName = originalName.split("\\.");
-				String saveFileName = originalName;
-				String extension = divideFileName[divideFileName.length - 1];
-
-				saveFileName = userId + "_" + today + "_" + System.nanoTime() + "." + extension;
-
-				long size = 0L;
-
-				try (InputStream inputStream = multipartFile.getInputStream();
-						OutputStream outputStream = new FileOutputStream(
-								makedDirectory + tempDirectory + File.separator + saveFileName)) {
-
-					int bytesRead;
-					byte[] buffer = new byte[BUFFER_SIZE];
-					while ((bytesRead = inputStream.read(buffer, 0, BUFFER_SIZE)) != -1) {
-						size += bytesRead;
-						outputStream.write(buffer, 0, bytesRead);
-					}
-					BoardNoticeFile boardNoticeFile = new BoardNoticeFile();
-					boardNoticeFile.setFileExt(extension);
-					boardNoticeFile.setFileName(multipartFile.getOriginalFilename());
-					boardNoticeFile.setFileRealName(saveFileName);
-					boardNoticeFile.setFilePath(makedDirectory + tempDirectory + File.separator);
-					boardNoticeFile.setFileSubPath(tempDirectory);
-					boardNoticeFile.setFileSize(String.valueOf(size));
-
-					boardNoticeFileList.add(boardNoticeFile);
-
-					if (fileCount == fileIndex) {
-						boardNoticeService.insertBoard(boardNotice, boardNoticeFileList, fileExist);
-					}
-
-				} catch (IOException e) {
-					log.info("@@@@@@@@@@@@ io exception. message = {}",
-							e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
-					FileUtils.deleteFileReculsive(makedDirectory + tempDirectory);
-					return getResultMap(result, HttpStatus.INTERNAL_SERVER_ERROR.value(), "io.exception",
-							message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
-				} catch (Exception e) {
-					log.info("@@@@@@@@@@@@ file copy exception.");
-					FileUtils.deleteFileReculsive(makedDirectory + tempDirectory);
-					return getResultMap(result, HttpStatus.INTERNAL_SERVER_ERROR.value(), "file.copy.exception",
-							message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
-				}
-
+			} catch (IOException e) {
+				log.info("@@@@@@@@@@@@ io exception. message = {}",
+						e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+				FileUtils.deleteFileReculsive(makedDirectory + tempDirectory);
+				return getResultMap(result, HttpStatus.INTERNAL_SERVER_ERROR.value(), "io.exception",
+						message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+			} catch (Exception e) {
+				log.info("@@@@@@@@@@@@ file copy exception.");
+				FileUtils.deleteFileReculsive(makedDirectory + tempDirectory);
+				return getResultMap(result, HttpStatus.INTERNAL_SERVER_ERROR.value(), "file.copy.exception",
+						message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
 			}
+
 		}
 
 		int statusCode = HttpStatus.OK.value();
@@ -402,16 +362,12 @@ public class BoardNoticeRestController implements AuthorizationController {
 		// 업로딩 가능한 파일 타입
 		String[] uploadTypes = policy.getUserUploadType().toLowerCase().split(",");
 		// 변환 가능한 파일 타입
-		String[] converterTypes = policy.getUserConverterType().split(",");
 		List<String> uploadTypeList = Arrays.asList(uploadTypes);
-		List<String> converterTypeList = Arrays.asList(converterTypes);
-		log.info("@@@@@@@@@@@@ converterTypes = {}", converterTypeList);
 		if (!StringUtils.isEmpty(errorCode))
 			return getResultMap(result, HttpStatus.BAD_REQUEST.value(), errorCode, message);
 
 		String userId = userSession.getUserId();
 
-		Map<String, Object> uploadMap = null;
 		String today = DateUtils.getToday(FormatUtils.YEAR_MONTH_DAY_TIME14);
 
 		// 1 directory 생성
@@ -419,98 +375,67 @@ public class BoardNoticeRestController implements AuthorizationController {
 				propertiesConfig.getDataUploadDir());
 		log.info("@@@@@@@ = {}", makedDirectory);
 
-		// 2 한건이면서 zip 의 경우
-		boolean isZipFile = false;
+		String tempDirectory = userId + "_" + System.nanoTime();
+		// 파일을 upload 디렉토리로 복사
+		FileUtils.makeDirectory(makedDirectory + tempDirectory);
+		// 3 그 외의 경우는 재귀적으로 파일 복사
+		int fileIndex = 0;
+		for (MultipartFile multipartFile : fileMap.values()) {
+			fileIndex++;
+			log.info("@@@@@@@@@@@@@@@ name = {}, originalName = {}", multipartFile.getName(),
+					multipartFile.getOriginalFilename());
 
-		if (fileCount == 1) {
-			// processAsync(policy, userId, fileMap, makedDirectory);
-			int fileIndex = 0;
-			for (MultipartFile multipartFile : fileMap.values()) {
-				fileIndex++;
-				String[] divideNames = multipartFile.getOriginalFilename().split("\\.");
-				String fileExtension = divideNames[divideNames.length - 1];
-				if (UploadData.ZIP_EXTENSION.equalsIgnoreCase(fileExtension)) {
-					isZipFile = true;
-					// zip 파일
-					uploadMap = unzip(policy, boardNotice, uploadTypeList, converterTypeList, today, userId, multipartFile,
-							makedDirectory, fileIndex, fileCount, fileExist);
-					log.info("@@@@@@@ uploadMap = {}", uploadMap);
-
-					// validation 체크
-					if (uploadMap.containsKey("errorCode")) {
-						errorCode = (String) uploadMap.get("errorCode");
-						return getResultMap(result, HttpStatus.BAD_REQUEST.value(), errorCode, message);
-					}
-
-				}
+			// 파일 기본 validation 체크
+			errorCode = fileValidate(policy, uploadTypeList, multipartFile);
+			if (!StringUtils.isEmpty(errorCode)) {
+				return getResultMap(result, HttpStatus.BAD_REQUEST.value(), errorCode, message);
 			}
-		}
 
-		if (!isZipFile) {
-			// zip 파일이 아니면 기본적으로 한 폴더에 넣어야 함
+			String originalName = multipartFile.getOriginalFilename();
+			String[] divideFileName = originalName.split("\\.");
+			String saveFileName = originalName;
+			String extension = divideFileName[divideFileName.length - 1];
 
-			String tempDirectory = userId + "_" + System.nanoTime();
-			// 파일을 upload 디렉토리로 복사
-			FileUtils.makeDirectory(makedDirectory + tempDirectory);
-			// 3 그 외의 경우는 재귀적으로 파일 복사
-			int fileIndex = 0;
-			for (MultipartFile multipartFile : fileMap.values()) {
-				fileIndex++;
-				log.info("@@@@@@@@@@@@@@@ name = {}, originalName = {}", multipartFile.getName(),
-						multipartFile.getOriginalFilename());
+			saveFileName = userId + "_" + today + "_" + System.nanoTime() + "." + extension;
 
-				// 파일 기본 validation 체크
-				errorCode = fileValidate(policy, uploadTypeList, multipartFile);
-				if (!StringUtils.isEmpty(errorCode)) {
-					return getResultMap(result, HttpStatus.BAD_REQUEST.value(), errorCode, message);
+			long size = 0L;
+
+			try (InputStream inputStream = multipartFile.getInputStream();
+					OutputStream outputStream = new FileOutputStream(
+							makedDirectory + tempDirectory + File.separator + saveFileName)) {
+
+				int bytesRead;
+				byte[] buffer = new byte[BUFFER_SIZE];
+				while ((bytesRead = inputStream.read(buffer, 0, BUFFER_SIZE)) != -1) {
+					size += bytesRead;
+					outputStream.write(buffer, 0, bytesRead);
 				}
+				BoardNoticeFile boardNoticeFile = new BoardNoticeFile();
+				boardNoticeFile.setFileExt(extension);
+				boardNoticeFile.setFileName(multipartFile.getOriginalFilename());
+				boardNoticeFile.setFileRealName(saveFileName);
+				boardNoticeFile.setFilePath(makedDirectory + tempDirectory + File.separator);
+				boardNoticeFile.setFileSubPath(tempDirectory);
+				boardNoticeFile.setFileSize(String.valueOf(size));
 
-				String originalName = multipartFile.getOriginalFilename();
-				String[] divideFileName = originalName.split("\\.");
-				String saveFileName = originalName;
-				String extension = divideFileName[divideFileName.length - 1];
+				boardNoticeFileList.add(boardNoticeFile);
 
-				saveFileName = userId + "_" + today + "_" + System.nanoTime() + "." + extension;
+				if (fileCount == fileIndex)
+					boardNoticeService.updateBoard(boardNotice, boardNoticeFileList, fileExist);
 
-				long size = 0L;
-
-				try (InputStream inputStream = multipartFile.getInputStream();
-						OutputStream outputStream = new FileOutputStream(
-								makedDirectory + tempDirectory + File.separator + saveFileName)) {
-
-					int bytesRead;
-					byte[] buffer = new byte[BUFFER_SIZE];
-					while ((bytesRead = inputStream.read(buffer, 0, BUFFER_SIZE)) != -1) {
-						size += bytesRead;
-						outputStream.write(buffer, 0, bytesRead);
-					}
-					BoardNoticeFile boardNoticeFile = new BoardNoticeFile();
-					boardNoticeFile.setFileExt(extension);
-					boardNoticeFile.setFileName(multipartFile.getOriginalFilename());
-					boardNoticeFile.setFileRealName(saveFileName);
-					boardNoticeFile.setFilePath(makedDirectory + tempDirectory + File.separator);
-					boardNoticeFile.setFileSubPath(tempDirectory);
-					boardNoticeFile.setFileSize(String.valueOf(size));
-
-					boardNoticeFileList.add(boardNoticeFile);
-
-					if (fileCount == fileIndex)
-						boardNoticeService.updateBoard(boardNotice, boardNoticeFileList, fileExist);
-
-				} catch (IOException e) {
-					log.info("@@@@@@@@@@@@ io exception. message = {}",
-							e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
-					FileUtils.deleteFileReculsive(makedDirectory + tempDirectory);
-					return getResultMap(result, HttpStatus.INTERNAL_SERVER_ERROR.value(), "io.exception",
-							message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
-				} catch (Exception e) {
-					log.info("@@@@@@@@@@@@ file copy exception.");
-					FileUtils.deleteFileReculsive(makedDirectory + tempDirectory);
-					return getResultMap(result, HttpStatus.INTERNAL_SERVER_ERROR.value(), "file.copy.exception",
-							message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
-				}
-
+			} catch (IOException e) {
+				log.info("@@@@@@@@@@@@ io exception. message = {}",
+						e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+				FileUtils.deleteFileReculsive(makedDirectory + tempDirectory);
+				return getResultMap(result, HttpStatus.INTERNAL_SERVER_ERROR.value(), "io.exception",
+						message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+			} catch (Exception e) {
+				log.info("@@@@@@@@@@@@ file copy exception.");
+				FileUtils.deleteFileReculsive(makedDirectory + tempDirectory);
+				return getResultMap(result, HttpStatus.INTERNAL_SERVER_ERROR.value(), "file.copy.exception",
+						message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
 			}
+
 		}
 
 		int statusCode = HttpStatus.OK.value();
@@ -527,169 +452,6 @@ public class BoardNoticeRestController implements AuthorizationController {
 		result.put("statusCode", statusCode);
 		result.put("errorCode", errorCode);
 		result.put("message", message);
-		return result;
-	}
-
-	/**
-	 * 업로딩 파일을 압축 해제
-	 * 
-	 * @param policy
-	 * @param uploadTypeList
-	 * @param converterTypeList
-	 * @param today
-	 * @param userId
-	 * @param multipartFile
-	 * @param targetDirectory
-	 * @return
-	 * @throws Exception
-	 */
-	private Map<String, Object> unzip(Policy policy, BoardNotice boardNotice, List<String> uploadTypeList,
-			List<String> converterTypeList, String today, String userId, MultipartFile multipartFile,
-			String targetDirectory, int fileIndex, int fileCount, boolean fileExist) throws Exception {
-
-		Map<String, Object> result = new HashMap<>();
-		// converter 변환 대상 파일 수
-		int converterTargetCount = 0;
-
-		String errorCode = fileValidate(policy, uploadTypeList, multipartFile);
-		if (!StringUtils.isEmpty(errorCode)) {
-			result.put("errorCode", errorCode);
-			return result;
-		}
-
-		// input directory 생성
-		targetDirectory = targetDirectory + userId + "_" + System.nanoTime() + File.separator;
-		FileUtils.makeDirectory(targetDirectory);
-
-		File uploadedFile = new File(targetDirectory + multipartFile.getOriginalFilename());
-		multipartFile.transferTo(uploadedFile);
-
-		List<BoardNoticeFile> boardNoticeFileList = new ArrayList<>();
-		// zip 파일을 압축할때 한글이나 다국어가 포함된 경우 java.lang.IllegalArgumentException: malformed
-		// input off 같은 오류가 발생. 윈도우가 CP949 인코딩으로 파일명을 저장하기 때문.
-		// Charset CP949 = Charset.forName("UTF-8");
-//			try ( ZipFile zipFile = new ZipFile(uploadedFile, CP949);) {
-		try (ZipFile zipFile = new ZipFile(uploadedFile)) {
-			String directoryPath = targetDirectory;
-			String subDirectoryPath = "";
-			String directoryName = null;
-			int depth = 1;
-			Enumeration<? extends ZipEntry> entries = zipFile.entries();
-
-			while (entries.hasMoreElements()) {
-				BoardNoticeFile boardNoticeFile = new BoardNoticeFile();
-
-				ZipEntry entry = entries.nextElement();
-				String unzipfileName = targetDirectory + entry.getName();
-
-				if (entry.isDirectory()) {
-					// 디렉토리인 경우
-					if (directoryName == null) {
-						boardNoticeFile.setFileName(entry.getName());
-						boardNoticeFile.setFileRealName(entry.getName());
-						directoryName = entry.getName();
-						directoryPath = directoryPath + directoryName;
-						// subDirectoryPath = directoryName;
-					} else {
-						String fileName;
-						if (entry.getName().indexOf(directoryName) >= 0) {
-							fileName = entry.getName()
-									.substring(entry.getName().indexOf(directoryName) + directoryName.length());
-						} else {
-							// 이전이 디렉토리, 현재도 디렉토리인데 서로 다른 디렉토리
-							if (directoryPath.indexOf(directoryName) >= 0) {
-								directoryPath = directoryPath.replace(directoryName, "");
-								directoryName = null;
-							}
-							fileName = entry.getName();
-						}
-						boardNoticeFile.setFileName(fileName);
-						boardNoticeFile.setFileRealName(fileName);
-						directoryName = fileName;
-						directoryPath = directoryPath + fileName;
-						subDirectoryPath = fileName;
-					}
-
-					File file = new File(unzipfileName);
-					file.mkdirs();
-					boardNoticeFile.setFilePath(directoryPath);
-					boardNoticeFile.setFileSubPath(subDirectoryPath);
-					depth++;
-				} else {
-					// 파일인 경우
-					String fileName;
-					String extension = null;
-					String[] divideFileName;
-					String saveFileName;
-
-					// TODO zip 파일도 확장자 validation 체크를 해야 함
-					if (directoryName == null) {
-						fileName = entry.getName();
-						divideFileName = fileName.split("\\.");
-						saveFileName = fileName;
-						if (divideFileName.length != 0) {
-							extension = divideFileName[divideFileName.length - 1];
-							if (uploadTypeList.contains(extension.toLowerCase())) {
-
-								if (converterTypeList.contains(extension.toLowerCase())) {
-
-									// 변환 대상 파일만 이름을 변경하고 나머지 파일은 그대로 이름 유지
-									saveFileName = userId + "_" + today + "_" + System.nanoTime() + "." + extension;
-									converterTargetCount++;
-								}
-							}
-						}
-					} else {
-						if (entry.getName().indexOf(directoryName) >= 0) {
-							// 디렉토리내 파일의 경우
-							fileName = entry.getName()
-									.substring(entry.getName().indexOf(directoryName) + directoryName.length());
-						} else {
-							fileName = entry.getName();
-							if (directoryPath.indexOf(directoryName) >= 0) {
-								directoryPath = directoryPath.replace(directoryName, "");
-								directoryName = null;
-							}
-						}
-						divideFileName = fileName.split("\\.");
-						saveFileName = fileName;
-						if (divideFileName.length != 0) {
-							extension = divideFileName[divideFileName.length - 1];
-							if (uploadTypeList.contains(extension.toLowerCase())) {
-
-								if (converterTypeList.contains(extension.toLowerCase())) {
-
-									// 변환 대상 파일만 이름을 변경하고 나머지 파일은 그대로 이름 유지
-									saveFileName = userId + "_" + today + "_" + System.nanoTime() + "." + extension;
-									converterTargetCount++;
-								}
-							} else {
-								// 예외 처리
-								log.info("@@ file.ext.invalid. extList = {}, extension = {}", uploadTypeList, fileName);
-								result.put("errorCode", "file.ext.invalid");
-								return result;
-							}
-						}
-					}
-					boardNoticeFile = fileCopyInUnzip(boardNoticeFile, zipFile, entry, directoryPath, saveFileName,
-							extension, fileName, subDirectoryPath, depth);
-				}
-
-				boardNoticeFile.setFileSize(String.valueOf(entry.getSize()));
-				boardNoticeFileList.add(boardNoticeFile);
-				if (fileCount == fileIndex)
-					boardNoticeService.updateBoard(boardNotice, boardNoticeFileList, fileExist);
-			}
-		} catch (RuntimeException ex) {
-			log.info("@@@@@@@@@@@@ RuntimeException. message = {}",
-					ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
-		} catch (IOException ex) {
-			log.info("@@@@@@@@@@@@ IOException. message = {}",
-					ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
-		}
-
-		result.put("converterTargetCount", converterTargetCount);
-		result.put("boardNoticeFileList", boardNoticeFileList);
 		return result;
 	}
 
@@ -741,47 +503,6 @@ public class BoardNoticeRestController implements AuthorizationController {
 		}
 
 		return null;
-	}
-
-	/*
-	 * unzip 로직 안에서 파일 복사
-	 */
-	private BoardNoticeFile fileCopyInUnzip(BoardNoticeFile boardNoticeFile, ZipFile zipFile, ZipEntry entry,
-			String directoryPath, String saveFileName, String extension, String fileName, String subDirectoryPath,
-			int depth) {
-		long size = 0L;
-		try (InputStream inputStream = zipFile.getInputStream(entry);
-				FileOutputStream outputStream = new FileOutputStream(directoryPath + saveFileName);) {
-
-			int bytesRead = 0;
-			byte[] buffer = new byte[BUFFER_SIZE];
-			while ((bytesRead = inputStream.read(buffer, 0, BUFFER_SIZE)) != -1) {
-				size += bytesRead;
-				outputStream.write(buffer, 0, bytesRead);
-			}
-
-			boardNoticeFile.setFileExt(extension);
-			boardNoticeFile.setFileName(fileName);
-			boardNoticeFile.setFileRealName(saveFileName);
-			boardNoticeFile.setFilePath(directoryPath);
-			boardNoticeFile.setFileSubPath(subDirectoryPath);
-			boardNoticeFile.setFileSize(String.valueOf(size));
-
-		} catch (IOException e) {
-			e.printStackTrace();
-			log.info("@@@@@@@@@@@@ io exception. message = {}",
-					e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
-			FileUtils.deleteFileReculsive(directoryPath);
-			boardNoticeFile.setErrorMessage(e.getMessage());
-		} catch (Exception e) {
-			e.printStackTrace();
-			log.info("@@@@@@@@@@@@ exception. message = {}",
-					e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
-			FileUtils.deleteFileReculsive(directoryPath);
-			boardNoticeFile.setErrorMessage(e.getMessage());
-		}
-
-		return boardNoticeFile;
 	}
 
 	/**
@@ -962,7 +683,7 @@ public class BoardNoticeRestController implements AuthorizationController {
 	 * @return
 	 */
 	@GetMapping(value = "/load-comment/{boardNoticeCommentId:[0-9]+}")
-	public Map<String, Object> viewLayerMap(HttpServletRequest request, @PathVariable Long boardNoticeCommentId,
+	public Map<String, Object> loadComment(HttpServletRequest request, @PathVariable Long boardNoticeCommentId,
 			Model model) {
 		Map<String, Object> result = new HashMap<>();
 
@@ -970,6 +691,22 @@ public class BoardNoticeRestController implements AuthorizationController {
 				.getListBoardNoticeCommentByParent(boardNoticeCommentId);
 
 		result.put("boardNoticeCommentList", boardNoticeCommentList);
+
+		return result;
+	}
+
+	/**
+	 * 추천하기
+	 *
+	 * @param model
+	 * @return
+	 */
+	@GetMapping(value = "/comment/like/{boardNoticeCommentId:[0-9]+}")
+	public Map<String, Object> likeComment(HttpServletRequest request, @PathVariable Long boardNoticeCommentId,
+			Model model) {
+		Map<String, Object> result = new HashMap<>();
+
+		boardNoticeService.updateBoardCommentLikeCount(boardNoticeCommentId);
 
 		return result;
 	}

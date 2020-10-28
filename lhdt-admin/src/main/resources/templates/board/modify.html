@@ -1,7 +1,5 @@
 <!DOCTYPE html>
-<html th:lang="${accessibility}" xmlns:th="http://www.thymeleaf.org"
-	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="/layouts/default">
+<html th:lang="${accessibility}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="/layouts/default">
 <head>
 <meta charset="utf-8">
 <title>공지사항 등록</title>
@@ -138,7 +136,6 @@ keyframes spin {to { -webkit-transform:rotate(360deg);
 									</tr>
 								</table>
 							</form>
-
 							<ul id="boardButtonArea">
 								<li id="uploadBoardButton" class="onArea">
 									<h4 style="margin-top: 30px; margin-bottom: 5px;">파일 업로딩</h4>
@@ -197,10 +194,8 @@ keyframes spin {to { -webkit-transform:rotate(360deg);
 				</div>
 			</div>
 		</div>
-
 		<div th:replace="~{/board/spinner-dialog :: #fileUploadDialog}"></div>
 	</th:block>
-
 	<th:block layout:fragment="pageCustomScript">
 		<script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
 		<script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
@@ -363,7 +358,7 @@ Dropzone.options.myDropzone = {
         "x-csrf-token": document.querySelectorAll("meta[name=csrf-token]")[0].getAttributeNode("content").value,
     }, */
     // 허용 확장자
-    acceptedFiles: initAcceptedFiles([[${policy.shapeUploadType}]]),
+    acceptedFiles: initAcceptedFiles([[${policy.boardUploadType}]]),
     // 업로드 취소 및 추가 삭제 미리 보기 그림 링크를 기본 추가 하지 않음
     // 기본 true false 로 주면 아무 동작 못함
     //clickable: true,

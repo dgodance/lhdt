@@ -244,11 +244,11 @@
 		WHERE board_notice_id = #{boardNoticeId}
 	</select>
 	
-	<!-- 게시물 Comment 수정 -->	
-	<update id="updateBoardNoticeComment" parameterType="boardNoticeComment">
-		/* updateBoard */
-		UPDATE board_notice
-		SET comment = #{comment}
+	<!-- 게시물 Comment 추천수 증가 -->	
+	<update id="updateBoardCommentLikeCount" parameterType="long">
+		/* updateBoardCommentLikeCount */
+		UPDATE board_notice_comment
+		SET like_count = like_count + 1
 		WHERE board_notice_comment_id = #{boardNoticeCommentId}
 	</update>
 	

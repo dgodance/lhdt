@@ -198,8 +198,8 @@ public class BoardNoticeServiceImpl implements BoardNoticeService {
 	 * @return
 	 */
 	@Transactional
-	public int updateBoardComment(BoardNoticeComment boardNoticeComment) {
-		return boardNoticeMapper.updateBoardComment(boardNoticeComment);
+	public int updateBoardCommentLikeCount(Long boardNoticeCommentId) {
+		return boardNoticeMapper.updateBoardCommentLikeCount(boardNoticeCommentId);
 	}
 
 	/**

@@ -136,12 +136,12 @@ public interface BoardNoticeMapper {
 	int updateBoardDetail(BoardNotice boardNotice);
 
 	/**
-	 * 게시물 Comment 수정
+	 * 게시물 Comment 추천수 증가
 	 * 
 	 * @param boardNoticeComment
 	 * @return
 	 */
-	int updateBoardComment(BoardNoticeComment boardNoticeComment);
+	int updateBoardCommentLikeCount(Long boardNoticeCommentId);
 
 	/**
 	 * 게시물 삭제
