@@ -2764,7 +2764,39 @@ DesignLayerObj.prototype.showUrbanInfo = function(urbanGroupId){
             buttons:{
                 '닫기':function(){
                     $(this).dialog('close')
-                }
+                },
+				'엑셀': function(){
+					if(!confirm('엑셀파일로 저장하시겠습니까?')){
+						return;
+					}
+					
+					let json = {'key':'값'};
+					//지구
+					json['urban'] = {
+						'name': '과천지구',
+						'addr': '경기도 과천시',
+						'ar': '1234',
+						'planedHouseholdCo': '1111',
+						'changedHouseholdCo': '2222',
+						'planedPopulationCo': '3333',
+						'changedPopulationCo': '4444',
+					};
+					//필지
+					json['land'] = {};
+					//건물
+					json['building'] = {};
+					
+					let $form = $('<form id="f" target="_blank" />');
+					$form.append(`<textarea name="jsonString" class="d-none">${JSON.stringify(json)}</textarea>`);
+					$form.attr('action', 'http://localhost:8090/svc/cityplan/exceldwld');
+					$form.attr('method', 'post');
+					
+					$('body').append($form);
+					
+					
+					$form.submit();
+					
+				}
             }
         });
     }
