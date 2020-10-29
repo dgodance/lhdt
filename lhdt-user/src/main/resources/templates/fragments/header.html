@@ -48,11 +48,10 @@
 						
 						//선택된 메뉴 없으면 show 레이어 메뉴
 						let b = $('#navWrap .nav li').hasClass('on');
-						if(b){
-							return;
+						if(!b){
+							$('#navWrap .nav li:first').click();
 						}
 						
-						$('#navWrap .nav li:first').click();
 						
 					}
 					
