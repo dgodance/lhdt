@@ -459,7 +459,7 @@ table[class*=design-layer] > tbody > tr > td:last-child {
 /*intro*/
 
 #introContainer{
-	background: url(/images/ko/intro_bg.jpg)no-repeat;
+	background: #000c14 url(/images/ko/intro_bg.jpg)no-repeat bottom;
 	z-index: 1000;
 	display:block;
 	position: absolute;
@@ -582,11 +582,7 @@ table[class*=design-layer] > tbody > tr > td:last-child {
 }
 
 /*search*/
-.search_box{
-	position: absolute;
-	right: 240px;
-	top: 15px;
-}
+.search_box{float: right;margin: 15px 15px;}
 .search_box a{
 	
 }

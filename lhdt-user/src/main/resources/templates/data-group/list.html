@@ -9,10 +9,10 @@
 	<link rel="shortcut icon" th:href="@{/images/favicon.ico(cacheVersion=${contentCacheVersion})}">
 	<link rel="stylesheet" th:href="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.css(cacheVersion=${contentCacheVersion})}">
     <link rel="stylesheet" th:href="@{/images/{lang}/icon/glyph/glyphicon.css(lang=${lang}, cacheVersion=${contentCacheVersion})}">
-    <link rel="stylesheet" th:href="@{/css/{lang}/user-style2.css(lang=${lang}, cacheVersion=${contentCacheVersion})}">
     <link rel="stylesheet" th:href="@{/css/{lang}/user-style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}">
 	<link rel="stylesheet" th:href="@{/css/{lang}/style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}">
-	<link rel="stylesheet" th:href="@{/css/fontawesome-free-5.2.0-web/css/all.min.css(cacheVersion=${contentCacheVersion})}">
+	<link rel="stylesheet" th:href="@{/css/{lang}/user-style2.css(lang=${lang}, cacheVersion=${contentCacheVersion})}">
+    <link rel="stylesheet" th:href="@{/css/fontawesome-free-5.2.0-web/css/all.min.css(cacheVersion=${contentCacheVersion})}">
     <script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
     <script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
 </head>
@@ -125,9 +125,9 @@
 						</td>
 						<td class="col-type">
 							<div class="button-group">
-								<a href="#" class="button top" th:onclick="moveUp([[${dataGroup.dataGroupId}]], [[${dataGroup.viewOrder}]]); return false;"  style="text-decoration:none;">
+								<a href="#" class="button btn_top" th:onclick="moveUp([[${dataGroup.dataGroupId}]], [[${dataGroup.viewOrder}]]); return false;"  style="text-decoration:none;">
 									<th:block th:text="#{common.up}"></th:block></a>
-								<a href="#" class="button bottom" th:onclick="moveDown([[${dataGroup.dataGroupId}]], [[${dataGroup.viewOrder}]]); return false;" style="text-decoration:none;">
+								<a href="#" class="button btn_bottom" th:onclick="moveDown([[${dataGroup.dataGroupId}]], [[${dataGroup.viewOrder}]]); return false;" style="text-decoration:none;">
 									<th:block th:text="#{common.down}"></th:block></a>
 							</div>
 						</td>

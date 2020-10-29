@@ -42,7 +42,7 @@ header {
 }
 
 h1 {
-	width: 500px;
+	width: 80%;
 	margin: 5px 15px;
 	font-size: 22px;
 	letter-spacing: -1px;
@@ -54,7 +54,7 @@ h1 {
 	background-size: 110px;
 }
 
-.HamMenu > a{display:inline-block;height: 100%;width: 77px;background: url(/images/ko/icon.png)no-repeat;background-position: 23px -60px;text-indent: -9999px;}
+.HamMenu > a{display:inline-block;height: 100%;width: 77px;background: url(/images/ko/icon.png)no-repeat center;background-position: 20px -60px;text-indent: -9999px;}
 #headerWrap .on {background-color: #003351;}
 
 
@@ -153,6 +153,7 @@ background-color: #262b3f;
 	position: relative;
 	height: 100%;
 	background-color: #0066a2;
+	width: 77px;
 }
 ul.nav {
 	float: left;
@@ -160,14 +161,21 @@ ul.nav {
 	width: 77px;
 }
 ul.nav li {
-	padding: 50px 0 20px 0;
+	padding: 60px 0 5px 0;
 	font-size: 13px;
 	color: #fff;
 	cursor: pointer;
 	text-align: center;
-	background-image: url(/images/ko/icon.png);
-	background-repeat: no-repeat;
-	margin-bottom: 10px;
+	margin: 10px 0;
+}
+ul.nav li:first-child{
+	background-color: #003351;
+	margin: 0;
+}
+
+ul.nav li:nth-child(2){
+	/* background-color: #003351; */
+	margin: 0 0 10px 0;
 }
 ul.nav li.on {
 	/*background-color: #258fff;*/
@@ -181,13 +189,13 @@ ul.nav li.data {
 	background-position: -62px 13px;
 }
 ul.nav li.converter {
-	background: url(/images/ko/change.png)no-repeat center top;
+	background: url(/images/ko/change.png)no-repeat center 10px;
 }
 ul.nav li.extrusion {
-	background: url(/images/ko/simul.png)no-repeat center top;
+	background: url(/images/ko/simul.png)no-repeat center 10px;
 }
-ul.nav li.mydata {
-	background: url(/images/ko/mydata.png)no-repeat center top;
+ul.nav li.mydata{
+    background: url(/images/ko/mydata.png)no-repeat center 10px;	
 }
 ul.nav li.spatial {
 	background-position: -445px -290px;
@@ -217,7 +225,7 @@ ul.nav li.userPolicy {
 	background-position: -440px 5px;
 }
 ul.nav li.layer {
-	background: #003351 url(/images/ko/layer_icon.png) no-repeat center 15px;
+	background: #003351 url(/images/ko/layer_icon.png)no-repeat center 15px;
 }
 
 /* CONTENTSBTN */
@@ -247,12 +255,7 @@ background-color: #ccc;
 
 /* CONTENTSWRAP */
 .contentsWrap {position:absolute;float: left;overflow-y: auto;height: 100%;width: 370px;/*padding-top: 50px;*/box-sizing: border-box;background-color: #eaeaea;margin-left: 77px;z-index: 99999;}
-.contents {
-margin: 7px;
-padding: 10px;
-border: 1px solid #e0e0e0;
-background-color: #fff;
-}
+.contents {/* margin: 7px; */padding: 10px;border: 1px solid #e0e0e0;background-color: #fff;}
 .contentsList {
 margin: 10px;
 background-color: #eaeaea;
@@ -890,10 +893,7 @@ background-color: #fff;
 background-image: none;
 }
 /* LIST DROP  / 검색결과 */
-ul.listDrop > li {
-margin-bottom: 3px;
-cursor: pointer;
-}
+ul.listDrop > li {margin-bottom: 0;cursor: pointer;border-bottom: 1px solid #ddd;}
 ul.listDrop li > p {
 padding: 8px;
 font-weight: bold;
@@ -956,7 +956,7 @@ background-color: #fff;
 ul.listDrop li > div.listContents {
 display: none;
 }
-ul.listDrop li.on > div.listContents {display: block;padding: 10px;border:1px solid #e0e0e0;background-color: #fff;border-bottom-right-radius: 5px;border-bottom-left-radius: 5px;margin-bottom: 5px;}
+ul.listDrop li.on > div.listContents {display: block;padding: 10px;border: none;background-color: #fff;border-bottom-right-radius: 5px;border-bottom-left-radius: 5px;margin-bottom: 5px;}
 /*  CONTENTS / 분석 */
 .analysisGroup {
 /* margin: 10px 0;
@@ -1298,23 +1298,23 @@ height: 31px;
 margin: 0;
 min-width: 325px;
 }
-.tab li {
-display: inline-block;
-width: 145px;
-/* padding: 5px 0px; */
-color: #000;
-cursor: pointer;
-border: 1px solid #d9d9d9;
-border-bottom: 1px solid #ececec;
-border-radius: 3px 3px 0 0;
-background-color: #fff;
-text-align: center;
-}
+.tab li {display: inline-block;width: 11.6%;/* padding: 5px 0px; */color: #000;cursor: pointer;border-top-right-radius: 10px;border-top-left-radius: 10px;background-color: #fff;text-align: center;/* margin: 0 5px; */border-top: 1px solid #ddd;border-right: 1px solid #ddd;border-left: 1px solid #ddd;}
 .tab li.on {
 color: #fff;
 border: 1px solid #006bd2;
 background-color: #258fff;
 }
+
+/*변환페이지 탭*/
+.tabs{
+	border-bottom:1px solid #eee
+}
+.tabs > .tab > li {display: inline-block;width: calc(12% - -3px);padding: 0.6px 0px;color: #000;/* cursor: pointer; */background-color: #fff;text-align: center;/* margin: 0 5px; */}
+.tabs > .tab > li.on {color: #fff;border: 1px solid #003351;background-color: #003351;}
+.tabs > .tab > li.on > a{
+	color: #fff;
+}
+.tab li:not(.on) > a:hover {color: #0066a2;}
 .input-set {
 margin: 10px 20px 10px 10px;
 float: left;
@@ -1853,11 +1853,11 @@ ul.listDrop li > p {
 }
 ul.listDrop li.on > p {
 	background: none;
-	background-color: #4280a5;
+	background-color: #4d7aa5;
 	border: none;
 	border-bottom: none;
-	border-top-right-radius: 7px;
-	border-top-left-radius: 7px;
+	border-radius: 3px;
+	text-align: center;
 }
 ul.listDrop li > p > span.collapse-icon {
 	width: 15px;
@@ -2188,15 +2188,7 @@ margin-right: 5px;
 color: #999;
 }
 
-span.infoTag {
-padding: 2px 6px;
-font-size: 13px;
-border: 1px solid #c7e0f2;
-background-color: #fff;
-margin-bottom: 3px;
-display: inline-block;
-max-width: 120px;
-}
+span.infoTag {padding: 2px 6px;font-size: 13px;border: 1px solid #c7e0f2;background-color: #fff;margin-bottom: 3px;display: inline-block;max-width: 120px;float: left;margin-right: 5px;}
 span.infoTag > span {
 display: inline-block;
 margin-right: 5px;
@@ -2533,7 +2525,7 @@ ul.listDefault li.on > ul li > button {
 }
 
 .searchDataWrap {
-	background-color: #0066a2;
+	background-color: #003351;
 }
 
 
@@ -2545,7 +2537,7 @@ ul.listDefault li.on > ul li > button {
 	display: flex; /* NEW, Spec - Opera 12.1, Firefox 20+ */
 	justify-content: center;
 	padding-top: 15px;
-	border-left: 1px solid #005689;
+	border-left: 1px solid #003351;
 }
 .searchDataType > div {
 	text-align: center;
@@ -2582,12 +2574,13 @@ ul.listDefault li.on > ul li > button {
 .searchDataType input[type=checkbox]:checked,
 .searchDataType input[type=checkbox]:checked + label {
 	color: #fff;
-	background-color: #258fff55;
+	background-color: #0066a2;
 }
 
 .searchDataInputWrap {
-	border-left: 1px solid #005689;
+	/* border-left: 1px solid #005689; */
 	padding: 10px 20px 15px 20px;
+	box-sizing: border-box;
 }
 .searchDataInput {
 	display: -webkit-box; /* OLD - iOS 6-, Safari 3.1-6 */
@@ -2595,14 +2588,15 @@ ul.listDefault li.on > ul li > button {
 	display: -ms-flexbox; /* TWEENER - IE 10 */
 	display: -webkit-flex; /* NEW - Chrome */
 	display: flex; /* NEW, Spec - Opera 12.1, Firefox 20+ */
-	background-color: #fff;
-	/*border: 1px solid #003457;*/
-	justify-content: space-between;
+	/* border: 1px solid #003457; */
+	/* justify-content: space-between; */
+	background: #fff;
+	border-radius: 30px;
 }
 .searchDataInput > * {
 	height: 35px;
 	line-height: 35px;
-	/*font-size: 0.9em;*/
+	/* font-size: 0.9em; */
 	border: none;
 }
 .searchDataInput > span.searchIcon {
@@ -2612,13 +2606,23 @@ ul.listDefault li.on > ul li > button {
 	background-position: 0px -108px;
 }
 .searchDataInput > input {
-	width: 230px;
+	width: 74%;
 	padding: 0 5px;
+	padding-left: 5%;
+	border-radius: 30px;
 }
 .searchDataInput > button.btnSearch {
 	width: 60px;
-	background-color: #262b3f;
+	background-color: #0066a2;
 	color: #fff;
+	background-image: url(/images/ko/head_search.png);
+	background-repeat: no-repeat;
+	background-position: center;
+	text-indent: -9999px;
+	border-radius: 30px;
+	display: inline-block;
+	position: absolute;
+	right: 18px;
 }
 
 
@@ -2738,7 +2742,7 @@ ul.listDefault li.on > ul li > button {
 	border: 1px solid #ccc;
 	border-bottom: none;
 	cursor: pointer;
-	min-height: 70px;
+	min-height: 60px;
 }
 .listElement:hover {
 	background-color: #eff7ff;
@@ -2780,7 +2784,6 @@ ul.listDefault li.on > ul li > button {
 .infoWrap > p {
 	/*margin-top: 5px;*/
 	/*font-size: 14px;*/
-	display: inline-block;
 }
 .moreWrap {
 	text-align: center;
@@ -2809,6 +2812,7 @@ ul.listDefault li.on > ul li > button {
 }
 
 .text-right {text-align:right  !important;}
+
 
 /* ////////// MAP CTRL ////////// */
 .mapCtrl {
@@ -3100,7 +3104,6 @@ user-select: none; /* Standard syntax */
 .con_bx{
 	 display: block;
 	 padding: 10px;
-	 border: 1px solid #e0e0e0;
 	 background-color: #fff;
 	 overflow:hidden;
 	 border-bottom-right-radius: 5px;
@@ -3201,3 +3204,15 @@ user-select: none; /* Standard syntax */
 	float: left;
 }
 .input_btn{width: 15px;height: 15px;}
+
+/*20201028 추가*/
+.hea_boxr{
+	float: right;
+	width: 35%;
+}
+.hea_boxr .toggle{
+	display: inline-block;
+	float: right;
+	width: 38%;
+	margin: 3px 0;
+}

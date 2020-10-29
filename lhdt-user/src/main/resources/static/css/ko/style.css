@@ -394,7 +394,7 @@ input[type="button"],
 	margin: 0;
 	text-align: center;
 	color: #fff;
-	background: #0066a2;
+	background: #6d828e;
 	text-transform: uppercase;
 	text-decoration: none;
 	white-space: nowrap;
@@ -491,7 +491,8 @@ button .icon-text,
 	white-space: nowrap;
 	cursor: pointer;
 	box-sizing: border-box;
-	background: url(/images/ko/icon/image/image.png) no-repeat 0 0; }
+	background: url(/images/ko/edit_ico.png) no-repeat;
+	}
 	
 .image-button.button-area {
 	border: 1px solid #e1e1e1;
@@ -511,7 +512,9 @@ button .icon-text,
 	background-position: -60px 0; }
 	
 .button-edit {
-	background-position: -90px 0; }
+	background-position: 0 0;
+	background-size: 150px;
+	}
 	
 .button-delete {
 	background-position: -120px 0; }
@@ -1581,20 +1584,30 @@ tr:hover td {
 .list-table a {
 	text-decoration: underline; }
 	
-.list-table a.top{
-    background-image: url(/images/ko/ico.png);
+.list-table a.btn_top{
+    background-image: url(/images/ko/ico_btn.png);
     background-repeat: no-repeat;
-    background-position: -146px -477px;
+    background-position: -398px -411px;
     text-indent:-9999px;
-    width:30px;
+    width: 25px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    height: 25px;
+    margin: 3px 0;
 }	
 
-.list-table a.bottom{
-	background-image: url(/images/ko/ico.png);
+.list-table a.btn_bottom{
+	background-image: url(/images/ko/ico_btn.png);
 	background-repeat: no-repeat;
-	background-position: -97px -477px;
+	background-position: -499px -413px;
 	text-indent:-9999px;
-	width:30px;
+	width: 25px;
+	background-color: #fff;
+	border: 1px solid #ddd;
+	border-radius: 50%;
+	height: 25px;
+	margin: 3px 0;
 }	
 	
 /* Input Table
@@ -1615,15 +1628,15 @@ tr:hover td {
 	font-size: 1.3rem;
 	color: #888;
 	border-right: 1px solid #eaeaea;
-	background-color: #f7fcff;
+	background-color: #f5fbff;
 	height: 37px;
 	line-height: 37px;
 	text-align: left;
 	padding-top: 6px;
 	padding-left: 20px;
 	padding-right: 20px;
-	border-bottom: 1px solid #eaeaea;
-	border-top: 1px solid #eaeaea;
+	border-bottom: 1px solid #d2d2d2;
+	border-top: 1px solid #d2d2d2;
 	}
 	
 .input-table td {
@@ -2613,7 +2626,7 @@ height: 31px;
 margin: 0;
 min-width: 325px;
 }
-.tab li {display: inline-block;width: 11.6%;/* padding: 5px 0px; */color: #000;cursor: pointer;border: 1px solid #d9d9d9;border-bottom: 1px solid #ececec;border-radius: 10px;background-color: #fff;text-align: center;/*margin: 0 5px;*/}
+.tab li {display: inline-block;width: 11.6%; color: #000;cursor: pointer;border: 1px solid #d9d9d9;border-bottom: 1px solid #ececec;/* border-radius: 10px; */background-color: #fff;text-align: center;/*margin: 0 5px;*/}
 .tab li.on {color: #fff;border: 1px solid #d5d5d5;background-color: #19334a;}
 .tab li > a {
 display: inline-block;
