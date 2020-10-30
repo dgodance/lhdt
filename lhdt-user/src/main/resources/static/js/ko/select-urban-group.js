@@ -33,7 +33,7 @@
 		
 		
 		//
-		if(introObj){
+		if('undefined' != typeof(introObj)){
 			introObj.hide();			
 		}
 		
