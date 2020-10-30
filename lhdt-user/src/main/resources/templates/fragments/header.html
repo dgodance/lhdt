@@ -37,7 +37,10 @@
 			window.addEventListener('load',	function() {
 				//햄버거 메뉴 클릭
 				$('.HamMenu').click(function(){
-					introObj.hide();
+					if('undefined' != typeof(introObj)){
+						introObj.hide();						
+					}
+					
 						
 					if($(this).hasClass('on')){
 						$('.navWrap,.gnbWrap').hide();
@@ -67,7 +70,7 @@
 		window.addEventListener('load', function(){
 			//도시 그룹
             let interval = setInterval(function(){
-                if(MAGO3D_INSTANCE) {
+                if('undefined' != typeof(selectUrbanGroupObj) && 'undefined' != typeof(Pp)) {
                     clearInterval(interval);
                     //
 					selectUrbanGroupObj.init();			
