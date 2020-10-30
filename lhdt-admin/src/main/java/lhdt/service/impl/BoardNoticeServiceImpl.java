@@ -126,24 +126,37 @@ public class BoardNoticeServiceImpl implements BoardNoticeService {
 	 * @return
 	 */
 	@Transactional
-	public int insertBoard(BoardNotice boardNotice, List<BoardNoticeFile> boardNoticeFileList, Boolean fileExist) {
-
-		log.info("board =============== {} ", boardNotice);
-		int result = boardNoticeMapper.insertBoard(boardNotice);
-
-		if (fileExist) {
-			Long boardNoticeId = boardNotice.getBoardNoticeId();
-			String userId = boardNotice.getUserId();
-			for (BoardNoticeFile boardNoticeFile : boardNoticeFileList) {
-				boardNoticeFile.setBoardNoticeId(boardNoticeId);
-				boardNoticeFile.setUserId(userId);
-				boardNoticeMapper.insertFile(boardNoticeFile);
-				result++;
-			}
-		}
+	public int insertBoard(BoardNotice boardNotice) {
+		
+		boardNoticeMapper.insertBoard(boardNotice);
 		return boardNoticeMapper.insertBoardDetail(boardNotice);
 	}
+	
+	/**
+	 * 게시물 파일 등록
+	 * 
+	 * @param board
+	 * @return
+	 */
+	@Transactional
+	public int insertBoardFile(BoardNotice boardNotice, List<BoardNoticeFile> boardNoticeFileList) {
+		
+		int result = 0;
+		
+		Long boardNoticeId = boardNotice.getBoardNoticeId();
+		String userId = boardNotice.getUserId();
+		for (BoardNoticeFile boardNoticeFile : boardNoticeFileList) {
+			boardNoticeFile.setBoardNoticeId(boardNoticeId);
+			boardNoticeFile.setUserId(userId);
+			boardNoticeMapper.insertFile(boardNoticeFile);
+			result++;
+		}
+		
+		return result;
+	}
 
+	
+	
 	/**
 	 * 게시물 Comment 등록
 	 * 
@@ -173,21 +186,9 @@ public class BoardNoticeServiceImpl implements BoardNoticeService {
 	 * @return
 	 */
 	@Transactional
-	public int updateBoard(BoardNotice boardNotice, List<BoardNoticeFile> boardNoticeFileList, Boolean fileExist) {
+	public int updateBoard(BoardNotice boardNotice) {
 
-		int result = boardNoticeMapper.updateBoard(boardNotice);
-
-		log.info("board =============== {} ", boardNotice);
-		if (fileExist) {
-			Long boardNoticeId = boardNotice.getBoardNoticeId();
-			String userId = boardNotice.getUserId();
-			for (BoardNoticeFile boardNoticeFile : boardNoticeFileList) {
-				boardNoticeFile.setBoardNoticeId(boardNoticeId);
-				boardNoticeFile.setUserId(userId);
-				boardNoticeMapper.insertFile(boardNoticeFile);
-				result++;
-			}
-		}
+		boardNoticeMapper.updateBoard(boardNotice);
 		return boardNoticeMapper.updateBoardDetail(boardNotice);
 	}
 

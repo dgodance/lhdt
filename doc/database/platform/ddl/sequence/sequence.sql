@@ -60,6 +60,10 @@ drop sequence if exists board_notice_comment_seq;
 drop sequence if exists board_notice_file_seq;
 
 create sequence access_log_seq increment 1 minvalue 1 maxvalue 9999999999999999 start 1 cache 1;
+create sequence board_notice_seq increment 1 minvalue 1 maxvalue 999999999999 start 1 cache 1;
+create sequence board_notice_comment_seq increment 1 minvalue 1 maxvalue 999999999999 start 1 cache 1;
+create sequence board_notice_detail_seq increment 1 minvalue 1 maxvalue 999999999999 start 1 cache 1;
+create sequence board_notice_file_seq increment 1 minvalue 1 maxvalue 999999999999 start 1 cache 1;
 create sequence converter_job_seq increment 1 minvalue 1 maxvalue 999999999999 start 1 cache 1;
 create sequence converter_job_file_seq increment 1 minvalue 1 maxvalue 999999999999 start 1 cache 1;
 create sequence data_group_seq increment 1 minvalue 1 maxvalue 999999999999 start 10000 cache 1;
@@ -113,8 +117,3 @@ create sequence user_group_menu_seq increment 1 minvalue 1 maxvalue 999999999999
 create sequence user_device_seq increment 1 minvalue 1 maxvalue 999999999999 start 1 cache 1;
 create sequence user_policy_seq increment 1 minvalue 1 maxvalue 999999999999 start 1 cache 1;
 create sequence widget_seq increment 1 minvalue 1 maxvalue 999999999999 start 1 cache 1;
-
-create sequence board_notice_seq increment 1 minvalue 1 maxvalue 999999999999 start 1 cache 1;
-create sequence board_notice_detail_seq increment 1 minvalue 1 maxvalue 999999999999 start 1 cache 1;
-create sequence board_notice_comment_seq increment 1 minvalue 1 maxvalue 999999999999 start 1 cache 1;
-create sequence board_notice_file_seq increment 1 minvalue 1 maxvalue 999999999999 start 1 cache 1;

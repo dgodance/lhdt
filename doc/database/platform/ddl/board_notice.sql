@@ -11,7 +11,7 @@ create table board_notice(
 	notice_site			varchar(256),
 	start_date			timestamp with time zone,
 	end_date			timestamp with time zone,
-	available			char(1) 						default 'Y',
+	available			boolean							default true,
 	client_ip 			varchar(45)						not null,
 	view_count			integer							default 0,
 	update_date			timestamp with time zone,	
@@ -20,7 +20,7 @@ create table board_notice(
 );
 
 comment on table board_notice is '공지사항';
-comment on column board_notice.board_notice_id is '공지사항 아이디';
+comment on column board_notice.board_notice_id is '공지사항 고유번호';
 comment on column board_notice.user_id	 is '사용자 아이디';
 comment on column board_notice.title is '제목';
 comment on column board_notice.notice_site is '공지사항 게시 페이지';
@@ -41,8 +41,8 @@ create table board_notice_detail(
 );
 
 comment on table board_notice_detail is '공지사항 상세';
-comment on column board_notice_detail.board_notice_detail_id is '공지사항 상세 아이디';
-comment on column board_notice_detail.board_notice_id is '공지사항 아이디';
+comment on column board_notice_detail.board_notice_detail_id is '공지사항 상세 고유번호';
+comment on column board_notice_detail.board_notice_id is '공지사항 고유번호';
 comment on column board_notice_detail.contents is '상세 내용';
 
 create table board_notice_file(
@@ -59,8 +59,8 @@ create table board_notice_file(
 );
 
 comment on table board_notice_file is '공지사항 파일';
-comment on column board_notice_file.board_notice_file_id is '공지사항 파일 아이디';
-comment on column board_notice_file.board_notice_id is '공지사항 아이디';
+comment on column board_notice_file.board_notice_file_id is '공지사항 파일 고유번호';
+comment on column board_notice_file.board_notice_id is '공지사항 고유번호';
 comment on column board_notice_file.file_name is '파일명';
 comment on column board_notice_file.file_real_name is '실제 파일명';
 comment on column board_notice_file.file_path is '파일 경로';
@@ -83,11 +83,11 @@ create table board_notice_comment(
 	constraint board_notice_comment_pk 	primary key (board_notice_comment_id)
 );
 
-comment on table board_notice_comment is '공지사항 댓글';
-comment on column board_notice_comment.board_notice_comment_id is '공지사항 댓글 아이디';
-comment on column board_notice_comment.board_notice_id is '공지사항 아이디';
+comment on table board_notice_comment is '공지사항 의견';
+comment on column board_notice_comment.board_notice_comment_id is '공지사항 의견 고유번호';
+comment on column board_notice_comment.board_notice_id is '공지사항 고유번호';
 comment on column board_notice_comment.user_id is '사용자 아이디';
-comment on column board_notice_comment.content is '댓글 내용';
+comment on column board_notice_comment.content is '의견 내용';
 comment on column board_notice_comment.client_ip is '요청 IP';
 comment on column board_notice_comment.ancestor is '조상';
 comment on column board_notice_comment.parent is '부모';

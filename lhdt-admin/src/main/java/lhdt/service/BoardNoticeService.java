@@ -81,10 +81,18 @@ public interface BoardNoticeService {
 	/**
 	 * 게시물 등록
 	 * 
+	 * @param boardNotice
+	 * @return
+	 */
+	int insertBoard(BoardNotice boardNotice);
+	
+	/**
+	 * 게시물 파일 등록
+	 * 
 	 * @param board
 	 * @return
 	 */
-	int insertBoard(BoardNotice board, List<BoardNoticeFile> boardNoticeFileList, Boolean fileExist);
+	int insertBoardFile(BoardNotice boardNotice, List<BoardNoticeFile> boardNoticeFile);
 
 	/**
 	 * 게시물 Comment 등록
@@ -108,7 +116,7 @@ public interface BoardNoticeService {
 	 * @param board
 	 * @return
 	 */
-	int updateBoard(BoardNotice board, List<BoardNoticeFile> boardNoticeFileList, Boolean fileExist);
+	int updateBoard(BoardNotice board);
 
 	/**
 	 * 게시물 Comment 추천수 증가

@@ -20,7 +20,7 @@ create table data_adjust_log(
 	before_heading					numeric(8,5),
 	before_pitch					numeric(8,5),
 	before_roll						numeric(8,5),
-	status							varchar								default 'request',
+	status							varchar(30)							default 'request',
 	change_type						varchar(30),
 	description						varchar(256),
 	update_date						timestamp with time zone,

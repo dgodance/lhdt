@@ -79,8 +79,8 @@ public class BoardNotice extends Search implements Serializable {
 	private String end_hour;
 	private String end_minute;
 
-	// 사용유무, Y : 사용, N : 사용안함
-	private String available;
+	// 사용유무, true : 사용, false : 사용안함
+	private boolean available;
 	// 요청 IP
 	private String clientIp;
 	// 조회수
