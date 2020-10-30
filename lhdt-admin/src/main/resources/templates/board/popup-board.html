@@ -173,7 +173,7 @@
 		}
 		var formData = $('#comment').serialize();
 		$.ajax({
-			url : "/boardNotices/insert-comment/",
+			url : "/boardNotices/comment/",
 			type : "POST",
 			data : formData,
 			headers : {
@@ -192,7 +192,7 @@
 
 	function viewMoreComment(boardNoticeCommentId) {
 		$.ajax({
-			url : "/boardNotice/comment/view-more-comment/" + boardNoticeCommentId,
+			url : "/boardNotice/moreComment/" + boardNoticeCommentId,
 			type : "GET",
 			headers : {
 				"X-Requested-With" : "XMLHttpRequest"
@@ -211,7 +211,7 @@
 	function likeComment(boardNoticeCommentId) {
 		$.ajax({
 			url : "/boardNotices/comment/like/" + boardNoticeCommentId,
-			type : "GET",
+			type : "put",
 			headers : {
 				"X-Requested-With" : "XMLHttpRequest"
 			},

@@ -105,7 +105,7 @@ public class BoardNoticeRestController implements AuthorizationController {
 		return result;
 	}
 
-	@PostMapping(value = "/insert-moreComment")
+	@PostMapping(value = "/moreComment")
 	public Map<String, Object> insertMoreComment(HttpServletRequest request, HttpServletResponse response) {
 
 		int statusCode = HttpStatus.OK.value();
@@ -143,7 +143,7 @@ public class BoardNoticeRestController implements AuthorizationController {
 	}
 
 	@SuppressWarnings("unchecked")
-	@PostMapping(value = "/insert-board")
+	@PostMapping()
 	public Map<String, Object> insert(MultipartHttpServletRequest request) throws Exception {
 
 		Map<String, Object> result = new HashMap<>();
@@ -285,7 +285,7 @@ public class BoardNoticeRestController implements AuthorizationController {
 	}
 	
 
-	@PostMapping(value = "/insert-comment")
+	@PostMapping(value = "/comment")
 	public Map<String, Object> insertComment(HttpServletRequest request, HttpServletResponse response) {
 
 		int statusCode = HttpStatus.OK.value();
@@ -317,7 +317,7 @@ public class BoardNoticeRestController implements AuthorizationController {
 	}
 	
 	@SuppressWarnings("unchecked")
-	@PostMapping(value = "/update-board")
+	@PutMapping()
 	public Map<String, Object> upadte(MultipartHttpServletRequest request) throws Exception {
 
 		Map<String, Object> result = new HashMap<>();
@@ -547,13 +547,12 @@ public class BoardNoticeRestController implements AuthorizationController {
 	 * @param model
 	 * @return
 	 */
-	@GetMapping(value = "/load-comment/{boardNoticeCommentId:[0-9]+}")
+	@GetMapping(value = "/moreComment/{boardNoticeCommentId:[0-9]+}")
 	public Map<String, Object> loadComment(HttpServletRequest request, @PathVariable Long boardNoticeCommentId,
 			Model model) {
 		Map<String, Object> result = new HashMap<>();
 
-		List<BoardNoticeComment> boardNoticeCommentList = boardNoticeService
-				.getListBoardNoticeCommentByParent(boardNoticeCommentId);
+		List<BoardNoticeComment> boardNoticeCommentList = boardNoticeService.getListBoardNoticeCommentByParent(boardNoticeCommentId);
 
 		result.put("boardNoticeCommentList", boardNoticeCommentList);
 
@@ -566,7 +565,7 @@ public class BoardNoticeRestController implements AuthorizationController {
 	 * @param model
 	 * @return
 	 */
-	@GetMapping(value = "/comment/like/{boardNoticeCommentId:[0-9]+}")
+	@PutMapping(value = "/comment/like/{boardNoticeCommentId:[0-9]+}")
 	public Map<String, Object> likeComment(HttpServletRequest request, @PathVariable Long boardNoticeCommentId,
 			Model model) {
 		Map<String, Object> result = new HashMap<>();

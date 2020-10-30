@@ -110,10 +110,10 @@ keyframes spin {to { -webkit-transform:rotate(360deg);
 											<span class="icon-glyph glyph-emark-dot color-warning"></span>
 										</th>
 										<td class="col-input radio-set">
-											<input type="radio" id="use_y" name="available" value="Y" th:checked="*{available}==Y" />
-											<label for="use_y">사용</label>
-											<input type="radio" id="use_n" name="available" value="N" th:checked="*{available}==N" />
-											<label for="use_n">사용안함</label>
+											<input type="radio" id="available_y" name="available" value="true" th:checked="*{available}==true" />
+											<label for="available_y">사용</label>
+											<input type="radio" id="available_n" name="available" value="false" th:checked="*{available}==false" />
+											<label for="available_n">사용안함</label>
 										</td>
 									</tr>
 									<tr>
@@ -339,14 +339,14 @@ var uploadFileCount = 0;
 // dropzone 업로딩 결과(n개 파일을 올리면 n개 리턴이 옴)
 var uploadFileResultCount = 0;
 Dropzone.options.myDropzone = {
-    url: "/boardNotices/update-board",
+    url: "/boardNotices",
     //paramName: "file",
     // Prevents Dropzone from uploading dropped files immediately
     timeout: 3600000,
     autoProcessQueue: false,
     // 여러개의 파일 허용
     uploadMultiple: true,
-    method: "post",
+    method: "put",
     // 병렬 처리
     parallelUploads: 10,
     // 최대 파일 업로드 갯수

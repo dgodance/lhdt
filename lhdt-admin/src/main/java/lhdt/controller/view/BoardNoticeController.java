@@ -189,7 +189,7 @@ public class BoardNoticeController implements AuthorizationController {
 	 * @param model
 	 * @return
 	 */
-	@GetMapping(value = "/comment/view-more-comment/{boardNoticeCommentId}")
+	@GetMapping(value = "/moreComment/{boardNoticeCommentId}")
 	public String viewMoreComment(HttpServletRequest request, @PathVariable Long boardNoticeCommentId, Model model) {
 
 		Map<String, Object> result = new HashMap<>();
