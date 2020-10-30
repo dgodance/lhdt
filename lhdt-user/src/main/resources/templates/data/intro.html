@@ -5,7 +5,7 @@
 <title>Insert title here</title>
 </head>
 <body>
-	<div id="introContainer">
+	<div id="introContainer" >
 		<!-- 여기에 내용 추가 -->
 		<div class="title">
 			<div class="title_box">
@@ -95,6 +95,12 @@
 		 * 초기
 		 */
 		IntroObj.prototype.init = function(){
+			if(-1 != location.href.indexOf('#')){
+				introObj.hide();
+			}else{
+				introObj.show();
+			}
+			
 			this.setEventHandler();
 			
 			console.log(this, '<<.init');
@@ -142,6 +148,15 @@
 		};
 		
 		
+		/**
+		 * show intro 페이지
+		 */
+		IntroObj.prototype.show = function(){
+			$('#introContainer').show();
+			$('#contentsWrap').hide();
+		};
+		
+		
 		
 		/**
 		 *
@@ -155,6 +170,7 @@
 		let introObj = new IntroObj();
 		window.addEventListener('load', function(){
 			introObj.init();
+			
 		});
 		</script>
 		
