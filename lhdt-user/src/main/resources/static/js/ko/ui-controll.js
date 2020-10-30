@@ -116,6 +116,13 @@ $(function() {
     $("ul.nav li[data-nav]:not(:empty)").click(function() {
         var active = $(this).attr('data-nav');
         var display = $(this).toggleClass('on').hasClass('on');
+
+        // 변환 클릭 이벤트시 url 변경 
+        if(active === "converterContent") {
+        	window.location="../upload-data/list";
+        	return;
+        }
+
         
         // 변환(upload-data)이 아닌 컨텐츠 클릭시 다시 지도 페이지로 돌아감 
         if(location.href.indexOf("upload") > 0 
@@ -131,12 +138,6 @@ $(function() {
         	return;
         }
         
-        // 변환 클릭 이벤트시 url 변경 
-        if(active === "converterContent") {
-        	window.location="../upload-data/list";
-        	return;
-        }
-
         $("ul.nav li[data-nav]:not(:empty)").not($(this)).each(function() {
             $(this).removeClass('on');
             $('#' + $(this).attr('data-nav')).hide();
@@ -197,7 +198,8 @@ $(function() {
 	});
 	 */
 
-	if(introObj.isShow()){
+	
+	if('undefined' != typeof(introObj) && introObj.isShow()){
 		$('#contentsWrap').hide();
 		$("ul.nav li").each(function(i,item){
 			$(item).removeClass('on');
