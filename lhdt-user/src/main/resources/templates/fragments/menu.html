@@ -56,6 +56,13 @@
 					}						
 				});
 			});			
+			
+			
+			//url에 # 존재하면 바로 관련 내용 표시
+			if(-1 != location.href.indexOf('#')){
+				let className = location.href.split('#')[1];
+				$('ul.nav > li.' + className).click();	
+			}
         });
         </script>
 	
