@@ -163,7 +163,7 @@ keyframes spin {to { -webkit-transform:rotate(360deg);
 												</th:block>
 												<th:block th:unless="${#lists.isEmpty(boardNoticeFileList)}" th:each="boardNoticeFile, status : ${boardNoticeFileList}">
 													<tr>
-														<td class="col-key" th:text="${boardNoticeFile.fileName}" style="max-width: 315px; word-wrap: break-word;"></td>
+														<td class="col-key" th:text="${boardNoticeFile.fileRealName}" style="max-width: 315px; word-wrap: break-word;"></td>
 														<td class="col-type">
 															<th:block>
 																<p style="font-size: 14px;">적용중</p>

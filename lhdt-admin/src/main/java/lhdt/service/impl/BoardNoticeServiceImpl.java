@@ -211,6 +211,12 @@ public class BoardNoticeServiceImpl implements BoardNoticeService {
 	 */
 	@Transactional
 	public int deleteBoard(Long boardNoticeId) {
+		List<BoardNoticeFile> boardNoticeFileList = boardNoticeMapper.getBoardNoticeFiles(boardNoticeId);
+		
+		for (BoardNoticeFile boardNoticeFile : boardNoticeFileList) {
+			FileUtils.deleteFileReculsive(boardNoticeFile.getFilePath());
+		}
+		
 		return boardNoticeMapper.deleteBoard(boardNoticeId);
 	}
 
@@ -224,7 +230,7 @@ public class BoardNoticeServiceImpl implements BoardNoticeService {
 	public int deleteBoardNoticeFile(Long boardNoticeFileId) {
 		BoardNoticeFile boardNoticeFile = boardNoticeMapper.getBoardNoticeFile(boardNoticeFileId);
 		log.info(boardNoticeFile.getFilePath() + boardNoticeFile.getFileRealName());
-		FileUtils.deleteFileReculsive(boardNoticeFile.getFilePath() + boardNoticeFile.getFileRealName());
+		FileUtils.deleteFileReculsive(boardNoticeFile.getFilePath() + boardNoticeFile.getFileName());
 		return boardNoticeMapper.deleteBoardNoticeFile(boardNoticeFileId);
 	}
 

@@ -92,6 +92,7 @@ public class BoardNoticeRestController implements AuthorizationController {
 		String errorCode = null;
 		String message = null;
 		boardNoticeService.deleteBoardNoticeFile(boardNoticeFileId);
+		
 
 		int statusCode = HttpStatus.OK.value();
 

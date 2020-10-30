@@ -1,5 +1,9 @@
 --foreign key 설정 : 식별자는 "(테이블명)_fk_(칼럼명)"으로 통일
 
+alter table only board_notice_detail add constraint board_notice_detail_fk_board_notice_id foreign key (board_notice_id) references board_notice(board_notice_id) on delete cascade;
+alter table only board_notice_comment add constraint board_notice_comment_fk_board_notice_id foreign key (board_notice_id) references board_notice(board_notice_id) on delete cascade;
+alter table only board_notice_file add constraint board_notice_file_fk_board_notice_id foreign key (board_notice_id) references board_notice(board_notice_id) on delete cascade;
+
 alter table only converter_job add constraint converter_job_fk_upload_data_id foreign key (upload_data_id) references upload_data(upload_data_id);
 alter table only converter_job_file add constraint converter_job_file_fk_converter_job_id foreign key (converter_job_id) references converter_job(converter_job_id);
 
