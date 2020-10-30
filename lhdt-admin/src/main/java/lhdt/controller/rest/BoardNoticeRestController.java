@@ -18,8 +18,6 @@ import lhdt.utils.FormatUtils;
 import lhdt.utils.WebUtils;
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -44,8 +42,6 @@ import java.io.OutputStream;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Slf4j
@@ -254,8 +250,8 @@ public class BoardNoticeRestController implements AuthorizationController {
 				}
 				BoardNoticeFile boardNoticeFile = new BoardNoticeFile();
 				boardNoticeFile.setFileExt(extension);
-				boardNoticeFile.setFileName(multipartFile.getOriginalFilename());
-				boardNoticeFile.setFileRealName(saveFileName);
+				boardNoticeFile.setFileName(saveFileName);
+				boardNoticeFile.setFileRealName(multipartFile.getOriginalFilename());
 				boardNoticeFile.setFilePath(makedDirectory + tempDirectory + File.separator);
 				boardNoticeFile.setFileSubPath(tempDirectory);
 				boardNoticeFile.setFileSize(String.valueOf(size));
@@ -417,49 +413,30 @@ public class BoardNoticeRestController implements AuthorizationController {
 	 * @param layerId
 	 * @param layerFileInfoTeamId
 	 */
-	@GetMapping(value = "/{boardNoticeFileId:[0-9]+}/board-notice-file-info/download")
+	@GetMapping(value = "/{boardNoticeFileId:[0-9]+}/file/download")
 	public void download(HttpServletRequest request, HttpServletResponse response, @PathVariable Long boardNoticeFileId) {
 		try {
 			BoardNoticeFile boardNoticeFile = boardNoticeService.getBoardNoticeFile(boardNoticeFileId);
-			String today = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-			String filePath = propertiesConfig.getLayerExportDir() + today.substring(0, 6) + File.separator;
+			String filePath = boardNoticeFile.getFilePath();
+			String extention = boardNoticeFile.getFileExt();
 			String fileRealName = boardNoticeFile.getFileRealName();
 			fileRealName = fileRealName.replaceAll("&", "");
 
 			createDirectory(filePath);
-			log.info("@@@@@@@ zip directory = {}", filePath);
 
 			int idx = boardNoticeFile.getFileName().lastIndexOf(".");
 			String fileName = boardNoticeFile.getFileName().substring(0, idx);
-			String zipFileName = filePath + fileRealName + ".zip";
 
 			// buffer size
-			int size = 8192;
-			byte[] buf = new byte[size];
+			response.setContentType("application/force-download");
+			response.setHeader("Content-Transfer-Encoding", "binary");
+			log.info(fileName);
+			setDisposition(fileRealName + "."+extention, request, response);
+			try(	BufferedInputStream in = new BufferedInputStream(new FileInputStream(filePath+fileName+"."+extention));
+                    BufferedOutputStream out = new BufferedOutputStream(response.getOutputStream())) {
 
-			zipFileName = zipFileName.replaceAll("&", "");
-			try (FileOutputStream fileOutputStream = new FileOutputStream(zipFileName);
-					BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
-					ZipArchiveOutputStream zipArchiveOutputStream = new ZipArchiveOutputStream(bufferedOutputStream)) {
-
-				zipArchiveOutputStream.setEncoding("UTF-8");
-				fileName = fileName.replaceAll("&", "");
-				try (FileInputStream fileInputStream = new FileInputStream(zipFileName);
-						BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream, size)) {
-					// zip에 넣을 다음 entry 를 가져온다.
-					zipArchiveOutputStream
-							.putArchiveEntry(new ZipArchiveEntry(fileName + "." + boardNoticeFile.getFileExt()));
-
-					int len;
-					while ((len = bufferedInputStream.read(buf, 0, size)) != -1) {
-						zipArchiveOutputStream.write(buf, 0, len);
-					}
-					zipArchiveOutputStream.closeArchiveEntry();
-				} catch (Exception e) {
-					LogMessageSupport.printMessage(e, "@@ db.exception. message = {}", e.getMessage());
-					throw new RuntimeException(e.getMessage());
-				}
-
+                FileCopyUtils.copy(in, out);
+                out.flush();
 			} catch (RuntimeException e) {
 				LogMessageSupport.printMessage(e, "@@ RuntimeException. message = {}", e.getMessage());
 				throw e;
@@ -468,10 +445,7 @@ public class BoardNoticeRestController implements AuthorizationController {
 				throw e;
 			}
 
-			response.setContentType("application/force-download");
-			response.setHeader("Content-Transfer-Encoding", "binary");
-			log.info(fileName);
-			setDisposition(fileName + ".zip", request, response);
+			
 		} catch (DataAccessException e) {
 			LogMessageSupport.printMessage(e, "@@ DataAccessException. message = {}",
 					e.getCause() != null ? e.getCause().getMessage() : e.getMessage());

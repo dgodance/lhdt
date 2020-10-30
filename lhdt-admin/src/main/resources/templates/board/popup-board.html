@@ -81,9 +81,9 @@
 						</th:block>
 						<th:block th:unless="${#lists.isEmpty(boardNoticeFileList)}" th:each="boardNoticeFile, status : ${boardNoticeFileList}">
 							<tr>
-								<td class="col-key" th:text="${boardNoticeFile.fileName}" style="max-width: 315px; word-wrap: break-word;"></td>
+								<td class="col-key" th:text="${boardNoticeFile.fileRealName}" style="max-width: 315px; word-wrap: break-word;"></td>
 								<td class="col-type">
-									<!-- <a th:href="@{/boardNotices/{boardNoticeFileId}/board-notice-file-info/download(boardNoticeFileId=${boardNoticeFile.boardNoticeFileId})}" class="linkButton">다운로드</a> -->다운로드
+									<a th:href="@{/boardNotices/{boardNoticeFileId}/file/download(boardNoticeFileId=${boardNoticeFile.boardNoticeFileId})}" class="linkButton">다운로드</a>
 								</td>
 								<td>
 									<th:block th:text="${#temporals.format(boardNoticeFile.insertDate, 'yyyy-MM-dd HH:mm:ss')}"></th:block>
