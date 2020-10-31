@@ -13,12 +13,18 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.feature.type.GeometryTypeImpl;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.locationtech.jts.geom.MultiPolygon;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -26,6 +32,8 @@ import java.util.*;
 
 @Slf4j
 public class GeotoolsTests {
+
+    private JSONParser parser = new JSONParser();
 
     @Disabled
     void 필드_확인() throws IOException {
@@ -238,6 +246,41 @@ public class GeotoolsTests {
 
     }
 
+    @Test
+    void ShapeExportLocationJSON() throws IOException {
+        String SHAPE_ID = "ID";
+        JSONArray jsonArray = new JSONArray();
+        JSONObject jsonObject = new JSONObject();
+        FeatureSource<SimpleFeatureType, SimpleFeature> shapeFeatureSource = getShape();
+        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = shapeFeatureSource.getFeatures();
+        FeatureIterator<SimpleFeature> features = collection.features();
+        while (features.hasNext()) {
+            SimpleFeature feature = features.next();
+            for (Property attribute : feature.getProperties()) {
+                var attributeName = attribute.getName().toString();
+                // geometry 필드인 경우
+                if (attribute.getType() instanceof GeometryTypeImpl) {
+                    log.info("\t\t" + attribute.getName() + ":" + attribute.getValue());
+                    MultiPolygon multiPolygon = (MultiPolygon) attribute.getValue();
+                    log.info("location ====================== {} ", multiPolygon.getCentroid());
+                    jsonObject.put("location", multiPolygon.getCentroid().toString());
+                    // 일반 필드
+                } else if (attributeName.equalsIgnoreCase(SHAPE_ID)) {
+                    log.info("\t" + attribute.getName() + ":" + attribute.getValue());
+                    jsonObject.put("id", attribute.getValue());
+                }
+                jsonArray.add(jsonObject);
+            }
+        }
+
+//        log.info("jsonArray ============= {} ", jsonArray);
+
+        FileWriter file = new FileWriter("D:\\shapeLocationJson.json", true);
+        file.write(jsonArray.toJSONString());
+        file.flush();
+        file.close();
+    }
+
     /**
      * shape feature 정보 리턴
      *
@@ -246,7 +289,7 @@ public class GeotoolsTests {
      */
     private FeatureSource<SimpleFeatureType, SimpleFeature> getShape() throws IOException {
         // shape load
-        ShapefileDataStore shpDataStore = new ShapefileDataStore(new File("D:\\test\\shape\\02_과천과천_시범단지샘플_1_필지.dxf(byLay)L.shp").toURI().toURL());
+        ShapefileDataStore shpDataStore = new ShapefileDataStore(new File("D:\\data\\lh\\incheon_gy_shape\\인천계양_도로명주소연계 완료.shp").toURI().toURL());
         shpDataStore.setCharset(StandardCharsets.UTF_8);
         String typeName = shpDataStore.getTypeNames()[0];
         log.info("shp[Layer) Name: {} ", typeName);
