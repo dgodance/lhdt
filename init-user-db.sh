@@ -12,6 +12,11 @@ do
   psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -a -f ${file}
 done
 
+for file in /database/platform/function/*.sql
+do
+  psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -a -f ${file}
+done
+
 for file in /database/platform/index/*.sql
 do
   psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -a -f ${file}

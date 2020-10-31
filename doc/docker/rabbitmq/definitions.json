@@ -2,8 +2,8 @@
   "rabbit_version": "3.8.9",
   "users": [
     {
-      "name": "oim",
-      "password_hash": "LvS0vDobpVun4sEVPEBGGwv7RQuVBy8XFakfXHqX/C2XHxp/",
+      "name": "lhdt",
+      "password_hash": "pV5wII2tT/aCCzQwkXXbMgaMYhkYM/8jJXctiWegOo8Gy0xU",
       "hashing_algorithm": "rabbit_password_hashing_sha256",
       "tags": "administrator"
     }
@@ -15,7 +15,7 @@
   ],
   "permissions": [
     {
-      "user": "oim",
+      "user": "lhdt",
       "vhost": "/",
       "configure": ".*",
       "write": ".*",

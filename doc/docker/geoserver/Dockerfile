@@ -7,9 +7,9 @@ RUN \
     apt-get update && \
     apt-get install -y vim wget unzip && \
     rm -rf /usr/local/tomcat/webapps/* && \
-    cd /tmp && wget http://sourceforge.net/projects/geoserver/files/GeoServer/2.17.3/geoserver-2.17.3-war.zip && \
-    unzip /tmp/geoserver-2.17.3-war.zip -d /usr/local/tomcat/webapps && \
-    rm -rf /tmp/geoserver-2.17.3-war.zip
+    cd /tmp && wget http://sourceforge.net/projects/geoserver/files/GeoServer/2.16.4/geoserver-2.16.4-war.zip && \
+    unzip /tmp/geoserver-2.16.4-war.zip -d /usr/local/tomcat/webapps && \
+    rm -rf /tmp/geoserver-2.16.4-war.zip
 
 # Enable CORS
 RUN sed -i '\:</web-app>:i\

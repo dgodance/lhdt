@@ -4,7 +4,7 @@ COPY .vimrc /root/.vimrc
 COPY bashrc /color-config
 
 ENV TZ=Asia/Seoul
-ENV POSTGRES_DB=oim
+ENV POSTGRES_DB=lhdt
 ENV POSTGRES_USER=postgres
 ENV POSTGRES_PASSWORD=postgres
 ENV POSTGRES_INITDB_ARGS="--encoding=UTF-8"
