@@ -401,7 +401,12 @@
 			object_attribute_exist = #{objectAttributeExist},
 			</if>
 			<if test="metainfo != null and metainfo != ''">
-			metainfo = (#{metainfo}::json),
+				metainfo = (#{metainfo}::json),
+			</if>
+			<if test="metainfo == null or metainfo == ''">
+				<if test="heightReference != null and heightReference != ''">
+					metainfo = JSONB_SET(metainfo, '{heightReference}', '"${heightReference}"'),
+				</if>
 			</if>
 			<if test="label != null and label != ''">
 				label = #{label},

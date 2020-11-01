@@ -56,6 +56,8 @@ public class DataInfo extends Search implements Serializable {
 	private BigDecimal latitude;
 	// 경도
 	private BigDecimal longitude;
+	// 높이 설정 방법. none : 해발 고드, clampToGround : Terrain(지형)에 맞춤, relativeToGround : Terrain(지형)으로 부터 높이 설정
+	private String heightReference;
 	
 	// 사용자명
 	private String userId;
